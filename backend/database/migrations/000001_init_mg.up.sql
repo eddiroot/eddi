@@ -1,8 +1,9 @@
 -- Create Institution Table
 CREATE TABLE IF NOT EXISTS Institution (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL,
-    continent CHAR(2) CHECK (continent IN ('AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA'))
+    name VARCHAR(255) NOT NULL,
+    continent CHAR(2) CHECK (continent IN ('AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA')),
+    UNIQUE (name, continent)
 );
 
 -- Create AppAdmin Table
@@ -10,7 +11,7 @@ CREATE TABLE IF NOT EXISTS AppAdmin (
     id SERIAL PRIMARY KEY,
     institutionId INT REFERENCES Institution(id) ON DELETE CASCADE,
     username VARCHAR(255) UNIQUE NOT NULL,
-    passwordHash CHAR(50) NOT NULL
+    password CHAR(60) NOT NULL
 );
 
 -- Create AppUser Table
@@ -20,7 +21,7 @@ CREATE TABLE IF NOT EXISTS AppUser (
     middleName VARCHAR(255),
     lastName VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
-    passwordHash CHAR(50) NOT NULL,
+    password CHAR(60) NOT NULL,
     avatarUrl TEXT
 );
 

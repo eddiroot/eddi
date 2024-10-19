@@ -1,11 +1,111 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
+
+func Signup(c *gin.Context) {
+	var user User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Hash the password
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to hash password.",
+		})
+		return
+	}
+
+	// Create the user
+	_, err = CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, string(hash), user.AvatarUrl)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to create user.",
+		})
+		return
+	}
+
+	// Respond
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func Login(c *gin.Context) {
+	// Get email & pass off req body
+	var body struct {
+		Username string
+		Password string
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+
+		return
+	}
+
+	// Look up for requested user
+	user, err := GetUserByUsername(body.Username)
+
+	// Failed to find the user
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid username or password",
+		})
+		return
+	}
+
+	// Compare sent in password with saved users password
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid username or password",
+		})
+		return
+	}
+
+	// Generate a JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": user.ID,
+		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := token.SignedString([]byte(os.Getenv(ENV_AUTH_JWT_SECRET_KEY)))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to create token",
+		})
+		return
+	}
+
+	// Respond
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func Logout(c *gin.Context) {
+	c.SetCookie("Authorization", "", -1, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{})
+}
 
 // Institution Handlers
 
@@ -92,13 +192,13 @@ func deleteInstitution(c *gin.Context) {
 // Admin Handlers
 
 func createAdmin(c *gin.Context) {
-	var admin AppAdmin
+	var admin Admin
 	if err := c.ShouldBindJSON(&admin); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, err := CreateAdmin(admin.InstitutionID, admin.Username, admin.PasswordHash)
+	id, err := CreateAdmin(admin.InstitutionID, admin.Username, admin.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -140,13 +240,13 @@ func updateAdmin(c *gin.Context) {
 		return
 	}
 
-	var admin AppAdmin
+	var admin Admin
 	if err := c.ShouldBindJSON(&admin); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = UpdateAdmin(id, admin.InstitutionID, admin.Username, admin.PasswordHash)
+	err = UpdateAdmin(id, admin.InstitutionID, admin.Username, admin.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -171,86 +271,85 @@ func deleteAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Admin deleted"})
 }
 
-// AppUser Handlers
-
-func createAppUser(c *gin.Context) {
-	var appUser AppUser
-	if err := c.ShouldBindJSON(&appUser); err != nil {
+// User Handlers
+func createUser(c *gin.Context) {
+	var user User
+	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, err := CreateAppUser(appUser.FirstName, appUser.MiddleName, appUser.LastName, appUser.Username, appUser.PasswordHash, appUser.AvatarUrl)
+	id, err := CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "AppUser created", "id": id})
+	c.JSON(http.StatusOK, gin.H{"message": "User created", "id": id})
 }
 
-func getAppUsers(c *gin.Context) {
-	appUsers, err := GetAppUsers()
+func getUsers(c *gin.Context) {
+	users, err := GetUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, appUsers)
+	c.JSON(http.StatusOK, users)
 }
 
-func getAppUserByID(c *gin.Context) {
+func getUserByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid appUser ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	appUser, err := GetAppUserByID(id)
+	user, err := GetUserByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, appUser)
+	c.JSON(http.StatusOK, user)
 }
 
-func updateAppUser(c *gin.Context) {
+func updateUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid appUser ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	var appUser AppUser
-	if err := c.ShouldBindJSON(&appUser); err != nil {
+	var user User
+	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = UpdateAppUser(id, appUser.FirstName, appUser.MiddleName, appUser.LastName, appUser.Username, appUser.PasswordHash, appUser.AvatarUrl)
+	err = UpdateUser(id, user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "AppUser updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
 }
 
-func deleteAppUser(c *gin.Context) {
+func deleteUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid appUser ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	err = DeleteAppUser(id)
+	err = DeleteUser(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "AppUser deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
 }
 
 // Course Handlers

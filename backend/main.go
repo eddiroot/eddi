@@ -2,19 +2,23 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file" // File source driver - DO NOT REMOVE
-	_ "github.com/lib/pq"                                // PostgreSQL driver - DO NOT REMOVE
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq" // PostgreSQL driver - DO NOT REMOVE
 )
 
 func main() {
+	LoadAndValidateEnvVariables()
+
 	// Setup database connection
 	InitialiseDB()
-	
+
 	// Will only close once main is finished
 	defer db.Close()
 
@@ -40,47 +44,63 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"https://opened.com", "http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE", "HEAD"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Language", "Accept-Encoding", "Connection", "Access-Control-Allow-Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge: 12 * time.Hour,
+	}))
+
+	authGroup := r.Group("/auth")
+	{
+		authGroup.POST("/signup", Signup)
+		authGroup.POST("/login", Login)
+		authGroup.POST("/logout", Logout)
+	}
+
 	// Protected routes for Institution and Admin
-    institutionGroup := r.Group("/institutions")
-    institutionGroup.Use(APIKeyAuthMiddleware())
-    {
-        institutionGroup.POST("/", createInstitution)
-        institutionGroup.GET("/", getInstitutions)
-        institutionGroup.GET("/:id", getInstitutionByID)
-        institutionGroup.PUT("/:id", updateInstitution)
-        institutionGroup.DELETE("/:id", deleteInstitution)
-    }
+	institutionGroup := r.Group("/institutions")
+	institutionGroup.Use(APIKeyAuthMiddleware())
+	{
+		institutionGroup.POST("/", createInstitution)
+		institutionGroup.GET("/", getInstitutions)
+		institutionGroup.GET("/:id", getInstitutionByID)
+		institutionGroup.PUT("/:id", updateInstitution)
+		institutionGroup.DELETE("/:id", deleteInstitution)
+	}
 
-    adminGroup := r.Group("/admins")
-    adminGroup.Use(APIKeyAuthMiddleware())
-    {
-        adminGroup.POST("/", createAdmin)
-        adminGroup.GET("/", getAdmins)
-        adminGroup.GET("/:id", getAdminByID)
-        adminGroup.PUT("/:id", updateAdmin)
-        adminGroup.DELETE("/:id", deleteAdmin)
-    }
+	adminGroup := r.Group("/admins")
+	adminGroup.Use(APIKeyAuthMiddleware())
+	{
+		adminGroup.POST("/", createAdmin)
+		adminGroup.GET("/", getAdmins)
+		adminGroup.GET("/:id", getAdminByID)
+		adminGroup.PUT("/:id", updateAdmin)
+		adminGroup.DELETE("/:id", deleteAdmin)
+	}
 
-    // Protected routes for AppUser and Course
-    appUserGroup := r.Group("/appusers")
-    appUserGroup.Use(JWTAuthMiddleware())
-    {
-        appUserGroup.POST("/", createAppUser)
-        appUserGroup.GET("/", getAppUsers)
-        appUserGroup.GET("/:id", getAppUserByID)
-        appUserGroup.PUT("/:id", updateAppUser)
-        appUserGroup.DELETE("/:id", deleteAppUser)
-    }
+	// Protected routes for User and Course
+	userGroup := r.Group("/users")
+	userGroup.Use(APIKeyAuthMiddleware())
+	{
+		userGroup.POST("/", createUser)
+		userGroup.GET("/", getUsers)
+		userGroup.GET("/:id", getUserByID)
+		userGroup.PUT("/:id", updateUser)
+		userGroup.DELETE("/:id", deleteUser)
+	}
 
-    courseGroup := r.Group("/courses")
-    courseGroup.Use(JWTAuthMiddleware())
-    {
-        courseGroup.POST("/", createCourse)
-        courseGroup.GET("/", getCourses)
-        courseGroup.GET("/:id", getCourseByID)
-        courseGroup.PUT("/:id", updateCourse)
-        courseGroup.DELETE("/:id", deleteCourse)
-    }
+	courseGroup := r.Group("/courses")
+	courseGroup.Use(APIKeyAuthMiddleware())
+	{
+		courseGroup.POST("/", createCourse)
+		courseGroup.GET("/", getCourses)
+		courseGroup.GET("/:id", getCourseByID)
+		courseGroup.PUT("/:id", updateCourse)
+		courseGroup.DELETE("/:id", deleteCourse)
+	}
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run()
 }

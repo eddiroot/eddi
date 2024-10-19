@@ -1,43 +1,80 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
-	"strings"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-// APIKeyAuthMiddleware checks if the correct API key is provided in the request header
 func APIKeyAuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        apiKey := c.GetHeader("X-API-Key")
-        if apiKey != "your-secret-api-key" { // Replace with your actual key
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
-            c.Abort()
-            return
-        }
-        c.Next()
-    }
+	return func(c *gin.Context) {
+		apiKey := c.GetHeader("X-API-Key")
+		if apiKey != os.Getenv(ENV_AUTH_ADMIN_API_KEY) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
 }
 
-// JWTAuthMiddleware checks for a valid JWT in the Authorization header
 func JWTAuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        authHeader := c.GetHeader("Authorization")
-        if !strings.HasPrefix(authHeader, "Bearer ") {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
-            c.Abort()
-            return
-        }
+	return func(c *gin.Context) {
+		// Get the cookie off the request
+		tokenString, err := c.Cookie("Authorization")
 
-        token := strings.TrimPrefix(authHeader, "Bearer ")
-        // Here, add your logic to validate the JWT token
-        if token != "your-valid-jwt" { // Replace with actual JWT validation
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-            c.Abort()
-            return
-        }
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
 
-        c.Next()
-    }
+		// Decode/validate it
+		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			// Don't forget to validate the alg is what you expect:
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+
+			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+			return []byte(os.Getenv(ENV_AUTH_JWT_SECRET_KEY)), nil
+		})
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			// Check the expiry date
+			if float64(time.Now().Unix()) > claims["exp"].(float64) {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			}
+
+			subClaimString, ok := claims["sub"].(string)
+			if !ok {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			}
+
+			subClaimInt, err := strconv.Atoi(subClaimString)
+			if err != nil {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			}
+
+			// Find the user with token Subject
+			// Look up for requested user
+			user, err := GetUserByID(subClaimInt)
+
+			// Failed to find the user
+			if err != nil {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			}
+
+			// Attach the request
+			c.Set("user", user)
+
+			//Continue
+			c.Next()
+		} else {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+	}
 }

@@ -1,2 +1,2 @@
-After creating the SQL files for the up/down, run this command
+Run this command to generate files for a new migration
 `migrate create -ext sql -dir database/migrations/ -seq MIGRATION_NAME_HERE`
