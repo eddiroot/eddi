@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -39,7 +38,6 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
-			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 			return []byte(os.Getenv(ENV_AUTH_JWT_SECRET_KEY)), nil
 		})
 
@@ -49,19 +47,15 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 				c.AbortWithStatus(http.StatusUnauthorized)
 			}
 
-			subClaimString, ok := claims["sub"].(string)
+			subClaimFloat, ok := claims["sub"].(float64)
 			if !ok {
 				c.AbortWithStatus(http.StatusUnauthorized)
-			}
-
-			subClaimInt, err := strconv.Atoi(subClaimString)
-			if err != nil {
-				c.AbortWithStatus(http.StatusUnauthorized)
+				return
 			}
 
 			// Find the user with token Subject
 			// Look up for requested user
-			user, err := GetUserByID(subClaimInt)
+			user, err := GetUserByID(int(subClaimFloat))
 
 			// Failed to find the user
 			if err != nil {

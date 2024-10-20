@@ -22,7 +22,7 @@ func InitialiseDB() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Connected to the database successfully!")
+	log.Println("Connected to the database successfully!")
 }
 
 // Institution Operations
@@ -210,4 +210,72 @@ func DeleteCourse(id int) error {
 	query := `DELETE FROM Course WHERE id = $1`
 	_, err := db.Exec(query, id)
 	return err
+}
+
+// UserCourse Operations
+func CreateUserCourse(appUserId int, courseId int, year int, semester int, role string, isComplete bool, isArchived bool) (int, int, error) {
+	var returnUserId int
+	var returnCourseId int
+	query := `INSERT INTO AppUserCourse (appUserId, courseId, year, semester, role, isComplete, isArchived) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING appUserId, courseId`
+	err := db.QueryRow(query, appUserId, courseId, year, semester, role, isComplete, isArchived).Scan(&returnUserId, &returnCourseId)
+	return returnUserId, returnCourseId, err
+}
+
+func GetUserCoursesByUserID(userId int) ([]UserCourse, error) {
+	query := `SELECT * FROM AppUserCourse WHERE appUserId = $1`
+	rows, err := db.Query(query, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var userCourses []UserCourse
+	for rows.Next() {
+		var userCourse UserCourse
+		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived); err != nil {
+			return nil, err
+		}
+		userCourses = append(userCourses, userCourse)
+	}
+	return userCourses, nil
+}
+
+func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, error) {
+	query := `SELECT * FROM AppUserCourse INNER JOIN Course ON AppUserCourse.courseId = Course.id WHERE appUserId = $1`
+	rows, err := db.Query(query, userId)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var userCourses []UserCourseJoinCourse
+	for rows.Next() {
+		var userCourse UserCourseJoinCourse
+		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived, &userCourse.InstitutionID, &userCourse.CourseID, &userCourse.Name, &userCourse.Description); err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		userCourses = append(userCourses, userCourse)
+	}
+	return userCourses, nil
+}
+
+func GetUsersInCourseByCourseID(courseId string) ([]UserCourse, error) {
+	query := `SELECT * FROM AppUserCourse WHERE courseId = $1`
+	rows, err := db.Query(query, courseId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var userCourses []UserCourse
+	for rows.Next() {
+		var userCourse UserCourse
+		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived); err != nil {
+			return nil, err
+		}
+		userCourses = append(userCourses, userCourse)
+	}
+	return userCourses, nil
 }

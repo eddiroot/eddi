@@ -1,10 +1,20 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { HomeIcon, BellIcon } from "lucide-react";
+import { GraduationCap, User2, LayoutDashboard } from "lucide-react";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import React, { Suspense } from "react";
 import { Logout } from "@/components/auth/logout";
 import { useAuthStore } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Notifications } from "@/components/root/notifications";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -27,26 +37,42 @@ function Root() {
 
   return (
     <>
-      <div className="p-2 flex justify-between">
-        <div className="flex gap-4 items-end">
-          <h1 className="text-3xl">OpenEd</h1>
-          <h2 className="text-2xl">Dashboard</h2>
-        </div>
-        <div className="flex gap-2 items-center">
-          <Button variant="outline" size="icon">
-            <HomeIcon />
-          </Button>
-          <Button variant="outline" size="icon">
-            <BellIcon />
-          </Button>
+      <div className="py-2 px-8 h-20 flex justify-between">
+        <Link to="/" className="flex gap-2 items-center">
+          <GraduationCap className="h-10 w-10" />
+          <h1 className="text-3xl font-medium">OpenEd</h1>
+        </Link>
+        <div className="flex gap-3 items-center">
+          <Link
+            to="/dashboard"
+            className={`${buttonVariants({ variant: "ghost", size: "icon" })} w-10 h-10 [&_svg]:size-6`}
+          >
+            <LayoutDashboard />
+          </Link>
+          <Notifications />
           {user ? (
-            <>
-              <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <Logout />
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-10 h-10 [&_svg]:size-6"
+                >
+                  <User2 />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <Logout />
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Link
               to="/login"
@@ -58,7 +84,9 @@ function Root() {
         </div>
       </div>
       <hr />
-      <Outlet />
+      <div className="p-8">
+        <Outlet />
+      </div>
       <Suspense>
         <TanStackRouterDevtools />
       </Suspense>

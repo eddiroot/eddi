@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { User } from "./types";
+import { KEY_LS_USER } from "./constants";
 
 interface AuthState {
   user: User | null;
@@ -7,6 +8,8 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  user: localStorage.getItem(KEY_LS_USER)
+    ? JSON.parse(localStorage.getItem(KEY_LS_USER) || "{}")
+    : null,
   setUser: (value) => set(() => ({ user: value })),
 }));

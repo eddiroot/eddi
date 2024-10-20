@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/auth";
-import { BASE_URL } from "@/lib/constants";
+import { BASE_URL, KEY_LS_USER } from "@/lib/constants";
 import { useNavigate } from "@tanstack/react-router";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export function Logout() {
   const navigate = useNavigate();
@@ -10,12 +10,14 @@ export function Logout() {
   const logoutHandler = async () => {
     await fetch(`${BASE_URL}/auth/logout`, {
       method: "POST",
+      credentials: "include",
     });
     setUser(null);
+    localStorage.removeItem(KEY_LS_USER);
     navigate({
       to: "/",
     });
   };
 
-  return <Button onClick={logoutHandler}>Logout</Button>;
+  return <DropdownMenuItem onClick={logoutHandler}>Log out</DropdownMenuItem>;
 }

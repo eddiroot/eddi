@@ -50,7 +50,7 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Language", "Accept-Encoding", "Connection", "Access-Control-Allow-Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge: 12 * time.Hour,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	authGroup := r.Group("/auth")
@@ -60,46 +60,65 @@ func main() {
 		authGroup.POST("/logout", Logout)
 	}
 
-	// Protected routes for Institution and Admin
-	institutionGroup := r.Group("/institutions")
-	institutionGroup.Use(APIKeyAuthMiddleware())
+	appGroup := r.Group("/app")
+	appGroup.Use(JWTAuthMiddleware())
 	{
-		institutionGroup.POST("/", createInstitution)
-		institutionGroup.GET("/", getInstitutions)
-		institutionGroup.GET("/:id", getInstitutionByID)
-		institutionGroup.PUT("/:id", updateInstitution)
-		institutionGroup.DELETE("/:id", deleteInstitution)
+		userCoursesGroup := appGroup.Group("/userCourses")
+		{
+			userCoursesGroup.GET("/:id", getUserCoursesByUserID)
+		}
+
+		coursesGroup := appGroup.Group("/courses")
+		{
+			coursesGroup.GET("/:id", getCourseByID)
+		}
+
 	}
 
-	adminGroup := r.Group("/admins")
-	adminGroup.Use(APIKeyAuthMiddleware())
+	apiGroup := r.Group("/api/v1")
+	apiGroup.Use(APIKeyAuthMiddleware())
 	{
-		adminGroup.POST("/", createAdmin)
-		adminGroup.GET("/", getAdmins)
-		adminGroup.GET("/:id", getAdminByID)
-		adminGroup.PUT("/:id", updateAdmin)
-		adminGroup.DELETE("/:id", deleteAdmin)
-	}
+		institutionGroup := apiGroup.Group("/institutions")
+		{
+			institutionGroup.POST("/", createInstitution)
+			institutionGroup.GET("/", getInstitutions)
+			institutionGroup.GET("/:id", getInstitutionByID)
+			institutionGroup.PUT("/:id", updateInstitution)
+			institutionGroup.DELETE("/:id", deleteInstitution)
+		}
 
-	// Protected routes for User and Course
-	userGroup := r.Group("/users")
-	userGroup.Use(APIKeyAuthMiddleware())
-	{
-		userGroup.POST("/", createUser)
-		userGroup.GET("/", getUsers)
-		userGroup.GET("/:id", getUserByID)
-		userGroup.PUT("/:id", updateUser)
-		userGroup.DELETE("/:id", deleteUser)
-	}
+		adminGroup := apiGroup.Group("/admins")
+		{
+			adminGroup.POST("/", createAdmin)
+			adminGroup.GET("/", getAdmins)
+			adminGroup.GET("/:id", getAdminByID)
+			adminGroup.PUT("/:id", updateAdmin)
+			adminGroup.DELETE("/:id", deleteAdmin)
+		}
 
-	courseGroup := r.Group("/courses")
-	courseGroup.Use(APIKeyAuthMiddleware())
-	{
-		courseGroup.POST("/", createCourse)
-		courseGroup.GET("/", getCourses)
-		courseGroup.GET("/:id", getCourseByID)
-		courseGroup.PUT("/:id", updateCourse)
-		courseGroup.DELETE("/:id", deleteCourse)
+		// Protected routes for User and Course
+		userGroup := apiGroup.Group("/users")
+		{
+			userGroup.POST("/", createUser)
+			userGroup.GET("/", getUsers)
+			userGroup.GET("/:id", getUserByID)
+			userGroup.PUT("/:id", updateUser)
+			userGroup.DELETE("/:id", deleteUser)
+		}
+
+		courseGroup := apiGroup.Group("/courses")
+		{
+			courseGroup.POST("/", createCourse)
+			courseGroup.GET("/", getCourses)
+			courseGroup.GET("/:id", getCourseByID)
+			courseGroup.PUT("/:id", updateCourse)
+			courseGroup.DELETE("/:id", deleteCourse)
+		}
+
+		userCourseGroup := apiGroup.Group("/userCourses")
+		{
+			userCourseGroup.POST("/", createUserCourse)
+		}
 	}
 
 	r.Run()

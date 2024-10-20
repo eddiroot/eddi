@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/auth";
-import { BASE_URL } from "@/lib/constants";
+import { BASE_URL, KEY_LS_USER } from "@/lib/constants";
 import { User } from "@/lib/types";
 
 export type LoginType = {
@@ -53,13 +53,17 @@ function Login() {
           username: data.username,
           password: data.password,
         }),
+        credentials: "include",
       });
 
-      const user = (await response.json()) as User | null;
-      setUser(user);
-      navigate({
-        to: "/dashboard",
-      });
+      if (response.ok) {
+        const user = (await response.json()) as User | null;
+        setUser(user);
+        localStorage.setItem(KEY_LS_USER, JSON.stringify(user));
+        navigate({
+          to: "/dashboard",
+        });
+      }
     } catch (error) {
       console.error("Login failed:", error);
     }

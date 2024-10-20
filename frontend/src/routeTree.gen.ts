@@ -11,28 +11,29 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SignupImport } from "./routes/signup";
-import { Route as LoginImport } from "./routes/login";
+import { Route as SignupImport } from './routes/signup'
+import { Route as LoginImport } from './routes/login'
 import { Route as DashboardImport } from './routes/dashboard'
-import { Route as IndexImport } from "./routes/index";
-import { Route as InstitutionIdIndexImport } from './routes/$institutionId/index'
-import { Route as InstitutionIdCoursesIndexImport } from './routes/$institutionId/courses/index'
-import { Route as InstitutionIdCoursesCourseIdWorkspacesImport } from './routes/$institutionId/courses/$courseId.workspaces'
-import { Route as InstitutionIdCoursesCourseIdLessonsImport } from './routes/$institutionId/courses/$courseId.lessons'
-import { Route as InstitutionIdCoursesCourseIdDiscussionImport } from './routes/$institutionId/courses/$courseId.discussion'
-import { Route as InstitutionIdCoursesCourseIdChatImport } from './routes/$institutionId/courses/$courseId.chat'
+import { Route as IndexImport } from './routes/index'
+import { Route as InstitutionsIndexImport } from './routes/institutions/index'
+import { Route as InstitutionsInstitutionIdIndexImport } from './routes/institutions/$institutionId/index'
+import { Route as InstitutionsInstitutionIdCoursesIndexImport } from './routes/institutions/$institutionId/courses/index'
+import { Route as InstitutionsInstitutionIdCoursesCourseIdWorkspacesImport } from './routes/institutions/$institutionId/courses/$courseId.workspaces'
+import { Route as InstitutionsInstitutionIdCoursesCourseIdLessonsImport } from './routes/institutions/$institutionId/courses/$courseId.lessons'
+import { Route as InstitutionsInstitutionIdCoursesCourseIdDiscussionImport } from './routes/institutions/$institutionId/courses/$courseId.discussion'
+import { Route as InstitutionsInstitutionIdCoursesCourseIdChatImport } from './routes/institutions/$institutionId/courses/$courseId.chat'
 
 // Create/Update Routes
 
 const SignupRoute = SignupImport.update({
-  path: "/signup",
+  path: '/signup',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const LoginRoute = LoginImport.update({
-  path: "/login",
+  path: '/login',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const DashboardRoute = DashboardImport.update({
   path: '/dashboard',
@@ -40,41 +41,48 @@ const DashboardRoute = DashboardImport.update({
 } as any)
 
 const IndexRoute = IndexImport.update({
-  path: "/",
-  getParentRoute: () => rootRoute,
-} as any);
-
-const InstitutionIdIndexRoute = InstitutionIdIndexImport.update({
-  path: '/$institutionId/',
+  path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const InstitutionIdCoursesIndexRoute = InstitutionIdCoursesIndexImport.update({
-  path: '/$institutionId/courses/',
+const InstitutionsIndexRoute = InstitutionsIndexImport.update({
+  path: '/institutions/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const InstitutionIdCoursesCourseIdWorkspacesRoute =
-  InstitutionIdCoursesCourseIdWorkspacesImport.update({
-    path: '/$institutionId/courses/$courseId/workspaces',
+const InstitutionsInstitutionIdIndexRoute =
+  InstitutionsInstitutionIdIndexImport.update({
+    path: '/institutions/$institutionId/',
     getParentRoute: () => rootRoute,
   } as any)
 
-const InstitutionIdCoursesCourseIdLessonsRoute =
-  InstitutionIdCoursesCourseIdLessonsImport.update({
-    path: '/$institutionId/courses/$courseId/lessons',
+const InstitutionsInstitutionIdCoursesIndexRoute =
+  InstitutionsInstitutionIdCoursesIndexImport.update({
+    path: '/institutions/$institutionId/courses/',
     getParentRoute: () => rootRoute,
   } as any)
 
-const InstitutionIdCoursesCourseIdDiscussionRoute =
-  InstitutionIdCoursesCourseIdDiscussionImport.update({
-    path: '/$institutionId/courses/$courseId/discussion',
+const InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute =
+  InstitutionsInstitutionIdCoursesCourseIdWorkspacesImport.update({
+    path: '/institutions/$institutionId/courses/$courseId/workspaces',
     getParentRoute: () => rootRoute,
   } as any)
 
-const InstitutionIdCoursesCourseIdChatRoute =
-  InstitutionIdCoursesCourseIdChatImport.update({
-    path: '/$institutionId/courses/$courseId/chat',
+const InstitutionsInstitutionIdCoursesCourseIdLessonsRoute =
+  InstitutionsInstitutionIdCoursesCourseIdLessonsImport.update({
+    path: '/institutions/$institutionId/courses/$courseId/lessons',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute =
+  InstitutionsInstitutionIdCoursesCourseIdDiscussionImport.update({
+    path: '/institutions/$institutionId/courses/$courseId/discussion',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const InstitutionsInstitutionIdCoursesCourseIdChatRoute =
+  InstitutionsInstitutionIdCoursesCourseIdChatImport.update({
+    path: '/institutions/$institutionId/courses/$courseId/chat',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -82,172 +90,186 @@ const InstitutionIdCoursesCourseIdChatRoute =
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/dashboard": {
-      id: "/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof DashboardImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/login": {
-      id: "/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof LoginImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/signup": {
-      id: "/signup";
-      path: "/signup";
-      fullPath: "/signup";
-      preLoaderRoute: typeof SignupImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/$institutionId/": {
-      id: "/$institutionId/";
-      path: "/$institutionId";
-      fullPath: "/$institutionId";
-      preLoaderRoute: typeof InstitutionIdIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/$institutionId/courses/": {
-      id: "/$institutionId/courses/";
-      path: "/$institutionId/courses";
-      fullPath: "/$institutionId/courses";
-      preLoaderRoute: typeof InstitutionIdCoursesIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/$institutionId/courses/$courseId/chat": {
-      id: "/$institutionId/courses/$courseId/chat";
-      path: "/$institutionId/courses/$courseId/chat";
-      fullPath: "/$institutionId/courses/$courseId/chat";
-      preLoaderRoute: typeof InstitutionIdCoursesCourseIdChatImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/$institutionId/courses/$courseId/discussion": {
-      id: "/$institutionId/courses/$courseId/discussion";
-      path: "/$institutionId/courses/$courseId/discussion";
-      fullPath: "/$institutionId/courses/$courseId/discussion";
-      preLoaderRoute: typeof InstitutionIdCoursesCourseIdDiscussionImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/$institutionId/courses/$courseId/lessons": {
-      id: "/$institutionId/courses/$courseId/lessons";
-      path: "/$institutionId/courses/$courseId/lessons";
-      fullPath: "/$institutionId/courses/$courseId/lessons";
-      preLoaderRoute: typeof InstitutionIdCoursesCourseIdLessonsImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/$institutionId/courses/$courseId/workspaces": {
-      id: "/$institutionId/courses/$courseId/workspaces";
-      path: "/$institutionId/courses/$courseId/workspaces";
-      fullPath: "/$institutionId/courses/$courseId/workspaces";
-      preLoaderRoute: typeof InstitutionIdCoursesCourseIdWorkspacesImport;
-      parentRoute: typeof rootRoute;
-    };
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/': {
+      id: '/institutions/'
+      path: '/institutions'
+      fullPath: '/institutions'
+      preLoaderRoute: typeof InstitutionsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/$institutionId/': {
+      id: '/institutions/$institutionId/'
+      path: '/institutions/$institutionId'
+      fullPath: '/institutions/$institutionId'
+      preLoaderRoute: typeof InstitutionsInstitutionIdIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/$institutionId/courses/': {
+      id: '/institutions/$institutionId/courses/'
+      path: '/institutions/$institutionId/courses'
+      fullPath: '/institutions/$institutionId/courses'
+      preLoaderRoute: typeof InstitutionsInstitutionIdCoursesIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/$institutionId/courses/$courseId/chat': {
+      id: '/institutions/$institutionId/courses/$courseId/chat'
+      path: '/institutions/$institutionId/courses/$courseId/chat'
+      fullPath: '/institutions/$institutionId/courses/$courseId/chat'
+      preLoaderRoute: typeof InstitutionsInstitutionIdCoursesCourseIdChatImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/$institutionId/courses/$courseId/discussion': {
+      id: '/institutions/$institutionId/courses/$courseId/discussion'
+      path: '/institutions/$institutionId/courses/$courseId/discussion'
+      fullPath: '/institutions/$institutionId/courses/$courseId/discussion'
+      preLoaderRoute: typeof InstitutionsInstitutionIdCoursesCourseIdDiscussionImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/$institutionId/courses/$courseId/lessons': {
+      id: '/institutions/$institutionId/courses/$courseId/lessons'
+      path: '/institutions/$institutionId/courses/$courseId/lessons'
+      fullPath: '/institutions/$institutionId/courses/$courseId/lessons'
+      preLoaderRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLessonsImport
+      parentRoute: typeof rootRoute
+    }
+    '/institutions/$institutionId/courses/$courseId/workspaces': {
+      id: '/institutions/$institutionId/courses/$courseId/workspaces'
+      path: '/institutions/$institutionId/courses/$courseId/workspaces'
+      fullPath: '/institutions/$institutionId/courses/$courseId/workspaces'
+      preLoaderRoute: typeof InstitutionsInstitutionIdCoursesCourseIdWorkspacesImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/login": typeof LoginRoute;
-  "/signup": typeof SignupRoute;
-  "/$institutionId": typeof InstitutionIdIndexRoute;
-  "/$institutionId/courses": typeof InstitutionIdCoursesIndexRoute;
-  "/$institutionId/courses/$courseId/chat": typeof InstitutionIdCoursesCourseIdChatRoute;
-  "/$institutionId/courses/$courseId/discussion": typeof InstitutionIdCoursesCourseIdDiscussionRoute;
-  "/$institutionId/courses/$courseId/lessons": typeof InstitutionIdCoursesCourseIdLessonsRoute;
-  "/$institutionId/courses/$courseId/workspaces": typeof InstitutionIdCoursesCourseIdWorkspacesRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/institutions': typeof InstitutionsIndexRoute
+  '/institutions/$institutionId': typeof InstitutionsInstitutionIdIndexRoute
+  '/institutions/$institutionId/courses': typeof InstitutionsInstitutionIdCoursesIndexRoute
+  '/institutions/$institutionId/courses/$courseId/chat': typeof InstitutionsInstitutionIdCoursesCourseIdChatRoute
+  '/institutions/$institutionId/courses/$courseId/discussion': typeof InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute
+  '/institutions/$institutionId/courses/$courseId/lessons': typeof InstitutionsInstitutionIdCoursesCourseIdLessonsRoute
+  '/institutions/$institutionId/courses/$courseId/workspaces': typeof InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute
 }
 
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/login": typeof LoginRoute;
-  "/signup": typeof SignupRoute;
-  "/$institutionId": typeof InstitutionIdIndexRoute;
-  "/$institutionId/courses": typeof InstitutionIdCoursesIndexRoute;
-  "/$institutionId/courses/$courseId/chat": typeof InstitutionIdCoursesCourseIdChatRoute;
-  "/$institutionId/courses/$courseId/discussion": typeof InstitutionIdCoursesCourseIdDiscussionRoute;
-  "/$institutionId/courses/$courseId/lessons": typeof InstitutionIdCoursesCourseIdLessonsRoute;
-  "/$institutionId/courses/$courseId/workspaces": typeof InstitutionIdCoursesCourseIdWorkspacesRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/institutions': typeof InstitutionsIndexRoute
+  '/institutions/$institutionId': typeof InstitutionsInstitutionIdIndexRoute
+  '/institutions/$institutionId/courses': typeof InstitutionsInstitutionIdCoursesIndexRoute
+  '/institutions/$institutionId/courses/$courseId/chat': typeof InstitutionsInstitutionIdCoursesCourseIdChatRoute
+  '/institutions/$institutionId/courses/$courseId/discussion': typeof InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute
+  '/institutions/$institutionId/courses/$courseId/lessons': typeof InstitutionsInstitutionIdCoursesCourseIdLessonsRoute
+  '/institutions/$institutionId/courses/$courseId/workspaces': typeof InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute;
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/login": typeof LoginRoute;
-  "/signup": typeof SignupRoute;
-  "/$institutionId/": typeof InstitutionIdIndexRoute;
-  "/$institutionId/courses/": typeof InstitutionIdCoursesIndexRoute;
-  "/$institutionId/courses/$courseId/chat": typeof InstitutionIdCoursesCourseIdChatRoute;
-  "/$institutionId/courses/$courseId/discussion": typeof InstitutionIdCoursesCourseIdDiscussionRoute;
-  "/$institutionId/courses/$courseId/lessons": typeof InstitutionIdCoursesCourseIdLessonsRoute;
-  "/$institutionId/courses/$courseId/workspaces": typeof InstitutionIdCoursesCourseIdWorkspacesRoute;
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/institutions/': typeof InstitutionsIndexRoute
+  '/institutions/$institutionId/': typeof InstitutionsInstitutionIdIndexRoute
+  '/institutions/$institutionId/courses/': typeof InstitutionsInstitutionIdCoursesIndexRoute
+  '/institutions/$institutionId/courses/$courseId/chat': typeof InstitutionsInstitutionIdCoursesCourseIdChatRoute
+  '/institutions/$institutionId/courses/$courseId/discussion': typeof InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute
+  '/institutions/$institutionId/courses/$courseId/lessons': typeof InstitutionsInstitutionIdCoursesCourseIdLessonsRoute
+  '/institutions/$institutionId/courses/$courseId/workspaces': typeof InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/dashboard"
-    | "/login"
-    | "/signup"
-    | "/$institutionId"
-    | "/$institutionId/courses"
-    | "/$institutionId/courses/$courseId/chat"
-    | "/$institutionId/courses/$courseId/discussion"
-    | "/$institutionId/courses/$courseId/lessons"
-    | "/$institutionId/courses/$courseId/workspaces";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/signup'
+    | '/institutions'
+    | '/institutions/$institutionId'
+    | '/institutions/$institutionId/courses'
+    | '/institutions/$institutionId/courses/$courseId/chat'
+    | '/institutions/$institutionId/courses/$courseId/discussion'
+    | '/institutions/$institutionId/courses/$courseId/lessons'
+    | '/institutions/$institutionId/courses/$courseId/workspaces'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/dashboard"
-    | "/login"
-    | "/signup"
-    | "/$institutionId"
-    | "/$institutionId/courses"
-    | "/$institutionId/courses/$courseId/chat"
-    | "/$institutionId/courses/$courseId/discussion"
-    | "/$institutionId/courses/$courseId/lessons"
-    | "/$institutionId/courses/$courseId/workspaces";
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/signup'
+    | '/institutions'
+    | '/institutions/$institutionId'
+    | '/institutions/$institutionId/courses'
+    | '/institutions/$institutionId/courses/$courseId/chat'
+    | '/institutions/$institutionId/courses/$courseId/discussion'
+    | '/institutions/$institutionId/courses/$courseId/lessons'
+    | '/institutions/$institutionId/courses/$courseId/workspaces'
   id:
-    | "__root__"
-    | "/"
-    | "/dashboard"
-    | "/login"
-    | "/signup"
-    | "/$institutionId/"
-    | "/$institutionId/courses/"
-    | "/$institutionId/courses/$courseId/chat"
-    | "/$institutionId/courses/$courseId/discussion"
-    | "/$institutionId/courses/$courseId/lessons"
-    | "/$institutionId/courses/$courseId/workspaces";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/signup'
+    | '/institutions/'
+    | '/institutions/$institutionId/'
+    | '/institutions/$institutionId/courses/'
+    | '/institutions/$institutionId/courses/$courseId/chat'
+    | '/institutions/$institutionId/courses/$courseId/discussion'
+    | '/institutions/$institutionId/courses/$courseId/lessons'
+    | '/institutions/$institutionId/courses/$courseId/workspaces'
+  fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  DashboardRoute: typeof DashboardRoute;
-  LoginRoute: typeof LoginRoute;
-  SignupRoute: typeof SignupRoute;
-  InstitutionIdIndexRoute: typeof InstitutionIdIndexRoute;
-  InstitutionIdCoursesIndexRoute: typeof InstitutionIdCoursesIndexRoute;
-  InstitutionIdCoursesCourseIdChatRoute: typeof InstitutionIdCoursesCourseIdChatRoute;
-  InstitutionIdCoursesCourseIdDiscussionRoute: typeof InstitutionIdCoursesCourseIdDiscussionRoute;
-  InstitutionIdCoursesCourseIdLessonsRoute: typeof InstitutionIdCoursesCourseIdLessonsRoute;
-  InstitutionIdCoursesCourseIdWorkspacesRoute: typeof InstitutionIdCoursesCourseIdWorkspacesRoute;
+  IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
+  InstitutionsIndexRoute: typeof InstitutionsIndexRoute
+  InstitutionsInstitutionIdIndexRoute: typeof InstitutionsInstitutionIdIndexRoute
+  InstitutionsInstitutionIdCoursesIndexRoute: typeof InstitutionsInstitutionIdCoursesIndexRoute
+  InstitutionsInstitutionIdCoursesCourseIdChatRoute: typeof InstitutionsInstitutionIdCoursesCourseIdChatRoute
+  InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute: typeof InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute
+  InstitutionsInstitutionIdCoursesCourseIdLessonsRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLessonsRoute
+  InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute: typeof InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -255,16 +277,19 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  InstitutionIdIndexRoute: InstitutionIdIndexRoute,
-  InstitutionIdCoursesIndexRoute: InstitutionIdCoursesIndexRoute,
-  InstitutionIdCoursesCourseIdChatRoute: InstitutionIdCoursesCourseIdChatRoute,
-  InstitutionIdCoursesCourseIdDiscussionRoute:
-    InstitutionIdCoursesCourseIdDiscussionRoute,
-  InstitutionIdCoursesCourseIdLessonsRoute:
-    InstitutionIdCoursesCourseIdLessonsRoute,
-  InstitutionIdCoursesCourseIdWorkspacesRoute:
-    InstitutionIdCoursesCourseIdWorkspacesRoute,
-};
+  InstitutionsIndexRoute: InstitutionsIndexRoute,
+  InstitutionsInstitutionIdIndexRoute: InstitutionsInstitutionIdIndexRoute,
+  InstitutionsInstitutionIdCoursesIndexRoute:
+    InstitutionsInstitutionIdCoursesIndexRoute,
+  InstitutionsInstitutionIdCoursesCourseIdChatRoute:
+    InstitutionsInstitutionIdCoursesCourseIdChatRoute,
+  InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute:
+    InstitutionsInstitutionIdCoursesCourseIdDiscussionRoute,
+  InstitutionsInstitutionIdCoursesCourseIdLessonsRoute:
+    InstitutionsInstitutionIdCoursesCourseIdLessonsRoute,
+  InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute:
+    InstitutionsInstitutionIdCoursesCourseIdWorkspacesRoute,
+}
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
@@ -282,12 +307,13 @@ export const routeTree = rootRoute
         "/dashboard",
         "/login",
         "/signup",
-        "/$institutionId/",
-        "/$institutionId/courses/",
-        "/$institutionId/courses/$courseId/chat",
-        "/$institutionId/courses/$courseId/discussion",
-        "/$institutionId/courses/$courseId/lessons",
-        "/$institutionId/courses/$courseId/workspaces"
+        "/institutions/",
+        "/institutions/$institutionId/",
+        "/institutions/$institutionId/courses/",
+        "/institutions/$institutionId/courses/$courseId/chat",
+        "/institutions/$institutionId/courses/$courseId/discussion",
+        "/institutions/$institutionId/courses/$courseId/lessons",
+        "/institutions/$institutionId/courses/$courseId/workspaces"
       ]
     },
     "/": {
@@ -302,23 +328,26 @@ export const routeTree = rootRoute
     "/signup": {
       "filePath": "signup.tsx"
     },
-    "/$institutionId/": {
-      "filePath": "$institutionId/index.tsx"
+    "/institutions/": {
+      "filePath": "institutions/index.tsx"
     },
-    "/$institutionId/courses/": {
-      "filePath": "$institutionId/courses/index.tsx"
+    "/institutions/$institutionId/": {
+      "filePath": "institutions/$institutionId/index.tsx"
     },
-    "/$institutionId/courses/$courseId/chat": {
-      "filePath": "$institutionId/courses/$courseId.chat.tsx"
+    "/institutions/$institutionId/courses/": {
+      "filePath": "institutions/$institutionId/courses/index.tsx"
     },
-    "/$institutionId/courses/$courseId/discussion": {
-      "filePath": "$institutionId/courses/$courseId.discussion.tsx"
+    "/institutions/$institutionId/courses/$courseId/chat": {
+      "filePath": "institutions/$institutionId/courses/$courseId.chat.tsx"
     },
-    "/$institutionId/courses/$courseId/lessons": {
-      "filePath": "$institutionId/courses/$courseId.lessons.tsx"
+    "/institutions/$institutionId/courses/$courseId/discussion": {
+      "filePath": "institutions/$institutionId/courses/$courseId.discussion.tsx"
     },
-    "/$institutionId/courses/$courseId/workspaces": {
-      "filePath": "$institutionId/courses/$courseId.workspaces.tsx"
+    "/institutions/$institutionId/courses/$courseId/lessons": {
+      "filePath": "institutions/$institutionId/courses/$courseId.lessons.tsx"
+    },
+    "/institutions/$institutionId/courses/$courseId/workspaces": {
+      "filePath": "institutions/$institutionId/courses/$courseId.workspaces.tsx"
     }
   }
 }

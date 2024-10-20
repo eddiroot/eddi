@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -32,7 +31,6 @@ func Signup(c *gin.Context) {
 	// Create the user
 	_, err = CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, string(hash), user.AvatarUrl)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create user.",
 		})
@@ -99,7 +97,15 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
-	c.JSON(http.StatusOK, gin.H{})
+	criticalUserDetails := User{
+		ID:         user.ID,
+		FirstName:  user.FirstName,
+		MiddleName: user.MiddleName,
+		LastName:   user.LastName,
+		Username:   user.Username,
+		AvatarUrl:  user.AvatarUrl,
+	}
+	c.JSON(http.StatusOK, criticalUserDetails)
 }
 
 func Logout(c *gin.Context) {
@@ -432,4 +438,41 @@ func deleteCourse(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Course deleted"})
+}
+
+// UserCourse Handlers
+func createUserCourse(c *gin.Context) {
+	var userCourse UserCourse
+	if err := c.ShouldBindJSON(&userCourse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userId, courseId, err := CreateUserCourse(userCourse.UserID, userCourse.CourseID, userCourse.Year, userCourse.Semester, userCourse.Role, userCourse.IsComplete, userCourse.IsArchived)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Course created", "userId": userId, "courseId": courseId})
+}
+
+// App Handlers
+
+func getUserCoursesByUserID(c *gin.Context) {
+	// May need to consider if a user can get another user's courses
+	// by using this endpoint
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	userCourses, err := GetUserCoursesJoinCoursesByUserID(userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, userCourses)
 }
