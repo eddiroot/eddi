@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/auth";
 import { BASE_URL } from "@/lib/constants";
 import { UserCourseJoinCourse } from "@/lib/types";
@@ -7,11 +6,10 @@ import {
   Card,
   // CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Archive, Trash } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 async function fetchUserCourses() {
   const response = await fetch(`${BASE_URL}/app/user/courses`, {
@@ -56,20 +54,14 @@ function Dashboard() {
         >
           <Card className="w-full">
             <CardHeader>
-              <CardTitle>
-                {course.name} - {course.year}
-              </CardTitle>
+              <div className="flex justify-between">
+                <CardTitle>
+                  {course.name} - {course.year}
+                </CardTitle>
+                <Badge>{Math.floor(Math.random() * 10) + 1}</Badge>
+              </div>
               <CardDescription>{course.description}</CardDescription>
             </CardHeader>
-            {/* <CardContent>Content here</CardContent> */}
-            <CardFooter className="flex gap-2">
-              <Button variant="secondary" size="icon">
-                <Archive />
-              </Button>
-              <Button variant="secondary" size="icon">
-                <Trash />
-              </Button>
-            </CardFooter>
           </Card>
         </Link>
       ))}
