@@ -63,14 +63,17 @@ func main() {
 	appGroup := r.Group("/app")
 	appGroup.Use(JWTAuthMiddleware())
 	{
-		userCoursesGroup := appGroup.Group("/userCourses")
+		userGroup := appGroup.Group("/user")
 		{
-			userCoursesGroup.GET("/:id", getUserCoursesByUserID)
+			userGroup.GET("/courses", getUserCourses)
 		}
 
 		coursesGroup := appGroup.Group("/courses")
 		{
 			coursesGroup.GET("/:id", getCourseByID)
+			coursesGroup.GET("/:id/threads", getCourseThreads)
+			coursesGroup.POST("/:id/threads", createCourseThread)
+			coursesGroup.GET("/:id/threads/:threadId", getCourseThread)
 		}
 
 	}

@@ -29,3 +29,17 @@ export type UserCourseJoinCourse = {
   name: string;
   description: string;
 };
+
+export type CourseThread = {
+  id: number;
+  userId: number;
+  courseId: number;
+  title: string;
+  type: string;
+  content: string;
+  createdAt: string;
+  modifiedAt: {
+    Time: string;
+    Valid: boolean;
+  };
+};

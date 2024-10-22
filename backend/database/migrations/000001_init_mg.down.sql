@@ -1,4 +1,3 @@
--- Down Migration Script: Drop Tables if They Exist
 DROP TABLE IF EXISTS Institution;
 DROP TABLE IF EXISTS AppAdmin;
 DROP TABLE IF EXISTS AppUser;

@@ -261,7 +261,7 @@ func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, erro
 	return userCourses, nil
 }
 
-func GetUsersInCourseByCourseID(courseId string) ([]UserCourse, error) {
+func GetUsersInCourseByCourseID(courseId int) ([]UserCourse, error) {
 	query := `SELECT * FROM AppUserCourse WHERE courseId = $1`
 	rows, err := db.Query(query, courseId)
 	if err != nil {
@@ -278,4 +278,48 @@ func GetUsersInCourseByCourseID(courseId string) ([]UserCourse, error) {
 		userCourses = append(userCourses, userCourse)
 	}
 	return userCourses, nil
+}
+
+// type CourseThread struct {
+// 	ID            int    `json:"id"`
+// 	UserID        int    `json:"userId"`
+// 	CourseID      int    `json:"courseId"`
+// 	Content 	  string `json:"content"`
+// 	CreatedAt time.Time `json:"createdAt"`
+// 	ModifiedAt time.Time `json:"modifiedAt"`
+// }
+func CreateCourseThread(appUserId int, courseId int, title string, postType string, content string) (int, error) {
+	var courseThreadID int
+	query := `INSERT INTO CourseThread (appUserId, courseId, title, type, content) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	err := db.QueryRow(query, appUserId, courseId, title, postType, content).Scan(&courseThreadID)
+	return courseThreadID, err
+}
+
+// If updating course thread, make sure to change modifiedAt
+
+func GetCourseThreadsByCourseID(courseId int) ([]CourseThread, error) {
+	query := `SELECT id, appUserId, courseId, title, type, content, createdAt, modifiedAt FROM CourseThread WHERE courseId = $1 ORDER BY createdAt DESC`
+	rows, err := db.Query(query, courseId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var courseThreads []CourseThread
+	for rows.Next() {
+		var courseThread CourseThread
+		if err := rows.Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt); err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		courseThreads = append(courseThreads, courseThread)
+	}
+	return courseThreads, nil
+}
+
+func GetCourseThreadByID(id int) (CourseThread, error) {
+	var courseThread CourseThread
+	query := `SELECT id, appUserId, courseId, title, type, content, createdAt, modifiedAt FROM CourseThread WHERE id = $1`
+	err := db.QueryRow(query, id).Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt)
+	return courseThread, err
 }

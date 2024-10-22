@@ -454,25 +454,69 @@ func createUserCourse(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Course created", "userId": userId, "courseId": courseId})
+	c.JSON(http.StatusOK, gin.H{"message": "Added user to course", "userId": userId, "courseId": courseId})
 }
 
 // App Handlers
 
-func getUserCoursesByUserID(c *gin.Context) {
-	// May need to consider if a user can get another user's courses
-	// by using this endpoint
-	userId, err := strconv.Atoi(c.Param("id"))
+func getUserCourses(c *gin.Context) {
+	userRaw, _ := c.Get("user")
+	user := userRaw.(User)
+
+	userCourses, err := GetUserCoursesJoinCoursesByUserID(user.ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user courses"})
 		return
 	}
 
-	userCourses, err := GetUserCoursesJoinCoursesByUserID(userId)
+	c.JSON(http.StatusOK, userCourses)
+}
+
+func createCourseThread(c *gin.Context) {
+	var courseThread CourseThread
+	if err := c.ShouldBindJSON(&courseThread); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := CreateCourseThread(courseThread.UserID, courseThread.CourseID, courseThread.Title, courseThread.Type, courseThread.Content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, userCourses)
+	c.JSON(http.StatusOK, gin.H{"message": "Course thread created", "id": id})
+}
+
+func getCourseThreads(c *gin.Context) {
+	courseId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	courseThreads, err := GetCourseThreadsByCourseID(courseId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course threads"})
+		return
+	}
+
+	c.JSON(http.StatusOK, courseThreads)
+}
+
+func getCourseThread(c *gin.Context) {
+
+	threadId, err := strconv.Atoi(c.Param("threadId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid thread ID"})
+		return
+	}
+
+	thread, err := GetCourseThreadByID(threadId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course threads"})
+		return
+	}
+
+	c.JSON(http.StatusOK, thread)
 }

@@ -49,10 +49,7 @@ function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          username: data.username,
-          password: data.password,
-        }),
+        body: JSON.stringify(data),
         credentials: "include",
       });
 
@@ -83,7 +80,7 @@ function Login() {
             <Label htmlFor="username">Username</Label>
             <Input
               id="username"
-              type="username"
+              type="text"
               autoComplete="username"
               {...register("username", { required: "Username is required" })}
             />
@@ -96,7 +93,7 @@ function Login() {
             <Input
               id="password"
               type="password"
-              autoComplete="new-password"
+              autoComplete="current-password"
               {...register("password", { required: "Password is required" })}
             />
             {errors.password && (

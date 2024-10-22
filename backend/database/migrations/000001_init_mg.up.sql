@@ -1,4 +1,3 @@
--- Create Institution Table
 CREATE TABLE IF NOT EXISTS Institution (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -6,7 +5,6 @@ CREATE TABLE IF NOT EXISTS Institution (
     UNIQUE (name, continent)
 );
 
--- Create AppAdmin Table
 CREATE TABLE IF NOT EXISTS AppAdmin (
     id SERIAL PRIMARY KEY,
     institutionId INT REFERENCES Institution(id) ON DELETE CASCADE,
@@ -14,7 +12,6 @@ CREATE TABLE IF NOT EXISTS AppAdmin (
     password CHAR(60) NOT NULL
 );
 
--- Create AppUser Table
 CREATE TABLE IF NOT EXISTS AppUser (
     id SERIAL PRIMARY KEY,
     firstName VARCHAR(255) NOT NULL,
@@ -25,17 +22,15 @@ CREATE TABLE IF NOT EXISTS AppUser (
     avatarUrl TEXT
 );
 
--- Create Course Table
 CREATE TABLE IF NOT EXISTS Course (
-    institutionId INT REFERENCES Institution(id) ON DELETE CASCADE,
     id SERIAL PRIMARY KEY,
+    institutionId INT REFERENCES Institution(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL  -- Removed the extra comma here
 );
 
--- Create AppUserCourse Table
 CREATE TABLE IF NOT EXISTS AppUserCourse (
-    appUserId INT REFERENCES AppUser(id) ON DELETE CASCADE,
+    appUserId INT REFERENCES AppUser(id),
     courseId INT REFERENCES Course(id) ON DELETE CASCADE,
     year INT NOT NULL,
     semester INT NOT NULL CHECK (semester >= 1 AND semester <= 3),

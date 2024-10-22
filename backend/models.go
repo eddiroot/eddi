@@ -1,5 +1,10 @@
 package main
 
+import (
+	"database/sql"
+	"time"
+)
+
 type Institution struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -51,4 +56,15 @@ type UserCourseJoinCourse struct {
 	InstitutionID int    `json:"institutionId"`
 	Name          string `json:"name"`
 	Description   string `json:"description"`
+}
+
+type CourseThread struct {
+	ID            int    `json:"id"`
+	UserID        int    `json:"userId"`
+	CourseID      int    `json:"courseId"`
+	Title  string `json:"title"`
+	Type string `json:"type"`
+	Content 	  string `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
 }

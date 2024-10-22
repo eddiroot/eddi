@@ -14,9 +14,7 @@ import {
 import { Archive, Trash } from "lucide-react";
 
 async function fetchUserCourses() {
-  const userId = useAuthStore.getState().user?.id;
-  if (userId == null) return;
-  const response = await fetch(`${BASE_URL}/app/userCourses/${userId}`, {
+  const response = await fetch(`${BASE_URL}/app/user/courses`, {
     method: "GET",
     credentials: "include",
   });
@@ -46,10 +44,11 @@ function Dashboard() {
   const userCourses = Route.useLoaderData() as UserCourseJoinCourse[];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="p-8 grid grid-cols-2 lg:grid-cols-3 gap-4">
       {userCourses?.map((course) => (
         <Link
           to="/institutions/$institutionId/courses/$courseId/discussion"
+          key={course.courseId}
           params={{
             institutionId: course.institutionId.toString(),
             courseId: course.courseId.toString(),

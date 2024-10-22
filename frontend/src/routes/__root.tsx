@@ -36,7 +36,7 @@ function Root() {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <div className="py-2 px-8 h-20 flex justify-between">
         <Link to="/" className="flex gap-2 items-center">
           <GraduationCap className="h-10 w-10" />
@@ -65,9 +65,15 @@ function Root() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <Link to="/profile">
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                  </Link>
+                  <Link to="/billing">
+                    <DropdownMenuItem>Billing</DropdownMenuItem>
+                  </Link>
+                  <Link to="/settings">
+                    <DropdownMenuItem>Settings</DropdownMenuItem>
+                  </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <Logout />
@@ -84,12 +90,10 @@ function Root() {
         </div>
       </div>
       <hr />
-      <div className="p-8">
-        <Outlet />
-      </div>
+      <Outlet />
       <Suspense>
         <TanStackRouterDevtools />
       </Suspense>
-    </>
+    </div>
   );
 }
