@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Notifications } from "@/components/root/notifications";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -39,8 +40,7 @@ function Root() {
     <div className="flex flex-col h-screen">
       <div className="py-2 px-8 h-20 flex justify-between">
         <Link to="/" className="flex gap-2 items-center">
-          <GraduationCap className="h-10 w-10" />
-          <h1 className="text-3xl font-medium">OpenEd</h1>
+          <h1 className="text-3xl font-medium">ed</h1>
         </Link>
         <div className="flex gap-3 items-center">
           <Link
@@ -49,6 +49,7 @@ function Root() {
           >
             <LayoutDashboard />
           </Link>
+          <ModeToggle />
           <Notifications />
           {user ? (
             <DropdownMenu>

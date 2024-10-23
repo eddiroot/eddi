@@ -222,7 +222,7 @@ func CreateUserCourse(appUserId int, courseId int, year int, semester int, role 
 }
 
 func GetUserCoursesByUserID(userId int) ([]UserCourse, error) {
-	query := `SELECT * FROM AppUserCourse WHERE appUserId = $1`
+	query := `SELECT userId, courseId, year, semester, role, isComplete, isArchived FROM AppUserCourse WHERE appUserId = $1`
 	rows, err := db.Query(query, userId)
 	if err != nil {
 		return nil, err
@@ -241,7 +241,7 @@ func GetUserCoursesByUserID(userId int) ([]UserCourse, error) {
 }
 
 func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, error) {
-	query := `SELECT * FROM AppUserCourse INNER JOIN Course ON AppUserCourse.courseId = Course.id WHERE appUserId = $1`
+	query := `SELECT appUserId, courseId, year, semester, role, isComplete, isArchived, institutionId, courseId, name, description FROM AppUserCourse INNER JOIN Course ON AppUserCourse.courseId = Course.id WHERE appUserId = $1`
 	rows, err := db.Query(query, userId)
 
 	if err != nil {
@@ -262,7 +262,7 @@ func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, erro
 }
 
 func GetUsersInCourseByCourseID(courseId int) ([]UserCourse, error) {
-	query := `SELECT * FROM AppUserCourse WHERE courseId = $1`
+	query := `SELECT appUserId, courseId, year, semester, role, isComplete, isArchived FROM AppUserCourse WHERE courseId = $1`
 	rows, err := db.Query(query, courseId)
 	if err != nil {
 		return nil, err

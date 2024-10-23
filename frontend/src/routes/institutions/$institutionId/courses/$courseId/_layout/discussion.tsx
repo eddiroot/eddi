@@ -6,6 +6,7 @@ import { BASE_URL } from "@/lib/constants";
 import { CourseThread } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 async function fetchCourseDiscussions(courseId: string) {
   const response = await fetch(`${BASE_URL}/app/courses/${courseId}/threads`, {
@@ -17,7 +18,7 @@ async function fetchCourseDiscussions(courseId: string) {
 }
 
 export const Route = createFileRoute(
-  "/institutions/$institutionId/courses/$courseId/discussion"
+  "/institutions/$institutionId/courses/$courseId/_layout/discussion"
 )({
   loader: ({ params }) => fetchCourseDiscussions(params.courseId),
   component: Discussion,
@@ -25,37 +26,48 @@ export const Route = createFileRoute(
 
 function Discussion() {
   const { institutionId, courseId } = Route.useParams();
+
   const courseThreads = Route.useLoaderData() as CourseThread[];
 
   return (
     <div className="flex flex-grow">
-      <div className="p-2">Sidebar</div>
-      <Separator orientation="vertical" />
-      {/* Thread List */}
-      <div className="p-2 gap-2 flex flex-col w-72">
-        <Link
-          to="/institutions/$institutionId/courses/$courseId/discussion/new"
-          className={`${buttonVariants({ variant: "default" })} w-full`}
-          params={{ institutionId, courseId }}
-        >
-          Create Thread <PlusIcon />
-        </Link>
-        {courseThreads.map((thread) => (
+      <div className="flex flex-col">
+        <div className="p-2 border-b">
+          <Input
+            type="text"
+            placeholder="Search threads..."
+            className="w-full"
+          />
+        </div>
+        <div className="gap-2 p-2 flex flex-col w-64 lg:w-72">
           <Link
-            key={thread.id}
-            to="/institutions/$institutionId/courses/$courseId/discussion/$threadId"
-            params={{ institutionId, courseId, threadId: thread.id.toString() }}
+            to="/institutions/$institutionId/courses/$courseId/discussion/new"
+            className={`${buttonVariants({ variant: "default" })} w-full h-12`}
+            params={{ institutionId, courseId }}
           >
-            <Card>
-              <CardHeader>
-                <CardTitle>{thread.title}</CardTitle>
-              </CardHeader>
-              <CardFooter className="flex justify-between">
-                {new Date(thread.createdAt).toLocaleDateString()}
-              </CardFooter>
-            </Card>
+            New Thread <PlusIcon />
           </Link>
-        ))}
+          {courseThreads?.map((thread) => (
+            <Link
+              key={thread.id}
+              to="/institutions/$institutionId/courses/$courseId/discussion/$threadId"
+              params={{
+                institutionId,
+                courseId,
+                threadId: thread.id.toString(),
+              }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>{thread.title}</CardTitle>
+                </CardHeader>
+                <CardFooter className="flex justify-between">
+                  {new Date(thread.createdAt).toLocaleDateString()}
+                </CardFooter>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
       <Separator orientation="vertical" />
       {/* Thread */}

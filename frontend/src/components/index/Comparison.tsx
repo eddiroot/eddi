@@ -1,7 +1,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -24,21 +23,15 @@ const features: Feature[] = [
     implemented: false,
   },
   {
-    feature: "Discussion AI",
-    OpenEd: true,
-    EdStem: false,
-    implemented: false,
-  },
-  {
     feature: "Lessons",
     OpenEd: true,
     EdStem: true,
     implemented: false,
   },
   {
-    feature: "Lesson Pull Requests",
+    feature: "Chat",
     OpenEd: true,
-    EdStem: false,
+    EdStem: true,
     implemented: false,
   },
   {
@@ -48,37 +41,44 @@ const features: Feature[] = [
     implemented: false,
   },
   {
-    feature: "eAssessments",
+    feature: "Course Bot",
     OpenEd: true,
     EdStem: true,
     implemented: false,
   },
   {
-    feature: "Multi-Institution Courses",
+    feature: "Pull Requests",
     OpenEd: true,
     EdStem: false,
     implemented: false,
   },
   {
-    feature: "Course Chat",
+    feature: "Assessments",
     OpenEd: true,
     EdStem: false,
     implemented: false,
   },
+  {
+    feature: "Public Courses",
+    OpenEd: true,
+    EdStem: false,
+    implemented: false,
+  },
+
   {
     feature: "Student Stats",
     OpenEd: true,
-    EdStem: false,
+    EdStem: true,
     implemented: false,
   },
   {
     feature: "Analytics",
     OpenEd: true,
-    EdStem: false,
+    EdStem: true,
     implemented: false,
   },
   {
-    feature: "Raw Data Export",
+    feature: "Export",
     OpenEd: true,
     EdStem: false,
     implemented: false,
@@ -87,44 +87,64 @@ const features: Feature[] = [
 
 export function Comparison() {
   return (
-    <Table>
-      <TableCaption>A feature comparison of OpenEd to EdStem.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Feature</TableHead>
-          <TableHead>OpenEd</TableHead>
-          <TableHead>EdStem</TableHead>
-          <TableHead>Implemented</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {features.map((feature) => (
-          <TableRow key={feature.feature}>
-            <TableCell>{feature.feature}</TableCell>
-            <TableCell>
-              {feature.OpenEd ? (
-                <CheckIcon color="white" className="bg-green-500 rounded-sm" />
-              ) : (
-                <XIcon color="white" className="bg-red-500 rounded-sm" />
-              )}
-            </TableCell>
-            <TableCell>
-              {feature.EdStem ? (
-                <CheckIcon color="white" className="bg-green-500 rounded-sm" />
-              ) : (
-                <XIcon color="white" className="bg-red-500 rounded-sm" />
-              )}
-            </TableCell>
-            <TableCell>
-              {feature.implemented ? (
-                <CheckIcon color="white" className="bg-green-500 rounded-sm" />
-              ) : (
-                <XIcon color="white" className="bg-red-500 rounded-sm" />
-              )}
-            </TableCell>
+    <div>
+      {/* Title */}
+      <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
+        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+          Feature Comparison
+        </h2>
+        <p className="mt-1 text-muted-foreground">
+          Compare the functionality of ed to other systems.
+        </p>
+      </div>
+      {/* End Title */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Feature</TableHead>
+            <TableHead>ed</TableHead>
+            <TableHead>EdStem</TableHead>
+            <TableHead>Implemented</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {features.map((feature) => (
+            <TableRow key={feature.feature}>
+              <TableCell>{feature.feature}</TableCell>
+              <TableCell>
+                {feature.OpenEd ? (
+                  <CheckIcon
+                    color="white"
+                    className="bg-green-500 rounded-sm"
+                  />
+                ) : (
+                  <XIcon color="white" className="bg-red-500 rounded-sm" />
+                )}
+              </TableCell>
+              <TableCell>
+                {feature.EdStem ? (
+                  <CheckIcon
+                    color="white"
+                    className="bg-green-500 rounded-sm"
+                  />
+                ) : (
+                  <XIcon color="white" className="bg-red-500 rounded-sm" />
+                )}
+              </TableCell>
+              <TableCell>
+                {feature.implemented ? (
+                  <CheckIcon
+                    color="white"
+                    className="bg-green-500 rounded-sm"
+                  />
+                ) : (
+                  <XIcon color="white" className="bg-red-500 rounded-sm" />
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

@@ -16,7 +16,8 @@ async function fetchUserCourses() {
     method: "GET",
     credentials: "include",
   });
-  const userCourses = (await response.json()) as UserCourseJoinCourse[];
+  const json = await response.json();
+  const userCourses = json as UserCourseJoinCourse[];
   return userCourses;
 }
 
