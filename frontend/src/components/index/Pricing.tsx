@@ -28,7 +28,7 @@ export function Pricing() {
             <CardTitle className="mb-7">Community</CardTitle>
             <div>
               <span className="font-bold text-5xl">$0</span>
-              <span className="text-sm">/user/month</span>
+              <span className="text-sm">/student/course</span>
             </div>
           </CardHeader>
           <CardDescription className="text-center w-10/12 mx-auto">
@@ -64,7 +64,7 @@ export function Pricing() {
             <CardTitle className="!mb-7">Basic</CardTitle>
             <div>
               <span className="font-bold text-5xl">$1</span>
-              <span className="text-sm">/user/month</span>
+              <span className="text-sm">/student/course</span>
             </div>
           </CardHeader>
           <CardDescription className="text-center w-10/12 mx-auto">
@@ -100,7 +100,7 @@ export function Pricing() {
             <CardTitle className="mb-7">Standard</CardTitle>
             <div>
               <span className="font-bold text-5xl">$2</span>
-              <span className="text-sm">/user/month</span>
+              <span className="text-sm">/student/course</span>
             </div>
           </CardHeader>
           <CardDescription className="text-center  w-10/12 mx-auto">
@@ -136,7 +136,7 @@ export function Pricing() {
             <CardTitle className="mb-7">Enterprise</CardTitle>
             <div>
               <span className="font-bold text-5xl">$3</span>
-              <span className="text-sm">/user/month</span>
+              <span className="text-sm">/student/course</span>
             </div>
           </CardHeader>
           <CardDescription className="text-center w-10/12 mx-auto">

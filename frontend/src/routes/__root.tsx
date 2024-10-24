@@ -1,6 +1,6 @@
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { GraduationCap, User2, LayoutDashboard } from "lucide-react";
+import { User2, LayoutDashboard } from "lucide-react";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import React, { Suspense } from "react";
 import { Logout } from "@/components/auth/logout";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Notifications } from "@/components/root/notifications";
 import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -45,7 +46,10 @@ function Root() {
         <div className="flex gap-3 items-center">
           <Link
             to="/dashboard"
-            className={`${buttonVariants({ variant: "ghost", size: "icon" })} w-10 h-10 [&_svg]:size-6`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "w-10 h-10 [&_svg]:size-6"
+            )}
           >
             <LayoutDashboard />
           </Link>

@@ -59,6 +59,12 @@ const features: Feature[] = [
     implemented: false,
   },
   {
+    feature: "Tutor",
+    OpenEd: true,
+    EdStem: false,
+    implemented: false,
+  },
+  {
     feature: "Public Courses",
     OpenEd: true,
     EdStem: false,

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func LoadAndValidateEnvVariables() {
 	// Load environment variables
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		fmt.Println("Error loading .env file. Ignore this if running in Docker.")
 	}
 
 	// Make sure auth secrets are there
