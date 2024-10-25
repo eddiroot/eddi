@@ -1,19 +1,19 @@
 services:
 
-    # postgres:
-    #   image: postgres
-    #   ports:
-    #     - 5432:5432
-    #   environment:
-    #     - POSTGRES_PASSWORD=password
-    #     - POSTGRES_USER=postgres
-    #     - POSTGRES_DB=opened
-    #   healthcheck:
-    #     test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
-    #     interval: 30s
-    #     timeout: 60s
-    #     retries: 5
-    #     start_period: 80s 
+    postgres:
+      image: postgres
+      ports:
+        - 5432:5432
+      environment:
+        - POSTGRES_PASSWORD=password
+        - POSTGRES_USER=postgres
+        - POSTGRES_DB=opened
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+        interval: 30s
+        timeout: 60s
+        retries: 5
+        start_period: 80s 
 
     keycloak:
       image: quay.io/keycloak/keycloak:26.0.2
@@ -21,9 +21,9 @@ services:
         KC_BOOTSTRAP_ADMIN_USERNAME: admin
         KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       command: start-dev
-      # depends_on:
-      #     postgres:
-      #       condition: service_healthy
+      depends_on:
+          postgres:
+            condition: service_healthy
       ports:
         - 8081:8080 
 
