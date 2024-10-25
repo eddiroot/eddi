@@ -1,0 +1,62 @@
+services:
+
+    postgres:
+      image: postgres
+      ports:
+        - 5432:5432
+      environment:
+        - POSTGRES_PASSWORD=password
+        - POSTGRES_USER=postgres
+        - POSTGRES_DB=opened
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+        interval: 30s
+        timeout: 60s
+        retries: 5
+        start_period: 80s 
+
+    keycloak:
+      image: quay.io/keycloak/keycloak:26.0.2
+      environment:
+        KC_DB: postgres
+        KC_DB_URL: "postgresql://postgres:password@postgres:5432/keycloak?sslmode=disable"
+        KC_DB_USERNAME: postgres
+        KC_DB_PASSWORD: password
+
+        KC_HOSTNAME: localhost
+        KC_HOSTNAME_PORT: 8080
+        KC_HOSTNAME_STRICT: false
+        KC_HOSTNAME_STRICT_HTTPS: false
+
+        KC_LOG_LEVEL: info
+        KC_METRICS_ENABLED: true
+        KC_HEALTH_ENABLED: true
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+      command: start-dev
+      depends_on:
+          postgres:
+            condition: service_healthy
+      ports:
+        - 8081:8080 
+
+    backend:
+        build:
+            context: ./backend
+        ports:
+            - "8080:8080"
+        environment:
+            DATABASE_URL: "postgresql://postgres:password@postgres:5432/opened?sslmode=disable"
+            AUTH_ADMIN_API_KEY: "your-secret-here"
+            AUTH_JWT_SECRET_KEY: "another-secret-here"
+        depends_on:
+          postgres:
+            condition: service_healthy
+
+    frontend:
+        build:
+            context: ./frontend
+        ports:
+            - "4173:4173"
+
+    

@@ -14,6 +14,7 @@ export const Route = createFileRoute(
   "/institutions/$institutionId/courses/$courseId/_layout"
 )({
   component: Layout,
+  loader: () => console.log("Triggering loader"),
 });
 
 function Layout() {
