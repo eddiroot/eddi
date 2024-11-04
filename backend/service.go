@@ -325,3 +325,94 @@ func GetCourseThreadByID(id int) (CourseThread, error) {
 	err := db.QueryRow(query, id).Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt)
 	return courseThread, err
 }
+
+func GetCourseLessonsByCourseID(courseId int) ([]CourseLesson, error) {
+	query := `SELECT id, courseId, courseWeek, title, description, createdAt, modifiedAt FROM CourseLesson WHERE courseId = $1 ORDER BY courseWeek ASC`
+	rows, err := db.Query(query, courseId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var courseLessons []CourseLesson
+	for rows.Next() {
+		var courseLesson CourseLesson
+		if err := rows.Scan(&courseLesson.ID, &courseLesson.CourseID, &courseLesson.CourseWeek, &courseLesson.Title, &courseLesson.Description, &courseLesson.CreatedAt, &courseLesson.ModifiedAt); err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		courseLessons = append(courseLessons, courseLesson)
+	}
+	return courseLessons, nil
+}
+
+func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]CourseLessonSectionWithBlocks, error) {
+	query := `SELECT 
+		CourseLessonSection.id, 
+		CourseLessonSection.courseLessonId, 
+		CourseLessonSection.title, 
+		CourseLessonSectionBlock.id, 
+		CourseLessonSectionBlock.title, 
+		CourseLessonSectionBlock.description, 
+		CourseLessonSectionBlock.type 
+	FROM 
+		CourseLessonSection 
+	LEFT JOIN 
+		CourseLessonSectionBlock 
+	ON 
+		CourseLessonSection.id = CourseLessonSectionBlock.courseLessonSectionId 
+	WHERE 
+		courseLessonId = $1`
+	
+	rows, err := db.Query(query, lessonId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Map to hold sections and avoid duplicates
+	sectionMap := make(map[int]*CourseLessonSectionWithBlocks)
+
+	for rows.Next() {
+		var sectionID, blockID sql.NullInt64
+		var courseLessonID int
+		var sectionTitle, blockTitle, blockDescription, blockType sql.NullString
+
+		err := rows.Scan(&sectionID, &courseLessonID, &sectionTitle, &blockID, &blockTitle, &blockDescription, &blockType)
+		if err != nil {
+			return nil, err
+		}
+
+		// Check if the section already exists in the map
+		section, exists := sectionMap[int(sectionID.Int64)]
+		if !exists {
+			// Create a new section
+			section = &CourseLessonSectionWithBlocks{
+				ID:            int(sectionID.Int64),
+				CourseLessonID: courseLessonID,
+				Title:         sectionTitle.String,
+				Blocks:        []CourseLessonSectionBlock{},
+			}
+			sectionMap[int(sectionID.Int64)] = section
+		}
+
+		// Only add a block if it exists (blockID is not NULL)
+		if blockID.Valid {
+			block := CourseLessonSectionBlock{
+				ID:          int(blockID.Int64),
+				Title:       blockTitle.String,
+				Description: blockDescription.String,
+				Type:        blockType.String,
+			}
+			section.Blocks = append(section.Blocks, block)
+		}
+	}
+
+	// Convert the map values to a slice
+	var courseLessonSectionsWithBlocks []CourseLessonSectionWithBlocks
+	for _, section := range sectionMap {
+		courseLessonSectionsWithBlocks = append(courseLessonSectionsWithBlocks, *section)
+	}
+
+	return courseLessonSectionsWithBlocks, nil
+}

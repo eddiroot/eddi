@@ -39,9 +39,9 @@ function Root() {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="py-2 px-8 h-20 flex justify-between">
+      <div className="py-2 px-8 h-14 flex justify-between">
         <Link to="/" className="flex gap-2 items-center">
-          <h1 className="text-3xl font-medium">ed</h1>
+          <h1 className="text-3xl font-medium">eddy</h1>
         </Link>
         <div className="flex gap-3 items-center">
           <Link

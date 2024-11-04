@@ -43,3 +43,52 @@ export type CourseThread = {
     Valid: boolean;
   };
 };
+
+export type CourseLesson = {
+  id: number;
+  courseId: number;
+  courseWeek: number;
+  title: string;
+  description: string;
+  createdAt: string;
+  modifiedAt: {
+    Time: string;
+    Valid: boolean;
+  };
+};
+
+export type CourseLessonSection = {
+  id: number;
+  courseLessonId: number;
+  title: string;
+  createdAt: string;
+  modifiedAt: {
+    Time: string;
+    Valid: boolean;
+  };
+};
+
+export type CourseLessonSectionBlock = {
+  id: number;
+  courseLessonSectionId: number;
+  title: string;
+  description: string;
+  type: string;
+  createdAt: string;
+  modifiedAt: {
+    Time: string;
+    Valid: boolean;
+  };
+};
+
+export type CourseLessonSectionWithBlocks = {
+  id: number;
+  courseLessonId: number;
+  title: string;
+  createdAt: string;
+  modifiedAt: {
+    Time: string;
+    Valid: boolean;
+  };
+  blocks: CourseLessonSectionBlock[];
+};

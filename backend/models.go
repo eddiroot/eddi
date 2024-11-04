@@ -68,3 +68,40 @@ type CourseThread struct {
 	CreatedAt time.Time `json:"createdAt"`
 	ModifiedAt sql.NullTime `json:"modifiedAt"`
 }
+
+type CourseLesson struct {
+	ID            int    `json:"id"`
+	CourseID      int    `json:"courseId"`
+	CourseWeek int `json:"courseWeek"`
+	Title  string `json:"title"`
+	Description string `json:"description"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
+}
+
+type CourseLessonSection struct {
+	ID            int    `json:"id"`
+	CourseLessonID      int    `json:"courseLessonId"`
+	Title  string `json:"title"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
+}
+
+type CourseLessonSectionBlock struct {
+	ID            int    `json:"id"`
+	CourseLessonSectionID      int    `json:"courseLessonSectionId"`
+	Title  string `json:"title"`
+	Description string `json:"description"`
+	Type string `json:"type"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
+}
+
+type CourseLessonSectionWithBlocks struct {
+	ID            int    `json:"id"`
+	CourseLessonID      int    `json:"courseLessonId"`
+	Title  string `json:"title"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
+	Blocks []CourseLessonSectionBlock `json:"blocks"`
+}

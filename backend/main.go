@@ -70,10 +70,12 @@ func main() {
 
 		coursesGroup := appGroup.Group("/courses")
 		{
-			coursesGroup.GET("/:id", getCourseByID)
+			coursesGroup.GET("/:id", getCourse)
 			coursesGroup.GET("/:id/threads", getCourseThreads)
 			coursesGroup.POST("/:id/threads", createCourseThread)
 			coursesGroup.GET("/:id/threads/:threadId", getCourseThread)
+			coursesGroup.GET("/:id/lessons", getCourseLessons)
+			coursesGroup.GET("/:id/lessons/:lessonId", getCourseLessonSectionsWithBlocks)
 		}
 
 	}
@@ -113,7 +115,7 @@ func main() {
 		{
 			courseGroup.POST("/", createCourse)
 			courseGroup.GET("/", getCourses)
-			courseGroup.GET("/:id", getCourseByID)
+			courseGroup.GET("/:id", getCourse)
 			courseGroup.PUT("/:id", updateCourse)
 			courseGroup.DELETE("/:id", deleteCourse)
 		}

@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
+  BookOpenTextIcon,
   BotIcon,
   ChevronRight,
   MessageCircleIcon,
@@ -14,7 +15,6 @@ export const Route = createFileRoute(
   "/institutions/$institutionId/courses/$courseId/_layout"
 )({
   component: Layout,
-  loader: () => console.log("Triggering loader"),
 });
 
 function Layout() {
@@ -47,6 +47,14 @@ function Layout() {
           </Link>
           <Link
             params={{ institutionId, courseId }}
+            to="/institutions/$institutionId/courses/$courseId/lessons"
+            className={`${!isSidebarOpen ? `${buttonVariants({ variant: "ghost", size: "icon" })} w-10` : `flex w-full items-center justify-between gap-2 px-2`} h-10 [&_svg]:size-6`}
+          >
+            {isSidebarOpen && <p className="text-lg font-medium">Lessons</p>}
+            <BookOpenTextIcon />
+          </Link>
+          <Link
+            params={{ institutionId, courseId }}
             to="/institutions/$institutionId/courses/$courseId/chat"
             className={`${!isSidebarOpen ? `${buttonVariants({ variant: "ghost", size: "icon" })} w-10` : `flex w-full items-center justify-between gap-2 px-2`} h-10 [&_svg]:size-6`}
           >
@@ -66,7 +74,9 @@ function Layout() {
             to="/institutions/$institutionId/courses/$courseId/bot"
             className={`${!isSidebarOpen ? `${buttonVariants({ variant: "ghost", size: "icon" })} w-10` : `flex w-full items-center justify-between gap-2 px-2`} h-10 [&_svg]:size-6`}
           >
-            {isSidebarOpen && <p className="text-lg font-medium">Course Bot</p>}
+            {isSidebarOpen && (
+              <p className="text-lg font-medium text-nowrap">Course Bot</p>
+            )}
             <BotIcon />
           </Link>
         </div>

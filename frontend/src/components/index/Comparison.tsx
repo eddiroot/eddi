@@ -10,7 +10,7 @@ import { CheckIcon, XIcon } from "lucide-react";
 
 type Feature = {
   feature: string;
-  OpenEd: boolean;
+  eddy: boolean;
   EdStem: boolean;
   implemented: boolean;
 };
@@ -18,74 +18,74 @@ type Feature = {
 const features: Feature[] = [
   {
     feature: "Discussion",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Lessons",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Chat",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Workspaces",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Course Bot",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Pull Requests",
-    OpenEd: true,
+    eddy: true,
     EdStem: false,
     implemented: false,
   },
   {
     feature: "Assessments",
-    OpenEd: true,
+    eddy: true,
     EdStem: false,
     implemented: false,
   },
   {
     feature: "Tutor",
-    OpenEd: true,
+    eddy: true,
     EdStem: false,
     implemented: false,
   },
   {
     feature: "Public Courses",
-    OpenEd: true,
+    eddy: true,
     EdStem: false,
     implemented: false,
   },
 
   {
     feature: "Student Stats",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Analytics",
-    OpenEd: true,
+    eddy: true,
     EdStem: true,
     implemented: false,
   },
   {
     feature: "Export",
-    OpenEd: true,
+    eddy: true,
     EdStem: false,
     implemented: false,
   },
@@ -108,7 +108,7 @@ export function Comparison() {
         <TableHeader>
           <TableRow>
             <TableHead>Feature</TableHead>
-            <TableHead>ed</TableHead>
+            <TableHead>eddy</TableHead>
             <TableHead>EdStem</TableHead>
             <TableHead>Implemented</TableHead>
           </TableRow>
@@ -118,7 +118,7 @@ export function Comparison() {
             <TableRow key={feature.feature}>
               <TableCell>{feature.feature}</TableCell>
               <TableCell>
-                {feature.OpenEd ? (
+                {feature.eddy ? (
                   <CheckIcon
                     color="white"
                     className="bg-green-500 rounded-sm"

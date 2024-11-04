@@ -11,15 +11,14 @@ export function HeroSection() {
             <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
               Openly evolving education
             </h1>
-            <p className="mt-3 text-xl text-muted-foreground">
+            <p className="mt-6 text-xl text-muted-foreground">
               We're building an open platform to improve the learning experience
-              across schools and universities. ed takes the{" "}
-              <strong>powerful</strong> elements of common learning management
-              systems and puts them into a system that <strong>anyone</strong>{" "}
-              can use.
+              across schools and universities. eddy takes the{" "}
+              <strong>powerful</strong> elements of learning management systems
+              and puts them into a system that <strong>anyone</strong> can use.
             </p>
             {/* Buttons */}
-            <div className="mt-7 grid gap-3 w-full sm:inline-flex">
+            <div className="mt-8 grid gap-3 w-full sm:inline-flex">
               <Button size={"lg"}>Watch Demo</Button>
               <Button variant={"outline"} size={"lg"}>
                 Contact Us

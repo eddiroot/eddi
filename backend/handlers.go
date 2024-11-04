@@ -386,7 +386,7 @@ func getCourses(c *gin.Context) {
 	c.JSON(http.StatusOK, courses)
 }
 
-func getCourseByID(c *gin.Context) {
+func getCourse(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
@@ -519,4 +519,36 @@ func getCourseThread(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, thread)
+}
+
+func getCourseLessons(c *gin.Context) {
+	courseId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	courseLessons, err := GetCourseLessonsByCourseID(courseId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course lessons"})
+		return
+	}
+
+	c.JSON(http.StatusOK, courseLessons)
+}
+
+func getCourseLessonSectionsWithBlocks(c *gin.Context) {
+	lessonId, err := strconv.Atoi(c.Param("lessonId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid lesson ID"})
+		return
+	}
+
+	lessonSectionsWithBlocks, err := GetCourseLessonSectionsWithBlocksByLessonID(lessonId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course lesson sections with blocks"})
+		return
+	}
+
+	c.JSON(http.StatusOK, lessonSectionsWithBlocks)
 }

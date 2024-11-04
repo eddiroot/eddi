@@ -2,10 +2,12 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { CheckIcon } from "lucide-react";
+import { Button } from "../ui/button";
 
 export function Pricing() {
   return (
@@ -16,14 +18,14 @@ export function Pricing() {
           Pricing
         </h2>
         <p className="mt-1 text-muted-foreground">
-          No matter how big or small, we can help you make education better
+          A variety of pricing tiers so you can choose what suits you best
         </p>
       </div>
       {/* End Title */}
       {/* Grid */}
       <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:items-center">
         {/* Card */}
-        <Card className="h-96">
+        <Card className="h-96 flex flex-col">
           <CardHeader className="text-center pb-2">
             <CardTitle className="mb-7">Community</CardTitle>
             <div>
@@ -34,7 +36,7 @@ export function Pricing() {
           <CardDescription className="text-center w-10/12 mx-auto">
             For schools in disadvantaged communities
           </CardDescription>
-          <CardContent>
+          <CardContent className="flex-grow">
             <ul className="mt-7 space-y-2.5 text-sm">
               <li className="flex space-x-2">
                 <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
@@ -56,10 +58,13 @@ export function Pricing() {
               </li>
             </ul>
           </CardContent>
+          <CardFooter className="flex justify-center mb-0">
+            <Button size="lg">Contact Us</Button>
+          </CardFooter>
         </Card>
         {/* End Card */}
         {/* Card */}
-        <Card className="h-96">
+        <Card className="h-96 flex flex-col">
           <CardHeader className="text-center pb-2">
             <CardTitle className="!mb-7">Basic</CardTitle>
             <div>
@@ -70,7 +75,7 @@ export function Pricing() {
           <CardDescription className="text-center w-10/12 mx-auto">
             Unlock core functionality
           </CardDescription>
-          <CardContent>
+          <CardContent className="flex-grow">
             <ul className="mt-7 space-y-2.5 text-sm">
               <li className="flex space-x-2">
                 <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
@@ -92,10 +97,13 @@ export function Pricing() {
               </li>
             </ul>
           </CardContent>
+          <CardFooter className="flex justify-center mb-0">
+            <Button size="lg">Sign Up</Button>
+          </CardFooter>
         </Card>
         {/* End Card */}
         {/* Card */}
-        <Card className="h-96">
+        <Card className="h-96 flex flex-col">
           <CardHeader className="text-center pb-2">
             <CardTitle className="mb-7">Standard</CardTitle>
             <div>
@@ -106,7 +114,7 @@ export function Pricing() {
           <CardDescription className="text-center  w-10/12 mx-auto">
             Unlock core + additional functionality
           </CardDescription>
-          <CardContent>
+          <CardContent className="flex-grow">
             <ul className="mt-7 space-y-2.5 text-sm">
               <li className="flex space-x-2">
                 <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
@@ -128,10 +136,13 @@ export function Pricing() {
               </li>
             </ul>
           </CardContent>
+          <CardFooter className="flex justify-center mb-0">
+            <Button size="lg">Contact Us</Button>
+          </CardFooter>
         </Card>
         {/* End Card */}
         {/* Card */}
-        <Card className="h-96">
+        <Card className="h-96 flex flex-col">
           <CardHeader className="text-center pb-2">
             <CardTitle className="mb-7">Enterprise</CardTitle>
             <div>
@@ -142,14 +153,11 @@ export function Pricing() {
           <CardDescription className="text-center w-10/12 mx-auto">
             Unlock all functionality and enterprise-level support
           </CardDescription>
-          <CardContent>
+          <CardContent className="flex-grow">
             <ul className="mt-7 space-y-2.5 text-sm">
               <li className="flex space-x-2">
                 <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                <span className="text-muted-foreground">
-                  Discussion, Lessons, Chat, Workspaces, Course Bot,
-                  Assessments, Stats, Analytics, Export
-                </span>
+                <span className="text-muted-foreground">All features</span>
               </li>
               <li className="flex space-x-2">
                 <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
@@ -165,6 +173,9 @@ export function Pricing() {
               </li>
             </ul>
           </CardContent>
+          <CardFooter className="flex justify-center mb-0">
+            <Button size="lg">Contact Us</Button>
+          </CardFooter>
         </Card>
         {/* End Card */}
       </div>
