@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS CourseLessonSectionBlock (
     courseLessonSectionId INT REFERENCES CourseLessonSection(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    type VARCHAR(20) CHECK (type IN ('Text', 'Image', 'Input', 'TextArea', 'MCSingleAnswer', 'MCMultiAnswer')),
+    type VARCHAR(20) CHECK (type IN ('Text', 'Audio', 'Image', 'Input', 'TextArea', 'MCSingleAnswer', 'MCMultiAnswer')),
     createdAt TIMESTAMP default current_timestamp,
     modifiedAt TIMESTAMP
 );

@@ -5,7 +5,7 @@ import { BASE_URL } from "@/lib/constants";
 import { CourseLesson } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { RefreshCcw, SearchIcon } from "lucide-react";
+import { Plus, RefreshCcw, SearchIcon } from "lucide-react";
 
 async function fetchCourseLessons(courseId: string) {
   const response = await fetch(`${BASE_URL}/app/courses/${courseId}/lessons`, {
@@ -49,18 +49,28 @@ function Lessons() {
             <SearchIcon className="absolute left-2.5 top-2.5 w-4 h-4" />
           </div>
         </div>
-        <Button variant="ghost">
-          Refresh <RefreshCcw />
-        </Button>
+        <div className="flex gap-1">
+          <Button variant="ghost">
+            Refresh <RefreshCcw />
+          </Button>
+          <Link
+            className={buttonVariants({ variant: "ghost" })}
+            to="/institutions/$institutionId/courses/$courseId/lessons/new"
+            params={{ institutionId, courseId }}
+          >
+            Add Lesson <Plus />
+          </Link>
+        </div>
       </div>
       <div className="space-y-8">
         {Object.entries(lessonsByWeek).map(([week, lessons]) => (
-          <div className="space-y-4">
+          <div className="space-y-4" key={week}>
             <h1 className="text-xl font-bold">Week {week}</h1>
             <Separator />
             <ol className="space-y-2">
               {lessons.map((lesson) => (
                 <Link
+                  key={lesson.id}
                   to="/institutions/$institutionId/courses/$courseId/lessons/$lessonId"
                   className={cn(
                     buttonVariants({ variant: "ghost" }),

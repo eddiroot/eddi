@@ -30,6 +30,7 @@ import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionImport
 import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutChatImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/chat'
 import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutBotImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/bot'
 import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/lessons/index'
+import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/lessons/new'
 import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/lessons/$lessonId'
 import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionNewImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/discussion.new'
 import { Route as InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionThreadIdImport } from './routes/institutions/$institutionId/courses/$courseId/_layout/discussion.$threadId'
@@ -139,6 +140,12 @@ const InstitutionsInstitutionIdCoursesCourseIdLayoutBotRoute =
 const InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute =
   InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexImport.update({
     path: '/lessons/',
+    getParentRoute: () => InstitutionsInstitutionIdCoursesCourseIdLayoutRoute,
+  } as any)
+
+const InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute =
+  InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewImport.update({
+    path: '/lessons/new',
     getParentRoute: () => InstitutionsInstitutionIdCoursesCourseIdLayoutRoute,
   } as any)
 
@@ -308,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdImport
       parentRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutImport
     }
+    '/institutions/$institutionId/courses/$courseId/_layout/lessons/new': {
+      id: '/institutions/$institutionId/courses/$courseId/_layout/lessons/new'
+      path: '/lessons/new'
+      fullPath: '/institutions/$institutionId/courses/$courseId/lessons/new'
+      preLoaderRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewImport
+      parentRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutImport
+    }
     '/institutions/$institutionId/courses/$courseId/_layout/lessons/': {
       id: '/institutions/$institutionId/courses/$courseId/_layout/lessons/'
       path: '/lessons'
@@ -345,6 +359,7 @@ interface InstitutionsInstitutionIdCoursesCourseIdLayoutRouteChildren {
   InstitutionsInstitutionIdCoursesCourseIdLayoutNotesRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutNotesRoute
   InstitutionsInstitutionIdCoursesCourseIdLayoutWorkspacesRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutWorkspacesRoute
   InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute
+  InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute
   InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute: typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute
 }
 
@@ -362,6 +377,8 @@ const InstitutionsInstitutionIdCoursesCourseIdLayoutRouteChildren: InstitutionsI
       InstitutionsInstitutionIdCoursesCourseIdLayoutWorkspacesRoute,
     InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute:
       InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute,
+    InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute:
+      InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute,
     InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute:
       InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute,
   }
@@ -406,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/institutions/$institutionId/courses/$courseId/discussion/$threadId': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionThreadIdRoute
   '/institutions/$institutionId/courses/$courseId/discussion/new': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionNewRoute
   '/institutions/$institutionId/courses/$courseId/lessons/$lessonId': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute
+  '/institutions/$institutionId/courses/$courseId/lessons/new': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute
   '/institutions/$institutionId/courses/$courseId/lessons': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute
 }
 
@@ -429,6 +447,7 @@ export interface FileRoutesByTo {
   '/institutions/$institutionId/courses/$courseId/discussion/$threadId': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionThreadIdRoute
   '/institutions/$institutionId/courses/$courseId/discussion/new': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionNewRoute
   '/institutions/$institutionId/courses/$courseId/lessons/$lessonId': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute
+  '/institutions/$institutionId/courses/$courseId/lessons/new': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute
   '/institutions/$institutionId/courses/$courseId/lessons': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute
 }
 
@@ -454,6 +473,7 @@ export interface FileRoutesById {
   '/institutions/$institutionId/courses/$courseId/_layout/discussion/$threadId': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionThreadIdRoute
   '/institutions/$institutionId/courses/$courseId/_layout/discussion/new': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutDiscussionNewRoute
   '/institutions/$institutionId/courses/$courseId/_layout/lessons/$lessonId': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsLessonIdRoute
+  '/institutions/$institutionId/courses/$courseId/_layout/lessons/new': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsNewRoute
   '/institutions/$institutionId/courses/$courseId/_layout/lessons/': typeof InstitutionsInstitutionIdCoursesCourseIdLayoutLessonsIndexRoute
 }
 
@@ -479,6 +499,7 @@ export interface FileRouteTypes {
     | '/institutions/$institutionId/courses/$courseId/discussion/$threadId'
     | '/institutions/$institutionId/courses/$courseId/discussion/new'
     | '/institutions/$institutionId/courses/$courseId/lessons/$lessonId'
+    | '/institutions/$institutionId/courses/$courseId/lessons/new'
     | '/institutions/$institutionId/courses/$courseId/lessons'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -501,6 +522,7 @@ export interface FileRouteTypes {
     | '/institutions/$institutionId/courses/$courseId/discussion/$threadId'
     | '/institutions/$institutionId/courses/$courseId/discussion/new'
     | '/institutions/$institutionId/courses/$courseId/lessons/$lessonId'
+    | '/institutions/$institutionId/courses/$courseId/lessons/new'
     | '/institutions/$institutionId/courses/$courseId/lessons'
   id:
     | '__root__'
@@ -524,6 +546,7 @@ export interface FileRouteTypes {
     | '/institutions/$institutionId/courses/$courseId/_layout/discussion/$threadId'
     | '/institutions/$institutionId/courses/$courseId/_layout/discussion/new'
     | '/institutions/$institutionId/courses/$courseId/_layout/lessons/$lessonId'
+    | '/institutions/$institutionId/courses/$courseId/_layout/lessons/new'
     | '/institutions/$institutionId/courses/$courseId/_layout/lessons/'
   fileRoutesById: FileRoutesById
 }
@@ -629,6 +652,7 @@ export const routeTree = rootRoute
         "/institutions/$institutionId/courses/$courseId/_layout/notes",
         "/institutions/$institutionId/courses/$courseId/_layout/workspaces",
         "/institutions/$institutionId/courses/$courseId/_layout/lessons/$lessonId",
+        "/institutions/$institutionId/courses/$courseId/_layout/lessons/new",
         "/institutions/$institutionId/courses/$courseId/_layout/lessons/"
       ]
     },
@@ -666,6 +690,10 @@ export const routeTree = rootRoute
     },
     "/institutions/$institutionId/courses/$courseId/_layout/lessons/$lessonId": {
       "filePath": "institutions/$institutionId/courses/$courseId/_layout/lessons/$lessonId.tsx",
+      "parent": "/institutions/$institutionId/courses/$courseId/_layout"
+    },
+    "/institutions/$institutionId/courses/$courseId/_layout/lessons/new": {
+      "filePath": "institutions/$institutionId/courses/$courseId/_layout/lessons/new.tsx",
       "parent": "/institutions/$institutionId/courses/$courseId/_layout"
     },
     "/institutions/$institutionId/courses/$courseId/_layout/lessons/": {

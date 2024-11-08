@@ -46,7 +46,10 @@ function DiscussionThread() {
         <div className="ml-8 space-y-2">
           <Card>
             <CardHeader>Jon Snow</CardHeader>
-            <CardContent>This is a comment on the main question.</CardContent>
+            <CardContent>
+              This is a comment on the main question. It is in the frontend and
+              not pulled from the API.
+            </CardContent>
           </Card>
           <Card>
             <CardHeader>Harry Potter</CardHeader>

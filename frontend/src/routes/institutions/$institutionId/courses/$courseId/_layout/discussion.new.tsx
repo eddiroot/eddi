@@ -83,16 +83,18 @@ function CreateThread() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
-      <div className="flex justify-between gap-2 h-10 items-center">
-        <Link
-          className={buttonVariants({ variant: 'link' })}
-          to="/institutions/$institutionId/courses/$courseId/discussion"
-          params={{ institutionId, courseId }}
-        >
-          Cancel
-        </Link>
+      <div className="flex justify-between h-10 items-center">
         <h2 className="text-xl font-bold">New {type}</h2>
-        <Button type="submit">Post</Button>
+        <div className="flex gap-2 items-center">
+          <Link
+            className={buttonVariants({ variant: "link" })}
+            to="/institutions/$institutionId/courses/$courseId/discussion"
+            params={{ institutionId, courseId }}
+          >
+            Cancel
+          </Link>
+          <Button type="submit">Post</Button>
+        </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="type">Type</Label>
@@ -100,16 +102,16 @@ function CreateThread() {
           <Button
             type="button"
             variant="secondary"
-            className={`w-1/2 ${type === 'Question' ? 'bg-purple-500 hover:bg-purple-500 text-white' : ''}`}
-            onClick={() => setValue('type', 'Question')}
+            className={`w-1/2 ${type === "Question" ? "bg-purple-500 hover:bg-purple-500 text-white" : ""}`}
+            onClick={() => setValue("type", "Question")}
           >
             <QuestionMarkCircledIcon /> Question
           </Button>
           <Button
             type="button"
             variant="secondary"
-            className={`w-1/2 ${type === 'Post' ? 'bg-blue-500 hover:bg-blue-500 text-white' : ''}`}
-            onClick={() => setValue('type', 'Post')}
+            className={`w-1/2 ${type === "Post" ? "bg-blue-500 hover:bg-blue-500 text-white" : ""}`}
+            onClick={() => setValue("type", "Post")}
           >
             <MessageSquareTextIcon />
             Post
@@ -122,7 +124,7 @@ function CreateThread() {
         <Input
           id="title"
           type="text"
-          {...register('title', { required: 'Title is required' })}
+          {...register("title", { required: "Title is required" })}
         />
         {errors.title && <p className="text-red-600">{errors.title.message}</p>}
       </div>
@@ -131,12 +133,12 @@ function CreateThread() {
         <Textarea
           id="content"
           className="min-h-64"
-          {...register('content', { required: 'Content is required' })}
+          {...register("content", { required: "Content is required" })}
         />
         {errors.content && (
           <p className="text-red-600">{errors.content.message}</p>
         )}
       </div>
     </form>
-  )
+  );
 }
