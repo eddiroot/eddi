@@ -100,7 +100,7 @@ export function Comparison() {
           Feature Comparison
         </h2>
         <p className="mt-1 text-muted-foreground">
-          Compare the functionality of ed to other systems.
+          Compare the functionality of eddy to other systems.
         </p>
       </div>
       {/* End Title */}

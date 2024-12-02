@@ -1,10 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { BASE_URL } from "@/lib/constants";
 import { CourseThread } from "@/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
-import { Ellipsis } from "lucide-react";
+import {
+  Ellipsis,
+  MessageSquareTextIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
+} from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -43,28 +49,83 @@ function DiscussionThread() {
             <Ellipsis />
           </Button>
         </div>
-        <div className="ml-8 space-y-2">
-          <Card>
-            <CardHeader>Jon Snow</CardHeader>
-            <CardContent>
-              This is a comment on the main question. It is in the frontend and
-              not pulled from the API.
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>Harry Potter</CardHeader>
-            <CardContent>Another comment on the main question.</CardContent>
-          </Card>
+        <Separator />
+        <div className="ml-8 space-y-3">
+          <Comment
+            author="Jon Snow"
+            content="This is a comment on the main question. It is in the frontend and
+              not pulled from the API."
+            replies={[
+              {
+                author: "Harry Potter",
+                content: "A nested comment by Mr Potter.",
+              },
+            ]}
+          />
+          <Comment
+            author="Harry Potter"
+            content="Another comment on the main question."
+          />
         </div>
       </div>
-      <Card>
-        <CardHeader>Lightning McQueen</CardHeader>
-        <CardContent>This is an answer to the main question.</CardContent>
+      <Card className="min-h-44">
+        <CardHeader>
+          <strong>Lightning McQueen</strong>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p>This is an answer to the main question.</p>
+          <div className="flex gap-2">
+            <Button variant="secondary">Comment</Button>
+            <Button variant="ghost" size="icon">
+              <Ellipsis />
+            </Button>
+          </div>
+        </CardContent>
       </Card>
-      <div className="space-y-2">
+      <div className="space-y-4">
         <h2 className="text-xl">Your answer</h2>
-        <Textarea placeholder="Start typing..." />
+        <Textarea className="min-h-40" placeholder="Start typing..." />
         <Button>Send</Button>
+      </div>
+    </div>
+  );
+}
+
+type CommentType = {
+  author: string;
+  content: string;
+  replies?: CommentType[];
+};
+
+function Comment({ author, content, replies }: CommentType) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <p>
+          <strong>{author}</strong>
+        </p>
+        <p>{content}</p>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="icon">
+            <ThumbsUpIcon />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <ThumbsDownIcon />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <MessageSquareTextIcon />
+          </Button>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3 ml-10">
+        {replies?.map(({ author, content, replies }, idx) => (
+          <Comment
+            key={idx}
+            author={author}
+            content={content}
+            replies={replies}
+          />
+        ))}
       </div>
     </div>
   );

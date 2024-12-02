@@ -1,3 +1,4 @@
+import { FileUploader } from "@/components/file-uploader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,11 +33,71 @@ export const Route = createFileRoute(
   component: CreateLesson,
 });
 
+const blockTypeSelections = [
+  {
+    label: "Text",
+    value: "Text",
+    element: <TextIcon />,
+  },
+  {
+    label: "Audio",
+    value: "Audio",
+    element: <AudioLinesIcon />,
+  },
+  {
+    label: "Image",
+    value: "Image",
+    element: <ImageIcon />,
+  },
+  {
+    label: "Short Input",
+    value: "Input",
+    element: <TextCursorInputIcon />,
+  },
+  {
+    label: "Long Input",
+    value: "TextArea",
+    element: <NotepadTextIcon />,
+  },
+  {
+    label: "Single Select",
+    value: "MCSingleAnswer",
+    element: <DiscIcon />,
+  },
+  {
+    label: "Multi Select",
+    value: "MCMultiAnswer",
+    element: <Disc2Icon />,
+  },
+];
+
 type BlockType = {
   id: number;
   type: string;
   content: string;
 };
+
+function renderBlock(block: BlockType) {
+  switch (block.type) {
+    case "Text":
+      return <p>{block.content}</p>;
+
+    case "Audio":
+      if (block.content != "") {
+        return <audio controls src={block.content}></audio>;
+      }
+      return <FileUploader />;
+
+    case "Image":
+      if (block.content != "") {
+        return <img src={block.content} alt="Image" />;
+      }
+      return <FileUploader />;
+
+    default:
+      return <p>Block was an invalid type</p>;
+  }
+}
 
 type SectionType = {
   id: number;
@@ -185,11 +246,11 @@ function CreateLesson() {
               ) : (
                 <div
                   key={section.id}
-                  className="flex items-center justify-between px-2"
+                  className="flex items-center justify-between"
                 >
                   <h2
                     onClick={() => setSelectedSection(section.id)}
-                    className={`cursor-pointer max-w-xs truncate ${section.id == selectedSection ? "font-bold" : ""}`}
+                    className={`cursor-pointer max-w-[160px] truncate ${section.id == selectedSection ? "font-bold" : ""}`}
                   >
                     {section.title}
                   </h2>
@@ -214,19 +275,42 @@ function CreateLesson() {
           ) : (
             <div className="space-y-4">
               {sections[selectedSection]?.blocks.map((block) => (
-                <div key={block.id} className="h-20 rounded-lg border">
+                <div
+                  key={block.id}
+                  className={`min-h-20 ${block.type == "" ? "rounded-lg border" : ""}`}
+                >
                   {block.type == "" ? (
-                    <div className="flex justify-center h-full items-center gap-2">
-                      <TextIcon />
-                      <AudioLinesIcon />
-                      <ImageIcon />
-                      <TextCursorInputIcon />
-                      <NotepadTextIcon />
-                      <DiscIcon />
-                      <Disc2Icon />
+                    <div className="flex justify-center h-20 items-center gap-2">
+                      {blockTypeSelections.map((t) => (
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="outline"
+                          title={t.label}
+                          onClick={() => {
+                            setSections(
+                              sections.map((section) =>
+                                selectedSection === section.id
+                                  ? {
+                                      ...section,
+                                      blocks: section.blocks.map(
+                                        (innerBlock) =>
+                                          innerBlock.id == block.id
+                                            ? { ...innerBlock, type: t.value }
+                                            : innerBlock
+                                      ),
+                                    }
+                                  : section
+                              )
+                            );
+                          }}
+                        >
+                          {t.element}
+                        </Button>
+                      ))}
                     </div>
                   ) : (
-                    <p>block.content</p>
+                    renderBlock(block)
                   )}
                 </div>
               ))}

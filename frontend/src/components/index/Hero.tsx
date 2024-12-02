@@ -12,17 +12,14 @@ export function HeroSection() {
               Openly evolving education
             </h1>
             <p className="mt-6 text-xl text-muted-foreground">
-              We're building an open platform to improve the learning experience
-              across schools and universities. eddy takes the{" "}
-              <strong>powerful</strong> elements of learning management systems
-              and puts them into a system that <strong>anyone</strong> can use.
+              A learning management system that <strong>anyone</strong> can use.
             </p>
             {/* Buttons */}
             <div className="mt-8 grid gap-3 w-full sm:inline-flex">
-              <Button size={"lg"}>Watch Demo</Button>
-              <Button variant={"outline"} size={"lg"}>
-                Contact Us
+              <Button variant="outline" size="lg">
+                Watch the demo
               </Button>
+              <Button size="lg">Get in touch</Button>
             </div>
             {/* End Buttons */}
             <div className="mt-6 lg:mt-10 grid grid-cols-2 gap-x-5">

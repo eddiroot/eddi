@@ -1,11 +1,15 @@
-// import { MessageSquareIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useChildMatches,
+} from "@tanstack/react-router";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { BASE_URL } from "@/lib/constants";
 import { CourseThread } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 async function fetchCourseDiscussions(courseId: string) {
@@ -26,6 +30,8 @@ export const Route = createFileRoute(
 
 function Discussion() {
   const { institutionId, courseId } = Route.useParams();
+  const childMatches = useChildMatches();
+  console.log(childMatches);
 
   const courseThreads = Route.useLoaderData() as CourseThread[];
 
@@ -70,16 +76,19 @@ function Discussion() {
         </div>
       </div>
       <Separator orientation="vertical" />
-      {/* Thread */}
-      <div className="flex flex-grow p-8">
-        <Outlet />
-      </div>
-      {/* <div className="flex flex-grow justify-center items-center">
+      {childMatches.length == 0 && (
+        <div className="flex justify-center w-full items-center">
           <div className="flex flex-col items-center gap-4">
             <MessageSquareIcon size={64} />
             <span className="text-xl font-bold">Select a thread</span>
           </div>
-        </div> */}
+        </div>
+      )}
+      {childMatches.length > 0 && (
+        <div className="flex w-full p-8">
+          <Outlet />
+        </div>
+      )}
     </div>
   );
 }
