@@ -1,10 +1,13 @@
-package main
+package handlers
 
 import (
 	"fmt"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/lachlanmacphee/eddy/lib"
+	"github.com/lachlanmacphee/eddy/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -13,7 +16,7 @@ import (
 func APIKeyAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		apiKey := c.GetHeader("X-API-Key")
-		if apiKey != os.Getenv(ENV_AUTH_ADMIN_API_KEY) {
+		if apiKey != os.Getenv(lib.ENV_AUTH_ADMIN_API_KEY) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 			c.Abort()
 			return
@@ -38,7 +41,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
-			return []byte(os.Getenv(ENV_AUTH_JWT_SECRET_KEY)), nil
+			return []byte(os.Getenv(lib.ENV_AUTH_JWT_SECRET_KEY)), nil
 		})
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -55,7 +58,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 			// Find the user with token Subject
 			// Look up for requested user
-			user, err := GetUserByID(int(subClaimFloat))
+			user, err := service.GetUserByID(int(subClaimFloat))
 
 			// Failed to find the user
 			if err != nil {

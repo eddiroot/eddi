@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/lachlanmacphee/eddy/database"
+	"github.com/lachlanmacphee/eddy/handlers"
+	"github.com/lachlanmacphee/eddy/lib"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -14,38 +14,17 @@ import (
 )
 
 func main() {
-	LoadAndValidateEnvVariables()
+	lib.LoadAndValidateEnvVariables()
 
 	// Setup database connection
-	InitialiseDB()
+	database.InitialiseDB()
 
 	// Will only close once main is finished
-	defer db.Close()
-
-	// Create the database driver instance
-	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-	if err != nil {
-		log.Fatalf("Failed to create sqlite driver instance: %v", err)
-	}
-
-	// Setup migration
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://database/migrations",
-		"sqlite3", driver)
-	if err != nil {
-		log.Fatalf("Failed to initialise migrations: %v", err)
-	}
-
-	// Apply migrations
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("Migration failed: %v", err)
-	} else if err == migrate.ErrNoChange {
-		log.Println("No new migrations to apply.")
-	}
+	defer database.DB.Close()
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://opened.com", "http://localhost:5173"},
+		AllowOrigins:     []string{"https://eddy.io", "http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE", "HEAD"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Language", "Accept-Encoding", "Connection", "Access-Control-Allow-Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -55,74 +34,74 @@ func main() {
 
 	authGroup := r.Group("/auth")
 	{
-		authGroup.POST("/signup", Signup)
-		authGroup.POST("/login", Login)
-		authGroup.POST("/logout", Logout)
+		authGroup.POST("/signup", handlers.Signup)
+		authGroup.POST("/login", handlers.Login)
+		authGroup.POST("/logout", handlers.Logout)
 	}
 
 	appGroup := r.Group("/app")
-	appGroup.Use(JWTAuthMiddleware())
+	appGroup.Use(handlers.JWTAuthMiddleware())
 	{
 		userGroup := appGroup.Group("/user")
 		{
-			userGroup.GET("/courses", getUserCourses)
+			userGroup.GET("/courses", handlers.GetUserCourses)
 		}
 
 		coursesGroup := appGroup.Group("/courses")
 		{
-			coursesGroup.GET("/:id", getCourse)
-			coursesGroup.GET("/:id/threads", getCourseThreads)
-			coursesGroup.POST("/:id/threads", createCourseThread)
-			coursesGroup.GET("/:id/threads/:threadId", getCourseThread)
-			coursesGroup.GET("/:id/lessons", getCourseLessons)
-			coursesGroup.GET("/:id/lessons/:lessonId", getCourseLessonSectionsWithBlocks)
+			coursesGroup.GET("/:id", handlers.GetCourse)
+			coursesGroup.GET("/:id/threads", handlers.GetCourseThreads)
+			coursesGroup.POST("/:id/threads", handlers.CreateCourseThread)
+			coursesGroup.GET("/:id/threads/:threadId", handlers.GetCourseThread)
+			coursesGroup.GET("/:id/lessons", handlers.GetCourseLessons)
+			coursesGroup.GET("/:id/lessons/:lessonId", handlers.GetCourseLessonSectionsWithBlocks)
 		}
 
 	}
 
 	apiGroup := r.Group("/api/v1")
-	apiGroup.Use(APIKeyAuthMiddleware())
+	apiGroup.Use(handlers.APIKeyAuthMiddleware())
 	{
 		institutionGroup := apiGroup.Group("/institutions")
 		{
-			institutionGroup.POST("/", createInstitution)
-			institutionGroup.GET("/", getInstitutions)
-			institutionGroup.GET("/:id", getInstitutionByID)
-			institutionGroup.PUT("/:id", updateInstitution)
-			institutionGroup.DELETE("/:id", deleteInstitution)
+			institutionGroup.POST("/", handlers.CreateInstitution)
+			institutionGroup.GET("/", handlers.GetInstitutions)
+			institutionGroup.GET("/:id", handlers.GetInstitutionByID)
+			institutionGroup.PUT("/:id", handlers.UpdateInstitution)
+			institutionGroup.DELETE("/:id", handlers.DeleteInstitution)
 		}
 
 		adminGroup := apiGroup.Group("/admins")
 		{
-			adminGroup.POST("/", createAdmin)
-			adminGroup.GET("/", getAdmins)
-			adminGroup.GET("/:id", getAdminByID)
-			adminGroup.PUT("/:id", updateAdmin)
-			adminGroup.DELETE("/:id", deleteAdmin)
+			adminGroup.POST("/", handlers.CreateAdmin)
+			adminGroup.GET("/", handlers.GetAdmins)
+			adminGroup.GET("/:id", handlers.GetAdminByID)
+			adminGroup.PUT("/:id", handlers.UpdateAdmin)
+			adminGroup.DELETE("/:id", handlers.DeleteAdmin)
 		}
 
 		// Protected routes for User and Course
 		userGroup := apiGroup.Group("/users")
 		{
-			userGroup.POST("/", createUser)
-			userGroup.GET("/", getUsers)
-			userGroup.GET("/:id", getUserByID)
-			userGroup.PUT("/:id", updateUser)
-			userGroup.DELETE("/:id", deleteUser)
+			userGroup.POST("/", handlers.CreateUser)
+			userGroup.GET("/", handlers.GetUsers)
+			userGroup.GET("/:id", handlers.GetUserByID)
+			userGroup.PUT("/:id", handlers.UpdateUser)
+			userGroup.DELETE("/:id", handlers.DeleteUser)
 		}
-
+		
 		courseGroup := apiGroup.Group("/courses")
 		{
-			courseGroup.POST("/", createCourse)
-			courseGroup.GET("/", getCourses)
-			courseGroup.GET("/:id", getCourse)
-			courseGroup.PUT("/:id", updateCourse)
-			courseGroup.DELETE("/:id", deleteCourse)
+			courseGroup.POST("/", handlers.CreateCourse)
+			courseGroup.GET("/", handlers.GetCourses)
+			courseGroup.GET("/:id", handlers.GetCourse)
+			courseGroup.PUT("/:id", handlers.UpdateCourse)
+			courseGroup.DELETE("/:id", handlers.DeleteCourse)
 		}
 
 		userCourseGroup := apiGroup.Group("/userCourses")
 		{
-			userCourseGroup.POST("/", createUserCourse)
+			userCourseGroup.POST("/", handlers.CreateUserCourse)
 		}
 	}
 

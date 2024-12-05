@@ -1,4 +1,4 @@
-module opened
+module github.com/lachlanmacphee/eddy
 
 go 1.22.4
 

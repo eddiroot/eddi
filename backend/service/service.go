@@ -1,50 +1,32 @@
-package main
+package service
 
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
+
+	"github.com/lachlanmacphee/eddy/database"
 
 	_ "github.com/mattn/go-sqlite3"
 )
-
-var db *sql.DB
-
-func InitialiseDB() {
-	var err error
-
-	db, err = sql.Open("sqlite3", os.Getenv(ENV_DATABASE_URL))
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
-
-	// Test the database connection
-	if err = db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Connected to the database successfully!")
-}
 
 // Institution Operations
 func CreateInstitution(name, continent string) (int, error) {
 	var id int
 	query := `INSERT INTO Institution (name, continent) VALUES ($1, $2) RETURNING id`
-	err := db.QueryRow(query, name, continent).Scan(&id)
+	err := database.DB.QueryRow(query, name, continent).Scan(&id)
 	return id, err
 }
 
-func GetInstitutions() ([]Institution, error) {
-	rows, err := db.Query(`SELECT id, name, continent FROM Institution`)
+func GetInstitutions() ([]database.Institution, error) {
+	rows, err := database.DB.Query(`SELECT id, name, continent FROM Institution`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var institutions []Institution
+	var institutions []database.Institution
 	for rows.Next() {
-		var institution Institution
+		var institution database.Institution
 		if err := rows.Scan(&institution.ID, &institution.Name, &institution.Continent); err != nil {
 			return nil, err
 		}
@@ -53,22 +35,22 @@ func GetInstitutions() ([]Institution, error) {
 	return institutions, nil
 }
 
-func GetInstitutionByID(id int) (Institution, error) {
-	var institution Institution
+func GetInstitutionByID(id int) (database.Institution, error) {
+	var institution database.Institution
 	query := `SELECT id, name, continent FROM Institution WHERE id = $1`
-	err := db.QueryRow(query, id).Scan(&institution.ID, &institution.Name, &institution.Continent)
+	err := database.DB.QueryRow(query, id).Scan(&institution.ID, &institution.Name, &institution.Continent)
 	return institution, err
 }
 
 func UpdateInstitution(id int, name, continent string) error {
 	query := `UPDATE Institution SET name = $1, continent = $2 WHERE id = $3`
-	_, err := db.Exec(query, name, continent, id)
+	_, err := database.DB.Exec(query, name, continent, id)
 	return err
 }
 
 func DeleteInstitution(id int) error {
 	query := `DELETE FROM Institution WHERE id = $1`
-	_, err := db.Exec(query, id)
+	_, err := database.DB.Exec(query, id)
 	return err
 }
 
@@ -76,20 +58,20 @@ func DeleteInstitution(id int) error {
 func CreateAdmin(institutionID int, username, password string) (int, error) {
 	var id int
 	query := `INSERT INTO Admin (institutionId, username, password) VALUES ($1, $2, $3) RETURNING id`
-	err := db.QueryRow(query, institutionID, username, password).Scan(&id)
+	err := database.DB.QueryRow(query, institutionID, username, password).Scan(&id)
 	return id, err
 }
 
-func GetAdmins() ([]Admin, error) {
-	rows, err := db.Query(`SELECT id, institutionId, username, password FROM Admin`)
+func GetAdmins() ([]database.Admin, error) {
+	rows, err := database.DB.Query(`SELECT id, institutionId, username, password FROM Admin`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var admins []Admin
+	var admins []database.Admin
 	for rows.Next() {
-		var admin Admin
+		var admin database.Admin
 		if err := rows.Scan(&admin.ID, &admin.InstitutionID, &admin.Username, &admin.Password); err != nil {
 			return nil, err
 		}
@@ -98,22 +80,22 @@ func GetAdmins() ([]Admin, error) {
 	return admins, nil
 }
 
-func GetAdminByID(id int) (Admin, error) {
-	var admin Admin
+func GetAdminByID(id int) (database.Admin, error) {
+	var admin database.Admin
 	query := `SELECT id, institutionId, username, password FROM Admin WHERE id = $1`
-	err := db.QueryRow(query, id).Scan(&admin.ID, &admin.InstitutionID, &admin.Username, &admin.Password)
+	err := database.DB.QueryRow(query, id).Scan(&admin.ID, &admin.InstitutionID, &admin.Username, &admin.Password)
 	return admin, err
 }
 
 func UpdateAdmin(id int, institutionID int, username, password string) error {
 	query := `UPDATE Admin SET institutionId = $1, username = $2, password = $3 WHERE id = $4`
-	_, err := db.Exec(query, institutionID, username, password, id)
+	_, err := database.DB.Exec(query, institutionID, username, password, id)
 	return err
 }
 
 func DeleteAdmin(id int) error {
 	query := `DELETE FROM Admin WHERE id = $1`
-	_, err := db.Exec(query, id)
+	_, err := database.DB.Exec(query, id)
 	return err
 }
 
@@ -121,20 +103,20 @@ func DeleteAdmin(id int) error {
 func CreateUser(firstName, middleName, lastName, username, password, avatarUrl string) (int, error) {
 	var id int
 	query := `INSERT INTO AppUser (firstName, middleName, lastName, username, password, avatarUrl) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
-	err := db.QueryRow(query, firstName, middleName, lastName, username, password, avatarUrl).Scan(&id)
+	err := database.DB.QueryRow(query, firstName, middleName, lastName, username, password, avatarUrl).Scan(&id)
 	return id, err
 }
 
-func GetUsers() ([]User, error) {
-	rows, err := db.Query(`SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser`)
+func GetUsers() ([]database.User, error) {
+	rows, err := database.DB.Query(`SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var users []User
+	var users []database.User
 	for rows.Next() {
-		var user User
+		var user database.User
 		if err := rows.Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl); err != nil {
 			return nil, err
 		}
@@ -143,29 +125,29 @@ func GetUsers() ([]User, error) {
 	return users, nil
 }
 
-func GetUserByID(id int) (User, error) {
-	var user User
+func GetUserByID(id int) (database.User, error) {
+	var user database.User
 	query := `SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser WHERE id = $1`
-	err := db.QueryRow(query, id).Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl)
+	err := database.DB.QueryRow(query, id).Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl)
 	return user, err
 }
 
-func GetUserByUsername(username string) (User, error) {
-	var user User
+func GetUserByUsername(username string) (database.User, error) {
+	var user database.User
 	query := `SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser WHERE username = $1`
-	err := db.QueryRow(query, username).Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl)
+	err := database.DB.QueryRow(query, username).Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl)
 	return user, err
 }
 
 func UpdateUser(id int, firstName, middleName, lastName, username, password, avatarUrl string) error {
 	query := `UPDATE AppUser SET firstName = $1, middleName = $2, lastName = $3, username = $4, password = $5, avatarUrl = $6 WHERE id = $7`
-	_, err := db.Exec(query, firstName, middleName, lastName, username, password, avatarUrl, id)
+	_, err := database.DB.Exec(query, firstName, middleName, lastName, username, password, avatarUrl, id)
 	return err
 }
 
 func DeleteUser(id int) error {
 	query := `DELETE FROM AppUser WHERE id = $1`
-	_, err := db.Exec(query, id)
+	_, err := database.DB.Exec(query, id)
 	return err
 }
 
@@ -173,20 +155,20 @@ func DeleteUser(id int) error {
 func CreateCourse(institutionID int, name, description string) (int, error) {
 	var id int
 	query := `INSERT INTO Course (institutionId, name, description) VALUES ($1, $2, $3) RETURNING id`
-	err := db.QueryRow(query, institutionID, name, description).Scan(&id)
+	err := database.DB.QueryRow(query, institutionID, name, description).Scan(&id)
 	return id, err
 }
 
-func GetCourses() ([]Course, error) {
-	rows, err := db.Query(`SELECT id, institutionId, name, description FROM Course`)
+func GetCourses() ([]database.Course, error) {
+	rows, err := database.DB.Query(`SELECT id, institutionId, name, description FROM Course`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var courses []Course
+	var courses []database.Course
 	for rows.Next() {
-		var course Course
+		var course database.Course
 		if err := rows.Scan(&course.ID, &course.InstitutionID, &course.Name, &course.Description); err != nil {
 			return nil, err
 		}
@@ -195,22 +177,22 @@ func GetCourses() ([]Course, error) {
 	return courses, nil
 }
 
-func GetCourseByID(id int) (Course, error) {
-	var course Course
+func GetCourseByID(id int) (database.Course, error) {
+	var course database.Course
 	query := `SELECT id, institutionId, name, description FROM Course WHERE id = $1`
-	err := db.QueryRow(query, id).Scan(&course.ID, &course.InstitutionID, &course.Name, &course.Description)
+	err := database.DB.QueryRow(query, id).Scan(&course.ID, &course.InstitutionID, &course.Name, &course.Description)
 	return course, err
 }
 
 func UpdateCourse(id int, institutionID int, name, description string) error {
 	query := `UPDATE Course SET institutionId = $1, name = $2, description = $3 WHERE id = $4`
-	_, err := db.Exec(query, institutionID, name, description, id)
+	_, err := database.DB.Exec(query, institutionID, name, description, id)
 	return err
 }
 
 func DeleteCourse(id int) error {
 	query := `DELETE FROM Course WHERE id = $1`
-	_, err := db.Exec(query, id)
+	_, err := database.DB.Exec(query, id)
 	return err
 }
 
@@ -219,21 +201,21 @@ func CreateUserCourse(appUserId int, courseId int, year int, semester int, role 
 	var returnUserId int
 	var returnCourseId int
 	query := `INSERT INTO AppUserCourse (appUserId, courseId, year, semester, role, isComplete, isArchived) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING appUserId, courseId`
-	err := db.QueryRow(query, appUserId, courseId, year, semester, role, isComplete, isArchived).Scan(&returnUserId, &returnCourseId)
+	err := database.DB.QueryRow(query, appUserId, courseId, year, semester, role, isComplete, isArchived).Scan(&returnUserId, &returnCourseId)
 	return returnUserId, returnCourseId, err
 }
 
-func GetUserCoursesByUserID(userId int) ([]UserCourse, error) {
+func GetUserCoursesByUserID(userId int) ([]database.UserCourse, error) {
 	query := `SELECT userId, courseId, year, semester, role, isComplete, isArchived FROM AppUserCourse WHERE appUserId = $1`
-	rows, err := db.Query(query, userId)
+	rows, err := database.DB.Query(query, userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var userCourses []UserCourse
+	var userCourses []database.UserCourse
 	for rows.Next() {
-		var userCourse UserCourse
+		var userCourse database.UserCourse
 		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived); err != nil {
 			return nil, err
 		}
@@ -242,18 +224,18 @@ func GetUserCoursesByUserID(userId int) ([]UserCourse, error) {
 	return userCourses, nil
 }
 
-func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, error) {
+func GetUserCoursesJoinCoursesByUserID(userId int) ([]database.UserCourseJoinCourse, error) {
 	query := `SELECT appUserId, courseId, year, semester, role, isComplete, isArchived, institutionId, courseId, name, description FROM AppUserCourse INNER JOIN Course ON AppUserCourse.courseId = Course.id WHERE appUserId = $1`
-	rows, err := db.Query(query, userId)
+	rows, err := database.DB.Query(query, userId)
 
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var userCourses []UserCourseJoinCourse
+	var userCourses []database.UserCourseJoinCourse
 	for rows.Next() {
-		var userCourse UserCourseJoinCourse
+		var userCourse database.UserCourseJoinCourse
 		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived, &userCourse.InstitutionID, &userCourse.CourseID, &userCourse.Name, &userCourse.Description); err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -263,17 +245,17 @@ func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, erro
 	return userCourses, nil
 }
 
-func GetUsersInCourseByCourseID(courseId int) ([]UserCourse, error) {
+func GetUsersInCourseByCourseID(courseId int) ([]database.UserCourse, error) {
 	query := `SELECT appUserId, courseId, year, semester, role, isComplete, isArchived FROM AppUserCourse WHERE courseId = $1`
-	rows, err := db.Query(query, courseId)
+	rows, err := database.DB.Query(query, courseId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var userCourses []UserCourse
+	var userCourses []database.UserCourse
 	for rows.Next() {
-		var userCourse UserCourse
+		var userCourse database.UserCourse
 		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived); err != nil {
 			return nil, err
 		}
@@ -293,23 +275,23 @@ func GetUsersInCourseByCourseID(courseId int) ([]UserCourse, error) {
 func CreateCourseThread(appUserId int, courseId int, title string, postType string, content string) (int, error) {
 	var courseThreadID int
 	query := `INSERT INTO CourseThread (appUserId, courseId, title, type, content) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	err := db.QueryRow(query, appUserId, courseId, title, postType, content).Scan(&courseThreadID)
+	err := database.DB.QueryRow(query, appUserId, courseId, title, postType, content).Scan(&courseThreadID)
 	return courseThreadID, err
 }
 
 // If updating course thread, make sure to change modifiedAt
 
-func GetCourseThreadsByCourseID(courseId int) ([]CourseThread, error) {
+func GetCourseThreadsByCourseID(courseId int) ([]database.CourseThread, error) {
 	query := `SELECT id, appUserId, courseId, title, type, content, createdAt, modifiedAt FROM CourseThread WHERE courseId = $1 ORDER BY createdAt DESC`
-	rows, err := db.Query(query, courseId)
+	rows, err := database.DB.Query(query, courseId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var courseThreads []CourseThread
+	var courseThreads []database.CourseThread
 	for rows.Next() {
-		var courseThread CourseThread
+		var courseThread database.CourseThread
 		if err := rows.Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt); err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -319,24 +301,24 @@ func GetCourseThreadsByCourseID(courseId int) ([]CourseThread, error) {
 	return courseThreads, nil
 }
 
-func GetCourseThreadByID(id int) (CourseThread, error) {
-	var courseThread CourseThread
+func GetCourseThreadByID(id int) (database.CourseThread, error) {
+	var courseThread database.CourseThread
 	query := `SELECT id, appUserId, courseId, title, type, content, createdAt, modifiedAt FROM CourseThread WHERE id = $1`
-	err := db.QueryRow(query, id).Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt)
+	err := database.DB.QueryRow(query, id).Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt)
 	return courseThread, err
 }
 
-func GetCourseLessonsByCourseID(courseId int) ([]CourseLesson, error) {
+func GetCourseLessonsByCourseID(courseId int) ([]database.CourseLesson, error) {
 	query := `SELECT id, courseId, courseWeek, title, description, createdAt, modifiedAt FROM CourseLesson WHERE courseId = $1 ORDER BY courseWeek ASC`
-	rows, err := db.Query(query, courseId)
+	rows, err := database.DB.Query(query, courseId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var courseLessons []CourseLesson
+	var courseLessons []database.CourseLesson
 	for rows.Next() {
-		var courseLesson CourseLesson
+		var courseLesson database.CourseLesson
 		if err := rows.Scan(&courseLesson.ID, &courseLesson.CourseID, &courseLesson.CourseWeek, &courseLesson.Title, &courseLesson.Description, &courseLesson.CreatedAt, &courseLesson.ModifiedAt); err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -346,7 +328,7 @@ func GetCourseLessonsByCourseID(courseId int) ([]CourseLesson, error) {
 	return courseLessons, nil
 }
 
-func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]CourseLessonSectionWithBlocks, error) {
+func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.CourseLessonSectionWithBlocks, error) {
 	query := `SELECT 
 		CourseLessonSection.id, 
 		CourseLessonSection.courseLessonId, 
@@ -364,14 +346,14 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]CourseLessonSe
 	WHERE 
 		courseLessonId = $1`
 	
-	rows, err := db.Query(query, lessonId)
+	rows, err := database.DB.Query(query, lessonId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	// Map to hold sections and avoid duplicates
-	sectionMap := make(map[int]*CourseLessonSectionWithBlocks)
+	sectionMap := make(map[int]*database.CourseLessonSectionWithBlocks)
 
 	for rows.Next() {
 		var sectionID, blockID sql.NullInt64
@@ -387,18 +369,18 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]CourseLessonSe
 		section, exists := sectionMap[int(sectionID.Int64)]
 		if !exists {
 			// Create a new section
-			section = &CourseLessonSectionWithBlocks{
+			section = &database.CourseLessonSectionWithBlocks{
 				ID:            int(sectionID.Int64),
 				CourseLessonID: courseLessonID,
 				Title:         sectionTitle.String,
-				Blocks:        []CourseLessonSectionBlock{},
+				Blocks:        []database.CourseLessonSectionBlock{},
 			}
 			sectionMap[int(sectionID.Int64)] = section
 		}
 
 		// Only add a block if it exists (blockID is not NULL)
 		if blockID.Valid {
-			block := CourseLessonSectionBlock{
+			block := database.CourseLessonSectionBlock{
 				ID:          int(blockID.Int64),
 				Title:       blockTitle.String,
 				Description: blockDescription.String,
@@ -409,7 +391,7 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]CourseLessonSe
 	}
 
 	// Convert the map values to a slice
-	var courseLessonSectionsWithBlocks []CourseLessonSectionWithBlocks
+	var courseLessonSectionsWithBlocks []database.CourseLessonSectionWithBlocks
 	for _, section := range sectionMap {
 		courseLessonSectionsWithBlocks = append(courseLessonSectionsWithBlocks, *section)
 	}
