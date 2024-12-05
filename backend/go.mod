@@ -12,7 +12,11 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/gin-contrib/cors v1.7.2 // indirect
+require (
+	github.com/gin-contrib/cors v1.7.2 // indirect
+	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
+	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.12.3 // indirect

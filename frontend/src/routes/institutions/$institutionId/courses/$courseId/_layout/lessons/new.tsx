@@ -2,6 +2,7 @@ import { FileUploader } from "@/components/file-uploader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 // import {
 //   Select,
 //   SelectContent,
@@ -80,7 +81,7 @@ type BlockType = {
 function renderBlock(block: BlockType) {
   switch (block.type) {
     case "Text":
-      return <p>{block.content}</p>;
+      return <Textarea className="min-h-20" value={block.content} />;
 
     case "Audio":
       if (block.content != "") {
@@ -93,6 +94,18 @@ function renderBlock(block: BlockType) {
         return <img src={block.content} alt="Image" />;
       }
       return <FileUploader />;
+
+    case "Input":
+      return <p>Short Input</p>;
+
+    case "TextArea":
+      return <p>Text Area</p>;
+
+    case "MCSingleAnswer":
+      return <p>Single Select</p>;
+
+    case "MCMultiAnswer":
+      return <p>Multi Select</p>;
 
     default:
       return <p>Block was an invalid type</p>;

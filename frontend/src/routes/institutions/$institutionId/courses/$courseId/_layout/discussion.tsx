@@ -5,7 +5,7 @@ import {
   Outlet,
   useChildMatches,
 } from "@tanstack/react-router";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { BASE_URL } from "@/lib/constants";
 import { CourseThread } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
@@ -45,7 +45,7 @@ function Discussion() {
             className="w-full"
           />
         </div>
-        <div className="gap-2 p-2 flex flex-col w-64 lg:w-72">
+        <div className="p-2 w-64 lg:w-72 border-b">
           <Link
             to="/institutions/$institutionId/courses/$courseId/discussion/new"
             className={`${buttonVariants({ variant: "default" })} w-full h-12`}
@@ -53,6 +53,8 @@ function Discussion() {
           >
             New Thread <PlusIcon />
           </Link>
+        </div>
+        <div className="flex flex-col w-64 lg:w-72">
           {courseThreads?.map((thread) => (
             <Link
               key={thread.id}
@@ -63,14 +65,14 @@ function Discussion() {
                 threadId: thread.id.toString(),
               }}
             >
-              <Card>
+              <div className="border-b">
                 <CardHeader>
                   <CardTitle>{thread.title}</CardTitle>
                 </CardHeader>
                 <CardFooter className="flex justify-between">
                   {new Date(thread.createdAt).toLocaleDateString()}
                 </CardFooter>
-              </Card>
+              </div>
             </Link>
           ))}
         </div>

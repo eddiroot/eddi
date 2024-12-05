@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/lib/pq" // PostgreSQL driver
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var db *sql.DB
@@ -14,7 +14,7 @@ var db *sql.DB
 func InitialiseDB() {
 	var err error
 
-	db, err = sql.Open("postgres", os.Getenv(ENV_DATABASE_URL))
+	db, err = sql.Open("sqlite3", os.Getenv(ENV_DATABASE_URL))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}

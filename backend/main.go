@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file" // File source driver - DO NOT REMOVE
+	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq" // PostgreSQL driver - DO NOT REMOVE
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -23,15 +23,15 @@ func main() {
 	defer db.Close()
 
 	// Create the database driver instance
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
 	if err != nil {
-		log.Fatalf("Failed to create PostgreSQL driver instance: %v", err)
+		log.Fatalf("Failed to create sqlite driver instance: %v", err)
 	}
 
 	// Setup migration
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://database/migrations",
-		"postgres", driver)
+		"sqlite3", driver)
 	if err != nil {
 		log.Fatalf("Failed to initialise migrations: %v", err)
 	}

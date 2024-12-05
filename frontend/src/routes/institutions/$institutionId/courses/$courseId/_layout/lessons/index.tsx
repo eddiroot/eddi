@@ -28,7 +28,7 @@ function Lessons() {
   const { institutionId, courseId } = Route.useParams();
 
   // Group lessons by courseWeek
-  const lessonsByWeek = lessons.reduce(
+  const lessonsByWeek = lessons?.reduce(
     (acc: { [key: number]: CourseLesson[] }, lesson) => {
       const { courseWeek } = lesson;
       if (!acc[courseWeek]) {
@@ -63,31 +63,32 @@ function Lessons() {
         </div>
       </div>
       <div className="space-y-8">
-        {Object.entries(lessonsByWeek).map(([week, lessons]) => (
-          <div className="space-y-4" key={week}>
-            <h1 className="text-xl font-bold">Week {week}</h1>
-            <Separator />
-            <ol className="space-y-2">
-              {lessons.map((lesson) => (
-                <Link
-                  key={lesson.id}
-                  to="/institutions/$institutionId/courses/$courseId/lessons/$lessonId"
-                  className={cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "w-full justify-start"
-                  )}
-                  params={{
-                    institutionId,
-                    courseId,
-                    lessonId: lesson.id.toString(),
-                  }}
-                >
-                  <li key={lesson.id}>{lesson.title}</li>
-                </Link>
-              ))}
-            </ol>
-          </div>
-        ))}
+        {lessonsByWeek &&
+          Object.entries(lessonsByWeek).map(([week, lessons]) => (
+            <div className="space-y-4" key={week}>
+              <h1 className="text-xl font-bold">Week {week}</h1>
+              <Separator />
+              <ol className="space-y-2">
+                {lessons.map((lesson) => (
+                  <Link
+                    key={lesson.id}
+                    to="/institutions/$institutionId/courses/$courseId/lessons/$lessonId"
+                    className={cn(
+                      buttonVariants({ variant: "ghost" }),
+                      "w-full justify-start"
+                    )}
+                    params={{
+                      institutionId,
+                      courseId,
+                      lessonId: lesson.id.toString(),
+                    }}
+                  >
+                    <li key={lesson.id}>{lesson.title}</li>
+                  </Link>
+                ))}
+              </ol>
+            </div>
+          ))}
       </div>
     </div>
   );

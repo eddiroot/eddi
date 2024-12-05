@@ -39,7 +39,7 @@ function DiscussionThread() {
   return (
     <div className="space-y-8 w-full">
       <div className="space-y-4">
-        <article className="prose">
+        <article className="prose dark:prose-invert">
           <h1 className="text-4xl">{thread.title}</h1>
           <Markdown remarkPlugins={[remarkGfm]}>{thread.content}</Markdown>
         </article>
