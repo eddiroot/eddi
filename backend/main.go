@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -15,6 +16,9 @@ import (
 
 func main() {
 	lib.LoadAndValidateEnvVariables()
+
+	mode := os.Getenv(lib.ENV_GIN_MODE) 
+	gin.SetMode(mode)
 
 	// Setup database connection
 	database.InitialiseDB()
