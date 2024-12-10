@@ -1,12 +1,24 @@
 CREATE TABLE IF NOT EXISTS CourseThread (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, -- SQLite uses AUTOINCREMENT for serial-like behavior
-    appUserId INTEGER, -- Foreign key reference to AppUser
-    courseId INTEGER NOT NULL, -- Foreign key reference to Course
-    title TEXT, -- SQLite uses TEXT instead of VARCHAR
-    type TEXT CHECK (type IN ('Question', 'Post')), -- Check constraint for type values
-    content TEXT, -- Content field for larger text
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Default value for createdAt
-    modifiedAt TIMESTAMP, -- Optional timestamp for modifications
-    FOREIGN KEY (appUserId) REFERENCES AppUser(id), -- Foreign key linking to AppUser
-    FOREIGN KEY (courseId) REFERENCES Course(id) ON DELETE CASCADE -- Foreign key linking to Course
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    appUserId INTEGER,
+    courseId INTEGER NOT NULL,
+    title TEXT,
+    type TEXT CHECK (type IN ('Question', 'Post')),
+    content TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modifiedAt TIMESTAMP,
+    FOREIGN KEY (appUserId) REFERENCES AppUser(id),
+    FOREIGN KEY (courseId) REFERENCES Course(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS CourseThreadResponse (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    appUserId INTEGER,
+    courseThreadId INTEGER NOT NULL,
+    type TEXT CHECK (type IN ('Comment', 'Answer')),
+    content TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modifiedAt TIMESTAMP,
+    FOREIGN KEY (appUserId) REFERENCES AppUser(id),
+    FOREIGN KEY (courseThreadId) REFERENCES CourseThread(id) ON DELETE CASCADE
 );

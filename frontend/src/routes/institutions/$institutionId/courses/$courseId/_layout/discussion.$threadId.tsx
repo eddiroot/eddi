@@ -117,7 +117,7 @@ function Comment({ author, content, replies }: CommentType) {
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-3 ml-10">
+      <div className="flex flex-col gap-3 border-l-2 pl-10">
         {replies?.map(({ author, content, replies }, idx) => (
           <Comment
             key={idx}

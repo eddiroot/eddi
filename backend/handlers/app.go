@@ -68,6 +68,13 @@ func GetCourseThread(c *gin.Context) {
 		return
 	}
 
+	responses, respErr := service.GetCourseThreadResponsesByThreadID(threadId)
+	if respErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course thread responses"})
+		return
+	}
+	thread.Responses = responses
+
 	c.JSON(http.StatusOK, thread)
 }
 

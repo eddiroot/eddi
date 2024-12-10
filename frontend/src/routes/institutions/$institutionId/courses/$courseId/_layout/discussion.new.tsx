@@ -1,37 +1,32 @@
-import { Button, buttonVariants } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-import { Textarea } from '@/components/ui/textarea'
-import { useAuthStore } from '@/lib/auth'
-import { BASE_URL } from '@/lib/constants'
-import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { MessageSquareTextIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuthStore } from "@/lib/auth";
+import { BASE_URL } from "@/lib/constants";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { MessageSquareTextIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute(
-  '/institutions/$institutionId/courses/$courseId/_layout/discussion/new',
+  "/institutions/$institutionId/courses/$courseId/_layout/discussion/new"
 )({
   component: CreateThread,
-})
+});
 
 type ThreadType = {
-  title: string
-  type: 'Question' | 'Post'
-  content: string
-}
+  title: string;
+  type: "Question" | "Post";
+  content: string;
+};
 
 function CreateThread() {
-  const navigate = useNavigate()
-  const user = useAuthStore((s) => s.user)
-  const { institutionId, courseId } = Route.useParams()
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const { institutionId, courseId } = Route.useParams();
 
   const {
     register,
@@ -41,22 +36,23 @@ function CreateThread() {
     setValue,
   } = useForm<ThreadType>({
     defaultValues: {
-      type: 'Question',
+      type: "Question",
     },
-  })
+  });
 
-  const type = watch('type')
+  const type = watch("type");
+  const content = watch("content");
 
-  if (!user) return <p>Need to be signed in to view this page...</p>
+  if (!user) return <p>Need to be signed in to view this page...</p>;
 
   const onSubmit = async ({ title, type, content }: ThreadType) => {
     try {
       const response = await fetch(
         `${BASE_URL}/app/courses/${courseId}/threads`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             userId: user.id,
@@ -65,21 +61,21 @@ function CreateThread() {
             type,
             content,
           }),
-          credentials: 'include',
-        },
-      )
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
-        const body = await response.json()
+        const body = await response.json();
         navigate({
-          to: '/institutions/$institutionId/courses/$courseId/discussion/$threadId',
+          to: "/institutions/$institutionId/courses/$courseId/discussion/$threadId",
           params: { institutionId, courseId, threadId: body.id },
-        })
+        });
       }
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error("Login failed:", error);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
@@ -139,6 +135,15 @@ function CreateThread() {
           <p className="text-red-600">{errors.content.message}</p>
         )}
       </div>
+      <article className="space-y-2 prose dark:prose-invert">
+        <Label>Preview</Label>
+        <Markdown
+          className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm min-h-64"
+          remarkPlugins={[remarkGfm]}
+        >
+          {content}
+        </Markdown>
+      </article>
     </form>
   );
 }

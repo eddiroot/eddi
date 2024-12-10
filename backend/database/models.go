@@ -58,6 +58,16 @@ type UserCourseJoinCourse struct {
 	Description   string `json:"description"`
 }
 
+type CourseThreadResponse struct {
+	ID            int    `json:"id"`
+	UserID        int    `json:"userId"`
+	CourseThreadID      int    `json:"courseThreadId"`
+	Type string `json:"type"`
+	Content 	  string `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
+}
+
 type CourseThread struct {
 	ID            int    `json:"id"`
 	UserID        int    `json:"userId"`
@@ -65,6 +75,7 @@ type CourseThread struct {
 	Title  string `json:"title"`
 	Type string `json:"type"`
 	Content 	  string `json:"content"`
+	Responses []CourseThreadResponse `json:"comments"`
 	CreatedAt time.Time `json:"createdAt"`
 	ModifiedAt sql.NullTime `json:"modifiedAt"`
 }
