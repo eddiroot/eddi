@@ -11,6 +11,7 @@ import { CourseThread } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import "katex/dist/katex.min.css";
 
 async function fetchCourseDiscussions(courseId: string) {
   const response = await fetch(`${BASE_URL}/app/courses/${courseId}/threads`, {

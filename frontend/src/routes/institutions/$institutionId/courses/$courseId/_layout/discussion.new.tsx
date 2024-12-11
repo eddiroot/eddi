@@ -10,6 +10,8 @@ import { MessageSquareTextIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 export const Route = createFileRoute(
   "/institutions/$institutionId/courses/$courseId/_layout/discussion/new"
@@ -135,15 +137,16 @@ function CreateThread() {
           <p className="text-red-600">{errors.content.message}</p>
         )}
       </div>
-      <article className="space-y-2 prose dark:prose-invert">
+      <div className="space-y-2 prose dark:prose-invert max-w-none">
         <Label>Preview</Label>
         <Markdown
-          className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm min-h-64"
-          remarkPlugins={[remarkGfm]}
+          className="rounded-md w-full border border-input bg-transparent px-3 py-2 text-sm shadow-sm min-h-64"
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
         >
           {content}
         </Markdown>
-      </article>
+      </div>
     </form>
   );
 }

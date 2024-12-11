@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 async function fetchCourseThread(courseId: string, threadId: string) {
   const response = await fetch(
@@ -39,9 +41,14 @@ function DiscussionThread() {
   return (
     <div className="space-y-8 w-full">
       <div className="space-y-4">
-        <article className="prose dark:prose-invert">
+        <article className="prose dark:prose-invert max-w-none">
           <h1 className="text-4xl">{thread.title}</h1>
-          <Markdown remarkPlugins={[remarkGfm]}>{thread.content}</Markdown>
+          <Markdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+          >
+            {thread.content}
+          </Markdown>
         </article>
         <div className="flex gap-2">
           <Button variant="secondary">Comment</Button>
