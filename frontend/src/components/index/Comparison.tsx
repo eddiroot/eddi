@@ -12,6 +12,7 @@ type Feature = {
   feature: string;
   eddy: boolean;
   EdStem: boolean;
+  Moodle: boolean;
   implemented: boolean;
 };
 
@@ -20,54 +21,63 @@ const features: Feature[] = [
     feature: "Discussion",
     eddy: true,
     EdStem: true,
+    Moodle: true,
     implemented: false,
   },
   {
     feature: "Lessons",
     eddy: true,
     EdStem: true,
+    Moodle: true,
     implemented: false,
   },
   {
     feature: "Chat",
     eddy: true,
     EdStem: true,
+    Moodle: false,
     implemented: false,
   },
   {
     feature: "Workspaces",
     eddy: true,
     EdStem: true,
+    Moodle: false,
     implemented: false,
   },
   {
     feature: "Course Bot",
     eddy: true,
     EdStem: true,
+    Moodle: false,
     implemented: false,
   },
   {
     feature: "Pull Requests",
     eddy: true,
     EdStem: false,
+    Moodle: false,
     implemented: false,
   },
   {
     feature: "Assessments",
     eddy: true,
     EdStem: false,
+    Moodle: true,
     implemented: false,
   },
   {
     feature: "Tutor",
     eddy: true,
     EdStem: false,
+    Moodle: false,
     implemented: false,
   },
   {
     feature: "Public Courses",
     eddy: true,
     EdStem: false,
+    Moodle: true,
     implemented: false,
   },
 
@@ -75,18 +85,21 @@ const features: Feature[] = [
     feature: "Student Stats",
     eddy: true,
     EdStem: true,
+    Moodle: false,
     implemented: false,
   },
   {
     feature: "Analytics",
     eddy: true,
     EdStem: true,
+    Moodle: true,
     implemented: false,
   },
   {
     feature: "Export",
     eddy: true,
     EdStem: false,
+    Moodle: true,
     implemented: false,
   },
 ];
@@ -110,6 +123,7 @@ export function Comparison() {
             <TableHead>Feature</TableHead>
             <TableHead>eddy</TableHead>
             <TableHead>EdStem</TableHead>
+            <TableHead>Moodle</TableHead>
             <TableHead>Implemented</TableHead>
           </TableRow>
         </TableHeader>
@@ -129,6 +143,16 @@ export function Comparison() {
               </TableCell>
               <TableCell>
                 {feature.EdStem ? (
+                  <CheckIcon
+                    color="white"
+                    className="bg-green-500 rounded-sm"
+                  />
+                ) : (
+                  <XIcon color="white" className="bg-red-500 rounded-sm" />
+                )}
+              </TableCell>
+              <TableCell>
+                {feature.Moodle ? (
                   <CheckIcon
                     color="white"
                     className="bg-green-500 rounded-sm"

@@ -1,6 +1,6 @@
 import { Comparison } from "@/components/index/Comparison";
 import { HeroSection } from "@/components/index/Hero";
-import { Pricing } from "@/components/index/Pricing";
+// import { Pricing } from "@/components/index/Pricing";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -13,7 +13,6 @@ function Index() {
       <div className="container space-y-20">
         <HeroSection />
         <Comparison />
-        <Pricing />
       </div>
     </div>
   );
