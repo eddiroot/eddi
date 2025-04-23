@@ -73,9 +73,39 @@ func GetCourseThread(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course thread responses"})
 		return
 	}
-	thread.Responses = responses
 
-	c.JSON(http.StatusOK, thread)
+	threadWithResponses := database.CourseThreadJoinResponses{
+		Thread:    thread,
+		Responses: responses,
+	}
+
+	c.JSON(http.StatusOK, threadWithResponses)
+}
+
+func CreateCourseThreadResponse(c *gin.Context) {
+
+	threadId, err := strconv.Atoi(c.Param("threadId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid thread ID"})
+		return
+	}
+
+	userRaw, _ := c.Get("user")
+	user := userRaw.(database.User)
+
+	var courseThreadResponse database.CourseThreadResponse
+	if err := c.ShouldBindJSON(&courseThreadResponse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	courseThreadResponseId, err := service.CreateCourseThreadResponse(user.ID, threadId, courseThreadResponse.Type, courseThreadResponse.Content)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create course thread response"})
+		return
+	}
+
+	c.JSON(http.StatusOK, courseThreadResponseId)
 }
 
 func GetCourseLessons(c *gin.Context) {
@@ -94,7 +124,7 @@ func GetCourseLessons(c *gin.Context) {
 	c.JSON(http.StatusOK, courseLessons)
 }
 
-func GetCourseLessonSectionsWithBlocks(c *gin.Context) {
+func GetCourseLesson(c *gin.Context) {
 	lessonId, err := strconv.Atoi(c.Param("lessonId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid lesson ID"})

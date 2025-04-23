@@ -36,6 +36,7 @@ type Course struct {
 }
 
 type UserCourse struct {
+	ID         int    `json:"id"`
 	UserID     int    `json:"userId"`
 	CourseID   int    `json:"courseId"`
 	Year       int    `json:"year"`
@@ -45,17 +46,15 @@ type UserCourse struct {
 	IsArchived bool   `json:"isArchived"`
 }
 
-type UserCourseJoinCourse struct {
+type CourseThread struct {
+	ID            int    `json:"id"`
 	UserID        int    `json:"userId"`
 	CourseID      int    `json:"courseId"`
-	Year          int    `json:"year"`
-	Semester      int    `json:"semester"`
-	Role          string `json:"role"`
-	IsComplete    bool   `json:"isComplete"`
-	IsArchived    bool   `json:"isArchived"`
-	InstitutionID int    `json:"institutionId"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
+	Title  string `json:"title"`
+	Type string `json:"type"`
+	Content 	  string `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+	ModifiedAt sql.NullTime `json:"modifiedAt"`
 }
 
 type CourseThreadResponse struct {
@@ -67,19 +66,6 @@ type CourseThreadResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
 	ModifiedAt sql.NullTime `json:"modifiedAt"`
 }
-
-type CourseThread struct {
-	ID            int    `json:"id"`
-	UserID        int    `json:"userId"`
-	CourseID      int    `json:"courseId"`
-	Title  string `json:"title"`
-	Type string `json:"type"`
-	Content 	  string `json:"content"`
-	Responses []CourseThreadResponse `json:"comments"`
-	CreatedAt time.Time `json:"createdAt"`
-	ModifiedAt sql.NullTime `json:"modifiedAt"`
-}
-
 type CourseLesson struct {
 	ID            int    `json:"id"`
 	CourseID      int    `json:"courseId"`
@@ -89,7 +75,6 @@ type CourseLesson struct {
 	CreatedAt time.Time `json:"createdAt"`
 	ModifiedAt sql.NullTime `json:"modifiedAt"`
 }
-
 type CourseLessonSection struct {
 	ID            int    `json:"id"`
 	CourseLessonID      int    `json:"courseLessonId"`
@@ -106,13 +91,4 @@ type CourseLessonSectionBlock struct {
 	Type string `json:"type"`
 	CreatedAt time.Time `json:"createdAt"`
 	ModifiedAt sql.NullTime `json:"modifiedAt"`
-}
-
-type CourseLessonSectionWithBlocks struct {
-	ID            int    `json:"id"`
-	CourseLessonID      int    `json:"courseLessonId"`
-	Title  string `json:"title"`
-	CreatedAt time.Time `json:"createdAt"`
-	ModifiedAt sql.NullTime `json:"modifiedAt"`
-	Blocks []CourseLessonSectionBlock `json:"blocks"`
 }

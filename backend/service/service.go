@@ -233,16 +233,16 @@ func GetUserCoursesJoinCoursesByUserID(userId int) ([]database.UserCourseJoinCou
 	}
 	defer rows.Close()
 
-	var userCourses []database.UserCourseJoinCourse
+	var detailedCourses []database.UserCourseJoinCourse
 	for rows.Next() {
 		var userCourse database.UserCourseJoinCourse
-		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived, &userCourse.InstitutionID, &userCourse.CourseID, &userCourse.Name, &userCourse.Description); err != nil {
+		if err := rows.Scan(&userCourse.UserCourse.UserID, &userCourse.UserCourse.CourseID, &userCourse.UserCourse.Year, &userCourse.UserCourse.Semester, &userCourse.UserCourse.Role, &userCourse.UserCourse.IsComplete, &userCourse.UserCourse.IsArchived, &userCourse.Course.InstitutionID, &userCourse.Course.ID, &userCourse.Course.Name, &userCourse.Course.Description); err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
-		userCourses = append(userCourses, userCourse)
+		detailedCourses = append(detailedCourses, userCourse)
 	}
-	return userCourses, nil
+	return detailedCourses, nil
 }
 
 func GetUsersInCourseByCourseID(courseId int) ([]database.UserCourse, error) {
@@ -320,6 +320,13 @@ func GetCourseThreadResponsesByThreadID(threadId int) ([]database.CourseThreadRe
 	return responses, nil
 }
 
+func CreateCourseThreadResponse(appUserId int, threadID int, postType string, content string) (int, error) {
+	var courseThreadResponseID int
+	query := `INSERT INTO CourseThreadResponse (appUserId, courseId, type, content) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	err := database.DB.QueryRow(query, appUserId, threadID, postType, content).Scan(&courseThreadResponseID)
+	return courseThreadResponseID, err
+}
+
 func GetCourseLessonsByCourseID(courseId int) ([]database.CourseLesson, error) {
 	query := `SELECT id, courseId, courseWeek, title, description, createdAt, modifiedAt FROM CourseLesson WHERE courseId = $1 ORDER BY courseWeek ASC`
 	rows, err := database.DB.Query(query, courseId)
@@ -340,7 +347,7 @@ func GetCourseLessonsByCourseID(courseId int) ([]database.CourseLesson, error) {
 	return courseLessons, nil
 }
 
-func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.CourseLessonSectionWithBlocks, error) {
+func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.CourseLessonSectionJoinBlocks, error) {
 	query := `SELECT 
 		CourseLessonSection.id, 
 		CourseLessonSection.courseLessonId, 
@@ -365,7 +372,7 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.Cours
 	defer rows.Close()
 
 	// Map to hold sections and avoid duplicates
-	sectionMap := make(map[int]*database.CourseLessonSectionWithBlocks)
+	sectionMap := make(map[int]*database.CourseLessonSectionJoinBlocks)
 
 	for rows.Next() {
 		var sectionID, blockID sql.NullInt64
@@ -381,10 +388,12 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.Cours
 		section, exists := sectionMap[int(sectionID.Int64)]
 		if !exists {
 			// Create a new section
-			section = &database.CourseLessonSectionWithBlocks{
-				ID:            int(sectionID.Int64),
-				CourseLessonID: courseLessonID,
-				Title:         sectionTitle.String,
+			section = &database.CourseLessonSectionJoinBlocks{
+				CourseLessonSection: database.CourseLessonSection{
+					ID:            int(sectionID.Int64),
+					CourseLessonID: courseLessonID,
+					Title:         sectionTitle.String,
+				},
 				Blocks:        []database.CourseLessonSectionBlock{},
 			}
 			sectionMap[int(sectionID.Int64)] = section
@@ -403,7 +412,7 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.Cours
 	}
 
 	// Convert the map values to a slice
-	var courseLessonSectionsWithBlocks []database.CourseLessonSectionWithBlocks
+	var courseLessonSectionsWithBlocks []database.CourseLessonSectionJoinBlocks
 	for _, section := range sectionMap {
 		courseLessonSectionsWithBlocks = append(courseLessonSectionsWithBlocks, *section)
 	}

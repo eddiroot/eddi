@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS CourseThread (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    appUserId INTEGER,
+    userId INTEGER,
     courseId INTEGER NOT NULL,
     title TEXT,
     type TEXT CHECK (type IN ('Question', 'Post')),
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS CourseThread (
 
 CREATE TABLE IF NOT EXISTS CourseThreadResponse (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    appUserId INTEGER,
+    userId INTEGER,
     courseThreadId INTEGER NOT NULL,
     type TEXT CHECK (type IN ('Comment', 'Answer')),
     content TEXT,

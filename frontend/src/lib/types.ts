@@ -44,6 +44,24 @@ export type CourseThread = {
   };
 };
 
+export type CourseThreadResponse = {
+  id: number;
+  userId: number;
+  courseThreadId: number;
+  type: string;
+  content: string;
+  createdAt: string;
+  modifiedAt: {
+    Time: string;
+    Valid: boolean;
+  };
+  responses: CourseThreadResponse[];
+};
+
+export type CourseThreadWithResponses = CourseThread & {
+  responses: CourseThreadResponse[];
+};
+
 export type CourseLesson = {
   id: number;
   courseId: number;
@@ -81,14 +99,6 @@ export type CourseLessonSectionBlock = {
   };
 };
 
-export type CourseLessonSectionWithBlocks = {
-  id: number;
-  courseLessonId: number;
-  title: string;
-  createdAt: string;
-  modifiedAt: {
-    Time: string;
-    Valid: boolean;
-  };
+export type CourseLessonSectionWithBlocks = CourseLessonSection & {
   blocks: CourseLessonSectionBlock[];
 };

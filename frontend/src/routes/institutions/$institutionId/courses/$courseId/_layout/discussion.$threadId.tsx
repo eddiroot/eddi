@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { BASE_URL } from "@/lib/constants";
-import { CourseThread } from "@/lib/types";
+import { CourseThreadWithResponses, CourseThreadResponse } from "@/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Ellipsis,
@@ -24,7 +24,7 @@ async function fetchCourseThread(courseId: string, threadId: string) {
       credentials: "include",
     }
   );
-  const thread = (await response.json()) as CourseThread;
+  const thread = (await response.json()) as CourseThreadWithResponses;
   return thread;
 }
 
@@ -32,11 +32,11 @@ export const Route = createFileRoute(
   "/institutions/$institutionId/courses/$courseId/_layout/discussion/$threadId"
 )({
   loader: ({ params }) => fetchCourseThread(params.courseId, params.threadId),
-  component: DiscussionThread,
+  component: CourseThread,
 });
 
-function DiscussionThread() {
-  const thread = Route.useLoaderData() as CourseThread;
+function CourseThread() {
+  const thread = Route.useLoaderData() as CourseThreadWithResponses;
 
   return (
     <div className="space-y-8 w-full">
@@ -58,37 +58,31 @@ function DiscussionThread() {
         </div>
         <Separator />
         <div className="ml-8 space-y-3">
-          <Comment
-            author="Jon Snow"
-            content="This is a comment on the main question. It is in the frontend and
-              not pulled from the API."
-            replies={[
-              {
-                author: "Harry Potter",
-                content: "A nested comment by Mr Potter.",
-              },
-            ]}
-          />
-          <Comment
-            author="Harry Potter"
-            content="Another comment on the main question."
-          />
+          {thread.responses
+            ?.filter((response) => response.type == "comment")
+            .map((response, idx) => (
+              <ThreadResponse key={idx} response={response} />
+            ))}
         </div>
       </div>
-      <Card className="min-h-44">
-        <CardHeader>
-          <strong>Lightning McQueen</strong>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>This is an answer to the main question.</p>
-          <div className="flex gap-2">
-            <Button variant="secondary">Comment</Button>
-            <Button variant="ghost" size="icon">
-              <Ellipsis />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {thread.responses
+        ?.filter((response) => response.type == "answer")
+        .map((response, idx) => (
+          <Card key={idx} className="min-h-44">
+            <CardHeader>
+              <strong>Author: {response.userId}</strong>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>This is an answer to the main question.</p>
+              <div className="flex gap-2">
+                <Button variant="secondary">Comment</Button>
+                <Button variant="ghost" size="icon">
+                  <Ellipsis />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       <div className="space-y-4">
         <h2 className="text-xl">Your answer</h2>
         <Textarea className="min-h-40" placeholder="Start typing..." />
@@ -98,20 +92,15 @@ function DiscussionThread() {
   );
 }
 
-type CommentType = {
-  author: string;
-  content: string;
-  replies?: CommentType[];
-};
-
-function Comment({ author, content, replies }: CommentType) {
+function ThreadResponse({ response }: { response: CourseThreadResponse }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <p>
-          <strong>{author}</strong>
+          <strong>Author: {response.userId}</strong>
+          <strong>Type: {response.type}</strong>
         </p>
-        <p>{content}</p>
+        <p>{response.content}</p>
         <div className="flex gap-2">
           <Button variant="ghost" size="icon">
             <ThumbsUpIcon />
@@ -125,13 +114,8 @@ function Comment({ author, content, replies }: CommentType) {
         </div>
       </div>
       <div className="flex flex-col gap-3 border-l-2 pl-10">
-        {replies?.map(({ author, content, replies }, idx) => (
-          <Comment
-            key={idx}
-            author={author}
-            content={content}
-            replies={replies}
-          />
+        {response.responses?.map((responseInner, idx) => (
+          <ThreadResponse key={idx} response={responseInner} />
         ))}
       </div>
     </div>

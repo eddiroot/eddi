@@ -48,17 +48,22 @@ func main() {
 	{
 		userGroup := appGroup.Group("/user")
 		{
-			userGroup.GET("/courses", handlers.GetUserCourses)
+			userGroup.GET("/course", handlers.GetUserCourses)
 		}
 
 		coursesGroup := appGroup.Group("/courses")
 		{
 			coursesGroup.GET("/:id", handlers.GetCourse)
-			coursesGroup.GET("/:id/threads", handlers.GetCourseThreads)
-			coursesGroup.POST("/:id/threads", handlers.CreateCourseThread)
-			coursesGroup.GET("/:id/threads/:threadId", handlers.GetCourseThread)
-			coursesGroup.GET("/:id/lessons", handlers.GetCourseLessons)
-			coursesGroup.GET("/:id/lessons/:lessonId", handlers.GetCourseLessonSectionsWithBlocks)
+			
+			coursesGroup.GET("/:id/thread", handlers.GetCourseThreads)
+			coursesGroup.POST("/:id/thread", handlers.CreateCourseThread)
+			coursesGroup.GET("/:id/thread/:threadId", handlers.GetCourseThread)
+			// coursesGroup.POST("/:id/threads/:threadId/reaction", handlers.CreateCourseThreadReaction)
+			coursesGroup.POST("/:id/thread/:threadId/response", handlers.CreateCourseThreadResponse)
+
+			coursesGroup.GET("/:id/lesson", handlers.GetCourseLessons)
+			// coursesGroup.POST("/:id/lesson", handlers.CreateCourseLesson)
+			coursesGroup.GET("/:id/lesson/:lessonId", handlers.GetCourseLesson)
 		}
 
 	}
