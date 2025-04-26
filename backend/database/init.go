@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/lachlanmacphee/eddy/lib"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
@@ -16,7 +16,7 @@ var DB *sql.DB
 func InitialiseDB() {
 	var err error
 
-	DB, err = sql.Open("sqlite3", os.Getenv(lib.ENV_DATABASE_URL))
+	DB, err = sql.Open("postgres", os.Getenv(lib.ENV_DATABASE_URL))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -29,15 +29,15 @@ func InitialiseDB() {
 	log.Println("Connected to the database successfully!")
 
 	// Create the database driver instance
-	driver, err := sqlite3.WithInstance(DB, &sqlite3.Config{})
+	driver, err := postgres.WithInstance(DB, &postgres.Config{})
 	if err != nil {
-		log.Fatalf("Failed to create sqlite driver instance: %v", err)
+		log.Fatalf("Failed to create postgres driver instance: %v", err)
 	}
 
 	// Setup migration
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://database/migrations",
-		"sqlite3", driver)
+		"postgres", driver)
 	if err != nil {
 		log.Fatalf("Failed to initialise migrations: %v", err)
 	}
