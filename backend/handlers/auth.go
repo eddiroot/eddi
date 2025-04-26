@@ -31,7 +31,7 @@ func Signup(c *gin.Context) {
 	}
 
 	// Create the user
-	_, err = service.CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, string(hash), user.AvatarUrl)
+	createdUser, err := service.CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, string(hash), user.AvatarUrl)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create user.",
@@ -40,7 +40,7 @@ func Signup(c *gin.Context) {
 	}
 
 	// Respond
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, gin.H{"message": "User created successfully", "id": createdUser.ID})
 }
 
 func Login(c *gin.Context) {
@@ -100,12 +100,12 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
 	criticalUserDetails := database.User{
-		ID:         user.ID,
+		ID:         int(user.ID),
 		FirstName:  user.FirstName,
-		MiddleName: user.MiddleName,
+		MiddleName: *user.MiddleName,
 		LastName:   user.LastName,
 		Username:   user.Username,
-		AvatarUrl:  user.AvatarUrl,
+		AvatarUrl:  *user.AvatarUrl,
 	}
 	c.JSON(http.StatusOK, criticalUserDetails)
 }

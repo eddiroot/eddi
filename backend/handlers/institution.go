@@ -16,13 +16,13 @@ func CreateInstitution(c *gin.Context) {
 		return
 	}
 
-	id, err := service.CreateInstitution(institution.Name, institution.Continent)
+	createdInstitution, err := service.CreateInstitution(institution.Name, institution.Continent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Institution created", "id": id})
+	c.JSON(http.StatusOK, gin.H{"message": "Institution created", "id": createdInstitution.ID})
 }
 
 func GetInstitutions(c *gin.Context) {
@@ -64,13 +64,13 @@ func UpdateInstitution(c *gin.Context) {
 		return
 	}
 
-	err = service.UpdateInstitution(id, institution.Name, institution.Continent)
+	updatedInstitution, err := service.UpdateInstitution(id, institution.Name, institution.Continent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Institution updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "Institution updated", "institution": updatedInstitution})
 }
 
 func DeleteInstitution(c *gin.Context) {

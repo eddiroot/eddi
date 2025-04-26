@@ -16,13 +16,13 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	id, err := service.CreateCourse(course.InstitutionID, course.Name, course.Description)
+	createdCourse, err := service.CreateCourse(course.InstitutionID, course.Name, course.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Course created", "id": id})
+	c.JSON(http.StatusOK, gin.H{"message": "Course created", "id": createdCourse.ID})
 }
 
 func GetCourses(c *gin.Context) {
@@ -64,13 +64,13 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	err = service.UpdateCourse(id, course.InstitutionID, course.Name, course.Description)
+	updatedCourse, err := service.UpdateCourse(id, course.InstitutionID, course.Name, course.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Course updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "Course updated", "course": updatedCourse})
 }
 
 func DeleteCourse(c *gin.Context) {

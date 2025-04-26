@@ -16,13 +16,13 @@ func CreateAdmin(c *gin.Context) {
 		return
 	}
 
-	id, err := service.CreateAdmin(admin.InstitutionID, admin.Username, admin.Password)
+	createdAdmin, err := service.CreateAdmin(admin.InstitutionID, admin.Username, admin.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Admin created", "id": id})
+	c.JSON(http.StatusOK, gin.H{"message": "Admin created", "id": createdAdmin.ID})
 }
 
 func GetAdmins(c *gin.Context) {
@@ -64,13 +64,13 @@ func UpdateAdmin(c *gin.Context) {
 		return
 	}
 
-	err = service.UpdateAdmin(id, admin.InstitutionID, admin.Username, admin.Password)
+	updatedAdmin, err := service.UpdateAdmin(id, admin.InstitutionID, admin.Username, admin.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Admin updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "Admin updated", "admin": updatedAdmin})
 }
 
 func DeleteAdmin(c *gin.Context) {

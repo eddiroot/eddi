@@ -5,24 +5,24 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lachlanmacphee/eddy/database"
+	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
 	"github.com/lachlanmacphee/eddy/service"
 )
 
 func CreateUser(c *gin.Context) {
-	var user database.User
+	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, err := service.CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
+	createdUser, err := service.CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User created", "id": id})
+	c.JSON(http.StatusOK, gin.H{"message": "User created", "id": createdUser.ID})
 }
 
 func GetUsers(c *gin.Context) {
@@ -58,19 +58,19 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	var user database.User
+	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = service.UpdateUser(id, user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
+	updatedUser, err := service.UpdateUser(id, user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "User updated", "user": updatedUser})
 }
 
 func DeleteUser(c *gin.Context) {

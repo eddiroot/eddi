@@ -15,11 +15,11 @@ func CreateUserCourse(c *gin.Context) {
 		return
 	}
 
-	userId, courseId, err := service.CreateUserCourse(userCourse.UserID, userCourse.CourseID, userCourse.Year, userCourse.Semester, userCourse.Role, userCourse.IsComplete, userCourse.IsArchived)
+	createdUserCourse, err := service.CreateUserCourse(userCourse.UserID, userCourse.CourseID, userCourse.Year, userCourse.Semester, userCourse.Role, userCourse.IsComplete, userCourse.IsArchived)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Added user to course", "userId": userId, "courseId": courseId})
+	c.JSON(http.StatusOK, gin.H{"message": "Added user to course", "userId": createdUserCourse.UserId, "courseId": createdUserCourse.CourseId})
 }
