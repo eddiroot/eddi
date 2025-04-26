@@ -4,34 +4,42 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/lachlanmacphee/eddy/database"
+	. "github.com/go-jet/jet/v2/postgres"
+	. "github.com/lachlanmacphee/eddy/.gen/eddy/public/table"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
+
+	"github.com/lachlanmacphee/eddy/database"
 )
 
 // Institution Operations
-func CreateInstitution(name, continent string) (int, error) {
-	var id int
-	query := `INSERT INTO Institution (name, continent) VALUES ($1, $2) RETURNING id`
-	err := database.DB.QueryRow(query, name, continent).Scan(&id)
-	return id, err
+func CreateInstitution(name string, continent string) (model.Institution, error) {
+	insrt := model.Institution{
+		Name:      name,
+		Continent: &continent,
+	}
+	
+	stmt := Institution.INSERT(Institution.MutableColumns).MODEL(insrt).RETURNING(Institution.AllColumns)
+
+	institution := model.Institution{}
+	err := stmt.Query(database.DB, &institution)
+
+	return institution, err
 }
 
-func GetInstitutions() ([]database.Institution, error) {
-	rows, err := database.DB.Query(`SELECT id, name, continent FROM Institution`)
+func GetInstitutions() ([]model.Institution, error) {
+	stmt := SELECT(
+		Institution.ID, Institution.Name, Institution.Continent,
+	).FROM(
+		Institution,
+	)
+
+	institutions := []model.Institution{}
+	err := stmt.Query(database.DB, &institutions)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var institutions []database.Institution
-	for rows.Next() {
-		var institution database.Institution
-		if err := rows.Scan(&institution.ID, &institution.Name, &institution.Continent); err != nil {
-			return nil, err
-		}
-		institutions = append(institutions, institution)
-	}
 	return institutions, nil
 }
 
@@ -307,7 +315,7 @@ func GetCourseThreadResponsesByThreadID(threadId int) ([]database.CourseThreadRe
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var responses []database.CourseThreadResponse
 	for rows.Next() {
 		var response database.CourseThreadResponse
@@ -364,7 +372,7 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.Cours
 		CourseLessonSection.id = CourseLessonSectionBlock.courseLessonSectionId 
 	WHERE 
 		courseLessonId = $1`
-	
+
 	rows, err := database.DB.Query(query, lessonId)
 	if err != nil {
 		return nil, err
@@ -390,11 +398,11 @@ func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.Cours
 			// Create a new section
 			section = &database.CourseLessonSectionJoinBlocks{
 				CourseLessonSection: database.CourseLessonSection{
-					ID:            int(sectionID.Int64),
+					ID:             int(sectionID.Int64),
 					CourseLessonID: courseLessonID,
-					Title:         sectionTitle.String,
+					Title:          sectionTitle.String,
 				},
-				Blocks:        []database.CourseLessonSectionBlock{},
+				Blocks: []database.CourseLessonSectionBlock{},
 			}
 			sectionMap[int(sectionID.Int64)] = section
 		}

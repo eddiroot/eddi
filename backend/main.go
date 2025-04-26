@@ -17,7 +17,7 @@ import (
 func main() {
 	lib.LoadAndValidateEnvVariables()
 
-	mode := os.Getenv(lib.ENV_GIN_MODE) 
+	mode := os.Getenv(lib.ENV_GIN_MODE)
 	gin.SetMode(mode)
 
 	// Setup database connection
@@ -54,7 +54,7 @@ func main() {
 		coursesGroup := appGroup.Group("/courses")
 		{
 			coursesGroup.GET("/:id", handlers.GetCourse)
-			
+
 			coursesGroup.GET("/:id/thread", handlers.GetCourseThreads)
 			coursesGroup.POST("/:id/thread", handlers.CreateCourseThread)
 			coursesGroup.GET("/:id/thread/:threadId", handlers.GetCourseThread)
@@ -98,7 +98,7 @@ func main() {
 			userGroup.PUT("/:id", handlers.UpdateUser)
 			userGroup.DELETE("/:id", handlers.DeleteUser)
 		}
-		
+
 		courseGroup := apiGroup.Group("/courses")
 		{
 			courseGroup.POST("/", handlers.CreateCourse)
