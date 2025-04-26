@@ -64,16 +64,17 @@ func UpdateCourse(id int, institutionID int, name, description string) (model.Co
 			table.Course.Description.SET(postgres.String(description)),
 		).WHERE(
 			table.Course.ID.EQ(postgres.Int32(int32(id))),
+		).RETURNING(
+			table.Course.AllColumns,
 		)
 
-	// Execute the update
-	_, err := stmt.Exec(database.DB)
+	course := model.Course{}
+	err := stmt.Query(database.DB, &course)
 	if err != nil {
 		return model.Course{}, err
 	}
 	
-	// Fetch the updated object
-	return GetCourseByID(id)
+	return course, nil
 }
 
 // DeleteCourse deletes a course by ID

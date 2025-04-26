@@ -65,16 +65,17 @@ func UpdateInstitution(id int, name, continent string) (model.Institution, error
 			table.Institution.Continent.SET(postgres.String(continent)),
 		).WHERE(
 			table.Institution.ID.EQ(postgres.Int32(int32(id))),
+		).RETURNING(
+			table.Institution.AllColumns,
 		)
 
-	// Execute the update
-	_, err := stmt.Exec(database.DB)
+	institution := model.Institution{}
+	err := stmt.Query(database.DB, &institution)
 	if err != nil {
 		return model.Institution{}, err
 	}
 	
-	// Fetch the updated object
-	return GetInstitutionByID(id)
+	return institution, nil
 }
 
 // DeleteInstitution deletes an institution by ID

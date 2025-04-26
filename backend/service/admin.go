@@ -66,16 +66,15 @@ func UpdateAdmin(id int, institutionID int, username, password string) (model.Ad
 			table.Admin.ID.EQ(postgres.Int32(int32(id))),
 		).RETURNING(
 			table.Admin.AllColumns,
-		)
+		 )
 
-	// Execute the update
-	_, err := stmt.Exec(database.DB)
+	admin := model.Admin{}
+	err := stmt.Query(database.DB, &admin)
 	if err != nil {
 		return model.Admin{}, err
 	}
 	
-	// Fetch the updated object
-	return GetAdminByID(id)
+	return admin, nil
 }
 
 // DeleteAdmin deletes an admin by ID

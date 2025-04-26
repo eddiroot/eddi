@@ -86,16 +86,17 @@ func UpdateUser(id int, firstName, middleName, lastName, username, password, ava
 			table.User.AvatarUrl.SET(postgres.String(avatarUrl)),
 		).WHERE(
 			table.User.ID.EQ(postgres.Int32(int32(id))),
+		).RETURNING(
+			table.User.AllColumns,
 		)
 
-	// Execute the update
-	_, err := stmt.Exec(database.DB)
+	user := model.User{}
+	err := stmt.Query(database.DB, &user)
 	if err != nil {
 		return model.User{}, err
 	}
 	
-	// Fetch the updated object
-	return GetUserByID(id)
+	return user, nil
 }
 
 // DeleteUser deletes a user by ID
