@@ -5,15 +5,21 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lachlanmacphee/eddy/database"
+	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
 	"github.com/lachlanmacphee/eddy/service"
 )
 
+// Struct to combine thread and responses
+type CourseThreadJoinResponses struct {
+	Thread    model.CourseThread
+	Responses []model.CourseThreadResponse
+}
+
 func GetUserCourses(c *gin.Context) {
 	userRaw, _ := c.Get("user")
-	user := userRaw.(database.User)
+	user := userRaw.(model.User)
 
-	userCourses, err := service.GetUserCoursesJoinCoursesByUserID(user.ID)
+	userCourses, err := service.GetUserCoursesJoinCoursesByUserID(int(user.ID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user courses"})
 		return
@@ -23,19 +29,28 @@ func GetUserCourses(c *gin.Context) {
 }
 
 func CreateCourseThread(c *gin.Context) {
-	var courseThread database.CourseThread
+	var courseThread model.CourseThread
 	if err := c.ShouldBindJSON(&courseThread); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, err := service.CreateCourseThread(courseThread.UserID, courseThread.CourseID, courseThread.Title, courseThread.Type, courseThread.Content)
+	courseId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	userRaw, _ := c.Get("user")
+	user := userRaw.(model.User)
+
+	createdThread, err := service.CreateCourseThread(int(user.ID), courseId, courseThread.Title, courseThread.Content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Course thread created", "id": id})
+	c.JSON(http.StatusOK, gin.H{"message": "Course thread created", "id": createdThread.ID})
 }
 
 func GetCourseThreads(c *gin.Context) {
@@ -55,7 +70,6 @@ func GetCourseThreads(c *gin.Context) {
 }
 
 func GetCourseThread(c *gin.Context) {
-
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid thread ID"})
@@ -74,7 +88,7 @@ func GetCourseThread(c *gin.Context) {
 		return
 	}
 
-	threadWithResponses := database.CourseThreadJoinResponses{
+	threadWithResponses := CourseThreadJoinResponses{
 		Thread:    thread,
 		Responses: responses,
 	}
@@ -83,7 +97,6 @@ func GetCourseThread(c *gin.Context) {
 }
 
 func CreateCourseThreadResponse(c *gin.Context) {
-
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid thread ID"})
@@ -91,21 +104,21 @@ func CreateCourseThreadResponse(c *gin.Context) {
 	}
 
 	userRaw, _ := c.Get("user")
-	user := userRaw.(database.User)
+	user := userRaw.(model.User)
 
-	var courseThreadResponse database.CourseThreadResponse
+	var courseThreadResponse model.CourseThreadResponse
 	if err := c.ShouldBindJSON(&courseThreadResponse); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	courseThreadResponseId, err := service.CreateCourseThreadResponse(user.ID, threadId, courseThreadResponse.Type, courseThreadResponse.Content)
+	createdResponse, err := service.CreateCourseThreadResponse(int(user.ID), threadId, courseThreadResponse.Content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create course thread response"})
 		return
 	}
 
-	c.JSON(http.StatusOK, courseThreadResponseId)
+	c.JSON(http.StatusOK, createdResponse)
 }
 
 func GetCourseLessons(c *gin.Context) {

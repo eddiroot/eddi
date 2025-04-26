@@ -16,7 +16,16 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	createdUser, err := service.CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
+	// Handle optional fields that are pointers
+	var middleName, avatarUrl string
+	if user.MiddleName != nil {
+		middleName = *user.MiddleName
+	}
+	if user.AvatarUrl != nil {
+		avatarUrl = *user.AvatarUrl
+	}
+
+	createdUser, err := service.CreateUser(user.FirstName, middleName, user.LastName, user.Username, user.Password, avatarUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -64,7 +73,16 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	updatedUser, err := service.UpdateUser(id, user.FirstName, user.MiddleName, user.LastName, user.Username, user.Password, user.AvatarUrl)
+	// Handle optional fields that are pointers
+	var middleName, avatarUrl string
+	if user.MiddleName != nil {
+		middleName = *user.MiddleName
+	}
+	if user.AvatarUrl != nil {
+		avatarUrl = *user.AvatarUrl
+	}
+
+	updatedUser, err := service.UpdateUser(id, user.FirstName, middleName, user.LastName, user.Username, user.Password, avatarUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

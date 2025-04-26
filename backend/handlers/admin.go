@@ -5,18 +5,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lachlanmacphee/eddy/database"
+	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
 	"github.com/lachlanmacphee/eddy/service"
 )
 
 func CreateAdmin(c *gin.Context) {
-	var admin database.Admin
+	var admin model.Admin
 	if err := c.ShouldBindJSON(&admin); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	createdAdmin, err := service.CreateAdmin(admin.InstitutionID, admin.Username, admin.Password)
+	createdAdmin, err := service.CreateAdmin(int(admin.InstitutionId), admin.Username, admin.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -58,13 +58,13 @@ func UpdateAdmin(c *gin.Context) {
 		return
 	}
 
-	var admin database.Admin
+	var admin model.Admin
 	if err := c.ShouldBindJSON(&admin); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	updatedAdmin, err := service.UpdateAdmin(id, admin.InstitutionID, admin.Username, admin.Password)
+	updatedAdmin, err := service.UpdateAdmin(id, int(admin.InstitutionId), admin.Username, admin.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

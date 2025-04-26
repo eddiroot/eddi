@@ -8,7 +8,6 @@ import (
 
 	"github.com/lachlanmacphee/eddy/lib"
 	"github.com/lachlanmacphee/eddy/service"
-	"github.com/lachlanmacphee/eddy/database"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -65,7 +64,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			}
 
 			// Find the user with token Subject
-			modelUser, err := service.GetUserByID(int(subClaimFloat))
+			user, err := service.GetUserByID(int(subClaimFloat))
 
 			// Failed to find the user
 			if err != nil {
@@ -73,18 +72,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			// Convert model.User to database.User for use in handlers
-			user := database.User{
-				ID:         int(modelUser.ID),
-				FirstName:  modelUser.FirstName,
-				MiddleName: *modelUser.MiddleName,
-				LastName:   modelUser.LastName,
-				Username:   modelUser.Username,
-				Password:   modelUser.Password,
-				AvatarUrl:  *modelUser.AvatarUrl,
-			}
-
-			// Attach the request
+			 // Attach the user to the context
 			c.Set("user", user)
 
 			// Continue

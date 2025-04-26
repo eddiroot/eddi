@@ -5,18 +5,18 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lachlanmacphee/eddy/database"
+	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
 	"github.com/lachlanmacphee/eddy/service"
 )
 
 func CreateCourse(c *gin.Context) {
-	var course database.Course
+	var course model.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	createdCourse, err := service.CreateCourse(course.InstitutionID, course.Name, course.Description)
+	createdCourse, err := service.CreateCourse(int(course.InstitutionId), course.Name, course.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -58,13 +58,13 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	var course database.Course
+	var course model.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	updatedCourse, err := service.UpdateCourse(id, course.InstitutionID, course.Name, course.Description)
+	updatedCourse, err := service.UpdateCourse(id, int(course.InstitutionId), course.Name, course.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

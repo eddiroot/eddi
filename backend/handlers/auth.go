@@ -7,14 +7,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lachlanmacphee/eddy/database"
+	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
 	"github.com/lachlanmacphee/eddy/lib"
 	"github.com/lachlanmacphee/eddy/service"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func Signup(c *gin.Context) {
-	var user database.User
+	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -31,7 +31,7 @@ func Signup(c *gin.Context) {
 	}
 
 	// Create the user
-	createdUser, err := service.CreateUser(user.FirstName, user.MiddleName, user.LastName, user.Username, string(hash), user.AvatarUrl)
+	createdUser, err := service.CreateUser(user.FirstName, *user.MiddleName, user.LastName, user.Username, string(hash), *user.AvatarUrl)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create user.",
@@ -99,13 +99,13 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
-	criticalUserDetails := database.User{
-		ID:         int(user.ID),
+	criticalUserDetails := model.User{
+		ID:         user.ID,
 		FirstName:  user.FirstName,
-		MiddleName: *user.MiddleName,
+		MiddleName: user.MiddleName,
 		LastName:   user.LastName,
 		Username:   user.Username,
-		AvatarUrl:  *user.AvatarUrl,
+		AvatarUrl:  user.AvatarUrl,
 	}
 	c.JSON(http.StatusOK, criticalUserDetails)
 }
