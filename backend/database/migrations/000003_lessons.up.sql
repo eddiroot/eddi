@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS CourseLessonSectionBlock (
     type TEXT CHECK (type IN ('Text', 'Audio', 'Image', 'Input', 'TextArea', 'MCSingleAnswer', 'MCMultiAnswer')),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modifiedAt TIMESTAMP,
-    FOREIGN KEY (courseLessonSectionId) REFERENCES CourseLessonSection(id) ON DELETE CASCADE -- Foreign key linking to CourseLessonSection
+    FOREIGN KEY (courseLessonSectionId) REFERENCES CourseLessonSection(id) ON DELETE CASCADE
 );

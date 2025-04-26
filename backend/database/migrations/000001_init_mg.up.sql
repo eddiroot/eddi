@@ -1,8 +1,7 @@
--- Enable foreign key support in SQLite
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS Institution (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, -- SQLite uses AUTOINCREMENT for serial-like behavior
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     continent TEXT CHECK (continent IN ('AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA')),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
