@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS User (
     password TEXT NOT NULL,
     avatarUrl TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modifiedAt TIMESTAMP,
+    modifiedAt TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS Course (
@@ -53,6 +53,6 @@ CREATE TABLE IF NOT EXISTS UserCourse (
     isArchived BOOLEAN DEFAULT 0,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modifiedAt TIMESTAMP,
-    FOREIGN KEY (appUserId) REFERENCES AppUser(id),
+    FOREIGN KEY (userId) REFERENCES User(id),
     FOREIGN KEY (courseId) REFERENCES Course(id) ON DELETE CASCADE
 );

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS CourseThread (
     content TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modifiedAt TIMESTAMP,
-    FOREIGN KEY (appUserId) REFERENCES AppUser(id),
+    FOREIGN KEY (userId) REFERENCES User(id),
     FOREIGN KEY (courseId) REFERENCES Course(id) ON DELETE CASCADE
 );
 
@@ -19,6 +19,6 @@ CREATE TABLE IF NOT EXISTS CourseThreadResponse (
     content TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modifiedAt TIMESTAMP,
-    FOREIGN KEY (appUserId) REFERENCES AppUser(id),
+    FOREIGN KEY (userId) REFERENCES User(id),
     FOREIGN KEY (courseThreadId) REFERENCES CourseThread(id) ON DELETE CASCADE
 );
