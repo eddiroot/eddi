@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"fmt"
 
 	. "github.com/go-jet/jet/v2/postgres"
 	. "github.com/lachlanmacphee/eddy/.gen/eddy/public/table"
@@ -43,387 +42,628 @@ func GetInstitutions() ([]model.Institution, error) {
 	return institutions, nil
 }
 
-func GetInstitutionByID(id int) (database.Institution, error) {
-	var institution database.Institution
-	query := `SELECT id, name, continent FROM Institution WHERE id = $1`
-	err := database.DB.QueryRow(query, id).Scan(&institution.ID, &institution.Name, &institution.Continent)
+func GetInstitutionByID(id int) (model.Institution, error) {
+	stmt := SELECT(
+		Institution.AllColumns,
+	).FROM(
+		Institution,
+	).WHERE(
+		Institution.ID.EQ(Int32(int32(id))),
+	)
+
+	institution := model.Institution{}
+	err := stmt.Query(database.DB, &institution)
+
 	return institution, err
 }
 
-func UpdateInstitution(id int, name, continent string) error {
-	query := `UPDATE Institution SET name = $1, continent = $2 WHERE id = $3`
-	_, err := database.DB.Exec(query, name, continent, id)
-	return err
+func UpdateInstitution(id int, name, continent string) (model.Institution, error) {
+	stmt := Institution.UPDATE().
+		SET(
+			Institution.Name.SET(String(name)),
+			Institution.Continent.SET(String(continent)),
+		).WHERE(
+			Institution.ID.EQ(Int32(int32(id))),
+		)
+
+	// Execute the update
+	_, err := stmt.Exec(database.DB)
+	if err != nil {
+		return model.Institution{}, err
+	}
+	
+	// Fetch the updated object
+	return GetInstitutionByID(id)
 }
 
 func DeleteInstitution(id int) error {
-	query := `DELETE FROM Institution WHERE id = $1`
-	_, err := database.DB.Exec(query, id)
+	stmt := Institution.DELETE().WHERE(
+		Institution.ID.EQ(Int32(int32(id))),
+	)
+
+	_, err := stmt.Exec(database.DB)
 	return err
 }
 
 // Admin Operations
-func CreateAdmin(institutionID int, username, password string) (int, error) {
-	var id int
-	query := `INSERT INTO Admin (institutionId, username, password) VALUES ($1, $2, $3) RETURNING id`
-	err := database.DB.QueryRow(query, institutionID, username, password).Scan(&id)
-	return id, err
-}
-
-func GetAdmins() ([]database.Admin, error) {
-	rows, err := database.DB.Query(`SELECT id, institutionId, username, password FROM Admin`)
-	if err != nil {
-		return nil, err
+func CreateAdmin(institutionID int, username, password string) (model.Admin, error) {
+	insrt := model.Admin{
+			InstitutionId: int32(institutionID),
+			Username:      username,
+			Password:      password,
 	}
-	defer rows.Close()
+	
+	stmt := Admin.INSERT(Admin.MutableColumns).MODEL(insrt).RETURNING(Admin.AllColumns)
 
-	var admins []database.Admin
-	for rows.Next() {
-		var admin database.Admin
-		if err := rows.Scan(&admin.ID, &admin.InstitutionID, &admin.Username, &admin.Password); err != nil {
-			return nil, err
-		}
-		admins = append(admins, admin)
-	}
-	return admins, nil
-}
+	admin := model.Admin{}
+	err := stmt.Query(database.DB, &admin)
 
-func GetAdminByID(id int) (database.Admin, error) {
-	var admin database.Admin
-	query := `SELECT id, institutionId, username, password FROM Admin WHERE id = $1`
-	err := database.DB.QueryRow(query, id).Scan(&admin.ID, &admin.InstitutionID, &admin.Username, &admin.Password)
 	return admin, err
 }
 
-func UpdateAdmin(id int, institutionID int, username, password string) error {
-	query := `UPDATE Admin SET institutionId = $1, username = $2, password = $3 WHERE id = $4`
-	_, err := database.DB.Exec(query, institutionID, username, password, id)
-	return err
+func GetAdmins() ([]model.Admin, error) {
+	stmt := SELECT(
+		Admin.AllColumns,
+	).FROM(
+		Admin,
+	)
+
+	admins := []model.Admin{}
+	err := stmt.Query(database.DB, &admins)
+	
+	return admins, err
+}
+
+func GetAdminByID(id int) (model.Admin, error) {
+	stmt := SELECT(
+		Admin.AllColumns,
+	).FROM(
+		Admin,
+	).WHERE(
+		Admin.ID.EQ(Int32(int32(id))),
+	)
+
+	admin := model.Admin{}
+	err := stmt.Query(database.DB, &admin)
+	
+	return admin, err
+}
+
+func UpdateAdmin(id int, institutionID int, username, password string) (model.Admin, error) {
+	stmt := Admin.UPDATE().
+		SET(
+			Admin.InstitutionId.SET(Int32(int32(institutionID))),
+			Admin.Username.SET(String(username)),
+			Admin.Password.SET(String(password)),
+		).WHERE(
+			Admin.ID.EQ(Int32(int32(id))),
+		)
+
+	// Execute the update
+	_, err := stmt.Exec(database.DB)
+	if err != nil {
+		return model.Admin{}, err
+	}
+	
+	// Fetch the updated object
+	return GetAdminByID(id)
 }
 
 func DeleteAdmin(id int) error {
-	query := `DELETE FROM Admin WHERE id = $1`
-	_, err := database.DB.Exec(query, id)
+	stmt := Admin.DELETE().WHERE(
+		Admin.ID.EQ(Int32(int32(id))),
+	)
+
+	_, err := stmt.Exec(database.DB)
 	return err
 }
 
 // User Operations
-func CreateUser(firstName, middleName, lastName, username, password, avatarUrl string) (int, error) {
-	var id int
-	query := `INSERT INTO AppUser (firstName, middleName, lastName, username, password, avatarUrl) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
-	err := database.DB.QueryRow(query, firstName, middleName, lastName, username, password, avatarUrl).Scan(&id)
-	return id, err
+func CreateUser(firstName, middleName, lastName, username, password, avatarUrl string) (model.User, error) {
+	insrt := model.User{
+		FirstName:  firstName,
+		MiddleName: &middleName,
+		LastName:   lastName,
+		Username:   username,
+		Password:   password,
+		AvatarUrl:  &avatarUrl,
+	}
+	
+	stmt := User.INSERT(User.MutableColumns).MODEL(insrt).RETURNING(User.AllColumns)
+
+	user := model.User{}
+	err := stmt.Query(database.DB, &user)
+
+	return user, err
 }
 
-func GetUsers() ([]database.User, error) {
-	rows, err := database.DB.Query(`SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser`)
+func GetUsers() ([]model.User, error) {
+	stmt := SELECT(
+		User.AllColumns,
+	).FROM(
+		User,
+	)
+
+	users := []model.User{}
+	err := stmt.Query(database.DB, &users)
+	
+	return users, err
+}
+
+func GetUserByID(id int) (model.User, error) {
+	stmt := SELECT(
+		User.AllColumns,
+	).FROM(
+		User,
+	).WHERE(
+		User.ID.EQ(Int32(int32(id))),
+	)
+
+	user := model.User{}
+	err := stmt.Query(database.DB, &user)
+	
+	return user, err
+}
+
+func GetUserByUsername(username string) (model.User, error) {
+	stmt := SELECT(
+		User.AllColumns,
+	).FROM(
+		User,
+	).WHERE(
+		User.Username.EQ(String(username)),
+	)
+
+	user := model.User{}
+	err := stmt.Query(database.DB, &user)
+	
+	return user, err
+}
+
+func UpdateUser(id int, firstName, middleName, lastName, username, password, avatarUrl string) (model.User, error) {
+	stmt := User.UPDATE().
+		SET(
+			User.FirstName.SET(String(firstName)),
+			User.MiddleName.SET(String(middleName)),
+			User.LastName.SET(String(lastName)),
+			User.Username.SET(String(username)),
+			User.Password.SET(String(password)),
+			User.AvatarUrl.SET(String(avatarUrl)),
+		).WHERE(
+			User.ID.EQ(Int32(int32(id))),
+		)
+
+	// Execute the update
+	_, err := stmt.Exec(database.DB)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
-	defer rows.Close()
-
-	var users []database.User
-	for rows.Next() {
-		var user database.User
-		if err := rows.Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl); err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-	return users, nil
-}
-
-func GetUserByID(id int) (database.User, error) {
-	var user database.User
-	query := `SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser WHERE id = $1`
-	err := database.DB.QueryRow(query, id).Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl)
-	return user, err
-}
-
-func GetUserByUsername(username string) (database.User, error) {
-	var user database.User
-	query := `SELECT id, firstName, middleName, lastName, username, password, avatarUrl FROM AppUser WHERE username = $1`
-	err := database.DB.QueryRow(query, username).Scan(&user.ID, &user.FirstName, &user.MiddleName, &user.LastName, &user.Username, &user.Password, &user.AvatarUrl)
-	return user, err
-}
-
-func UpdateUser(id int, firstName, middleName, lastName, username, password, avatarUrl string) error {
-	query := `UPDATE AppUser SET firstName = $1, middleName = $2, lastName = $3, username = $4, password = $5, avatarUrl = $6 WHERE id = $7`
-	_, err := database.DB.Exec(query, firstName, middleName, lastName, username, password, avatarUrl, id)
-	return err
+	
+	// Fetch the updated object
+	return GetUserByID(id)
 }
 
 func DeleteUser(id int) error {
-	query := `DELETE FROM AppUser WHERE id = $1`
-	_, err := database.DB.Exec(query, id)
+	stmt := User.DELETE().WHERE(
+		User.ID.EQ(Int32(int32(id))),
+	)
+
+	_, err := stmt.Exec(database.DB)
 	return err
 }
 
 // Course Operations
-func CreateCourse(institutionID int, name, description string) (int, error) {
-	var id int
-	query := `INSERT INTO Course (institutionId, name, description) VALUES ($1, $2, $3) RETURNING id`
-	err := database.DB.QueryRow(query, institutionID, name, description).Scan(&id)
-	return id, err
-}
-
-func GetCourses() ([]database.Course, error) {
-	rows, err := database.DB.Query(`SELECT id, institutionId, name, description FROM Course`)
-	if err != nil {
-		return nil, err
+func CreateCourse(institutionID int, name, description string) (model.Course, error) {
+	insrt := model.Course{
+			InstitutionId: int32(institutionID),
+			Name:          name,
+			Description:   description,
 	}
-	defer rows.Close()
+	
+	stmt := Course.INSERT(Course.MutableColumns).MODEL(insrt).RETURNING(Course.AllColumns)
 
-	var courses []database.Course
-	for rows.Next() {
-		var course database.Course
-		if err := rows.Scan(&course.ID, &course.InstitutionID, &course.Name, &course.Description); err != nil {
-			return nil, err
-		}
-		courses = append(courses, course)
-	}
-	return courses, nil
-}
+	course := model.Course{}
+	err := stmt.Query(database.DB, &course)
 
-func GetCourseByID(id int) (database.Course, error) {
-	var course database.Course
-	query := `SELECT id, institutionId, name, description FROM Course WHERE id = $1`
-	err := database.DB.QueryRow(query, id).Scan(&course.ID, &course.InstitutionID, &course.Name, &course.Description)
 	return course, err
 }
 
-func UpdateCourse(id int, institutionID int, name, description string) error {
-	query := `UPDATE Course SET institutionId = $1, name = $2, description = $3 WHERE id = $4`
-	_, err := database.DB.Exec(query, institutionID, name, description, id)
-	return err
+func GetCourses() ([]model.Course, error) {
+	stmt := SELECT(
+		Course.AllColumns,
+	).FROM(
+		Course,
+	)
+
+	courses := []model.Course{}
+	err := stmt.Query(database.DB, &courses)
+	
+	return courses, err
+}
+
+func GetCourseByID(id int) (model.Course, error) {
+	stmt := SELECT(
+		Course.AllColumns,
+	).FROM(
+		Course,
+	).WHERE(
+		Course.ID.EQ(Int32(int32(id))),
+	)
+
+	course := model.Course{}
+	err := stmt.Query(database.DB, &course)
+	
+	return course, err
+}
+
+func UpdateCourse(id int, institutionID int, name, description string) (model.Course, error) {
+	stmt := Course.UPDATE().
+		SET(
+			Course.InstitutionId.SET(Int32(int32(institutionID))),
+			Course.Name.SET(String(name)),
+			Course.Description.SET(String(description)),
+		).WHERE(
+			Course.ID.EQ(Int32(int32(id))),
+		)
+
+	// Execute the update
+	_, err := stmt.Exec(database.DB)
+	if err != nil {
+		return model.Course{}, err
+	}
+	
+	// Fetch the updated object
+	return GetCourseByID(id)
 }
 
 func DeleteCourse(id int) error {
-	query := `DELETE FROM Course WHERE id = $1`
-	_, err := database.DB.Exec(query, id)
+	stmt := Course.DELETE().WHERE(
+		Course.ID.EQ(Int32(int32(id))),
+	)
+
+	_, err := stmt.Exec(database.DB)
 	return err
 }
 
 // UserCourse Operations
-func CreateUserCourse(appUserId int, courseId int, year int, semester int, role string, isComplete bool, isArchived bool) (int, int, error) {
-	var returnUserId int
-	var returnCourseId int
-	query := `INSERT INTO AppUserCourse (appUserId, courseId, year, semester, role, isComplete, isArchived) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING appUserId, courseId`
-	err := database.DB.QueryRow(query, appUserId, courseId, year, semester, role, isComplete, isArchived).Scan(&returnUserId, &returnCourseId)
-	return returnUserId, returnCourseId, err
+func CreateUserCourse(appUserId int, courseId int, year int, semester int, role string, isComplete bool, isArchived bool) (model.UserCourse, error) {
+	insrt := model.UserCourse{
+		UserId:     int32(appUserId),
+		CourseId:   int32(courseId),
+		Year:       int32(year),
+		Semester:   int32(semester),
+		Role:       &role,
+		IsComplete: &isComplete,
+		IsArchived: &isArchived,
+	}
+	
+	stmt := UserCourse.INSERT(UserCourse.MutableColumns).MODEL(insrt).RETURNING(UserCourse.AllColumns)
+
+	userCourse := model.UserCourse{}
+	err := stmt.Query(database.DB, &userCourse)
+
+	return userCourse, err
 }
 
-func GetUserCoursesByUserID(userId int) ([]database.UserCourse, error) {
-	query := `SELECT userId, courseId, year, semester, role, isComplete, isArchived FROM AppUserCourse WHERE appUserId = $1`
-	rows, err := database.DB.Query(query, userId)
+func GetUserCoursesByUserID(userId int) ([]model.UserCourse, error) {
+	stmt := SELECT(
+		UserCourse.AllColumns,
+	).FROM(
+		UserCourse,
+	).WHERE(
+		UserCourse.UserId.EQ(Int32(int32(userId))),
+	)
+
+	userCourses := []model.UserCourse{}
+	err := stmt.Query(database.DB, &userCourses)
+	
+	return userCourses, err
+}
+
+func GetUsersInCourseByCourseID(courseId int) ([]model.UserCourse, error) {
+	stmt := SELECT(
+		UserCourse.AllColumns,
+	).FROM(
+		UserCourse,
+	).WHERE(
+		UserCourse.CourseId.EQ(Int32(int32(courseId))),
+	)
+
+	userCourses := []model.UserCourse{}
+	err := stmt.Query(database.DB, &userCourses)
+	
+	return userCourses, err
+}
+
+// UserCourseJoinCourse is a structure to hold joined UserCourse and Course data
+type UserCourseJoinCourse struct {
+	UserCourse struct {
+		UserID     int
+		CourseID   int
+		Year       int
+		Semester   int
+		Role       string
+		IsComplete bool
+		IsArchived bool
+	}
+	Course struct {
+		ID            int
+		InstitutionID int
+		Name          string
+		Description   string
+	}
+}
+
+func GetUserCoursesJoinCoursesByUserID(userId int) ([]UserCourseJoinCourse, error) {
+	stmt := SELECT(
+		UserCourse.UserId,
+		UserCourse.CourseId,
+		UserCourse.Year,
+		UserCourse.Semester,
+		UserCourse.Role,
+		UserCourse.IsComplete,
+		UserCourse.IsArchived,
+		Course.InstitutionId,
+		Course.ID,
+		Course.Name,
+		Course.Description,
+	).FROM(
+		UserCourse.
+			INNER_JOIN(Course, UserCourse.CourseId.EQ(Course.ID)),
+	).WHERE(
+		UserCourse.UserId.EQ(Int32(int32(userId))),
+	)
+
+	var results []struct {
+		UserId      int32          `sql:"userId"`
+		CourseId    int32          `sql:"courseId"`
+		Year        int32
+		Semester    int32
+		Role        *string
+		IsComplete  *bool
+		IsArchived  *bool
+		InstId      int32          `sql:"institutionId"`
+		CourseID    int32          `sql:"id"`
+		Name        string
+		Description string
+	}
+
+	err := stmt.Query(database.DB, &results)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var userCourses []database.UserCourse
-	for rows.Next() {
-		var userCourse database.UserCourse
-		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived); err != nil {
-			return nil, err
+	var detailedCourses []UserCourseJoinCourse
+	for _, r := range results {
+		// Handle possible nil values
+		var role string
+		var isComplete, isArchived bool
+		
+		if r.Role != nil {
+			role = *r.Role
 		}
-		userCourses = append(userCourses, userCourse)
-	}
-	return userCourses, nil
-}
-
-func GetUserCoursesJoinCoursesByUserID(userId int) ([]database.UserCourseJoinCourse, error) {
-	query := `SELECT appUserId, courseId, year, semester, role, isComplete, isArchived, institutionId, courseId, name, description FROM AppUserCourse INNER JOIN Course ON AppUserCourse.courseId = Course.id WHERE appUserId = $1`
-	rows, err := database.DB.Query(query, userId)
-
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var detailedCourses []database.UserCourseJoinCourse
-	for rows.Next() {
-		var userCourse database.UserCourseJoinCourse
-		if err := rows.Scan(&userCourse.UserCourse.UserID, &userCourse.UserCourse.CourseID, &userCourse.UserCourse.Year, &userCourse.UserCourse.Semester, &userCourse.UserCourse.Role, &userCourse.UserCourse.IsComplete, &userCourse.UserCourse.IsArchived, &userCourse.Course.InstitutionID, &userCourse.Course.ID, &userCourse.Course.Name, &userCourse.Course.Description); err != nil {
-			fmt.Println(err)
-			return nil, err
+		if r.IsComplete != nil {
+			isComplete = *r.IsComplete
 		}
+		if r.IsArchived != nil {
+			isArchived = *r.IsArchived
+		}
+		
+		userCourse := UserCourseJoinCourse{}
+		userCourse.UserCourse.UserID = int(r.UserId)
+		userCourse.UserCourse.CourseID = int(r.CourseId)
+		userCourse.UserCourse.Year = int(r.Year)
+		userCourse.UserCourse.Semester = int(r.Semester) 
+		userCourse.UserCourse.Role = role
+		userCourse.UserCourse.IsComplete = isComplete
+		userCourse.UserCourse.IsArchived = isArchived
+		
+		userCourse.Course.ID = int(r.CourseID)
+		userCourse.Course.InstitutionID = int(r.InstId)
+		userCourse.Course.Name = r.Name
+		userCourse.Course.Description = r.Description
+		
 		detailedCourses = append(detailedCourses, userCourse)
 	}
+
 	return detailedCourses, nil
 }
 
-func GetUsersInCourseByCourseID(courseId int) ([]database.UserCourse, error) {
-	query := `SELECT appUserId, courseId, year, semester, role, isComplete, isArchived FROM AppUserCourse WHERE courseId = $1`
-	rows, err := database.DB.Query(query, courseId)
-	if err != nil {
-		return nil, err
+func CreateCourseThread(appUserId int, courseId int, title string, content string) (model.CourseThread, error) {
+	insrt := model.CourseThread{
+		UserId:   int32(appUserId),
+		CourseId: int32(courseId),
+		Title:    title,
+		Content:  content,
+		// CreatedAt and ModifiedAt will be set by database defaults
 	}
-	defer rows.Close()
+	
+	stmt := CourseThread.INSERT(CourseThread.MutableColumns).MODEL(insrt).RETURNING(CourseThread.AllColumns)
 
-	var userCourses []database.UserCourse
-	for rows.Next() {
-		var userCourse database.UserCourse
-		if err := rows.Scan(&userCourse.UserID, &userCourse.CourseID, &userCourse.Year, &userCourse.Semester, &userCourse.Role, &userCourse.IsComplete, &userCourse.IsArchived); err != nil {
-			return nil, err
-		}
-		userCourses = append(userCourses, userCourse)
-	}
-	return userCourses, nil
-}
+	courseThread := model.CourseThread{}
+	err := stmt.Query(database.DB, &courseThread)
 
-func CreateCourseThread(appUserId int, courseId int, title string, postType string, content string) (int, error) {
-	var courseThreadID int
-	query := `INSERT INTO CourseThread (appUserId, courseId, title, type, content) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	err := database.DB.QueryRow(query, appUserId, courseId, title, postType, content).Scan(&courseThreadID)
-	return courseThreadID, err
-}
-
-func GetCourseThreadsByCourseID(courseId int) ([]database.CourseThread, error) {
-	query := `SELECT id, appUserId, courseId, title, type, createdAt, modifiedAt FROM CourseThread WHERE courseId = $1 ORDER BY createdAt DESC`
-	rows, err := database.DB.Query(query, courseId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var courseThreads []database.CourseThread
-	for rows.Next() {
-		var courseThread database.CourseThread
-		if err := rows.Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.CreatedAt, &courseThread.ModifiedAt); err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-		courseThreads = append(courseThreads, courseThread)
-	}
-	return courseThreads, nil
-}
-
-func GetCourseThreadByID(id int) (database.CourseThread, error) {
-	var courseThread database.CourseThread
-	query := `SELECT id, appUserId, courseId, title, type, content, createdAt, modifiedAt FROM CourseThread WHERE id = $1`
-	err := database.DB.QueryRow(query, id).Scan(&courseThread.ID, &courseThread.UserID, &courseThread.CourseID, &courseThread.Title, &courseThread.Type, &courseThread.Content, &courseThread.CreatedAt, &courseThread.ModifiedAt)
 	return courseThread, err
 }
 
-// If updating course thread, make sure to change modifiedAt
+func GetCourseThreadsByCourseID(courseId int) ([]model.CourseThread, error) {
+	stmt := SELECT(
+		CourseThread.ID, 
+		CourseThread.UserId,
+		CourseThread.CourseId,
+		CourseThread.Title,
+		CourseThread.CreatedAt,
+		CourseThread.ModifiedAt,
+	).FROM(
+		CourseThread,
+	).WHERE(
+		CourseThread.CourseId.EQ(Int32(int32(courseId))),
+	).ORDER_BY(
+		CourseThread.CreatedAt.DESC(),
+	)
 
-func GetCourseThreadResponsesByThreadID(threadId int) ([]database.CourseThreadResponse, error) {
-	query := `SELECT id, appUserId, courseThreadId, type, content, createdAt, modifiedAt FROM CourseThreadResponse WHERE courseThreadId = $1`
-	rows, err := database.DB.Query(query, threadId)
+	courseThreads := []model.CourseThread{}
+	err := stmt.Query(database.DB, &courseThreads)
+	
+	return courseThreads, err
+}
+
+func GetCourseThreadByID(id int) (model.CourseThread, error) {
+	stmt := SELECT(
+		CourseThread.AllColumns,
+	).FROM(
+		CourseThread,
+	).WHERE(
+		CourseThread.ID.EQ(Int32(int32(id))),
+	)
+
+	courseThread := model.CourseThread{}
+	err := stmt.Query(database.DB, &courseThread)
+	
+	return courseThread, err
+}
+
+func GetCourseThreadResponsesByThreadID(threadId int) ([]model.CourseThreadResponse, error) {
+	stmt := SELECT(
+		CourseThreadResponse.AllColumns,
+	).FROM(
+		CourseThreadResponse,
+	).WHERE(
+		CourseThreadResponse.CourseThreadId.EQ(Int32(int32(threadId))),
+	)
+
+	responses := []model.CourseThreadResponse{}
+	err := stmt.Query(database.DB, &responses)
+	
+	return responses, err
+}
+
+func CreateCourseThreadResponse(appUserId int, threadID int, content string) (model.CourseThreadResponse, error) {
+	insrt := model.CourseThreadResponse{
+		UserId:         int32(appUserId),
+		CourseThreadId: int32(threadID),
+		Content:        content,
+		// CreatedAt and ModifiedAt will be set by database defaults
+	}
+	
+	stmt := CourseThreadResponse.INSERT(CourseThreadResponse.MutableColumns).MODEL(insrt).RETURNING(CourseThreadResponse.AllColumns)
+
+	response := model.CourseThreadResponse{}
+	err := stmt.Query(database.DB, &response)
+
+	return response, err
+}
+
+func GetCourseLessonsByCourseID(courseId int) ([]model.CourseLesson, error) {
+	stmt := SELECT(
+		CourseLesson.AllColumns,
+	).FROM(
+		CourseLesson,
+	).WHERE(
+		CourseLesson.CourseId.EQ(Int32(int32(courseId))),
+	).ORDER_BY(
+		CourseLesson.CourseWeek.ASC(),
+	)
+
+	courseLessons := []model.CourseLesson{}
+	err := stmt.Query(database.DB, &courseLessons)
+	
+	return courseLessons, err
+}
+
+// Custom types for CourseLesson section functionality
+type LessonSectionData struct {
+	ID             int
+	CourseLessonID int
+	Title          string
+}
+
+type LessonSectionBlockData struct {
+	ID          int
+	Title       string
+	Description string
+	Type        string
+}
+
+type LessonSectionWithBlocks struct {
+	Section LessonSectionData
+	Blocks  []LessonSectionBlockData
+}
+
+func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]LessonSectionWithBlocks, error) {
+	stmt := SELECT(
+		CourseLessonSection.ID,
+		CourseLessonSection.CourseLessonId,
+		CourseLessonSection.Title,
+		CourseLessonSectionBlock.ID,
+		CourseLessonSectionBlock.Title,
+		CourseLessonSectionBlock.Description,
+		CourseLessonSectionBlock.Type,
+	).FROM(
+		CourseLessonSection.
+			LEFT_JOIN(CourseLessonSectionBlock, 
+				CourseLessonSection.ID.EQ(CourseLessonSectionBlock.CourseLessonSectionId)),
+	).WHERE(
+		CourseLessonSection.CourseLessonId.EQ(Int32(int32(lessonId))),
+	)
+
+	var results []struct {
+		SectionID      sql.NullInt64  `sql:"id"`
+		CourseLessonId int32          `sql:"courseLessonId"`
+		SectionTitle   sql.NullString `sql:"title"`
+		BlockID        sql.NullInt64  `sql:"id_1"` // Second 'id' column gets aliased to id_1
+		BlockTitle     sql.NullString `sql:"title_1"` // Second 'title' column gets aliased to title_1
+		BlockDesc      sql.NullString `sql:"description"`
+		BlockType      sql.NullString `sql:"type"`
+	}
+
+	err := stmt.Query(database.DB, &results)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var responses []database.CourseThreadResponse
-	for rows.Next() {
-		var response database.CourseThreadResponse
-		if err := rows.Scan(&response.ID, &response.UserID, &response.CourseThreadID, &response.Type, &response.Content, &response.CreatedAt, &response.ModifiedAt); err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-		responses = append(responses, response)
-	}
-	return responses, nil
-}
-
-func CreateCourseThreadResponse(appUserId int, threadID int, postType string, content string) (int, error) {
-	var courseThreadResponseID int
-	query := `INSERT INTO CourseThreadResponse (appUserId, courseId, type, content) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	err := database.DB.QueryRow(query, appUserId, threadID, postType, content).Scan(&courseThreadResponseID)
-	return courseThreadResponseID, err
-}
-
-func GetCourseLessonsByCourseID(courseId int) ([]database.CourseLesson, error) {
-	query := `SELECT id, courseId, courseWeek, title, description, createdAt, modifiedAt FROM CourseLesson WHERE courseId = $1 ORDER BY courseWeek ASC`
-	rows, err := database.DB.Query(query, courseId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var courseLessons []database.CourseLesson
-	for rows.Next() {
-		var courseLesson database.CourseLesson
-		if err := rows.Scan(&courseLesson.ID, &courseLesson.CourseID, &courseLesson.CourseWeek, &courseLesson.Title, &courseLesson.Description, &courseLesson.CreatedAt, &courseLesson.ModifiedAt); err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-		courseLessons = append(courseLessons, courseLesson)
-	}
-	return courseLessons, nil
-}
-
-func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]database.CourseLessonSectionJoinBlocks, error) {
-	query := `SELECT 
-		CourseLessonSection.id, 
-		CourseLessonSection.courseLessonId, 
-		CourseLessonSection.title, 
-		CourseLessonSectionBlock.id, 
-		CourseLessonSectionBlock.title, 
-		CourseLessonSectionBlock.description, 
-		CourseLessonSectionBlock.type 
-	FROM 
-		CourseLessonSection 
-	LEFT JOIN 
-		CourseLessonSectionBlock 
-	ON 
-		CourseLessonSection.id = CourseLessonSectionBlock.courseLessonSectionId 
-	WHERE 
-		courseLessonId = $1`
-
-	rows, err := database.DB.Query(query, lessonId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 
 	// Map to hold sections and avoid duplicates
-	sectionMap := make(map[int]*database.CourseLessonSectionJoinBlocks)
+	sectionMap := make(map[int]*LessonSectionWithBlocks)
 
-	for rows.Next() {
-		var sectionID, blockID sql.NullInt64
-		var courseLessonID int
-		var sectionTitle, blockTitle, blockDescription, blockType sql.NullString
-
-		err := rows.Scan(&sectionID, &courseLessonID, &sectionTitle, &blockID, &blockTitle, &blockDescription, &blockType)
-		if err != nil {
-			return nil, err
+	for _, r := range results {
+		if !r.SectionID.Valid {
+			continue
 		}
-
+		
+		sectionID := int(r.SectionID.Int64)
+		
 		// Check if the section already exists in the map
-		section, exists := sectionMap[int(sectionID.Int64)]
+		section, exists := sectionMap[sectionID]
 		if !exists {
 			// Create a new section
-			section = &database.CourseLessonSectionJoinBlocks{
-				CourseLessonSection: database.CourseLessonSection{
-					ID:             int(sectionID.Int64),
-					CourseLessonID: courseLessonID,
-					Title:          sectionTitle.String,
+			section = &LessonSectionWithBlocks{
+				Section: LessonSectionData{
+					ID:             sectionID,
+					CourseLessonID: int(r.CourseLessonId),
+					Title:          r.SectionTitle.String,
 				},
-				Blocks: []database.CourseLessonSectionBlock{},
+				Blocks: []LessonSectionBlockData{},
 			}
-			sectionMap[int(sectionID.Int64)] = section
+			sectionMap[sectionID] = section
 		}
 
 		// Only add a block if it exists (blockID is not NULL)
-		if blockID.Valid {
-			block := database.CourseLessonSectionBlock{
-				ID:          int(blockID.Int64),
-				Title:       blockTitle.String,
-				Description: blockDescription.String,
-				Type:        blockType.String,
+		if r.BlockID.Valid {
+			block := LessonSectionBlockData{
+				ID:          int(r.BlockID.Int64),
+				Title:       r.BlockTitle.String,
+				Description: r.BlockDesc.String,
+				Type:        r.BlockType.String,
 			}
 			section.Blocks = append(section.Blocks, block)
 		}
 	}
 
 	// Convert the map values to a slice
-	var courseLessonSectionsWithBlocks []database.CourseLessonSectionJoinBlocks
+	var lessonSectionsWithBlocks []LessonSectionWithBlocks
 	for _, section := range sectionMap {
-		courseLessonSectionsWithBlocks = append(courseLessonSectionsWithBlocks, *section)
+		lessonSectionsWithBlocks = append(lessonSectionsWithBlocks, *section)
 	}
 
-	return courseLessonSectionsWithBlocks, nil
+	return lessonSectionsWithBlocks, nil
 }
