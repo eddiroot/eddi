@@ -57,6 +57,28 @@ func GetCourseThreadByID(id int) (model.CourseThread, error) {
 	return courseThread, err
 }
 
+type CourseThreadWithResponses struct {
+	Thread    model.CourseThread
+	Responses []model.CourseThreadResponse
+}
+
+func GetCourseThreadWithResponsesByID(id int) (CourseThreadWithResponses, error) {
+	thread, err := GetCourseThreadByID(id)
+	if err != nil {
+		return CourseThreadWithResponses{}, err
+	}
+	
+	responses, err := GetCourseThreadResponsesByThreadID(id)
+	if err != nil {
+		return CourseThreadWithResponses{}, err
+	}
+	
+	return CourseThreadWithResponses{
+		Thread:    thread,
+		Responses: responses,
+	}, nil
+}
+
 func CreateCourseThreadResponse(appUserId int, threadID int, content string) (model.CourseThreadResponse, error) {
 	insrt := model.CourseThreadResponse{
 		UserId:         int32(appUserId),

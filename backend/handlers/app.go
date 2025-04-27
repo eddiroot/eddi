@@ -9,12 +9,6 @@ import (
 	"github.com/lachlanmacphee/eddy/service"
 )
 
-// Struct to combine thread and responses
-type CourseThreadJoinResponses struct {
-	Thread    model.CourseThread
-	Responses []model.CourseThreadResponse
-}
-
 func GetUserCourses(c *gin.Context) {
 	userRaw, _ := c.Get("user")
 	user := userRaw.(model.User)
@@ -76,24 +70,13 @@ func GetCourseThread(c *gin.Context) {
 		return
 	}
 
-	thread, err := service.GetCourseThreadByID(threadId)
+	thread, err := service.GetCourseThreadWithResponsesByID(threadId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course threads"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course thread with responses"})
 		return
 	}
 
-	responses, respErr := service.GetCourseThreadResponsesByThreadID(threadId)
-	if respErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve course thread responses"})
-		return
-	}
-
-	threadWithResponses := CourseThreadJoinResponses{
-		Thread:    thread,
-		Responses: responses,
-	}
-
-	c.JSON(http.StatusOK, threadWithResponses)
+	c.JSON(http.StatusOK, thread)
 }
 
 func CreateCourseThreadResponse(c *gin.Context) {
