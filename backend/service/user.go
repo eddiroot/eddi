@@ -7,8 +7,7 @@ import (
 	"github.com/lachlanmacphee/eddy/database"
 )
 
-// CreateUser creates a new user record
-func CreateUser(firstName, middleName, lastName, username, password, avatarUrl string) (model.User, error) {
+func CreateUser(firstName string, middleName string, lastName string, username string, password string, avatarUrl string) (model.User, error) {
 	insrt := model.User{
 		FirstName:  firstName,
 		MiddleName: &middleName,
@@ -28,7 +27,6 @@ func CreateUser(firstName, middleName, lastName, username, password, avatarUrl s
 	return user, err
 }
 
-// GetUsers retrieves all users
 func GetUsers() ([]model.User, error) {
 	stmt := postgres.SELECT(
 		table.User.AllColumns,
@@ -42,7 +40,6 @@ func GetUsers() ([]model.User, error) {
 	return users, err
 }
 
-// GetUserByID retrieves a user by ID
 func GetUserByID(id int) (model.User, error) {
 	stmt := postgres.SELECT(
 		table.User.AllColumns,
@@ -58,7 +55,6 @@ func GetUserByID(id int) (model.User, error) {
 	return user, err
 }
 
-// GetUserByUsername retrieves a user by username
 func GetUserByUsername(username string) (model.User, error) {
 	stmt := postgres.SELECT(
 		table.User.AllColumns,
@@ -74,8 +70,7 @@ func GetUserByUsername(username string) (model.User, error) {
 	return user, err
 }
 
-// UpdateUser updates a user record by ID
-func UpdateUser(id int, firstName, middleName, lastName, username, password, avatarUrl string) (model.User, error) {
+func UpdateUser(id int, firstName string, middleName string, lastName string, username string, password string, avatarUrl string) (model.User, error) {
 	stmt := table.User.UPDATE().
 		SET(
 			table.User.FirstName.SET(postgres.String(firstName)),
@@ -99,7 +94,6 @@ func UpdateUser(id int, firstName, middleName, lastName, username, password, ava
 	return user, nil
 }
 
-// DeleteUser deletes a user by ID
 func DeleteUser(id int) error {
 	stmt := table.User.DELETE().WHERE(
 		table.User.ID.EQ(postgres.Int32(int32(id))),

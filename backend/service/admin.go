@@ -7,8 +7,7 @@ import (
 	"github.com/lachlanmacphee/eddy/database"
 )
 
-// CreateAdmin creates a new admin record
-func CreateAdmin(institutionID int, username, password string) (model.Admin, error) {
+func CreateAdmin(institutionID int, username string, password string) (model.Admin, error) {
 	insrt := model.Admin{
 		InstitutionId: int32(institutionID),
 		Username:      username,
@@ -55,8 +54,7 @@ func GetAdminByID(id int) (model.Admin, error) {
 	return admin, err
 }
 
-// UpdateAdmin updates an admin record by ID
-func UpdateAdmin(id int, institutionID int, username, password string) (model.Admin, error) {
+func UpdateAdmin(id int, institutionID int, username string, password string) (model.Admin, error) {
 	stmt := table.Admin.UPDATE().
 		SET(
 			table.Admin.InstitutionId.SET(postgres.Int32(int32(institutionID))),
@@ -77,7 +75,6 @@ func UpdateAdmin(id int, institutionID int, username, password string) (model.Ad
 	return admin, nil
 }
 
-// DeleteAdmin deletes an admin by ID
 func DeleteAdmin(id int) error {
 	stmt := table.Admin.DELETE().WHERE(
 		table.Admin.ID.EQ(postgres.Int32(int32(id))),

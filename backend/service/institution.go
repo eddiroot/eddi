@@ -7,7 +7,6 @@ import (
 	"github.com/lachlanmacphee/eddy/database"
 )
 
-// CreateInstitution creates a new institution record
 func CreateInstitution(name string, continent string) (model.Institution, error) {
 	insrt := model.Institution{
 		Name:      name,
@@ -24,7 +23,6 @@ func CreateInstitution(name string, continent string) (model.Institution, error)
 	return institution, err
 }
 
-// GetInstitutions retrieves all institutions
 func GetInstitutions() ([]model.Institution, error) {
 	stmt := postgres.SELECT(
 		table.Institution.ID, table.Institution.Name, table.Institution.Continent,
@@ -41,7 +39,6 @@ func GetInstitutions() ([]model.Institution, error) {
 	return institutions, nil
 }
 
-// GetInstitutionByID retrieves an institution by its ID
 func GetInstitutionByID(id int) (model.Institution, error) {
 	stmt := postgres.SELECT(
 		table.Institution.AllColumns,
@@ -57,7 +54,6 @@ func GetInstitutionByID(id int) (model.Institution, error) {
 	return institution, err
 }
 
-// UpdateInstitution updates an institution record by ID
 func UpdateInstitution(id int, name, continent string) (model.Institution, error) {
 	stmt := table.Institution.UPDATE().
 		SET(
@@ -78,7 +74,6 @@ func UpdateInstitution(id int, name, continent string) (model.Institution, error
 	return institution, nil
 }
 
-// DeleteInstitution deletes an institution by ID
 func DeleteInstitution(id int) error {
 	stmt := table.Institution.DELETE().WHERE(
 		table.Institution.ID.EQ(postgres.Int32(int32(id))),

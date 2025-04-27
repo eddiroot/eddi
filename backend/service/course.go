@@ -7,8 +7,7 @@ import (
 	"github.com/lachlanmacphee/eddy/database"
 )
 
-// CreateCourse creates a new course record
-func CreateCourse(institutionID int, name, description string) (model.Course, error) {
+func CreateCourse(institutionID int, name string, description string) (model.Course, error) {
 	insrt := model.Course{
 		InstitutionId: int32(institutionID),
 		Name:          name,
@@ -25,7 +24,6 @@ func CreateCourse(institutionID int, name, description string) (model.Course, er
 	return course, err
 }
 
-// GetCourses retrieves all courses
 func GetCourses() ([]model.Course, error) {
 	stmt := postgres.SELECT(
 		table.Course.AllColumns,
@@ -39,7 +37,6 @@ func GetCourses() ([]model.Course, error) {
 	return courses, err
 }
 
-// GetCourseByID retrieves a course by ID
 func GetCourseByID(id int) (model.Course, error) {
 	stmt := postgres.SELECT(
 		table.Course.AllColumns,
@@ -55,8 +52,7 @@ func GetCourseByID(id int) (model.Course, error) {
 	return course, err
 }
 
-// UpdateCourse updates a course record by ID
-func UpdateCourse(id int, institutionID int, name, description string) (model.Course, error) {
+func UpdateCourse(id int, institutionID int, name string, description string) (model.Course, error) {
 	stmt := table.Course.UPDATE().
 		SET(
 			table.Course.InstitutionId.SET(postgres.Int32(int32(institutionID))),
@@ -77,7 +73,6 @@ func UpdateCourse(id int, institutionID int, name, description string) (model.Co
 	return course, nil
 }
 
-// DeleteCourse deletes a course by ID
 func DeleteCourse(id int) error {
 	stmt := table.Course.DELETE().WHERE(
 		table.Course.ID.EQ(postgres.Int32(int32(id))),

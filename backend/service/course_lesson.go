@@ -1,36 +1,17 @@
 package service
 
 import (
-	"database/sql"
-
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/lachlanmacphee/eddy/.gen/eddy/public/model"
 	"github.com/lachlanmacphee/eddy/.gen/eddy/public/table"
 	"github.com/lachlanmacphee/eddy/database"
 )
 
-// LessonSectionData represents a section in a course lesson
-type LessonSectionData struct {
-	ID             int
-	CourseLessonID int
-	Title          string
-}
-
-// LessonSectionBlockData represents a content block in a lesson section
-type LessonSectionBlockData struct {
-	ID          int
-	Title       string
-	Description string
-	Type        string
-}
-
-// LessonSectionWithBlocks combines a section with its blocks
 type LessonSectionWithBlocks struct {
-	Section LessonSectionData
-	Blocks  []LessonSectionBlockData
+	model.CourseLessonSection
+	Blocks []model.CourseLessonSectionBlock `json:"blocks"`
 }
 
-// GetCourseLessonsByCourseID retrieves all lessons for a specific course
 func GetCourseLessonsByCourseID(courseId int) ([]model.CourseLesson, error) {
 	stmt := postgres.SELECT(
 		table.CourseLesson.AllColumns,
@@ -48,81 +29,46 @@ func GetCourseLessonsByCourseID(courseId int) ([]model.CourseLesson, error) {
 	return courseLessons, err
 }
 
-// GetCourseLessonSectionsWithBlocksByLessonID retrieves all sections with their blocks for a lesson
 func GetCourseLessonSectionsWithBlocksByLessonID(lessonId int) ([]LessonSectionWithBlocks, error) {
-	stmt := postgres.SELECT(
-		table.CourseLessonSection.ID,
-		table.CourseLessonSection.CourseLessonId,
-		table.CourseLessonSection.Title,
-		table.CourseLessonSectionBlock.ID,
-		table.CourseLessonSectionBlock.Title,
-		table.CourseLessonSectionBlock.Description,
-		table.CourseLessonSectionBlock.Type,
+	// Get all sections for this lesson
+	sectionStmt := postgres.SELECT(
+		table.CourseLessonSection.AllColumns,
 	).FROM(
-		table.CourseLessonSection.
-			LEFT_JOIN(table.CourseLessonSectionBlock, 
-				table.CourseLessonSection.ID.EQ(table.CourseLessonSectionBlock.CourseLessonSectionId)),
+		table.CourseLessonSection,
 	).WHERE(
 		table.CourseLessonSection.CourseLessonId.EQ(postgres.Int32(int32(lessonId))),
 	)
 
-	var results []struct {
-		SectionID      sql.NullInt64  `sql:"id"`
-		CourseLessonId int32          `sql:"courseLessonId"`
-		SectionTitle   sql.NullString `sql:"title"`
-		BlockID        sql.NullInt64  `sql:"id_1"` // Second 'id' column gets aliased to id_1
-		BlockTitle     sql.NullString `sql:"title_1"` // Second 'title' column gets aliased to title_1
-		BlockDesc      sql.NullString `sql:"description"`
-		BlockType      sql.NullString `sql:"type"`
-	}
-
-	err := stmt.Query(database.DB, &results)
+	sections := []model.CourseLessonSection{}
+	err := sectionStmt.Query(database.DB, &sections)
 	if err != nil {
 		return nil, err
 	}
 
-	// Map to hold sections and avoid duplicates
-	sectionMap := make(map[int]*LessonSectionWithBlocks)
+	result := make([]LessonSectionWithBlocks, len(sections))
 
-	for _, r := range results {
-		if !r.SectionID.Valid {
-			continue
-		}
-		
-		sectionID := int(r.SectionID.Int64)
-		
-		// Check if the section already exists in the map
-		section, exists := sectionMap[sectionID]
-		if !exists {
-			// Create a new section
-			section = &LessonSectionWithBlocks{
-				Section: LessonSectionData{
-					ID:             sectionID,
-					CourseLessonID: int(r.CourseLessonId),
-					Title:          r.SectionTitle.String,
-				},
-				Blocks: []LessonSectionBlockData{},
-			}
-			sectionMap[sectionID] = section
+	for i, section := range sections {
+		result[i] = LessonSectionWithBlocks{
+			CourseLessonSection: section,
+			Blocks:              []model.CourseLessonSectionBlock{},
 		}
 
-		// Only add a block if it exists (blockID is not NULL)
-		if r.BlockID.Valid {
-			block := LessonSectionBlockData{
-				ID:          int(r.BlockID.Int64),
-				Title:       r.BlockTitle.String,
-				Description: r.BlockDesc.String,
-				Type:        r.BlockType.String,
-			}
-			section.Blocks = append(section.Blocks, block)
+		blockStmt := postgres.SELECT(
+			table.CourseLessonSectionBlock.AllColumns,
+		).FROM(
+			table.CourseLessonSectionBlock,
+		).WHERE(
+			table.CourseLessonSectionBlock.CourseLessonSectionId.EQ(postgres.Int32(section.ID)),
+		)
+
+		blocks := []model.CourseLessonSectionBlock{}
+		err := blockStmt.Query(database.DB, &blocks)
+		if err != nil {
+			return nil, err
 		}
+
+		result[i].Blocks = blocks
 	}
 
-	// Convert the map values to a slice
-	var lessonSectionsWithBlocks []LessonSectionWithBlocks
-	for _, section := range sectionMap {
-		lessonSectionsWithBlocks = append(lessonSectionsWithBlocks, *section)
-	}
-
-	return lessonSectionsWithBlocks, nil
+	return result, nil
 }
