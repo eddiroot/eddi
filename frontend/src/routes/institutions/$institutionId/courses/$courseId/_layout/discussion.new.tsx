@@ -50,14 +50,14 @@ function CreateThread() {
   const onSubmit = async ({ title, type, content }: ThreadType) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/app/courses/${courseId}/threads`,
+        `${BASE_URL}/app/course/${courseId}/thread`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: user.id,
+            userId: user.ID,
             courseId: parseInt(courseId),
             title,
             type,

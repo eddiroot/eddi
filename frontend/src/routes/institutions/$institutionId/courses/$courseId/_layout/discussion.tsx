@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import "katex/dist/katex.min.css";
 
 async function fetchCourseDiscussions(courseId: string) {
-  const response = await fetch(`${BASE_URL}/app/courses/${courseId}/threads`, {
+  const response = await fetch(`${BASE_URL}/app/course/${courseId}/thread`, {
     method: "GET",
     credentials: "include",
   });
@@ -58,20 +58,20 @@ function Discussion() {
         <div className="flex flex-col w-64 lg:w-72">
           {courseThreads?.map((thread) => (
             <Link
-              key={thread.id}
+              key={thread.ID}
               to="/institutions/$institutionId/courses/$courseId/discussion/$threadId"
               params={{
                 institutionId,
                 courseId,
-                threadId: thread.id.toString(),
+                threadId: thread.ID.toString(),
               }}
             >
               <div className="border-b">
                 <CardHeader>
-                  <CardTitle>{thread.title}</CardTitle>
+                  <CardTitle>{thread.Title}</CardTitle>
                 </CardHeader>
                 <CardFooter className="flex justify-between">
-                  {new Date(thread.createdAt).toLocaleDateString()}
+                  {new Date(thread.CreatedAt).toLocaleDateString()}
                 </CardFooter>
               </div>
             </Link>

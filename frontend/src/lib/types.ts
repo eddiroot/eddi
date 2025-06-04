@@ -1,104 +1,104 @@
 export type User = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  middleName: string;
-  username: string;
-  avatarUrl: string;
+  ID: number;
+  FirstName: string;
+  LastName: string;
+  MiddleName: string;
+  Username: string;
+  AvatarUrl: string;
 };
 
 export type UserCourse = {
-  userId: number;
-  courseId: number;
-  year: number;
-  semester: number;
-  role: string;
-  isComplete: boolean;
-  isArchived: boolean;
+  UserId: number;
+  CourseId: number;
+  Year: number;
+  Semester: number;
+  Role: string;
+  IsComplete: boolean;
+  IsArchived: boolean;
 };
 
 export type UserCourseJoinCourse = {
-  userId: number;
-  courseId: number;
-  year: number;
-  semester: number;
-  role: string;
-  isComplete: boolean;
-  isArchived: boolean;
-  institutionId: number;
-  name: string;
-  description: string;
+  UserId: number;
+  CourseId: number;
+  Year: number;
+  Semester: number;
+  Role: string;
+  IsComplete: boolean;
+  IsArchived: boolean;
+  InstitutionId: number;
+  Name: string;
+  Description: string;
 };
 
 export type CourseThread = {
-  id: number;
-  userId: number;
-  courseId: number;
-  title: string;
-  type: string;
-  content: string;
-  createdAt: string;
-  modifiedAt: {
+  ID: number;
+  UserId: number;
+  CourseId: number;
+  Title: string;
+  Type: string;
+  Content: string;
+  CreatedAt: string;
+  ModifiedAt: {
     Time: string;
     Valid: boolean;
   };
 };
 
 export type CourseThreadResponse = {
-  id: number;
-  userId: number;
-  courseThreadId: number;
-  type: string;
-  content: string;
-  createdAt: string;
-  modifiedAt: {
+  ID: number;
+  UserId: number;
+  CourseThreadId: number;
+  Type: string;
+  Content: string;
+  CreatedAt: string;
+  ModifiedAt: {
     Time: string;
     Valid: boolean;
   };
-  responses: CourseThreadResponse[];
+  Responses: CourseThreadResponse[];
 };
 
 export type CourseThreadWithResponses = CourseThread & {
-  responses: CourseThreadResponse[];
+  Responses: CourseThreadResponse[];
 };
 
 export type CourseLesson = {
-  id: number;
-  courseId: number;
-  courseWeek: number;
-  title: string;
-  description: string;
-  createdAt: string;
-  modifiedAt: {
+  ID: number;
+  CourseId: number;
+  CourseWeek: number;
+  Title: string;
+  Description: string;
+  CreatedAt: string;
+  ModifiedAt: {
     Time: string;
     Valid: boolean;
   };
 };
 
 export type CourseLessonSection = {
-  id: number;
-  courseLessonId: number;
-  title: string;
-  createdAt: string;
-  modifiedAt: {
+  ID: number;
+  CourseLessonId: number;
+  Title: string;
+  CreatedAt: string;
+  ModifiedAt: {
     Time: string;
     Valid: boolean;
   };
 };
 
 export type CourseLessonSectionBlock = {
-  id: number;
-  courseLessonSectionId: number;
-  title: string;
-  description: string;
-  type: string;
-  createdAt: string;
-  modifiedAt: {
+  ID: number;
+  CourseLessonSectionId: number;
+  Title: string;
+  Description: string;
+  Type: string;
+  CreatedAt: string;
+  ModifiedAt: {
     Time: string;
     Valid: boolean;
   };
 };
 
 export type CourseLessonSectionWithBlocks = CourseLessonSection & {
-  blocks: CourseLessonSectionBlock[];
+  Blocks: CourseLessonSectionBlock[];
 };

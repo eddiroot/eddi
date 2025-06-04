@@ -8,7 +8,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus, RefreshCcw, SearchIcon } from "lucide-react";
 
 async function fetchCourseLessons(courseId: string) {
-  const response = await fetch(`${BASE_URL}/app/courses/${courseId}/lessons`, {
+  const response = await fetch(`${BASE_URL}/app/course/${courseId}/lesson`, {
     method: "GET",
     credentials: "include",
   });
@@ -30,11 +30,11 @@ function Lessons() {
   // Group lessons by courseWeek
   const lessonsByWeek = lessons?.reduce(
     (acc: { [key: number]: CourseLesson[] }, lesson) => {
-      const { courseWeek } = lesson;
-      if (!acc[courseWeek]) {
-        acc[courseWeek] = [];
+      const { CourseWeek } = lesson;
+      if (!acc[CourseWeek]) {
+        acc[CourseWeek] = [];
       }
-      acc[courseWeek].push(lesson);
+      acc[CourseWeek].push(lesson);
       return acc;
     },
     {}
@@ -71,7 +71,7 @@ function Lessons() {
               <ol className="space-y-2">
                 {lessons.map((lesson) => (
                   <Link
-                    key={lesson.id}
+                    key={lesson.ID}
                     to="/institutions/$institutionId/courses/$courseId/lessons/$lessonId"
                     className={cn(
                       buttonVariants({ variant: "ghost" }),
@@ -80,10 +80,10 @@ function Lessons() {
                     params={{
                       institutionId,
                       courseId,
-                      lessonId: lesson.id.toString(),
+                      lessonId: lesson.ID.toString(),
                     }}
                   >
-                    <li key={lesson.id}>{lesson.title}</li>
+                    <li key={lesson.ID}>{lesson.Title}</li>
                   </Link>
                 ))}
               </ol>

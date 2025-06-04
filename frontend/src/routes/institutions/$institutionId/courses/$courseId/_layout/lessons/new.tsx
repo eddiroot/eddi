@@ -148,14 +148,14 @@ function CreateLesson() {
   const onSubmit = async ({ title, sections }: LessonType) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/app/courses/${courseId}/lessons`,
+        `${BASE_URL}/app/course/${courseId}/lesson`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: user.id,
+            userId: user.ID,
             courseId: parseInt(courseId),
             title,
             sections,

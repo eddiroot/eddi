@@ -47,21 +47,21 @@ function Dashboard() {
       {userCourses?.map((course) => (
         <Link
           to="/institutions/$institutionId/courses/$courseId/discussion"
-          key={course.courseId}
+          key={course.CourseId}
           params={{
-            institutionId: course.institutionId.toString(),
-            courseId: course.courseId.toString(),
+            institutionId: course.InstitutionId.toString(),
+            courseId: course.CourseId.toString(),
           }}
         >
           <Card className="w-full">
             <CardHeader>
               <div className="flex justify-between">
                 <CardTitle>
-                  {course.name} - {course.year}
+                  {course.Name} - {course.Year}
                 </CardTitle>
                 <Badge>{Math.floor(Math.random() * 10) + 1}</Badge>
               </div>
-              <CardDescription>{course.description}</CardDescription>
+              <CardDescription>{course.Description}</CardDescription>
             </CardHeader>
           </Card>
         </Link>

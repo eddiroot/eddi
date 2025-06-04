@@ -18,7 +18,7 @@ import remarkMath from "remark-math";
 
 async function fetchCourseThread(courseId: string, threadId: string) {
   const response = await fetch(
-    `${BASE_URL}/app/courses/${courseId}/threads/${threadId}`,
+    `${BASE_URL}/app/course/${courseId}/thread/${threadId}`,
     {
       method: "GET",
       credentials: "include",
@@ -42,12 +42,12 @@ function CourseThread() {
     <div className="space-y-8 w-full">
       <div className="space-y-4">
         <article className="prose dark:prose-invert max-w-none">
-          <h1 className="text-4xl">{thread.title}</h1>
+          <h1 className="text-4xl">{thread.Title}</h1>
           <Markdown
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeKatex]}
           >
-            {thread.content}
+            {thread.Content}
           </Markdown>
         </article>
         <div className="flex gap-2">
@@ -58,19 +58,18 @@ function CourseThread() {
         </div>
         <Separator />
         <div className="ml-8 space-y-3">
-          {thread.responses
-            ?.filter((response) => response.type == "comment")
-            .map((response, idx) => (
-              <ThreadResponse key={idx} response={response} />
-            ))}
+          {thread.Responses?.filter(
+            (response) => response.Type == "comment"
+          ).map((response, idx) => (
+            <ThreadResponse key={idx} response={response} />
+          ))}
         </div>
       </div>
-      {thread.responses
-        ?.filter((response) => response.type == "answer")
-        .map((response, idx) => (
+      {thread.Responses?.filter((response) => response.Type == "answer").map(
+        (response, idx) => (
           <Card key={idx} className="min-h-44">
             <CardHeader>
-              <strong>Author: {response.userId}</strong>
+              <strong>Author: {response.UserId}</strong>
             </CardHeader>
             <CardContent className="space-y-4">
               <p>This is an answer to the main question.</p>
@@ -82,7 +81,8 @@ function CourseThread() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )
+      )}
       <div className="space-y-4">
         <h2 className="text-xl">Your answer</h2>
         <Textarea className="min-h-40" placeholder="Start typing..." />
@@ -97,10 +97,10 @@ function ThreadResponse({ response }: { response: CourseThreadResponse }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <p>
-          <strong>Author: {response.userId}</strong>
-          <strong>Type: {response.type}</strong>
+          <strong>Author: {response.UserId}</strong>
+          <strong>Type: {response.Type}</strong>
         </p>
-        <p>{response.content}</p>
+        <p>{response.Content}</p>
         <div className="flex gap-2">
           <Button variant="ghost" size="icon">
             <ThumbsUpIcon />
@@ -114,7 +114,7 @@ function ThreadResponse({ response }: { response: CourseThreadResponse }) {
         </div>
       </div>
       <div className="flex flex-col gap-3 border-l-2 pl-10">
-        {response.responses?.map((responseInner, idx) => (
+        {response.Responses?.map((responseInner, idx) => (
           <ThreadResponse key={idx} response={responseInner} />
         ))}
       </div>
