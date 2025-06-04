@@ -79,6 +79,7 @@ export const actions: Actions = {
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (e) {
 			return fail(500, { message: 'An error has occurred' });
 		}
@@ -103,5 +104,5 @@ function validateUsername(username: unknown): username is string {
 }
 
 function validatePassword(password: unknown): password is string {
-	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
+	return typeof password === 'string' && password.length >= 8 && password.length <= 255;
 }
