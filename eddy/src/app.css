@@ -1,3 +1,5 @@
 @import 'tailwindcss';
+/* remove the forms plugin if it impacts daisyui styling */
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+@plugin "daisyui";
