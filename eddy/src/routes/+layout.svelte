@@ -5,14 +5,16 @@
 	import BellIcon from '@lucide/svelte/icons/bell';
 	import LogoutIcon from '@lucide/svelte/icons/log-out';
 
-	let { children } = $props();
+	let { children, data } = $props();
+
+	const user = $derived(() => data?.user);
 </script>
 
 <div class="flex h-full flex-col">
 	<header>
-		<nav>
-			<div class="container mx-auto flex items-center justify-between px-4 py-2">
-				<h1 class="text-2xl font-bold">eddy</h1>
+		<nav class="container mx-auto flex items-center justify-between px-4 py-2">
+			<a href="/" class="text-2xl font-bold">eddy</a>
+			{#if user()}
 				<ul class="flex space-x-2">
 					<li>
 						<a href="/subjects" class="btn btn-square btn-primary">
@@ -38,14 +40,14 @@
 						</div>
 					</li>
 					<li>
-						<form method="post" action="?/logout" class="inline">
+						<form method="post" action="/?/logout" class="inline">
 							<button type="submit" class="btn btn-square btn-warning">
 								<LogoutIcon />
 							</button>
 						</form>
 					</li>
 				</ul>
-			</div>
+			{/if}
 		</nav>
 	</header>
 	<div class="flex-1">

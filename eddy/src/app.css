@@ -3,3 +3,11 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @plugin "daisyui";
+
+html {
+	scrollbar-gutter: auto !important;
+}
+
+html:has(body.content-overflow-y) {
+	scrollbar-gutter: stable !important;
+}
