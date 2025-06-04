@@ -51,7 +51,7 @@ func main() {
 			userGroup.GET("/course", handlers.GetUserCourses)
 		}
 
-		coursesGroup := appGroup.Group("/courses")
+		coursesGroup := appGroup.Group("/course")
 		{
 			coursesGroup.GET("/:id", handlers.GetCourse)
 
@@ -71,7 +71,7 @@ func main() {
 	apiGroup := r.Group("/api/v1")
 	apiGroup.Use(handlers.APIKeyAuthMiddleware())
 	{
-		institutionGroup := apiGroup.Group("/institutions")
+		institutionGroup := apiGroup.Group("/institution")
 		{
 			institutionGroup.POST("/", handlers.CreateInstitution)
 			institutionGroup.GET("/", handlers.GetInstitutions)
@@ -80,7 +80,7 @@ func main() {
 			institutionGroup.DELETE("/:id", handlers.DeleteInstitution)
 		}
 
-		adminGroup := apiGroup.Group("/admins")
+		adminGroup := apiGroup.Group("/admin")
 		{
 			adminGroup.POST("/", handlers.CreateAdmin)
 			adminGroup.GET("/", handlers.GetAdmins)
@@ -90,7 +90,7 @@ func main() {
 		}
 
 		// Protected routes for User and Course
-		userGroup := apiGroup.Group("/users")
+		userGroup := apiGroup.Group("/user")
 		{
 			userGroup.POST("/", handlers.CreateUser)
 			userGroup.GET("/", handlers.GetUsers)
@@ -99,7 +99,7 @@ func main() {
 			userGroup.DELETE("/:id", handlers.DeleteUser)
 		}
 
-		courseGroup := apiGroup.Group("/courses")
+		courseGroup := apiGroup.Group("/course")
 		{
 			courseGroup.POST("/", handlers.CreateCourse)
 			courseGroup.GET("/", handlers.GetCourses)
@@ -108,7 +108,7 @@ func main() {
 			courseGroup.DELETE("/:id", handlers.DeleteCourse)
 		}
 
-		userCourseGroup := apiGroup.Group("/userCourses")
+		userCourseGroup := apiGroup.Group("/user-course")
 		{
 			userCourseGroup.POST("/", handlers.CreateUserCourse)
 		}

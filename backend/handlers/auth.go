@@ -20,7 +20,6 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// Hash the password
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
 	if err != nil {
@@ -30,8 +29,14 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// Create the user
-	createdUser, err := service.CreateUser(user.FirstName, *user.MiddleName, user.LastName, user.Username, string(hash), *user.AvatarUrl)
+	var middleName string
+	if user.MiddleName != nil {
+		middleName = *user.MiddleName
+	}
+
+	avatarUrl := "https://ui-avatars.com/api/?name=" + user.FirstName + "+" + user.LastName
+
+	createdUser, err := service.CreateUser(user.FirstName, middleName, user.LastName, user.Username, string(hash), avatarUrl)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create user.",
@@ -39,12 +44,10 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// Respond
 	c.JSON(http.StatusOK, gin.H{"message": "User created successfully", "id": createdUser.ID})
 }
 
 func Login(c *gin.Context) {
-	// Get email & pass off req body
 	var body struct {
 		Username string
 		Password string
@@ -58,10 +61,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Look up for requested user
 	user, err := service.GetUserByUsername(body.Username)
 
-	// Failed to find the user
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid username or password",
@@ -69,7 +70,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Compare sent in password with saved users password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 
 	if err != nil {
@@ -79,13 +79,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Generate a JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
-	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString([]byte(os.Getenv(lib.ENV_AUTH_JWT_SECRET_KEY)))
 
 	if err != nil {
@@ -95,7 +93,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Respond
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 

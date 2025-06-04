@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 async function fetchUserCourses() {
-  const response = await fetch(`${BASE_URL}/app/user/courses`, {
+  const response = await fetch(`${BASE_URL}/app/user/course`, {
     method: "GET",
     credentials: "include",
   });
