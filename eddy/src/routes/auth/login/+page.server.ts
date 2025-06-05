@@ -9,7 +9,7 @@ import { validateEmail, validatePassword } from '../utils';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
-		return redirect(302, '/profile');
+		return redirect(302, '/subjects');
 	}
 	return {};
 };
@@ -36,12 +36,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Incorrect email or password' });
 		}
 
-		const validPassword = await verify(existingUser.passwordHash, password, {
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1
-		});
+		const validPassword = await verify(existingUser.passwordHash, password);
 		if (!validPassword) {
 			return fail(400, { message: 'Incorrect email or password' });
 		}
@@ -50,6 +45,6 @@ export const actions: Actions = {
 		const session = await auth.createSession(sessionToken, existingUser.id);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		return redirect(302, '/profile');
+		return redirect(302, '/subjects');
 	}
 };

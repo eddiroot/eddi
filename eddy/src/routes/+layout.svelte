@@ -12,7 +12,7 @@
 
 <div class="flex h-full flex-col">
 	<header>
-		<nav class="container mx-auto flex items-center justify-between px-4 py-2">
+		<nav class="container mx-auto flex items-center justify-between px-4 pb-2 pt-4">
 			<a href="/" class="text-2xl font-bold">eddy</a>
 			{#if user()}
 				<ul class="flex space-x-2">
@@ -22,7 +22,7 @@
 						</a>
 					</li>
 					<li>
-						<div class="drawer drawer-end">
+						<div class="drawer">
 							<input id="drawer-notifications" type="checkbox" class="drawer-toggle" />
 							<div class="drawer-content">
 								<label for="drawer-notifications" class="btn btn-square btn-secondary drawer-button"
@@ -48,9 +48,16 @@
 					</li>
 				</ul>
 			{/if}
+			{#if !user()}
+				<ul class="flex space-x-2">
+					<li>
+						<a href="/auth/login" class="btn btn-primary">Login</a>
+					</li>
+				</ul>
+			{/if}
 		</nav>
 	</header>
-	<div class="flex-1">
+	<div class="container mx-auto flex-1 px-4 py-4">
 		{@render children()}
 	</div>
 	<footer>
