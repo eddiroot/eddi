@@ -49,7 +49,7 @@ async function main() {
 		])
 		.returning();
 
-	const school = await db
+	const [school] = await db
 		.insert(schema.school)
 		.values([
 			{
@@ -62,12 +62,12 @@ async function main() {
 		.insert(schema.subject)
 		.values([
 			{
-				schoolId: school[0].id,
+				schoolId: school.id,
 				name: 'Mathematics',
 				description: 'Introduction to Mathematics'
 			},
 			{
-				schoolId: school[0].id,
+				schoolId: school.id,
 				name: 'Science',
 				description: 'Introduction to Science'
 			}
