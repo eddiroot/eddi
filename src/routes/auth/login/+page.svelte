@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
 	let { form } = $props();
 </script>
 
@@ -12,7 +14,7 @@
 			<div>
 				<label for="email" class="block text-sm/6 font-medium">Email address</label>
 				<div class="mt-2">
-					<input
+					<Input
 						type="email"
 						name="email"
 						id="email"
@@ -26,7 +28,7 @@
 			<div class="space-y-2">
 				<label for="password" class="block text-sm/6 font-medium">Password</label>
 				<div class="mt-2">
-					<input
+					<Input
 						type="password"
 						name="password"
 						id="password"
@@ -40,7 +42,7 @@
 				</div>
 			</div>
 
-			<button type="submit" class="btn btn-primary w-full">Sign in</button>
+			<Button type="submit">Sign in</Button>
 		</form>
 	</div>
 
