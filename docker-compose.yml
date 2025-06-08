@@ -1,38 +1,14 @@
 services:
-  backend:
-    build:
-      context: ./backend
+  db:
+    image: postgres
+    restart: always
     ports:
-      - "8080:8080"
-    environment:
-      DATABASE_URL: "postgresql://postgres:password@postgres:5432/eddy?sslmode=disable"
-      AUTH_ADMIN_API_KEY: "your-secret-here"
-      AUTH_JWT_SECRET_KEY: "another-secret-here"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "4173:4173"
-
-  postgres:
-    image: postgres:16
-    ports:
-      - "5432:5432"
+      - 5432:5432
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: eddy
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: local
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
+      - pgdata:/var/lib/postgresql/data
 volumes:
-  postgres_data:
+  pgdata:

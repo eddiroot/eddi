@@ -1,2 +1,0 @@
-DROP TABLE IF EXISTS CourseThread;
-DROP TABLE IF EXISTS CourseThreadResponse;
