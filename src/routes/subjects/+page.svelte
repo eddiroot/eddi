@@ -2,19 +2,26 @@
 	let { data } = $props();
 </script>
 
-<div class="container mx-auto flex-1 px-4 py-4">
-	<h1 class="text-3xl font-bold">Subjects</h1>
-	{#if data?.subjects?.length}
-		<ul class="list-disc pl-5">
-			{#each data.subjects as subject}
-				<li>
-					<a href="/subjects/{subject.subject.id}" class="text-blue-600 hover:underline"
-						>{subject.subject.name}</a
-					>
-				</li>
-			{/each}
-		</ul>
-	{:else}
-		<p>No subjects found.</p>
-	{/if}
-</div>
+<h1 class="mb-4 text-3xl font-bold">Subjects</h1>
+{#if data?.subjects?.length}
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+		{#each data.subjects as subject}
+			<a href="/subjects/{subject.id}">
+				<div class="card bg-base-100 image-full w-96 shadow-sm">
+					<figure>
+						<img
+							src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+							alt="Shoes"
+						/>
+					</figure>
+					<div class="card-body">
+						<h2 class="card-title">{subject.name}</h2>
+						<p>{subject.description}</p>
+					</div>
+				</div>
+			</a>
+		{/each}
+	</div>
+{:else}
+	<p>No subjects found.</p>
+{/if}
