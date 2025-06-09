@@ -32,3 +32,24 @@ export async function getSubjectThreadsBySubjectId(subjectId: number) {
 
 	return threads.map((row) => row.thread);
 }
+
+export async function createSubjectThread(
+	type: string,
+	subjectId: number,
+	userId: string,
+	title: string,
+	content: string
+) {
+	const [thread] = await db
+		.insert(table.subjectThread)
+		.values({
+			type,
+			subjectId,
+			userId,
+			title,
+			content
+		})
+		.returning();
+
+	return thread;
+}

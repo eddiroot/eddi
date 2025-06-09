@@ -12,5 +12,5 @@ export const load = async ({ locals: { security }, params: { subjectId } }) => {
 
 	const threads = await getSubjectThreadsBySubjectId(subjectIdInt);
 
-	return { threads };
+	return { subjectIdInt, threads };
 };
