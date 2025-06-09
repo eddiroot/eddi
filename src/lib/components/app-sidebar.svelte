@@ -25,8 +25,8 @@
 			icon: LayoutDashboardIcon
 		},
 		{
-			title: 'Calendar',
-			url: '/calendar',
+			title: 'Timetable',
+			url: '/timetable',
 			icon: CalendarIcon
 		},
 		{
