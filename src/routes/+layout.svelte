@@ -7,12 +7,15 @@
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
+	import { ModeWatcher } from 'mode-watcher';
+	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 
 	let { children, data } = $props();
 
 	const user = $derived(() => data?.user);
 </script>
 
+<ModeWatcher />
 <Sidebar.Provider class="h-full" open={false}>
 	{#if user()}
 		<AppSidebar subjects={data.subjects} />
@@ -21,16 +24,19 @@
 		<header>
 			<nav class="container mx-auto flex items-center justify-between px-4 pt-4 pb-2">
 				<a href="/" class="text-2xl font-bold">eddy</a>
-				{#if user()}
-					<form method="post" action="/?/logout" class="inline">
-						<Button type="submit" variant="ghost" size="icon" aria-label="Logout">
-							<LogoutIcon />
-						</Button>
-					</form>
-				{/if}
-				{#if !user()}
-					<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
-				{/if}
+				<div class="flex items-center space-x-4">
+					{#if user()}
+						<form method="post" action="/?/logout" class="inline">
+							<Button type="submit" variant="ghost" size="icon" aria-label="Logout">
+								<LogoutIcon />
+							</Button>
+						</form>
+					{/if}
+					{#if !user()}
+						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
+					{/if}
+					<ThemeToggle />
+				</div>
 			</nav>
 		</header>
 		<main class="container mx-auto flex-1 px-4 py-4">
