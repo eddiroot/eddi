@@ -15,7 +15,7 @@
 
 <Sidebar.Provider class="h-full" open={false}>
 	{#if user()}
-		<AppSidebar />
+		<AppSidebar subjects={data.subjects} />
 	{/if}
 	<div class="flex h-full w-full flex-col">
 		<header>

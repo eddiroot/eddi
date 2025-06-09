@@ -20,7 +20,7 @@ async function main() {
 				passwordHash: await hash('systemAdmin'),
 				type: 'systemAdmin',
 				firstName: 'SystemAdmin',
-				lastName: 'User'
+				lastName: 'One'
 			},
 			{
 				id: generateUserId(),
@@ -28,7 +28,7 @@ async function main() {
 				passwordHash: await hash('schoolAdmin'),
 				type: 'schoolAdmin',
 				firstName: 'SchoolAdmin',
-				lastName: 'User'
+				lastName: 'One'
 			},
 			{
 				id: generateUserId(),
@@ -36,15 +36,31 @@ async function main() {
 				passwordHash: await hash('teacher'),
 				type: 'teacher',
 				firstName: 'Teacher',
-				lastName: 'User'
+				lastName: 'One'
 			},
 			{
 				id: generateUserId(),
-				email: 'student@school.edu.au',
+				email: 'student001@school.edu.au',
 				passwordHash: await hash('student'),
 				type: 'student',
 				firstName: 'Student',
-				lastName: 'User'
+				lastName: 'One'
+			},
+			{
+				id: generateUserId(),
+				email: 'student002@school.edu.au',
+				passwordHash: await hash('student'),
+				type: 'student',
+				firstName: 'Student',
+				lastName: 'Two'
+			},
+			{
+				id: generateUserId(),
+				email: 'student003@school.edu.au',
+				passwordHash: await hash('student'),
+				type: 'student',
+				firstName: 'Student',
+				lastName: 'Three'
 			}
 		])
 		.returning();
@@ -63,45 +79,108 @@ async function main() {
 		.values([
 			{
 				schoolId: school.id,
-				name: 'Mathematics',
-				description: 'Introduction to Mathematics'
+				name: 'Maths',
+				description: 'Learn about numbers, shapes, and patterns.'
 			},
 			{
 				schoolId: school.id,
 				name: 'Science',
-				description: 'Introduction to Science'
+				description: 'Learn about the natural world through observation and experimentation.'
+			},
+			{
+				schoolId: school.id,
+				name: 'History',
+				description: 'Explore the past and understand how it shapes our present.'
+			},
+			{
+				schoolId: school.id,
+				name: 'English',
+				description: 'Develop your reading, writing, and communication skills.'
+			},
+			{
+				schoolId: school.id,
+				name: 'Geography',
+				description: 'Study the Earth, its environments, and how humans interact with them.'
 			}
 		])
 		.returning();
 
 	await db.insert(schema.userSubject).values([
 		{
-			userId: users[0].id, // systemAdmin
-			subjectId: subjects[0].id, // Mathematics
-			year: 2025,
-			role: 'teacher',
-			isComplete: 1,
-			isArchived: 0
-		},
-		{
-			userId: users[1].id, // schoolAdmin
-			subjectId: subjects[1].id, // Science
-			year: 2025,
-			role: 'teacher',
-			isComplete: 1,
-			isArchived: 0
-		},
-		{
 			userId: users[2].id, // teacher
 			subjectId: subjects[0].id, // Mathematics
 			year: 2025,
 			role: 'teacher',
-			isComplete: 1,
+			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[3].id, // student
+			userId: users[2].id, // teacher
 			subjectId: subjects[1].id, // Science
+			year: 2025,
+			role: 'teacher',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectId: subjects[2].id, // History
+			year: 2025,
+			role: 'teacher',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectId: subjects[3].id, // English
+			year: 2025,
+			role: 'teacher',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectId: subjects[4].id, // Geography
+			year: 2025,
+			role: 'teacher',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[3].id, // student001
+			subjectId: subjects[0].id, // Mathematics
+			year: 2025,
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[3].id, // student001
+			subjectId: subjects[1].id, // Science
+			year: 2025,
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[4].id, // student002
+			subjectId: subjects[0].id, // Mathematics
+			year: 2025,
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[4].id, // student002
+			subjectId: subjects[1].id, // Science
+			year: 2025,
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[5].id, // student003
+			subjectId: subjects[2].id, // History
 			year: 2025,
 			role: 'student',
 			isComplete: 0,
@@ -113,16 +192,37 @@ async function main() {
 		{
 			type: 'announcement',
 			userId: users[2].id, // teacher
+			subjectId: subjects[1].id,
+			title: 'Welcome to Science',
+			content: 'This is the first thread in Science.'
+		},
+		{
+			type: 'question',
+			userId: users[3].id, // student001
+			subjectId: subjects[1].id,
+			title: 'Scientific method',
+			content: 'Can someone explain the scientific method to me?'
+		},
+		{
+			type: 'question',
+			userId: users[4].id, // student002
+			subjectId: subjects[1].id,
+			title: 'Experiments',
+			content: 'What are some good experiments for beginners?'
+		},
+		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
 			subjectId: subjects[0].id,
 			title: 'Welcome to Mathematics',
 			content: 'This is the first thread in Mathematics.'
 		},
 		{
-			type: 'announcement',
-			userId: users[3].id, // student
-			subjectId: subjects[1].id,
-			title: 'Welcome to Science',
-			content: 'This is the first thread in Science.'
+			type: 'question',
+			userId: users[4].id, // student002
+			subjectId: subjects[0].id,
+			title: 'Help with long division',
+			content: 'I am struggling with long division. Can anyone help?'
 		}
 	]);
 }

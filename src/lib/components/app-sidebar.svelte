@@ -14,6 +14,9 @@
 	import BookCheckIcon from '@lucide/svelte/icons/book-check';
 	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
+	import MapIcon from '@lucide/svelte/icons/map';
+	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
+	import type { Subject } from '$lib/server/db/schema';
 
 	const items = [
 		{
@@ -61,28 +64,24 @@
 		}
 	];
 
-	const mockSubjects = [
-		{
-			id: 1,
-			title: 'Math',
-			icon: PiIcon
-		},
-		{
-			id: 2,
-			title: 'Science',
-			icon: BeakerIcon
-		},
-		{
-			id: 3,
-			title: 'History',
-			icon: ClockIcon
-		},
-		{
-			id: 4,
-			title: 'English',
-			icon: BookOpenTextIcon
+	const subjectNameToIcon = (name: string) => {
+		switch (name.toLowerCase()) {
+			case 'maths':
+				return PiIcon;
+			case 'science':
+				return BeakerIcon;
+			case 'history':
+				return ClockIcon;
+			case 'english':
+				return BookOpenTextIcon;
+			case 'geography':
+				return MapIcon;
+			default:
+				return FileQuestionIcon;
 		}
-	];
+	};
+
+	let { subjects }: { subjects: Subject[] } = $props();
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
@@ -111,14 +110,15 @@
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
-		{#each mockSubjects as subject}
+		{#each subjects as subject}
 			<Collapsible.Root open={false} class="group/collapsible">
 				<Sidebar.Group>
 					<Sidebar.GroupLabel>
 						{#snippet child({ props })}
 							<Collapsible.Trigger {...props}>
-								<subject.icon class="mr-2" />
-								{subject.title}
+								{@const IconComponent = subjectNameToIcon(subject.name)}
+								<IconComponent class="mr-2" />
+								{subject.name}
 								<ChevronDownIcon
 									class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
 								/>
