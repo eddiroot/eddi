@@ -84,7 +84,7 @@ export type UserSubject = typeof userSubject.$inferSelect;
 
 export const subjectThread = pgTable('sub_thread', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	type: text('type').notNull(), // either 'discussion' or 'question'
+	type: text('type').notNull(), // either 'discussion', 'question', 'announcement', or 'qanda'
 	subjectId: integer('subject_id')
 		.notNull()
 		.references(() => subject.id, { onDelete: 'cascade' }),

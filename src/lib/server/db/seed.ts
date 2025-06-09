@@ -108,6 +108,23 @@ async function main() {
 			isArchived: 0
 		}
 	]);
+
+	await db.insert(schema.subjectThread).values([
+		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
+			subjectId: subjects[0].id,
+			title: 'Welcome to Mathematics',
+			content: 'This is the first thread in Mathematics.'
+		},
+		{
+			type: 'announcement',
+			userId: users[3].id, // student
+			subjectId: subjects[1].id,
+			title: 'Welcome to Science',
+			content: 'This is the first thread in Science.'
+		}
+	]);
 }
 
 main()
