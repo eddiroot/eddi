@@ -4,6 +4,7 @@ declare global {
 		interface Locals {
 			user: import('$lib/server/auth').SessionValidationResult['user'];
 			session: import('$lib/server/auth').SessionValidationResult['session'];
+			security: import('$lib/server/security').Security;
 		}
 	}
 }

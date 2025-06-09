@@ -32,7 +32,7 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, email: table.user.email },
+			user: { id: table.user.id, email: table.user.email, type: table.user.type },
 			session: table.session
 		})
 		.from(table.session)
@@ -79,14 +79,4 @@ export function deleteSessionTokenCookie(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
 		path: '/'
 	});
-}
-
-export function requireLogin() {
-	const { locals } = getRequestEvent();
-
-	if (!locals.user) {
-		return redirect(302, '/auth/login');
-	}
-
-	return locals.user;
 }

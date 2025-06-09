@@ -1,8 +1,7 @@
-import { requireLogin } from '$lib/server/auth';
 import { getSubjectsByUserId } from '$lib/server/db/service';
 
-export const load = async () => {
-	const user = requireLogin();
+export const load = async ({ locals: { security } }) => {
+	const user = security.isAuthenticated().getUser();
 	const subjects = await getSubjectsByUserId(user.id);
 
 	return { user, subjects };

@@ -8,7 +8,7 @@ import { validateEmail, validatePassword } from '../utils';
 
 export const load = async (event) => {
 	if (event.locals.user) {
-		return redirect(302, '/subjects');
+		return redirect(302, '/dashboard');
 	}
 	return {};
 };
@@ -44,6 +44,6 @@ export const actions = {
 		const session = await auth.createSession(sessionToken, existingUser.id);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		return redirect(302, '/subjects');
+		return redirect(302, '/dashboard');
 	}
 };

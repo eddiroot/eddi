@@ -3,19 +3,23 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import HouseIcon from '@lucide/svelte/icons/house';
+	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import BotIcon from '@lucide/svelte/icons/bot';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import PiIcon from '@lucide/svelte/icons/pi';
 	import BookOpenTextIcon from '@lucide/svelte/icons/book-open-text';
 	import BeakerIcon from '@lucide/svelte/icons/beaker';
 	import ClockIcon from '@lucide/svelte/icons/clock';
+	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
+	import BookCheckIcon from '@lucide/svelte/icons/book-check';
+	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
+	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
 
 	const items = [
 		{
-			title: 'Home',
-			url: '/home',
-			icon: HouseIcon
+			title: 'Dashboard',
+			url: '/dashboard',
+			icon: LayoutDashboardIcon
 		},
 		{
 			title: 'Calendar',
@@ -37,19 +41,23 @@
 	const subjectItems = [
 		{
 			title: 'Discussion',
-			url: 'discussion'
+			url: 'discussion',
+			icon: MessagesSquareIcon
 		},
 		{
 			title: 'Lessons',
-			url: 'lessons'
+			url: 'lessons',
+			icon: BookOpenCheckIcon
 		},
 		{
 			title: 'Assignments',
-			url: 'assignments'
+			url: 'assignments',
+			icon: BookCheckIcon
 		},
 		{
 			title: 'Chat',
-			url: 'chat'
+			url: 'chat',
+			icon: MessageCircleIcon
 		}
 	];
 
@@ -125,7 +133,8 @@
 										<Sidebar.MenuButton>
 											{#snippet child({ props })}
 												<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
-													<span class="ml-3 text-sm">{item.title}</span>
+													<item.icon />
+													<span>{item.title}</span>
 												</a>
 											{/snippet}
 										</Sidebar.MenuButton>

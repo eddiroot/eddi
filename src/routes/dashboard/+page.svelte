@@ -7,17 +7,21 @@
 {#if data?.subjects?.length}
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 		{#each data.subjects as subject}
-			<a href="/subjects/{subject.id}">
+			<a href="/subjects/{subject.id}/discussion">
 				<Card.Root>
 					<Card.Header>
 						<Card.Title>{subject.name}</Card.Title>
 						<Card.Description>{subject.description}</Card.Description>
 					</Card.Header>
-					<Card.Content>
-						<p>Card Content</p>
-					</Card.Content>
 					<Card.Footer>
-						<p>Card Footer</p>
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-gray-500"
+								>Created on {new Date(subject.createdAt).toLocaleDateString()}</span
+							>
+							<span class="text-sm text-gray-500"
+								>Last updated {new Date(subject.updatedAt).toLocaleDateString()}</span
+							>
+						</div>
 					</Card.Footer>
 				</Card.Root>
 			</a>
