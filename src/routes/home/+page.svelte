@@ -3,7 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 </script>
 
-<h1 class="mb-4 text-3xl font-bold">Subjects</h1>
+<h2 class="mb-4 text-xl font-bold">Your Subjects</h2>
 {#if data?.subjects?.length}
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 		{#each data.subjects as subject}
