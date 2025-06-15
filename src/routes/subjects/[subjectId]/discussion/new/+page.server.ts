@@ -11,7 +11,7 @@ export const load = async ({ locals: { security } }) => {
 };
 
 export const actions = {
-	create: async ({ locals: { security }, params: { subjectId } }) => {
+	create: async ({ request, locals: { security }, params: { subjectId } }) => {
 		const user = security.isAuthenticated().getUser();
 
 		let subjectIdInt;
@@ -21,25 +21,27 @@ export const actions = {
 			return fail(400, { message: 'Invalid subject ID' });
 		}
 
-		const form = await superValidate(zod(formSchema));
+		const form = await superValidate(request, zod(formSchema));
 		if (!form.valid) {
 			return fail(400, {
 				form
 			});
 		}
 
+		let newThread;
 		try {
-			await createSubjectThread(
+			newThread = await createSubjectThread(
 				form.data.type,
 				subjectIdInt,
 				user.id,
 				form.data.title,
 				form.data.content
 			);
-			throw redirect(303, `/subjects/${subjectIdInt}/discussion`);
 		} catch (error) {
 			console.error('Error creating thread:', error);
 			return fail(500, { message: 'Failed to create discussion post' });
 		}
+
+		throw redirect(303, `/subjects/${subjectIdInt}/discussion/${newThread.id}`);
 	}
 };

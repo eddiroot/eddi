@@ -16,8 +16,7 @@
 
 	const user = $derived(() => data?.user);
 
-	const breadcrumbItems = $derived(() => {
-		const url = page?.url?.pathname || '';
+	const generateBreadcrumbItems = (url: string) => {
 		const segments = url.split('/').filter(Boolean);
 
 		if (segments.length === 0) {
@@ -50,9 +49,13 @@
 		}
 
 		return items;
-	});
+	};
 </script>
 
+<svelte:head>
+	<title>eddi</title>
+	<meta name="description" content="The AI-native LMS for schools" />
+</svelte:head>
 <ModeWatcher />
 <Sidebar.Provider class="h-full" open={false}>
 	{#if user()}
@@ -60,27 +63,25 @@
 	{/if}
 	<div class="flex h-full w-full flex-col">
 		<header>
-			<nav class="container mx-auto flex items-center justify-between px-4 pt-4 pb-2">
-				<div>
+			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
+				<div class="flex items-center gap-x-4">
 					<Sidebar.Trigger />
-					{#if breadcrumbItems.length > 0}
-						<Breadcrumb.Root>
-							<Breadcrumb.List>
-								{#each breadcrumbItems() as item}
-									<Breadcrumb.Item>
-										{#if item.isLast}
-											<Breadcrumb.Page>{item.label}</Breadcrumb.Page>
-										{:else}
-											<Breadcrumb.Link href={item.href}>{item.label}</Breadcrumb.Link>
-										{/if}
-									</Breadcrumb.Item>
-									{#if !item.isLast}
-										<Breadcrumb.Separator />
+					<Breadcrumb.Root>
+						<Breadcrumb.List>
+							{#each generateBreadcrumbItems(page.url.pathname) as item}
+								<Breadcrumb.Item>
+									{#if item.isLast}
+										<Breadcrumb.Page>{item.label}</Breadcrumb.Page>
+									{:else}
+										<Breadcrumb.Link href={item.href}>{item.label}</Breadcrumb.Link>
 									{/if}
-								{/each}
-							</Breadcrumb.List>
-						</Breadcrumb.Root>
-					{/if}
+								</Breadcrumb.Item>
+								{#if !item.isLast}
+									<Breadcrumb.Separator />
+								{/if}
+							{/each}
+						</Breadcrumb.List>
+					</Breadcrumb.Root>
 				</div>
 				<div class="flex items-center space-x-4">
 					{#if user()}
@@ -97,13 +98,8 @@
 				</div>
 			</nav>
 		</header>
-		<main class="container mx-auto flex-1 px-4 py-4">
+		<main class="container h-full flex-1">
 			{@render children()}
 		</main>
-		<footer>
-			<div class="container mx-auto px-4 py-4 text-center">
-				<p class="text-sm">&copy; 2025 eddi. All rights reserved.</p>
-			</div>
-		</footer>
 	</div>
 </Sidebar.Provider>

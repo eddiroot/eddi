@@ -6,9 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function convertToFullName(
-	firstName: string | undefined,
-	middleName: string | undefined,
-	lastName: string | undefined
+	firstName: string | null | undefined,
+	middleName: string | null | undefined,
+	lastName: string | null | undefined
 ): string {
 	const parts: string[] = [];
 	if (firstName) {

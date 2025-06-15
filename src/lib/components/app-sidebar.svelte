@@ -9,7 +9,7 @@
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import PiIcon from '@lucide/svelte/icons/pi';
 	import BookOpenTextIcon from '@lucide/svelte/icons/book-open-text';
-	import BeakerIcon from '@lucide/svelte/icons/beaker';
+	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
 	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
@@ -50,7 +50,7 @@
 			case 'maths':
 				return PiIcon;
 			case 'science':
-				return BeakerIcon;
+				return FlaskConicalIcon;
 			case 'history':
 				return ClockIcon;
 			case 'english':
@@ -68,7 +68,14 @@
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
-	<Sidebar.Header />
+	<Sidebar.Header>
+		<div class="flex items-center gap-x-1">
+			<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
+			{#if !sidebar.isMobile && sidebar.open}
+				<h1 class="text-center text-lg font-semibold">eddi</h1>
+			{/if}
+		</div>
+	</Sidebar.Header>
 	<Sidebar.Content>
 		<Sidebar.Group>
 			<Sidebar.GroupContent>

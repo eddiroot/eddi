@@ -41,7 +41,7 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Title</Form.Label>
-				<Input {...props} placeholder="Enter the title of your post" />
+				<Input {...props} bind:value={$formData.title} placeholder="Enter the title of your post" />
 			{/snippet}
 		</Form.Control>
 		<Form.Description>Provide a concise title for your post.</Form.Description>
@@ -51,7 +51,11 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Content</Form.Label>
-				<Textarea {...props} placeholder="Write your post content here" />
+				<Textarea
+					{...props}
+					bind:value={$formData.content}
+					placeholder="Write your post content here"
+				/>
 			{/snippet}
 		</Form.Control>
 		<Form.Description>Share your thoughts, questions, or announcements.</Form.Description>

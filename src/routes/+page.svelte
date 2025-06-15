@@ -19,7 +19,7 @@
 		<div class="relative ms-4">
 			<img
 				class="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800"
-				src="clay-students.jpeg"
+				src="/clay-students.jpeg"
 				alt="Students using laptops"
 			/>
 		</div>

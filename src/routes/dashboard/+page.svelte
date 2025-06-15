@@ -1,32 +1,139 @@
 <script lang="ts">
-	let { data } = $props();
-	import * as Card from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+
+	// let { data } = $props();
+
+	const mockForYouItems = [
+		{
+			title: 'Math Classroom Changed',
+			message: 'Your maths class today has been changed from E101 to BB201.',
+			type: 'room-change'
+		}
+	];
+
+	const mockSchoolNews = [
+		{
+			title: 'Swimming Carnival',
+			message: 'Swimming carnival is coming up...',
+			date: 'Coming Soon'
+		}
+	];
+
+	const mockTimetable = [
+		{ time: '9:00 AM', subject: 'Mathematics', room: 'BB201' },
+		{ time: '10:00 AM', subject: 'English', room: 'A101' },
+		{ time: '11:30 AM', subject: 'Science', room: 'LAB-1' },
+		{ time: '1:00 PM', subject: 'History', room: 'C205' },
+		{ time: '2:00 PM', subject: 'Art', room: 'ART-1' }
+	];
+
+	const mockAssessments = [
+		{ subject: 'Mathematics', type: 'Quiz', dueDate: 'Tomorrow', topic: 'Algebra' },
+		{ subject: 'English', type: 'Essay', dueDate: 'Next Week', topic: 'Shakespeare' },
+		{ subject: 'Science', type: 'Lab Report', dueDate: 'Friday', topic: 'Chemistry' }
+	];
 </script>
 
-<h2 class="mb-4 text-xl font-bold">Your Subjects</h2>
-{#if data?.subjects?.length}
-	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-		{#each data.subjects as subject}
-			<a href="/subjects/{subject.id}/discussion">
-				<Card.Root>
-					<Card.Header>
-						<Card.Title>{subject.name}</Card.Title>
-						<Card.Description>{subject.description}</Card.Description>
-					</Card.Header>
-					<Card.Footer>
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-gray-500"
-								>Created on {new Date(subject.createdAt).toLocaleDateString()}</span
-							>
-							<span class="text-sm text-gray-500"
-								>Last updated {new Date(subject.updatedAt).toLocaleDateString()}</span
-							>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+	<Card class="h-full">
+		<CardHeader>
+			<CardTitle class="text-xl">For You</CardTitle>
+		</CardHeader>
+		<CardContent>
+			{#if mockForYouItems.length > 0}
+				<div class="space-y-4">
+					{#each mockForYouItems as item}
+						<div class="border-border rounded-lg border p-4">
+							<h3 class="text-foreground font-semibold">{item.title}</h3>
+							<p class="text-muted-foreground mt-2 text-sm">{item.message}</p>
 						</div>
-					</Card.Footer>
-				</Card.Root>
-			</a>
-		{/each}
-	</div>
-{:else}
-	<p>No subjects found.</p>
-{/if}
+					{/each}
+				</div>
+			{:else}
+				<p class="text-muted-foreground text-center">No updates for you right now.</p>
+			{/if}
+		</CardContent>
+	</Card>
+
+	<Card class="h-fit">
+		<CardHeader>
+			<CardTitle class="text-xl">School News</CardTitle>
+		</CardHeader>
+		<CardContent>
+			{#if mockSchoolNews.length > 0}
+				<div class="space-y-4">
+					{#each mockSchoolNews as news}
+						<div class="border-border rounded-lg border p-4">
+							<h3 class="text-foreground font-semibold">{news.title}</h3>
+							<p class="text-muted-foreground mt-2 text-sm">{news.message}</p>
+							{#if news.date}
+								<span
+									class="text-accent-foreground bg-accent mt-2 inline-block rounded px-2 py-1 text-xs"
+								>
+									{news.date}
+								</span>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<p class="text-muted-foreground text-center">No news updates available.</p>
+			{/if}
+		</CardContent>
+	</Card>
+
+	<Card class="lg:row-span-1">
+		<CardHeader class="flex flex-row items-center justify-between">
+			<CardTitle class="text-xl">Today's Timetable</CardTitle>
+			<Button variant="ghost" size="sm" class="h-8 w-8 p-0">
+				<span class="text-2xl">🙋‍♂️</span>
+				<span class="sr-only">Ask Eddy</span>
+			</Button>
+		</CardHeader>
+		<CardContent>
+			<div class="space-y-3">
+				{#each mockTimetable as period}
+					<div class="border-border flex items-center justify-between rounded-lg border p-3">
+						<div class="flex-1">
+							<div class="text-foreground font-medium">{period.subject}</div>
+							<div class="text-muted-foreground text-sm">{period.room}</div>
+						</div>
+						<div class="text-muted-foreground text-sm font-medium">
+							{period.time}
+						</div>
+					</div>
+				{/each}
+			</div>
+		</CardContent>
+	</Card>
+
+	<Card>
+		<CardHeader>
+			<CardTitle class="text-xl">Upcoming Assessments</CardTitle>
+		</CardHeader>
+		<CardContent>
+			{#if mockAssessments.length > 0}
+				<div class="space-y-3">
+					{#each mockAssessments as assessment}
+						<div class="border-border rounded-lg border p-3">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<h4 class="text-foreground font-medium">{assessment.subject}</h4>
+									<p class="text-muted-foreground text-sm">
+										{assessment.type} - {assessment.topic}
+									</p>
+								</div>
+								<span class="text-destructive text-xs font-medium">
+									Due: {assessment.dueDate}
+								</span>
+							</div>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<p class="text-muted-foreground text-center">No upcoming assessments.</p>
+			{/if}
+		</CardContent>
+	</Card>
+</div>
