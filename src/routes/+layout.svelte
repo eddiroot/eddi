@@ -98,7 +98,7 @@
 				</div>
 			</nav>
 		</header>
-		<main class="container h-full flex-1">
+		<main class="h-full flex-1">
 			{@render children()}
 		</main>
 	</div>

@@ -23,10 +23,14 @@ export async function getSubjectById(subjectId: number) {
 	return subject[0]?.subject;
 }
 
-export async function getSubjectThreadsBySubjectId(subjectId: number) {
+export async function getSubjectThreadsMinimalBySubjectId(subjectId: number) {
 	const threads = await db
 		.select({
-			thread: table.subjectThread,
+			thread: {
+				id: table.subjectThread.id,
+				title: table.subjectThread.title,
+				createdAt: table.subjectThread.createdAt
+			},
 			user: {
 				firstName: table.user.firstName,
 				middleName: table.user.middleName,
@@ -40,6 +44,24 @@ export async function getSubjectThreadsBySubjectId(subjectId: number) {
 		.orderBy(desc(table.subjectThread.createdAt));
 
 	return threads;
+}
+
+export async function getSubjectThreadById(threadId: number) {
+	const [thread] = await db
+		.select({
+			thread: table.subjectThread,
+			user: {
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				avatarUrl: table.user.avatarUrl
+			}
+		})
+		.from(table.subjectThread)
+		.innerJoin(table.user, eq(table.user.id, table.subjectThread.userId))
+		.where(eq(table.subjectThread.id, threadId))
+		.limit(1);
+	return thread;
 }
 
 export async function createSubjectThread(

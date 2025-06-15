@@ -1,4 +1,4 @@
-import { getSubjectThreadsBySubjectId } from '$lib/server/db/service.js';
+import { getSubjectThreadsMinimalBySubjectId } from '$lib/server/db/service.js';
 
 export const load = async ({ locals: { security }, params: { subjectId } }) => {
 	security.isAuthenticated();
@@ -10,7 +10,7 @@ export const load = async ({ locals: { security }, params: { subjectId } }) => {
 		return { subject: null };
 	}
 
-	const threads = await getSubjectThreadsBySubjectId(subjectIdInt);
+	const threads = await getSubjectThreadsMinimalBySubjectId(subjectIdInt);
 
 	return { subjectIdInt, threads };
 };

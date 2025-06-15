@@ -5,6 +5,7 @@ export const load = async ({ locals: { user } }) => {
 		return { user: null, subjects: [] };
 	}
 
+	// Needed to populate the sidebar
 	const subjects = await getSubjectsByUserId(user.id);
 
 	return {
