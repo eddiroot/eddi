@@ -9,7 +9,6 @@ export async function getSubjectsByUserId(userId: string) {
 		.innerJoin(table.subject, eq(table.subject.id, table.userSubject.subjectId))
 		.where(eq(table.userSubject.userId, userId));
 
-	//TODO: Remove the need for this mapping call
 	return subjects.map((row) => row.subject);
 }
 
@@ -47,7 +46,7 @@ export async function getSubjectThreadsMinimalBySubjectId(subjectId: number) {
 }
 
 export async function getSubjectThreadById(threadId: number) {
-	const [thread] = await db
+	const threads = await db
 		.select({
 			thread: table.subjectThread,
 			user: {
@@ -61,7 +60,12 @@ export async function getSubjectThreadById(threadId: number) {
 		.innerJoin(table.user, eq(table.user.id, table.subjectThread.userId))
 		.where(eq(table.subjectThread.id, threadId))
 		.limit(1);
-	return thread;
+
+	if (threads.length === 0) {
+		return null;
+	}
+
+	return threads[0];
 }
 
 export async function createSubjectThread(

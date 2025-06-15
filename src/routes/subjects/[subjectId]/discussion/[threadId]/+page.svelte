@@ -6,11 +6,6 @@
 	let { data } = $props();
 	const thread = $derived(() => data.thread);
 
-	const threadData = $derived(() => {
-		const t = thread();
-		return t?.thread;
-	});
-
 	const authorFullName = $derived(() => {
 		const derThread = thread();
 		if (!derThread || !derThread.user) return 'Unknown Author';
@@ -19,12 +14,6 @@
 			derThread.user.middleName,
 			derThread.user.lastName
 		);
-	});
-
-	const authorAvatarUrl = $derived(() => {
-		const derThread = thread();
-		if (!derThread || !derThread.user) return '';
-		return derThread.user.avatarUrl || '';
 	});
 
 	function getThreadTypeDisplay(type: string): string {
@@ -44,12 +33,12 @@
 </script>
 
 {#if thread()}
-	<div class="mx-auto max-w-4xl">
-		<Card.Root>
+	<div class="max-w-3xl">
+		<Card.Root class="min-h-96">
 			<Card.Header>
 				<div class="flex items-start gap-4">
 					<Avatar.Root class="h-12 w-12">
-						<Avatar.Image src={authorAvatarUrl()} alt={authorFullName()} />
+						<Avatar.Image src={thread()?.user?.avatarUrl || ''} alt={authorFullName()} />
 						<Avatar.Fallback>
 							{authorFullName()
 								.split(' ')
@@ -64,13 +53,13 @@
 							<span
 								class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset"
 							>
-								{threadData() ? getThreadTypeDisplay(threadData()!.type) : 'Thread'}
+								{thread() ? getThreadTypeDisplay(thread()!.thread.type) : 'Thread'}
 							</span>
 							<span class="text-muted-foreground text-sm">
-								{threadData() ? formatDate(threadData()!.createdAt) : ''}
+								{thread() ? formatDate(thread()!.thread.createdAt) : ''}
 							</span>
 						</div>
-						<Card.Title class="text-2xl">{threadData()?.title || 'Untitled'}</Card.Title>
+						<Card.Title class="text-2xl">{thread()?.thread.title || 'Untitled'}</Card.Title>
 						<Card.Description>
 							by {authorFullName()}
 						</Card.Description>
@@ -80,7 +69,7 @@
 			<Card.Content>
 				<div class="prose prose-sm max-w-none">
 					<div class="text-sm leading-relaxed whitespace-pre-wrap">
-						{threadData()?.content || 'No content available'}
+						{thread()?.thread.content || 'No content available'}
 					</div>
 				</div>
 			</Card.Content>
