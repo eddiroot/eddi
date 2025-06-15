@@ -1,21 +1,17 @@
 import { createSubjectThread } from '$lib/server/db/service.js';
 import { redirect, fail } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 
-export const load = async ({ locals: { security }, params: { subjectId } }) => {
+export const load = async ({ locals: { security } }) => {
 	security.isAuthenticated();
 
-	let subjectIdInt;
-	try {
-		subjectIdInt = parseInt(subjectId, 10);
-	} catch {
-		return { subject: null };
-	}
-
-	return { subjectIdInt };
+	return { form: await superValidate(zod(formSchema)) };
 };
 
 export const actions = {
-	create: async ({ locals: { security }, params: { subjectId }, request }) => {
+	create: async ({ locals: { security }, params: { subjectId } }) => {
 		const user = security.isAuthenticated().getUser();
 
 		let subjectIdInt;
@@ -25,21 +21,21 @@ export const actions = {
 			return fail(400, { message: 'Invalid subject ID' });
 		}
 
-		const data = await request.formData();
-		const type = data.get('type') as string;
-		const title = data.get('title') as string;
-		const content = data.get('content') as string;
-
-		if (!type || !title || !content) {
-			return fail(400, { message: 'All fields are required' });
-		}
-
-		if (!['discussion', 'question', 'announcement', 'qanda'].includes(type)) {
-			return fail(400, { message: 'Invalid post type' });
+		const form = await superValidate(zod(formSchema));
+		if (!form.valid) {
+			return fail(400, {
+				form
+			});
 		}
 
 		try {
-			await createSubjectThread(type, subjectIdInt, user.id, title, content);
+			await createSubjectThread(
+				form.data.type,
+				subjectIdInt,
+				user.id,
+				form.data.title,
+				form.data.content
+			);
 			throw redirect(303, `/subjects/${subjectIdInt}/discussion`);
 		} catch (error) {
 			console.error('Error creating thread:', error);

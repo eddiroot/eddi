@@ -2,7 +2,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import BotIcon from '@lucide/svelte/icons/bot';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
@@ -27,7 +27,7 @@
 		{
 			title: 'Timetable',
 			url: '/timetable',
-			icon: CalendarIcon
+			icon: CalendarDaysIcon
 		},
 		{
 			title: 'AI',
