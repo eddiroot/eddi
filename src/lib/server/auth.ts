@@ -1,10 +1,9 @@
-import { redirect, type RequestEvent } from '@sveltejs/kit';
+import { type RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { getRequestEvent } from '$app/server';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -32,7 +31,14 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, email: table.user.email, type: table.user.type },
+			user: {
+				id: table.user.id,
+				email: table.user.email,
+				type: table.user.type,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName
+			},
 			session: table.session
 		})
 		.from(table.session)

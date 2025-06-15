@@ -16,7 +16,7 @@ async function main() {
 		.values([
 			{
 				id: generateUserId(),
-				email: 'admin@eddy.io',
+				email: 'admin@eddi.com.au',
 				passwordHash: await hash('systemAdmin'),
 				type: 'systemAdmin',
 				firstName: 'SystemAdmin',

@@ -5,6 +5,25 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+export function convertToFullName(
+	firstName: string | undefined,
+	middleName: string | undefined,
+	lastName: string | undefined
+): string {
+	const parts: string[] = [];
+	if (firstName) {
+		parts.push(firstName);
+	}
+	if (middleName) {
+		parts.push(middleName);
+	}
+	if (lastName) {
+		parts.push(lastName);
+	}
+
+	return parts.join(' ').trim();
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

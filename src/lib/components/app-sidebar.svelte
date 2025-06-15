@@ -1,22 +1,23 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
 	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
-	import BotIcon from '@lucide/svelte/icons/bot';
-	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import PiIcon from '@lucide/svelte/icons/pi';
 	import BookOpenTextIcon from '@lucide/svelte/icons/book-open-text';
 	import BeakerIcon from '@lucide/svelte/icons/beaker';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
-	import BookCheckIcon from '@lucide/svelte/icons/book-check';
 	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
-	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
 	import MapIcon from '@lucide/svelte/icons/map';
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
+	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import type { Subject } from '$lib/server/db/schema';
+	import { convertToFullName } from '$lib/utils';
 
 	const items = [
 		{
@@ -28,16 +29,6 @@
 			title: 'Timetable',
 			url: '/timetable',
 			icon: CalendarDaysIcon
-		},
-		{
-			title: 'AI',
-			url: '/ai',
-			icon: BotIcon
-		},
-		{
-			title: 'Settings',
-			url: '/settings',
-			icon: SettingsIcon
 		}
 	];
 
@@ -51,16 +42,6 @@
 			title: 'Lessons',
 			url: 'lessons',
 			icon: BookOpenCheckIcon
-		},
-		{
-			title: 'Assignments',
-			url: 'assignments',
-			icon: BookCheckIcon
-		},
-		{
-			title: 'Chat',
-			url: 'chat',
-			icon: MessageCircleIcon
 		}
 	];
 
@@ -81,7 +62,9 @@
 		}
 	};
 
-	let { subjects }: { subjects: Subject[] } = $props();
+	let { subjects, user }: { subjects: Subject[]; user: any } = $props();
+	const sidebar = Sidebar.useSidebar();
+	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
@@ -89,15 +72,10 @@
 	<Sidebar.Content>
 		<Sidebar.Group>
 			<Sidebar.GroupContent>
-				<Sidebar.Trigger />
-			</Sidebar.GroupContent>
-		</Sidebar.Group>
-		<Sidebar.Group>
-			<Sidebar.GroupContent>
 				<Sidebar.Menu>
-					{#each items as item (item.title)}
+					{#each items as item}
 						<Sidebar.MenuItem>
-							<Sidebar.MenuButton>
+							<Sidebar.MenuButton tooltipContent={item.title}>
 								{#snippet child({ props })}
 									<a href={item.url} {...props}>
 										<item.icon />
@@ -149,5 +127,60 @@
 			</Sidebar.Menu>
 		</Sidebar.Group>
 	</Sidebar.Content>
-	<Sidebar.Footer />
+	<Sidebar.Footer>
+		<Sidebar.Menu>
+			<Sidebar.MenuItem>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Sidebar.MenuButton
+								size="lg"
+								class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+								{...props}
+							>
+								<Avatar.Root class="h-8 w-8 rounded-lg">
+									<Avatar.Image src={user.avatarUrl} alt={fullName} />
+									<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
+								</Avatar.Root>
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">{fullName}</span>
+									<span class="truncate text-xs">{user.email}</span>
+								</div>
+								<ChevronsUpDownIcon className="ml-auto size-4" />
+							</Sidebar.MenuButton>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content
+						class="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+						side={sidebar.isMobile ? 'bottom' : 'right'}
+						align="end"
+						sideOffset={4}
+					>
+						<DropdownMenu.Label class="p-0 font-normal">
+							<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+								<Avatar.Root class="h-8 w-8 rounded-lg">
+									<Avatar.Image src={user.avatarUrl} alt={fullName} />
+									<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
+								</Avatar.Root>
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">{fullName}</span>
+									<span class="truncate text-xs">{user.email}</span>
+								</div>
+							</div>
+						</DropdownMenu.Label>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Group>
+							<DropdownMenu.Item>Account</DropdownMenu.Item>
+							<DropdownMenu.Item>Notifications</DropdownMenu.Item>
+						</DropdownMenu.Group>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item>
+							<LogOutIcon />
+							Log out
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</Sidebar.MenuItem>
+		</Sidebar.Menu>
+	</Sidebar.Footer>
 </Sidebar.Root>

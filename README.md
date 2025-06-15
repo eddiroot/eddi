@@ -1,6 +1,6 @@
 ## ShadCN
 
-`npx shadcn-svelte@0.14 add component-name-here`
+`npx shadcn-svelte@latest add component-name-here`
 
 ## Developing
 
