@@ -110,42 +110,44 @@
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
-		{#each subjects as subject}
-			<Collapsible.Root open={false} class="group/collapsible">
-				<Sidebar.Group>
-					<Sidebar.GroupLabel>
-						{#snippet child({ props })}
-							<Collapsible.Trigger {...props}>
-								{@const IconComponent = subjectNameToIcon(subject.name)}
-								<IconComponent class="mr-2" />
-								{subject.name}
-								<ChevronDownIcon
-									class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
-								/>
-							</Collapsible.Trigger>
-						{/snippet}
-					</Sidebar.GroupLabel>
-					<Collapsible.Content>
-						<Sidebar.GroupContent>
-							<Sidebar.Menu>
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Subjects</Sidebar.GroupLabel>
+			<Sidebar.Menu>
+				{#each subjects as subject}
+					<Collapsible.Root open={false} class="group/collapsible">
+						<Collapsible.Trigger>
+							{#snippet child({ props })}
+								<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
+									{@const IconComponent = subjectNameToIcon(subject.name)}
+									<IconComponent class="mr-2" />
+									<span>{subject.name}</span>
+									<ChevronDownIcon
+										class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
+									/>
+								</Sidebar.MenuButton>
+							{/snippet}
+						</Collapsible.Trigger>
+
+						<Collapsible.Content>
+							<Sidebar.MenuSub>
 								{#each subjectItems as item}
-									<Sidebar.MenuItem>
-										<Sidebar.MenuButton>
+									<Sidebar.MenuSubItem>
+										<Sidebar.MenuSubButton>
 											{#snippet child({ props })}
 												<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
 													<item.icon />
 													<span>{item.title}</span>
 												</a>
 											{/snippet}
-										</Sidebar.MenuButton>
-									</Sidebar.MenuItem>
+										</Sidebar.MenuSubButton>
+									</Sidebar.MenuSubItem>
 								{/each}
-							</Sidebar.Menu>
-						</Sidebar.GroupContent>
-					</Collapsible.Content>
-				</Sidebar.Group>
-			</Collapsible.Root>
-		{/each}
+							</Sidebar.MenuSub>
+						</Collapsible.Content>
+					</Collapsible.Root>
+				{/each}
+			</Sidebar.Menu>
+		</Sidebar.Group>
 	</Sidebar.Content>
 	<Sidebar.Footer />
 </Sidebar.Root>
