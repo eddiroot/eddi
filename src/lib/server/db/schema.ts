@@ -4,6 +4,7 @@ import {
 	text,
 	integer,
 	timestamp,
+	time,
 	type AnyPgColumn,
 	foreignKey,
 	interval
@@ -97,9 +98,6 @@ export const subjectClass = pgTable('subjectClass', {
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	teacherId: text('teacher_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
 	...timestamps
 });
 
@@ -113,6 +111,7 @@ export const userSubjectClass = pgTable('user_subject_class', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
+	role: text('role').notNull(), // either 'student' or 'teacher'
 	...timestamps
 });
 
@@ -123,8 +122,8 @@ export const subjectClassTime = pgTable('subject_class_time', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
-	dayOfWeek: text('day_of_week').notNull(), // e.g., 'Monday', 'Tuesday', etc.
-	startTime: timestamp('start_time', { withTimezone: true, mode: 'string' }).notNull(), //consider period in future
+	dayOfWeek: text('day_of_week').notNull(), // e.g., 'monday', 'tuesday', etc.
+	startTime: time('start_time').notNull(), // consider period in future
 	duration: interval('duration').notNull(), // e.g., '01:00:00' for 1 hour
 	...timestamps
 });

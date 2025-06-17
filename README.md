@@ -20,6 +20,7 @@ docker compose down --volumes
 docker compose up --detach
 npm run db:push
 npm run db:seed
+npm run dev
 ```
 
 ## Building

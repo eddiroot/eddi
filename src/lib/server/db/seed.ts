@@ -182,6 +182,27 @@ async function main() {
 			isArchived: 0
 		},
 		{
+			userId: users[3].id, // student001
+			subjectOfferingId: subjectOfferings[2].id, // History
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[3].id, // student001
+			subjectOfferingId: subjectOfferings[3].id, // English
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[3].id, // student001
+			subjectOfferingId: subjectOfferings[4].id, // Geography
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
 			userId: users[4].id, // student002
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
@@ -196,8 +217,57 @@ async function main() {
 			isArchived: 0
 		},
 		{
+			userId: users[4].id, // student002
+			subjectOfferingId: subjectOfferings[2].id, // History
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[4].id, // student002
+			subjectOfferingId: subjectOfferings[3].id, // English
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[4].id, // student002
+			subjectOfferingId: subjectOfferings[4].id, // Geography
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[5].id, // student003
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[5].id, // student003
+			subjectOfferingId: subjectOfferings[1].id, // Science
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
 			userId: users[5].id, // student003
 			subjectOfferingId: subjectOfferings[2].id, // History
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[5].id, // student003
+			subjectOfferingId: subjectOfferings[3].id, // English
+			role: 'student',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[5].id, // student003
+			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
@@ -208,61 +278,57 @@ async function main() {
 		{
 			type: 'announcement',
 			userId: users[2].id, // teacher
-			subjectOfferingId: subjectOfferings[1].id,
-			title: 'Welcome to Science',
-			content: 'This is the first thread in Science.'
-		},
-		{
-			type: 'question',
-			userId: users[3].id, // student001
-			subjectOfferingId: subjectOfferings[1].id,
-			title: 'Scientific method',
-			content: 'Can someone explain the scientific method to me?'
-		},
-		{
-			type: 'question',
-			userId: users[4].id, // student002
-			subjectOfferingId: subjectOfferings[1].id,
-			title: 'Experiments',
-			content: 'What are some good experiments for beginners?'
-		},
-		{
-			type: 'announcement',
-			userId: users[2].id, // teacher
-			subjectOfferingId: subjectOfferings[0].id,
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			title: 'Welcome to Mathematics',
 			content: 'This is the first thread in Mathematics.'
 		},
 		{
 			type: 'question',
 			userId: users[4].id, // student002
-			subjectOfferingId: subjectOfferings[0].id,
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			title: 'Help with long division',
 			content: 'I am struggling with long division. Can anyone help?'
+		},
+		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
+			subjectOfferingId: subjectOfferings[1].id, // Science
+			title: 'Welcome to Science',
+			content: 'This is the first thread in Science.'
+		},
+		{
+			type: 'question',
+			userId: users[3].id, // student001
+			subjectOfferingId: subjectOfferings[1].id, // Science
+			title: 'Scientific method',
+			content: 'Can someone explain the scientific method to me?'
+		},
+		{
+			type: 'question',
+			userId: users[4].id, // student002
+			subjectOfferingId: subjectOfferings[1].id, // Science
+			title: 'Experiments',
+			content: 'What are some good experiments for beginners?'
 		}
 	]);
+
 	const subjectClasses = await db
 		.insert(schema.subjectClass)
 		.values([
 			{
-				subjectOfferingId: subjectOfferings[0].id, // Maths
-				teacherId: users[2].id
+				subjectOfferingId: subjectOfferings[0].id // Maths
 			},
 			{
-				subjectOfferingId: subjectOfferings[1].id, // Science
-				teacherId: users[2].id
+				subjectOfferingId: subjectOfferings[1].id // Science
 			},
 			{
-				subjectOfferingId: subjectOfferings[2].id, // History
-				teacherId: users[2].id
+				subjectOfferingId: subjectOfferings[2].id // History
 			},
 			{
-				subjectOfferingId: subjectOfferings[3].id, // English
-				teacherId: users[2].id
+				subjectOfferingId: subjectOfferings[3].id // English
 			},
 			{
-				subjectOfferingId: subjectOfferings[4].id, // Geography
-				teacherId: users[2].id
+				subjectOfferingId: subjectOfferings[4].id // Geography
 			}
 		])
 		.returning();
@@ -271,71 +337,174 @@ async function main() {
 		// Maths
 		{
 			subjectClassId: subjectClasses[0].id,
-			dayOfWeek: 'Monday',
-			startTime: '2025-01-06T09:00:00Z',
+			dayOfWeek: 'monday',
+			startTime: '09:00:00',
 			duration: '01:00:00'
 		},
 		{
 			subjectClassId: subjectClasses[0].id,
-			dayOfWeek: 'Wednesday',
-			startTime: '2025-01-08T09:00:00Z',
+			dayOfWeek: 'wednesday',
+			startTime: '09:00:00',
 			duration: '01:00:00'
 		},
 
 		// Science
 		{
 			subjectClassId: subjectClasses[1].id,
-			dayOfWeek: 'Tuesday',
-			startTime: '2025-01-07T10:00:00Z',
+			dayOfWeek: 'tuesday',
+			startTime: '10:00:00',
 			duration: '01:30:00'
 		},
 		{
 			subjectClassId: subjectClasses[1].id,
-			dayOfWeek: 'Thursday',
-			startTime: '2025-01-09T10:00:00Z',
+			dayOfWeek: 'thursday',
+			startTime: '10:00:00',
 			duration: '01:30:00'
 		},
 
 		// History
 		{
 			subjectClassId: subjectClasses[2].id,
-			dayOfWeek: 'Monday',
-			startTime: '2025-01-06T11:00:00Z',
+			dayOfWeek: 'monday',
+			startTime: '11:00:00',
 			duration: '01:00:00'
 		},
 		{
 			subjectClassId: subjectClasses[2].id,
-			dayOfWeek: 'Wednesday',
-			startTime: '2025-01-08T11:00:00Z',
+			dayOfWeek: 'wednesday',
+			startTime: '11:00:00',
 			duration: '01:00:00'
 		},
 
 		// English
 		{
 			subjectClassId: subjectClasses[3].id,
-			dayOfWeek: 'Tuesday',
-			startTime: '2025-01-07T09:00:00Z',
+			dayOfWeek: 'tuesday',
+			startTime: '09:00:00',
 			duration: '01:00:00'
 		},
 		{
 			subjectClassId: subjectClasses[3].id,
-			dayOfWeek: 'Thursday',
-			startTime: '2025-01-09T09:00:00Z',
+			dayOfWeek: 'thursday',
+			startTime: '09:00:00',
 			duration: '01:00:00'
 		},
 
 		// Geography
 		{
 			subjectClassId: subjectClasses[4].id,
-			dayOfWeek: 'Friday',
-			startTime: '2025-01-10T08:30:00Z',
+			dayOfWeek: 'friday',
+			startTime: '08:30:00',
 			duration: '01:30:00'
 		},
 		{
 			subjectClassId: subjectClasses[4].id,
-			dayOfWeek: 'Friday',
-			startTime: '2025-01-10T13:30:00Z',
+			dayOfWeek: 'friday',
+			startTime: '13:30:00',
 			duration: '01:00:00'
+		}
+	]);
+
+	await db.insert(schema.userSubjectClass).values([
+		{
+			userId: users[2].id, // teacher
+			subjectClassId: subjectClasses[0].id, // Maths
+			role: 'teacher'
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectClassId: subjectClasses[1].id, // Science
+			role: 'teacher'
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectClassId: subjectClasses[2].id, // History
+			role: 'teacher'
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectClassId: subjectClasses[3].id, // English
+			role: 'teacher'
+		},
+		{
+			userId: users[2].id, // teacher
+			subjectClassId: subjectClasses[4].id, // Geography
+			role: 'teacher'
+		},
+		{
+			userId: users[3].id, // student001
+			subjectClassId: subjectClasses[0].id, // Maths
+			role: 'student'
+		},
+		{
+			userId: users[3].id, // student001
+			subjectClassId: subjectClasses[1].id, // Science
+			role: 'student'
+		},
+		{
+			userId: users[3].id, // student001
+			subjectClassId: subjectClasses[2].id, // History
+			role: 'student'
+		},
+		{
+			userId: users[3].id, // student001
+			subjectClassId: subjectClasses[3].id, // English
+			role: 'student'
+		},
+		{
+			userId: users[3].id, // student001
+			subjectClassId: subjectClasses[4].id, // Geography
+			role: 'student'
+		},
+		{
+			userId: users[4].id, // student002
+			subjectClassId: subjectClasses[0].id, // Maths
+			role: 'student'
+		},
+		{
+			userId: users[4].id, // student002
+			subjectClassId: subjectClasses[1].id, // Science
+			role: 'student'
+		},
+		{
+			userId: users[4].id, // student002
+			subjectClassId: subjectClasses[2].id, // History
+			role: 'student'
+		},
+		{
+			userId: users[4].id, // student002
+			subjectClassId: subjectClasses[3].id, // English
+			role: 'student'
+		},
+		{
+			userId: users[4].id, // student002
+			subjectClassId: subjectClasses[4].id, // Geography
+			role: 'student'
+		},
+		{
+			userId: users[5].id, // student003
+			subjectClassId: subjectClasses[0].id, // Maths
+			role: 'student'
+		},
+		{
+			userId: users[5].id, // student003
+			subjectClassId: subjectClasses[1].id, // Science
+			role: 'student'
+		},
+		{
+			userId: users[5].id, // student003
+			subjectClassId: subjectClasses[2].id, // History
+			role: 'student'
+		},
+		{
+			userId: users[5].id, // student003
+			subjectClassId: subjectClasses[3].id, // English
+			role: 'student'
+		},
+		{
+			userId: users[5].id, // student003
+			subjectClassId: subjectClasses[4].id, // Geography
+			role: 'student'
 		}
 	]);
 }
