@@ -88,7 +88,7 @@
 			<CardTitle class="text-xl">Today's Timetable</CardTitle>
 			<Button variant="ghost" size="sm" class="h-8 w-8 p-0">
 				<span class="text-2xl">🙋‍♂️</span>
-				<span class="sr-only">Ask Eddy</span>
+				<span class="sr-only">Ask Eddi</span>
 			</Button>
 		</CardHeader>
 		<CardContent>

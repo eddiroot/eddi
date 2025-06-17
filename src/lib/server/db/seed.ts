@@ -69,7 +69,7 @@ async function main() {
 		.insert(schema.school)
 		.values([
 			{
-				name: 'School of Eddy'
+				name: 'School of Eddi'
 			}
 		])
 		.returning();
