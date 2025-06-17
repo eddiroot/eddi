@@ -88,3 +88,43 @@ export async function createSubjectThread(
 
 	return thread;
 }
+
+export async function getSubjectThreadResponsesById(threadId: number) {
+	const comments = await db
+		.select({
+			comment: table.subjectThreadResponse,
+			user: {
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				avatarUrl: table.user.avatarUrl
+			}
+		})
+		.from(table.subjectThreadResponse)
+		.innerJoin(table.user, eq(table.user.id, table.subjectThreadResponse.userId))
+		.where(eq(table.subjectThreadResponse.subjectThreadId, threadId))
+		.orderBy(desc(table.subjectThreadResponse.createdAt));
+
+	return comments;
+}
+
+export async function createSubjectThreadResponse(
+	type: string,
+	subjectThreadId: number,
+	userId: string,
+	content: string,
+	parentResponseId?: number | null
+) {
+	const [response] = await db
+		.insert(table.subjectThreadResponse)
+		.values({
+			type,
+			subjectThreadId,
+			userId,
+			content,
+			parentResponseId: parentResponseId || null
+		})
+		.returning();
+
+	return response;
+}
