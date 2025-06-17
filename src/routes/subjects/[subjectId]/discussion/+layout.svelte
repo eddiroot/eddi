@@ -44,7 +44,7 @@
 					</Button>
 				</div>
 				<Resizable.Pane
-					defaultSize={30}
+					defaultSize={data.threads.length > 0 ? 30 : 0}
 					collapsible
 					collapsedSize={0}
 					bind:this={announcementsPane}
