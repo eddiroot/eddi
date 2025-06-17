@@ -1,0 +1,99 @@
+{
+    "LSB": [
+        {
+            "type": "Title",
+            "content": "text" 
+        },
+        {
+            "type": "Subtitle",
+            "content": "text"
+        },
+        {
+            "type": "Image",
+            "content": {
+                "src": "url",
+                "alt": "text"
+            }
+        },
+        {
+            "type": "Video",
+            "content": {
+                "src": "url",
+                "alt": "text"
+            }
+        },
+        {
+            "type": "Heading 1",
+            "content": "text"
+        },
+        {
+            "type": "Heading 2",
+            "content": "text"
+        },
+        {
+            "type": "Heading 3",
+            "content": "text"
+        },
+        {
+            "type": "Paragraph",
+            "content": "md"
+        },
+        {
+            "type": "MCQSingle",
+            "content": {
+                "question": "text",
+                "options": [
+                    {
+                        "option": "text",
+                        "isCorrect": true
+                    },
+                    {
+                        "option": "text",
+                        "isCorrect": false
+                    },
+                    {
+                        "option": "text",
+                        "isCorrect": false
+                    }
+                ]
+            }
+        },
+        {
+            "type": "MCQMultiple",
+            "content": {
+                "question": "text",
+                "options": [
+                    {
+                        "option": "text",
+                        "isCorrect": true
+                    },
+                    {
+                        "option": "text",
+                        "isCorrect": false
+                    },
+                    {
+                        "option": "text",
+                        "isCorrect": false
+                    }
+                ]
+            }
+        },
+        {
+            "type": "FillInTheBlanks",
+            "content": {
+                "text": "md",
+                "blanks": [
+                    {
+                        "placeholder": "text",
+                        "answer": "text"
+                    },
+                    {
+                        "placeholder": "text",
+                        "answer": "text"
+                    }
+                ]
+            }
+        },
+
+    ]
+}
