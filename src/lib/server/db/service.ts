@@ -32,6 +32,7 @@ export async function getSubjectThreadsMinimalBySubjectId(subjectOfferingId: num
 			thread: {
 				id: table.subjectThread.id,
 				title: table.subjectThread.title,
+				type: table.subjectThread.type,
 				createdAt: table.subjectThread.createdAt
 			},
 			user: {
