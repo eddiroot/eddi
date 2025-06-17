@@ -136,22 +136,27 @@ export async function createSubjectThreadResponse(
 export async function getSubjectClassTimesByUserId(userId: string) {
 	const classTimes = await db
 		.select({
-		classTime: table.subjectClassTime,
+			classTime: table.subjectClassTime,
 			subjectOffering: {
-				id: table.subjectOffering.id,
-				name: table.subjectOffering.name
+				id: table.subjectOffering.id
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
 			}
 		})
-		.from(table.userSubjectOffering)
-		.innerJoin(
-			table.subjectOffering,
-			eq(table.userSubjectOffering.subjectOfferingId, table.subjectOffering.id)
-		)
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(
 			table.subjectClassTime,
-			eq(table.subjectClassTime.subjectOfferingId, table.subjectOffering.id)
+			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
 		)
-		.where(eq(table.userSubjectOffering.userId, userId))
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectClass.userId, userId))
 		.orderBy(desc(table.subjectClassTime.startTime));
 
 	return classTimes;
