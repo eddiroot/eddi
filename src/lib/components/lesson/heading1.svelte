@@ -1,7 +1,3 @@
-<script lang="ts">
-    import { Textarea } from "$lib/components/ui/textarea/index.js";
-</script>
-    
-<div class="text-2xl">
-    <Textarea placeholder="Heading 1" />
-</div>
+<h2 class="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+    Heading 1
+</h2>
