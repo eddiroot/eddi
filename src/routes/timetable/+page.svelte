@@ -56,49 +56,45 @@
 	}
 </script>
 
-<Card class="h-full">
-	<CardHeader>
-		<CardTitle class="text-xl">Weekly Timetable</CardTitle>
-	</CardHeader>
-	<CardContent class="h-[calc(100%-40px)]">
-		<!-- Day titles -->
-		<div class="mb-4 grid grid-cols-5 gap-4">
-			{#each days as day}
-				<div
-					class="border-primary/20 text-foreground border-b-2 pb-3 text-center text-base font-semibold"
-				>
-					{day.name}
-				</div>
-			{/each}
-		</div>
+<div class="h-full space-y-4 p-8">
+	<h1 class="text-xl">Weekly Timetable</h1>
+	<!-- Day titles -->
+	<div class="mb-4 grid grid-cols-5 gap-4">
+		{#each days as day}
+			<div
+				class="border-primary/20 text-foreground border-b-2 pb-3 text-center text-base font-semibold"
+			>
+				{day.name}
+			</div>
+		{/each}
+	</div>
 
-		<!-- Timetable grid -->
-		<div
-			class="bg-muted/10 relative grid h-[calc(100%-60px)] grid-cols-5 overflow-hidden rounded-lg border"
-		>
-			{#each days as day}
-				<div class="border-border/50 relative border-r last:border-r-0">
-					<!-- Background timeslot lines -->
-					{#each timeslots as time, index}
-						<div
-							class="border-border/30 text-muted-foreground hover:bg-muted/20 flex items-center justify-start border-t pl-2 text-xs transition-colors"
-							style="height: {100 / timeslots.length}%;"
-						></div>
-					{/each}
+	<!-- Timetable grid -->
+	<div
+		class="bg-muted/10 relative grid h-[calc(100%-60px)] grid-cols-5 overflow-hidden rounded-lg border"
+	>
+		{#each days as day}
+			<div class="border-border/50 relative border-r last:border-r-0">
+				<!-- Background timeslot lines -->
+				{#each timeslots as time, index}
+					<div
+						class="border-border/30 text-muted-foreground hover:bg-muted/20 flex items-center justify-start border-t pl-2 text-xs transition-colors"
+						style="height: {100 / timeslots.length}%;"
+					></div>
+				{/each}
 
-					<!-- Classes for this day -->
-					{#each classTimes.filter((c) => c.dayOfWeek === day.value) as cls}
-						{@const position = getClassPosition(cls.startTime, cls.duration)}
-						<div
-							class="from-primary to-primary/80 text-primary-foreground border-primary/20 absolute right-2 left-2 flex flex-col justify-center rounded-lg border bg-gradient-to-br p-3 text-sm font-medium shadow-lg transition-shadow hover:shadow-xl"
-							style="top: {position.top}; height: {position.height};"
-						>
-							<div class="text-sm font-semibold">{cls.subject}</div>
-							<div class="mt-1 text-xs opacity-90">{cls.startTime}</div>
-						</div>
-					{/each}
-				</div>
-			{/each}
-		</div>
-	</CardContent>
-</Card>
+				<!-- Classes for this day -->
+				{#each classTimes.filter((c) => c.dayOfWeek === day.value) as cls}
+					{@const position = getClassPosition(cls.startTime, cls.duration)}
+					<div
+						class="from-primary to-primary/80 text-primary-foreground border-primary/20 absolute right-2 left-2 flex flex-col justify-center rounded-lg border bg-gradient-to-br p-3 text-sm font-medium shadow-lg transition-shadow hover:shadow-xl"
+						style="top: {position.top}; height: {position.height};"
+					>
+						<div class="text-sm font-semibold">{cls.subject}</div>
+						<div class="mt-1 text-xs opacity-90">{cls.startTime}</div>
+					</div>
+				{/each}
+			</div>
+		{/each}
+	</div>
+</div>
