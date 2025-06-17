@@ -69,12 +69,12 @@
 
 <Sidebar.Root collapsible="icon" class="h-full">
 	<Sidebar.Header>
-		<div class="flex items-center gap-x-1">
+		<a href="/" class="flex items-center gap-x-1">
 			<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
 			{#if !sidebar.isMobile && sidebar.open}
 				<h1 class="text-center text-lg font-semibold">eddi</h1>
 			{/if}
-		</div>
+		</a>
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<Sidebar.Group>
