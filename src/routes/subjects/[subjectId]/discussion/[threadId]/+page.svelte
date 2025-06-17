@@ -59,7 +59,7 @@
 {#if thread()}
 	<div class="mx-auto max-w-4xl space-y-6">
 		<!-- Main Thread Card -->
-		<Card.Root class="border-l-4 border-l-blue-500">
+		<Card.Root>
 			<Card.Header class="pb-4">
 				<div class="flex items-start gap-4">
 					<Avatar.Root class="ring-border h-12 w-12 ring-2">

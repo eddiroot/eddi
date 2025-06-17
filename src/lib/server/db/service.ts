@@ -5,9 +5,13 @@ import { desc, eq } from 'drizzle-orm';
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
 		.select({ subject: table.subject })
-		.from(table.userSubject)
-		.innerJoin(table.subject, eq(table.subject.id, table.userSubject.subjectId))
-		.where(eq(table.userSubject.userId, userId));
+		.from(table.userSubjectOffering)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.userSubjectOffering.subjectOfferingId)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectOffering.userId, userId));
 
 	return subjects.map((row) => row.subject);
 }
@@ -22,7 +26,7 @@ export async function getSubjectById(subjectId: number) {
 	return subject[0]?.subject;
 }
 
-export async function getSubjectThreadsMinimalBySubjectId(subjectId: number) {
+export async function getSubjectThreadsMinimalBySubjectId(subjectOfferingId: number) {
 	const threads = await db
 		.select({
 			thread: {
@@ -39,7 +43,7 @@ export async function getSubjectThreadsMinimalBySubjectId(subjectId: number) {
 		})
 		.from(table.subjectThread)
 		.innerJoin(table.user, eq(table.user.id, table.subjectThread.userId))
-		.where(eq(table.subjectThread.subjectId, subjectId))
+		.where(eq(table.subjectThread.subjectOfferingId, subjectOfferingId))
 		.orderBy(desc(table.subjectThread.createdAt));
 
 	return threads;
@@ -70,7 +74,7 @@ export async function getSubjectThreadById(threadId: number) {
 
 export async function createSubjectThread(
 	type: string,
-	subjectId: number,
+	subjectOfferingId: number,
 	userId: string,
 	title: string,
 	content: string
@@ -79,7 +83,7 @@ export async function createSubjectThread(
 		.insert(table.subjectThread)
 		.values({
 			type,
-			subjectId,
+			subjectOfferingId,
 			userId,
 			title,
 			content
@@ -127,4 +131,33 @@ export async function createSubjectThreadResponse(
 		.returning();
 
 	return response;
+}
+
+export async function getSubjectClassTimesByUserId(userId: string) {
+	const classTimes = await db
+		.select({
+			classTime: table.subjectClassTime,
+			subjectOffering: {
+				id: table.subjectOffering.id
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.innerJoin(
+			table.subjectClassTime,
+			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectClass.userId, userId))
+		.orderBy(desc(table.subjectClassTime.startTime));
+
+	return classTimes;
 }
