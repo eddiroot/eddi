@@ -18,15 +18,15 @@
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
 		{:else if headingSize === 2}
-			<h2 class="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">{text}</h2>
+			<h2 class="scroll-m-20 text-3xl font-semibold tracking-tight">{text}</h2>
 		{:else if headingSize === 3}
 			<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">{text}</h3>
 		{:else if headingSize === 4}
 			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">{text}</h4>
 		{:else if headingSize === 5}
-			<h5 class="text-sm font-light">{text}</h5>
+			<h5 class="scroll-m-20 text-lg font-semibold tracking-tight">{text}</h5>
 		{:else}
-			<h6 class="text-xs font-thin">{text}</h6>
+			<h5 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h5>
 		{/if}
 	{/if}
 </div>
