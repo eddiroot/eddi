@@ -13,6 +13,15 @@ npm run dev
 npm run dev -- --open
 ```
 
+If you make breaking changes to the db:
+
+```
+docker compose down --volumes
+docker compose up --detach
+npm run db:push
+npm run db:seed
+```
+
 ## Building
 
 To create a production version of your app:
