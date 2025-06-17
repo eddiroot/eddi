@@ -15,7 +15,7 @@
 	let isAnnouncementsCollapsed = $state(false);
 </script>
 
-<div class="grid h-full w-full grid-cols-[300px_1fr] overflow-y-hidden">
+<div class="grid h-full grid-cols-[300px_1fr] overflow-y-hidden">
 	<div class="h-full border-r border-b">
 		<div class="p-2">
 			<a href="/subjects/{data.subjectIdInt}/discussion/new" class={`${buttonVariants()} w-full`}
@@ -121,7 +121,7 @@
 			<p>No discussions available.</p>
 		{/if}
 	</div>
-	<div class="p-8">
+	<div class="overflow-y-scroll p-8">
 		{@render children()}
 	</div>
 </div>
