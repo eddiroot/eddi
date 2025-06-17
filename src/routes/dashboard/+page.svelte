@@ -35,8 +35,8 @@
 	];
 </script>
 
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-	<Card class="h-full">
+<div class="grid grid-cols-1 gap-6 p-8 lg:grid-cols-2">
+	<Card class="h-full shadow-none">
 		<CardHeader>
 			<CardTitle class="text-xl">For You</CardTitle>
 		</CardHeader>
@@ -56,7 +56,7 @@
 		</CardContent>
 	</Card>
 
-	<Card class="h-fit">
+	<Card class="h-fit shadow-none">
 		<CardHeader>
 			<CardTitle class="text-xl">School News</CardTitle>
 		</CardHeader>
@@ -83,7 +83,7 @@
 		</CardContent>
 	</Card>
 
-	<Card class="lg:row-span-1">
+	<Card class="shadow-none">
 		<CardHeader class="flex flex-row items-center justify-between">
 			<CardTitle class="text-xl">Today's Timetable</CardTitle>
 			<Button variant="ghost" size="sm" class="h-8 w-8 p-0">
@@ -108,7 +108,7 @@
 		</CardContent>
 	</Card>
 
-	<Card>
+	<Card class="shadow-none">
 		<CardHeader>
 			<CardTitle class="text-xl">Upcoming Assessments</CardTitle>
 		</CardHeader>

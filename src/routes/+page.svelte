@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 </script>
 
-<div class="flex justify-center py-24 lg:py-32">
+<div class="flex justify-center px-4 py-24 lg:px-8 lg:py-32">
 	<div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
 		<div>
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
