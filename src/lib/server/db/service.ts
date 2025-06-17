@@ -132,3 +132,27 @@ export async function createSubjectThreadResponse(
 
 	return response;
 }
+
+export async function getSubjectClassTimesByUserId(userId: string) {
+	const classTimes = await db
+		.select({
+		classTime: table.subjectClassTime,
+			subjectOffering: {
+				id: table.subjectOffering.id,
+				name: table.subjectOffering.name
+			}
+		})
+		.from(table.userSubjectOffering)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.userSubjectOffering.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(
+			table.subjectClassTime,
+			eq(table.subjectClassTime.subjectOfferingId, table.subjectOffering.id)
+		)
+		.where(eq(table.userSubjectOffering.userId, userId))
+		.orderBy(desc(table.subjectClassTime.startTime));
+
+	return classTimes;
+}

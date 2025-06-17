@@ -241,6 +241,103 @@ async function main() {
 			content: 'I am struggling with long division. Can anyone help?'
 		}
 	]);
+	const subjectClasses = await db
+		.insert(schema.subjectClass)
+		.values([
+			{
+				subjectOfferingId: subjectOfferings[0].id, // Maths
+				teacherId: users[2].id
+			},
+			{
+				subjectOfferingId: subjectOfferings[1].id, // Science
+				teacherId: users[2].id
+			},
+			{
+				subjectOfferingId: subjectOfferings[2].id, // History
+				teacherId: users[2].id
+			},
+			{
+				subjectOfferingId: subjectOfferings[3].id, // English
+				teacherId: users[2].id
+			},
+			{
+				subjectOfferingId: subjectOfferings[4].id, // Geography
+				teacherId: users[2].id
+			}
+		])
+		.returning();
+
+	await db.insert(schema.subjectClassTime).values([
+		// Maths
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'Monday',
+			startTime: '2025-01-06T09:00:00Z',
+			duration: '01:00:00'
+		},
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'Wednesday',
+			startTime: '2025-01-08T09:00:00Z',
+			duration: '01:00:00'
+		},
+
+		// Science
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'Tuesday',
+			startTime: '2025-01-07T10:00:00Z',
+			duration: '01:30:00'
+		},
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'Thursday',
+			startTime: '2025-01-09T10:00:00Z',
+			duration: '01:30:00'
+		},
+
+		// History
+		{
+			subjectClassId: subjectClasses[2].id,
+			dayOfWeek: 'Monday',
+			startTime: '2025-01-06T11:00:00Z',
+			duration: '01:00:00'
+		},
+		{
+			subjectClassId: subjectClasses[2].id,
+			dayOfWeek: 'Wednesday',
+			startTime: '2025-01-08T11:00:00Z',
+			duration: '01:00:00'
+		},
+
+		// English
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'Tuesday',
+			startTime: '2025-01-07T09:00:00Z',
+			duration: '01:00:00'
+		},
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'Thursday',
+			startTime: '2025-01-09T09:00:00Z',
+			duration: '01:00:00'
+		},
+
+		// Geography
+		{
+			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'Friday',
+			startTime: '2025-01-10T08:30:00Z',
+			duration: '01:30:00'
+		},
+		{
+			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'Friday',
+			startTime: '2025-01-10T13:30:00Z',
+			duration: '01:00:00'
+		}
+	]);
 }
 
 main()
