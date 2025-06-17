@@ -1,5 +1,4 @@
 import { sql } from 'drizzle-orm';
-import { duration } from 'drizzle-orm/gel-core';
 import {
 	pgTable,
 	text,
@@ -72,12 +71,12 @@ export const subjectOffering = pgTable('subject_offering', {
 	subjectId: integer('subject_id')
 		.notNull()
 		.references(() => subject.id, { onDelete: 'cascade' }),
-	year: integer('year').notNull(), // e.g., 2023
+	year: integer('year').notNull() // e.g., 2023
 });
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
 
-export const userSubject = pgTable('user_subject', {
+export const userSubjectOffering = pgTable('user_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	userId: text('user_id')
 		.notNull()
@@ -91,17 +90,17 @@ export const userSubject = pgTable('user_subject', {
 	...timestamps
 });
 
-export type UserSubject = typeof userSubject.$inferSelect;
+export type UserSubjectOffering = typeof userSubjectOffering.$inferSelect;
 
 export const subjectClass = pgTable('subjectClass', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	teacherId: integer('teacher_id')
+	teacherId: text('teacher_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
-		...timestamps
+	...timestamps
 });
 
 export type SubjectClass = typeof subjectClass.$inferSelect;
@@ -114,7 +113,7 @@ export const userSubjectClass = pgTable('user_subject_class', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
-		...timestamps
+	...timestamps
 });
 
 export type UserSubjectClass = typeof userSubjectClass.$inferSelect;
@@ -137,7 +136,7 @@ export const subjectThread = pgTable('sub_thread', {
 	type: text('type').notNull(), // either 'discussion', 'question', 'announcement', or 'qanda'
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
-		.references(() => subject.id, { onDelete: 'cascade' }),
+		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
@@ -209,4 +208,3 @@ export const lessonSectionBlock = pgTable('lesson_section_block', {
 });
 
 export type LessonSectionBlock = typeof lessonSectionBlock.$inferSelect;
-

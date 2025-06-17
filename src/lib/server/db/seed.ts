@@ -105,83 +105,99 @@ async function main() {
 		])
 		.returning();
 
-	await db.insert(schema.userSubject).values([
+	const subjectOfferings = await db
+		.insert(schema.subjectOffering)
+		.values([
+			{
+				subjectId: subjects[0].id, // Mathematics
+				year: 2025
+			},
+			{
+				subjectId: subjects[1].id, // Science
+				year: 2025
+			},
+			{
+				subjectId: subjects[2].id, // History
+				year: 2025
+			},
+			{
+				subjectId: subjects[3].id, // English
+				year: 2025
+			},
+			{
+				subjectId: subjects[4].id, // Geography
+				year: 2025
+			}
+		])
+		.returning();
+
+	await db.insert(schema.userSubjectOffering).values([
 		{
 			userId: users[2].id, // teacher
-			subjectId: subjects[0].id, // Mathematics
-			year: 2025,
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[2].id, // teacher
-			subjectId: subjects[1].id, // Science
-			year: 2025,
+			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[2].id, // teacher
-			subjectId: subjects[2].id, // History
-			year: 2025,
+			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[2].id, // teacher
-			subjectId: subjects[3].id, // English
-			year: 2025,
+			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[2].id, // teacher
-			subjectId: subjects[4].id, // Geography
-			year: 2025,
+			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[3].id, // student001
-			subjectId: subjects[0].id, // Mathematics
-			year: 2025,
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[3].id, // student001
-			subjectId: subjects[1].id, // Science
-			year: 2025,
+			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[4].id, // student002
-			subjectId: subjects[0].id, // Mathematics
-			year: 2025,
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[4].id, // student002
-			subjectId: subjects[1].id, // Science
-			year: 2025,
+			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[5].id, // student003
-			subjectId: subjects[2].id, // History
-			year: 2025,
+			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
@@ -192,35 +208,35 @@ async function main() {
 		{
 			type: 'announcement',
 			userId: users[2].id, // teacher
-			subjectId: subjects[1].id,
+			subjectOfferingId: subjectOfferings[1].id,
 			title: 'Welcome to Science',
 			content: 'This is the first thread in Science.'
 		},
 		{
 			type: 'question',
 			userId: users[3].id, // student001
-			subjectId: subjects[1].id,
+			subjectOfferingId: subjectOfferings[1].id,
 			title: 'Scientific method',
 			content: 'Can someone explain the scientific method to me?'
 		},
 		{
 			type: 'question',
 			userId: users[4].id, // student002
-			subjectId: subjects[1].id,
+			subjectOfferingId: subjectOfferings[1].id,
 			title: 'Experiments',
 			content: 'What are some good experiments for beginners?'
 		},
 		{
 			type: 'announcement',
 			userId: users[2].id, // teacher
-			subjectId: subjects[0].id,
+			subjectOfferingId: subjectOfferings[0].id,
 			title: 'Welcome to Mathematics',
 			content: 'This is the first thread in Mathematics.'
 		},
 		{
 			type: 'question',
 			userId: users[4].id, // student002
-			subjectId: subjects[0].id,
+			subjectOfferingId: subjectOfferings[0].id,
 			title: 'Help with long division',
 			content: 'I am struggling with long division. Can anyone help?'
 		}
