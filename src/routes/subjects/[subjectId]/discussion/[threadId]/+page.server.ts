@@ -1,4 +1,12 @@
-import { getSubjectThreadById } from '$lib/server/db/service.js';
+import {
+	getSubjectThreadById,
+	getSubjectThreadResponsesById,
+	createSubjectThreadResponse
+} from '$lib/server/db/service.js';
+import { fail } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { responseSchema } from './response-schema.js';
 
 export const load = async ({ locals: { security }, params: { threadId } }) => {
 	security.isAuthenticated();
@@ -7,10 +15,39 @@ export const load = async ({ locals: { security }, params: { threadId } }) => {
 	try {
 		threadIdInt = parseInt(threadId, 10);
 	} catch {
-		return { subject: null };
+		return { thread: null, responses: [], form: null };
 	}
 
 	const thread = await getSubjectThreadById(threadIdInt);
+	const responses = await getSubjectThreadResponsesById(threadIdInt);
+	const form = await superValidate(zod(responseSchema));
 
-	return { thread };
+	return { thread, responses, form };
+};
+
+export const actions = {
+	addResponse: async ({ request, locals: { security }, params: { threadId } }) => {
+		const user = security.isAuthenticated().getUser();
+
+		let threadIdInt;
+		try {
+			threadIdInt = parseInt(threadId, 10);
+		} catch {
+			return fail(400, { message: 'Invalid thread ID' });
+		}
+
+		const form = await superValidate(request, zod(responseSchema));
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		try {
+			await createSubjectThreadResponse(form.data.type, threadIdInt, user.id, form.data.content);
+		} catch (error) {
+			console.error('Error creating response:', error);
+			return fail(500, { message: 'Failed to create response' });
+		}
+
+		return { form: await superValidate(zod(responseSchema)) };
+	}
 };

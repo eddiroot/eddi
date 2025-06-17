@@ -1,0 +1,12 @@
+import { z } from 'zod';
+
+export const responseSchema = z.object({
+	type: z.enum(['comment', 'answer'], {
+		required_error: 'Please select a response type'
+	}),
+	content: z
+		.string({ required_error: 'Please enter some content' })
+		.min(1, 'Content cannot be empty')
+});
+
+export type ResponseSchema = typeof responseSchema;
