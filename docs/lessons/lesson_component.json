@@ -1,0 +1,126 @@
+[
+	{
+		"type": "title",
+		"content": {
+			"text": "Introduction to Calculus"
+		}
+	},
+	{
+		"type": "subtitle",
+		"content": {
+			"text": "Differentiation and Real-world Applications"
+		}
+	},
+	{
+		"type": "h1",
+		"content": {
+			"text": "What is Differentiation?"
+		}
+	},
+	{
+		"type": "h2",
+		"content": {
+			"text": "Slope of a Function"
+		}
+	},
+	{
+		"type": "h3",
+		"content": {
+			"text": "Rate of Change"
+		}
+	},
+	{
+		"type": "paragraph",
+		"content": {
+			"markdown": "Differentiation is the process of finding the derivative of a function. It helps us understand how a function changes at any given point.\n\n- A positive derivative means the function is increasing.\n- A negative derivative means the function is decreasing."
+		}
+	},
+	{
+		"type": "math_input",
+		"content": {
+			"question": "What is the derivative of \\( x^2 + 3x + 2 \\)?",
+			"answer_latex": "2x + 3"
+		}
+	},
+	{
+		"type": "input",
+		"content": {
+			"question": "Name one real-world example where you might use derivatives.",
+			"input_type": "text"
+		}
+	},
+	{
+		"type": "input",
+		"content": {
+			"question": "What is the population of Australia (approximate)?",
+			"input_type": "number",
+			"unit": "millions"
+		}
+	},
+	{
+		"type": "multiple_choice",
+		"content": {
+			"question": "Which of the following are applications of differentiation?",
+			"options": [
+				"Finding velocity from position",
+				"Calculating area under a curve",
+				"Measuring rate of chemical reaction",
+				"Solving linear equations"
+			],
+			"answer": ["Finding velocity from position", "Measuring rate of chemical reaction"],
+			"multiple": true
+		}
+	},
+	{
+		"type": "multiple_choice",
+		"content": {
+			"question": "What is the derivative of \\( x^2 \\)?",
+			"options": ["2x", "x^2", "x", "1"],
+			"answer": "2x",
+			"multiple": false
+		}
+	},
+	{
+		"type": "video",
+		"content": {
+			"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+			"caption": "Video explanation of derivatives"
+		}
+	},
+	{
+		"type": "image",
+		"content": {
+			"url": "https://example.com/graphs/curve.png",
+			"caption": "A graph showing rate of change"
+		}
+	},
+	{
+		"type": "fill_in_blank",
+		"content": {
+			"sentence": "The derivative of \\( x^2 \\) is ___",
+			"answer": "2x"
+		}
+	},
+	{
+		"type": "matching",
+		"content": {
+			"instructions": "Match each function with its derivative.",
+			"pairs": [
+				{ "left": "\\( x^2 \\)", "right": "2x" },
+				{ "left": "\\( \\sin x \\)", "right": "\\( \\cos x \\)" },
+				{ "left": "\\( e^x \\)", "right": "\\( e^x \\)" }
+			]
+		}
+	},
+	{
+		"type": "drag_and_drop",
+		"content": {
+			"instructions": "Drag each concept to its correct category.",
+			"categories": [
+				{ "name": "Real-world Applications", "items": ["Velocity", "Economics"] },
+				{ "name": "Concepts", "items": ["Derivative", "Limit"] }
+			],
+			"options": ["Derivative", "Velocity", "Limit", "Economics"]
+		}
+	}
+]
