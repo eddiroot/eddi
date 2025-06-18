@@ -173,9 +173,9 @@ export type SubjectThreadResponse = typeof subjectThreadResponse.$inferSelect;
 
 export const lesson = pgTable('lesson', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	subjectId: integer('subject_id')
+	subjectClassId: integer('subject_class_id')
 		.notNull()
-		.references(() => subject.id, { onDelete: 'cascade' }),
+		.references(() => subjectClass.id, { onDelete: 'cascade' }),
 	subjectWeek: integer('subject_week').notNull(),
 	title: text('title').notNull(),
 	description: text('description'),
@@ -197,7 +197,7 @@ export type LessonSection = typeof lessonSection.$inferSelect;
 
 export const lessonSectionBlock = pgTable('lesson_section_block', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	subjectLessonSectionId: integer('lesson_section_id')
+	lessonSectionId: integer('lesson_section_id')
 		.notNull()
 		.references(() => lessonSection.id, { onDelete: 'cascade' }),
 	title: text('title').notNull(),

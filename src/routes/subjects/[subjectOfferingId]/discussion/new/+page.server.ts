@@ -11,12 +11,12 @@ export const load = async ({ locals: { security } }) => {
 };
 
 export const actions = {
-	create: async ({ request, locals: { security }, params: { subjectId } }) => {
+	create: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
 		const user = security.isAuthenticated().getUser();
 
-		let subjectIdInt;
+		let subjectOfferingIdInt;
 		try {
-			subjectIdInt = parseInt(subjectId, 10);
+			subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
 		} catch {
 			return fail(400, { message: 'Invalid subject ID' });
 		}
@@ -32,7 +32,7 @@ export const actions = {
 		try {
 			newThread = await createSubjectThread(
 				form.data.type,
-				subjectIdInt,
+				subjectOfferingIdInt,
 				user.id,
 				form.data.title,
 				form.data.content
@@ -42,6 +42,6 @@ export const actions = {
 			return fail(500, { message: 'Failed to create discussion post' });
 		}
 
-		throw redirect(303, `/subjects/${subjectIdInt}/discussion/${newThread.id}`);
+		throw redirect(303, `/subjects/${subjectOfferingIdInt}/discussion/${newThread.id}`);
 	}
 };

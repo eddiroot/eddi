@@ -18,7 +18,7 @@
 <div class="grid h-full grid-cols-[300px_1fr] overflow-y-hidden">
 	<div class="h-full border-r border-b">
 		<div class="p-2">
-			<a href="/subjects/{data.subjectIdInt}/discussion/new" class={`${buttonVariants()} w-full`}
+			<a href="/subjects/{data.subjectOfferingIdInt}/discussion/new" class={`${buttonVariants()} w-full`}
 				>New Post <PlusIcon /></a
 			>
 		</div>
@@ -54,7 +54,7 @@
 					<ScrollArea type="always" class="h-full">
 						<div>
 							{#each data.threads.filter((thread) => thread.thread.type == 'announcement') as thread}
-								<a href="/subjects/{data.subjectIdInt}/discussion/{thread.thread.id}" class="block">
+								<a href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}" class="block">
 									<Card.Root class="bg-background rounded-none border-none shadow-none">
 										<Card.Header>
 											<Card.Title>
@@ -89,7 +89,7 @@
 					<ScrollArea type="always" class="h-full">
 						<div>
 							{#each data.threads.filter((thread) => thread.thread.type != 'announcement') as thread}
-								<a href="/subjects/{data.subjectIdInt}/discussion/{thread.thread.id}" class="block">
+								<a href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}" class="block">
 									<Card.Root class="bg-background rounded-none border-none shadow-none">
 										<Card.Header>
 											<Card.Title>

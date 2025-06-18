@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, and } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -161,4 +161,26 @@ export async function getSubjectClassTimesByUserId(userId: string) {
 		.orderBy(desc(table.subjectClassTime.startTime));
 
 	return classTimes;
+}
+
+export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
+	const lessons = await db
+		.select({
+			lesson: table.lesson,
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(
+			table.subjectClass,
+			eq(table.userSubjectClass.subjectClassId, table.subjectClass.id)
+		)
+		.innerJoin(table.lesson, eq(table.lesson.subjectClassId, table.subjectClass.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.userId, userId),
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+			)
+		)
+		.orderBy(desc(table.lesson.subjectWeek));
+
+	return lessons;
 }
