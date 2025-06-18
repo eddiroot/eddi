@@ -4,14 +4,16 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { convertToFullName, formatDate } from '$lib/utils';
 	import ResponseForm from './response-form.svelte';
+	import ResponseItem from './response-item.svelte';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import CheckCircle from '@lucide/svelte/icons/check-circle';
 	import User from '@lucide/svelte/icons/user';
 	import Clock from '@lucide/svelte/icons/clock';
+	import { getThreadTypeDisplay, getThreadTypeVariant } from './utils';
 
 	let { data } = $props();
 	const thread = $derived(() => data.thread);
-	const responses = $derived(() => data.responses);
+	const responses = $derived(() => data.nestedResponses);
 
 	const authorFullName = $derived(() => {
 		const currentThread = thread();
@@ -23,37 +25,15 @@
 		);
 	});
 
-	function getThreadTypeDisplay(type: string): string {
-		switch (type) {
-			case 'discussion':
-				return 'Discussion';
-			case 'question':
-				return 'Question';
-			case 'announcement':
-				return 'Announcement';
-			case 'qanda':
-				return 'Q&A';
-			default:
-				return 'Thread';
-		}
-	}
-
-	function getThreadTypeVariant(type: string) {
-		switch (type) {
-			case 'question':
-			case 'qanda':
-				return 'default';
-			case 'announcement':
-				return 'destructive';
-			case 'discussion':
-				return 'secondary';
-			default:
-				return 'secondary';
-		}
-	}
-
-	const answers = $derived(() => responses()?.filter((r) => r.comment.type === 'answer') || []);
-	const comments = $derived(() => responses()?.filter((r) => r.comment.type === 'comment') || []);
+	const answers = $derived(
+		() =>
+			responses()?.filter((r) => r.response.type === 'answer' && !r.response.parentResponseId) || []
+	);
+	const comments = $derived(
+		() =>
+			responses()?.filter((r) => r.response.type === 'comment' && !r.response.parentResponseId) ||
+			[]
+	);
 </script>
 
 {#if thread()}
@@ -115,57 +95,7 @@
 				</div>
 				<div class="space-y-4">
 					{#each answers() as response}
-						<Card.Root class="border-l-4 border-l-green-500 shadow-sm">
-							<Card.Header class="pb-3">
-								<div class="flex items-center gap-3">
-									<Avatar.Root class="h-9 w-9">
-										<Avatar.Image
-											src={response.user.avatarUrl || ''}
-											alt={convertToFullName(
-												response.user.firstName,
-												response.user.middleName,
-												response.user.lastName
-											)}
-										/>
-										<Avatar.Fallback class="bg-green-100 text-xs font-medium text-green-700">
-											{convertToFullName(
-												response.user.firstName,
-												response.user.middleName,
-												response.user.lastName
-											)
-												.split(' ')
-												.map((n) => n[0])
-												.join('')
-												.substring(0, 2)
-												.toUpperCase()}
-										</Avatar.Fallback>
-									</Avatar.Root>
-									<div class="flex-1 space-y-1">
-										<div class="flex items-center gap-2">
-											<Badge variant="default" class="border-green-200 bg-green-50 text-green-700">
-												<CheckCircle class="mr-1 h-3 w-3" />
-												Answer
-											</Badge>
-											<span class="text-muted-foreground text-sm">
-												by {convertToFullName(
-													response.user.firstName,
-													response.user.middleName,
-													response.user.lastName
-												)}
-											</span>
-											<span class="text-muted-foreground text-xs">
-												{formatDate(response.comment.createdAt)}
-											</span>
-										</div>
-									</div>
-								</div>
-							</Card.Header>
-							<Card.Content>
-								<div class="text-sm leading-relaxed whitespace-pre-wrap">
-									{response.comment.content || 'No content available'}
-								</div>
-							</Card.Content>
-						</Card.Root>
+						<ResponseItem {response} threadType={thread()?.thread.type || 'discussion'} {data} />
 					{/each}
 				</div>
 			</div>
@@ -183,57 +113,7 @@
 				</div>
 				<div class="space-y-4">
 					{#each comments() as response}
-						<Card.Root class="border-l-4 border-l-blue-500 shadow-sm">
-							<Card.Header class="pb-3">
-								<div class="flex items-center gap-3">
-									<Avatar.Root class="h-9 w-9">
-										<Avatar.Image
-											src={response.user.avatarUrl || ''}
-											alt={convertToFullName(
-												response.user.firstName,
-												response.user.middleName,
-												response.user.lastName
-											)}
-										/>
-										<Avatar.Fallback class="bg-blue-100 text-xs font-medium text-blue-700">
-											{convertToFullName(
-												response.user.firstName,
-												response.user.middleName,
-												response.user.lastName
-											)
-												.split(' ')
-												.map((n) => n[0])
-												.join('')
-												.substring(0, 2)
-												.toUpperCase()}
-										</Avatar.Fallback>
-									</Avatar.Root>
-									<div class="flex-1 space-y-1">
-										<div class="flex items-center gap-2">
-											<Badge variant="secondary" class="border-blue-200 bg-blue-50 text-blue-700">
-												<MessageSquare class="mr-1 h-3 w-3" />
-												Comment
-											</Badge>
-											<span class="text-muted-foreground text-sm">
-												by {convertToFullName(
-													response.user.firstName,
-													response.user.middleName,
-													response.user.lastName
-												)}
-											</span>
-											<span class="text-muted-foreground text-xs">
-												{formatDate(response.comment.createdAt)}
-											</span>
-										</div>
-									</div>
-								</div>
-							</Card.Header>
-							<Card.Content>
-								<div class="text-sm leading-relaxed whitespace-pre-wrap">
-									{response.comment.content || 'No content available'}
-								</div>
-							</Card.Content>
-						</Card.Root>
+						<ResponseItem {response} threadType={thread()?.thread.type || 'discussion'} {data} />
 					{/each}
 				</div>
 			</div>

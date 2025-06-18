@@ -6,7 +6,8 @@ export const responseSchema = z.object({
 	}),
 	content: z
 		.string({ required_error: 'Please enter some content' })
-		.min(1, 'Content cannot be empty')
+		.min(1, 'Content cannot be empty'),
+	parentResponseId: z.number().optional()
 });
 
 export type ResponseSchema = typeof responseSchema;

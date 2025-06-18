@@ -8,64 +8,62 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import CheckCircle from '@lucide/svelte/icons/check-circle';
+	import { getResponseTypeDescription } from './utils.js';
 
 	let {
 		data,
-		threadType
+		threadType,
+		parentResponseId = undefined,
+		parentAuthor = undefined,
+		isReply = false,
+		onSuccess = undefined,
+		onCancel = undefined
 	}: {
 		data: { form: SuperValidated<Infer<ResponseSchema>> };
 		threadType: string;
+		parentResponseId?: number;
+		parentAuthor?: string;
+		isReply?: boolean;
+		onSuccess?: () => void;
+		onCancel?: () => void;
 	} = $props();
 
 	const form = superForm(data.form, {
 		validators: zodClient(responseSchema),
-		resetForm: false
-	});
-
-	const { form: formData, enhance, submit } = form;
-
-	// Set default response type based on thread type
-	$effect(() => {
-		if (!$formData.type) {
-			$formData.type = threadType === 'question' || threadType === 'qanda' ? 'answer' : 'comment';
+		resetForm: true,
+		onUpdated: ({ form }) => {
+			if (form.valid && isReply && onSuccess) {
+				onSuccess();
+			}
+		},
+		onResult: ({ result }) => {
+			// Handle successful form submission for replies
+			if (result.type === 'success' && isReply && onSuccess) {
+				onSuccess();
+			}
 		}
 	});
 
-	function getResponseTypeDescription(type: string): string {
-		switch (type) {
-			case 'answer':
-				return 'Provide a helpful answer to solve this question';
-			case 'comment':
-				return 'Share your thoughts or ask for clarification';
-			default:
-				return '';
-		}
-	}
-
-	function getPlaceholderText(type: string): string {
-		switch (type) {
-			case 'answer':
-				return 'Write your answer here...';
-			case 'comment':
-				return 'Write your comment here...';
-			default:
-				return 'Write your response here...';
-		}
-	}
+	const { form: formData, enhance } = form;
 </script>
 
-<div class="mt-6 border-t pt-6">
+<div class={isReply ? 'mt-4 border-l-2 border-gray-200 pl-4' : 'mt-6 border-t pt-6'}>
 	<div class="mb-4">
-		<h3 class="text-lg font-semibold">Add a Response</h3>
+		<h3 class="text-lg font-semibold">
+			{isReply ? `Reply to ${parentAuthor || 'comment'}` : 'Add a Response'}
+		</h3>
 		<p class="text-muted-foreground text-sm">
-			{threadType === 'question' || threadType === 'qanda'
-				? 'Help answer this question or add a comment'
-				: 'Share your thoughts on this discussion'}
+			{isReply
+				? 'Respond to this comment or answer'
+				: threadType === 'question' || threadType === 'qanda'
+					? 'Help answer this question or add a comment'
+					: 'Share your thoughts on this discussion'}
 		</p>
 	</div>
-
 	<form method="POST" action="?/addResponse" class="space-y-4" use:enhance>
-		{#if threadType === 'question' || threadType === 'qanda'}
+		<input type="hidden" name="parentResponseId" value={parentResponseId || ''} />
+
+		{#if (threadType === 'question' || threadType === 'qanda') && !isReply}
 			<Form.Field {form} name="type">
 				<Form.Control>
 					{#snippet children({ props })}
@@ -128,7 +126,7 @@
 					<Textarea
 						{...props}
 						bind:value={$formData.content}
-						placeholder={getPlaceholderText($formData.type)}
+						placeholder={`Write your ${$formData.type} here...`}
 						class="min-h-24"
 					/>
 				{/snippet}
@@ -136,9 +134,15 @@
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<div class="flex justify-end">
+		<div class="flex justify-end gap-2">
+			{#if isReply && onCancel}
+				<Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+			{/if}
 			<Button type="submit" class="flex items-center gap-2">
-				{#if $formData.type === 'answer'}
+				{#if isReply}
+					<MessageSquare class="h-4 w-4" />
+					Post Reply
+				{:else if $formData.type === 'answer'}
 					<CheckCircle class="h-4 w-4" />
 					Post Answer
 				{:else}

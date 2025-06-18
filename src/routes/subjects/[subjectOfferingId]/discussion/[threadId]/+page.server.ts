@@ -7,6 +7,7 @@ import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { responseSchema } from './response-schema.js';
+import { getNestedResponses } from './utils.js';
 
 export const load = async ({ locals: { security }, params: { threadId } }) => {
 	security.isAuthenticated();
@@ -20,9 +21,10 @@ export const load = async ({ locals: { security }, params: { threadId } }) => {
 
 	const thread = await getSubjectThreadById(threadIdInt);
 	const responses = await getSubjectThreadResponsesById(threadIdInt);
+	const nestedResponses = getNestedResponses(responses);
 	const form = await superValidate(zod(responseSchema));
 
-	return { thread, responses, form };
+	return { thread, nestedResponses, form };
 };
 
 export const actions = {
@@ -42,12 +44,18 @@ export const actions = {
 		}
 
 		try {
-			await createSubjectThreadResponse(form.data.type, threadIdInt, user.id, form.data.content);
+			await createSubjectThreadResponse(
+				form.data.type,
+				threadIdInt,
+				user.id,
+				form.data.content,
+				form.data.parentResponseId
+			);
 		} catch (error) {
 			console.error('Error creating response:', error);
-			return fail(500, { message: 'Failed to create response' });
+			return fail(500, { form });
 		}
 
-		return { form: await superValidate(zod(responseSchema)) };
+		return { form };
 	}
 };

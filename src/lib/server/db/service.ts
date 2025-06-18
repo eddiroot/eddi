@@ -95,9 +95,9 @@ export async function createSubjectThread(
 }
 
 export async function getSubjectThreadResponsesById(threadId: number) {
-	const comments = await db
+	const responses = await db
 		.select({
-			comment: table.subjectThreadResponse,
+			response: table.subjectThreadResponse,
 			user: {
 				firstName: table.user.firstName,
 				middleName: table.user.middleName,
@@ -108,9 +108,9 @@ export async function getSubjectThreadResponsesById(threadId: number) {
 		.from(table.subjectThreadResponse)
 		.innerJoin(table.user, eq(table.user.id, table.subjectThreadResponse.userId))
 		.where(eq(table.subjectThreadResponse.subjectThreadId, threadId))
-		.orderBy(desc(table.subjectThreadResponse.createdAt));
+		.orderBy(table.subjectThreadResponse.createdAt);
 
-	return comments;
+	return responses;
 }
 
 export async function createSubjectThreadResponse(
