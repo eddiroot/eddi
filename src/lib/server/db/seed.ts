@@ -213,7 +213,7 @@ async function main() {
 			userId: users[4].id, // student002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
-			isComplete: 0,
+		 isComplete: 0,
 			isArchived: 0
 		},
 		{
@@ -507,6 +507,145 @@ async function main() {
 			role: 'student'
 		}
 	]);
+
+	// Add after the existing subject class time insertions
+
+	// Insert lesson topics for Math
+	const mathLessonTopics = await db
+		.insert(schema.lessonTopic)
+		.values([
+			{
+				subjectClassId: subjectClasses[0].id,
+				name: 'Algebra Basics'
+			},
+			{
+				subjectClassId: subjectClasses[0].id,
+				name: 'Linear Equations'
+			},
+			{
+				subjectClassId: subjectClasses[0].id,
+				name: 'Quadratic Functions'
+			},
+			{
+				subjectClassId: subjectClasses[0].id,
+				name: 'Geometry Fundamentals'
+			},
+			{
+				subjectClassId: subjectClasses[0].id,
+				name: 'Trigonometry'
+			}
+		])
+		.returning();
+
+	console.log('✅ Inserted lesson topics');
+
+	// Insert lessons for each topic
+	const lessons = await db
+		.insert(schema.lesson)
+		.values([
+			// Algebra Basics lessons
+			{
+				lessonTopicId: mathLessonTopics[0].id,
+				subjectWeek: 1,
+				name: 'Introduction to Variables',
+				description: 'Learn about variables and their role in algebra'
+			},
+			{
+				lessonTopicId: mathLessonTopics[0].id,
+				subjectWeek: 1,
+				name: 'Basic Operations with Variables',
+				description: 'Addition, subtraction, multiplication and division with variables'
+			},
+			{
+				lessonTopicId: mathLessonTopics[0].id,
+				subjectWeek: 2,
+				name: 'Simplifying Expressions',
+				description: 'Learn to combine like terms and simplify algebraic expressions'
+			},
+
+			// Linear Equations lessons
+			{
+				lessonTopicId: mathLessonTopics[1].id,
+				subjectWeek: 3,
+				name: 'Solving One-Step Equations',
+				description: 'Basic techniques for solving simple linear equations'
+			},
+			{
+				lessonTopicId: mathLessonTopics[1].id,
+				subjectWeek: 3,
+				name: 'Solving Multi-Step Equations',
+				description: 'Advanced techniques for complex linear equations'
+			},
+			{
+				lessonTopicId: mathLessonTopics[1].id,
+				subjectWeek: 4,
+				name: 'Graphing Linear Equations',
+				description: 'Visual representation of linear equations on coordinate plane'
+			},
+
+			// Quadratic Functions lessons
+			{
+				lessonTopicId: mathLessonTopics[2].id,
+				subjectWeek: 5,
+				name: 'Introduction to Quadratics',
+				description: 'Understanding quadratic functions and their properties'
+			},
+			{
+				lessonTopicId: mathLessonTopics[2].id,
+				subjectWeek: 5,
+				name: 'Factoring Quadratics',
+				description: 'Methods for factoring quadratic expressions'
+			},
+			{
+				lessonTopicId: mathLessonTopics[2].id,
+				subjectWeek: 6,
+				name: 'Quadratic Formula',
+				description: 'Using the quadratic formula to solve equations'
+			},
+
+			// Geometry Fundamentals lessons
+			{
+				lessonTopicId: mathLessonTopics[3].id,
+				subjectWeek: 7,
+				name: 'Points, Lines, and Planes',
+				description: 'Basic geometric concepts and definitions'
+			},
+			{
+				lessonTopicId: mathLessonTopics[3].id,
+				subjectWeek: 7,
+				name: 'Angles and Their Measures',
+				description: 'Understanding different types of angles'
+			},
+			{
+				lessonTopicId: mathLessonTopics[3].id,
+				subjectWeek: 8,
+				name: 'Triangles and Their Properties',
+				description: 'Exploring triangle classifications and properties'
+			},
+
+			// Trigonometry lessons
+			{
+				lessonTopicId: mathLessonTopics[4].id,
+				subjectWeek: 9,
+				name: 'Introduction to Trigonometry',
+				description: 'Basic trigonometric concepts and ratios'
+			},
+			{
+				lessonTopicId: mathLessonTopics[4].id,
+				subjectWeek: 9,
+				name: 'Sine, Cosine, and Tangent',
+				description: 'Understanding the primary trigonometric functions'
+			},
+			{
+				lessonTopicId: mathLessonTopics[4].id,
+				subjectWeek: 10,
+				name: 'Solving Right Triangles',
+				description: 'Using trigonometry to find missing sides and angles'
+			}
+		])
+		.returning();
+
+	console.log('✅ Inserted lessons');
 }
 
 main()

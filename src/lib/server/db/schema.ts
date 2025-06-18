@@ -171,13 +171,24 @@ export const subjectThreadResponse = pgTable(
 
 export type SubjectThreadResponse = typeof subjectThreadResponse.$inferSelect;
 
-export const lesson = pgTable('lesson', {
+export const lessonTopic = pgTable('lesson_topic', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(), // e.g., 'Algebra', 'Geometry', etc.
+	...timestamps
+});
+
+export type LessonTopic = typeof lessonTopic.$inferSelect;
+
+export const lesson = pgTable('lesson', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	lessonTopicId: integer('lesson_topic_id')
+		.notNull()
+		.references(() => lessonTopic.id, { onDelete: 'cascade' }),
 	subjectWeek: integer('subject_week').notNull(),
-	title: text('title').notNull(),
+	name: text('title').notNull(),
 	description: text('description'),
 	...timestamps
 });
