@@ -213,7 +213,7 @@ async function main() {
 			userId: users[4].id, // student002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
-		 isComplete: 0,
+			isComplete: 0,
 			isArchived: 0
 		},
 		{
@@ -283,6 +283,14 @@ async function main() {
 			content: 'This is the first thread in Mathematics.'
 		},
 		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
+			title: 'Quiz Next Week',
+			content:
+				'We will have a quiz on algebra basics next Monday. Please review chapters 1-3 in your textbook.'
+		},
+		{
 			type: 'question',
 			userId: users[4].id, // student002
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
@@ -295,6 +303,30 @@ async function main() {
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Welcome to Science',
 			content: 'This is the first thread in Science.'
+		},
+		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
+			subjectOfferingId: subjectOfferings[1].id, // Science
+			title: 'Lab Safety Reminder',
+			content:
+				'Please remember to bring your safety goggles to tomorrows lab session. We will be working with chemicals.'
+		},
+		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
+			subjectOfferingId: subjectOfferings[2].id, // History
+			title: 'Field Trip Permission Slips',
+			content:
+				'Field trip permission slips for the museum visit are due by Friday. Please have your parents sign and return them.'
+		},
+		{
+			type: 'announcement',
+			userId: users[2].id, // teacher
+			subjectOfferingId: subjectOfferings[3].id, // English
+			title: 'Book Report Due Date',
+			content:
+				'Your book reports on the assigned novels are due next Wednesday. Late submissions will receive a penalty.'
 		},
 		{
 			type: 'question',
@@ -537,10 +569,7 @@ async function main() {
 		])
 		.returning();
 
-	console.log('✅ Inserted lesson topics');
-
-	// Insert lessons for each topic
-	const lessons = await db
+	await db
 		.insert(schema.lesson)
 		.values([
 			// Algebra Basics lessons
@@ -644,8 +673,6 @@ async function main() {
 			}
 		])
 		.returning();
-
-	console.log('✅ Inserted lessons');
 }
 
 main()

@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and } from 'drizzle-orm';
+import { desc, eq, and, gte } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -182,4 +182,45 @@ export async function getUserLessonsBySubjectOfferingId(userId: string, subjectO
 		.orderBy(desc(table.lesson.createdAt));
 
 	return lessons;
+}
+
+export async function getRecentAnnouncementsByUserId(userId: string) {
+	const oneWeekAgo = new Date();
+	oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+	const announcements = await db
+		.select({
+			announcement: {
+				id: table.subjectThread.id,
+				title: table.subjectThread.title,
+				content: table.subjectThread.content,
+				createdAt: table.subjectThread.createdAt
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			},
+			subjectOffering: {
+				id: table.subjectOffering.id
+			}
+		})
+		.from(table.userSubjectOffering)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.userSubjectOffering.subjectOfferingId)
+		)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.innerJoin(
+			table.subjectThread,
+			and(
+				eq(table.subjectThread.subjectOfferingId, table.subjectOffering.id),
+				eq(table.subjectThread.type, 'announcement'),
+				gte(table.subjectThread.createdAt, oneWeekAgo.toISOString())
+			)
+		)
+		.innerJoin(table.user, eq(table.user.id, table.subjectThread.userId))
+		.where(eq(table.userSubjectOffering.userId, userId))
+		.orderBy(desc(table.subjectThread.createdAt));
+
+	return announcements;
 }

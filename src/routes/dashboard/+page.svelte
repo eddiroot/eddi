@@ -1,16 +1,11 @@
 <script lang="ts">
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import { Badge } from '$lib/components/ui/badge';
+	import { formatDate } from '$lib/utils';
 
-	// let { data } = $props();
-
-	const mockForYouItems = [
-		{
-			title: 'Math Classroom Changed',
-			message: 'Your maths class today has been changed from E101 to BB201.',
-			type: 'room-change'
-		}
-	];
+	let { data } = $props();
 
 	const mockSchoolNews = [
 		{
@@ -38,25 +33,49 @@
 <div class="grid grid-cols-1 gap-6 p-8 lg:grid-cols-2">
 	<Card class="h-full shadow-none">
 		<CardHeader>
-			<CardTitle class="text-xl">For You</CardTitle>
+			<CardTitle class="text-xl">Recent Forum Announcements</CardTitle>
 		</CardHeader>
 		<CardContent>
-			{#if mockForYouItems.length > 0}
-				<div class="space-y-4">
-					{#each mockForYouItems as item}
-						<div class="border-border rounded-lg border p-4">
-							<h3 class="text-foreground font-semibold">{item.title}</h3>
-							<p class="text-muted-foreground mt-2 text-sm">{item.message}</p>
-						</div>
-					{/each}
-				</div>
+			{#if data.announcements && data.announcements.length > 0}
+				<ScrollArea class="h-80">
+					<div class="space-y-4 pr-4">
+						{#each data.announcements as announcement}
+							<a
+								href="/subjects/{announcement.subjectOffering.id}/discussion/{announcement
+									.announcement.id}"
+								class="hover:bg-muted/50 block rounded-lg transition-colors"
+							>
+								<div class="border-border rounded-lg border p-4">
+									<div class="flex items-start justify-between gap-3">
+										<div class="flex-1">
+											<h3 class="text-foreground font-semibold">
+												{announcement.announcement.title}
+											</h3>
+											<div class="mt-1 flex items-center gap-2">
+												<Badge variant="secondary" class="text-xs">
+													{announcement.subject.name}
+												</Badge>
+												<span class="text-muted-foreground text-xs">
+													{formatDate(announcement.announcement.createdAt)}
+												</span>
+											</div>
+											<p class="text-muted-foreground mt-2 line-clamp-3 text-sm">
+												{announcement.announcement.content}
+											</p>
+										</div>
+									</div>
+								</div>
+							</a>
+						{/each}
+					</div>
+				</ScrollArea>
 			{:else}
-				<p class="text-muted-foreground text-center">No updates for you right now.</p>
+				<p class="text-muted-foreground text-center">No recent announcements.</p>
 			{/if}
 		</CardContent>
 	</Card>
 
-	<Card class="h-fit shadow-none">
+	<Card class="h-full shadow-none">
 		<CardHeader>
 			<CardTitle class="text-xl">School News</CardTitle>
 		</CardHeader>
