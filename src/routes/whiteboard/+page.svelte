@@ -19,16 +19,12 @@
 	import DivideIcon from '@lucide/svelte/icons/divide';
 	import EqualIcon from '@lucide/svelte/icons/equal';
 	import EraseIcon from '@lucide/svelte/icons/eraser';
-	import UndoIcon from '@lucide/svelte/icons/undo';
-	import RedoIcon from '@lucide/svelte/icons/redo';
 	import DownloadIcon from '@lucide/svelte/icons/download';
-	import UploadIcon from '@lucide/svelte/icons/upload';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 
 	let socket = $state() as WebSocket;
 	let canvas: fabric.Canvas;
 	let selectedTool = $state('select');
-	let isDrawing = $state(false);
 
 	// Tool functions
 	const setSelectTool = () => {
