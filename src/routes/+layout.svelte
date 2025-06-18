@@ -62,7 +62,9 @@
 		<AppSidebar subjects={data.subjects} user={user()} />
 	{/if}
 	<div class="flex h-full w-full flex-col">
-		<header>
+		<header
+			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 backdrop-blur"
+		>
 			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
 				<div class="flex items-center gap-x-4">
 					<Sidebar.Trigger />
@@ -98,7 +100,7 @@
 				</div>
 			</nav>
 		</header>
-		<main class="h-full flex-1">
+		<main class="flex-1 overflow-auto">
 			{@render children()}
 		</main>
 	</div>
