@@ -73,6 +73,7 @@ let whiteboardObjects = {
 	background: ''
 };
 
+// Can ignore the warning on the next line
 export const socket: Socket = {
 	open(peer) {
 		peer.send(JSON.stringify({ type: 'objects', objects: whiteboardObjects }));
