@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+  
 	let { data } = $props();
 	let { classTimes } = data;
 
@@ -40,10 +41,20 @@
 
 		return { top: `${topPosition}%`, height: `${height}%` };
 	}
+
+  function formatTime(time: string): string {
+    // If already in hh:mm format, return as is
+    if (time.includes(':')) {
+      const [hours, minutes] = time.split(':');
+      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+    }
+    // If in other format, convert to hh:mm
+    return time;
+  }
+
 </script>
 
 <div class="h-full space-y-4 p-8">
-	<h1 class="text-center text-xl">Weekly Timetable</h1>
 	<!-- Day titles -->
 	<div class="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr]">
 		<div class="text-center text-base font-semibold text-transparent">Time</div>
@@ -86,14 +97,13 @@
 				{#each (classTimes ?? []).filter((c) => c.classTime.dayOfWeek === day.value) as cls}
 					{@const position = getClassPosition(cls.classTime.startTime, cls.classTime.duration)}
 					<Card.Root
-						class="absolute right-1 left-1"
+						class="absolute right-1 left-1 py-0 pt-3"
 						style="top: {position.top}; height: {position.height};"
 					>
 						<Card.Header>
 							<Card.Title>{cls.subject.name}</Card.Title>
-							<Card.Description>{cls.classTime.startTime}</Card.Description>
+							<Card.Description>{formatTime(cls.classTime.startTime)}</Card.Description>
 						</Card.Header>
-						<Card.Content></Card.Content>
 					</Card.Root>
 				{/each}
 			</div>
