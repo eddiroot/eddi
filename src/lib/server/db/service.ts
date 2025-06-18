@@ -167,13 +167,10 @@ export async function getUserLessonsBySubjectOfferingId(userId: string, subjectO
 	const lessons = await db
 		.select({
 			lesson: table.lesson,
-			lessonTopic: table.lessonTopic,
+			lessonTopic: table.lessonTopic
 		})
 		.from(table.userSubjectClass)
-		.innerJoin(
-			table.subjectClass,
-			eq(table.userSubjectClass.subjectClassId, table.subjectClass.id)
-		)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
 		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
 		.where(

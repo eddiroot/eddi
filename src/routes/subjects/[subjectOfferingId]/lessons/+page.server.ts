@@ -11,7 +11,7 @@ export const load = async ({ locals: { security, user }, params: { subjectOfferi
 	}
 
 	// User is guaranteed to exist due to security.isAuthenticated()
-	const lessons = getUserLessonsBySubjectOfferingId(user!.id, subjectOfferingIdInt);
+	const lessons = await getUserLessonsBySubjectOfferingId(user!.id, subjectOfferingIdInt);
 
-	return { user, lessons }
+	return { user, lessons };
 };
