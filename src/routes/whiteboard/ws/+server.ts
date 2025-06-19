@@ -1,10 +1,13 @@
-import type { Socket } from '@sveltejs/kit';
+import type { Socket } from './$types.js';
+
+interface WhiteboardObject {
+	id: string;
+	// A bunch of other properties that we don't need to be concerned with
+	[key: string]: unknown;
+}
 
 interface Whiteboard {
-	objects: {
-		id: string;
-		// A bunch of other properties that we don't need to be concerned with
-	}[];
+	objects: WhiteboardObject[];
 }
 
 const whiteboard: Whiteboard = {
@@ -23,19 +26,32 @@ export const socket: Socket = {
 		if (parsedMessage.type === 'clear') {
 			whiteboard.objects = [];
 			peer.publish('whiteboard', JSON.stringify({ type: 'clear' }));
-		} else if (parsedMessage.type === 'add') {
+		} else if (parsedMessage.type === 'add' || parsedMessage.type === 'create') {
 			whiteboard.objects.push(parsedMessage.object);
 			peer.publish('whiteboard', JSON.stringify({ type: 'add', object: parsedMessage.object }));
-		} else if (parsedMessage.type === 'remove') {
-			whiteboard.objects = whiteboard.objects.filter((obj) => obj.id !== parsedMessage.object.id);
-			peer.publish('whiteboard', JSON.stringify({ type: 'remove', object: parsedMessage.object }));
-		} else if (parsedMessage.type === 'update') {
+		} else if (parsedMessage.type === 'remove' || parsedMessage.type === 'delete') {
+			if (parsedMessage.objects) {
+				parsedMessage.objects.forEach((objToRemove: WhiteboardObject) => {
+					whiteboard.objects = whiteboard.objects.filter((obj) => obj.id !== objToRemove.id);
+				});
+				peer.publish(
+					'whiteboard',
+					JSON.stringify({ type: 'delete', objects: parsedMessage.objects })
+				);
+			} else if (parsedMessage.object) {
+				whiteboard.objects = whiteboard.objects.filter((obj) => obj.id !== parsedMessage.object.id);
+				peer.publish(
+					'whiteboard',
+					JSON.stringify({ type: 'delete', objects: [parsedMessage.object] })
+				);
+			}
+		} else if (parsedMessage.type === 'update' || parsedMessage.type === 'modify') {
 			const index = whiteboard.objects.findIndex((obj) => obj.id === parsedMessage.object.id);
 			if (index !== -1) {
 				whiteboard.objects[index] = parsedMessage.object;
 				peer.publish(
 					'whiteboard',
-					JSON.stringify({ type: 'update', object: parsedMessage.object })
+					JSON.stringify({ type: 'modify', object: parsedMessage.object })
 				);
 			}
 		}

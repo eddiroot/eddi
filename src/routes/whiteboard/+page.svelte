@@ -92,9 +92,12 @@
 		canvas.add(shape);
 		canvas.setActiveObject(shape);
 		canvas.renderAll();
+		const objData = shape.toObject();
+		// @ts-expect-error
+		objData.id = shape.id;
 		sendCanvasUpdate({
 			type: 'add',
-			object: shape.toObject()
+			object: objData
 		});
 	};
 
@@ -111,9 +114,12 @@
 		canvas.add(text);
 		canvas.setActiveObject(text);
 		canvas.renderAll();
+		const objData = text.toObject();
+		// @ts-expect-error
+		objData.id = text.id;
 		sendCanvasUpdate({
 			type: 'add',
-			object: text.toObject()
+			object: objData
 		});
 	};
 
@@ -130,9 +136,15 @@
 			activeObjects.forEach((obj) => canvas.remove(obj));
 			canvas.discardActiveObject();
 			canvas.renderAll();
+			const objectsData = activeObjects.map((obj) => {
+				const objData = obj.toObject();
+				// @ts-expect-error
+				objData.id = obj.id;
+				return objData;
+			});
 			sendCanvasUpdate({
 				type: 'delete',
-				objects: activeObjects.map((obj) => obj.toObject())
+				objects: objectsData
 			});
 		}
 	};
@@ -147,18 +159,31 @@
 
 		setSelectTool();
 
-		socket.addEventListener('message', (event) => {
+		socket.addEventListener('message', async (event) => {
 			try {
 				const data = JSON.parse(event.data);
 				if (data.type === 'load') {
-					data.whiteboard.objects.forEach((obj: any) => {
-						canvas.add(new fabric.FabricObject(obj));
-					});
-					canvas.renderAll();
+					// Use util.enlivenObjects for proper object deserialization
+					if (data.whiteboard.objects.length > 0) {
+						const objects = await fabric.util.enlivenObjects(data.whiteboard.objects);
+						canvas.clear();
+						objects.forEach((obj: any) => {
+							if (obj && typeof obj.addTo === 'function') {
+								obj.addTo(canvas);
+							} else {
+								canvas.add(obj);
+							}
+						});
+						canvas.renderAll();
+					}
 				} else if (data.type === 'add') {
-					canvas.add(new fabric.FabricObject(data.object));
-					canvas.renderAll();
-				} else if (data.type === 'modify') {
+					const objects = await fabric.util.enlivenObjects([data.object]);
+					if (objects.length > 0) {
+						const obj = objects[0];
+						canvas.add(obj as fabric.FabricObject);
+						canvas.renderAll();
+					}
+				} else if (data.type === 'modify' || data.type === 'update') {
 					const objects = canvas.getObjects();
 					// We already add an ID to each object in the canvas, so we can find it later
 					// @ts-expect-error
@@ -167,9 +192,10 @@
 						obj.set(data.object);
 						canvas.renderAll();
 					}
-				} else if (data.type === 'delete') {
+				} else if (data.type === 'delete' || data.type === 'remove') {
 					const objects = canvas.getObjects();
-					data.objects.forEach((objData: any) => {
+					const objectsToRemove = data.objects || [data.object];
+					objectsToRemove.forEach((objData: any) => {
 						// We already add an ID to each object in the canvas, so we can find it later
 						// @ts-expect-error
 						const obj = objects.find((o) => o.id === objData.id);
@@ -187,37 +213,55 @@
 		});
 
 		canvas.on('object:moving', ({ target }) => {
+			const objData = target.toObject();
+			// @ts-expect-error
+			objData.id = target.id;
 			sendCanvasUpdate({
 				type: 'modify',
-				object: target.toObject()
+				object: objData
 			});
 		});
 
 		canvas.on('object:scaling', ({ target }) => {
+			const objData = target.toObject();
+			// @ts-expect-error
+			objData.id = target.id;
 			sendCanvasUpdate({
 				type: 'modify',
-				object: target.toObject()
+				object: objData
 			});
 		});
 
 		canvas.on('object:rotating', ({ target }) => {
+			const objData = target.toObject();
+			// @ts-expect-error
+			objData.id = target.id;
 			sendCanvasUpdate({
 				type: 'modify',
-				object: target.toObject()
+				object: objData
 			});
 		});
 
 		canvas.on('path:created', ({ path }) => {
+			// Add ID to the path object
+			// @ts-expect-error
+			path.id = uuidv4();
+			const objData = path.toObject();
+			// @ts-expect-error
+			objData.id = path.id;
 			sendCanvasUpdate({
 				type: 'add',
-				object: path.toObject()
+				object: objData
 			});
 		});
 
 		canvas.on('text:changed', ({ target }) => {
+			const objData = target.toObject();
+			// @ts-expect-error
+			objData.id = target.id;
 			sendCanvasUpdate({
 				type: 'modify',
-				object: target.toObject()
+				object: objData
 			});
 		});
 
@@ -247,47 +291,35 @@
 	>
 		<div class="flex items-center gap-1">
 			<!-- Selection Tool -->
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button
-						variant={selectedTool === 'select' ? 'default' : 'ghost'}
-						size="icon"
-						onclick={setSelectTool}
-						class="h-9 w-9"
-					>
-						<MousePointerIcon class="h-4 w-4" />
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Select Tool</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<Button
+				variant={selectedTool === 'select' ? 'default' : 'ghost'}
+				size="icon"
+				onclick={setSelectTool}
+				class="h-9 w-9"
+			>
+				<MousePointerIcon class="h-4 w-4" />
+			</Button>
 
 			<!-- Draw Tool -->
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button
-						variant={selectedTool === 'draw' ? 'default' : 'ghost'}
-						size="icon"
-						onclick={setDrawTool}
-						class="h-9 w-9"
-					>
-						<PenToolIcon class="h-4 w-4" />
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Draw Tool</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<Button
+				variant={selectedTool === 'draw' ? 'default' : 'ghost'}
+				size="icon"
+				onclick={setDrawTool}
+				class="h-9 w-9"
+			>
+				<PenToolIcon class="h-4 w-4" />
+			</Button>
 
 			<div class="bg-border mx-1 h-6 w-px"></div>
 
 			<!-- Shapes Dropdown -->
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
-					<Button variant="ghost" size="icon" class="h-9 w-9">
-						<SquareIcon class="h-4 w-4" />
-					</Button>
+					{#snippet child({ props })}
+						<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
+							<SquareIcon class="h-4 w-4" />
+						</Button>
+					{/snippet}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content>
 					<DropdownMenu.Item onclick={() => addShape('rectangle')}>
@@ -306,42 +338,21 @@
 			</DropdownMenu.Root>
 
 			<!-- Text Tool -->
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
-						<TypeIcon class="h-4 w-4" />
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Add Text</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
+				<TypeIcon class="h-4 w-4" />
+			</Button>
 
 			<div class="bg-border mx-1 h-6 w-px"></div>
 
 			<!-- Delete Selected -->
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button variant="ghost" size="icon" onclick={deleteSelected} class="h-9 w-9">
-						<TrashIcon class="h-4 w-4" />
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Delete Selected</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<Button variant="ghost" size="icon" onclick={deleteSelected} class="h-9 w-9">
+				<TrashIcon class="h-4 w-4" />
+			</Button>
 
 			<!-- Clear Canvas -->
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
-						<EraseIcon class="h-4 w-4" />
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Clear Canvas</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
+				<EraseIcon class="h-4 w-4" />
+			</Button>
 		</div>
 	</div>
 </div>
