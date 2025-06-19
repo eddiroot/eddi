@@ -16,6 +16,7 @@
 	import MapIcon from '@lucide/svelte/icons/map';
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import type { Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 
@@ -29,6 +30,11 @@
 			title: 'Timetable',
 			url: '/timetable',
 			icon: CalendarDaysIcon
+		},
+		{
+			title: 'Whiteboard',
+			url: '/whiteboard',
+			icon: PresentationIcon
 		}
 	];
 
