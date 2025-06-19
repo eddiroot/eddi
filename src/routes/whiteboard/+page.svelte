@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { v4 as uuidv4 } from 'uuid';
 	import { onMount } from 'svelte';
 	import * as fabric from 'fabric';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -11,22 +12,19 @@
 	import SquareIcon from '@lucide/svelte/icons/square';
 	import TriangleIcon from '@lucide/svelte/icons/triangle';
 	import TypeIcon from '@lucide/svelte/icons/type';
-	import PiIcon from '@lucide/svelte/icons/pi';
-	import CalculatorIcon from '@lucide/svelte/icons/calculator';
-	import MinusIcon from '@lucide/svelte/icons/minus';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import XIcon from '@lucide/svelte/icons/x';
-	import DivideIcon from '@lucide/svelte/icons/divide';
-	import EqualIcon from '@lucide/svelte/icons/equal';
 	import EraseIcon from '@lucide/svelte/icons/eraser';
-	import DownloadIcon from '@lucide/svelte/icons/download';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 
 	let socket = $state() as WebSocket;
 	let canvas: fabric.Canvas;
 	let selectedTool = $state('select');
 
-	// Tool functions
+	const sendCanvasUpdate = (data: Object) => {
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			socket.send(JSON.stringify(data));
+		}
+	};
+
 	const setSelectTool = () => {
 		selectedTool = 'select';
 		canvas.isDrawingMode = false;
@@ -41,7 +39,6 @@
 		canvas.selection = false;
 		canvas.defaultCursor = 'crosshair';
 
-		// Set up the drawing brush
 		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
 		canvas.freeDrawingBrush.width = 2;
 		canvas.freeDrawingBrush.color = '#000000';
@@ -55,6 +52,7 @@
 		switch (shapeType) {
 			case 'circle':
 				shape = new fabric.Circle({
+					id: uuidv4(),
 					radius: 50,
 					fill: 'transparent',
 					stroke: '#000000',
@@ -65,6 +63,7 @@
 				break;
 			case 'rectangle':
 				shape = new fabric.Rect({
+					id: uuidv4(),
 					width: 100,
 					height: 60,
 					fill: 'transparent',
@@ -76,6 +75,7 @@
 				break;
 			case 'triangle':
 				shape = new fabric.Triangle({
+					id: uuidv4(),
 					width: 80,
 					height: 80,
 					fill: 'transparent',
@@ -92,11 +92,15 @@
 		canvas.add(shape);
 		canvas.setActiveObject(shape);
 		canvas.renderAll();
-		sendCanvasUpdate();
+		sendCanvasUpdate({
+			type: 'add',
+			object: shape.toObject()
+		});
 	};
 
 	const addText = () => {
 		const text = new fabric.Textbox('Click to edit text', {
+			id: uuidv4(),
 			left: canvas.width! / 2 - 75,
 			top: canvas.height! / 2 - 10,
 			width: 150,
@@ -107,26 +111,17 @@
 		canvas.add(text);
 		canvas.setActiveObject(text);
 		canvas.renderAll();
-		sendCanvasUpdate();
-	};
-
-	const addMathSymbol = (symbol: string) => {
-		const mathText = new fabric.Text(symbol, {
-			left: canvas.width! / 2 - 10,
-			top: canvas.height! / 2 - 10,
-			fontSize: 20,
-			fontFamily: 'Times New Roman',
-			fill: '#000000'
+		sendCanvasUpdate({
+			type: 'add',
+			object: text.toObject()
 		});
-		canvas.add(mathText);
-		canvas.setActiveObject(mathText);
-		canvas.renderAll();
-		sendCanvasUpdate();
 	};
 
 	const clearCanvas = () => {
 		canvas.clear();
-		sendCanvasUpdate();
+		sendCanvasUpdate({
+			type: 'clear'
+		});
 	};
 
 	const deleteSelected = () => {
@@ -135,30 +130,10 @@
 			activeObjects.forEach((obj) => canvas.remove(obj));
 			canvas.discardActiveObject();
 			canvas.renderAll();
-			sendCanvasUpdate();
-		}
-	};
-
-	const downloadCanvas = () => {
-		const dataURL = canvas.toDataURL({
-			format: 'png',
-			quality: 1,
-			multiplier: 1
-		});
-		const link = document.createElement('a');
-		link.href = dataURL;
-		link.download = 'whiteboard.png';
-		link.click();
-	};
-
-	const sendCanvasUpdate = () => {
-		if (socket && socket.readyState === WebSocket.OPEN) {
-			socket.send(
-				JSON.stringify({
-					type: 'objects',
-					objects: canvas.toJSON()
-				})
-			);
+			sendCanvasUpdate({
+				type: 'delete',
+				objects: activeObjects.map((obj) => obj.toObject())
+			});
 		}
 	};
 
@@ -166,59 +141,102 @@
 		socket = new WebSocket('/whiteboard/ws');
 		canvas = new fabric.Canvas('whiteboard');
 
-		// Initialize drawing brush
 		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
 		canvas.freeDrawingBrush.width = 2;
 		canvas.freeDrawingBrush.color = '#000000';
 
-		// Set initial tool to select
 		setSelectTool();
-
-		window.addEventListener('resize', resizeCanvas);
-
-		function resizeCanvas() {
-			canvas.setDimensions({
-				width: window.innerWidth,
-				height: window.innerHeight
-			});
-		}
-
-		resizeCanvas();
 
 		socket.addEventListener('message', (event) => {
 			try {
 				const data = JSON.parse(event.data);
-				if (data.type === 'objects') {
-					const objects = data.objects;
-					canvas.loadFromJSON(objects, () => {
-						canvas.renderAll();
-						resizeCanvas();
+				if (data.type === 'load') {
+					data.whiteboard.objects.forEach((obj: any) => {
+						canvas.add(new fabric.FabricObject(obj));
 					});
+					canvas.renderAll();
+				} else if (data.type === 'add') {
+					canvas.add(new fabric.FabricObject(data.object));
+					canvas.renderAll();
+				} else if (data.type === 'modify') {
+					const objects = canvas.getObjects();
+					// We already add an ID to each object in the canvas, so we can find it later
+					// @ts-expect-error
+					const obj = objects.find((o) => o.id === data.object.id);
+					if (obj) {
+						obj.set(data.object);
+						canvas.renderAll();
+					}
+				} else if (data.type === 'delete') {
+					const objects = canvas.getObjects();
+					data.objects.forEach((objData: any) => {
+						// We already add an ID to each object in the canvas, so we can find it later
+						// @ts-expect-error
+						const obj = objects.find((o) => o.id === objData.id);
+						if (obj) {
+							canvas.remove(obj);
+						}
+					});
+					canvas.renderAll();
+				} else if (data.type === 'clear') {
+					canvas.clear();
 				}
 			} catch (e) {
 				console.error('Error parsing JSON:', e);
 			}
 		});
 
-		canvas.on('object:moving', () => {
-			sendCanvasUpdate();
+		canvas.on('object:moving', ({ target }) => {
+			sendCanvasUpdate({
+				type: 'modify',
+				object: target.toObject()
+			});
 		});
 
-		canvas.on('object:scaling', () => {
-			sendCanvasUpdate();
+		canvas.on('object:scaling', ({ target }) => {
+			sendCanvasUpdate({
+				type: 'modify',
+				object: target.toObject()
+			});
 		});
 
-		canvas.on('object:rotating', () => {
-			sendCanvasUpdate();
+		canvas.on('object:rotating', ({ target }) => {
+			sendCanvasUpdate({
+				type: 'modify',
+				object: target.toObject()
+			});
 		});
 
-		canvas.on('path:created', () => {
-			sendCanvasUpdate();
+		canvas.on('path:created', ({ path }) => {
+			sendCanvasUpdate({
+				type: 'add',
+				object: path.toObject()
+			});
 		});
 
-		canvas.on('text:changed', () => {
-			sendCanvasUpdate();
+		canvas.on('text:changed', ({ target }) => {
+			sendCanvasUpdate({
+				type: 'modify',
+				object: target.toObject()
+			});
 		});
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Backspace' || event.key === 'Delete') {
+				const activeObject = canvas.getActiveObject();
+				// @ts-expect-error
+				if (activeObject && (!activeObject.isType('textbox') || !activeObject.isEditing)) {
+					event.preventDefault();
+					deleteSelected();
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
 	});
 </script>
 
@@ -299,69 +317,6 @@
 				</Tooltip.Content>
 			</Tooltip.Root>
 
-			<!-- Math Symbols Dropdown -->
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger>
-					<Button variant="ghost" size="icon" class="h-9 w-9">
-						<PiIcon class="h-4 w-4" />
-					</Button>
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content>
-					<DropdownMenu.Item onclick={() => addMathSymbol('π')}>
-						<PiIcon class="h-4 w-4" />
-						Pi (π)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('+')}>
-						<PlusIcon class="h-4 w-4" />
-						Plus (+)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('-')}>
-						<MinusIcon class="h-4 w-4" />
-						Minus (-)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('×')}>
-						<XIcon class="h-4 w-4" />
-						Multiply (×)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('÷')}>
-						<DivideIcon class="h-4 w-4" />
-						Divide (÷)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('=')}>
-						<EqualIcon class="h-4 w-4" />
-						Equals (=)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('∑')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Sum (∑)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('∫')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Integral (∫)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('√')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Square Root (√)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('∞')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Infinity (∞)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('α')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Alpha (α)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('β')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Beta (β)
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onclick={() => addMathSymbol('θ')}>
-						<CalculatorIcon class="h-4 w-4" />
-						Theta (θ)
-					</DropdownMenu.Item>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-
 			<div class="bg-border mx-1 h-6 w-px"></div>
 
 			<!-- Delete Selected -->
@@ -387,35 +342,9 @@
 					<p>Clear Canvas</p>
 				</Tooltip.Content>
 			</Tooltip.Root>
-
-			<div class="bg-border mx-1 h-6 w-px"></div>
-
-			<!-- Download -->
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button variant="ghost" size="icon" onclick={downloadCanvas} class="h-9 w-9">
-						<DownloadIcon class="h-4 w-4" />
-					</Button>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Download as PNG</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
 		</div>
 	</div>
 </div>
-
-<canvas id="whiteboard"></canvas>
-
-<style>
-	#whiteboard {
-		display: block;
-		cursor: default;
-	}
-
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-	}
-</style>
+<div class="flex h-full items-center justify-center">
+	<canvas id="whiteboard" width={1200} height={800} class="border"></canvas>
+</div>
