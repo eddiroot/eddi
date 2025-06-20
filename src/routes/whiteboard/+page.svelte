@@ -357,5 +357,5 @@
 	</div>
 </div>
 <div class="flex h-full items-center justify-center">
-	<canvas id="whiteboard" width={1200} height={800} class="border"></canvas>
+	<canvas id="whiteboard" width={1200} height={800} class="rounded-lg border-2 shadow-md"></canvas>
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-  
+
 	let { data } = $props();
 	let { classTimes } = data;
 
@@ -42,16 +42,27 @@
 		return { top: `${topPosition}%`, height: `${height}%` };
 	}
 
-  function formatTime(time: string): string {
-    // If already in hh:mm format, return as is
-    if (time.includes(':')) {
-      const [hours, minutes] = time.split(':');
-      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
-    }
-    // If in other format, convert to hh:mm
-    return time;
-  }
+	function formatTime(time: string): string {
+		// If already in hh:mm format, return as is
+		if (time.includes(':')) {
+			const [hours, minutes] = time.split(':');
+			return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+		}
+		// If in other format, convert to hh:mm
+		return time;
+	}
 
+	function getSubjectColor(subjectName: string): string {
+		const colors: Record<string, string> = {
+			Maths: 'bg-blue-100 border-blue-300 text-blue-900',
+			English: 'bg-red-100 border-red-300 text-red-900',
+			Science: 'bg-green-100 border-green-300 text-green-900',
+			History: 'bg-amber-100 border-amber-300 text-amber-900',
+			Geography: 'bg-purple-100 border-purple-300 text-purple-900'
+		};
+
+		return colors[subjectName] || 'bg-gray-100 border-gray-300 text-gray-900';
+	}
 </script>
 
 <div class="h-full space-y-4 p-8">
@@ -96,8 +107,9 @@
 				<!-- Classes for this day -->
 				{#each (classTimes ?? []).filter((c) => c.classTime.dayOfWeek === day.value) as cls}
 					{@const position = getClassPosition(cls.classTime.startTime, cls.classTime.duration)}
+					{@const colorClasses = getSubjectColor(cls.subject.name)}
 					<Card.Root
-						class="absolute right-1 left-1 py-0 pt-3"
+						class="absolute right-1 left-1 py-0 pt-3 {colorClasses}"
 						style="top: {position.top}; height: {position.height};"
 					>
 						<Card.Header>

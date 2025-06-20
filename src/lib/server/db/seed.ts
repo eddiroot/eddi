@@ -366,74 +366,226 @@ async function main() {
 		.returning();
 
 	await db.insert(schema.subjectClassTime).values([
-		// Maths
+		// Schedule: 8:30-9:25, 9:25-10:20, RECESS 10:20-10:40, 10:40-11:35, 11:35-12:30, LUNCH 12:30-1:15, 1:15-2:10, 2:10-3:05
+
+		// MONDAY SCHEDULE
+		// Period 1: 8:30 - 9:25 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
 			dayOfWeek: 'monday',
-			startTime: '09:00:00',
-			duration: '01:00:00'
+			startTime: '08:30:00',
+			duration: '00:55:00'
 		},
+		// Period 2: 9:25 - 10:20 (English)
 		{
-			subjectClassId: subjectClasses[0].id,
-			dayOfWeek: 'wednesday',
-			startTime: '09:00:00',
-			duration: '01:00:00'
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'monday',
+			startTime: '09:25:00',
+			duration: '00:55:00'
 		},
-
-		// Science
-		{
-			subjectClassId: subjectClasses[1].id,
-			dayOfWeek: 'tuesday',
-			startTime: '10:00:00',
-			duration: '01:30:00'
-		},
+		// Period 3: 10:40 - 11:35 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
-			dayOfWeek: 'thursday',
-			startTime: '10:00:00',
-			duration: '01:30:00'
+			dayOfWeek: 'monday',
+			startTime: '10:40:00',
+			duration: '00:55:00'
 		},
-
-		// History
+		// Period 4: 11:35 - 12:30 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
 			dayOfWeek: 'monday',
-			startTime: '11:00:00',
-			duration: '01:00:00'
+			startTime: '11:35:00',
+			duration: '00:55:00'
 		},
-		{
-			subjectClassId: subjectClasses[2].id,
-			dayOfWeek: 'wednesday',
-			startTime: '11:00:00',
-			duration: '01:00:00'
-		},
-
-		// English
-		{
-			subjectClassId: subjectClasses[3].id,
-			dayOfWeek: 'tuesday',
-			startTime: '09:00:00',
-			duration: '01:00:00'
-		},
-		{
-			subjectClassId: subjectClasses[3].id,
-			dayOfWeek: 'thursday',
-			startTime: '09:00:00',
-			duration: '01:00:00'
-		},
-
-		// Geography
+		// Period 5: 1:15 - 2:10 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'monday',
+			startTime: '13:15:00',
+			duration: '00:55:00'
+		},
+		// Period 6: 2:10 - 3:05 (Maths)
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'monday',
+			startTime: '14:10:00',
+			duration: '00:55:00'
+		},
+
+		// TUESDAY SCHEDULE
+		// Period 1: 8:30 - 9:25 (Science)
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'tuesday',
+			startTime: '08:30:00',
+			duration: '00:55:00'
+		},
+		// Period 2: 9:25 - 10:20 (Maths)
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'tuesday',
+			startTime: '09:25:00',
+			duration: '00:55:00'
+		},
+		// Period 3: 10:40 - 11:35 (Geography)
+		{
+			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'tuesday',
+			startTime: '10:40:00',
+			duration: '00:55:00'
+		},
+		// Period 4: 11:35 - 12:30 (English)
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'tuesday',
+			startTime: '11:35:00',
+			duration: '00:55:00'
+		},
+		// Period 5: 1:15 - 2:10 (History)
+		{
+			subjectClassId: subjectClasses[2].id,
+			dayOfWeek: 'tuesday',
+			startTime: '13:15:00',
+			duration: '00:55:00'
+		},
+		// Period 6: 2:10 - 3:05 (Science)
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'tuesday',
+			startTime: '14:10:00',
+			duration: '00:55:00'
+		},
+
+		// WEDNESDAY SCHEDULE
+		// Period 1: 8:30 - 9:25 (English)
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'wednesday',
+			startTime: '08:30:00',
+			duration: '00:55:00'
+		},
+		// Period 2: 9:25 - 10:20 (History)
+		{
+			subjectClassId: subjectClasses[2].id,
+			dayOfWeek: 'wednesday',
+			startTime: '09:25:00',
+			duration: '00:55:00'
+		},
+		// Period 3: 10:40 - 11:35 (Maths)
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'wednesday',
+			startTime: '10:40:00',
+			duration: '00:55:00'
+		},
+		// Period 4: 11:35 - 12:30 (Geography)
+		{
+			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'wednesday',
+			startTime: '11:35:00',
+			duration: '00:55:00'
+		},
+		// Period 5: 1:15 - 2:10 (Science)
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'wednesday',
+			startTime: '13:15:00',
+			duration: '00:55:00'
+		},
+		// Period 6: 2:10 - 3:05 (English)
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'wednesday',
+			startTime: '14:10:00',
+			duration: '00:55:00'
+		},
+
+		// THURSDAY SCHEDULE
+		// Period 1: 8:30 - 9:25 (Geography)
+		{
+			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'thursday',
+			startTime: '08:30:00',
+			duration: '00:55:00'
+		},
+		// Period 2: 9:25 - 10:20 (Science)
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'thursday',
+			startTime: '09:25:00',
+			duration: '00:55:00'
+		},
+		// Period 3: 10:40 - 11:35 (English)
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'thursday',
+			startTime: '10:40:00',
+			duration: '00:55:00'
+		},
+		// Period 4: 11:35 - 12:30 (Maths)
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'thursday',
+			startTime: '11:35:00',
+			duration: '00:55:00'
+		},
+		// Period 5: 1:15 - 2:10 (English)
+		{
+			subjectClassId: subjectClasses[3].id,
+			dayOfWeek: 'thursday',
+			startTime: '13:15:00',
+			duration: '00:55:00'
+		},
+		// Period 6: 2:10 - 3:05 (History)
+		{
+			subjectClassId: subjectClasses[2].id,
+			dayOfWeek: 'thursday',
+			startTime: '14:10:00',
+			duration: '00:55:00'
+		},
+
+		// FRIDAY SCHEDULE
+		// Period 1: 8:30 - 9:25 (History)
+		{
+			subjectClassId: subjectClasses[2].id,
 			dayOfWeek: 'friday',
 			startTime: '08:30:00',
-			duration: '01:30:00'
+			duration: '00:55:00'
 		},
+		// Period 2: 9:25 - 10:20 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
 			dayOfWeek: 'friday',
-			startTime: '13:30:00',
-			duration: '01:00:00'
+			startTime: '09:25:00',
+			duration: '00:55:00'
+		},
+		// Period 3: 10:40 - 11:35 (History)
+		{
+			subjectClassId: subjectClasses[2].id,
+			dayOfWeek: 'friday',
+			startTime: '10:40:00',
+			duration: '00:55:00'
+		},
+		// Period 4: 11:35 - 12:30 (Science)
+		{
+			subjectClassId: subjectClasses[1].id,
+			dayOfWeek: 'friday',
+			startTime: '11:35:00',
+			duration: '00:55:00'
+		},
+		// Period 5: 1:15 - 2:10 (Maths)
+		{
+			subjectClassId: subjectClasses[0].id,
+			dayOfWeek: 'friday',
+			startTime: '13:15:00',
+			duration: '00:55:00'
+		},
+		// Period 6: 2:10 - 3:05 (Geography)
+		{
+			subjectClassId: subjectClasses[4].id,
+			dayOfWeek: 'friday',
+			startTime: '14:10:00',
+			duration: '00:55:00'
 		}
 	]);
 
