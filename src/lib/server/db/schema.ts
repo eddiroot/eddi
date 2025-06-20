@@ -173,10 +173,10 @@ export type SubjectThreadResponse = typeof subjectThreadResponse.$inferSelect;
 
 export const lessonTopic = pgTable('lesson_topic', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	name: text('name').notNull(), // e.g., 'Algebra', 'Geometry', etc.
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(), // e.g., 'Algebra', 'Geometry', etc.
 	...timestamps
 });
 
@@ -184,12 +184,14 @@ export type LessonTopic = typeof lessonTopic.$inferSelect;
 
 export const lesson = pgTable('lesson', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	title: text('title').notNull(),
+	description: text('description').notNull(),
+	lessonStatus: text('status').notNull(), // either 'draft', 'published', or 'archived'
+	subjectWeek: integer('subject_week').notNull(),
 	lessonTopicId: integer('lesson_topic_id')
 		.notNull()
 		.references(() => lessonTopic.id, { onDelete: 'cascade' }),
-	subjectWeek: integer('subject_week').notNull(),
-	name: text('title').notNull(),
-	description: text('description'),
+	dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
 	...timestamps
 });
 

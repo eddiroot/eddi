@@ -224,3 +224,26 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 
 	return announcements;
 }
+
+export async function createLesson(
+	title: string,
+	description: string,
+	lessonStatus: 'draft' | 'published' | 'archived',
+	subjectWeek: number,
+	lessonTopicId: number,
+	dueDate?: Date | null
+) {
+	const [lesson] = await db
+		.insert(table.lesson)
+		.values({
+			title,
+			description,
+			lessonStatus,
+			subjectWeek,
+			lessonTopicId,
+			dueDate
+		})
+		.returning();
+
+	return lesson;
+}
