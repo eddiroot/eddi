@@ -51,7 +51,11 @@ export const actions = {
 
 		let lessonSchema;
 		try {
-			lessonSchema = await geminiCompletion('path/to/media/file', lessonCreationPrompt);
+			if (form.data.file) {
+				lessonSchema = await geminiCompletion('path-to-file-goes-here', lessonCreationPrompt);
+			} else {
+				lessonSchema = await geminiCompletion(undefined, lessonCreationPrompt);
+			}
 		} catch (error) {
 			console.error('Error creating response:', error);
 			return fail(500, { form });

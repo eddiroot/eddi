@@ -43,7 +43,13 @@
 	});
 </script>
 
-<form method="POST" action="?/createLesson" class="w-2/3 space-y-6" use:enhance>
+<form
+	method="POST"
+	action="?/createLesson"
+	class="w-2/3 space-y-6"
+	enctype="multipart/form-data"
+	use:enhance
+>
 	<Form.Field {form} name="title">
 		<Form.Control>
 			{#snippet children({ props })}
