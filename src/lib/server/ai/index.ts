@@ -3,11 +3,11 @@ import fs from 'fs';
 
 import { lessonComponentSchema } from '$lib/server/ai/constants';
 import { getMimeType } from '$lib/server/ai/utils';
+import { env } from '$env/dynamic/private';
 
-if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set');
+if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
 export async function geminiCompletion(
 	mediaPath: string | undefined,
