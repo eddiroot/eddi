@@ -45,6 +45,7 @@
 	};
 
 	const addShape = (shapeType: string) => {
+		setSelectTool();
 		let shape: fabric.Object;
 		const centerX = canvas.width! / 2;
 		const centerY = canvas.height! / 2;
@@ -284,12 +285,9 @@
 	});
 </script>
 
-<!-- Floating Menubar -->
-<div class="fixed top-16 left-1/2 z-50 -translate-x-1/2 transform">
-	<div
-		class="bg-background/95 supports-[backdrop-filter]:bg-background/60 rounded-lg border p-2 shadow-lg backdrop-blur"
-	>
-		<div class="flex items-center gap-1">
+<div class="flex h-full flex-col">
+	<div class="flex justify-center">
+		<div class="flex items-center gap-1 rounded-b-md border-r border-b border-l px-4 py-2">
 			<!-- Selection Tool -->
 			<Button
 				variant={selectedTool === 'select' ? 'default' : 'ghost'}
@@ -355,7 +353,8 @@
 			</Button>
 		</div>
 	</div>
-</div>
-<div class="flex h-full items-center justify-center">
-	<canvas id="whiteboard" width={1200} height={800} class="rounded-lg border-2 shadow-md"></canvas>
+	<div class="flex flex-grow items-center justify-center">
+		<canvas id="whiteboard" width={1200} height={800} class="rounded-lg border-2 shadow-md"
+		></canvas>
+	</div>
 </div>
