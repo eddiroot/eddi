@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Card, CardContent } from '$lib/components/ui/card';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -42,27 +42,25 @@
 				<h2 class="text-foreground text-xl font-semibold">{topicName}</h2>
 
 				<!-- Lessons for this topic -->
-				<div class="space-y-3">
-					{#each lessonItems as item}
-						<div>
-							<a href={`${page.url.pathname}/${item.lesson.id}`}>
-								<Card>
-									<CardContent>
-										<div class="flex items-center justify-between">
-											<div class="flex-1">
-												<h3 class="mb-2 text-lg font-medium">{item.lesson.title}</h3>
-												{#if item.lesson.description}
-													<p class="text-muted-foreground text-sm">{item.lesson.description}</p>
-												{/if}
-											</div>
-											<Badge variant="secondary" class="ml-4">
-												Week {item.lesson.subjectWeek}
-											</Badge>
-										</div>
-									</CardContent>
-								</Card>
-							</a>
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+					{#if lessonItems.length === 0}
+						<div class="text-muted-foreground col-span-full">
+							No lessons available for this topic yet.
 						</div>
+					{/if}
+					{#each lessonItems as item}
+						<a href={`${page.url.pathname}/${item.lesson.id}`} class="block h-full">
+							<Card.Root class="h-full">
+								<Card.Header>
+									<Card.Title>
+										{item.lesson.title}
+									</Card.Title>
+									<Card.Description>
+										{item.lesson.description}
+									</Card.Description>
+								</Card.Header>
+							</Card.Root>
+						</a>
 					{/each}
 				</div>
 			</div>

@@ -728,100 +728,115 @@ async function main() {
 			{
 				lessonTopicId: mathLessonTopics[0].id,
 				subjectWeek: 1,
-				name: 'Introduction to Variables',
-				description: 'Learn about variables and their role in algebra'
+				title: 'Introduction to Variables',
+				description: 'Learn about variables and their role in algebra',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[0].id,
 				subjectWeek: 1,
-				name: 'Basic Operations with Variables',
-				description: 'Addition, subtraction, multiplication and division with variables'
+				title: 'Basic Operations with Variables',
+				description: 'Addition, subtraction, multiplication and division with variables',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[0].id,
 				subjectWeek: 2,
-				name: 'Simplifying Expressions',
-				description: 'Learn to combine like terms and simplify algebraic expressions'
+				title: 'Simplifying Expressions',
+				description: 'Learn to combine like terms and simplify algebraic expressions',
+				lessonStatus: 'draft'
 			},
 
 			// Linear Equations lessons
 			{
 				lessonTopicId: mathLessonTopics[1].id,
 				subjectWeek: 3,
-				name: 'Solving One-Step Equations',
-				description: 'Basic techniques for solving simple linear equations'
+				title: 'Solving One-Step Equations',
+				description: 'Basic techniques for solving simple linear equations',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[1].id,
 				subjectWeek: 3,
-				name: 'Solving Multi-Step Equations',
-				description: 'Advanced techniques for complex linear equations'
+				title: 'Solving Multi-Step Equations',
+				description: 'Advanced techniques for complex linear equations',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[1].id,
 				subjectWeek: 4,
-				name: 'Graphing Linear Equations',
-				description: 'Visual representation of linear equations on coordinate plane'
+				title: 'Graphing Linear Equations',
+				description: 'Visual representation of linear equations on coordinate plane',
+				lessonStatus: 'draft'
 			},
 
 			// Quadratic Functions lessons
 			{
 				lessonTopicId: mathLessonTopics[2].id,
 				subjectWeek: 5,
-				name: 'Introduction to Quadratics',
-				description: 'Understanding quadratic functions and their properties'
+				title: 'Introduction to Quadratics',
+				description: 'Understanding quadratic functions and their properties',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[2].id,
 				subjectWeek: 5,
-				name: 'Factoring Quadratics',
-				description: 'Methods for factoring quadratic expressions'
+				title: 'Factoring Quadratics',
+				description: 'Methods for factoring quadratic expressions',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[2].id,
 				subjectWeek: 6,
-				name: 'Quadratic Formula',
-				description: 'Using the quadratic formula to solve equations'
+				title: 'Quadratic Formula',
+				description: 'Using the quadratic formula to solve equations',
+				lessonStatus: 'draft'
 			},
 
 			// Geometry Fundamentals lessons
 			{
 				lessonTopicId: mathLessonTopics[3].id,
 				subjectWeek: 7,
-				name: 'Points, Lines, and Planes',
-				description: 'Basic geometric concepts and definitions'
+				title: 'Points, Lines, and Planes',
+				description: 'Basic geometric concepts and definitions',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[3].id,
 				subjectWeek: 7,
-				name: 'Angles and Their Measures',
-				description: 'Understanding different types of angles'
+				title: 'Angles and Their Measures',
+				description: 'Understanding different types of angles',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[3].id,
 				subjectWeek: 8,
-				name: 'Triangles and Their Properties',
-				description: 'Exploring triangle classifications and properties'
+				title: 'Triangles and Their Properties',
+				description: 'Exploring triangle classifications and properties',
+				lessonStatus: 'draft'
 			},
 
 			// Trigonometry lessons
 			{
 				lessonTopicId: mathLessonTopics[4].id,
 				subjectWeek: 9,
-				name: 'Introduction to Trigonometry',
-				description: 'Basic trigonometric concepts and ratios'
+				title: 'Introduction to Trigonometry',
+				description: 'Basic trigonometric concepts and ratios',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[4].id,
 				subjectWeek: 9,
-				name: 'Sine, Cosine, and Tangent',
-				description: 'Understanding the primary trigonometric functions'
+				title: 'Sine, Cosine, and Tangent',
+				description: 'Understanding the primary trigonometric functions',
+				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[4].id,
 				subjectWeek: 10,
-				name: 'Solving Right Triangles',
-				description: 'Using trigonometry to find missing sides and angles'
+				title: 'Solving Right Triangles',
+				description: 'Using trigonometry to find missing sides and angles',
+				lessonStatus: 'draft'
 			}
 		])
 		.returning();
