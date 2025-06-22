@@ -51,15 +51,15 @@
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<MessageCircleIcon class="mr-3 h-5 w-5 flex-shrink-0 text-teal-500" />
+						<MessageCircleIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Threaded discussion format
 					</li>
 					<li class="flex items-center">
-						<ThumbsUpIcon class="mr-3 h-5 w-5 flex-shrink-0 text-teal-500" />
+						<ThumbsUpIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Upvoting and answer validation
 					</li>
 					<li class="flex items-center">
-						<TagIcon class="mr-3 h-5 w-5 flex-shrink-0 text-teal-500" />
+						<TagIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Topic tagging and search
 					</li>
 				</ul>
@@ -95,15 +95,15 @@
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<TargetIcon class="mr-3 h-5 w-5 flex-shrink-0 text-purple-500" />
+						<TargetIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Auto-generate learning objectives
 					</li>
 					<li class="flex items-center">
-						<FileTextIcon class="mr-3 h-5 w-5 flex-shrink-0 text-purple-500" />
+						<FileTextIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Content suggestions and templates
 					</li>
 					<li class="flex items-center">
-						<RefreshCwIcon class="mr-3 h-5 w-5 flex-shrink-0 text-purple-500" />
+						<RefreshCwIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Instant content refinement
 					</li>
 				</ul>
@@ -129,15 +129,15 @@
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Instant answers to your questions
 					</li>
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Personalised learning recommendations
 					</li>
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Study plan optimisation
 					</li>
 				</ul>
@@ -173,15 +173,15 @@
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<MegaphoneIcon class="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
+						<MegaphoneIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Instant push notifications
 					</li>
 					<li class="flex items-center">
-						<CalendarIcon class="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
+						<CalendarIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Schedule announcements
 					</li>
 					<li class="flex items-center">
-						<TargetIcon class="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
+						<TargetIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Target specific groups
 					</li>
 				</ul>
