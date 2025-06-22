@@ -8,18 +8,22 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import type { PaneAPI } from 'paneforge';
+	import { page } from '$app/state';
 
 	let { children, data } = $props();
 
 	let announcementsPane: PaneAPI | null = $state(null);
 	let isAnnouncementsCollapsed = $state(false);
+
+	const currentThreadId = $derived(() => page.url.pathname.split('/').pop() || '');
 </script>
 
 <div class="grid h-full grid-cols-[300px_1fr] overflow-y-hidden">
 	<div class="h-full border-r border-b">
 		<div class="p-2">
-			<a href="/subjects/{data.subjectOfferingIdInt}/discussion/new" class={`${buttonVariants()} w-full`}
-				>New Post <PlusIcon /></a
+			<a
+				href="/subjects/{data.subjectOfferingIdInt}/discussion/new"
+				class={`${buttonVariants()} w-full`}>New Post <PlusIcon /></a
 			>
 		</div>
 		<Separator />
@@ -54,8 +58,16 @@
 					<ScrollArea type="always" class="h-full">
 						<div>
 							{#each data.threads.filter((thread) => thread.thread.type == 'announcement') as thread}
-								<a href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}" class="block">
-									<Card.Root class="bg-background rounded-none border-none shadow-none">
+								<a
+									href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}"
+									class="block"
+								>
+									<Card.Root
+										class="bg-background rounded-none border-none shadow-none {currentThreadId() ==
+										thread.thread.id.toString()
+											? 'bg-accent'
+											: ''}"
+									>
 										<Card.Header>
 											<Card.Title>
 												{thread.thread.title}
@@ -89,8 +101,16 @@
 					<ScrollArea type="always" class="h-full">
 						<div>
 							{#each data.threads.filter((thread) => thread.thread.type != 'announcement') as thread}
-								<a href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}" class="block">
-									<Card.Root class="bg-background rounded-none border-none shadow-none">
+								<a
+									href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}"
+									class="block"
+								>
+									<Card.Root
+										class="bg-background rounded-none border-none shadow-none {currentThreadId() ==
+										thread.thread.id.toString()
+											? 'bg-accent'
+											: ''}"
+									>
 										<Card.Header>
 											<Card.Title>
 												{thread.thread.title}
