@@ -8,7 +8,7 @@ const ACCEPTED_FILE_TYPES_HR = ACCEPTED_FILE_TYPES.map((type) =>
 	type.split('/')[1].toUpperCase()
 ).join(', ');
 
-export const responseSchema = z.object({
+export const formSchema = z.object({
 	title: z.string({ required_error: 'Please enter a title' }).min(1, 'Title cannot be empty'),
 	description: z
 		.string({ required_error: 'Please enter a description' })
@@ -33,4 +33,4 @@ export const responseSchema = z.object({
 		}, `File must be one of ${ACCEPTED_FILE_TYPES_HR}`)
 });
 
-export type ResponseSchema = typeof responseSchema;
+export type FormSchema = typeof formSchema;

@@ -3,7 +3,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { responseSchema, type ResponseSchema } from './response-schema.js';
+	import { formSchema, type FormSchema } from './schema.js';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
@@ -19,7 +19,7 @@
 		onSuccess = undefined,
 		onCancel = undefined
 	}: {
-		data: { form: SuperValidated<Infer<ResponseSchema>> };
+		data: { form: SuperValidated<Infer<FormSchema>> };
 		threadType: string;
 		parentResponseId?: number;
 		parentAuthor?: string;
@@ -29,7 +29,7 @@
 	} = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(responseSchema),
+		validators: zodClient(formSchema),
 		resetForm: true,
 		onUpdated: ({ form }) => {
 			if (form.valid && isReply && onSuccess) {

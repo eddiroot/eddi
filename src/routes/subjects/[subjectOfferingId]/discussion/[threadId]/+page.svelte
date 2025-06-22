@@ -3,7 +3,7 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
 	import { convertToFullName, formatDate } from '$lib/utils';
-	import ResponseForm from './response-form.svelte';
+	import ResponseForm from './form.svelte';
 	import ResponseItem from './response-item.svelte';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import CheckCircle from '@lucide/svelte/icons/check-circle';

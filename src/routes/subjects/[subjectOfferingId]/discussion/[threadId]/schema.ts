@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const responseSchema = z.object({
+export const formSchema = z.object({
 	type: z.enum(['comment', 'answer'], {
 		required_error: 'Please select a response type'
 	}),
@@ -10,4 +10,4 @@ export const responseSchema = z.object({
 	parentResponseId: z.number().optional()
 });
 
-export type ResponseSchema = typeof responseSchema;
+export type FormSchema = typeof formSchema;

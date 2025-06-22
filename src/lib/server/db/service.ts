@@ -225,6 +225,19 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 	return announcements;
 }
 
+export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: number) {
+	const lessonTopics = await db
+		.select({
+			id: table.lessonTopic.id,
+			name: table.lessonTopic.name
+		})
+		.from(table.lessonTopic)
+		.innerJoin(table.subjectClass, eq(table.subjectClass.subjectOfferingId, subjectOfferingId))
+		.where(eq(table.lessonTopic.subjectClassId, table.subjectClass.id));
+
+	return lessonTopics;
+}
+
 export async function createLesson(
 	title: string,
 	description: string,

@@ -23,7 +23,7 @@
 		<div class="p-2">
 			<a
 				href="/subjects/{data.subjectOfferingIdInt}/discussion/new"
-				class={`${buttonVariants()} w-full`}>New Post <PlusIcon /></a
+				class={`${buttonVariants({ variant: 'outline' })} w-full`}>New Post <PlusIcon /></a
 			>
 		</div>
 		<Separator />
