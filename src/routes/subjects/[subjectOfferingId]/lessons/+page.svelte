@@ -50,7 +50,7 @@
 									<CardContent>
 										<div class="flex items-center justify-between">
 											<div class="flex-1">
-												<h3 class="mb-2 text-lg font-medium">{item.lesson.name}</h3>
+												<h3 class="mb-2 text-lg font-medium">{item.lesson.title}</h3>
 												{#if item.lesson.description}
 													<p class="text-muted-foreground text-sm">{item.lesson.description}</p>
 												{/if}
