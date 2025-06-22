@@ -12,178 +12,180 @@
 </script>
 
 <!-- Main Hero Section -->
-<div class="flex justify-center px-4 py-24 lg:px-8 lg:py-32">
-	<div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
-		<div>
-			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-				Openly evolving education
-			</h1>
-			<p class="text-muted-foreground mt-6 text-xl">
-				with a learning and teaching system that <strong>anyone</strong> can use.
-			</p>
-			<div class="mt-8 grid w-full gap-3 sm:inline-flex">
-				<Button variant="secondary" size="lg">Watch the demo</Button>
-				<Button variant="default" size="lg">Get started</Button>
+<section class="py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="space-y-6">
+				<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+					Openly evolving education
+				</h1>
+				<p class="text-muted-foreground text-xl">
+					with a learning and teaching system that <strong>anyone</strong> can use.
+				</p>
+				<div class="flex flex-col gap-3 sm:flex-row">
+					<Button variant="secondary" size="lg">Watch the demo</Button>
+					<Button variant="default" size="lg">Get started</Button>
+				</div>
+			</div>
+			<div class="order-first md:order-last">
+				<img
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
+					src="/hero-clay-students.jpeg"
+					alt="Students using laptops"
+				/>
 			</div>
 		</div>
-		<div class="relative ms-4">
-			<img
-				class="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800"
-				src="/hero-clay-students.jpeg"
-				alt="Students using laptops"
-			/>
-		</div>
 	</div>
-</div>
+</section>
 
 <!-- Discussions Section -->
-<div class="bg-muted/50 py-24 lg:py-32">
-	<div class="flex justify-center px-4 lg:px-8">
-		<div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
-			<div>
+<section class="bg-muted/50 py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="space-y-6">
 				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
 					Foster meaningful discussions
 				</h2>
-				<p class="text-muted-foreground mt-6 text-xl">
+				<p class="text-muted-foreground text-xl">
 					Create a collaborative learning environment with a structured discussion system.
 				</p>
-				<ul class="mt-6 space-y-3 text-lg">
+				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<MessageCircleIcon class="mr-3 h-5 w-5 text-teal-500" />
+						<MessageCircleIcon class="mr-3 h-5 w-5 flex-shrink-0 text-teal-500" />
 						Threaded discussion format
 					</li>
 					<li class="flex items-center">
-						<ThumbsUpIcon class="mr-3 h-5 w-5 text-teal-500" />
+						<ThumbsUpIcon class="mr-3 h-5 w-5 flex-shrink-0 text-teal-500" />
 						Upvoting and answer validation
 					</li>
 					<li class="flex items-center">
-						<TagIcon class="mr-3 h-5 w-5 text-teal-500" />
+						<TagIcon class="mr-3 h-5 w-5 flex-shrink-0 text-teal-500" />
 						Topic tagging and search
 					</li>
 				</ul>
 			</div>
-			<div class="relative">
+			<div>
 				<img
-					class="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800"
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
 					src="/hero-discussions.png"
 					alt="Discussion interface"
 				/>
 			</div>
 		</div>
 	</div>
-</div>
+</section>
 
 <!-- Lessons Section -->
-<div class="py-24 lg:py-32">
-	<div class="flex justify-center px-4 lg:px-8">
-		<div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
-			<div class="relative">
+<section class="py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="order-last md:order-first">
 				<img
-					class="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800"
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
 					src="/hero-discussions.png"
 					alt="Lesson creation interface"
 				/>
 			</div>
-			<div>
+			<div class="space-y-6">
 				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
 					Engage students with interactive lessons
 				</h2>
-				<p class="text-muted-foreground mt-6 text-xl">
+				<p class="text-muted-foreground text-xl">
 					Use a drag-and-drop editor with AI assistance to speed up lesson creation.
 				</p>
-				<ul class="mt-6 space-y-3 text-lg">
+				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<TargetIcon class="mr-3 h-5 w-5 text-purple-500" />
+						<TargetIcon class="mr-3 h-5 w-5 flex-shrink-0 text-purple-500" />
 						Auto-generate learning objectives
 					</li>
 					<li class="flex items-center">
-						<FileTextIcon class="mr-3 h-5 w-5 text-purple-500" />
+						<FileTextIcon class="mr-3 h-5 w-5 flex-shrink-0 text-purple-500" />
 						Content suggestions and templates
 					</li>
 					<li class="flex items-center">
-						<RefreshCwIcon class="mr-3 h-5 w-5 text-purple-500" />
+						<RefreshCwIcon class="mr-3 h-5 w-5 flex-shrink-0 text-purple-500" />
 						Instant content refinement
 					</li>
 				</ul>
-				<div class="mt-8">
+				<div>
 					<Button variant="default" size="lg">Start creating</Button>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
+</section>
 
 <!-- Built-in Tutoring Section -->
-<div class="bg-muted/50 py-24 lg:py-32">
-	<div class="flex justify-center px-4 lg:px-8">
-		<div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
-			<div>
+<section class="bg-muted/50 py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="space-y-6">
 				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
 					Meet eddi, your personal tutor
 				</h2>
-				<p class="text-muted-foreground mt-6 text-xl">
+				<p class="text-muted-foreground text-xl">
 					Give your students personalised help 24/7 with their own personal tutor that knows their
 					lessons and progress.
 				</p>
-				<ul class="mt-6 space-y-3 text-lg">
+				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 text-green-500" />
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
 						Instant answers to your questions
 					</li>
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 text-green-500" />
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
 						Personalised learning recommendations
 					</li>
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 text-green-500" />
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
 						Study plan optimisation
 					</li>
 				</ul>
 			</div>
-			<div class="relative">
+			<div>
 				<img
-					class="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800"
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
 					src="/hero-discussions.png"
 					alt="Built-in tutor called eddi"
 				/>
 			</div>
 		</div>
 	</div>
-</div>
+</section>
 
 <!-- Announcements Section -->
-<div class="py-24 lg:py-32">
-	<div class="flex justify-center px-4 lg:px-8">
-		<div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
-			<div class="relative">
+<section class="py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="order-last md:order-first">
 				<img
-					class="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800"
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
 					src="/hero-discussions.png"
 					alt="Announcements interface"
 				/>
 			</div>
-			<div>
+			<div class="space-y-6">
 				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
 					Keep everyone informed
 				</h2>
-				<p class="text-muted-foreground mt-6 text-xl">
+				<p class="text-muted-foreground text-xl">
 					Share important updates and announcements with your class instantly.
 				</p>
-				<ul class="mt-6 space-y-3 text-lg">
+				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<MegaphoneIcon class="mr-3 h-5 w-5 text-red-500" />
+						<MegaphoneIcon class="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
 						Instant push notifications
 					</li>
 					<li class="flex items-center">
-						<CalendarIcon class="mr-3 h-5 w-5 text-red-500" />
+						<CalendarIcon class="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
 						Schedule announcements
 					</li>
 					<li class="flex items-center">
-						<TargetIcon class="mr-3 h-5 w-5 text-red-500" />
+						<TargetIcon class="mr-3 h-5 w-5 flex-shrink-0 text-red-500" />
 						Target specific groups
 					</li>
 				</ul>
 			</div>
 		</div>
 	</div>
-</div>
+</section>
