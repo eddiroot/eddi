@@ -4,7 +4,7 @@
 	let { data } = $props();
 </script>
 
-<div>
+<div class="p-8">
 	<h1 class="mb-2 text-3xl font-bold">Create New Lesson</h1>
 	<p class="mb-4">
 		Create an engaging lesson with interactive content, assessments, and multimedia resources.
