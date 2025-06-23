@@ -35,6 +35,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [ ] Absence / late notifications
 - [ ] Fees / breakdowns
 - [ ] Export all data for the organisation
+- [ ] Handling of multiple campuses
 
 ## Future Functionality
 
