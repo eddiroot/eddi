@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
@@ -31,11 +31,11 @@
 </script>
 
 <div class="grid grid-cols-1 gap-6 p-8 lg:grid-cols-2">
-	<Card class="h-full shadow-none">
-		<CardHeader>
-			<CardTitle class="text-xl">Recent Forum Announcements</CardTitle>
-		</CardHeader>
-		<CardContent>
+	<Card.Root class="h-full shadow-none">
+		<Card.Header>
+			<Card.Title class="text-xl">Recent Forum Announcements</Card.Title>
+		</Card.Header>
+		<Card.Content>
 			{#if data.announcements && data.announcements.length > 0}
 				<ScrollArea class="h-80">
 					<div class="space-y-4 pr-4">
@@ -72,14 +72,14 @@
 			{:else}
 				<p class="text-muted-foreground text-center">No recent announcements.</p>
 			{/if}
-		</CardContent>
-	</Card>
+		</Card.Content>
+	</Card.Root>
 
-	<Card class="h-full shadow-none">
-		<CardHeader>
-			<CardTitle class="text-xl">School News</CardTitle>
-		</CardHeader>
-		<CardContent>
+	<Card.Root class="h-full shadow-none">
+		<Card.Header>
+			<Card.Title class="text-xl">School News</Card.Title>
+		</Card.Header>
+		<Card.Content>
 			{#if mockSchoolNews.length > 0}
 				<div class="space-y-4">
 					{#each mockSchoolNews as news}
@@ -99,18 +99,18 @@
 			{:else}
 				<p class="text-muted-foreground text-center">No news updates available.</p>
 			{/if}
-		</CardContent>
-	</Card>
+		</Card.Content>
+	</Card.Root>
 
-	<Card class="shadow-none">
-		<CardHeader class="flex flex-row items-center justify-between">
-			<CardTitle class="text-xl">Today's Timetable</CardTitle>
+	<Card.Root class="shadow-none">
+		<Card.Header class="flex flex-row items-center justify-between">
+			<Card.Title class="text-xl">Today's Timetable</Card.Title>
 			<Button variant="ghost" size="sm" class="h-8 w-8 p-0">
 				<span class="text-2xl">🙋‍♂️</span>
 				<span class="sr-only">Ask Eddi</span>
 			</Button>
-		</CardHeader>
-		<CardContent>
+		</Card.Header>
+		<Card.Content>
 			<div class="space-y-3">
 				{#each mockTimetable as period}
 					<div class="border-border flex items-center justify-between rounded-lg border p-3">
@@ -124,14 +124,14 @@
 					</div>
 				{/each}
 			</div>
-		</CardContent>
-	</Card>
+		</Card.Content>
+	</Card.Root>
 
-	<Card class="shadow-none">
-		<CardHeader>
-			<CardTitle class="text-xl">Upcoming Assessments</CardTitle>
-		</CardHeader>
-		<CardContent>
+	<Card.Root class="shadow-none">
+		<Card.Header>
+			<Card.Title class="text-xl">Upcoming Assessments</Card.Title>
+		</Card.Header>
+		<Card.Content>
 			{#if mockAssessments.length > 0}
 				<div class="space-y-3">
 					{#each mockAssessments as assessment}
@@ -153,6 +153,6 @@
 			{:else}
 				<p class="text-muted-foreground text-center">No upcoming assessments.</p>
 			{/if}
-		</CardContent>
-	</Card>
+		</Card.Content>
+	</Card.Root>
 </div>

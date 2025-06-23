@@ -7,14 +7,11 @@
 	let isEditing = $state(false);
 </script>
 
-<div class="flex items-center gap-2">
+<div class="flex w-full items-center justify-between gap-2">
 	{#if isEditing}
 		<Input bind:value={text} />
 		<Button onclick={() => (isEditing = false)}>Save</Button>
 	{:else}
-		<Button variant="outline" onclick={() => (isEditing = true)}>
-			<EditIcon class="h-3 w-3" />
-		</Button>
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
 		{:else if headingSize === 2}
@@ -28,5 +25,8 @@
 		{:else}
 			<h5 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h5>
 		{/if}
+		<Button variant="outline" onclick={() => (isEditing = true)}>
+			<EditIcon class="h-3 w-3" />
+		</Button>
 	{/if}
 </div>
