@@ -1,6 +1,8 @@
-# MVP
+# Roadmap
 
-Ordered by priority.
+This list is ordered by priority, with the highest priority at the top and the lowest priority at the bottom.
+
+## MVP
 
 - [ ] Home page
 - [ ] Class announcements
@@ -12,7 +14,7 @@ Ordered by priority.
 - [ ] Live whiteboards
 - [ ] AI Tutor "eddi" (teaching focus, not giving answers)
 
-# Post MVP
+## Post MVP
 
 - [ ] LLM access to lesson plans
 - [ ] Class tests / quizzes
@@ -34,7 +36,7 @@ Ordered by priority.
 - [ ] Fees / breakdowns
 - [ ] Export all data for the organisation
 
-# Future Functionality
+## Future Functionality
 
 - [ ] Lesson / class plan marketplace
 - [ ] Workspaces (like VMs but for coding)
