@@ -86,14 +86,7 @@
 					</Breadcrumb.Root>
 				</div>
 				<div class="flex items-center space-x-4">
-					{#if user()}
-						<form method="post" action="/?/logout" class="inline">
-							<Button type="submit" variant="ghost" size="icon" aria-label="Logout">
-								<LogoutIcon />
-							</Button>
-						</form>
-					{/if}
-					{#if !user()}
+					{#if !user() && page.url.pathname !== '/auth/login'}
 						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
 					{/if}
 					<ThemeToggle />

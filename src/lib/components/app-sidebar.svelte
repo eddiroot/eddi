@@ -71,6 +71,7 @@
 	let { subjects, user }: { subjects: Subject[]; user: any } = $props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
+	let form: HTMLFormElement | null = $state(null);
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
@@ -187,10 +188,12 @@
 							<DropdownMenu.Item>Notifications</DropdownMenu.Item>
 						</DropdownMenu.Group>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item>
-							<LogOutIcon />
-							Log out
-						</DropdownMenu.Item>
+						<form method="post" action="/?/logout" bind:this={form}>
+							<DropdownMenu.Item class="cursor-pointer" onclick={() => form!.submit()}>
+								<LogOutIcon />
+								<input type="submit" value="Logout" class="cursor-pointer" />
+							</DropdownMenu.Item>
+						</form>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			</Sidebar.MenuItem>
