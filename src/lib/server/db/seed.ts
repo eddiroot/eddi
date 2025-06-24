@@ -69,7 +69,8 @@ async function main() {
 		.insert(schema.school)
 		.values([
 			{
-				name: 'School of Eddi'
+				name: 'School of Eddi',
+				address: '123 Eddi Street, Eddi Town, ED 1234'
 			}
 		])
 		.returning();

@@ -114,7 +114,9 @@
 					>
 						<Card.Header>
 							<Card.Title>{cls.subject.name}</Card.Title>
-							<Card.Description>{formatTime(cls.classTime.startTime)}</Card.Description>
+							<Card.Description
+								>{formatTime(cls.classTime.startTime)} {cls.classLocation.name}</Card.Description
+							>
 						</Card.Header>
 					</Card.Root>
 				{/each}

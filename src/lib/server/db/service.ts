@@ -135,8 +135,9 @@ export async function createSubjectThreadResponse(
 }
 
 export async function getSubjectClassTimesByUserId(userId: string) {
-	const classTimes = await db
+	const classTimesAndLocations = await db
 		.select({
+			classLocation: table.subjectClassLocation,
 			classTime: table.subjectClassTime,
 			subjectOffering: {
 				id: table.subjectOffering.id
@@ -149,6 +150,10 @@ export async function getSubjectClassTimesByUserId(userId: string) {
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(
+			table.subjectClassLocation,
+			eq(table.subjectClass.locationId, table.subjectClassLocation.id)
+		)
+		.innerJoin(
 			table.subjectClassTime,
 			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
 		)
@@ -160,7 +165,7 @@ export async function getSubjectClassTimesByUserId(userId: string) {
 		.where(eq(table.userSubjectClass.userId, userId))
 		.orderBy(desc(table.subjectClassTime.startTime));
 
-	return classTimes;
+	return classTimesAndLocations;
 }
 
 export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
@@ -284,7 +289,7 @@ export async function createLocation(
 	isActive: boolean = true
 ) {
 	const [location] = await db
-		.insert(table.location)
+		.insert(table.subjectClassLocation)
 		.values({
 			schoolId,
 			name,
@@ -301,9 +306,14 @@ export async function createLocation(
 export async function getLocationsBySchoolId(schoolId: number) {
 	const locations = await db
 		.select()
-		.from(table.location)
-		.where(and(eq(table.location.schoolId, schoolId), eq(table.location.isActive, true)))
-		.orderBy(table.location.name);
+		.from(table.subjectClassLocation)
+		.where(
+			and(
+				eq(table.subjectClassLocation.schoolId, schoolId),
+				eq(table.subjectClassLocation.isActive, true)
+			)
+		)
+		.orderBy(table.subjectClassLocation.name);
 
 	return locations;
 }
@@ -311,8 +321,8 @@ export async function getLocationsBySchoolId(schoolId: number) {
 export async function getLocationById(locationId: number) {
 	const locations = await db
 		.select()
-		.from(table.location)
-		.where(eq(table.location.id, locationId))
+		.from(table.subjectClassLocation)
+		.where(eq(table.subjectClassLocation.id, locationId))
 		.limit(1);
 
 	return locations.length > 0 ? locations[0] : null;
@@ -329,9 +339,9 @@ export async function updateLocation(
 	}
 ) {
 	const [location] = await db
-		.update(table.location)
+		.update(table.subjectClassLocation)
 		.set(updates)
-		.where(eq(table.location.id, locationId))
+		.where(eq(table.subjectClassLocation.id, locationId))
 		.returning();
 
 	return location;
@@ -340,10 +350,43 @@ export async function updateLocation(
 export async function deleteLocation(locationId: number) {
 	// Soft delete by setting isActive to 0
 	const [location] = await db
-		.update(table.location)
+		.update(table.subjectClassLocation)
 		.set({ isActive: false })
-		.where(eq(table.location.id, locationId))
+		.where(eq(table.subjectClassLocation.id, locationId))
 		.returning();
 
 	return location;
+}
+
+export async function getClassLocationsForUser(userId: string) {
+	const classLocations = await db
+		.select({
+			subjectClass: {
+				id: table.subjectClass.id
+			},
+			location: table.subjectClassLocation,
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			},
+			subjectOffering: {
+				id: table.subjectOffering.id,
+				year: table.subjectOffering.year
+			}
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.leftJoin(
+			table.subjectClassLocation,
+			eq(table.subjectClass.locationId, table.subjectClassLocation.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectClass.userId, userId))
+		.orderBy(table.subject.name, table.subjectClassLocation.name);
+
+	return classLocations;
 }
