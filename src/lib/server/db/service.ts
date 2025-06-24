@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte } from 'drizzle-orm';
+import { desc, eq, and, gte, sql } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -271,4 +271,80 @@ export async function createLesson(
 		.returning();
 
 	return lesson;
+}
+
+// Whiteboard Services
+export async function getWhiteboardObjects(whiteboardId: number = 1) {
+	const objects = await db
+		.select()
+		.from(table.whiteboardObject)
+		.where(eq(table.whiteboardObject.whiteboardId, whiteboardId))
+		.orderBy(table.whiteboardObject.createdAt);
+
+	return objects;
+}
+
+export async function saveWhiteboardObject(data: {
+	objectId: string;
+	objectType: string;
+	objectData: Record<string, unknown>;
+	whiteboardId?: number;
+}) {
+	const [savedObject] = await db
+		.insert(table.whiteboardObject)
+		.values({
+			...data,
+			whiteboardId: data.whiteboardId ?? 1 // Default to whiteboard ID 1
+		})
+		.returning();
+
+	return savedObject;
+}
+
+export async function updateWhiteboardObject(objectId: string, objectData: Record<string, unknown>, whiteboardId: number = 1) {
+	const [updatedObject] = await db
+		.update(table.whiteboardObject)
+		.set({
+			objectData,
+			updatedAt: new Date().toISOString()
+		})
+		.where(
+			and(
+				eq(table.whiteboardObject.objectId, objectId),
+				eq(table.whiteboardObject.whiteboardId, whiteboardId)
+			)
+		)
+		.returning();
+
+	return updatedObject;
+}
+
+export async function deleteWhiteboardObject(objectId: string, whiteboardId: number = 1) {
+	await db
+		.delete(table.whiteboardObject)
+		.where(
+			and(
+				eq(table.whiteboardObject.objectId, objectId),
+				eq(table.whiteboardObject.whiteboardId, whiteboardId)
+			)
+		);
+}
+
+export async function deleteWhiteboardObjects(objectIds: string[], whiteboardId: number = 1) {
+	if (objectIds.length === 0) return;
+
+	await db
+		.delete(table.whiteboardObject)
+		.where(
+			and(
+				eq(table.whiteboardObject.whiteboardId, whiteboardId),
+				sql`${table.whiteboardObject.objectId} = ANY(${objectIds})`
+			)
+		);
+}
+
+export async function clearWhiteboard(whiteboardId: number = 1) {
+	await db
+		.delete(table.whiteboardObject)
+		.where(eq(table.whiteboardObject.whiteboardId, whiteboardId));
 }

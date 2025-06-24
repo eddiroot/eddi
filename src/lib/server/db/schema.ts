@@ -7,7 +7,8 @@ import {
 	time,
 	type AnyPgColumn,
 	foreignKey,
-	interval
+	interval,
+	jsonb
 } from 'drizzle-orm/pg-core';
 
 // TODO: Replace text with enum for type and role fields
@@ -220,3 +221,23 @@ export const lessonSectionBlock = pgTable('lesson_section_block', {
 });
 
 export type LessonSectionBlock = typeof lessonSectionBlock.$inferSelect;
+
+export const whiteboard = pgTable('whiteboard', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	...timestamps
+});
+
+export type Whiteboard = typeof whiteboard.$inferSelect;
+
+export const whiteboardObject = pgTable('whiteboard_object', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	whiteboardId: integer('whiteboard_id')
+		.notNull()
+		.references(() => whiteboard.id, { onDelete: 'cascade' }),
+	objectId: text('object_id').notNull().unique(), // The UUID from fabric.js object
+	objectType: text('object_type').notNull(), // 'rect', 'circle', 'path', 'textbox', etc.
+	objectData: jsonb('object_data').notNull(), // Store the complete fabric.js object data as JSON
+	...timestamps
+});
+
+export type WhiteboardObject = typeof whiteboardObject.$inferSelect;

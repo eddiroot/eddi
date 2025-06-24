@@ -840,6 +840,12 @@ async function main() {
 			}
 		])
 		.returning();
+
+	// Create default whiteboard
+	await db
+		.insert(schema.whiteboard)
+		.values({})
+		.returning();
 }
 
 main()
