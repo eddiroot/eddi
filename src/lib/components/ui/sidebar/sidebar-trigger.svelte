@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { cn } from '$lib/utils.js';
 	import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
 	import type { ComponentProps } from 'svelte';
 	import { useSidebar } from './context.svelte.js';
@@ -9,9 +8,11 @@
 		ref = $bindable(null),
 		class: className,
 		onclick,
+		name,
 		...restProps
 	}: ComponentProps<typeof Button> & {
 		onclick?: (e: MouseEvent) => void;
+		name: string;
 	} = $props();
 
 	const sidebar = useSidebar();
@@ -26,7 +27,11 @@
 	type="button"
 	onclick={(e) => {
 		onclick?.(e);
-		sidebar.toggle();
+		if (name === 'left') {
+			sidebar.toggleLeft();
+		} else if (name === 'right') {
+			sidebar.toggleRight();
+		}
 	}}
 	{...restProps}
 >

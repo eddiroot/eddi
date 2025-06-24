@@ -78,7 +78,7 @@
 	<Sidebar.Header>
 		<a href="/" class="flex items-center gap-x-1">
 			<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
-			{#if !sidebar.isMobile && sidebar.open}
+			{#if !sidebar.isMobile && sidebar.leftOpen}
 				<h1 class="text-center text-lg font-semibold">eddi</h1>
 			{/if}
 		</a>
