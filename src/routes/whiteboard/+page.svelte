@@ -354,7 +354,11 @@
 		</div>
 	</div>
 	<div class="flex flex-grow items-center justify-center">
-		<canvas id="whiteboard" width={1200} height={800} class="rounded-lg border-2 shadow-md"
+		<canvas
+			id="whiteboard"
+			width={1200}
+			height={800}
+			class="dark:border- rounded-lg border-2 shadow-md dark:bg-neutral-700"
 		></canvas>
 	</div>
 </div>
