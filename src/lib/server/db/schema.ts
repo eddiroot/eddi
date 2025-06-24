@@ -7,7 +7,8 @@ import {
 	time,
 	type AnyPgColumn,
 	foreignKey,
-	interval
+	interval,
+	boolean
 } from 'drizzle-orm/pg-core';
 
 // TODO: Replace text with enum for type and role fields
@@ -98,6 +99,7 @@ export const subjectClass = pgTable('subjectClass', {
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
+	locationId: integer('location_id').references(() => location.id, { onDelete: 'set null' }), // nullable in case location is deleted
 	...timestamps
 });
 
@@ -129,6 +131,22 @@ export const subjectClassTime = pgTable('subject_class_time', {
 });
 
 export type SubjectClassTime = typeof subjectClassTime.$inferSelect;
+
+// Add this new location table
+export const location = pgTable('location', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	schoolId: integer('school_id')
+		.notNull()
+		.references(() => school.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(), // e.g., 'Room 101', 'Science Lab A', 'Gymnasium'
+	type: text('type').notNull(), // e.g., 'classroom', 'laboratory', 'gymnasium', 'auditorium', 'online'
+	capacity: integer('capacity'), // optional - max number of students
+	description: text('description'), // optional additional details
+	isActive: boolean('is_active').default(true).notNull(), // 1 for active, 0 for inactive
+	...timestamps
+});
+
+export type Location = typeof location.$inferSelect;
 
 export const subjectThread = pgTable('sub_thread', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
