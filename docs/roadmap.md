@@ -5,17 +5,31 @@ This list is ordered by priority, with the highest priority at the top and the l
 ## MVP
 
 - [ ] Home page
-- [ ] Class announcements
+  - [ ] Update the images (once all features can be screenshotted) (Beej)
+  - [ ] Change wording for best marketing (Beej)
+- [x] Class announcements
 - [ ] Create lessons with drag'n'drop blocks
-- [ ] Create lessons based on textbooks, slides, PDFs, images, etc
-- [ ] Lessons (subject page)
+  - [ ] Persist to database (Lachie)
+  - [ ] Add whiteboard component (Lachie)
+  - [ ] Add interactive components (Max, Raph)
+- [ ] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
+- [ ] Lessons (subject level)
+  - [ ] Remove weeks from lessons (Lachie)
+  - [ ] Ability to order topics and lessons within them (Lachie)
 - [ ] Discussions (subject level)
+  - [ ] Review appearance in light and dark mode (Lachie)
 - [ ] View your timetable
+  - [ ] Click on a timetable card to go to the subject's discussions (Max)
 - [ ] Live whiteboards
+  - [ ] Fix light/dark mode (Lachie)
 - [ ] AI Tutor "eddi" (teaching focus, not giving answers)
+  - [ ] Setup the interface (Blake, Raph)
+  - [ ] Prevent prompt injection (Blake, Raph)
+  - [ ] Give context of current lesson (Blake, Raph)
 
 ## Post MVP
 
+- [ ] Security review
 - [ ] LLM access to lesson plans
 - [ ] Class tests / quizzes
 - [ ] Roll call / attendance
