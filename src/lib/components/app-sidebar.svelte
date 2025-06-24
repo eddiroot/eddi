@@ -109,7 +109,17 @@
 					<Collapsible.Root open={false} class="group/collapsible">
 						<Collapsible.Trigger>
 							{#snippet child({ props })}
-								<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
+								<Sidebar.MenuButton 
+									tooltipContent={subject.name} 
+									{...props}
+									onclick={() => {
+										// If sidebar is collapsed, just expand it
+										if (sidebar.leftState === 'collapsed') {
+											sidebar.setLeftOpen(true);
+											return;
+										}
+									}}
+								>
 									{@const IconComponent = subjectNameToIcon(subject.name)}
 									<IconComponent class="mr-2" />
 									<span>{subject.name}</span>
