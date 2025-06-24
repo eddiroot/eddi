@@ -4,6 +4,9 @@
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
 	import Markdown from './blocks/markdown.svelte';
+	import Image from './blocks/image.svelte';
+	import Video from './blocks/video.svelte';
+	import Audio from './blocks/audio.svelte';
 	import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 	import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
 	import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
@@ -50,6 +53,12 @@
 						<Heading headingSize={parseInt(item.id[1]) + 1} text="This is a heading" />
 					{:else if item.id === 'markdown'}
 						<Markdown />
+					{:else if item.id === 'image'}
+						<Image />
+					{:else if item.id === 'video'}
+						<Video />
+					{:else if item.id === 'audio'}
+						<Audio />
 					{:else}
 						<p>Content for {item.id} block.</p>
 					{/if}
