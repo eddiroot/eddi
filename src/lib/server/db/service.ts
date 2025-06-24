@@ -357,36 +357,3 @@ export async function deleteLocation(locationId: number) {
 
 	return location;
 }
-
-export async function getClassLocationsForUser(userId: string) {
-	const classLocations = await db
-		.select({
-			subjectClass: {
-				id: table.subjectClass.id
-			},
-			location: table.subjectClassLocation,
-			subject: {
-				id: table.subject.id,
-				name: table.subject.name
-			},
-			subjectOffering: {
-				id: table.subjectOffering.id,
-				year: table.subjectOffering.year
-			}
-		})
-		.from(table.userSubjectClass)
-		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
-		.leftJoin(
-			table.subjectClassLocation,
-			eq(table.subjectClass.locationId, table.subjectClassLocation.id)
-		)
-		.innerJoin(
-			table.subjectOffering,
-			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
-		)
-		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
-		.where(eq(table.userSubjectClass.userId, userId))
-		.orderBy(table.subject.name, table.subjectClassLocation.name);
-
-	return classLocations;
-}
