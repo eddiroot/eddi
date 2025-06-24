@@ -14,13 +14,13 @@ This list is ordered by priority, with the highest priority at the top and the l
   - [ ] Add interactive components (Max, Raph)
 - [ ] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
 - [ ] Lessons (subject level)
-  - [ ] Remove weeks from lessons (Lachie)
+  - [x] Remove weeks from lessons (Lachie)
   - [ ] Ability to order topics and lessons within them (Lachie)
 - [x] Discussions (subject level)
 - [ ] View your timetable
-  - [ ] Click on a timetable card to go to the subject's discussions (Max)
+  - [x] Click on a timetable card to go to the subject's discussions (Lachie)
 - [ ] Live whiteboards
-  - [ ] Fix light/dark mode (Lachie)
+  - [x] Fix light/dark mode (Lachie)
 - [ ] AI Tutor "eddi" (teaching focus, not giving answers)
   - [ ] Setup the interface (Blake, Raph)
   - [ ] Prevent prompt injection (Blake, Raph)
