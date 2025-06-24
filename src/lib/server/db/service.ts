@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, sql } from 'drizzle-orm';
+import { desc, eq, and, gte, inArray } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -338,7 +338,7 @@ export async function deleteWhiteboardObjects(objectIds: string[], whiteboardId:
 		.where(
 			and(
 				eq(table.whiteboardObject.whiteboardId, whiteboardId),
-				sql`${table.whiteboardObject.objectId} = ANY(${objectIds})`
+				inArray(table.whiteboardObject.objectId, objectIds)
 			)
 		);
 }
