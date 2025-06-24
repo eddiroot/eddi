@@ -14,6 +14,7 @@
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
 
+	let { data } = $props();
 	let items = $state<{ id: string }[]>([]);
 
 	function handleDrop(state: DragDropState<{ id: string }>) {
@@ -30,7 +31,7 @@
 <div class="grid h-full grid-cols-[1fr_300px] gap-4 p-4">
 	<Card.Root class="h-full">
 		<Card.Header>
-			<Heading headingSize={1} text="Lesson Title Here" />
+			<Heading headingSize={1} text={data.lesson?.lesson.title} />
 		</Card.Header>
 		<Card.Content class="h-full">
 			<div

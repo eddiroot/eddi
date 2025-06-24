@@ -238,6 +238,18 @@ export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: numb
 	return lessonTopics;
 }
 
+export async function getLessonById(lessonId: number) {
+	const lessons = await db
+		.select({
+			lesson: table.lesson
+		})
+		.from(table.lesson)
+		.where(eq(table.lesson.id, lessonId))
+		.limit(1);
+
+	return lessons.length > 0 ? lessons[0] : null;
+}
+
 export async function createLesson(
 	title: string,
 	description: string,
