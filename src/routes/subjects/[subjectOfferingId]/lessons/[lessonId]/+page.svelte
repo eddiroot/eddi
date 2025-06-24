@@ -35,7 +35,7 @@
 		</Card.Header>
 		<Card.Content class="h-full">
 			<div
-				class="flex h-full flex-col space-y-4"
+				class="flex h-full flex-col gap-4"
 				use:droppable={{
 					container: 'blocksColumn',
 					callbacks: {
