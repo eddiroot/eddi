@@ -16,8 +16,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [ ] Lessons (subject level)
   - [ ] Remove weeks from lessons (Lachie)
   - [ ] Ability to order topics and lessons within them (Lachie)
-- [ ] Discussions (subject level)
-  - [ ] Review appearance in light and dark mode (Lachie)
+- [x] Discussions (subject level)
 - [ ] View your timetable
   - [ ] Click on a timetable card to go to the subject's discussions (Max)
 - [ ] Live whiteboards

@@ -38,7 +38,7 @@
 	}
 </script>
 
-<div class={depth > 0 ? 'ml-8 border-l-2 border-gray-100 pl-4' : ''}>
+<div class={depth > 0 ? 'border-accent border-l-2 pl-8' : ''}>
 	<Card.Root
 		class="border-l-4 {response.response.type === 'answer'
 			? 'border-l-green-500'

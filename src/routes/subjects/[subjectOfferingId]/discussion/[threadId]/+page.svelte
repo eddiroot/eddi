@@ -78,10 +78,8 @@
 				</div>
 			</Card.Header>
 			<Card.Content>
-				<div class="prose prose-sm max-w-none">
-					<div class="text-base leading-relaxed whitespace-pre-wrap">
-						{thread()?.thread.content || 'No content available'}
-					</div>
+				<div class="leading-relaxed whitespace-pre-wrap">
+					{thread()?.thread.content || 'No content available'}
 				</div>
 			</Card.Content>
 		</Card.Root>
