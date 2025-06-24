@@ -272,3 +272,78 @@ export async function createLesson(
 
 	return lesson;
 }
+
+// Location related functions:
+
+export async function createLocation(
+	schoolId: number,
+	name: string,
+	type: string,
+	capacity?: number | null,
+	description?: string | null,
+	isActive: boolean = true
+) {
+	const [location] = await db
+		.insert(table.location)
+		.values({
+			schoolId,
+			name,
+			type,
+			capacity: capacity || null,
+			description: description || null,
+			isActive: isActive
+		})
+		.returning();
+
+	return location;
+}
+
+export async function getLocationsBySchoolId(schoolId: number) {
+	const locations = await db
+		.select()
+		.from(table.location)
+		.where(and(eq(table.location.schoolId, schoolId), eq(table.location.isActive, true)))
+		.orderBy(table.location.name);
+
+	return locations;
+}
+
+export async function getLocationById(locationId: number) {
+	const locations = await db
+		.select()
+		.from(table.location)
+		.where(eq(table.location.id, locationId))
+		.limit(1);
+
+	return locations.length > 0 ? locations[0] : null;
+}
+
+export async function updateLocation(
+	locationId: number,
+	updates: {
+		name?: string;
+		type?: string;
+		capacity?: number | null;
+		description?: string | null;
+		isActive?: boolean;
+	}
+) {
+	const [location] = await db
+		.update(table.location)
+		.set(updates)
+		.where(eq(table.location.id, locationId))
+		.returning();
+
+	return location;
+}
+
+export async function deleteLocation(locationId: number) {
+	// Soft delete by setting isActive to 0
+	const [location] = await db
+		.update(table.location)
+		.set({ isActive: false })
+		.where(eq(table.location.id, locationId))
+		.returning();
+
+	return location;
+}
