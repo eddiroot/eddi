@@ -700,23 +700,28 @@ async function main() {
 		.values([
 			{
 				subjectClassId: subjectClasses[0].id,
-				name: 'Algebra Basics'
+				name: 'Algebra Basics',
+				index: 0
 			},
 			{
 				subjectClassId: subjectClasses[0].id,
-				name: 'Linear Equations'
+				name: 'Linear Equations',
+				index: 1
 			},
 			{
 				subjectClassId: subjectClasses[0].id,
-				name: 'Quadratic Functions'
+				name: 'Quadratic Functions',
+				index: 2
 			},
 			{
 				subjectClassId: subjectClasses[0].id,
-				name: 'Geometry Fundamentals'
+				name: 'Geometry Fundamentals',
+				index: 3
 			},
 			{
 				subjectClassId: subjectClasses[0].id,
-				name: 'Trigonometry'
+				name: 'Trigonometry',
+				index: 4
 			}
 		])
 		.returning();
@@ -727,21 +732,21 @@ async function main() {
 			// Algebra Basics lessons
 			{
 				lessonTopicId: mathLessonTopics[0].id,
-				subjectWeek: 1,
+				index: 0,
 				title: 'Introduction to Variables',
 				description: 'Learn about variables and their role in algebra',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[0].id,
-				subjectWeek: 1,
+				index: 1,
 				title: 'Basic Operations with Variables',
 				description: 'Addition, subtraction, multiplication and division with variables',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[0].id,
-				subjectWeek: 2,
+				index: 2,
 				title: 'Simplifying Expressions',
 				description: 'Learn to combine like terms and simplify algebraic expressions',
 				lessonStatus: 'draft'
@@ -750,21 +755,21 @@ async function main() {
 			// Linear Equations lessons
 			{
 				lessonTopicId: mathLessonTopics[1].id,
-				subjectWeek: 3,
+				index: 0,
 				title: 'Solving One-Step Equations',
 				description: 'Basic techniques for solving simple linear equations',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[1].id,
-				subjectWeek: 3,
+				index: 1,
 				title: 'Solving Multi-Step Equations',
 				description: 'Advanced techniques for complex linear equations',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[1].id,
-				subjectWeek: 4,
+				index: 2,
 				title: 'Graphing Linear Equations',
 				description: 'Visual representation of linear equations on coordinate plane',
 				lessonStatus: 'draft'
@@ -773,21 +778,21 @@ async function main() {
 			// Quadratic Functions lessons
 			{
 				lessonTopicId: mathLessonTopics[2].id,
-				subjectWeek: 5,
+				index: 0,
 				title: 'Introduction to Quadratics',
 				description: 'Understanding quadratic functions and their properties',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[2].id,
-				subjectWeek: 5,
+				index: 1,
 				title: 'Factoring Quadratics',
 				description: 'Methods for factoring quadratic expressions',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[2].id,
-				subjectWeek: 6,
+				index: 2,
 				title: 'Quadratic Formula',
 				description: 'Using the quadratic formula to solve equations',
 				lessonStatus: 'draft'
@@ -796,21 +801,21 @@ async function main() {
 			// Geometry Fundamentals lessons
 			{
 				lessonTopicId: mathLessonTopics[3].id,
-				subjectWeek: 7,
+				index: 0,
 				title: 'Points, Lines, and Planes',
 				description: 'Basic geometric concepts and definitions',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[3].id,
-				subjectWeek: 7,
+				index: 1,
 				title: 'Angles and Their Measures',
 				description: 'Understanding different types of angles',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[3].id,
-				subjectWeek: 8,
+				index: 2,
 				title: 'Triangles and Their Properties',
 				description: 'Exploring triangle classifications and properties',
 				lessonStatus: 'draft'
@@ -819,21 +824,21 @@ async function main() {
 			// Trigonometry lessons
 			{
 				lessonTopicId: mathLessonTopics[4].id,
-				subjectWeek: 9,
+				index: 0,
 				title: 'Introduction to Trigonometry',
 				description: 'Basic trigonometric concepts and ratios',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[4].id,
-				subjectWeek: 9,
+				index: 1,
 				title: 'Sine, Cosine, and Tangent',
 				description: 'Understanding the primary trigonometric functions',
 				lessonStatus: 'draft'
 			},
 			{
 				lessonTopicId: mathLessonTopics[4].id,
-				subjectWeek: 10,
+				index: 2,
 				title: 'Solving Right Triangles',
 				description: 'Using trigonometry to find missing sides and angles',
 				lessonStatus: 'draft'
@@ -842,10 +847,7 @@ async function main() {
 		.returning();
 
 	// Create default whiteboard
-	await db
-		.insert(schema.whiteboard)
-		.values({})
-		.returning();
+	await db.insert(schema.whiteboard).values({}).returning();
 }
 
 main()
