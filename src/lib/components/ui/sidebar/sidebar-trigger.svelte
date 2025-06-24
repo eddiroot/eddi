@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
+	import PanelRightIcon from '@lucide/svelte/icons/panel-right';
 	import type { ComponentProps } from 'svelte';
 	import { useSidebar } from './context.svelte.js';
 
@@ -9,7 +10,6 @@
 		class: className,
 		onclick,
 		name,
-		children,
 		...restProps
 	}: ComponentProps<typeof Button> & {
 		onclick?: (e: MouseEvent) => void;
@@ -36,10 +36,10 @@
 	}}
 	{...restProps}
 >
-	{#if children}
-		{@render children()}
+	{#if name == 'right'}
+		<PanelRightIcon />
 	{:else}
-		<PanelLeftIcon/>
+		<PanelLeftIcon />
 	{/if}
 	<span class="sr-only">Toggle Sidebar</span>
 </Button>

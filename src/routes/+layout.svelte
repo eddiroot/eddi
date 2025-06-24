@@ -65,7 +65,7 @@
 		>
 			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
 				<div class="flex items-center gap-x-4">
-					<Sidebar.Trigger name="left" />
+					<Sidebar.Trigger name="left" aria-label="Toggle Navigation Sidebar" />
 					<Breadcrumb.Root>
 						<Breadcrumb.List>
 							{#each generateBreadcrumbItems(page.url.pathname) as item}
@@ -88,18 +88,12 @@
 						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
 					{/if}
 					<ThemeToggle />
+					<Sidebar.Trigger name="right" aria-label="Toggle AI Helper" />
 				</div>
 			</nav>
 		</header>
 		<main class="flex-1 overflow-auto">
 			{@render children()}
-			<Sidebar.Trigger
-				name="right"
-				class="absolute right-6 bottom-6 z-50 rounded-full"
-				aria-label="Toggle AI Helper"
-			>
-				<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
-			</Sidebar.Trigger>
 		</main>
 	</div>
 	{#if user()}
