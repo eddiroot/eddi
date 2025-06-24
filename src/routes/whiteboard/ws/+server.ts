@@ -11,39 +11,40 @@ import {
 export const socket: Socket = {
 	async open(peer) {
 		try {
-			// Load whiteboard objects from database
 			const objects = await getWhiteboardObjects(1);
-			const whiteboardObjects = objects.map(obj => ({
+			const whiteboardObjects = objects.map((obj) => ({
 				id: obj.objectId,
-				...obj.objectData as Record<string, unknown>
+				...(obj.objectData as Record<string, unknown>)
 			}));
-			
-			peer.send(JSON.stringify({ 
-				type: 'load', 
-				whiteboard: { objects: whiteboardObjects } 
-			}));
+
+			peer.send(
+				JSON.stringify({
+					type: 'load',
+					whiteboard: { objects: whiteboardObjects }
+				})
+			);
 		} catch (error) {
 			console.error('Failed to load whiteboard from database:', error);
-			peer.send(JSON.stringify({ 
-				type: 'load', 
-				whiteboard: { objects: [] } 
-			}));
+			peer.send(
+				JSON.stringify({
+					type: 'load',
+					whiteboard: { objects: [] }
+				})
+			);
 		}
 		peer.subscribe('whiteboard');
 	},
 
 	async message(peer, message) {
 		const parsedMessage = JSON.parse(String(message));
-		
+
 		try {
 			if (parsedMessage.type === 'clear') {
 				await clearWhiteboard(1);
 				peer.publish('whiteboard', JSON.stringify({ type: 'clear' }));
-
 			} else if (parsedMessage.type === 'add' || parsedMessage.type === 'create') {
 				const newObject = parsedMessage.object;
 
-				// Save to database
 				await saveWhiteboardObject({
 					objectId: newObject.id,
 					objectType: newObject.type || 'unknown',
@@ -52,36 +53,30 @@ export const socket: Socket = {
 				});
 
 				peer.publish('whiteboard', JSON.stringify({ type: 'add', object: newObject }));
-
 			} else if (parsedMessage.type === 'remove' || parsedMessage.type === 'delete') {
 				if (parsedMessage.objects) {
 					const objectsToRemove = parsedMessage.objects;
 					const objectIds = objectsToRemove.map((obj: { id: string }) => obj.id);
 
-					// Remove from database
 					await deleteWhiteboardObjects(objectIds, 1);
 
 					peer.publish('whiteboard', JSON.stringify({ type: 'delete', objects: objectsToRemove }));
 				} else if (parsedMessage.object) {
 					const objectToRemove = parsedMessage.object;
 
-					// Remove from database
 					await deleteWhiteboardObject(objectToRemove.id, 1);
 
 					peer.publish('whiteboard', JSON.stringify({ type: 'delete', objects: [objectToRemove] }));
 				}
-
 			} else if (parsedMessage.type === 'update' || parsedMessage.type === 'modify') {
 				const updatedObject = parsedMessage.object;
 
-				// Update in database
 				await updateWhiteboardObject(updatedObject.id, updatedObject, 1);
 
 				peer.publish('whiteboard', JSON.stringify({ type: 'modify', object: updatedObject }));
 			}
 		} catch (error) {
 			console.error('Database operation failed:', error);
-			// Send error message to client
 			peer.send(JSON.stringify({ type: 'error', message: 'Failed to persist changes' }));
 		}
 	},
