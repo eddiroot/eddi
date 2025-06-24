@@ -30,7 +30,10 @@ export const formSchema = z.object({
 		.refine((file) => {
 			if (!file) return true; // because file is optional
 			return ACCEPTED_FILE_TYPES.includes(file.type);
-		}, `File must be one of ${ACCEPTED_FILE_TYPES_HR}`)
+		}, `File must be one of ${ACCEPTED_FILE_TYPES_HR}`),
+	creationMethod: z.enum(['manual', 'ai'], {
+		required_error: 'Please select a creation method'
+	})
 });
 
 export type FormSchema = typeof formSchema;

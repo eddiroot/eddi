@@ -7,6 +7,20 @@
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 
+	let creationMethod = $state<'manual' | 'ai' >('manual');
+
+	$effect(() => {
+		$formData.creationMethod = creationMethod;
+	});
+
+	function handleCreateManual() {
+		creationMethod = 'manual';
+	}	
+
+	function handleCreateWithAI() {
+		creationMethod = 'ai';
+	}
+
 	let {
 		data
 	}: {
@@ -33,6 +47,7 @@
 
 	let dueDateString = $state(formatDateForInput($formData.dueDate));
 	let selectedTopicId = $state($formData.lessonTopicId?.toString() || '');
+	let file = $state($formData.file);
 
 	$effect(() => {
 		$formData.dueDate = parseDateFromInput(dueDateString);
@@ -146,7 +161,7 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Supporting Material (Optional)</Form.Label>
-				<Input {...props} type="file" accept=".png,.jpg,.jpeg,.pdf" class="h-16 pt-4" />
+				<Input {...props} bind:value={file} type="file" accept=".png,.jpg,.jpeg,.pdf" class="h-16 pt-4" />
 			{/snippet}
 		</Form.Control>
 		<Form.Description>
@@ -155,5 +170,23 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Button>Create Lesson</Form.Button>
+	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
+
+	<div class="flex gap-4">
+        <Form.Button 
+            type="submit" 
+            variant="outline"
+            onclick={handleCreateManual}
+        >
+            Create Manual
+        </Form.Button>
+        
+        <Form.Button 
+            type="submit"
+            onclick={handleCreateWithAI}
+			class="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:from-blue-600 hover:via-purple-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+            Create with AI
+        </Form.Button>
+    </div>
 </form>
