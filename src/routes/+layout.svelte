@@ -59,7 +59,7 @@
 	{#if user()}
 		<AppSidebar subjects={data.subjects} user={user()} />
 	{/if}
-	<div class="flex h-full w-full flex-col">
+	<div class="relative flex h-full w-full flex-col">
 		<header
 			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 backdrop-blur"
 		>
@@ -88,12 +88,18 @@
 						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
 					{/if}
 					<ThemeToggle />
-					<Sidebar.Trigger name="right" />
 				</div>
 			</nav>
 		</header>
 		<main class="flex-1 overflow-auto">
 			{@render children()}
+			<Sidebar.Trigger
+				name="right"
+				class="absolute right-6 bottom-6 z-50 rounded-full"
+				aria-label="Toggle AI Helper"
+			>
+				<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
+			</Sidebar.Trigger>
 		</main>
 	</div>
 	{#if user()}

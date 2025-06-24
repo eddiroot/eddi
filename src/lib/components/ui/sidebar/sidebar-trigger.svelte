@@ -9,6 +9,7 @@
 		class: className,
 		onclick,
 		name,
+		children,
 		...restProps
 	}: ComponentProps<typeof Button> & {
 		onclick?: (e: MouseEvent) => void;
@@ -35,6 +36,10 @@
 	}}
 	{...restProps}
 >
-	<PanelLeftIcon />
+	{#if children}
+		{@render children()}
+	{:else}
+		<PanelLeftIcon/>
+	{/if}
 	<span class="sr-only">Toggle Sidebar</span>
 </Button>
