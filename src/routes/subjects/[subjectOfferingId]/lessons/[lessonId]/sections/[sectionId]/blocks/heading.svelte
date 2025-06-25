@@ -27,7 +27,7 @@
 				}
 			}}
 		/>
-		<Button onclick={saveText}>Save</Button>
+		<Button data-save-btn onclick={saveText} class="interactive">Save</Button>
 	{:else}
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
@@ -43,13 +43,15 @@
 			<h5 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h5>
 		{/if}
 		<Button
+			data-edit-btn
 			variant="outline"
+			class="interactive"
 			onclick={() => {
 				editText = text;
 				isEditing = true;
 			}}
 		>
-			<EditIcon class="h-3 w-3" />
+			<EditIcon />
 		</Button>
 	{/if}
 </div>

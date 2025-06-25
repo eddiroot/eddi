@@ -21,7 +21,6 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import EditIcon from '@lucide/svelte/icons/edit';
-	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { type LessonSectionBlock } from '$lib/server/db/schema';
 
 	let { data } = $props();
@@ -151,6 +150,11 @@
 	}
 
 	async function deleteSection(sectionId: number) {
+		if (sectionId === data.section.id) {
+			alert('You cannot delete the current section.');
+			return;
+		}
+
 		const formData = new FormData();
 		formData.append('sectionId', sectionId.toString());
 		formData.append('lessonId', data.lesson.id.toString());
@@ -162,9 +166,6 @@
 
 		await invalidateAll();
 	}
-
-	function handleDragEnter(state: DragDropState<LessonSectionBlock>) {}
-	function handleDragLeave(state: DragDropState<LessonSectionBlock>) {}
 </script>
 
 <div class="grid h-full grid-cols-[300px_1fr_300px] gap-4 p-4">
@@ -242,55 +243,47 @@
 				use:droppable={{
 					container: 'blocksColumn',
 					callbacks: {
-						onDrop: handleDrop,
-						onDragEnter: handleDragEnter,
-						onDragLeave: handleDragLeave
+						onDrop: handleDrop
 					}
 				}}
 			>
-				{#each blocks() as item (item.id)}
+				{#each blocks() as item}
 					<div
-						class="group relative flex items-start gap-2 rounded-lg border p-4"
 						use:draggable={{
 							container: 'blocksColumn',
-							dragData: item
+							dragData: item,
+							interactive: ['[data-edit-btn]', '[data-save-btn]', '.interactive']
 						}}
 					>
-						<div class="flex flex-col gap-1">
-							<GripVerticalIcon class="h-4 w-4 cursor-grab text-gray-400 active:cursor-grabbing" />
-						</div>
-
-						<div class="flex-1">
-							{#if item.type[0] === 'h'}
-								<Heading
-									headingSize={parseInt(item.type[1]) + 1}
-									text={typeof item.content === 'string' ? item.content : 'This is a heading'}
-									onUpdate={(newText: string) => updateBlockContent(item, newText)}
-								/>
-							{:else if item.type === 'markdown'}
-								<Markdown
-									content={typeof item.content === 'string' ? item.content : ''}
-									onUpdate={(newContent: string) => updateBlockContent(item, newContent)}
-								/>
-							{:else if item.type === 'image'}
-								<Image
-									content={item.content as Record<string, any> | undefined}
-									onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
-								/>
-							{:else if item.type === 'video'}
-								<Video
-									content={item.content as Record<string, any> | undefined}
-									onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
-								/>
-							{:else if item.type === 'audio'}
-								<Audio
-									content={item.content as Record<string, any> | undefined}
-									onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
-								/>
-							{:else}
-								<p>Content for {item.type} block.</p>
-							{/if}
-						</div>
+						{#if item.type[0] === 'h'}
+							<Heading
+								headingSize={parseInt(item.type[1]) + 1}
+								text={typeof item.content === 'string' ? item.content : 'This is a heading'}
+								onUpdate={(newText: string) => updateBlockContent(item, newText)}
+							/>
+						{:else if item.type === 'markdown'}
+							<Markdown
+								content={typeof item.content === 'string' ? item.content : ''}
+								onUpdate={(newContent: string) => updateBlockContent(item, newContent)}
+							/>
+						{:else if item.type === 'image'}
+							<Image
+								content={item.content as Record<string, any> | undefined}
+								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+							/>
+						{:else if item.type === 'video'}
+							<Video
+								content={item.content as Record<string, any> | undefined}
+								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+							/>
+						{:else if item.type === 'audio'}
+							<Audio
+								content={item.content as Record<string, any> | undefined}
+								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+							/>
+						{:else}
+							<p>Content for {item.type} block.</p>
+						{/if}
 					</div>
 				{/each}
 			</div>
@@ -391,13 +384,11 @@
 			</div>
 
 			<div
-				class="flex h-16 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-red-300 bg-red-50 text-red-500 transition-colors hover:border-red-400 hover:bg-red-100"
+				class={`${buttonVariants({ variant: 'destructive' })} h-16 w-full cursor-default`}
 				use:droppable={{
 					container: 'deleteBin',
 					callbacks: {
-						onDrop: handleDrop,
-						onDragEnter: handleDragEnter,
-						onDragLeave: handleDragLeave
+						onDrop: handleDrop
 					}
 				}}
 			>

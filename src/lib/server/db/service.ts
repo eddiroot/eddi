@@ -299,6 +299,27 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 	return announcements;
 }
 
+export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
+	const lessons = await db
+		.select({
+			lesson: table.lesson,
+			lessonTopic: table.lessonTopic
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
+		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.userId, userId),
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+			)
+		)
+		.orderBy(desc(table.lesson.createdAt));
+
+	return lessons;
+}
+
 export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: number) {
 	const lessonTopics = await db
 		.select({
