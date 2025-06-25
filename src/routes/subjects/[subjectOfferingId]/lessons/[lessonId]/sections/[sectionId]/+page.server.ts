@@ -1,4 +1,5 @@
 import {
+	updateLessonTitle,
 	createLessonSection,
 	createLessonSectionBlock,
 	deleteLessonSection,
@@ -48,6 +49,27 @@ export const load = async ({
 };
 
 export const actions = {
+	updateLessonTitle: async (event) => {
+		const formData = await event.request.formData();
+		const lessonId = formData.get('lessonId');
+		const title = formData.get('title');
+
+		if (!lessonId || !title) {
+			return fail(400, { message: 'Lesson ID and title are required' });
+		}
+		if (typeof lessonId !== 'string' || typeof title !== 'string') {
+			return fail(400, { message: 'Invalid input types' });
+		}
+
+		let lessonIdInt;
+		try {
+			lessonIdInt = parseInt(lessonId, 10);
+		} catch {
+			return fail(400, { message: 'Invalid lesson ID' });
+		}
+
+		await updateLessonTitle(lessonIdInt, title);
+	},
 	createBlock: async (event) => {
 		const formData = await event.request.formData();
 

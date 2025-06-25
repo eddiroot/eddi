@@ -65,6 +65,7 @@
 					<Label for="video-src">Video URL</Label>
 					<Input
 						id="video-src"
+						class="interactive"
 						bind:value={src}
 						placeholder="Enter video URL (YouTube, Vimeo, or direct link)"
 					/>
@@ -84,7 +85,7 @@
 						<Button
 							variant="outline"
 							onclick={() => fileInput?.click()}
-							class="flex items-center gap-2"
+							class="interactive flex items-center gap-2"
 						>
 							<UploadIcon class="h-4 w-4" />
 							Choose File
@@ -94,7 +95,12 @@
 
 				<div class="space-y-2">
 					<Label for="video-caption">Caption (optional)</Label>
-					<Input id="video-caption" bind:value={caption} placeholder="Video caption" />
+					<Input
+						id="video-caption"
+						class="interactive"
+						bind:value={caption}
+						placeholder="Video caption"
+					/>
 				</div>
 
 				<div class="space-y-2">
@@ -116,8 +122,10 @@
 				</div>
 
 				<div class="flex gap-2">
-					<Button onclick={saveChanges}>Save</Button>
-					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
+					<Button class="interactive" onclick={saveChanges}>Save</Button>
+					<Button class="interactive" variant="outline" onclick={() => (isEditing = false)}
+						>Cancel</Button
+					>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -166,8 +174,6 @@
 			{/if}
 
 			<Button
-				variant="outline"
-				size="sm"
 				onclick={() => {
 					src = content.src || '';
 					caption = content.caption || '';
@@ -176,9 +182,9 @@
 					loop = content.loop || false;
 					isEditing = true;
 				}}
-				class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
+				class="interactive absolute top-2 right-2"
 			>
-				<EditIcon class="h-3 w-3" />
+				<EditIcon />
 			</Button>
 		</div>
 	{/if}

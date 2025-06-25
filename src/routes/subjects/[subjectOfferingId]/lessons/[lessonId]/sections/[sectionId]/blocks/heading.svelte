@@ -3,7 +3,7 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import Input from '$lib/components/ui/input/input.svelte';
 
-	let { headingSize = 1, text = 'Heading goes here', onUpdate = () => {} } = $props();
+	let { headingSize = 1, text = 'Heading goes here', onUpdate } = $props();
 	let isEditing = $state(false);
 	let editText = $state(text);
 
@@ -17,6 +17,7 @@
 <div class="flex w-full items-center justify-between gap-2">
 	{#if isEditing}
 		<Input
+			class="interactive"
 			bind:value={editText}
 			onkeydown={(e) => {
 				if (e.key === 'Enter') {
@@ -27,7 +28,7 @@
 				}
 			}}
 		/>
-		<Button data-save-btn onclick={saveText} class="interactive">Save</Button>
+		<Button onclick={saveText} class="interactive">Save</Button>
 	{:else}
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
@@ -43,7 +44,6 @@
 			<h5 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h5>
 		{/if}
 		<Button
-			data-edit-btn
 			variant="outline"
 			class="interactive"
 			onclick={() => {

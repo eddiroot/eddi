@@ -50,6 +50,21 @@
 		}
 	}
 
+	async function updateLessonTitle(title: string) {
+		const formData = new FormData();
+		formData.append('lessonId', data.lesson.id.toString());
+		formData.append('title', title);
+
+		const response = await fetch('?/updateLessonTitle', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			await invalidateAll();
+		}
+	}
+
 	async function createBlock(draggedItem: LessonSectionBlock) {
 		const formData = new FormData();
 		formData.append('lessonSectionId', data.section.id.toString());
@@ -234,7 +249,11 @@
 	<Card.Root class="h-full">
 		<Card.Header>
 			{#if data.sections.length > 0}
-				<Heading headingSize={1} text={data.lesson.title} />
+				<Heading
+					headingSize={1}
+					text={data.lesson.title}
+					onUpdate={(newText: string) => updateLessonTitle(newText)}
+				/>
 			{/if}
 		</Card.Header>
 		<Card.Content class="h-full">
@@ -252,7 +271,7 @@
 						use:draggable={{
 							container: 'blocksColumn',
 							dragData: item,
-							interactive: ['[data-edit-btn]', '[data-save-btn]', '.interactive']
+							interactive: ['.interactive']
 						}}
 					>
 						{#if item.type[0] === 'h'}

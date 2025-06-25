@@ -415,6 +415,16 @@ export async function createLesson(
 	return lesson;
 }
 
+export async function updateLessonTitle(lessonId: number, title: string) {
+	const [lesson] = await db
+		.update(table.lesson)
+		.set({ title })
+		.where(eq(table.lesson.id, lessonId))
+		.returning();
+
+	return lesson;
+}
+
 export async function createLessonSectionBlock(
 	lessonSectionId: number,
 	type: string,
