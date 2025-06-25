@@ -6,8 +6,13 @@
 	import { formSchema, type FormSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
+	import Label from '$lib/components/ui/label/label.svelte';
 
 	let creationMethod = $state<'manual' | 'ai' >('manual');
+	let aiFiles: FileList | null = $state(null); 
 
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
@@ -16,10 +21,6 @@
 	function handleCreateManual() {
 		creationMethod = 'manual';
 	}	
-
-	function handleCreateWithAI() {
-		creationMethod = 'ai';
-	}
 
 	let {
 		data
@@ -95,7 +96,7 @@
 	</Form.Field>
 
 	<!-- Topic, Week, and Due Date Grid -->
-	<div class="grid grid-cols-12 gap-4">
+	<div class="grid grid-cols-6 lg:grid-cols-12 gap-4">
 		<div class="col-span-6">
 			<Form.Field {form} name="lessonTopicId">
 				<Form.Control>
@@ -157,36 +158,44 @@
 		</div>
 	</div>
 
-	<Form.Field {form} name="file">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Supporting Material (Optional)</Form.Label>
-				<Input {...props} bind:value={file} type="file" accept=".png,.jpg,.jpeg,.pdf" class="h-16 pt-4" />
-			{/snippet}
-		</Form.Control>
-		<Form.Description>
-			Upload supporting materials like PDFs, images, or other resources (max 5MB).
-		</Form.Description>
-		<Form.FieldErrors />
-	</Form.Field>
+	<div class="space-y-2 -mt-5">
+		<Tabs.Root bind:value={creationMethod} class="w-full flex">
+            <Tabs.List class="flex space-x-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600  text-white border-0 shadow-lg transition-all duration-200">
+                <Tabs.Trigger value="manual" class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white">Create Manual</Tabs.Trigger>
+                <Tabs.Trigger value="ai" class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white">Generate with AI</Tabs.Trigger>
+            </Tabs.List>
+            
+            <Tabs.Content value="manual" class="mt-1"></Tabs.Content>      
+            <Tabs.Content value="ai" class="mt-1 w-full">
+				<div class="w-full">
+				<Label class="text-sm font-medium">Supporting Material (Optional)</Label>
+				<Label class="text-muted-foreground text-sm font-weight-normal font-medium space-y-3">
+					Upload materials for AI to analyse and generate lesson content from.
+				</Label>
+				<div class="w-full max-w-none">
+                 <Dropzone 
+					id="ai-dropzone" 
+					bind:files={aiFiles}
+					accept=".png,.jpg,.jpeg,.pdf"
+					multiple={true}
+                    />
+				</div>
+			</div>
+            </Tabs.Content>
+        </Tabs.Root>
+    </div>
+
+
+
 
 	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
 
-	<div class="flex gap-4">
+    <div class="flex justify-end gap-2">
         <Form.Button 
             type="submit" 
-            variant="outline"
             onclick={handleCreateManual}
         >
-            Create Manual
-        </Form.Button>
-        
-        <Form.Button 
-            type="submit"
-            onclick={handleCreateWithAI}
-			class="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:from-blue-600 hover:via-purple-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
-        >
-            Create with AI
+            Create
         </Form.Button>
     </div>
 </form>
