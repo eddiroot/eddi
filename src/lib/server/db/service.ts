@@ -287,18 +287,29 @@ export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: numb
 	return lessonTopics;
 }
 
-export async function getLessonById(lessonId: number) {
-	const lessons = await db
+export async function getLessonWithSectionsById(lessonId: number) {
+	const lessonWithSections = await db
 		.select({
 			lesson: table.lesson,
 			lessonSection: table.lessonSection
 		})
 		.from(table.lesson)
 		.innerJoin(table.lessonSection, eq(table.lessonSection.lessonId, table.lesson.id))
-		.where(eq(table.lesson.id, lessonId))
-		.limit(1);
+		.where(eq(table.lesson.id, lessonId));
 
-	return lessons.length > 0 ? lessons[0] : null;
+	return lessonWithSections;
+}
+
+export async function getLessonBlocksByLessonSectionId(lessonSectionId: number) {
+	const lessonBlocks = await db
+		.select({
+			block: table.lessonSectionBlock
+		})
+		.from(table.lessonSectionBlock)
+		.where(eq(table.lessonSectionBlock.lessonSectionId, lessonSectionId))
+		.orderBy(table.lessonSectionBlock.createdAt);
+
+	return lessonBlocks.map((row) => row.block);
 }
 
 export async function createLesson(
@@ -320,6 +331,11 @@ export async function createLesson(
 			dueDate
 		})
 		.returning();
+
+	await db.insert(table.lessonSection).values({
+		lessonId: lesson.id,
+		title: 'Default'
+	});
 
 	return lesson;
 }

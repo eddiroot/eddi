@@ -1,4 +1,8 @@
-import { createLessonSectionBlock, getLessonById } from '$lib/server/db/service';
+import {
+	createLessonSectionBlock,
+	getLessonBlocksByLessonSectionId,
+	getLessonWithSectionsById
+} from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
 export const load = async ({ locals: { security }, params: { lessonId } }) => {
@@ -11,9 +15,10 @@ export const load = async ({ locals: { security }, params: { lessonId } }) => {
 		return { subject: null };
 	}
 
-	const lesson = await getLessonById(lessonIdInt);
+	const lesson = await getLessonWithSectionsById(lessonIdInt);
+	const lessonBlocks = await getLessonBlocksByLessonSectionId(lesson[0].lessonSection.id);
 
-	return { lesson };
+	return { lesson, lessonBlocks };
 };
 
 export const actions = {
