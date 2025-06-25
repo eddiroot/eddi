@@ -235,9 +235,8 @@ export const lessonSectionBlock = pgTable('lesson_section_block', {
 	lessonSectionId: integer('lesson_section_id')
 		.notNull()
 		.references(() => lessonSection.id, { onDelete: 'cascade' }),
-	title: text('title').notNull(),
-	description: text('description').notNull(),
 	type: text('type').notNull(), // either 'text', 'audio', 'image', 'input', 'textArea', 'mcSingle', or 'mcMulti'
+	content: jsonb('content').notNull(),
 	...timestamps
 });
 

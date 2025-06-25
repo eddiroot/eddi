@@ -16,19 +16,35 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
+	import type { LessonSectionBlock } from '$lib/server/db/schema';
 
 	let { data } = $props();
-	let items = $state<{ id: string }[]>([]);
+	let items = $state<LessonSectionBlock[]>([]);
 
-	function handleDrop(state: DragDropState<{ id: string }>) {
+	async function handleDrop(state: DragDropState<LessonSectionBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
 		if (!targetContainer || sourceContainer === targetContainer) return;
-		items = items.filter((item) => item !== draggedItem);
-		items = [...items, draggedItem];
+
+		if (sourceContainer === 'blockSelectionMenu' && targetContainer === 'blocksColumn') {
+			await fetch('?/createBlock', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					lessonSectionId: data.lesson?.lessonSection.id,
+					type: draggedItem.type,
+					content: draggedItem.content
+				})
+			});
+			items = [...items, draggedItem];
+		}
+
+		if (sourceContainer === 'blocksColumn' && targetContainer === 'blockSelectionMenu') {
+			items = items.filter((item) => item !== draggedItem);
+		}
 	}
 
-	function handleDragEnter(state: DragDropState<{ id: string }>) {}
-	function handleDragLeave(state: DragDropState<{ id: string }>) {}
+	function handleDragEnter(state: DragDropState<LessonSectionBlock>) {}
+	function handleDragLeave(state: DragDropState<LessonSectionBlock>) {}
 </script>
 
 <div class="grid h-full grid-cols-[1fr_300px] gap-4 p-4">
@@ -49,18 +65,18 @@
 				}}
 			>
 				{#each items as item}
-					{#if item.id[0] === 'h'}
-						<Heading headingSize={parseInt(item.id[1]) + 1} text="This is a heading" />
-					{:else if item.id === 'markdown'}
+					{#if item.type[0] === 'h'}
+						<Heading headingSize={parseInt(item.type[1]) + 1} text="This is a heading" />
+					{:else if item.type === 'markdown'}
 						<Markdown />
-					{:else if item.id === 'image'}
+					{:else if item.type === 'image'}
 						<Image />
-					{:else if item.id === 'video'}
+					{:else if item.type === 'video'}
 						<Video />
-					{:else if item.id === 'audio'}
+					{:else if item.type === 'audio'}
 						<Audio />
 					{:else}
-						<p>Content for {item.id} block.</p>
+						<p>Content for {item.type} block.</p>
 					{/if}
 				{/each}
 			</div>

@@ -246,9 +246,11 @@ export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: numb
 export async function getLessonById(lessonId: number) {
 	const lessons = await db
 		.select({
-			lesson: table.lesson
+			lesson: table.lesson,
+			lessonSection: table.lessonSection
 		})
 		.from(table.lesson)
+		.innerJoin(table.lessonSection, eq(table.lessonSection.lessonId, table.lesson.id))
 		.where(eq(table.lesson.id, lessonId))
 		.limit(1);
 
@@ -259,7 +261,7 @@ export async function createLesson(
 	title: string,
 	description: string,
 	lessonStatus: 'draft' | 'published' | 'archived',
-	subjectWeek: number,
+	index: number,
 	lessonTopicId: number,
 	dueDate?: Date | null
 ) {
@@ -269,7 +271,7 @@ export async function createLesson(
 			title,
 			description,
 			lessonStatus,
-			subjectWeek,
+			index,
 			lessonTopicId,
 			dueDate
 		})
@@ -278,7 +280,23 @@ export async function createLesson(
 	return lesson;
 }
 
-// Whiteboard Services
+export async function createLessonSectionBlock(
+	lessonSectionId: number,
+	type: string,
+	content: unknown
+) {
+	const [lessonSectionBlock] = await db
+		.insert(table.lessonSectionBlock)
+		.values({
+			lessonSectionId,
+			type,
+			content
+		})
+		.returning();
+
+	return lessonSectionBlock;
+}
+
 export async function getWhiteboardObjects(whiteboardId: number = 1) {
 	const objects = await db
 		.select()
