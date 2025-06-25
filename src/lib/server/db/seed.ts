@@ -75,9 +75,9 @@ async function main() {
 		])
 		.returning();
 
-	// Add locations for the school
-	const locations = await db
-		.insert(schema.subjectClassLocation)
+	// Add schoolLocations for the school
+	const schoolLocations = await db
+		.insert(schema.schoolLocation)
 		.values([
 			// Classrooms
 			{
@@ -473,24 +473,19 @@ async function main() {
 		.insert(schema.subjectClass)
 		.values([
 			{
-				subjectOfferingId: subjectOfferings[0].id, // Maths
-				locationId: locations[0].id // Room 101
+				subjectOfferingId: subjectOfferings[0].id // Maths
 			},
 			{
-				subjectOfferingId: subjectOfferings[1].id, // Science
-				locationId: locations[4].id // Chemistry Lab A
+				subjectOfferingId: subjectOfferings[1].id // Science
 			},
 			{
-				subjectOfferingId: subjectOfferings[2].id, // History
-				locationId: locations[2].id // Room 201
+				subjectOfferingId: subjectOfferings[2].id // History
 			},
 			{
-				subjectOfferingId: subjectOfferings[3].id, // English
-				locationId: locations[1].id // Room 102
+				subjectOfferingId: subjectOfferings[3].id // English
 			},
 			{
-				subjectOfferingId: subjectOfferings[4].id, // Geography
-				locationId: locations[3].id // Room 202
+				subjectOfferingId: subjectOfferings[4].id // Geography
 			}
 		])
 		.returning();
@@ -502,6 +497,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[7].id,
 			dayOfWeek: 'monday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -509,6 +505,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'monday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -516,6 +513,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'monday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -523,6 +521,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'monday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -530,6 +529,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'monday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -537,6 +537,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[7].id,
 			dayOfWeek: 'monday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -546,6 +547,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'tuesday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -553,6 +555,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id, // Room 101
 			dayOfWeek: 'tuesday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -560,6 +563,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'tuesday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -567,6 +571,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'tuesday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -574,6 +579,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id,
 			dayOfWeek: 'tuesday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -581,6 +587,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'tuesday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -590,6 +597,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'wednesday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -597,6 +605,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id,
 			dayOfWeek: 'wednesday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -604,6 +613,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id,
 			dayOfWeek: 'wednesday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -611,6 +621,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'wednesday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -618,6 +629,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'wednesday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -625,6 +637,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'wednesday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -634,6 +647,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'thursday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -641,6 +655,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'thursday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -648,6 +663,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'thursday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -655,6 +671,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id,
 			dayOfWeek: 'thursday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -662,6 +679,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id, // Room 102
 			dayOfWeek: 'thursday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -669,6 +687,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id, // Physics Lab
 			dayOfWeek: 'thursday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -678,6 +697,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id, // Physics Lab
 			dayOfWeek: 'friday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -685,6 +705,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id, // Computer Lab
 			dayOfWeek: 'friday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -692,6 +713,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id, // Physics Lab
 			dayOfWeek: 'friday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -699,6 +721,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id, // Chemistry Lab A
 			dayOfWeek: 'friday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -706,6 +729,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id, // Room 101
 			dayOfWeek: 'friday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -713,6 +737,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id, // Computer Lab
 			dayOfWeek: 'friday',
 			startTime: '14:10:00',
 			duration: '00:55:00'

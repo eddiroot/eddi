@@ -100,9 +100,6 @@ export const subjectClass = pgTable('subjectClass', {
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	locationId: integer('location_id').references(() => subjectClassLocation.id, {
-		onDelete: 'set null'
-	}), // nullable in case location is deleted
 	...timestamps
 });
 
@@ -127,6 +124,9 @@ export const subjectClassTime = pgTable('subject_class_time', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
+	schoolLocationId: integer('schoolLocationId')
+		.notNull()
+		.references(() => schoolLocation.id, { onDelete: 'set null' }),
 	dayOfWeek: text('day_of_week').notNull(), // e.g., 'monday', 'tuesday', etc.
 	startTime: time('start_time').notNull(), // consider period in future
 	duration: interval('duration').notNull(), // e.g., '01:00:00' for 1 hour
@@ -135,8 +135,7 @@ export const subjectClassTime = pgTable('subject_class_time', {
 
 export type SubjectClassTime = typeof subjectClassTime.$inferSelect;
 
-// Add this new location table
-export const subjectClassLocation = pgTable('location', {
+export const schoolLocation = pgTable('school_location', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	schoolId: integer('school_id')
 		.notNull()
@@ -149,7 +148,7 @@ export const subjectClassLocation = pgTable('location', {
 	...timestamps
 });
 
-export type Location = typeof subjectClassLocation.$inferSelect;
+export type SchoolLocation = typeof schoolLocation.$inferSelect;
 
 export const subjectThread = pgTable('sub_thread', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),

@@ -134,11 +134,11 @@ export async function createSubjectThreadResponse(
 	return response;
 }
 
-export async function getSubjectClassTimesByUserId(userId: string) {
+export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
 	const classTimesAndLocations = await db
 		.select({
-			classLocation: table.subjectClassLocation,
 			classTime: table.subjectClassTime,
+			schoolLocation: table.schoolLocation,
 			subjectOffering: {
 				id: table.subjectOffering.id
 			},
@@ -150,12 +150,12 @@ export async function getSubjectClassTimesByUserId(userId: string) {
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(
-			table.subjectClassLocation,
-			eq(table.subjectClass.locationId, table.subjectClassLocation.id)
-		)
-		.innerJoin(
 			table.subjectClassTime,
 			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+		)
+		.innerJoin(
+			table.schoolLocation,
+			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
 		)
 		.innerJoin(
 			table.subjectOffering,
@@ -289,7 +289,7 @@ export async function createLocation(
 	isActive: boolean = true
 ) {
 	const [location] = await db
-		.insert(table.subjectClassLocation)
+		.insert(table.schoolLocation)
 		.values({
 			schoolId,
 			name,
@@ -306,14 +306,11 @@ export async function createLocation(
 export async function getLocationsBySchoolId(schoolId: number) {
 	const locations = await db
 		.select()
-		.from(table.subjectClassLocation)
+		.from(table.schoolLocation)
 		.where(
-			and(
-				eq(table.subjectClassLocation.schoolId, schoolId),
-				eq(table.subjectClassLocation.isActive, true)
-			)
+			and(eq(table.schoolLocation.schoolId, schoolId), eq(table.schoolLocation.isActive, true))
 		)
-		.orderBy(table.subjectClassLocation.name);
+		.orderBy(table.schoolLocation.name);
 
 	return locations;
 }
@@ -321,8 +318,8 @@ export async function getLocationsBySchoolId(schoolId: number) {
 export async function getLocationById(locationId: number) {
 	const locations = await db
 		.select()
-		.from(table.subjectClassLocation)
-		.where(eq(table.subjectClassLocation.id, locationId))
+		.from(table.schoolLocation)
+		.where(eq(table.schoolLocation.id, locationId))
 		.limit(1);
 
 	return locations.length > 0 ? locations[0] : null;
@@ -339,9 +336,9 @@ export async function updateLocation(
 	}
 ) {
 	const [location] = await db
-		.update(table.subjectClassLocation)
+		.update(table.schoolLocation)
 		.set(updates)
-		.where(eq(table.subjectClassLocation.id, locationId))
+		.where(eq(table.schoolLocation.id, locationId))
 		.returning();
 
 	return location;
@@ -350,9 +347,9 @@ export async function updateLocation(
 export async function deleteLocation(locationId: number) {
 	// Soft delete by setting isActive to 0
 	const [location] = await db
-		.update(table.subjectClassLocation)
+		.update(table.schoolLocation)
 		.set({ isActive: false })
-		.where(eq(table.subjectClassLocation.id, locationId))
+		.where(eq(table.schoolLocation.id, locationId))
 		.returning();
 
 	return location;
