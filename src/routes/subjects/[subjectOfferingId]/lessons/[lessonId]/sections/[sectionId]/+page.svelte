@@ -3,6 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
+	import { invalidateAll } from '$app/navigation';
 	import Heading from './blocks/heading.svelte';
 	import Markdown from './blocks/markdown.svelte';
 	import Image from './blocks/image.svelte';
@@ -24,7 +25,8 @@
 	import { type LessonSectionBlock } from '$lib/server/db/schema';
 
 	let { data } = $props();
-	let items = $state<LessonSectionBlock[]>(data.blocks);
+	let sections = $derived(() => data.sections);
+	let blocks = $derived(() => data.blocks);
 	let editingSectionId = $state<number | null>(null);
 	let newSectionTitle = $state('');
 	let showNewSectionInput = $state(false);
@@ -37,18 +39,16 @@
 			await createBlock(draggedItem);
 		}
 
-		if (sourceContainer === 'blocksColumn' && targetContainer === 'blockSelectionMenu') {
+		if (sourceContainer === 'blocksColumn' && targetContainer === 'deleteBin') {
 			await deleteBlock(draggedItem);
 		}
 
 		if (sourceContainer === 'blocksColumn' && targetContainer === 'blocksColumn') {
-			const newItems = [...items];
-			await reorderBlocks(newItems);
-
+			const newItems = [...blocks()];
 			const draggedIndex = newItems.findIndex((item) => item.id === draggedItem.id);
 			const [removed] = newItems.splice(draggedIndex, 1);
 			newItems.push(removed);
-			items = newItems;
+			await reorderBlocks(newItems);
 		}
 	}
 
@@ -64,8 +64,7 @@
 		});
 
 		if (response.ok) {
-			const responseData = await response.json();
-			items = [...items, { ...draggedItem, id: responseData.id }];
+			await invalidateAll();
 		}
 	}
 
@@ -74,14 +73,13 @@
 		formData.append('blockId', block.id.toString());
 		formData.append('content', JSON.stringify(content));
 
-		await fetch('?/updateBlock', {
+		const response = await fetch('?/updateBlock', {
 			method: 'POST',
 			body: formData
 		});
 
-		const index = items.findIndex((item) => item.id === block.id);
-		if (index !== -1) {
-			items[index] = { ...items[index], content };
+		if (response.ok) {
+			await invalidateAll();
 		}
 	}
 
@@ -95,7 +93,7 @@
 		});
 
 		if (response.ok) {
-			items = items.filter((item) => item.id !== block.id);
+			await invalidateAll();
 		}
 	}
 
@@ -108,10 +106,14 @@
 		const formData = new FormData();
 		formData.append('blockOrders', JSON.stringify(blockOrders));
 
-		await fetch('?/reorderBlocks', {
+		const response = await fetch('?/reorderBlocks', {
 			method: 'POST',
 			body: formData
 		});
+
+		if (response.ok) {
+			await invalidateAll();
+		}
 	}
 
 	async function createSection() {
@@ -129,7 +131,7 @@
 		if (response.ok) {
 			showNewSectionInput = false;
 			newSectionTitle = '';
-			// TODO: Reload section state here
+			await invalidateAll();
 		}
 	}
 
@@ -138,12 +140,15 @@
 		formData.append('sectionId', sectionId.toString());
 		formData.append('title', title);
 
-		await fetch('?/updateSection', {
+		const response = await fetch('?/updateSection', {
 			method: 'POST',
 			body: formData
 		});
 
-		editingSectionId = null;
+		if (response.ok) {
+			editingSectionId = null;
+			await invalidateAll();
+		}
 	}
 
 	async function deleteSection(sectionId: number) {
@@ -156,7 +161,7 @@
 			body: formData
 		});
 
-		// TODO: Reload section state here
+		await invalidateAll();
 	}
 
 	function handleDragEnter(state: DragDropState<LessonSectionBlock>) {}
@@ -244,7 +249,7 @@
 					}
 				}}
 			>
-				{#each items as item (item.id)}
+				{#each blocks() as item (item.id)}
 					<div
 						class="group relative flex items-start gap-2 rounded-lg border p-4"
 						use:draggable={{
@@ -287,104 +292,117 @@
 								<p>Content for {item.type} block.</p>
 							{/if}
 						</div>
-
-						<Button variant="destructive" onclick={() => deleteBlock(item)}>
-							<TrashIcon class="h-3 w-3" />
-						</Button>
 					</div>
 				{/each}
 			</div>
 		</Card.Content>
 	</Card.Root>
-
 	<Card.Root>
 		<Card.Header>
 			<Card.Title class="text-lg">Blocks</Card.Title>
 			<Card.Description>
-				Drag and drop blocks from here to the lesson content area.
+				Drag and drop blocks from here to the lesson content area, or drag blocks to the delete bin
+				below to remove them.
 			</Card.Description>
 		</Card.Header>
-		<Card.Content class="grid grid-cols-2 grid-rows-12 gap-2">
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'h1', content: 'This is a Heading 1', id: 0 }
-				}}
-			>
-				<HeadingOneIcon class="size-8" />
+		<Card.Content class="flex h-full flex-col gap-4">
+			<div class="grid flex-1 grid-cols-2 gap-2">
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'h1', content: 'This is a Heading 1', id: 0 }
+					}}
+				>
+					<HeadingOneIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'h2', content: 'This is a Heading 2', id: 0 }
+					}}
+				>
+					<HeadingTwoIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'h3', content: 'This is a Heading 3', id: 0 }
+					}}
+				>
+					<HeadingThreeIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'h4', content: 'This is a Heading 4', id: 0 }
+					}}
+				>
+					<HeadingFourIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'h5', content: 'This is a Heading 5', id: 0 }
+					}}
+				>
+					<HeadingFiveIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'markdown', content: 'This is markdown content...', id: 0 }
+					}}
+				>
+					<PilcrowIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'image', content: { src: '', alt: 'Image', caption: '' }, id: 0 }
+					}}
+				>
+					<ImageIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'video', content: { src: '', title: 'Video' }, id: 0 }
+					}}
+				>
+					<FilmIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'audio', content: { src: '', title: 'Audio' }, id: 0 }
+					}}
+				>
+					<AudioLinesIcon class="size-8" />
+				</div>
 			</div>
+
 			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'h2', content: 'This is a Heading 2', id: 0 }
+				class="flex h-16 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-red-300 bg-red-50 text-red-500 transition-colors hover:border-red-400 hover:bg-red-100"
+				use:droppable={{
+					container: 'deleteBin',
+					callbacks: {
+						onDrop: handleDrop,
+						onDragEnter: handleDragEnter,
+						onDragLeave: handleDragLeave
+					}
 				}}
 			>
-				<HeadingTwoIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'h3', content: 'This is a Heading 3', id: 0 }
-				}}
-			>
-				<HeadingThreeIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'h4', content: 'This is a Heading 4', id: 0 }
-				}}
-			>
-				<HeadingFourIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'h5', content: 'This is a Heading 5', id: 0 }
-				}}
-			>
-				<HeadingFiveIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'markdown', content: 'This is markdown content...', id: 0 }
-				}}
-			>
-				<PilcrowIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'image', content: { src: '', alt: 'Image', caption: '' }, id: 0 }
-				}}
-			>
-				<ImageIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'video', content: { src: '', title: 'Video' }, id: 0 }
-				}}
-			>
-				<FilmIcon class="size-8" />
-			</div>
-			<div
-				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-				use:draggable={{
-					container: 'blockSelectionMenu',
-					dragData: { type: 'audio', content: { src: '', title: 'Audio' }, id: 0 }
-				}}
-			>
-				<AudioLinesIcon class="size-8" />
+				<TrashIcon />
+				<span>Drop here to delete</span>
 			</div>
 		</Card.Content>
 	</Card.Root>
