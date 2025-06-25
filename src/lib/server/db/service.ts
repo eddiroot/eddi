@@ -26,6 +26,22 @@ export async function getSubjectById(subjectId: number) {
 	return subject[0]?.subject;
 }
 
+export async function getSubjectOfferingsBySubjectId(subjectId: number) {
+	const subjectOfferings = await db
+		.select({
+			subjectOffering: table.subjectOffering,
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.where(eq(table.subjectOffering.subjectId, subjectId));
+
+	return subjectOfferings; // Returns both subjectOffering and subject data
+}
+
 export async function getSubjectThreadsMinimalBySubjectId(subjectOfferingId: number) {
 	const threads = await db
 		.select({
@@ -212,25 +228,34 @@ export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: s
 	return classTimesAndLocations;
 }
 
-export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
-	const lessons = await db
+export async function getClassesForUserInSubjectOffering(
+	userId: string,
+	subjectOfferingId: number
+) {
+	const classes = await db
 		.select({
-			lesson: table.lesson,
-			lessonTopic: table.lessonTopic
+			classTime: table.subjectClassTime,
+			schoolLocation: table.schoolLocation
 		})
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
+		.innerJoin(
+			table.subjectClassTime,
+			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+		)
+		.innerJoin(
+			table.schoolLocation,
+			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+		)
 		.where(
 			and(
 				eq(table.userSubjectClass.userId, userId),
 				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
 			)
 		)
-		.orderBy(desc(table.lesson.createdAt));
+		.orderBy(desc(table.subjectClassTime.startTime));
 
-	return lessons;
+	return classes;
 }
 
 export async function getRecentAnnouncementsByUserId(userId: string) {
