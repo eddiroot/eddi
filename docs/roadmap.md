@@ -26,6 +26,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [ ] Home page
   - [ ] Update the images (once all features can be screenshotted) (Beej)
   - [ ] Change wording for best marketing (Beej)
+- [ ] Onboarding flow
 
 ## Post MVP
 
