@@ -33,20 +33,31 @@
 		const { draggedItem, sourceContainer, targetContainer } = state;
 		if (!targetContainer) return;
 
-		if (sourceContainer === 'blockSelectionMenu' && targetContainer === 'blocksColumn') {
+		console.log('handleDrop', sourceContainer, targetContainer);
+
+		if (sourceContainer === 'blockSelectionMenu' && targetContainer === 'sectionColumn') {
 			await createBlock(draggedItem);
+			return;
 		}
 
-		if (sourceContainer === 'blocksColumn' && targetContainer === 'deleteBin') {
+		if (sourceContainer === 'sectionColumn' && targetContainer === 'deleteBin') {
 			await deleteBlock(draggedItem);
+			return;
 		}
 
-		if (sourceContainer === 'blocksColumn' && targetContainer === 'blocksColumn') {
-			const newItems = [...blocks()];
-			const draggedIndex = newItems.findIndex((item) => item.id === draggedItem.id);
-			const [removed] = newItems.splice(draggedIndex, 1);
-			newItems.push(removed);
-			await reorderBlocks(newItems);
+		if (sourceContainer.startsWith('block-') && targetContainer.startsWith('block-')) {
+			const sourceId = parseInt(sourceContainer.split('-')[1]);
+			const targetId = parseInt(targetContainer.split('-')[1]);
+
+			if (sourceId === targetId) return;
+
+			const sourceBlock = blocks().find((b) => b.id === sourceId);
+			const targetBlock = blocks().find((b) => b.id === targetId);
+
+			if (!sourceBlock || !targetBlock) return;
+
+			await swapBlocks(sourceBlock, targetBlock);
+			return;
 		}
 	}
 
@@ -110,16 +121,14 @@
 		}
 	}
 
-	async function reorderBlocks(newItems: LessonSectionBlock[]) {
-		const blockOrders = newItems.map((item, index) => ({
-			id: item.id,
-			order: index
-		}));
-
+	async function swapBlocks(blockA: LessonSectionBlock, blockB: LessonSectionBlock) {
 		const formData = new FormData();
-		formData.append('blockOrders', JSON.stringify(blockOrders));
+		formData.append('blockOneId', blockA.id.toString());
+		formData.append('blockTwoId', blockB.id.toString());
+		formData.append('blockOneIndex', blockA.index.toString());
+		formData.append('blockTwoIndex', blockB.index.toString());
 
-		const response = await fetch('?/reorderBlocks', {
+		const response = await fetch('?/swapBlocks', {
 			method: 'POST',
 			body: formData
 		});
@@ -257,19 +266,17 @@
 			{/if}
 		</Card.Header>
 		<Card.Content class="h-full">
-			<div
-				class="flex h-full flex-col gap-4"
-				use:droppable={{
-					container: 'blocksColumn',
-					callbacks: {
-						onDrop: handleDrop
-					}
-				}}
-			>
+			<div class="flex h-full flex-col gap-4">
 				{#each blocks() as item}
 					<div
+						use:droppable={{
+							container: `block-${item.id}`,
+							callbacks: {
+								onDrop: handleDrop
+							}
+						}}
 						use:draggable={{
-							container: 'blocksColumn',
+							container: `block-${item.id}`,
 							dragData: item,
 							interactive: ['.interactive']
 						}}
@@ -305,6 +312,17 @@
 						{/if}
 					</div>
 				{/each}
+				<div
+					use:droppable={{
+						container: 'sectionColumn',
+						callbacks: {
+							onDrop: handleDrop
+						}
+					}}
+					class={`${buttonVariants({ variant: 'outline' })} flex h-16 w-full cursor-default items-center justify-center`}
+				>
+					<span>Drop blocks here to add them to the section</span>
+				</div>
 			</div>
 		</Card.Content>
 	</Card.Root>

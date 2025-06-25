@@ -473,15 +473,23 @@ export async function deleteLessonSectionBlock(blockId: number) {
 	await db.delete(table.lessonSectionBlock).where(eq(table.lessonSectionBlock.id, blockId));
 }
 
-export async function reorderLessonSectionBlocks(blockOrders: { id: number; order: number }[]) {
-	const promises = blockOrders.map(({ id, order }) =>
-		db
+export async function swapLessonSectionBlocks(
+	blockOneId: number,
+	blockTwoId: number,
+	blockOneIndex: number,
+	blockTwoIndex: number
+) {
+	await db.transaction(async (tx) => {
+		await tx
 			.update(table.lessonSectionBlock)
-			.set({ index: order })
-			.where(eq(table.lessonSectionBlock.id, id))
-	);
+			.set({ index: blockTwoIndex })
+			.where(eq(table.lessonSectionBlock.id, blockOneId));
 
-	await Promise.all(promises);
+		await tx
+			.update(table.lessonSectionBlock)
+			.set({ index: blockOneIndex })
+			.where(eq(table.lessonSectionBlock.id, blockTwoId));
+	});
 }
 
 export async function createLessonSection(lessonId: number, title: string) {

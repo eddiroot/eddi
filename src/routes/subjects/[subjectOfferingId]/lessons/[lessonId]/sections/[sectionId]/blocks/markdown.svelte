@@ -4,6 +4,12 @@
 	let { content = '', onUpdate } = $props();
 	let markdownContent = $state(content);
 
+	// Update local state when content prop changes (e.g., when switching sections)
+	$effect(() => {
+		markdownContent = content;
+	});
+
+	// Update parent when local content changes
 	$effect(() => {
 		if (markdownContent !== content) {
 			onUpdate(markdownContent);

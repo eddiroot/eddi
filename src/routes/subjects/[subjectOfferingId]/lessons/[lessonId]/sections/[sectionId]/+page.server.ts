@@ -7,7 +7,7 @@ import {
 	getLessonById,
 	getLessonSectionById,
 	getLessonBlocksByLessonSectionId,
-	reorderLessonSectionBlocks,
+	swapLessonSectionBlocks,
 	updateLessonSection,
 	updateLessonSectionBlock,
 	getLessonSectionCountByLessonId,
@@ -148,23 +148,40 @@ export const actions = {
 		await deleteLessonSectionBlock(blockIdInt);
 	},
 
-	reorderBlocks: async (event) => {
+	swapBlocks: async (event) => {
 		const formData = await event.request.formData();
+		const blockOneId = formData.get('blockOneId');
+		const blockTwoId = formData.get('blockTwoId');
+		const blockOneIndex = formData.get('blockOneIndex');
+		const blockTwoIndex = formData.get('blockTwoIndex');
 
-		const blockOrders = formData.get('blockOrders');
-
-		if (!blockOrders || typeof blockOrders !== 'string') {
-			return fail(400, { message: 'Block orders are required' });
+		if (!blockOneId || !blockTwoId || blockOneIndex === null || blockTwoIndex === null) {
+			return fail(400, { message: 'Block IDs and indices are required' });
 		}
 
-		let blockOrdersArray;
+		if (
+			typeof blockOneId !== 'string' ||
+			typeof blockTwoId !== 'string' ||
+			typeof blockOneIndex !== 'string' ||
+			typeof blockTwoIndex !== 'string'
+		) {
+			return fail(400, { message: 'Invalid input types' });
+		}
+
+		let blockOneIdInt;
+		let blockTwoIdInt;
+		let blockOneIndexInt;
+		let blockTwoIndexInt;
 		try {
-			blockOrdersArray = JSON.parse(blockOrders);
+			blockOneIdInt = parseInt(blockOneId, 10);
+			blockTwoIdInt = parseInt(blockTwoId, 10);
+			blockOneIndexInt = parseInt(blockOneIndex, 10);
+			blockTwoIndexInt = parseInt(blockTwoIndex, 10);
 		} catch {
-			return fail(400, { message: 'Invalid block orders format' });
+			return fail(400, { message: 'Invalid block IDs or indices' });
 		}
 
-		await reorderLessonSectionBlocks(blockOrdersArray);
+		await swapLessonSectionBlocks(blockOneIdInt, blockTwoIdInt, blockOneIndexInt, blockTwoIndexInt);
 	},
 
 	createSection: async (event) => {
