@@ -44,6 +44,19 @@ export function formatTime(time: string): string {
 	return time;
 }
 
+export const days = [
+	{ name: 'Monday', value: 'monday' },
+	{ name: 'Tuesday', value: 'tuesday' },
+	{ name: 'Wednesday', value: 'wednesday' },
+	{ name: 'Thursday', value: 'thursday' },
+	{ name: 'Friday', value: 'friday' }
+];
+
+export function getDayIndex(day: string): number {
+	const dayLower = day.toLowerCase();
+	return days.findIndex((d) => d.value === dayLower);
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

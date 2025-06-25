@@ -19,6 +19,7 @@
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import type { Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
+	import HomeIcon from '@lucide/svelte/icons/home';
 
 	const items = [
 		{
@@ -39,6 +40,11 @@
 	];
 
 	const subjectItems = [
+		{
+			title: 'Home',
+			url: 'home',
+			icon: HomeIcon
+		},
 		{
 			title: 'Discussion',
 			url: 'discussion',

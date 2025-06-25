@@ -1,17 +1,9 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { formatDate, formatTime } from '$lib/utils';
+	import { formatDate, formatTime, days } from '$lib/utils';
 
 	let { data } = $props();
 	let { classTimes } = data;
-
-	const days = [
-		{ name: 'Monday', value: 'monday' },
-		{ name: 'Tuesday', value: 'tuesday' },
-		{ name: 'Wednesday', value: 'wednesday' },
-		{ name: 'Thursday', value: 'thursday' },
-		{ name: 'Friday', value: 'friday' }
-	];
 
 	function generateTimeslots(startHour = 8, endHour = 18): string[] {
 		const slots: string[] = [];
