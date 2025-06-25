@@ -25,7 +25,6 @@
 	import { type LessonSectionBlock } from '$lib/server/db/schema';
 
 	let { data } = $props();
-	let sections = $derived(() => data.sections);
 	let blocks = $derived(() => data.blocks);
 	let editingSectionId = $state<number | null>(null);
 	let newSectionTitle = $state('');
@@ -297,6 +296,7 @@
 			</div>
 		</Card.Content>
 	</Card.Root>
+
 	<Card.Root>
 		<Card.Header>
 			<Card.Title class="text-lg">Blocks</Card.Title>
