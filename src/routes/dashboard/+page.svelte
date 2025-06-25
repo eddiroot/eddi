@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
-	import { formatDate } from '$lib/utils';
+	import { formatDate, formatTime } from '$lib/utils';
 
 	let { data } = $props();
 
@@ -13,14 +13,6 @@
 			message: 'Swimming carnival is coming up...',
 			date: 'Coming Soon'
 		}
-	];
-
-	const mockTimetable = [
-		{ time: '9:00 AM', subject: 'Mathematics', room: 'BB201' },
-		{ time: '10:00 AM', subject: 'English', room: 'A101' },
-		{ time: '11:30 AM', subject: 'Science', room: 'LAB-1' },
-		{ time: '1:00 PM', subject: 'History', room: 'C205' },
-		{ time: '2:00 PM', subject: 'Art', room: 'ART-1' }
 	];
 
 	const mockAssessments = [
@@ -112,14 +104,14 @@
 		</Card.Header>
 		<Card.Content>
 			<div class="space-y-3">
-				{#each mockTimetable as period}
+				{#each data.userClasses as cls}
 					<div class="border-border flex items-center justify-between rounded-lg border p-3">
 						<div class="flex-1">
-							<div class="text-foreground font-medium">{period.subject}</div>
-							<div class="text-muted-foreground text-sm">{period.room}</div>
+							<div class="text-foreground font-medium">{cls.subject.name}</div>
+							<div class="text-muted-foreground text-sm">{cls.schoolLocation.name}</div>
 						</div>
 						<div class="text-muted-foreground text-sm font-medium">
-							{period.time}
+							{formatTime(cls.classTime.startTime)}
 						</div>
 					</div>
 				{/each}

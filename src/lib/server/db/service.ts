@@ -168,6 +168,50 @@ export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
 	return classTimesAndLocations;
 }
 
+export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: string) {
+	// Get today's day of the week in lowercase
+	const today = new Date();
+	const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+	const todayDayOfWeek = dayNames[today.getDay()];
+
+	const classTimesAndLocations = await db
+		.select({
+			classTime: table.subjectClassTime,
+			schoolLocation: table.schoolLocation,
+			subjectOffering: {
+				id: table.subjectOffering.id
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.innerJoin(
+			table.subjectClassTime,
+			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+		)
+		.innerJoin(
+			table.schoolLocation,
+			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.userId, userId),
+				eq(table.subjectClassTime.dayOfWeek, todayDayOfWeek)
+			)
+		)
+		.orderBy(table.subjectClassTime.startTime); // Order by start time (earliest first) for today's schedule
+
+	return classTimesAndLocations;
+}
+
 export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
 	const lessons = await db
 		.select({

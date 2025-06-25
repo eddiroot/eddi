@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+	import { formatDate, formatTime } from '$lib/utils';
 
 	let { data } = $props();
 	let { classTimes } = data;
@@ -40,16 +41,6 @@
 		const height = durationInSlots * slotHeight;
 
 		return { top: `${topPosition}%`, height: `${height}%` };
-	}
-
-	function formatTime(time: string): string {
-		// If already in hh:mm format, return as is
-		if (time.includes(':')) {
-			const [hours, minutes] = time.split(':');
-			return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
-		}
-		// If in other format, convert to hh:mm
-		return time;
 	}
 
 	function getSubjectColor(subjectName: string): string {

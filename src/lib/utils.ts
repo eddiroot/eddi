@@ -34,6 +34,16 @@ export function formatDate(dateString: string): string {
 	});
 }
 
+export function formatTime(time: string): string {
+	// If already in hh:mm format, return as is
+	if (time.includes(':')) {
+		const [hours, minutes] = time.split(':');
+		return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+	}
+	// If in other format, convert to hh:mm
+	return time;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

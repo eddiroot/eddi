@@ -1,9 +1,13 @@
-import { getSubjectsByUserId, getRecentAnnouncementsByUserId } from '$lib/server/db/service';
+import {
+	getSubjectsByUserId,
+	getRecentAnnouncementsByUserId,
+	getSubjectClassTimesAndLocationsByUserIdForToday
+} from '$lib/server/db/service';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().getUser();
 	const subjects = await getSubjectsByUserId(user.id);
 	const announcements = await getRecentAnnouncementsByUserId(user.id);
-
-	return { user, subjects, announcements };
+	const userClasses = await getSubjectClassTimesAndLocationsByUserIdForToday(user.id);
+	return { user, subjects, announcements, userClasses };
 };
