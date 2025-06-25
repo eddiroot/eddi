@@ -4,23 +4,51 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { formSchema, type FormSchema } from './schema';
+	import { filesSchema, type FilesSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
 
-	let creationMethod = $state<'manual' | 'ai' >('manual');
-	let aiFiles: FileList | null = $state(null); 
+	let creationMethod = $state<'manual' | 'ai'>('manual');
+	let aiFiles: FileList | null = $state(null);
+	let fileValidationErrors = $state<string[]>([]);
+	let fileInputRef: HTMLInputElement; // Add this reference
 
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
 	});
 
-	function handleCreateManual() {
-		creationMethod = 'manual';
-	}	
+	// Connect aiFiles to form and validate
+	$effect(() => {
+		if (aiFiles && aiFiles.length > 0) {
+			const fileArray = Array.from(aiFiles);
+			$formData.files = fileArray;
+			
+			// Also update the hidden file input
+			if (fileInputRef) {
+				const dataTransfer = new DataTransfer();
+				fileArray.forEach(file => dataTransfer.items.add(file));
+				fileInputRef.files = dataTransfer.files;
+			}
+			
+			const validationResult = filesSchema.safeParse(fileArray);
+			
+			if (validationResult.success) {
+				fileValidationErrors = [];
+			} else {
+				fileValidationErrors = validationResult.error.errors.map(err => err.message);
+			}
+		} else {
+			$formData.files = undefined;
+			if (fileInputRef) {
+				fileInputRef.files = null;
+			}
+			fileValidationErrors = [];
+		}
+	});
+
 
 	let {
 		data
@@ -37,6 +65,7 @@
 
 	const { form: formData, enhance } = form;
 
+
 	function formatDateForInput(date: Date | null | undefined): string {
 		if (!date) return '';
 		return date.toISOString().split('T')[0];
@@ -48,7 +77,7 @@
 
 	let dueDateString = $state(formatDateForInput($formData.dueDate));
 	let selectedTopicId = $state($formData.lessonTopicId?.toString() || '');
-	let file = $state($formData.file);
+	
 
 	$effect(() => {
 		$formData.dueDate = parseDateFromInput(dueDateString);
@@ -168,32 +197,50 @@
             <Tabs.Content value="manual" class="mt-1"></Tabs.Content>      
             <Tabs.Content value="ai" class="mt-1 w-full">
 				<div class="w-full">
-				<Label class="text-sm font-medium">Supporting Material (Optional)</Label>
-				<Label class="text-muted-foreground text-sm font-weight-normal font-medium space-y-3">
-					Upload materials for AI to analyse and generate lesson content from.
-				</Label>
-				<div class="w-full max-w-none">
-                 <Dropzone 
-					id="ai-dropzone" 
-					bind:files={aiFiles}
-					accept=".png,.jpg,.jpeg,.pdf"
-					multiple={true}
-                    />
+					<!-- Remove Form.Field wrapper and just use the dropzone -->
+                    <Label class="text-sm font-medium">Supporting Material (Optional)</Label>
+                    <Label class="text-muted-foreground text-sm font-weight-normal font-medium space-y-3">
+                        Upload materials for AI to analyse and generate lesson content from.
+                    </Label>
+                    
+                    <!-- Display validation errors -->
+                    {#if fileValidationErrors.length > 0}
+                        <div class="space-y-1 mt-2">
+                            {#each fileValidationErrors as error}
+                                <p class="text-sm text-destructive">{error}</p>
+                            {/each}
+                        </div>
+                    {/if}
+                    
+                    <div class="w-full max-w-none">
+                        <Dropzone 
+                            bind:files={aiFiles}
+                            accept=".png,.jpg,.jpeg,.pdf"
+                            multiple={true}
+                        />
+                    </div>
 				</div>
-			</div>
             </Tabs.Content>
         </Tabs.Root>
     </div>
 
-
-
+	<!-- Add hidden file input -->
+    <input
+        bind:this={fileInputRef}
+        type="file"
+        name="files"
+        multiple
+        accept=".png,.jpg,.jpeg,.pdf"
+        class="hidden"
+        aria-hidden="true"
+    />
 
 	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
 
     <div class="flex justify-end gap-2">
         <Form.Button 
-            type="submit" 
-            onclick={handleCreateManual}
+            type="submit"
+            disabled={fileValidationErrors.length > 0}
         >
             Create
         </Form.Button>
