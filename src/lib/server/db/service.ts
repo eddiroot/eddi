@@ -134,10 +134,11 @@ export async function createSubjectThreadResponse(
 	return response;
 }
 
-export async function getSubjectClassTimesByUserId(userId: string) {
-	const classTimes = await db
+export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
+	const classTimesAndLocations = await db
 		.select({
 			classTime: table.subjectClassTime,
+			schoolLocation: table.schoolLocation,
 			subjectOffering: {
 				id: table.subjectOffering.id
 			},
@@ -153,6 +154,10 @@ export async function getSubjectClassTimesByUserId(userId: string) {
 			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
 		)
 		.innerJoin(
+			table.schoolLocation,
+			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+		)
+		.innerJoin(
 			table.subjectOffering,
 			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
 		)
@@ -160,7 +165,7 @@ export async function getSubjectClassTimesByUserId(userId: string) {
 		.where(eq(table.userSubjectClass.userId, userId))
 		.orderBy(desc(table.subjectClassTime.startTime));
 
-	return classTimes;
+	return classTimesAndLocations;
 }
 
 export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
@@ -301,7 +306,11 @@ export async function saveWhiteboardObject(data: {
 	return savedObject;
 }
 
-export async function updateWhiteboardObject(objectId: string, objectData: Record<string, unknown>, whiteboardId: number = 1) {
+export async function updateWhiteboardObject(
+	objectId: string,
+	objectData: Record<string, unknown>,
+	whiteboardId: number = 1
+) {
 	const [updatedObject] = await db
 		.update(table.whiteboardObject)
 		.set({
@@ -347,4 +356,80 @@ export async function clearWhiteboard(whiteboardId: number = 1) {
 	await db
 		.delete(table.whiteboardObject)
 		.where(eq(table.whiteboardObject.whiteboardId, whiteboardId));
+}
+
+// Location related functions:
+export async function createLocation(
+	schoolId: number,
+	name: string,
+	type: string,
+	capacity?: number | null,
+	description?: string | null,
+	isActive: boolean = true
+) {
+	const [location] = await db
+		.insert(table.schoolLocation)
+		.values({
+			schoolId,
+			name,
+			type,
+			capacity: capacity || null,
+			description: description || null,
+			isActive: isActive
+		})
+		.returning();
+
+	return location;
+}
+
+export async function getLocationsBySchoolId(schoolId: number) {
+	const locations = await db
+		.select()
+		.from(table.schoolLocation)
+		.where(
+			and(eq(table.schoolLocation.schoolId, schoolId), eq(table.schoolLocation.isActive, true))
+		)
+		.orderBy(table.schoolLocation.name);
+
+	return locations;
+}
+
+export async function getLocationById(locationId: number) {
+	const locations = await db
+		.select()
+		.from(table.schoolLocation)
+		.where(eq(table.schoolLocation.id, locationId))
+		.limit(1);
+
+	return locations.length > 0 ? locations[0] : null;
+}
+
+export async function updateLocation(
+	locationId: number,
+	updates: {
+		name?: string;
+		type?: string;
+		capacity?: number | null;
+		description?: string | null;
+		isActive?: boolean;
+	}
+) {
+	const [location] = await db
+		.update(table.schoolLocation)
+		.set(updates)
+		.where(eq(table.schoolLocation.id, locationId))
+		.returning();
+
+	return location;
+}
+
+export async function deleteLocation(locationId: number) {
+	// Soft delete by setting isActive to 0
+	const [location] = await db
+		.update(table.schoolLocation)
+		.set({ isActive: false })
+		.where(eq(table.schoolLocation.id, locationId))
+		.returning();
+
+	return location;
 }

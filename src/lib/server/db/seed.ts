@@ -69,7 +69,132 @@ async function main() {
 		.insert(schema.school)
 		.values([
 			{
-				name: 'School of Eddi'
+				name: 'School of Eddi',
+				address: '123 Eddi Street, Eddi Town, ED 1234'
+			}
+		])
+		.returning();
+
+	// Add schoolLocations for the school
+	const schoolLocations = await db
+		.insert(schema.schoolLocation)
+		.values([
+			// Classrooms
+			{
+				schoolId: school.id,
+				name: 'Room 101',
+				type: 'classroom',
+				capacity: 30,
+				description: 'Main building, ground floor - equipped with smart board',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Room 102',
+				type: 'classroom',
+				capacity: 28,
+				description: 'Main building, ground floor - traditional classroom setup',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Room 201',
+				type: 'classroom',
+				capacity: 32,
+				description: 'Main building, second floor - large windows, natural lighting',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Room 202',
+				type: 'classroom',
+				capacity: 25,
+				description: 'Main building, second floor - compact classroom for small groups',
+				isActive: true
+			},
+			// Laboratories
+			{
+				schoolId: school.id,
+				name: 'Chemistry Lab A',
+				type: 'laboratory',
+				capacity: 24,
+				description: 'Fully equipped chemistry lab with fume hoods and safety equipment',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Physics Lab',
+				type: 'laboratory',
+				capacity: 20,
+				description: 'Physics laboratory with experiment stations and demonstration area',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Computer Lab',
+				type: 'laboratory',
+				capacity: 30,
+				description: 'Modern computer lab with 30 workstations and high-speed internet',
+				isActive: true
+			},
+			// Special purpose rooms
+			{
+				schoolId: school.id,
+				name: 'Main Auditorium',
+				type: 'auditorium',
+				capacity: 200,
+				description: 'Large auditorium for assemblies, presentations, and performances',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Gymnasium',
+				type: 'gymnasium',
+				capacity: 100,
+				description: 'Full-size gymnasium for sports and physical education',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Library Study Room',
+				type: 'classroom',
+				capacity: 15,
+				description: 'Quiet study room in the library for small group work',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Art Studio',
+				type: 'laboratory',
+				capacity: 22,
+				description: 'Creative arts studio with easels, pottery wheels, and art supplies',
+				isActive: true
+			},
+			// Online/Virtual
+			{
+				schoolId: school.id,
+				name: 'Virtual Classroom A',
+				type: 'online',
+				capacity: null,
+				description: 'Zoom meeting room for remote learning sessions',
+				isActive: true
+			},
+			{
+				schoolId: school.id,
+				name: 'Virtual Classroom B',
+				type: 'online',
+				capacity: null,
+				description: 'Microsoft Teams room for hybrid learning',
+				isActive: true
+			},
+			// Inactive location for testing
+			{
+				schoolId: school.id,
+				name: 'Old Room 103',
+				type: 'classroom',
+				capacity: 20,
+				description: 'Previously used classroom, now under renovation',
+				isActive: false
 			}
 		])
 		.returning();
@@ -372,6 +497,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[7].id,
 			dayOfWeek: 'monday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -379,6 +505,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'monday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -386,6 +513,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'monday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -393,6 +521,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'monday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -400,6 +529,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'monday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -407,6 +537,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[7].id,
 			dayOfWeek: 'monday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -416,6 +547,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'tuesday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -423,6 +555,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id, // Room 101
 			dayOfWeek: 'tuesday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -430,6 +563,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'tuesday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -437,6 +571,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'tuesday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -444,6 +579,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id,
 			dayOfWeek: 'tuesday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -451,6 +587,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'tuesday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -460,6 +597,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'wednesday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -467,6 +605,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id,
 			dayOfWeek: 'wednesday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -474,6 +613,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id,
 			dayOfWeek: 'wednesday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -481,6 +621,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'wednesday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -488,6 +629,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'wednesday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -495,6 +637,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'wednesday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -504,6 +647,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id,
 			dayOfWeek: 'thursday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -511,6 +655,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id,
 			dayOfWeek: 'thursday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -518,6 +663,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id,
 			dayOfWeek: 'thursday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -525,6 +671,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id,
 			dayOfWeek: 'thursday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -532,6 +679,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (English)
 		{
 			subjectClassId: subjectClasses[3].id,
+			schoolLocationId: schoolLocations[1].id, // Room 102
 			dayOfWeek: 'thursday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -539,6 +687,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id, // Physics Lab
 			dayOfWeek: 'thursday',
 			startTime: '14:10:00',
 			duration: '00:55:00'
@@ -548,6 +697,7 @@ async function main() {
 		// Period 1: 8:30 - 9:25 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id, // Physics Lab
 			dayOfWeek: 'friday',
 			startTime: '08:30:00',
 			duration: '00:55:00'
@@ -555,6 +705,7 @@ async function main() {
 		// Period 2: 9:25 - 10:20 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id, // Computer Lab
 			dayOfWeek: 'friday',
 			startTime: '09:25:00',
 			duration: '00:55:00'
@@ -562,6 +713,7 @@ async function main() {
 		// Period 3: 10:40 - 11:35 (History)
 		{
 			subjectClassId: subjectClasses[2].id,
+			schoolLocationId: schoolLocations[4].id, // Physics Lab
 			dayOfWeek: 'friday',
 			startTime: '10:40:00',
 			duration: '00:55:00'
@@ -569,6 +721,7 @@ async function main() {
 		// Period 4: 11:35 - 12:30 (Science)
 		{
 			subjectClassId: subjectClasses[1].id,
+			schoolLocationId: schoolLocations[2].id, // Chemistry Lab A
 			dayOfWeek: 'friday',
 			startTime: '11:35:00',
 			duration: '00:55:00'
@@ -576,6 +729,7 @@ async function main() {
 		// Period 5: 1:15 - 2:10 (Maths)
 		{
 			subjectClassId: subjectClasses[0].id,
+			schoolLocationId: schoolLocations[0].id, // Room 101
 			dayOfWeek: 'friday',
 			startTime: '13:15:00',
 			duration: '00:55:00'
@@ -583,6 +737,7 @@ async function main() {
 		// Period 6: 2:10 - 3:05 (Geography)
 		{
 			subjectClassId: subjectClasses[4].id,
+			schoolLocationId: schoolLocations[3].id, // Computer Lab
 			dayOfWeek: 'friday',
 			startTime: '14:10:00',
 			duration: '00:55:00'

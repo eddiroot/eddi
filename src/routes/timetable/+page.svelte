@@ -108,17 +108,17 @@
 				{#each (classTimes ?? []).filter((c) => c.classTime.dayOfWeek === day.value) as cls}
 					{@const position = getClassPosition(cls.classTime.startTime, cls.classTime.duration)}
 					{@const colorClasses = getSubjectColor(cls.subject.name)}
-					<a href={`/subjects/${cls.subject.id}/discussion`}>
-						<Card.Root
-							class="absolute right-1 left-1 py-0 pt-3 {colorClasses}"
-							style="top: {position.top}; height: {position.height};"
-						>
-							<Card.Header>
-								<Card.Title>{cls.subject.name}</Card.Title>
-								<Card.Description>{formatTime(cls.classTime.startTime)}</Card.Description>
-							</Card.Header>
-						</Card.Root>
-					</a>
+					<Card.Root
+						class="absolute right-1 left-1 py-0 pt-3 {colorClasses}"
+						style="top: {position.top}; height: {position.height};"
+					>
+						<Card.Header>
+							<Card.Title>{cls.subject.name}</Card.Title>
+							<Card.Description
+								>{formatTime(cls.classTime.startTime)} {cls.schoolLocation.name}</Card.Description
+							>
+						</Card.Header>
+					</Card.Root>
 				{/each}
 			</div>
 		{/each}

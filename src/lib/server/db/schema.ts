@@ -8,6 +8,7 @@ import {
 	type AnyPgColumn,
 	foreignKey,
 	interval,
+	boolean,
 	jsonb
 } from 'drizzle-orm/pg-core';
 
@@ -51,6 +52,7 @@ export type Session = typeof session.$inferSelect;
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	name: text('name').notNull().unique(),
+	address: text('address').notNull(), // e.g., '123 Main St, Springfield'
 	...timestamps
 });
 
@@ -123,6 +125,9 @@ export const subjectClassTime = pgTable('subject_class_time', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
+	schoolLocationId: integer('schoolLocationId')
+		.notNull()
+		.references(() => schoolLocation.id, { onDelete: 'set null' }),
 	dayOfWeek: text('day_of_week').notNull(), // e.g., 'monday', 'tuesday', etc.
 	startTime: time('start_time').notNull(), // consider period in future
 	duration: interval('duration').notNull(), // e.g., '01:00:00' for 1 hour
@@ -130,6 +135,21 @@ export const subjectClassTime = pgTable('subject_class_time', {
 });
 
 export type SubjectClassTime = typeof subjectClassTime.$inferSelect;
+
+export const schoolLocation = pgTable('school_location', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	schoolId: integer('school_id')
+		.notNull()
+		.references(() => school.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(), // e.g., 'Room 101', 'Science Lab A', 'Gymnasium'
+	type: text('type').notNull(), // e.g., 'classroom', 'laboratory', 'gymnasium', 'auditorium', 'online'
+	capacity: integer('capacity'), // optional - max number of students
+	description: text('description'), // optional additional details
+	isActive: boolean('is_active').default(true).notNull(), // 1 for active, 0 for inactive
+	...timestamps
+});
+
+export type SchoolLocation = typeof schoolLocation.$inferSelect;
 
 export const subjectThread = pgTable('sub_thread', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
