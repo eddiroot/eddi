@@ -6,23 +6,23 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 - [x] Class announcements
 - [ ] Create lessons with drag'n'drop blocks
-  - [ ] Persist to database (Lachie)
-  - [ ] Add whiteboard component (Lachie)
+  - [x] Persist to database (Lachie)
+  - [ ] Add whiteboard component (Raph)
   - [ ] Add interactive components (Max, Raph)
 - [ ] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
 - [ ] Lessons (subject level)
   - [x] Remove weeks from lessons (Lachie)
   - [ ] Ability to order topics and lessons within them (Lachie)
 - [x] Discussions (subject level)
-- [ ] View your timetable
+- [x] View your timetable
   - [x] Click on a timetable card to go to the subject's discussions (Lachie)
-- [ ] Live whiteboards
+- [x] Live whiteboards
   - [x] Fix light/dark mode (Lachie)
 - [ ] AI Tutor "eddi" (teaching focus, not giving answers)
-  - [ ] Setup the interface (Blake, Raph)
-  - [ ] Prevent prompt injection (Blake, Raph)
-  - [ ] Give context of current lesson (Blake, Raph)
-  - [ ] Fix the width of the sidebar
+  - [x] Setup the interface (Raph, Bella)
+  - [ ] Prevent prompt injection (Raph, Bella)
+  - [ ] Give context of current lesson (Raph, Bella)
+  - [x] Fix the width of the sidebar (Raph, Bella)
 - [ ] Home page
   - [ ] Update the images (once all features can be screenshotted) (Beej)
   - [ ] Change wording for best marketing (Beej)
