@@ -22,6 +22,7 @@ This list is ordered by priority, with the highest priority at the top and the l
   - [ ] Setup the interface (Blake, Raph)
   - [ ] Prevent prompt injection (Blake, Raph)
   - [ ] Give context of current lesson (Blake, Raph)
+  - [ ] Fix the width of the sidebar
 - [ ] Home page
   - [ ] Update the images (once all features can be screenshotted) (Beej)
   - [ ] Change wording for best marketing (Beej)

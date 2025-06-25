@@ -8,7 +8,7 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import { page } from '$app/state';
-	import AiSidebar from '$lib/components/ai-sidebar.svelte';
+	import AiSidebar from '$lib/components/ai-sidebar';
 
 	let { children, data } = $props();
 
@@ -88,7 +88,10 @@
 						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
 					{/if}
 					<ThemeToggle />
-					<Sidebar.Trigger name="right" aria-label="Toggle AI Helper" />
+					<Sidebar.Trigger 
+						name="right" 
+						aria-label="Toggle AI Helper"
+					/>
 				</div>
 			</nav>
 		</header>
