@@ -287,17 +287,46 @@ export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: numb
 	return lessonTopics;
 }
 
-export async function getLessonWithSectionsById(lessonId: number) {
-	const lessonWithSections = await db
+export async function getLessonById(lessonId: number) {
+	const lesson = await db
 		.select({
-			lesson: table.lesson,
-			lessonSection: table.lessonSection
+			lesson: table.lesson
 		})
 		.from(table.lesson)
-		.innerJoin(table.lessonSection, eq(table.lessonSection.lessonId, table.lesson.id))
-		.where(eq(table.lesson.id, lessonId));
+		.where(eq(table.lesson.id, lessonId))
+		.limit(1);
 
-	return lessonWithSections;
+	return lesson?.length ? lesson[0].lesson : null;
+}
+
+export async function getLessonSectionById(sectionId: number) {
+	const lessonSection = await db
+		.select({
+			lessonSection: table.lessonSection
+		})
+		.from(table.lessonSection)
+		.where(eq(table.lessonSection.id, sectionId))
+		.limit(1);
+
+	return lessonSection?.length ? lessonSection[0].lessonSection : null;
+}
+
+export async function getLessonSectionsByLessonId(lessonId: number) {
+	const lessonSections = await db
+		.select({
+			lessonSection: table.lessonSection
+		})
+		.from(table.lessonSection)
+		.where(eq(table.lessonSection.lessonId, lessonId))
+		.orderBy(table.lessonSection.index);
+
+	return lessonSections.map((row) => row.lessonSection);
+}
+
+export async function getLessonSectionCountByLessonId(lessonId: number) {
+	const count = await db.$count(table.lessonSection, eq(table.lessonSection.lessonId, lessonId));
+
+	return count;
 }
 
 export async function getLessonBlocksByLessonSectionId(lessonSectionId: number) {
@@ -307,7 +336,7 @@ export async function getLessonBlocksByLessonSectionId(lessonSectionId: number) 
 		})
 		.from(table.lessonSectionBlock)
 		.where(eq(table.lessonSectionBlock.lessonSectionId, lessonSectionId))
-		.orderBy(table.lessonSectionBlock.createdAt);
+		.orderBy(table.lessonSectionBlock.index);
 
 	return lessonBlocks.map((row) => row.block);
 }
@@ -345,18 +374,98 @@ export async function createLessonSectionBlock(
 	type: string,
 	content: unknown
 ) {
+	// Get the current max index for this section
+	const maxIndexResult = await db
+		.select({ index: table.lessonSectionBlock.index })
+		.from(table.lessonSectionBlock)
+		.where(eq(table.lessonSectionBlock.lessonSectionId, lessonSectionId))
+		.orderBy(desc(table.lessonSectionBlock.index))
+		.limit(1);
+
+	const nextIndex = (maxIndexResult[0]?.index ?? -1) + 1;
+
 	const [lessonSectionBlock] = await db
 		.insert(table.lessonSectionBlock)
 		.values({
 			lessonSectionId,
 			type,
-			content
+			content,
+			index: nextIndex
 		})
 		.returning();
 
 	return lessonSectionBlock;
 }
 
+export async function updateLessonSectionBlock(
+	blockId: number,
+	updates: {
+		content?: unknown;
+		type?: string;
+	}
+) {
+	const [lessonSectionBlock] = await db
+		.update(table.lessonSectionBlock)
+		.set({ ...updates })
+		.where(eq(table.lessonSectionBlock.id, blockId))
+		.returning();
+
+	return lessonSectionBlock;
+}
+
+export async function deleteLessonSectionBlock(blockId: number) {
+	await db.delete(table.lessonSectionBlock).where(eq(table.lessonSectionBlock.id, blockId));
+}
+
+export async function reorderLessonSectionBlocks(blockOrders: { id: number; order: number }[]) {
+	const promises = blockOrders.map(({ id, order }) =>
+		db
+			.update(table.lessonSectionBlock)
+			.set({ index: order })
+			.where(eq(table.lessonSectionBlock.id, id))
+	);
+
+	await Promise.all(promises);
+}
+
+export async function createLessonSection(lessonId: number, title: string) {
+	// Get the current max index for this lesson
+	const maxIndexResult = await db
+		.select({ index: table.lessonSection.index })
+		.from(table.lessonSection)
+		.where(eq(table.lessonSection.lessonId, lessonId))
+		.orderBy(desc(table.lessonSection.index))
+		.limit(1);
+
+	const nextIndex = (maxIndexResult[0]?.index ?? -1) + 1;
+
+	const [lessonSection] = await db
+		.insert(table.lessonSection)
+		.values({
+			lessonId,
+			title,
+			index: nextIndex
+		})
+		.returning();
+
+	return lessonSection;
+}
+
+export async function updateLessonSection(sectionId: number, title: string) {
+	const [lessonSection] = await db
+		.update(table.lessonSection)
+		.set({ title })
+		.where(eq(table.lessonSection.id, sectionId))
+		.returning();
+
+	return lessonSection;
+}
+
+export async function deleteLessonSection(sectionId: number) {
+	await db.delete(table.lessonSection).where(eq(table.lessonSection.id, sectionId));
+}
+
+// Whiteboard functions
 export async function getWhiteboardObjects(whiteboardId: number = 1) {
 	const objects = await db
 		.select()
@@ -391,10 +500,7 @@ export async function updateWhiteboardObject(
 ) {
 	const [updatedObject] = await db
 		.update(table.whiteboardObject)
-		.set({
-			objectData,
-			updatedAt: new Date().toISOString()
-		})
+		.set({ objectData })
 		.where(
 			and(
 				eq(table.whiteboardObject.objectId, objectId),
@@ -510,4 +616,13 @@ export async function deleteLocation(locationId: number) {
 		.returning();
 
 	return location;
+}
+
+// Reorder lesson sections
+export async function reorderLessonSections(sectionOrders: { id: number; order: number }[]) {
+	const promises = sectionOrders.map(({ id, order }) =>
+		db.update(table.lessonSection).set({ index: order }).where(eq(table.lessonSection.id, id))
+	);
+
+	await Promise.all(promises);
 }

@@ -7,9 +7,14 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UploadIcon from '@lucide/svelte/icons/upload';
 
-	let { src = '', alt = 'Image', caption = '' } = $props();
+	let { content = { src: '', alt: 'Image', caption: '' }, onUpdate = () => {} } = $props();
 	let isEditing = $state(false);
 	let fileInput = $state<HTMLInputElement>();
+
+	// Local state for editing
+	let src = $state(content.src || '');
+	let alt = $state(content.alt || 'Image');
+	let caption = $state(content.caption || '');
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -21,6 +26,13 @@
 			};
 			reader.readAsDataURL(file);
 		}
+	}
+
+	function saveChanges() {
+		const newContent = { src, alt, caption };
+		content = newContent;
+		onUpdate(newContent);
+		isEditing = false;
 	}
 </script>
 
@@ -72,23 +84,25 @@
 				</div>
 
 				<div class="flex gap-2">
-					<Button onclick={() => (isEditing = false)}>Save</Button>
+					<Button onclick={saveChanges}>Save</Button>
 					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
 		<div class="group relative">
-			{#if src}
+			{#if content.src}
 				<figure class="space-y-2">
 					<img
-						{src}
-						{alt}
+						src={content.src}
+						alt={content.alt}
 						class="w-full rounded-lg border object-cover"
 						style="max-height: 400px;"
 					/>
-					{#if caption}
-						<figcaption class="text-muted-foreground text-center text-sm">{caption}</figcaption>
+					{#if content.caption}
+						<figcaption class="text-muted-foreground text-center text-sm">
+							{content.caption}
+						</figcaption>
 					{/if}
 				</figure>
 			{:else}
@@ -104,7 +118,12 @@
 			<Button
 				variant="outline"
 				size="sm"
-				onclick={() => (isEditing = true)}
+				onclick={() => {
+					src = content.src || '';
+					alt = content.alt || 'Image';
+					caption = content.caption || '';
+					isEditing = true;
+				}}
 				class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
 			>
 				<EditIcon class="h-3 w-3" />

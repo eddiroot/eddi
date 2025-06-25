@@ -1,0 +1,391 @@
+<script lang="ts">
+	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import * as Card from '$lib/components/ui/card';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
+	import Heading from './blocks/heading.svelte';
+	import Markdown from './blocks/markdown.svelte';
+	import Image from './blocks/image.svelte';
+	import Video from './blocks/video.svelte';
+	import Audio from './blocks/audio.svelte';
+	import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
+	import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
+	import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
+	import HeadingFourIcon from '@lucide/svelte/icons/heading-4';
+	import HeadingFiveIcon from '@lucide/svelte/icons/heading-5';
+	import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
+	import ImageIcon from '@lucide/svelte/icons/image';
+	import FilmIcon from '@lucide/svelte/icons/film';
+	import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import TrashIcon from '@lucide/svelte/icons/trash-2';
+	import EditIcon from '@lucide/svelte/icons/edit';
+	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import { type LessonSectionBlock } from '$lib/server/db/schema';
+
+	let { data } = $props();
+	let items = $state<LessonSectionBlock[]>(data.blocks);
+	let editingSectionId = $state<number | null>(null);
+	let newSectionTitle = $state('');
+	let showNewSectionInput = $state(false);
+
+	async function handleDrop(state: DragDropState<LessonSectionBlock>) {
+		const { draggedItem, sourceContainer, targetContainer } = state;
+		if (!targetContainer) return;
+
+		if (sourceContainer === 'blockSelectionMenu' && targetContainer === 'blocksColumn') {
+			await createBlock(draggedItem);
+		}
+
+		if (sourceContainer === 'blocksColumn' && targetContainer === 'blockSelectionMenu') {
+			await deleteBlock(draggedItem);
+		}
+
+		if (sourceContainer === 'blocksColumn' && targetContainer === 'blocksColumn') {
+			const newItems = [...items];
+			await reorderBlocks(newItems);
+
+			const draggedIndex = newItems.findIndex((item) => item.id === draggedItem.id);
+			const [removed] = newItems.splice(draggedIndex, 1);
+			newItems.push(removed);
+			items = newItems;
+		}
+	}
+
+	async function createBlock(draggedItem: LessonSectionBlock) {
+		const formData = new FormData();
+		formData.append('lessonSectionId', data.section.id.toString());
+		formData.append('type', draggedItem.type);
+		formData.append('content', JSON.stringify(draggedItem.content ?? ''));
+
+		const response = await fetch('?/createBlock', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			const responseData = await response.json();
+			items = [...items, { ...draggedItem, id: responseData.id }];
+		}
+	}
+
+	async function updateBlockContent(block: LessonSectionBlock, content: unknown) {
+		const formData = new FormData();
+		formData.append('blockId', block.id.toString());
+		formData.append('content', JSON.stringify(content));
+
+		await fetch('?/updateBlock', {
+			method: 'POST',
+			body: formData
+		});
+
+		const index = items.findIndex((item) => item.id === block.id);
+		if (index !== -1) {
+			items[index] = { ...items[index], content };
+		}
+	}
+
+	async function deleteBlock(block: LessonSectionBlock) {
+		const formData = new FormData();
+		formData.append('blockId', block.id.toString());
+
+		const response = await fetch('?/deleteBlock', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			items = items.filter((item) => item.id !== block.id);
+		}
+	}
+
+	async function reorderBlocks(newItems: LessonSectionBlock[]) {
+		const blockOrders = newItems.map((item, index) => ({
+			id: item.id,
+			order: index
+		}));
+
+		const formData = new FormData();
+		formData.append('blockOrders', JSON.stringify(blockOrders));
+
+		await fetch('?/reorderBlocks', {
+			method: 'POST',
+			body: formData
+		});
+	}
+
+	async function createSection() {
+		if (!newSectionTitle.trim()) return;
+
+		const formData = new FormData();
+		formData.append('lessonId', data.lesson.id.toString());
+		formData.append('title', newSectionTitle.trim());
+
+		const response = await fetch('?/createSection', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			showNewSectionInput = false;
+			newSectionTitle = '';
+			// TODO: Reload section state here
+		}
+	}
+
+	async function updateSection(sectionId: number, title: string) {
+		const formData = new FormData();
+		formData.append('sectionId', sectionId.toString());
+		formData.append('title', title);
+
+		await fetch('?/updateSection', {
+			method: 'POST',
+			body: formData
+		});
+
+		editingSectionId = null;
+	}
+
+	async function deleteSection(sectionId: number) {
+		const formData = new FormData();
+		formData.append('sectionId', sectionId.toString());
+		formData.append('lessonId', data.lesson.id.toString());
+
+		await fetch('?/deleteSection', {
+			method: 'POST',
+			body: formData
+		});
+
+		// TODO: Reload section state here
+	}
+
+	function handleDragEnter(state: DragDropState<LessonSectionBlock>) {}
+	function handleDragLeave(state: DragDropState<LessonSectionBlock>) {}
+</script>
+
+<div class="grid h-full grid-cols-[300px_1fr_300px] gap-4 p-4">
+	<Card.Root class="h-full">
+		<Card.Header>
+			<Card.Title class="text-lg">Sections</Card.Title>
+			<Card.Description>
+				Choose a lesson section to edit its blocks, or add a new section.
+			</Card.Description>
+		</Card.Header>
+		<Card.Content class="space-y-4">
+			{#each data.sections as section, index}
+				<div class="flex items-center gap-2">
+					{#if editingSectionId === section.id}
+						<Input
+							bind:value={section.title}
+							class="flex-1"
+							onkeydown={(e) => {
+								if (e.key === 'Enter') {
+									updateSection(section.id, section.title);
+								}
+							}}
+						/>
+						<Button size="sm" onclick={() => updateSection(section.id, section.title)}>Save</Button>
+					{:else}
+						<a
+							href={`/subjects/${data.subjectOfferingId}/lessons/${data.lesson.id}/sections/${section.id}`}
+							class={`${buttonVariants({ variant: data.section.index === index ? 'default' : 'outline' })} block flex-1`}
+						>
+							{section.title}
+						</a>
+						<Button size="sm" variant="ghost" onclick={() => (editingSectionId = section.id)}>
+							<EditIcon class="h-3 w-3" />
+						</Button>
+						<Button size="sm" variant="ghost" onclick={() => deleteSection(section.id)}>
+							<TrashIcon class="h-3 w-3" />
+						</Button>
+					{/if}
+				</div>
+			{/each}
+
+			{#if showNewSectionInput}
+				<div class="flex gap-2">
+					<Input
+						bind:value={newSectionTitle}
+						placeholder="Section title"
+						class="flex-1"
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								createSection();
+							}
+						}}
+					/>
+					<Button onclick={createSection}>Add</Button>
+					<Button variant="ghost" onclick={() => (showNewSectionInput = false)}>Cancel</Button>
+				</div>
+			{:else}
+				<Button class="w-full" onclick={() => (showNewSectionInput = true)}>
+					<PlusIcon />
+					Add New Section
+				</Button>
+			{/if}
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root class="h-full">
+		<Card.Header>
+			{#if data.sections.length > 0}
+				<Heading headingSize={1} text={data.lesson.title} />
+			{/if}
+		</Card.Header>
+		<Card.Content class="h-full">
+			<div
+				class="flex h-full flex-col gap-4"
+				use:droppable={{
+					container: 'blocksColumn',
+					callbacks: {
+						onDrop: handleDrop,
+						onDragEnter: handleDragEnter,
+						onDragLeave: handleDragLeave
+					}
+				}}
+			>
+				{#each items as item (item.id)}
+					<div
+						class="group relative flex items-start gap-2 rounded-lg border p-4"
+						use:draggable={{
+							container: 'blocksColumn',
+							dragData: item
+						}}
+					>
+						<div class="flex flex-col gap-1">
+							<GripVerticalIcon class="h-4 w-4 cursor-grab text-gray-400 active:cursor-grabbing" />
+						</div>
+
+						<div class="flex-1">
+							{#if item.type[0] === 'h'}
+								<Heading
+									headingSize={parseInt(item.type[1]) + 1}
+									text={typeof item.content === 'string' ? item.content : 'This is a heading'}
+									onUpdate={(newText: string) => updateBlockContent(item, newText)}
+								/>
+							{:else if item.type === 'markdown'}
+								<Markdown
+									content={typeof item.content === 'string' ? item.content : ''}
+									onUpdate={(newContent: string) => updateBlockContent(item, newContent)}
+								/>
+							{:else if item.type === 'image'}
+								<Image
+									content={item.content as Record<string, any> | undefined}
+									onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+								/>
+							{:else if item.type === 'video'}
+								<Video
+									content={item.content as Record<string, any> | undefined}
+									onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+								/>
+							{:else if item.type === 'audio'}
+								<Audio
+									content={item.content as Record<string, any> | undefined}
+									onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+								/>
+							{:else}
+								<p>Content for {item.type} block.</p>
+							{/if}
+						</div>
+
+						<Button variant="destructive" onclick={() => deleteBlock(item)}>
+							<TrashIcon class="h-3 w-3" />
+						</Button>
+					</div>
+				{/each}
+			</div>
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root>
+		<Card.Header>
+			<Card.Title class="text-lg">Blocks</Card.Title>
+			<Card.Description>
+				Drag and drop blocks from here to the lesson content area.
+			</Card.Description>
+		</Card.Header>
+		<Card.Content class="grid grid-cols-2 grid-rows-12 gap-2">
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'h1', content: 'This is a Heading 1', id: 0 }
+				}}
+			>
+				<HeadingOneIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'h2', content: 'This is a Heading 2', id: 0 }
+				}}
+			>
+				<HeadingTwoIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'h3', content: 'This is a Heading 3', id: 0 }
+				}}
+			>
+				<HeadingThreeIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'h4', content: 'This is a Heading 4', id: 0 }
+				}}
+			>
+				<HeadingFourIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'h5', content: 'This is a Heading 5', id: 0 }
+				}}
+			>
+				<HeadingFiveIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'markdown', content: 'This is markdown content...', id: 0 }
+				}}
+			>
+				<PilcrowIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'image', content: { src: '', alt: 'Image', caption: '' }, id: 0 }
+				}}
+			>
+				<ImageIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'video', content: { src: '', title: 'Video' }, id: 0 }
+				}}
+			>
+				<FilmIcon class="size-8" />
+			</div>
+			<div
+				class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+				use:draggable={{
+					container: 'blockSelectionMenu',
+					dragData: { type: 'audio', content: { src: '', title: 'Audio' }, id: 0 }
+				}}
+			>
+				<AudioLinesIcon class="size-8" />
+			</div>
+		</Card.Content>
+	</Card.Root>
+</div>

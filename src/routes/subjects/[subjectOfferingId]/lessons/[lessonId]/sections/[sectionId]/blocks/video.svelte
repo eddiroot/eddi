@@ -6,11 +6,20 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import UploadIcon from '@lucide/svelte/icons/upload';
-	import PlayIcon from '@lucide/svelte/icons/play';
 
-	let { src = '', caption = '', autoplay = false, controls = true, loop = false } = $props();
+	let {
+		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
+		onUpdate = () => {}
+	} = $props();
 	let isEditing = $state(false);
 	let fileInput = $state<HTMLInputElement>();
+
+	// Local state for editing
+	let src = $state(content.src || '');
+	let caption = $state(content.caption || '');
+	let autoplay = $state(content.autoplay || false);
+	let controls = $state(content.controls !== false);
+	let loop = $state(content.loop || false);
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -32,6 +41,13 @@
 		const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
 		const match = url.match(regex);
 		return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+	}
+
+	function saveChanges() {
+		const newContent = { src, caption, autoplay, controls, loop };
+		content = newContent;
+		onUpdate(newContent);
+		isEditing = false;
 	}
 </script>
 
@@ -100,19 +116,19 @@
 				</div>
 
 				<div class="flex gap-2">
-					<Button onclick={() => (isEditing = false)}>Save</Button>
+					<Button onclick={saveChanges}>Save</Button>
 					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
 		<div class="group relative">
-			{#if src}
+			{#if content.src}
 				<figure class="space-y-2">
-					{#if isYouTubeUrl(src)}
+					{#if isYouTubeUrl(content.src)}
 						<div class="relative aspect-video w-full overflow-hidden rounded-lg border">
 							<iframe
-								src={getYouTubeEmbedUrl(src)}
+								src={getYouTubeEmbedUrl(content.src)}
 								title="YouTube video"
 								frameborder="0"
 								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -122,10 +138,10 @@
 						</div>
 					{:else}
 						<video
-							{src}
-							{controls}
-							{autoplay}
-							{loop}
+							src={content.src}
+							controls={content.controls}
+							autoplay={content.autoplay}
+							loop={content.loop}
 							class="w-full rounded-lg border"
 							style="max-height: 400px;"
 						>
@@ -133,8 +149,10 @@
 							Your browser does not support the video tag.
 						</video>
 					{/if}
-					{#if caption}
-						<figcaption class="text-muted-foreground text-center text-sm">{caption}</figcaption>
+					{#if content.caption}
+						<figcaption class="text-muted-foreground text-center text-sm">
+							{content.caption}
+						</figcaption>
 					{/if}
 				</figure>
 			{:else}
@@ -150,7 +168,14 @@
 			<Button
 				variant="outline"
 				size="sm"
-				onclick={() => (isEditing = true)}
+				onclick={() => {
+					src = content.src || '';
+					caption = content.caption || '';
+					autoplay = content.autoplay || false;
+					controls = content.controls !== false;
+					loop = content.loop || false;
+					isEditing = true;
+				}}
 				class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
 			>
 				<EditIcon class="h-3 w-3" />

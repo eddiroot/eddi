@@ -225,6 +225,7 @@ export const lessonSection = pgTable('lesson_section', {
 		.notNull()
 		.references(() => lesson.id, { onDelete: 'cascade' }),
 	title: text('title').notNull(),
+	index: integer('index').notNull().default(0), // e.g., 0, 1, 2, etc. for ordering
 	...timestamps
 });
 
@@ -237,6 +238,7 @@ export const lessonSectionBlock = pgTable('lesson_section_block', {
 		.references(() => lessonSection.id, { onDelete: 'cascade' }),
 	type: text('type').notNull(), // either 'text', 'audio', 'image', 'input', 'textArea', 'mcSingle', or 'mcMulti'
 	content: jsonb('content').notNull(),
+	index: integer('index').notNull().default(0), // e.g., 0, 1, 2, etc. for ordering within a section
 	...timestamps
 });
 

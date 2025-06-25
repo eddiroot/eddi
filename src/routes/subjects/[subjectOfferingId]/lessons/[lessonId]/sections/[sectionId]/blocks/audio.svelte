@@ -11,7 +11,10 @@
 	import VolumeXIcon from '@lucide/svelte/icons/volume-x';
 	import Volume2Icon from '@lucide/svelte/icons/volume-2';
 
-	let { src = '', caption = '', autoplay = false, controls = true, loop = false } = $props();
+	let {
+		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
+		onUpdate = () => {}
+	} = $props();
 	let isEditing = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let audioElement = $state<HTMLAudioElement>();
@@ -20,6 +23,13 @@
 	let duration = $state(0);
 	let volume = $state(1);
 	let isMuted = $state(false);
+
+	// Local state for editing
+	let src = $state(content.src || '');
+	let caption = $state(content.caption || '');
+	let autoplay = $state(content.autoplay || false);
+	let controls = $state(content.controls !== false);
+	let loop = $state(content.loop || false);
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -31,6 +41,13 @@
 			};
 			reader.readAsDataURL(file);
 		}
+	}
+
+	function saveChanges() {
+		const newContent = { src, caption, autoplay, controls, loop };
+		content = newContent;
+		onUpdate(newContent);
+		isEditing = false;
 	}
 
 	function togglePlay() {
@@ -146,23 +163,23 @@
 				</div>
 
 				<div class="flex gap-2">
-					<Button onclick={() => (isEditing = false)}>Save</Button>
+					<Button onclick={saveChanges}>Save</Button>
 					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
 		<div class="group relative">
-			{#if src}
+			{#if content.src}
 				<figure class="space-y-2">
-					{#if controls}
+					{#if content.controls}
 						<!-- Custom Audio Player -->
 						<div class="bg-card w-full rounded-lg border p-4">
 							<audio
 								bind:this={audioElement}
-								{src}
-								{autoplay}
-								{loop}
+								src={content.src}
+								autoplay={content.autoplay}
+								loop={content.loop}
 								ontimeupdate={handleTimeUpdate}
 								onloadedmetadata={handleLoadedMetadata}
 								onplay={() => (isPlaying = true)}
@@ -174,7 +191,7 @@
 
 							<div class="flex items-center gap-4">
 								<!-- Play/Pause Button -->
-								<Button variant="outline" size="sm" onclick={togglePlay} disabled={!src}>
+								<Button variant="outline" size="sm" onclick={togglePlay} disabled={!content.src}>
 									{#if isPlaying}
 										<PauseIcon class="h-4 w-4" />
 									{:else}
@@ -223,13 +240,21 @@
 						</div>
 					{:else}
 						<!-- Simple Audio Element -->
-						<audio {src} {controls} {autoplay} {loop} class="w-full">
+						<audio
+							src={content.src}
+							controls={content.controls}
+							autoplay={content.autoplay}
+							loop={content.loop}
+							class="w-full"
+						>
 							Your browser does not support the audio element.
 						</audio>
 					{/if}
 
-					{#if caption}
-						<figcaption class="text-muted-foreground text-center text-sm">{caption}</figcaption>
+					{#if content.caption}
+						<figcaption class="text-muted-foreground text-center text-sm">
+							{content.caption}
+						</figcaption>
 					{/if}
 				</figure>
 			{:else}
@@ -245,7 +270,14 @@
 			<Button
 				variant="outline"
 				size="sm"
-				onclick={() => (isEditing = true)}
+				onclick={() => {
+					src = content.src || '';
+					caption = content.caption || '';
+					autoplay = content.autoplay || false;
+					controls = content.controls !== false;
+					loop = content.loop || false;
+					isEditing = true;
+				}}
 				class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
 			>
 				<EditIcon class="h-3 w-3" />
