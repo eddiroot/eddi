@@ -217,7 +217,7 @@
 					{:else}
 						<a
 							href={`/subjects/${data.subjectOfferingId}/lessons/${data.lesson.id}/sections/${section.id}`}
-							class={`${buttonVariants({ variant: data.section.index === index ? 'default' : 'outline' })} block flex-1`}
+							class={`${buttonVariants({ variant: data.section.id === section.id ? 'default' : 'outline' })} block flex-1`}
 						>
 							{section.title}
 						</a>
