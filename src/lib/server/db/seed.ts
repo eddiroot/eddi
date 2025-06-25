@@ -32,11 +32,43 @@ async function main() {
 			},
 			{
 				id: generateUserId(),
-				email: 'teacher@school.edu.au',
+				email: 'teacher001@school.edu.au',
 				passwordHash: await hash('teacher'),
 				type: 'teacher',
 				firstName: 'Teacher',
-				lastName: 'One'
+				lastName: '001'
+			},
+			{
+				id: generateUserId(),
+				email: 'teacher002@school.edu.au',
+				passwordHash: await hash('teacher'),
+				type: 'teacher',
+				firstName: 'Teacher',
+				lastName: '002'
+			},
+			{
+				id: generateUserId(),
+				email: 'teacher003@school.edu.au',
+				passwordHash: await hash('teacher'),
+				type: 'teacher',
+				firstName: 'Teacher',
+				lastName: '003'
+			},
+			{
+				id: generateUserId(),
+				email: 'teacher004@school.edu.au',
+				passwordHash: await hash('teacher'),
+				type: 'teacher',
+				firstName: 'Teacher',
+				lastName: '004'
+			},
+			{
+				id: generateUserId(),
+				email: 'teacher005@school.edu.au',
+				passwordHash: await hash('teacher'),
+				type: 'teacher',
+				firstName: 'Teacher',
+				lastName: '005'
 			},
 			{
 				id: generateUserId(),
@@ -258,140 +290,147 @@ async function main() {
 
 	await db.insert(schema.userSubjectOffering).values([
 		{
-			userId: users[2].id, // teacher
+			userId: users[2].id, // teacher001
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[4].id, // teacher003
+			subjectOfferingId: subjectOfferings[0].id, // Mathematics
+			role: 'teacher',
+			isComplete: 0,
+			isArchived: 0
+		},
+		{
+			userId: users[3].id, // teacher002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[4].id, // teacher003
 			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[5].id, // teacher004
 			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[6].id, // teacher005
 			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'teacher',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'student',
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'student',
 			isComplete: 0,
@@ -417,7 +456,7 @@ async function main() {
 		},
 		{
 			type: 'question',
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			title: 'Help with long division',
 			content: 'I am struggling with long division. Can anyone help?'
@@ -455,14 +494,14 @@ async function main() {
 		},
 		{
 			type: 'question',
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Scientific method',
 			content: 'Can someone explain the scientific method to me?'
 		},
 		{
 			type: 'question',
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Experiments',
 			content: 'What are some good experiments for beginners?'
@@ -746,102 +785,102 @@ async function main() {
 
 	await db.insert(schema.userSubjectClass).values([
 		{
-			userId: users[2].id, // teacher
+			userId: users[2].id, // teacher001
 			subjectClassId: subjectClasses[0].id, // Maths
 			role: 'teacher'
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[3].id, // teacher002
 			subjectClassId: subjectClasses[1].id, // Science
 			role: 'teacher'
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[4].id, // teacher003
 			subjectClassId: subjectClasses[2].id, // History
 			role: 'teacher'
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[5].id, // teacher004
 			subjectClassId: subjectClasses[3].id, // English
 			role: 'teacher'
 		},
 		{
-			userId: users[2].id, // teacher
+			userId: users[6].id, // teacher005
 			subjectClassId: subjectClasses[4].id, // Geography
 			role: 'teacher'
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[0].id, // Maths
 			role: 'student'
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[1].id, // Science
 			role: 'student'
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[2].id, // History
 			role: 'student'
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[3].id, // English
 			role: 'student'
 		},
 		{
-			userId: users[3].id, // student001
+			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[4].id, // Geography
 			role: 'student'
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[0].id, // Maths
 			role: 'student'
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[1].id, // Science
 			role: 'student'
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[2].id, // History
 			role: 'student'
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[3].id, // English
 			role: 'student'
 		},
 		{
-			userId: users[4].id, // student002
+			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[4].id, // Geography
 			role: 'student'
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[0].id, // Maths
 			role: 'student'
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[1].id, // Science
 			role: 'student'
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[2].id, // History
 			role: 'student'
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[3].id, // English
 			role: 'student'
 		},
 		{
-			userId: users[5].id, // student003
+			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[4].id, // Geography
 			role: 'student'
 		}

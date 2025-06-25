@@ -520,3 +520,54 @@ export async function deleteLocation(locationId: number) {
 
 	return location;
 }
+
+export async function getTeachersForUserInSubjectOffering(
+    userId: string,
+    subjectOfferingId: number
+) {
+    // First, get all subject class IDs that the user is enrolled in for this subject offering
+    const userSubjectClasses = await db
+        .select({
+            subjectClassId: table.subjectClass.id
+        })
+        .from(table.userSubjectClass)
+        .innerJoin(
+            table.subjectClass,
+            eq(table.userSubjectClass.subjectClassId, table.subjectClass.id)
+        )
+        .where(
+            and(
+                eq(table.userSubjectClass.userId, userId),
+                eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+            )
+        );
+
+    if (userSubjectClasses.length === 0) {
+        return [];
+    }
+
+    const subjectClassIds = userSubjectClasses.map(usc => usc.subjectClassId);
+
+    // Now get all unique teachers from those subject classes
+    const teachers = await db
+        .selectDistinct({
+            teacher: {
+                id: table.user.id,
+                firstName: table.user.firstName,
+                middleName: table.user.middleName,
+                lastName: table.user.lastName,
+                email: table.user.email,
+                avatarUrl: table.user.avatarUrl
+            }
+        })
+        .from(table.userSubjectClass)
+        .innerJoin(table.user, eq(table.user.id, table.userSubjectClass.userId))
+        .where(
+            and(
+                inArray(table.userSubjectClass.subjectClassId, subjectClassIds),
+                eq(table.userSubjectClass.role, 'teacher')
+            )
+        );
+
+    return teachers;
+}
