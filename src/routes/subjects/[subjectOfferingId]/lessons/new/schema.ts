@@ -30,33 +30,28 @@ export const filesSchema = z
 		return totalSize <= MAX_UPLOAD_SIZE * 5; // Max 25MB total
 	}, 'Total file size must be less than 25MB');
 
-export const formSchema = z.object({
-	title: z.string({ required_error: 'Please enter a title' }).min(1, 'Title cannot be empty'),
-	description: z
-		.string({ required_error: 'Please enter a description' })
-		.min(1, 'Description cannot be empty')
-		.max(500, 'Description cannot exceed 500 characters'),
-	subjectWeek: z
-		.number({
-			required_error: 'Please select a subject week'
+export const formSchema = z
+	.object({
+		title: z.string({ required_error: 'Please enter a title' }).min(1, 'Title cannot be empty'),
+		description: z
+			.string({ required_error: 'Please enter a description' })
+			.max(500, 'Description cannot exceed 500 characters'),
+		lessonTopicId: z.number().optional(), // Make this optional
+		newTopicName: z.string().optional(), // Add this for new topic creation
+		subjectWeek: z
+			.number({ required_error: 'Please enter a week' })
+			.min(0, 'Subject week must be at least 0'),
+		dueDate: z.date().optional(),
+		files: filesSchema.optional(),
+		creationMethod: z.enum(['manual', 'ai'], {
+			required_error: 'Please select a creation method'
 		})
-		.min(0, 'Subject week must be at least 0'),
-	dueDate: z.date({ required_error: 'Please select a due date' }).optional(),
-	lessonTopicId: z.number({ required_error: 'Please select a topic' }),
-	files: filesSchema,
-	creationMethod: z.enum(['manual', 'ai'], {
-		required_error: 'Please select a creation method'
 	})
-});
+	.refine((data) => data.lessonTopicId || data.newTopicName, {
+		message: 'Please select an existing topic or enter a new topic name',
+		path: ['lessonTopicId']
+	});
 
-export const topicFormSchema = z.object({
-	name: z
-		.string({ required_error: 'Please enter a topic name' })
-		.min(1, 'Topic name cannot be empty')
-		.max(100, 'Topic name cannot exceed 100 characters')
-});
-
-export type TopicFormSchema = typeof topicFormSchema;
 export type FileSchema = typeof fileSchema;
 export type FilesSchema = typeof filesSchema;
 export type FormSchema = typeof formSchema;

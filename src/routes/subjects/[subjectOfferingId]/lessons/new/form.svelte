@@ -14,10 +14,29 @@
 	let creationMethod = $state<'manual' | 'ai'>('manual');
 	let aiFiles: FileList | null = $state(null);
 	let fileValidationErrors = $state<string[]>([]);
-	let fileInputRef: HTMLInputElement; // Add this reference
+	let fileInputRef: HTMLInputElement;
+
+	// Topic selection state
+	let selectedTopicId = $state('');
+	let newTopicName = $state('');
+	let isCreatingNewTopic = $state(false);
 
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
+	});
+
+	// Handle topic selection/creation
+	$effect(() => {
+		if (isCreatingNewTopic) {
+			$formData.lessonTopicId = undefined;
+			$formData.newTopicName = newTopicName;
+		} else if (selectedTopicId) {
+			$formData.lessonTopicId = parseInt(selectedTopicId, 10);
+			$formData.newTopicName = undefined;
+		} else {
+			$formData.lessonTopicId = undefined;
+			$formData.newTopicName = undefined;
+		}
 	});
 
 	// Connect aiFiles to form and validate
@@ -76,15 +95,10 @@
 	}
 
 	let dueDateString = $state(formatDateForInput($formData.dueDate));
-	let selectedTopicId = $state($formData.lessonTopicId?.toString() || '');
 	
 
 	$effect(() => {
 		$formData.dueDate = parseDateFromInput(dueDateString);
-	});
-
-	$effect(() => {
-		$formData.lessonTopicId = selectedTopicId ? parseInt(selectedTopicId, 10) : 0;
 	});
 </script>
 
@@ -95,6 +109,7 @@
 	enctype="multipart/form-data"
 	use:enhance
 >
+	<!-- Title and Description fields remain the same -->
 	<Form.Field {form} name="title">
 		<Form.Control>
 			{#snippet children({ props })}
@@ -124,38 +139,73 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<!-- Topic, Week, and Due Date Grid -->
+	<!-- Updated Topic selection -->
 	<div class="grid grid-cols-6 lg:grid-cols-12 gap-4">
 		<div class="col-span-6">
 			<Form.Field {form} name="lessonTopicId">
 				<Form.Control>
 					{#snippet children({ props })}
 						<Form.Label>Topic</Form.Label>
-						<Select.Root type="single" bind:value={selectedTopicId} name={props.name}>
-							<Select.Trigger {...props} class="w-full truncate">
-								<span class="truncate">
-									{selectedTopicId
-										? data.lessonTopics.find((t) => t.id.toString() === selectedTopicId)?.name ||
-											'Select a topic'
-										: 'Select a topic'}
-								</span>
-							</Select.Trigger>
-							<Select.Content>
-								{#if data.lessonTopics.length === 0}
-									<Select.Item value="" label="No topics available" disabled />
-								{:else}
-									{#each data.lessonTopics as topic}
-										<Select.Item value={topic.id.toString()} label={topic.name} />
-									{/each}
-								{/if}
-							</Select.Content>
-						</Select.Root>
+						{#if isCreatingNewTopic}
+							<div class="space-y-2">
+								<Input
+									bind:value={newTopicName}
+									placeholder="Enter new topic name"
+									class="w-full"
+								/>
+								<button
+									type="button"
+									class="text-sm text-blue-600 hover:text-blue-800"
+									onclick={() => {
+										isCreatingNewTopic = false;
+										newTopicName = '';
+									}}
+								>
+									Back to existing topics
+								</button>
+							</div>
+						{:else}
+							<Select.Root 
+								type="single" 
+								bind:value={selectedTopicId} 
+								name={props.name}
+								onValueChange={(value) => {
+									if (value === '__create_new__') {
+										isCreatingNewTopic = true;
+										selectedTopicId = '';
+									} else {
+										selectedTopicId = value || '';
+									}
+								}}
+							>
+								<Select.Trigger {...props} class="w-full truncate">
+									<span class="truncate">
+										{selectedTopicId
+											? data.lessonTopics.find((t) => t.id.toString() === selectedTopicId)?.name ||
+												'Select a topic'
+											: 'Select a topic'}
+									</span>
+								</Select.Trigger>
+								<Select.Content>
+									{#if data.lessonTopics.length === 0}
+										<Select.Item value="" label="No topics available" disabled />
+									{:else}
+										{#each data.lessonTopics as topic}
+											<Select.Item value={topic.id.toString()} label={topic.name} />
+										{/each}
+									{/if}
+									<Select.Separator />
+									<Select.Item value="__create_new__" label="+ Create new topic" />
+								</Select.Content>
+							</Select.Root>
+						{/if}
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
 		</div>
 
+		<!-- Week and Due Date fields remain the same -->
 		<div class="col-span-3">
 			<Form.Field {form} name="subjectWeek">
 				<Form.Control>
@@ -187,6 +237,7 @@
 		</div>
 	</div>
 
+	<!-- Rest of your form remains the same -->
 	<div class="space-y-2 -mt-5">
 		<Tabs.Root bind:value={creationMethod} class="w-full flex">
             <Tabs.List
@@ -243,7 +294,11 @@
         </Tabs.Root>
     </div>
 
-	<!-- Add hidden file input -->
+	<!-- Hidden inputs for new topic -->
+	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
+	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
+
+    <!-- Add hidden file input -->
     <input
         bind:this={fileInputRef}
         type="file"
@@ -253,8 +308,6 @@
         class="hidden"
         aria-hidden="true"
     />
-
-	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
 
     <div class="flex justify-end gap-2">
         <Form.Button 

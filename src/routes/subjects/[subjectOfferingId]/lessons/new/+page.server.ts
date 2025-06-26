@@ -1,13 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { formSchema, topicFormSchema } from './schema';
+import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
 import { lessonCreationPrompt } from '$lib/server/ai/constants';
 import {
 	createLesson,
-	getLessonTopicsBySubjectOfferingId,
-	createLessonTopic
+	createLessonTopic,
+	getLessonTopicsBySubjectOfferingId
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -23,13 +23,12 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 		throw new Error('Invalid subject offering ID');
 	}
 
-	const [form, topicForm, lessonTopics] = await Promise.all([
+	const [form, lessonTopics] = await Promise.all([
 		superValidate(zod(formSchema)),
-		superValidate(zod(topicFormSchema)),
 		getLessonTopicsBySubjectOfferingId(subjectOfferingIdInt)
 	]);
 
-	return { form, topicForm, lessonTopics };
+	return { form, lessonTopics };
 };
 
 export const actions = {
@@ -45,23 +44,24 @@ export const actions = {
 
 		// Read the form data ONCE
 		const formData = await request.formData();
+		const form = await superValidate(formData, zod(formSchema));
 
-		// Log all form data entries
-		console.log('=== FORM DATA DEBUG ===');
-		for (const [key, value] of formData.entries()) {
-			if (value instanceof File) {
-				console.log(`${key}: File - name: ${value.name}, size: ${value.size}, type: ${value.type}`);
-			} else {
-				console.log(`${key}: ${value}`);
+		let lessonTopicId = form.data.lessonTopicId;
+
+		// Create new topic if needed
+		if (form.data.newTopicName && !lessonTopicId) {
+			try {
+				const newTopic = await createLessonTopic(subjectOfferingIdInt, form.data.newTopicName);
+				lessonTopicId = newTopic.id;
+				console.log('Created new topic:', newTopic);
+			} catch (error) {
+				console.error('Error creating new topic:', error);
+				return fail(500, { form, message: 'Error creating new topic' });
 			}
 		}
-		console.log('=== END FORM DATA DEBUG ===');
 
-		// Validate the form using formData instead of request
-		const form = await superValidate(formData, zod(formSchema));
-		if (!form.valid) {
-			console.log('Form validation failed:', form.errors);
-			return fail(400, { form });
+		if (!lessonTopicId) {
+			return fail(400, { form, message: 'Topic is required' });
 		}
 
 		const lesson = await createLesson(
@@ -69,7 +69,7 @@ export const actions = {
 			form.data.description,
 			'draft',
 			form.data.subjectWeek,
-			form.data.lessonTopicId,
+			lessonTopicId,
 			form.data.dueDate
 		);
 		console.log('Created lesson:', form.data);
@@ -171,14 +171,5 @@ export const actions = {
 		}
 
 		throw redirect(303, `/subjects/${subjectOfferingIdInt}/lessons/${lesson.id}`);
-	},
-
-	createTopic: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
-		security.isAuthenticated();
-		const id = parseInt(subjectOfferingId, 10);
-		const form = await superValidate(request, zod(topicFormSchema));
-		if (!form.valid) return fail(400, { form });
-		const topic = await createLessonTopic(id, form.data.name);
-		return { form, topic };
 	}
 };
