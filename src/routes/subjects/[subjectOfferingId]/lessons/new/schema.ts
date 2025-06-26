@@ -18,17 +18,24 @@ export const fileSchema = z
 	}, `File must be one of ${ACCEPTED_FILE_TYPES_HR}`);
 
 export const filesSchema = z
-	.array(fileSchema)
-	.optional()
-	.refine((files) => {
-		if (!files) return true;
-		return files.length <= 10; // Max 10 files
-	}, 'Maximum 10 files allowed')
-	.refine((files) => {
-		if (!files) return true;
-		const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-		return totalSize <= MAX_UPLOAD_SIZE * 5; // Max 25MB total
-	}, 'Total file size must be less than 25MB');
+	.array(
+		z
+			.instanceof(File)
+			.refine((file) => file.size <= 10 * 1024 * 1024, {
+				message: 'File size must be less than 10MB'
+			})
+			.refine(
+				(file) => {
+					const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+					return allowedTypes.includes(file.type);
+				},
+				{
+					message: 'File must be a PNG, JPEG, or PDF'
+				}
+			)
+	)
+	.min(1, 'At least one file is required')
+	.max(5, 'Maximum 5 files allowed');
 
 export const formSchema = z
 	.object({

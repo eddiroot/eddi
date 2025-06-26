@@ -128,7 +128,7 @@
                 or drag and drop
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-                {accept ? `${accept.replace(/\./g, '').replace(/,/g, ', ').toUpperCase()}` : 'PNG, JPG, JPEG or PDF'} (MAX. 5MB each)
+                {accept ? `${accept.replace(/\./g, '').replace(/,/g, ', ').toUpperCase()}` : 'PNG, JPG, JPEG or PDF'} (MAX. 10MB each)
             </p>
             {#if files && files.length > 0}
                 <p class="mt-2 text-xs text-primary">

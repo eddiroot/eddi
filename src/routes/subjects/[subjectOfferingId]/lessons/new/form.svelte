@@ -147,21 +147,24 @@
 					{#snippet children({ props })}
 						<Form.Label>Topic</Form.Label>
 						{#if isCreatingNewTopic}
-							<div class="space-y-2">
+							<div class="relative">
 								<Input
 									bind:value={newTopicName}
 									placeholder="Enter new topic name"
-									class="w-full"
+									class="w-full pr-8"
 								/>
 								<button
 									type="button"
-									class="text-sm text-blue-600 hover:text-blue-800"
+									class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
 									onclick={() => {
 										isCreatingNewTopic = false;
 										newTopicName = '';
 									}}
+									aria-label="Cancel creating new topic"
 								>
-									Back to existing topics
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+									</svg>
 								</button>
 							</div>
 						{:else}
@@ -195,7 +198,7 @@
 										{/each}
 									{/if}
 									<Select.Separator />
-									<Select.Item value="__create_new__" label="+ Create new topic" />
+									<Select.Item value="__create_new__" label="Create new topic" />
 								</Select.Content>
 							</Select.Root>
 						{/if}
