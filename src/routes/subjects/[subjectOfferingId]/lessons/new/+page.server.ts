@@ -1,10 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { formSchema } from './schema';
+import { formSchema, topicFormSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
 import { lessonCreationPrompt } from '$lib/server/ai/constants';
-import { createLesson, getLessonTopicsBySubjectOfferingId } from '$lib/server/db/service';
+import {
+	createLesson,
+	getLessonTopicsBySubjectOfferingId,
+	createLessonTopic
+} from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -19,12 +23,13 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 		throw new Error('Invalid subject offering ID');
 	}
 
-	const [form, lessonTopics] = await Promise.all([
+	const [form, topicForm, lessonTopics] = await Promise.all([
 		superValidate(zod(formSchema)),
+		superValidate(zod(topicFormSchema)),
 		getLessonTopicsBySubjectOfferingId(subjectOfferingIdInt)
 	]);
 
-	return { form, lessonTopics };
+	return { form, topicForm, lessonTopics };
 };
 
 export const actions = {
@@ -166,5 +171,14 @@ export const actions = {
 		}
 
 		throw redirect(303, `/subjects/${subjectOfferingIdInt}/lessons/${lesson.id}`);
+	},
+
+	createTopic: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
+		security.isAuthenticated();
+		const id = parseInt(subjectOfferingId, 10);
+		const form = await superValidate(request, zod(topicFormSchema));
+		if (!form.valid) return fail(400, { form });
+		const topic = await createLessonTopic(id, form.data.name);
+		return { form, topic };
 	}
 };

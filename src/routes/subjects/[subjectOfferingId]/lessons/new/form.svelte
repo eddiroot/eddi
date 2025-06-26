@@ -189,9 +189,28 @@
 
 	<div class="space-y-2 -mt-5">
 		<Tabs.Root bind:value={creationMethod} class="w-full flex">
-            <Tabs.List class="flex space-x-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600  text-white border-0 shadow-lg transition-all duration-200">
-                <Tabs.Trigger value="manual" class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white">Create Manual</Tabs.Trigger>
-                <Tabs.Trigger value="ai" class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white">Generate with AI</Tabs.Trigger>
+            <Tabs.List
+              class="
+                flex space-x-2
+                bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600
+                dark:bg-gradient-to-r dark:from-blue-500 dark:via-purple-500 dark:to-blue-600
+                text-white
+                border-0 shadow-lg
+                transition-all duration-200
+              "
+            >
+              <Tabs.Trigger
+                value="manual"
+                class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white"
+              >
+                Create Manual
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="ai"
+                class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white "
+              >
+                Generate with AI
+              </Tabs.Trigger>
             </Tabs.List>
             
             <Tabs.Content value="manual" class="mt-1"></Tabs.Content>      

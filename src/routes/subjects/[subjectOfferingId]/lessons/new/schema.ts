@@ -49,6 +49,14 @@ export const formSchema = z.object({
 	})
 });
 
+export const topicFormSchema = z.object({
+	name: z
+		.string({ required_error: 'Please enter a topic name' })
+		.min(1, 'Topic name cannot be empty')
+		.max(100, 'Topic name cannot exceed 100 characters')
+});
+
+export type TopicFormSchema = typeof topicFormSchema;
 export type FileSchema = typeof fileSchema;
 export type FilesSchema = typeof filesSchema;
 export type FormSchema = typeof formSchema;

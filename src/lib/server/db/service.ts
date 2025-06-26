@@ -782,4 +782,26 @@ export async function getTeachersForUserInSubjectOffering(
 		);
 
 	return teachers;
+
+export async function createLessonTopic(subjectClassId: number, name: string) {
+	// Get the current max index for this subjectClassId
+	const maxIndexResult = await db
+		.select({ maxIndex: table.lessonTopic.index })
+		.from(table.lessonTopic)
+		.where(eq(table.lessonTopic.subjectClassId, subjectClassId))
+		.orderBy(desc(table.lessonTopic.index))
+		.limit(1);
+
+	const nextIndex = (maxIndexResult[0]?.maxIndex ?? -1) + 1;
+
+	const [lessonTopic] = await db
+		.insert(table.lessonTopic)
+		.values({
+			subjectClassId,
+			name,
+			index: nextIndex
+		})
+		.returning();
+
+	return lessonTopic;
 }
