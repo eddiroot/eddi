@@ -26,6 +26,22 @@ export async function getSubjectById(subjectId: number) {
 	return subject[0]?.subject;
 }
 
+export async function getSubjectOfferingsBySubjectId(subjectId: number) {
+	const subjectOfferings = await db
+		.select({
+			subjectOffering: table.subjectOffering,
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.where(eq(table.subjectOffering.subjectId, subjectId));
+
+	return subjectOfferings; // Returns both subjectOffering and subject data
+}
+
 export async function getSubjectThreadsMinimalBySubjectId(subjectOfferingId: number) {
 	const threads = await db
 		.select({
@@ -212,25 +228,34 @@ export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: s
 	return classTimesAndLocations;
 }
 
-export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
-	const lessons = await db
+export async function getClassesForUserInSubjectOffering(
+	userId: string,
+	subjectOfferingId: number
+) {
+	const classes = await db
 		.select({
-			lesson: table.lesson,
-			lessonTopic: table.lessonTopic
+			classTime: table.subjectClassTime,
+			schoolLocation: table.schoolLocation
 		})
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
+		.innerJoin(
+			table.subjectClassTime,
+			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+		)
+		.innerJoin(
+			table.schoolLocation,
+			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+		)
 		.where(
 			and(
 				eq(table.userSubjectClass.userId, userId),
 				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
 			)
 		)
-		.orderBy(desc(table.lesson.createdAt));
+		.orderBy(desc(table.subjectClassTime.startTime));
 
-	return lessons;
+	return classes;
 }
 
 export async function getRecentAnnouncementsByUserId(userId: string) {
@@ -272,6 +297,27 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 		.orderBy(desc(table.subjectThread.createdAt));
 
 	return announcements;
+}
+
+export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
+	const lessons = await db
+		.select({
+			lesson: table.lesson,
+			lessonTopic: table.lessonTopic
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
+		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.userId, userId),
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+			)
+		)
+		.orderBy(desc(table.lesson.createdAt));
+
+	return lessons;
 }
 
 export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: number) {
@@ -369,6 +415,16 @@ export async function createLesson(
 	return lesson;
 }
 
+export async function updateLessonTitle(lessonId: number, title: string) {
+	const [lesson] = await db
+		.update(table.lesson)
+		.set({ title })
+		.where(eq(table.lesson.id, lessonId))
+		.returning();
+
+	return lesson;
+}
+
 export async function createLessonSectionBlock(
 	lessonSectionId: number,
 	type: string,
@@ -417,15 +473,23 @@ export async function deleteLessonSectionBlock(blockId: number) {
 	await db.delete(table.lessonSectionBlock).where(eq(table.lessonSectionBlock.id, blockId));
 }
 
-export async function reorderLessonSectionBlocks(blockOrders: { id: number; order: number }[]) {
-	const promises = blockOrders.map(({ id, order }) =>
-		db
+export async function swapLessonSectionBlocks(
+	blockOneId: number,
+	blockTwoId: number,
+	blockOneIndex: number,
+	blockTwoIndex: number
+) {
+	await db.transaction(async (tx) => {
+		await tx
 			.update(table.lessonSectionBlock)
-			.set({ index: order })
-			.where(eq(table.lessonSectionBlock.id, id))
-	);
+			.set({ index: blockTwoIndex })
+			.where(eq(table.lessonSectionBlock.id, blockOneId));
 
-	await Promise.all(promises);
+		await tx
+			.update(table.lessonSectionBlock)
+			.set({ index: blockOneIndex })
+			.where(eq(table.lessonSectionBlock.id, blockTwoId));
+	});
 }
 
 export async function createLessonSection(lessonId: number, title: string) {
@@ -466,6 +530,52 @@ export async function deleteLessonSection(sectionId: number) {
 }
 
 // Whiteboard functions
+export async function createWhiteboard(lessonId: number, title?: string | null) {
+	const [newWhiteboard] = await db
+		.insert(table.whiteboard)
+		.values({
+			lessonId,
+			title: title && title.trim() ? title.trim() : null
+		})
+		.returning();
+
+	return newWhiteboard;
+}
+
+export async function getWhiteboardById(whiteboardId: number) {
+	const whiteboards = await db
+		.select()
+		.from(table.whiteboard)
+		.where(eq(table.whiteboard.id, whiteboardId))
+		.limit(1);
+
+	return whiteboards[0] || null;
+}
+
+export async function getWhiteboardWithLesson(whiteboardId: number, lessonId: number) {
+	const whiteboardData = await db
+		.select({
+			whiteboard: table.whiteboard,
+			lesson: {
+				id: table.lesson.id,
+				title: table.lesson.title
+			}
+		})
+		.from(table.whiteboard)
+		.innerJoin(table.lesson, eq(table.whiteboard.lessonId, table.lesson.id))
+		.where(eq(table.whiteboard.id, whiteboardId))
+		.limit(1);
+
+	if (!whiteboardData.length || whiteboardData[0].lesson.id !== lessonId) {
+		return null;
+	}
+
+	return {
+		whiteboard: whiteboardData[0].whiteboard,
+		lesson: whiteboardData[0].lesson
+	};
+}
+
 export async function getWhiteboardObjects(whiteboardId: number = 1) {
 	const objects = await db
 		.select()
@@ -625,6 +735,53 @@ export async function reorderLessonSections(sectionOrders: { id: number; order: 
 	);
 
 	await Promise.all(promises);
+}
+export async function getTeachersForUserInSubjectOffering(
+	userId: string,
+	subjectOfferingId: number
+) {
+	// First, get all subject class IDs that the user is enrolled in for this subject offering
+	const userSubjectClasses = await db
+		.select({
+			subjectClassId: table.subjectClass.id
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.userId, userId),
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+			)
+		);
+
+	if (userSubjectClasses.length === 0) {
+		return [];
+	}
+
+	const subjectClassIds = userSubjectClasses.map((usc) => usc.subjectClassId);
+
+	// Now get all unique teachers from those subject classes
+	const teachers = await db
+		.selectDistinct({
+			teacher: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				email: table.user.email,
+				avatarUrl: table.user.avatarUrl
+			}
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.user, eq(table.user.id, table.userSubjectClass.userId))
+		.where(
+			and(
+				inArray(table.userSubjectClass.subjectClassId, subjectClassIds),
+				eq(table.userSubjectClass.role, 'teacher')
+			)
+		);
+
+	return teachers;
 }
 
 export async function createLessonTopic(subjectClassId: number, name: string) {
