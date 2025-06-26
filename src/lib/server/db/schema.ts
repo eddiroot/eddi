@@ -236,7 +236,7 @@ export const lessonSectionBlock = pgTable('lesson_section_block', {
 	lessonSectionId: integer('lesson_section_id')
 		.notNull()
 		.references(() => lessonSection.id, { onDelete: 'cascade' }),
-	type: text('type').notNull(), // either 'text', 'audio', 'image', 'input', 'textArea', 'mcSingle', or 'mcMulti'
+	type: text('type').notNull(), // either 'text', 'audio', 'image', 'input', 'textArea', 'mcSingle', 'mcMulti', or 'whiteboard'
 	content: jsonb('content').notNull(),
 	index: integer('index').notNull().default(0), // e.g., 0, 1, 2, etc. for ordering within a section
 	...timestamps
@@ -246,6 +246,10 @@ export type LessonSectionBlock = typeof lessonSectionBlock.$inferSelect;
 
 export const whiteboard = pgTable('whiteboard', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	lessonId: integer('lesson_id')
+		.notNull()
+		.references(() => lesson.id, { onDelete: 'cascade' }),
+	title: text('title'), // Optional title for the whiteboard
 	...timestamps
 });
 

@@ -9,6 +9,7 @@
 	import Image from './blocks/image.svelte';
 	import Video from './blocks/video.svelte';
 	import Audio from './blocks/audio.svelte';
+	import Whiteboard from './blocks/whiteboard.svelte';
 	import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 	import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
 	import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
@@ -18,6 +19,7 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import EditIcon from '@lucide/svelte/icons/edit';
@@ -307,6 +309,11 @@
 								content={item.content as Record<string, any> | undefined}
 								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
 							/>
+						{:else if item.type === 'whiteboard'}
+							<Whiteboard
+								content={item.content as Record<string, any> | undefined}
+								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+							/>
 						{:else}
 							<p>Content for {item.type} block.</p>
 						{/if}
@@ -417,6 +424,15 @@
 					}}
 				>
 					<AudioLinesIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'whiteboard', content: { whiteboardId: null, title: '' }, id: 0 }
+					}}
+				>
+					<PresentationIcon class="size-8" />
 				</div>
 			</div>
 

@@ -32,11 +32,6 @@
 			url: '/timetable',
 			icon: CalendarDaysIcon
 		},
-		{
-			title: 'Whiteboard',
-			url: '/whiteboard',
-			icon: PresentationIcon
-		}
 	];
 
 	const subjectItems = [

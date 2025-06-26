@@ -530,6 +530,52 @@ export async function deleteLessonSection(sectionId: number) {
 }
 
 // Whiteboard functions
+export async function createWhiteboard(lessonId: number, title?: string | null) {
+	const [newWhiteboard] = await db
+		.insert(table.whiteboard)
+		.values({
+			lessonId,
+			title: title && title.trim() ? title.trim() : null
+		})
+		.returning();
+
+	return newWhiteboard;
+}
+
+export async function getWhiteboardById(whiteboardId: number) {
+	const whiteboards = await db
+		.select()
+		.from(table.whiteboard)
+		.where(eq(table.whiteboard.id, whiteboardId))
+		.limit(1);
+
+	return whiteboards[0] || null;
+}
+
+export async function getWhiteboardWithLesson(whiteboardId: number, lessonId: number) {
+	const whiteboardData = await db
+		.select({
+			whiteboard: table.whiteboard,
+			lesson: {
+				id: table.lesson.id,
+				title: table.lesson.title
+			}
+		})
+		.from(table.whiteboard)
+		.innerJoin(table.lesson, eq(table.whiteboard.lessonId, table.lesson.id))
+		.where(eq(table.whiteboard.id, whiteboardId))
+		.limit(1);
+
+	if (!whiteboardData.length || whiteboardData[0].lesson.id !== lessonId) {
+		return null;
+	}
+
+	return {
+		whiteboard: whiteboardData[0].whiteboard,
+		lesson: whiteboardData[0].lesson
+	};
+}
+
 export async function getWhiteboardObjects(whiteboardId: number = 1) {
 	const objects = await db
 		.select()
