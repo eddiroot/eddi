@@ -10,11 +10,13 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { Loader2Icon } from 'lucide-svelte'; // Add this import
 
 	let creationMethod = $state<'manual' | 'ai'>('manual');
 	let aiFiles: FileList | null = $state(null);
 	let fileValidationErrors = $state<string[]>([]);
 	let fileInputRef: HTMLInputElement;
+	let isSubmitting = $state(false); // Add this state
 
 	// Topic selection state
 	let selectedTopicId = $state('');
@@ -79,7 +81,22 @@
 	} = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(formSchema)
+		validators: zodClient(formSchema),
+		onSubmit: ({ formData, cancel }) => {
+			// Check if it's AI creation method
+			const method = formData.get('creationMethod');
+			if (method === 'ai') {
+				isSubmitting = true;
+			}
+		},
+		onResult: ({ result }) => {
+			// Reset loading state on any result
+			isSubmitting = false;
+		},
+		onError: () => {
+			// Reset loading state on error
+			isSubmitting = false;
+		}
 	});
 
 	const { form: formData, enhance } = form;
@@ -101,6 +118,23 @@
 		$formData.dueDate = parseDateFromInput(dueDateString);
 	});
 </script>
+
+<!-- Loading Overlay -->
+{#if isSubmitting && creationMethod === 'ai'}
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-xl flex flex-col items-center space-y-4 max-w-sm mx-4">
+            <Loader2Icon class="h-12 w-12 animate-spin text-blue-600" />
+            <div class="text-center">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Generating Lesson with AI
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Please wait while we create your lesson content...
+                </p>
+            </div>
+        </div>
+    </div>
+{/if}
 
 <form
 	method="POST"
@@ -315,9 +349,14 @@
     <div class="flex justify-end gap-2">
         <Form.Button 
             type="submit"
-            disabled={fileValidationErrors.length > 0}
+            disabled={fileValidationErrors.length > 0 || isSubmitting}
         >
-            Create
+            {#if isSubmitting && creationMethod === 'ai'}
+                <Loader2Icon class="h-4 w-4 animate-spin mr-2" />
+                Generating...
+            {:else}
+                Create
+            {/if}
         </Form.Button>
     </div>
 </form>
