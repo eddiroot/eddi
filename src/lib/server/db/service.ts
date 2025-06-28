@@ -153,7 +153,7 @@ export async function createSubjectThreadResponse(
 export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
 	const classTimesAndLocations = await db
 		.select({
-			classTime: table.subjectClassTime,
+			classTime: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation,
 			subjectOffering: {
 				id: table.subjectOffering.id
@@ -166,12 +166,12 @@ export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(
-			table.subjectClassTime,
-			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+			table.subjectClassAllocation,
+			eq(table.subjectClassAllocation.subjectClassId, table.subjectClass.id)
 		)
 		.innerJoin(
 			table.schoolLocation,
-			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
 		)
 		.innerJoin(
 			table.subjectOffering,
@@ -179,7 +179,7 @@ export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
 		)
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.where(eq(table.userSubjectClass.userId, userId))
-		.orderBy(desc(table.subjectClassTime.startTime));
+		.orderBy(desc(table.subjectClassAllocation.startTime));
 
 	return classTimesAndLocations;
 }
@@ -192,7 +192,7 @@ export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: s
 
 	const classTimesAndLocations = await db
 		.select({
-			classTime: table.subjectClassTime,
+			classTime: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation,
 			subjectOffering: {
 				id: table.subjectOffering.id
@@ -205,12 +205,12 @@ export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: s
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(
-			table.subjectClassTime,
-			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+			table.subjectClassAllocation,
+			eq(table.subjectClassAllocation.subjectClassId, table.subjectClass.id)
 		)
 		.innerJoin(
 			table.schoolLocation,
-			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
 		)
 		.innerJoin(
 			table.subjectOffering,
@@ -220,10 +220,10 @@ export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: s
 		.where(
 			and(
 				eq(table.userSubjectClass.userId, userId),
-				eq(table.subjectClassTime.dayOfWeek, todayDayOfWeek)
+				eq(table.subjectClassAllocation.dayOfWeek, todayDayOfWeek)
 			)
 		)
-		.orderBy(table.subjectClassTime.startTime); // Order by start time (earliest first) for today's schedule
+		.orderBy(table.subjectClassAllocation.startTime); // Order by start time (earliest first) for today's schedule
 
 	return classTimesAndLocations;
 }
@@ -234,18 +234,18 @@ export async function getClassesForUserInSubjectOffering(
 ) {
 	const classes = await db
 		.select({
-			classTime: table.subjectClassTime,
+			classTime: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation
 		})
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
 		.innerJoin(
-			table.subjectClassTime,
-			eq(table.subjectClassTime.subjectClassId, table.subjectClass.id)
+			table.subjectClassAllocation,
+			eq(table.subjectClassAllocation.subjectClassId, table.subjectClass.id)
 		)
 		.innerJoin(
 			table.schoolLocation,
-			eq(table.subjectClassTime.schoolLocationId, table.schoolLocation.id)
+			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
 		)
 		.where(
 			and(
@@ -253,7 +253,7 @@ export async function getClassesForUserInSubjectOffering(
 				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
 			)
 		)
-		.orderBy(desc(table.subjectClassTime.startTime));
+		.orderBy(desc(table.subjectClassAllocation.startTime));
 
 	return classes;
 }

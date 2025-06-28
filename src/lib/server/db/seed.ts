@@ -529,7 +529,7 @@ async function main() {
 		])
 		.returning();
 
-	await db.insert(schema.subjectClassTime).values([
+	await db.insert(schema.subjectClassAllocation).values([
 		// Schedule: 8:30-9:25, 9:25-10:20, RECESS 10:20-10:40, 10:40-11:35, 11:35-12:30, LUNCH 12:30-1:15, 1:15-2:10, 2:10-3:05
 
 		// MONDAY SCHEDULE
