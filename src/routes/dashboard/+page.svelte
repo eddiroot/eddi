@@ -103,7 +103,7 @@
 			</Button>
 		</Card.Header>
 		<Card.Content>
-			<div class="space-y-3">
+			{#if data.userClasses && data.userClasses.length > 0}
 				{#each data.userClasses as cls}
 					<div class="border-border flex items-center justify-between rounded-lg border p-3">
 						<div class="flex-1">
@@ -115,7 +115,9 @@
 						</div>
 					</div>
 				{/each}
-			</div>
+			{:else}
+				<p class="text-muted-foreground text-center">No classes scheduled for today.</p>
+			{/if}
 		</Card.Content>
 	</Card.Root>
 
