@@ -39,7 +39,7 @@
 		const classesByDay: UserClass[][] = [[], [], [], [], []]; // Array for Mon-Fri (5 days)
 
 		data.userClasses?.forEach((cls) => {
-			const dayIndex = getDayIndex(cls.classTime.dayOfWeek);
+			const dayIndex = getDayIndex(cls.classAllocation.dayOfWeek);
 			if (dayIndex !== -1) {
 				classesByDay[dayIndex].push(cls);
 			}
@@ -47,7 +47,9 @@
 
 		// Sort classes within each day by start time
 		classesByDay.forEach((dayClasses) => {
-			dayClasses.sort((a, b) => a.classTime.startTime.localeCompare(b.classTime.startTime));
+			dayClasses.sort((a, b) =>
+				a.classAllocation.startTime.localeCompare(b.classAllocation.startTime)
+			);
 		});
 
 		return classesByDay;
@@ -127,7 +129,7 @@
 											<div class="border-border rounded-lg border p-3">
 												<div class="flex items-center justify-between">
 													<span class="text-muted-foreground text-sm"
-														>{formatTime(cls.classTime.startTime)}</span
+														>{formatTime(cls.classAllocation.startTime)}</span
 													>
 													<span class="text-muted-foreground text-sm"
 														>{cls.schoolLocation.name}</span

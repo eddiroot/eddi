@@ -111,7 +111,7 @@
 							<div class="text-muted-foreground text-sm">{cls.schoolLocation.name}</div>
 						</div>
 						<div class="text-muted-foreground text-sm font-medium">
-							{formatTime(cls.classTime.startTime)}
+							{formatTime(cls.classAllocation.startTime)}
 						</div>
 					</div>
 				{/each}

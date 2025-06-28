@@ -1,4 +1,4 @@
-import { getSubjectClassTimesAndLocationsByUserId } from '$lib/server/db/service';
+import { getSubjectClassAllocationByUserId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security, user } }) => {
 	security.isAuthenticated();
@@ -7,7 +7,7 @@ export const load = async ({ locals: { security, user } }) => {
 		return { user: null, subjects: [] };
 	}
 
-	const classTimesAndLocations = await getSubjectClassTimesAndLocationsByUserId(user.id);
+	const classTimesAndLocations = await getSubjectClassAllocationByUserId(user.id);
 
 	if (!classTimesAndLocations || classTimesAndLocations.length === 0) {
 		return { user, classTimes: [] };

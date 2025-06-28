@@ -134,7 +134,7 @@ export const subjectClassAllocation = pgTable('subject_class_time', {
 	...timestamps
 });
 
-export type SubjectClassTime = typeof subjectClassAllocation.$inferSelect;
+export type SubjectClassAllocation = typeof subjectClassAllocation.$inferSelect;
 
 export const schoolLocation = pgTable('school_location', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),

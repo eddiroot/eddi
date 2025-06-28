@@ -150,10 +150,10 @@ export async function createSubjectThreadResponse(
 	return response;
 }
 
-export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
-	const classTimesAndLocations = await db
+export async function getSubjectClassAllocationByUserId(userId: string) {
+	const classAllocation = await db
 		.select({
-			classTime: table.subjectClassAllocation,
+			classAllocation: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation,
 			subjectOffering: {
 				id: table.subjectOffering.id
@@ -181,18 +181,18 @@ export async function getSubjectClassTimesAndLocationsByUserId(userId: string) {
 		.where(eq(table.userSubjectClass.userId, userId))
 		.orderBy(desc(table.subjectClassAllocation.startTime));
 
-	return classTimesAndLocations;
+	return classAllocation;
 }
 
-export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: string) {
+export async function getSubjectClassAllocationsByUserIdForToday(userId: string) {
 	// Get today's day of the week in lowercase
 	const today = new Date();
 	const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 	const todayDayOfWeek = dayNames[today.getDay()];
 
-	const classTimesAndLocations = await db
+	const classAllocation = await db
 		.select({
-			classTime: table.subjectClassAllocation,
+			classAllocation: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation,
 			subjectOffering: {
 				id: table.subjectOffering.id
@@ -225,7 +225,7 @@ export async function getSubjectClassTimesAndLocationsByUserIdForToday(userId: s
 		)
 		.orderBy(table.subjectClassAllocation.startTime); // Order by start time (earliest first) for today's schedule
 
-	return classTimesAndLocations;
+	return classAllocation;
 }
 
 export async function getClassesForUserInSubjectOffering(
@@ -234,7 +234,7 @@ export async function getClassesForUserInSubjectOffering(
 ) {
 	const classes = await db
 		.select({
-			classTime: table.subjectClassAllocation,
+			classAllocation: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation
 		})
 		.from(table.userSubjectClass)

@@ -86,8 +86,11 @@
 				{/each}
 
 				<!-- Classes for this day -->
-				{#each (classTimes ?? []).filter((c) => c.classTime.dayOfWeek === day.value) as cls}
-					{@const position = getClassPosition(cls.classTime.startTime, cls.classTime.duration)}
+				{#each (classTimes ?? []).filter((c) => c.classAllocation.dayOfWeek === day.value) as cls}
+					{@const position = getClassPosition(
+						cls.classAllocation.startTime,
+						cls.classAllocation.duration
+					)}
 					{@const colorClasses = getSubjectColor(cls.subject.name)}
 					<a
 						href="/subjects/{cls.subject.id}/home"
@@ -100,8 +103,8 @@
 									>{cls.subject.name}</Card.Title
 								>
 								<Card.Description class="overflow-hidden text-xs text-ellipsis whitespace-nowrap">
-									{formatTime(cls.classTime.startTime)} - {formatTime(
-										addTimeAndDuration(cls.classTime.startTime, cls.classTime.duration)
+									{formatTime(cls.classAllocation.startTime)} - {formatTime(
+										addTimeAndDuration(cls.classAllocation.startTime, cls.classAllocation.duration)
 									)}
 									{cls.schoolLocation.name}
 								</Card.Description>
