@@ -10,6 +10,7 @@
 	import Video from './blocks/video.svelte';
 	import Audio from './blocks/audio.svelte';
 	import Whiteboard from './blocks/whiteboard.svelte';
+	import MultipleChoice from './blocks/multiple-choice.svelte';
 	import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 	import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
 	import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
@@ -23,6 +24,7 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import EditIcon from '@lucide/svelte/icons/edit';
+	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import { type LessonSectionBlock } from '$lib/server/db/schema';
 
 	let { data } = $props();
@@ -314,6 +316,11 @@
 								content={item.content as Record<string, any> | undefined}
 								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
 							/>
+						{:else if item.type === 'multipleChoice'}
+							<MultipleChoice
+								content={item.content as any}
+								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
+							/>
 						{:else}
 							<p>Content for {item.type} block.</p>
 						{/if}
@@ -433,6 +440,15 @@
 					}}
 				>
 					<PresentationIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { type: 'multipleChoice', content: { question: '', options: [], explanation: '' }, id: 0 }
+					}}
+				>
+					<HelpCircleIcon class="size-8" />
 				</div>
 			</div>
 

@@ -7,7 +7,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Class announcements
 - [ ] Create lessons with drag'n'drop blocks
   - [x] Persist to database (Lachie)
-  - [ ] Add whiteboard component (Raph)
+  - [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
   - [ ] Add interactive components (Max, Raph)
 - [ ] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
 - [ ] Lessons (subject level)

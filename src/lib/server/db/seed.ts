@@ -920,7 +920,7 @@ async function main() {
 		])
 		.returning();
 
-	await db.insert(schema.lesson).values([
+	const lessons = await db.insert(schema.lesson).values([
 		// Algebra Basics lessons
 		{
 			lessonTopicId: mathLessonTopics[0].id,
@@ -1035,73 +1035,22 @@ async function main() {
 			description: 'Using trigonometry to find missing sides and angles',
 			lessonStatus: 'draft'
 		}
-	]);
+	])
+		.returning();
 
-	await db.insert(schema.lessonSection).values([
-		{
-			lessonId: 1,
+	// Create lesson sections using the actual lesson IDs
+	await db.insert(schema.lessonSection).values(
+		lessons.map((lesson) => ({
+			lessonId: lesson.id,
 			title: 'Default'
-		},
-		{
-			lessonId: 2,
-			title: 'Default'
-		},
-		{
-			lessonId: 3,
-			title: 'Default'
-		},
-		{
-			lessonId: 4,
-			title: 'Default'
-		},
-		{
-			lessonId: 5,
-			title: 'Default'
-		},
-		{
-			lessonId: 6,
-			title: 'Default'
-		},
-		{
-			lessonId: 7,
-			title: 'Default'
-		},
-		{
-			lessonId: 8,
-			title: 'Default'
-		},
-		{
-			lessonId: 9,
-			title: 'Default'
-		},
-		{
-			lessonId: 10,
-			title: 'Default'
-		},
-		{
-			lessonId: 11,
-			title: 'Default'
-		},
-		{
-			lessonId: 12,
-			title: 'Default'
-		},
-		{
-			lessonId: 13,
-			title: 'Default'
-		},
-		{
-			lessonId: 14,
-			title: 'Default'
-		},
-		{
-			lessonId: 15,
-			title: 'Default'
-		}
-	]);
+		}))
+	);
 
-	// Create default whiteboard
-	await db.insert(schema.whiteboard).values({}).returning();
+	// Create default whiteboard for the first lesson
+	await db.insert(schema.whiteboard).values({
+		lessonId: lessons[0].id,
+		title: 'Default Whiteboard'
+	}).returning();
 }
 
 main()
