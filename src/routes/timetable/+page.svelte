@@ -1,11 +1,11 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { formatDate, formatTime, days } from '$lib/utils';
+	import { formatDate, formatTime, days, addTimeAndDuration, timeToMinutes } from '$lib/utils';
 
 	let { data } = $props();
 	let { classTimes } = data;
 
-	function generateTimeslots(startHour = 8, endHour = 18): string[] {
+	function generateTimeslots(startHour = 8, endHour = 17): string[] {
 		const slots: string[] = [];
 		for (let hour = startHour; hour < endHour; hour++) {
 			slots.push(`${hour.toString().padStart(2, '0')}:00`);
@@ -15,11 +15,6 @@
 	}
 
 	let timeslots = generateTimeslots();
-
-	function timeToMinutes(time: string): number {
-		const [hours, minutes] = time.split(':').map(Number);
-		return hours * 60 + minutes;
-	}
 
 	function getClassPosition(startTime: string, duration: string) {
 		const startMinutes = timeToMinutes(startTime);
@@ -32,7 +27,10 @@
 		const durationInSlots = timeToMinutes(duration) / 30;
 		const height = durationInSlots * slotHeight;
 
-		return { top: `${topPosition}%`, height: `${height}%` };
+		return {
+			top: `calc(${topPosition}% + 2px)`,
+			height: `calc(${height}% - 4px)`
+		};
 	}
 
 	function getSubjectColor(subjectName: string): string {
@@ -61,14 +59,14 @@
 
 	<!-- Timetable grid -->
 	<div
-		class="relative grid h-[calc(100%-60px)] grid-cols-[80px_1fr_1fr_1fr_1fr_1fr] overflow-hidden"
+		class="overflow-hidden-3 relative grid h-[calc(100%-60px)] grid-cols-[80px_1fr_1fr_1fr_1fr_1fr] pt-3"
 	>
 		<!-- Time legend column -->
 		<div class="bg-background relative">
 			{#each timeslots as slot, index}
 				<div
-					class="text-muted-foreground flex items-start justify-end pr-4 text-xs"
-					style="height: {100 / timeslots.length}%;"
+					class="text-muted-foreground text-s flex items-start justify-end pr-4"
+					style="height: {100 / timeslots.length}%; transform: translateY(-12px);"
 				>
 					{#if index % 2 === 0}
 						{slot}
@@ -91,17 +89,25 @@
 				{#each (classTimes ?? []).filter((c) => c.classTime.dayOfWeek === day.value) as cls}
 					{@const position = getClassPosition(cls.classTime.startTime, cls.classTime.duration)}
 					{@const colorClasses = getSubjectColor(cls.subject.name)}
-					<Card.Root
-						class="absolute right-1 left-1 py-0 pt-3 {colorClasses}"
-						style="top: {position.top}; height: {position.height};"
+					<a
+						href="/subjects/{cls.subject.id}/home"
+						class="hover:bg-muted/50 block transition-colors"
+						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
-						<Card.Header>
-							<Card.Title>{cls.subject.name}</Card.Title>
-							<Card.Description
-								>{formatTime(cls.classTime.startTime)} {cls.schoolLocation.name}</Card.Description
-							>
-						</Card.Header>
-					</Card.Root>
+						<Card.Root class="h-full overflow-hidden px-2 py-0 pt-1 {colorClasses}">
+							<Card.Header class="p-2">
+								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap"
+									>{cls.subject.name}</Card.Title
+								>
+								<Card.Description class="overflow-hidden text-xs text-ellipsis whitespace-nowrap">
+									{formatTime(cls.classTime.startTime)} - {formatTime(
+										addTimeAndDuration(cls.classTime.startTime, cls.classTime.duration)
+									)}
+									{cls.schoolLocation.name}
+								</Card.Description>
+							</Card.Header>
+						</Card.Root>
+					</a>
 				{/each}
 			</div>
 		{/each}

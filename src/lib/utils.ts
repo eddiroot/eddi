@@ -63,3 +63,66 @@ export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
 export type WithoutChildren<T> = T extends { children?: any } ? Omit<T, 'children'> : T;
 export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
 export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?: U | null };
+
+/**
+ * Adds a duration (in interval format) to a start time
+ * @param startTime - Time in HH:MM format (e.g., "09:00")
+ * @param duration - Duration in interval format (e.g., "01:30:00" for 1 hour 30 minutes)
+ * @returns End time in HH:MM format
+ */
+export function addTimeAndDuration(startTime: string, duration: string): string {
+	// Parse start time
+	const [startHours, startMinutes] = startTime.split(':').map(Number);
+
+	// Parse duration - handle formats like "01:30:00" or "1:30:00" or "01:30"
+	const durationParts = duration.split(':');
+	const durationHours = parseInt(durationParts[0]) || 0;
+	const durationMinutes = parseInt(durationParts[1]) || 0;
+	const durationSeconds = parseInt(durationParts[2]) || 0;
+
+	// Convert everything to minutes for easier calculation
+	const startTotalMinutes = startHours * 60 + startMinutes;
+	const durationTotalMinutes =
+		durationHours * 60 + durationMinutes + Math.round(durationSeconds / 60);
+
+	// Add duration to start time
+	const endTotalMinutes = startTotalMinutes + durationTotalMinutes;
+
+	// Convert back to hours and minutes
+	const endHours = Math.floor(endTotalMinutes / 60);
+	const endMinutes = endTotalMinutes % 60;
+
+	// Format as HH:MM
+	return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+}
+
+export function timeToMinutes(time: string): number {
+	const [hours, minutes] = time.split(':').map(Number);
+	return hours * 60 + minutes;
+}
+
+/**
+ * Calculate the duration between two times in minutes
+ * @param startTime - Start time in HH:MM format
+ * @param endTime - End time in HH:MM format
+ * @returns Duration in minutes
+ */
+export function getTimeDifferenceInMinutes(startTime: string, endTime: string): number {
+	const startMinutes = timeToMinutes(startTime);
+	const endMinutes = timeToMinutes(endTime);
+	return endMinutes - startMinutes;
+}
+
+/**
+ * Convert interval string to minutes
+ * @param duration - Duration in interval format (e.g., "01:30:00")
+ * @returns Duration in minutes
+ */
+export function intervalToMinutes(duration: string): number {
+	const parts = duration.split(':');
+	const hours = parseInt(parts[0]) || 0;
+	const minutes = parseInt(parts[1]) || 0;
+	const seconds = parseInt(parts[2]) || 0;
+
+	return hours * 60 + minutes + Math.round(seconds / 60);
+}
