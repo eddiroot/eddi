@@ -7,7 +7,9 @@ import { lessonCreationPrompt } from '$lib/server/ai/constants';
 import {
 	createLesson,
 	createLessonTopic,
-	getLessonTopicsBySubjectOfferingId
+	getLessonTopicsBySubjectOfferingId,
+	createLessonSectionBlock,
+	getLessonSectionsByLessonId
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -30,6 +32,182 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 
 	return { form, lessonTopics };
 };
+
+// Helper function to validate and create blocks from lesson schema
+async function createBlocksFromSchema(lessonSchema: string, lessonId: number) {
+	try {
+		// Parse the JSON schema
+		const parsedSchema = JSON.parse(lessonSchema);
+
+		// Get the lesson sections (should have a default section created)
+		const sections = await getLessonSectionsByLessonId(lessonId);
+		if (sections.length === 0) {
+			console.error('No sections found for lesson');
+			return;
+		}
+
+		const defaultSectionId = sections[0].id;
+
+		// Extract lesson components from schema
+		const lessonComponents = parsedSchema?.lesson || [];
+
+		if (!Array.isArray(lessonComponents)) {
+			console.error('Lesson schema does not contain a valid lesson array');
+			return;
+		}
+
+		console.log(`Processing ${lessonComponents.length} lesson components`);
+
+		// Process each component and create blocks
+		for (const component of lessonComponents) {
+			try {
+				await createBlockFromComponent(component, defaultSectionId);
+			} catch (error) {
+				console.error('Error creating block from component:', component, error);
+				// Continue processing other components even if one fails
+			}
+		}
+
+		console.log('Successfully processed all lesson components');
+	} catch (error) {
+		console.error('Error parsing or processing lesson schema:', error);
+	}
+}
+
+// Helper function to create individual blocks from components
+async function createBlockFromComponent(component: any, sectionId: number) {
+	if (!component || !component.type) {
+		console.warn('Invalid component structure:', component);
+		return;
+	}
+
+	const { type, content } = component;
+
+	switch (type) {
+		case 'h1':
+		case 'h2':
+		case 'h3':
+		case 'h4':
+		case 'h5': {
+			// Extract text content properly
+			const headingText = content?.text || content || 'Heading';
+			await createLessonSectionBlock(sectionId, type, headingText);
+			console.log(`Created ${type} block with content: "${headingText}"`);
+			break;
+		}
+
+		case 'markdown':
+		case 'paragraph':
+		case 'text': {
+			// Extract markdown content properly
+			const markdownContent = content?.markdown || content?.text || content || '';
+			await createLessonSectionBlock(sectionId, 'markdown', markdownContent);
+			console.log(`Created markdown block with content length: ${markdownContent.length}`);
+			break;
+		}
+
+		case 'multiple_choice':
+			// Validate and transform multiple choice content structure
+			if (content && content.question && content.options && content.answer !== undefined) {
+				const multipleChoiceContent = {
+					question: content.question,
+					options: content.options,
+					answer: content.answer,
+					multiple: content.multiple || (Array.isArray(content.answer) ? true : false)
+				};
+				await createLessonSectionBlock(sectionId, 'multipleChoice', multipleChoiceContent);
+				console.log(`Created multiple choice block: "${content.question}"`);
+			} else {
+				console.warn('Invalid multiple choice content structure:', content);
+			}
+			break;
+
+		case 'image':
+			// Validate and transform image content structure
+			if (content && (content.url || content.src)) {
+				const imageContent = {
+					src: content.url || content.src || '',
+					alt: content.alt || content.caption || 'Image',
+					caption: content.caption || content.alt || ''
+				};
+				await createLessonSectionBlock(sectionId, 'image', imageContent);
+				console.log(`Created image block: "${imageContent.caption}"`);
+			} else {
+				console.warn('Invalid image content structure:', content);
+			}
+			break;
+
+		case 'video':
+			// Validate video content structure
+			if (content && (content.url || content.src)) {
+				const videoContent = {
+					src: content.url || content.src || '',
+					title: content.title || content.caption || 'Video'
+				};
+				await createLessonSectionBlock(sectionId, 'video', videoContent);
+				console.log(`Created video block: "${videoContent.title}"`);
+			} else {
+				console.warn('Invalid video content structure:', content);
+			}
+			break;
+
+		case 'audio':
+			// Validate audio content structure
+			if (content && (content.url || content.src)) {
+				const audioContent = {
+					src: content.url || content.src || '',
+					title: content.title || content.caption || 'Audio'
+				};
+				await createLessonSectionBlock(sectionId, 'audio', audioContent);
+				console.log(`Created audio block: "${audioContent.title}"`);
+			} else {
+				console.warn('Invalid audio content structure:', content);
+			}
+			break;
+
+		// Handle title and subtitle as headings
+		case 'title': {
+			const titleText = content?.text || content || 'Title';
+			await createLessonSectionBlock(sectionId, 'h1', titleText);
+			console.log(`Created h1 block from title: "${titleText}"`);
+			break;
+		}
+
+		case 'subtitle': {
+			const subtitleText = content?.text || content || 'Subtitle';
+			await createLessonSectionBlock(sectionId, 'h2', subtitleText);
+			console.log(`Created h2 block from subtitle: "${subtitleText}"`);
+			break;
+		}
+
+		// Unsupported block types that we'll ignore for now
+		case 'fill_in_blank':
+			// Validate and transform fill-in-blank content structure
+			if (content && content.sentence && content.answer) {
+				const fillInBlankContent = {
+					sentence: content.sentence,
+					answer: content.answer
+				};
+				await createLessonSectionBlock(sectionId, 'fill_in_blank', fillInBlankContent);
+				console.log(`Created fill-in-blank block: "${content.sentence}"`);
+			} else {
+				console.warn('Invalid fill-in-blank content structure:', content);
+			}
+			break;
+
+		case 'matching':
+		case 'drag_and_drop':
+		case 'math_input':
+		case 'text_input':
+		case 'input':
+			console.log(`Ignoring unsupported block type: ${type}`);
+			break;
+
+		default:
+			console.warn(`Unknown block type: ${type}, ignoring`);
+			break;
+	}
+}
 
 export const actions = {
 	createLesson: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
@@ -162,10 +340,16 @@ export const actions = {
 		// Clear files from form to prevent serialization error
 		form.data.files = undefined;
 
-		// TODO: Validate the lesson schema against the expected structure
-		// TODO: Save each lesson component as an LSB in the database
+		// Process the lesson schema and create blocks
 		if (lessonSchema) {
 			console.log('Lesson schema from Gemini:', lessonSchema);
+			try {
+				await createBlocksFromSchema(lessonSchema, lesson.id);
+				console.log('Successfully created lesson blocks from schema');
+			} catch (error) {
+				console.error('Error creating blocks from schema:', error);
+				// Don't fail the entire request if block creation fails
+			}
 		} else {
 			console.log('No lesson schema generated (manual mode or failed AI generation)');
 		}

@@ -11,6 +11,7 @@
 	import Audio from './blocks/audio.svelte';
 	import Whiteboard from './blocks/whiteboard.svelte';
 	import MultipleChoice from './blocks/multiple-choice.svelte';
+	import FillInBlankBlock from './blocks/fill-in-blank.svelte';
 	import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 	import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
 	import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
@@ -26,6 +27,7 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import { type LessonSectionBlock } from '$lib/server/db/schema';
+	import PenToolIcon  from '@lucide/svelte/icons/pen-tool';
 
 	let { data } = $props();
 	let blocks = $derived(() => data.blocks);
@@ -321,6 +323,10 @@
 								content={item.content as any}
 								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
 							/>
+						{:else if item.type === 'fill_in_blank'}
+							<FillInBlankBlock 
+								content={item.content as any} 
+								onUpdate={(newContent: any) => updateBlockContent(item, newContent)} />
 						{:else}
 							<p>Content for {item.type} block.</p>
 						{/if}
@@ -445,10 +451,26 @@
 					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
 					use:draggable={{
 						container: 'blockSelectionMenu',
-						dragData: { type: 'multipleChoice', content: { question: '', options: [], explanation: '' }, id: 0 }
+						dragData: { type: 'multiple_choice', content: { question: '', options: [], answer: '', multiple: false }, id: 0 }
 					}}
 				>
 					<HelpCircleIcon class="size-8" />
+				</div>
+				<div
+					class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
+					use:draggable={{
+						container: 'blockSelectionMenu',
+						dragData: { 
+							type: 'fill_in_blank', 
+							content: { 
+								sentence: 'This is a sample sentence with a _____.',
+								answer: 'blank'
+							}, 
+							id: 0 
+						}
+					}}
+				>
+					<PenToolIcon class="size-8" />
 				</div>
 			</div>
 
