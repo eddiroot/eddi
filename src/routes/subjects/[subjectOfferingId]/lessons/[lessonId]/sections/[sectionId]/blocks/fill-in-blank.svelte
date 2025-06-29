@@ -185,41 +185,28 @@
                         <!-- Sentence with Input -->
                         {@const parsed = parseSentence(content.sentence)}
                         <div class="mb-6">
-                <div class="text-lg leading-relaxed flex items-center flex-wrap gap-2">
-                    <span>{parsed.before}</span>
-                    <div class="relative inline-block mx-2">
-                        <Input
-                            bind:value={userAnswer}
-                            disabled={hasSubmitted}
-                            placeholder="Your answer"
-                            class={`min-w-[140px] max-w-[200px] text-center font-medium transition-all duration-200 ${
-                                hasSubmitted 
-                                    ? isAnswerCorrect() 
-                                        ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-800 dark:text-green-200 shadow-sm' 
-                                        : 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-800 dark:text-red-200 shadow-sm'
-                                    : 'border-2 border-primary/30 focus:border-primary bg-background hover:border-primary/50 shadow-sm'
-                            }`}
-                            style="border-radius: 8px; padding: 8px 12px;"
-                        />
-                        {#if hasSubmitted}
-                            <div class="absolute -right-10 top-1/2 transform -translate-y-1/2">
-                                {#if isAnswerCorrect()}
-                                    <div class="bg-green-100 dark:bg-green-900/30 p-1 rounded-full">
-                                        <CheckIcon class="w-4 h-4 text-green-600 dark:text-green-400" />
-                                    </div>
-                                {:else}
-                                    <div class="bg-red-100 dark:bg-red-900/30 p-1 rounded-full">
-                                        <XIcon class="w-4 h-4 text-red-600 dark:text-red-400" />
-                                    </div>
+                            <div class="text-lg leading-relaxed flex items-center flex-wrap gap-2">
+                                <span>{parsed.before}</span>
+                                <div class="relative inline-block mx-2">
+                                    <Input
+                                        bind:value={userAnswer}
+                                        disabled={hasSubmitted}
+                                        placeholder="Your answer"
+                                        class={`min-w-[140px] max-w-[200px] text-center font-medium transition-all duration-200 ${
+                                            hasSubmitted 
+                                                ? isAnswerCorrect() 
+                                                    ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-800 dark:text-green-200 shadow-sm' 
+                                                    : 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-800 dark:text-red-200 shadow-sm'
+                                                : 'border-2 border-primary/30 focus:border-primary bg-background hover:border-primary/50 shadow-sm'
+                                        }`}
+                                        style="border-radius: 8px; padding: 8px 12px;"
+                                    />
+                                </div>
+                                {#if parsed.after}
+                                    <span>{parsed.after}</span>
                                 {/if}
                             </div>
-                        {/if}
-                    </div>
-                    {#if parsed.after}
-                        <span>{parsed.after}</span>
-                    {/if}
-                </div>
-            </div>
+                        </div>
 
                         <!-- Feedback Section -->
                         {#if hasSubmitted}
