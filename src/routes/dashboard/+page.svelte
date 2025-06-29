@@ -22,7 +22,7 @@
 	];
 </script>
 
-<div class="grid grid-cols-1 gap-6 p-8 lg:grid-cols-2">
+<div class="grid h-full grid-cols-1 gap-6 p-8 lg:grid-cols-2">
 	<Card.Root class="h-full shadow-none">
 		<Card.Header>
 			<Card.Title class="text-xl">Recent Forum Announcements</Card.Title>
