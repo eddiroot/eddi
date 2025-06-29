@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, inArray } from 'drizzle-orm';
+import { desc, eq, and, gte, inArray, asc } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -828,7 +828,11 @@ export async function createChatbotChat(userId: string) {
 	return chat;
 }
 
-export async function createChatbotMessage(chatId: number, authorId: string, content: string) {
+export async function createChatbotMessage(
+	chatId: number,
+	authorId: string | null,
+	content: string
+) {
 	const [message] = await db
 		.insert(table.chatbotMessage)
 		.values({
@@ -850,4 +854,68 @@ export async function getLatestChatbotMessageByChatId(chatId: number) {
 		.limit(1);
 
 	return messages.length > 0 ? messages[0] : null;
+}
+
+export async function getChatbotMessagesByChatId(chatId: number) {
+	const messages = await db
+		.select()
+		.from(table.chatbotMessage)
+		.where(eq(table.chatbotMessage.chatId, chatId))
+		.orderBy(asc(table.chatbotMessage.createdAt));
+
+	return messages;
+}
+
+export async function getChatbotChatsByUserId(userId: string) {
+	const chats = await db
+		.select()
+		.from(table.chatbotChat)
+		.where(eq(table.chatbotChat.userId, userId))
+		.orderBy(desc(table.chatbotChat.createdAt));
+
+	return chats;
+}
+
+export async function getChatbotChatsWithFirstMessageByUserId(userId: string) {
+	const chats = await db
+		.select({
+			chat: table.chatbotChat,
+			firstMessage: {
+				content: table.chatbotMessage.content,
+				createdAt: table.chatbotMessage.createdAt
+			}
+		})
+		.from(table.chatbotChat)
+		.leftJoin(
+			table.chatbotMessage,
+			and(
+				eq(table.chatbotMessage.chatId, table.chatbotChat.id),
+				eq(table.chatbotMessage.authorId, userId) // Only user messages, not AI responses
+			)
+		)
+		.where(eq(table.chatbotChat.userId, userId))
+		.orderBy(desc(table.chatbotChat.createdAt));
+
+	// Group by chat and get the first user message for each
+	const chatMap = new Map();
+
+	for (const row of chats) {
+		const chatId = row.chat.id;
+		if (!chatMap.has(chatId)) {
+			chatMap.set(chatId, {
+				...row.chat,
+				firstMessage: row.firstMessage
+			});
+		} else if (
+			row.firstMessage &&
+			row.firstMessage.createdAt < chatMap.get(chatId).firstMessage?.createdAt
+		) {
+			chatMap.set(chatId, {
+				...row.chat,
+				firstMessage: row.firstMessage
+			});
+		}
+	}
+
+	return Array.from(chatMap.values());
 }

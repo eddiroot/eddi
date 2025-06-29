@@ -3,17 +3,87 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { SendIcon, UserIcon, BotIcon } from '@lucide/svelte/icons';
-	import type { ChatbotMessage } from '$lib/server/db/schema';
-	import { formatDate } from '$lib/utils';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { SendIcon, UserIcon, BotIcon, Plus, MessageSquare } from '@lucide/svelte/icons';
+	import type { ChatbotMessage, ChatbotChat } from '$lib/server/db/schema';
 
-	let chatId = $state<string | null>(null);
+	// Extended type for chats with first message
+	type ChatWithFirstMessage = ChatbotChat & {
+		firstMessage?: {
+			content: string;
+			createdAt: string;
+		};
+	};
+	import { formatDate } from '$lib/utils';
+	import { onMount } from 'svelte';
+
+	let chatId = $state<number | null>(null);
 	let messages = $state<ChatbotMessage[]>([]);
 	let currentMessage = $state('');
 	let isLoading = $state(false);
 	let chatContainer = $state<HTMLElement | null>(null);
+	let availableChats = $state<ChatWithFirstMessage[]>([]);
+	let selectedChatValue = $state<string>('');
 
 	const sidebar = Sidebar.useSidebar();
+
+	async function loadAvailableChats() {
+		try {
+			const response = await fetch('/api/chatbot/chat');
+
+			if (!response.ok) {
+				throw new Error('Failed to load chats');
+			}
+
+			const { chats } = await response.json();
+			availableChats = chats;
+		} catch (error) {
+			console.error('Error loading chats:', error);
+		}
+	}
+
+	async function createNewChat() {
+		try {
+			const response = await fetch('/api/chatbot/chat', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to create a new chat');
+			}
+
+			const { chat } = await response.json();
+			chatId = chat.id;
+			messages = [];
+			selectedChatValue = chat.id.toString();
+			await loadAvailableChats(); // Refresh the chat list
+			return chat;
+		} catch (error) {
+			console.error('Error creating new chat:', error);
+			throw error;
+		}
+	}
+
+	async function loadChat(chatIdToLoad: number) {
+		try {
+			const messagesResponse = await fetch(`/api/chatbot/messages?chatId=${chatIdToLoad}`);
+
+			if (!messagesResponse.ok) {
+				throw new Error('Failed to load chat messages');
+			}
+
+			const { messages: loadedMessages } = await messagesResponse.json();
+			chatId = chatIdToLoad;
+			messages = loadedMessages;
+			selectedChatValue = chatIdToLoad.toString();
+		} catch (error) {
+			console.error('Error loading chat:', error);
+			throw error;
+		}
+	}
 
 	async function sendMessage() {
 		if (!currentMessage.trim() || isLoading) return;
@@ -23,13 +93,20 @@
 		isLoading = true;
 
 		try {
-			const userMessageResponse = await fetch('/api/chatbot', {
+			// Create a new chat if one doesn't exist
+			if (!chatId) {
+				await createNewChat();
+			}
+
+			// Send the user message
+			const userMessageResponse = await fetch('/api/chatbot/message', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					message: messageToSend
+					message: messageToSend,
+					chatId: chatId
 				})
 			});
 
@@ -41,19 +118,24 @@
 				await userMessageResponse.json();
 			messages = [...messages, userMessage];
 
-			const chatbotMessageResponse = await fetch('/api/chatbot', {
+			// Get the AI response
+			const chatbotMessageResponse = await fetch(`/api/chatbot/message?chatId=${chatId}`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					chatId: chatId
-				})
+				}
 			});
+
+			if (!chatbotMessageResponse.ok) {
+				throw new Error('Failed to get AI response');
+			}
 
 			const { message: chatbotMessage }: { message: ChatbotMessage } =
 				await chatbotMessageResponse.json();
 			messages = [...messages, chatbotMessage];
+
+			// Refresh chat list to update first message previews
+			await loadAvailableChats();
 		} catch (error) {
 			console.error('Error with chatbot:', error);
 		} finally {
@@ -73,6 +155,58 @@
 			sendMessage();
 		}
 	}
+
+	function startNewChat() {
+		chatId = null;
+		messages = [];
+		selectedChatValue = '';
+	}
+
+	function getCurrentChatTitle() {
+		if (!chatId) return 'New Chat';
+		const currentChat = availableChats.find((chat) => chat.id === chatId);
+		if (!currentChat) return 'Chat';
+
+		// Use first message content as title if available
+		if (currentChat.firstMessage && currentChat.firstMessage.content.length > 0) {
+			return currentChat.firstMessage.content.length > 30
+				? currentChat.firstMessage.content.substring(0, 30) + '...'
+				: currentChat.firstMessage.content;
+		}
+
+		// Fall back to current conversation's first message
+		const firstMessage = messages.find((m) => m.authorId !== null);
+		if (firstMessage && firstMessage.content.length > 0) {
+			return firstMessage.content.length > 30
+				? firstMessage.content.substring(0, 30) + '...'
+				: firstMessage.content;
+		}
+
+		return `Chat ${currentChat.id}`;
+	}
+
+	function getChatTitle(chat: ChatWithFirstMessage) {
+		if (chat.firstMessage && chat.firstMessage.content.length > 0) {
+			return chat.firstMessage.content.length > 30
+				? chat.firstMessage.content.substring(0, 30) + '...'
+				: chat.firstMessage.content;
+		}
+		return `Chat ${chat.id}`;
+	}
+
+	onMount(() => {
+		loadAvailableChats();
+	});
+
+	// Handle chat selection changes
+	$effect(() => {
+		if (selectedChatValue && selectedChatValue !== chatId?.toString()) {
+			const selectedChatId = parseInt(selectedChatValue);
+			if (!isNaN(selectedChatId)) {
+				loadChat(selectedChatId);
+			}
+		}
+	});
 </script>
 
 <Sidebar.Root
@@ -82,29 +216,55 @@
 >
 	{#if sidebar.rightOpen}
 		<Sidebar.Header class="border-b">
-			<div class="flex items-center justify-between p-4">
-				<div class="flex items-center gap-2">
-					<BotIcon class="h-5 w-5" />
-					<h1 class="text-lg font-semibold">AI Tutor</h1>
+			<div class="flex flex-col gap-2">
+				<div class="flex items-center justify-between p-2">
+					<h1 class="text-lg font-semibold">ask eddi</h1>
+					<Button variant="secondary" size="icon" onclick={startNewChat}>
+						<Plus />
+					</Button>
 				</div>
+
+				{#if availableChats.length > 0}
+					<div class="px-2">
+						<Select.Root type="single" bind:value={selectedChatValue}>
+							<Select.Trigger class="w-full">
+								<div class="flex min-w-0 flex-1 items-center gap-2">
+									<MessageSquare class="h-4 w-4 flex-shrink-0" />
+									<span class="truncate text-sm">{getCurrentChatTitle()}</span>
+								</div>
+							</Select.Trigger>
+							<Select.Content>
+								{#each availableChats as chat (chat.id)}
+									<Select.Item value={chat.id.toString()}>
+										<div class="flex items-center gap-2">
+											<MessageSquare class="h-4 w-4 flex-shrink-0" />
+											<div class="min-w-0 flex-1">
+												<div class="truncate text-sm font-medium">
+													{getChatTitle(chat)}
+												</div>
+												<div class="text-muted-foreground text-xs">
+													{formatDate(chat.createdAt)}
+												</div>
+											</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+					</div>
+				{/if}
 			</div>
 		</Sidebar.Header>
 
 		<Sidebar.Content class="flex h-full flex-col">
-			<!-- Chat Messages -->
 			<ScrollArea class="flex-1 p-4">
 				<div bind:this={chatContainer}>
 					{#if messages.length === 0}
-						<div class="flex h-full flex-col items-center justify-center space-y-4 text-center">
-							<BotIcon class="text-muted-foreground h-12 w-12" />
-							<div class="space-y-2">
-								<h3 class="font-medium">AI Tutor Ready</h3>
-								<p class="text-muted-foreground text-sm">
-									Ask me anything about your studies! I'm here to guide you through problems step by
-									step.
-								</p>
-							</div>
-						</div>
+						<p class="text-muted-foreground text-sm">
+							eddi's here to guide you through problems step by step.<br /><br /> He knows about your
+							subjects, classes, lessons, assessments, and more, so he can help you with any school-related
+							stuff!
+						</p>
 					{:else}
 						<div class="space-y-4">
 							{#each messages as message}
