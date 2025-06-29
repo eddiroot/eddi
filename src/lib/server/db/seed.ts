@@ -920,122 +920,124 @@ async function main() {
 		])
 		.returning();
 
-	const lessons = await db.insert(schema.lesson).values([
-		// Algebra Basics lessons
-		{
-			lessonTopicId: mathLessonTopics[0].id,
-			index: 0,
-			title: 'Introduction to Variables',
-			description: 'Learn about variables and their role in algebra',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[0].id,
-			index: 1,
-			title: 'Basic Operations with Variables',
-			description: 'Addition, subtraction, multiplication and division with variables',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[0].id,
-			index: 2,
-			title: 'Simplifying Expressions',
-			description: 'Learn to combine like terms and simplify algebraic expressions',
-			lessonStatus: 'draft'
-		},
+	const lessons = await db
+		.insert(schema.lesson)
+		.values([
+			// Algebra Basics lessons
+			{
+				lessonTopicId: mathLessonTopics[0].id,
+				index: 0,
+				title: 'Introduction to Variables',
+				description: 'Learn about variables and their role in algebra',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[0].id,
+				index: 1,
+				title: 'Basic Operations with Variables',
+				description: 'Addition, subtraction, multiplication and division with variables',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[0].id,
+				index: 2,
+				title: 'Simplifying Expressions',
+				description: 'Learn to combine like terms and simplify algebraic expressions',
+				lessonStatus: 'draft'
+			},
 
-		// Linear Equations lessons
-		{
-			lessonTopicId: mathLessonTopics[1].id,
-			index: 0,
-			title: 'Solving One-Step Equations',
-			description: 'Basic techniques for solving simple linear equations',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[1].id,
-			index: 1,
-			title: 'Solving Multi-Step Equations',
-			description: 'Advanced techniques for complex linear equations',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[1].id,
-			index: 2,
-			title: 'Graphing Linear Equations',
-			description: 'Visual representation of linear equations on coordinate plane',
-			lessonStatus: 'draft'
-		},
+			// Linear Equations lessons
+			{
+				lessonTopicId: mathLessonTopics[1].id,
+				index: 0,
+				title: 'Solving One-Step Equations',
+				description: 'Basic techniques for solving simple linear equations',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[1].id,
+				index: 1,
+				title: 'Solving Multi-Step Equations',
+				description: 'Advanced techniques for complex linear equations',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[1].id,
+				index: 2,
+				title: 'Graphing Linear Equations',
+				description: 'Visual representation of linear equations on coordinate plane',
+				lessonStatus: 'draft'
+			},
 
-		// Quadratic Functions lessons
-		{
-			lessonTopicId: mathLessonTopics[2].id,
-			index: 0,
-			title: 'Introduction to Quadratics',
-			description: 'Understanding quadratic functions and their properties',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[2].id,
-			index: 1,
-			title: 'Factoring Quadratics',
-			description: 'Methods for factoring quadratic expressions',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[2].id,
-			index: 2,
-			title: 'Quadratic Formula',
-			description: 'Using the quadratic formula to solve equations',
-			lessonStatus: 'draft'
-		},
+			// Quadratic Functions lessons
+			{
+				lessonTopicId: mathLessonTopics[2].id,
+				index: 0,
+				title: 'Introduction to Quadratics',
+				description: 'Understanding quadratic functions and their properties',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[2].id,
+				index: 1,
+				title: 'Factoring Quadratics',
+				description: 'Methods for factoring quadratic expressions',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[2].id,
+				index: 2,
+				title: 'Quadratic Formula',
+				description: 'Using the quadratic formula to solve equations',
+				lessonStatus: 'draft'
+			},
 
-		// Geometry Fundamentals lessons
-		{
-			lessonTopicId: mathLessonTopics[3].id,
-			index: 0,
-			title: 'Points, Lines, and Planes',
-			description: 'Basic geometric concepts and definitions',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[3].id,
-			index: 1,
-			title: 'Angles and Their Measures',
-			description: 'Understanding different types of angles',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[3].id,
-			index: 2,
-			title: 'Triangles and Their Properties',
-			description: 'Exploring triangle classifications and properties',
-			lessonStatus: 'draft'
-		},
+			// Geometry Fundamentals lessons
+			{
+				lessonTopicId: mathLessonTopics[3].id,
+				index: 0,
+				title: 'Points, Lines, and Planes',
+				description: 'Basic geometric concepts and definitions',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[3].id,
+				index: 1,
+				title: 'Angles and Their Measures',
+				description: 'Understanding different types of angles',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[3].id,
+				index: 2,
+				title: 'Triangles and Their Properties',
+				description: 'Exploring triangle classifications and properties',
+				lessonStatus: 'draft'
+			},
 
-		// Trigonometry lessons
-		{
-			lessonTopicId: mathLessonTopics[4].id,
-			index: 0,
-			title: 'Introduction to Trigonometry',
-			description: 'Basic trigonometric concepts and ratios',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[4].id,
-			index: 1,
-			title: 'Sine, Cosine, and Tangent',
-			description: 'Understanding the primary trigonometric functions',
-			lessonStatus: 'draft'
-		},
-		{
-			lessonTopicId: mathLessonTopics[4].id,
-			index: 2,
-			title: 'Solving Right Triangles',
-			description: 'Using trigonometry to find missing sides and angles',
-			lessonStatus: 'draft'
-		}
-	])
+			// Trigonometry lessons
+			{
+				lessonTopicId: mathLessonTopics[4].id,
+				index: 0,
+				title: 'Introduction to Trigonometry',
+				description: 'Basic trigonometric concepts and ratios',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[4].id,
+				index: 1,
+				title: 'Sine, Cosine, and Tangent',
+				description: 'Understanding the primary trigonometric functions',
+				lessonStatus: 'draft'
+			},
+			{
+				lessonTopicId: mathLessonTopics[4].id,
+				index: 2,
+				title: 'Solving Right Triangles',
+				description: 'Using trigonometry to find missing sides and angles',
+				lessonStatus: 'draft'
+			}
+		])
 		.returning();
 
 	// Create lesson sections using the actual lesson IDs
@@ -1047,10 +1049,13 @@ async function main() {
 	);
 
 	// Create default whiteboard for the first lesson
-	await db.insert(schema.whiteboard).values({
-		lessonId: lessons[0].id,
-		title: 'Default Whiteboard'
-	}).returning();
+	await db
+		.insert(schema.whiteboard)
+		.values({
+			lessonId: lessons[0].id,
+			title: 'Default Whiteboard'
+		})
+		.returning();
 }
 
 main()
