@@ -187,11 +187,6 @@
 							</div>
 						</DropdownMenu.Label>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Group>
-							<DropdownMenu.Item>Account</DropdownMenu.Item>
-							<DropdownMenu.Item>Notifications</DropdownMenu.Item>
-						</DropdownMenu.Group>
-						<DropdownMenu.Separator />
 						<form method="post" action="/?/logout" bind:this={form}>
 							<DropdownMenu.Item class="cursor-pointer" onclick={() => form!.submit()}>
 								<LogOutIcon />
