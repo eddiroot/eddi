@@ -22,8 +22,10 @@
 			{#snippet children({ props })}
 				<Form.Label>Type</Form.Label>
 				<Select.Root type="single" bind:value={$formData.type} name={props.name}>
-					<Select.Trigger {...props}>
-						{$formData.type.charAt(0).toUpperCase() + $formData.type.slice(1)}
+					<Select.Trigger {...props} class="w-full">
+						{$formData.type == 'qanda'
+							? 'Q&A'
+							: $formData.type.charAt(0).toUpperCase() + $formData.type.slice(1)}
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Item value="discussion" label="Discussion" />
