@@ -806,3 +806,48 @@ export async function createLessonTopic(subjectClassId: number, name: string) {
 
 	return lessonTopic;
 }
+
+export async function getChatbotChatById(chatId: number) {
+	const chats = await db
+		.select()
+		.from(table.chatbotChat)
+		.where(eq(table.chatbotChat.id, chatId))
+		.limit(1);
+
+	return chats.length > 0 ? chats[0] : null;
+}
+
+export async function createChatbotChat(userId: string) {
+	const [chat] = await db
+		.insert(table.chatbotChat)
+		.values({
+			userId
+		})
+		.returning();
+
+	return chat;
+}
+
+export async function createChatbotMessage(chatId: number, authorId: string, content: string) {
+	const [message] = await db
+		.insert(table.chatbotMessage)
+		.values({
+			chatId,
+			authorId,
+			content
+		})
+		.returning();
+
+	return message;
+}
+
+export async function getLatestChatbotMessageByChatId(chatId: number) {
+	const messages = await db
+		.select()
+		.from(table.chatbotMessage)
+		.where(eq(table.chatbotMessage.chatId, chatId))
+		.orderBy(desc(table.chatbotMessage.createdAt))
+		.limit(1);
+
+	return messages.length > 0 ? messages[0] : null;
+}

@@ -1,7 +1,6 @@
 import { GoogleGenAI, type Part } from '@google/genai';
 import fs from 'fs';
 
-import { lessonComponentSchema } from '$lib/server/ai/constants';
 import { getMimeType } from '$lib/server/ai/utils';
 import { env } from '$env/dynamic/private';
 
@@ -10,8 +9,10 @@ if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set');
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
 export async function geminiCompletion(
+	prompt: string,
 	mediaPath: string | undefined,
-	prompt: string
+	responseSchema: object | undefined,
+	systemInstruction: string | undefined = undefined
 ): Promise<string> {
 	try {
 		const parts: Part[] = [
@@ -40,7 +41,8 @@ export async function geminiCompletion(
 			],
 			config: {
 				responseMimeType: 'application/json',
-				responseSchema: lessonComponentSchema
+				responseSchema,
+				systemInstruction
 			}
 		});
 

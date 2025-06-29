@@ -267,3 +267,23 @@ export const whiteboardObject = pgTable('whiteboard_object', {
 });
 
 export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
+
+export const chatbotChat = pgTable('chatbot_chat', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+	...timestamps
+});
+
+export type ChatbotChat = typeof chatbotChat.$inferSelect;
+
+export const chatbotMessage = pgTable('chatbot_message', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+	authorId: text('author_id').references(() => user.id, { onDelete: 'cascade' }),
+	chatId: integer('chat_id')
+		.notNull()
+		.references(() => chatbotChat.id, { onDelete: 'cascade' }),
+	content: text('content').notNull(),
+	...timestamps
+});
+
+export type ChatbotMessage = typeof chatbotMessage.$inferSelect;

@@ -3,7 +3,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
-import { lessonCreationPrompt } from '$lib/server/ai/constants';
+import { lessonComponentSchema, lessonCreationPrompt } from './constants';
 import {
 	createLesson,
 	createLessonTopic,
@@ -75,6 +75,7 @@ async function createBlocksFromSchema(lessonSchema: string, lessonId: number) {
 }
 
 // Helper function to create individual blocks from components
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createBlockFromComponent(component: any, sectionId: number) {
 	if (!component || !component.type) {
 		console.warn('Invalid component structure:', component);
@@ -304,12 +305,20 @@ export const actions = {
 				console.log('Sending files to Gemini:', tempFilePaths);
 				for (const tempFilePath of tempFilePaths) {
 					console.log(`Processing temp file: ${tempFilePath}`);
-					lessonSchema += await geminiCompletion(tempFilePath, lessonCreationPrompt);
+					lessonSchema += await geminiCompletion(
+						lessonCreationPrompt,
+						tempFilePath,
+						lessonComponentSchema
+					);
 				}
 			} else if (form.data.creationMethod === 'ai') {
 				// AI mode but no files
 				console.log('AI mode with no files - sending text-only prompt to Gemini');
-				lessonSchema = await geminiCompletion(undefined, lessonCreationPrompt);
+				lessonSchema = await geminiCompletion(
+					lessonCreationPrompt,
+					undefined,
+					lessonComponentSchema
+				);
 			} else {
 				console.log('Manual creation method selected');
 			}
