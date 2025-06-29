@@ -5,24 +5,21 @@ This list is ordered by priority, with the highest priority at the top and the l
 ## MVP
 
 - [x] Class announcements
-- [ ] Create lessons with drag'n'drop blocks
-  - [x] Persist to database (Lachie)
+- [x] Create lessons with drag'n'drop blocks
   - [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
   - [ ] Add interactive components (Max, Raph)
-- [ ] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
+  - [ ] Re-think how we do lesson sections (Jack, Lachie)
+  - [ ] Improve the drag and drop experience (Jack, Lachie)
+- [x] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
 - [ ] Lessons (subject level)
-  - [x] Remove weeks from lessons (Lachie)
   - [ ] Ability to order topics and lessons within them (Lachie)
 - [x] Discussions (subject level)
 - [x] View your timetable
-  - [x] Click on a timetable card to go to the subject's discussions (Lachie)
 - [x] Live whiteboards
-  - [x] Fix light/dark mode (Lachie)
 - [ ] AI Tutor "eddi" (teaching focus, not giving answers)
-  - [x] Setup the interface (Raph, Bella)
+  - [ ] Give context of previous chat messages from DB (Raph, Bella)
   - [ ] Prevent prompt injection (Raph, Bella)
   - [ ] Give context of current lesson (Raph, Bella)
-  - [x] Fix the width of the sidebar (Raph, Bella)
 - [ ] Home page
   - [ ] Update the images (once all features can be screenshotted) (Beej)
   - [ ] Change wording for best marketing (Beej)
