@@ -318,7 +318,7 @@
 								content={item.content as Record<string, any> | undefined}
 								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
 							/>
-						{:else if item.type === 'multipleChoice'}
+						{:else if item.type === 'multiple_choice'}
 							<MultipleChoice
 								content={item.content as any}
 								onUpdate={(newContent: any) => updateBlockContent(item, newContent)}
