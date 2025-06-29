@@ -71,7 +71,7 @@ export const GET: RequestHandler = async (event) => {
 		);
 
 		const responseText =
-			response || "I apologize, but I couldn't generate a response. Please try again.";
+			response || "I apologise, but I couldn't generate a response. Please try again.";
 
 		return json({ response: responseText });
 	} catch (error) {
