@@ -1,14 +1,11 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { Separator } from '$lib/components/ui/separator';
 	import { formatTime, getDayIndex, days } from '$lib/utils.js';
 
 	let { data } = $props();
 
-	// Mock data based on the screenshot
 	const subjectInfo = {
 		name: 'Maths Methods 1/2',
 		teacher: 'Mr Smith',
@@ -62,7 +59,7 @@
 		<div>
 			<h1 class="text-foreground text-3xl font-bold">{data.subject.name}</h1>
 			<p class="text-muted-foreground mt-1">
-				teacher: {data.teachers
+				Teacher: {data.teachers
 					.map((teacher) => `${teacher.teacher.firstName} ${teacher.teacher.lastName}`)
 					.join(', ')}
 			</p>
@@ -178,7 +175,7 @@
 				<ScrollArea class="h-100">
 					<div class="space-y-2">
 						<div>
-							<h4 class="text-foreground text-sm font-medium">Contact information:</h4>
+							<h4 class="text-foreground text-sm font-medium">{subjectInfo.teacher}</h4>
 							<p class="text-muted-foreground mt-1 text-sm">
 								{subjectInfo.teacherEmail}
 							</p>
