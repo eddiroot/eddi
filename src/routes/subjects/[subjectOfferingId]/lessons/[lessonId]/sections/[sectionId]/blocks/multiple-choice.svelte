@@ -66,17 +66,19 @@
         selectedAnswers = new Set();
     }
 
-    // Updated function with case-insensitive comparison
+    // Updated function with case-insensitive comparison and proper type checking
     function isAnswerCorrect(option: string): boolean {
         if (Array.isArray(content.answer)) {
             // For multiple choice, check if option matches any correct answer (case-insensitive)
             return content.answer.some(correctAnswer => 
-                correctAnswer.toLowerCase() === option.toLowerCase()
+                typeof correctAnswer === 'string' && correctAnswer.toLowerCase() === option.toLowerCase()
             );
-        } else {
+        } else if (typeof content.answer === 'string') {
             // For single choice, compare with the single correct answer (case-insensitive)
             return content.answer.toLowerCase() === option.toLowerCase();
         }
+        // If content.answer is neither string nor array, return false
+        return false;
     }
 
     function getAnswerStatus(option: string): 'correct' | 'incorrect' | 'neutral' {

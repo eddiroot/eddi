@@ -7,7 +7,7 @@ Using the provided schema, create a comprehensive lesson with:
     4. Try to use the interactive elements provided in the schema including:
         - Multiple choice questions (both single and multiple answer)
         - Math input questions (if applicable)
-        - Fill in the blank questions
+        - Fill in the blank questions (use the format "_____" for blanks)
         - Text input questions for open-ended responses
         - Matching or drag-and-drop activities
 Each component should be structured according to the provided schema.`;
