@@ -70,14 +70,20 @@
     function isAnswerCorrect(option: string): boolean {
         if (Array.isArray(content.answer)) {
             // For multiple choice, check if option matches any correct answer (case-insensitive)
-            return content.answer.some(correctAnswer => 
-                typeof correctAnswer === 'string' && correctAnswer.toLowerCase() === option.toLowerCase()
-            );
-        } else if (typeof content.answer === 'string') {
+            return content.answer.some(correctAnswer => {
+                // Convert both to strings and compare case-insensitively
+                const answerStr = String(correctAnswer).toLowerCase();
+                const optionStr = option.toLowerCase();
+                return answerStr === optionStr;
+            });
+        } else if (content.answer !== null && content.answer !== undefined) {
             // For single choice, compare with the single correct answer (case-insensitive)
-            return content.answer.toLowerCase() === option.toLowerCase();
+            // Convert both to strings to handle boolean/string mismatches
+            const answerStr = String(content.answer).toLowerCase();
+            const optionStr = option.toLowerCase();
+            return answerStr === optionStr;
         }
-        // If content.answer is neither string nor array, return false
+        // If content.answer is null or undefined, return false
         return false;
     }
 
