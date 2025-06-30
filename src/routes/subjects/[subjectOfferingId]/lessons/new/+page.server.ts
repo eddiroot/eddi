@@ -116,7 +116,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 					answer: content.answer,
 					multiple: content.multiple || (Array.isArray(content.answer) ? true : false)
 				};
-				await createLessonSectionBlock(sectionId, 'multipleChoice', multipleChoiceContent);
+				await createLessonSectionBlock(sectionId, 'multiple_choice', multipleChoiceContent);
 				console.log(`Created multiple choice block: "${content.question}"`);
 			} else {
 				console.warn('Invalid multiple choice content structure:', content);
