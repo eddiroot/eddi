@@ -72,6 +72,31 @@
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
+
+	// Track the open state of each collapsible
+	let collapsibleStates = $state(
+		subjects.reduce(
+			(acc, subject) => {
+				acc[subject.id] = false;
+				return acc;
+			},
+			{} as Record<string, boolean>
+		)
+	);
+
+	// Watch for sidebar state changes and close all collapsibles when sidebar closes
+	$effect(() => {
+		if (!sidebar.leftOpen) {
+			// Close all collapsibles when sidebar is collapsed
+			collapsibleStates = subjects.reduce(
+				(acc, subject) => {
+					acc[subject.id] = false;
+					return acc;
+				},
+				{} as Record<string, boolean>
+			);
+		}
+	});
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
@@ -103,27 +128,46 @@
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
 		<Sidebar.Group>
-			<Sidebar.GroupLabel>Subjects</Sidebar.GroupLabel>
+			<Sidebar.GroupLabel>
+				<a href="/subjects" class="text-lg font-semibold text-black"> Subjects </a>
+			</Sidebar.GroupLabel>
+
 			<Sidebar.Menu>
 				{#each subjects as subject}
-					<Collapsible.Root open={false} class="group/collapsible">
+					<Collapsible.Root bind:open={collapsibleStates[subject.id]} class="group/collapsible">
 						<Collapsible.Trigger
 							onclick={() => {
-								sidebar.setLeftOpen(true);
+								if (!sidebar.leftOpen) {
+									sidebar.setLeftOpen(true);
+								}
 							}}
 						>
 							{#snippet child({ props })}
-								<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
-									{@const IconComponent = subjectNameToIcon(subject.name)}
-									<IconComponent class="mr-2" />
-									<span>{subject.name}</span>
-									<ChevronDownIcon
-										class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
-									/>
-								</Sidebar.MenuButton>
+								{#if sidebar.leftOpen == false}
+									<a href="/subjects/{subject.id}">
+										<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
+											{@const IconComponent = subjectNameToIcon(subject.name)}
+											<IconComponent class="mr-2" />
+
+											<span>{subject.name}</span>
+											<ChevronDownIcon
+												class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
+											/>
+										</Sidebar.MenuButton>
+									</a>
+								{:else}
+									<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
+										{@const IconComponent = subjectNameToIcon(subject.name)}
+										<IconComponent class="mr-2" />
+
+										<span>{subject.name}</span>
+										<ChevronDownIcon
+											class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
+										/>
+									</Sidebar.MenuButton>
+								{/if}
 							{/snippet}
 						</Collapsible.Trigger>
-
 						<Collapsible.Content>
 							<Sidebar.MenuSub>
 								{#each subjectItems as item}
@@ -132,6 +176,7 @@
 											{#snippet child({ props })}
 												<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
 													<item.icon />
+
 													<span>{item.title}</span>
 												</a>
 											{/snippet}

@@ -54,10 +54,10 @@
 						timeslots
 					)}
 					<a
-						href="/subjects/{cls.subject.id}/home"
+						href="/subjects/{cls.subject.id}"
 						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
-						<Card.Root class="h-full overflow-hidden px-2 py-0 pt-1">
+						<Card.Root class="h-full overflow-hidden border-2 px-2 py-0 pt-1">
 							<Card.Header class="p-2">
 								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap"
 									>{cls.subject.name}</Card.Title

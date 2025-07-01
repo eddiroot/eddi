@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { formatTime, getDayIndex, days } from '$lib/utils.js';
+	import { formatTime, getDayIndex, days, addTimeAndDuration } from '$lib/utils.js';
 
 	let { data } = $props();
 
@@ -126,7 +126,12 @@
 											<div class="border-border rounded-lg border p-3">
 												<div class="flex items-center justify-between">
 													<span class="text-muted-foreground text-sm"
-														>{formatTime(cls.classAllocation.startTime)}</span
+														>{formatTime(cls.classAllocation.startTime)} - {formatTime(
+															addTimeAndDuration(
+																cls.classAllocation.startTime,
+																cls.classAllocation.duration
+															)
+														)}</span
 													>
 													<span class="text-muted-foreground text-sm"
 														>{cls.schoolLocation.name}</span

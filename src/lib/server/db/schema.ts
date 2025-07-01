@@ -115,6 +115,7 @@ export const userSubjectClass = pgTable('user_subject_class', {
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
 	role: text('role').notNull(), // either 'student' or 'teacher'
+	color: text('color'), // e.g., '#FF5733' for a specific color code
 	...timestamps
 });
 
