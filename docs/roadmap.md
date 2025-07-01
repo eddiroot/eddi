@@ -7,8 +7,6 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Create lessons with drag'n'drop blocks
   - Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
   - Add interactive components (Max, Raph)
-  - Re-think how we do lesson sections (Jack, Lachie)
-  - Improve the drag and drop experience (Jack, Lachie)
   - Ability to order topics and lessons within them (Lachie)
 - [x] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
 - [x] Discussions (subject level)
