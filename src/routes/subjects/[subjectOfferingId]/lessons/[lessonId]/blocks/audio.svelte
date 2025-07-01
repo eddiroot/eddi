@@ -114,12 +114,7 @@
 			<Card.Content class="space-y-4">
 				<div class="space-y-2">
 					<Label for="audio-src">Audio URL</Label>
-					<Input
-						id="audio-src"
-						class="interactive"
-						bind:value={src}
-						placeholder="Enter audio URL or upload file"
-					/>
+					<Input id="audio-src" bind:value={src} placeholder="Enter audio URL or upload file" />
 				</div>
 
 				<div class="space-y-2">
@@ -136,7 +131,7 @@
 						<Button
 							variant="outline"
 							onclick={() => fileInput?.click()}
-							class="interactive flex items-center gap-2"
+							class="flex items-center gap-2"
 						>
 							<UploadIcon class="h-4 w-4" />
 							Choose File
@@ -146,12 +141,7 @@
 
 				<div class="space-y-2">
 					<Label for="audio-caption">Caption (optional)</Label>
-					<Input
-						class="interactive"
-						id="audio-caption"
-						bind:value={caption}
-						placeholder="Audio caption"
-					/>
+					<Input id="audio-caption" bind:value={caption} placeholder="Audio caption" />
 				</div>
 
 				<div class="space-y-2">
@@ -173,10 +163,8 @@
 				</div>
 
 				<div class="flex gap-2">
-					<Button class="interactive" onclick={saveChanges}>Save</Button>
-					<Button class="interactive" variant="outline" onclick={() => (isEditing = false)}
-						>Cancel</Button
-					>
+					<Button onclick={saveChanges}>Save</Button>
+					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -203,13 +191,7 @@
 
 							<div class="flex items-center gap-4">
 								<!-- Play/Pause Button -->
-								<Button
-									class="interactive"
-									variant="outline"
-									size="sm"
-									onclick={togglePlay}
-									disabled={!content.src}
-								>
+								<Button variant="outline" size="sm" onclick={togglePlay} disabled={!content.src}>
 									{#if isPlaying}
 										<PauseIcon class="h-4 w-4" />
 									{:else}
@@ -237,7 +219,7 @@
 
 								<!-- Volume Control -->
 								<div class="flex items-center gap-2">
-									<Button class="interactive" variant="ghost" size="sm" onclick={toggleMute}>
+									<Button variant="ghost" size="sm" onclick={toggleMute}>
 										{#if isMuted}
 											<VolumeXIcon class="h-4 w-4" />
 										{:else}
@@ -294,7 +276,7 @@
 					loop = content.loop || false;
 					isEditing = true;
 				}}
-				class="interactive absolute top-2 right-2"
+				class="absolute top-2 right-2"
 			>
 				<EditIcon class="h-3 w-3" />
 			</Button>

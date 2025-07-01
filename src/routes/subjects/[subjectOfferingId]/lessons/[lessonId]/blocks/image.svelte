@@ -48,12 +48,7 @@
 			<Card.Content class="space-y-4">
 				<div class="space-y-2">
 					<Label for="image-src">Image URL</Label>
-					<Input
-						id="image-src"
-						class="interactive"
-						bind:value={src}
-						placeholder="Enter image URL or upload file"
-					/>
+					<Input id="image-src" bind:value={src} placeholder="Enter image URL or upload file" />
 				</div>
 
 				<div class="space-y-2">
@@ -70,7 +65,7 @@
 						<Button
 							variant="outline"
 							onclick={() => fileInput?.click()}
-							class="interactive flex items-center gap-2"
+							class="flex items-center gap-2"
 						>
 							<UploadIcon class="h-4 w-4" />
 							Choose File
@@ -80,29 +75,17 @@
 
 				<div class="space-y-2">
 					<Label for="image-alt">Alt Text</Label>
-					<Input
-						id="image-alt"
-						class="interactive"
-						bind:value={alt}
-						placeholder="Describe the image"
-					/>
+					<Input id="image-alt" bind:value={alt} placeholder="Describe the image" />
 				</div>
 
 				<div class="space-y-2">
 					<Label for="image-caption">Caption (optional)</Label>
-					<Input
-						id="image-caption"
-						class="interactive"
-						bind:value={caption}
-						placeholder="Image caption"
-					/>
+					<Input id="image-caption" bind:value={caption} placeholder="Image caption" />
 				</div>
 
 				<div class="flex gap-2">
-					<Button class="interactive" onclick={saveChanges}>Save</Button>
-					<Button class="interactive" variant="outline" onclick={() => (isEditing = false)}
-						>Cancel</Button
-					>
+					<Button onclick={saveChanges}>Save</Button>
+					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>

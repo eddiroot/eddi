@@ -17,7 +17,6 @@
 <div class="flex w-full items-center justify-between gap-2">
 	{#if isEditing}
 		<Input
-			class="interactive"
 			bind:value={editText}
 			onkeydown={(e) => {
 				if (e.key === 'Enter') {
@@ -28,7 +27,7 @@
 				}
 			}}
 		/>
-		<Button onclick={saveText} class="interactive">Save</Button>
+		<Button onclick={saveText}>Save</Button>
 	{:else}
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
@@ -45,7 +44,6 @@
 		{/if}
 		<Button
 			variant="outline"
-			class="interactive"
 			onclick={() => {
 				editText = text;
 				isEditing = true;

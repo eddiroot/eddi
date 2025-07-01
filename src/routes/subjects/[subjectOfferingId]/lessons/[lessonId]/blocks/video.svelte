@@ -65,7 +65,6 @@
 					<Label for="video-src">Video URL</Label>
 					<Input
 						id="video-src"
-						class="interactive"
 						bind:value={src}
 						placeholder="Enter video URL (YouTube, Vimeo, or direct link)"
 					/>
@@ -85,7 +84,7 @@
 						<Button
 							variant="outline"
 							onclick={() => fileInput?.click()}
-							class="interactive flex items-center gap-2"
+							class="flex items-center gap-2"
 						>
 							<UploadIcon class="h-4 w-4" />
 							Choose File
@@ -95,12 +94,7 @@
 
 				<div class="space-y-2">
 					<Label for="video-caption">Caption (optional)</Label>
-					<Input
-						id="video-caption"
-						class="interactive"
-						bind:value={caption}
-						placeholder="Video caption"
-					/>
+					<Input id="video-caption" bind:value={caption} placeholder="Video caption" />
 				</div>
 
 				<div class="space-y-2">
@@ -122,10 +116,8 @@
 				</div>
 
 				<div class="flex gap-2">
-					<Button class="interactive" onclick={saveChanges}>Save</Button>
-					<Button class="interactive" variant="outline" onclick={() => (isEditing = false)}
-						>Cancel</Button
-					>
+					<Button onclick={saveChanges}>Save</Button>
+					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -182,7 +174,7 @@
 					loop = content.loop || false;
 					isEditing = true;
 				}}
-				class="interactive absolute top-2 right-2"
+				class="absolute top-2 right-2"
 			>
 				<EditIcon />
 			</Button>

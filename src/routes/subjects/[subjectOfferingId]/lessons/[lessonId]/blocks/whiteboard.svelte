@@ -9,13 +9,10 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 
-	let {
-		content = { whiteboardId: null, title: '' },
-		onUpdate = () => {}
-	} = $props();
+	let { content = { whiteboardId: null, title: '' }, onUpdate = () => {} } = $props();
 
 	let isEditing = $state(false);
-	
+
 	// Local state for editing
 	let title = $state(content.title || '');
 	let whiteboardId = $state(content.whiteboardId);
@@ -48,13 +45,13 @@
 
 	const saveChanges = async () => {
 		let currentWhiteboardId = whiteboardId;
-		
+
 		if (!currentWhiteboardId) {
 			currentWhiteboardId = await createWhiteboard();
 		}
 
-		const newContent = { 
-			whiteboardId: currentWhiteboardId, 
+		const newContent = {
+			whiteboardId: currentWhiteboardId,
 			title: title || ''
 		};
 
@@ -66,13 +63,13 @@
 	const openWhiteboard = async () => {
 		console.log('openWhiteboard called');
 		let currentWhiteboardId = whiteboardId;
-		
+
 		if (!currentWhiteboardId) {
 			console.log('Creating new whiteboard...');
 			currentWhiteboardId = await createWhiteboard();
 			if (currentWhiteboardId) {
-				const newContent = { 
-					whiteboardId: currentWhiteboardId, 
+				const newContent = {
+					whiteboardId: currentWhiteboardId,
 					title: title || ''
 				};
 				content = newContent;
@@ -104,17 +101,14 @@
 					<Label for="whiteboard-title">Whiteboard Title (Optional)</Label>
 					<Input
 						id="whiteboard-title"
-						class="interactive"
 						bind:value={title}
 						placeholder="Enter whiteboard title (optional)"
 					/>
 				</div>
 
 				<div class="flex gap-2">
-					<Button class="interactive" onclick={saveChanges}>Save</Button>
-					<Button class="interactive" variant="outline" onclick={() => (isEditing = false)}
-						>Cancel</Button
-					>
+					<Button onclick={saveChanges}>Save</Button>
+					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -122,22 +116,20 @@
 		<div class="group relative">
 			{#if whiteboardId}
 				<div class="rounded-lg border p-6 text-center">
-					<PresentationIcon class="text-muted-foreground mx-auto h-12 w-12 mb-3" />
-					<h3 class="text-lg font-semibold mb-2">
+					<PresentationIcon class="text-muted-foreground mx-auto mb-3 h-12 w-12" />
+					<h3 class="mb-2 text-lg font-semibold">
 						{title || 'Interactive Whiteboard'}
 					</h3>
-					<Button onclick={openWhiteboard} class="interactive">
-						Open Whiteboard
-					</Button>
+					<Button onclick={openWhiteboard}>Open Whiteboard</Button>
 				</div>
 			{:else}
 				<button
 					type="button"
-					class="flex h-32 w-full items-center justify-center rounded-lg border border-dashed cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary"
+					class="focus:ring-primary flex h-32 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed focus:ring-2 focus:outline-none"
 					onclick={openWhiteboard}
 					aria-label="Create and open whiteboard"
 				>
-					<div class="text-center pointer-events-none">
+					<div class="pointer-events-none text-center">
 						<PresentationIcon class="text-muted-foreground mx-auto h-12 w-12" />
 						<p class="text-muted-foreground mt-2 text-sm">No whiteboard created</p>
 						<p class="text-muted-foreground text-xs">Click to create and open whiteboard</p>
@@ -151,7 +143,7 @@
 					title = content.title || '';
 					isEditing = true;
 				}}
-				class="interactive absolute top-2 right-2"
+				class="absolute top-2 right-2"
 			>
 				<EditIcon class="h-3 w-3" />
 			</Button>

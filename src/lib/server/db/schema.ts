@@ -209,7 +209,7 @@ export const lesson = pgTable('lesson', {
 	title: text('title').notNull(),
 	description: text('description').notNull(),
 	lessonStatus: text('status').notNull(), // either 'draft', 'published', or 'archived'
-	index: integer('index').notNull(), // e.g., 1, 2, 3, etc. for ordering
+	index: integer('index').notNull(),
 	lessonTopicId: integer('lesson_topic_id')
 		.notNull()
 		.references(() => lessonTopic.id, { onDelete: 'cascade' }),
@@ -219,37 +219,25 @@ export const lesson = pgTable('lesson', {
 
 export type Lesson = typeof lesson.$inferSelect;
 
-export const lessonSection = pgTable('lesson_section', {
+export const lessonBlock = pgTable('lesson_block', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	lessonId: integer('lesson_id')
 		.notNull()
 		.references(() => lesson.id, { onDelete: 'cascade' }),
-	title: text('title').notNull(),
-	index: integer('index').notNull().default(0), // e.g., 0, 1, 2, etc. for ordering
-	...timestamps
-});
-
-export type LessonSection = typeof lessonSection.$inferSelect;
-
-export const lessonSectionBlock = pgTable('lesson_section_block', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	lessonSectionId: integer('lesson_section_id')
-		.notNull()
-		.references(() => lessonSection.id, { onDelete: 'cascade' }),
-	type: text('type').notNull(), // either 'text', 'audio', 'image', 'input', 'textArea', 'multipleChoice', or 'whiteboard'
+	type: text('type').notNull(),
 	content: jsonb('content').notNull(),
-	index: integer('index').notNull().default(0), // e.g., 0, 1, 2, etc. for ordering within a section
+	index: integer('index').notNull().default(0),
 	...timestamps
 });
 
-export type LessonSectionBlock = typeof lessonSectionBlock.$inferSelect;
+export type LessonBlock = typeof lessonBlock.$inferSelect;
 
 export const whiteboard = pgTable('whiteboard', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	lessonId: integer('lesson_id')
 		.notNull()
 		.references(() => lesson.id, { onDelete: 'cascade' }),
-	title: text('title'), // Optional title for the whiteboard
+	title: text('title'),
 	...timestamps
 });
 
@@ -260,9 +248,9 @@ export const whiteboardObject = pgTable('whiteboard_object', {
 	whiteboardId: integer('whiteboard_id')
 		.notNull()
 		.references(() => whiteboard.id, { onDelete: 'cascade' }),
-	objectId: text('object_id').notNull().unique(), // The UUID from fabric.js object
+	objectId: text('object_id').notNull().unique(),
 	objectType: text('object_type').notNull(), // 'rect', 'circle', 'path', 'textbox', etc.
-	objectData: jsonb('object_data').notNull(), // Store the complete fabric.js object data as JSON
+	objectData: jsonb('object_data').notNull(),
 	...timestamps
 });
 

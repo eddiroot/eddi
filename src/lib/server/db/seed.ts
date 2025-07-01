@@ -1040,14 +1040,6 @@ async function main() {
 		])
 		.returning();
 
-	// Create lesson sections using the actual lesson IDs
-	await db.insert(schema.lessonSection).values(
-		lessons.map((lesson) => ({
-			lessonId: lesson.id,
-			title: 'Default'
-		}))
-	);
-
 	// Create default whiteboard for the first lesson
 	await db
 		.insert(schema.whiteboard)
