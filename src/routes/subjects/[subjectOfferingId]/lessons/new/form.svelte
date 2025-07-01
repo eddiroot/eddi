@@ -16,7 +16,44 @@
 	let aiFiles: FileList | null = $state(null);
 	let fileValidationErrors = $state<string[]>([]);
 	let fileInputRef: HTMLInputElement;
-	let isSubmitting = $state(false); // Add this state
+	let isSubmitting = $state(false); 
+
+	let {
+		data
+	}: {
+		data: {
+			form: SuperValidated<Infer<FormSchema>>;
+			lessonTopics: Array<{ id: number; name: string }>;
+		};
+	} = $props();
+
+	const form = superForm(data.form, {
+		validators: zodClient(formSchema),
+		onSubmit: ({ formData, cancel }) => {
+			// Check if it's AI creation method
+			const method = formData.get('creationMethod');
+			if (method === 'ai') {
+				isSubmitting = true;
+			}
+		},
+		onResult: ({ result }) => {
+			// Reset loading state on any result
+			isSubmitting = false;
+		},
+		onError: () => {
+			// Reset loading state on error
+			isSubmitting = false;
+		}
+	});
+
+	const { form: formData, enhance } = form;
+
+	// Set default lesson type to 'lesson'
+	$effect(() => {
+		if (!$formData.type) {
+			$formData.type = 'lesson';
+		}
+	});
 
 	// Topic selection state
 	let selectedTopicId = $state('');
@@ -70,36 +107,6 @@
 		}
 	});
 
-	let {
-		data
-	}: {
-		data: {
-			form: SuperValidated<Infer<FormSchema>>;
-			lessonTopics: Array<{ id: number; name: string }>;
-		};
-	} = $props();
-
-	const form = superForm(data.form, {
-		validators: zodClient(formSchema),
-		onSubmit: ({ formData, cancel }) => {
-			// Check if it's AI creation method
-			const method = formData.get('creationMethod');
-			if (method === 'ai') {
-				isSubmitting = true;
-			}
-		},
-		onResult: ({ result }) => {
-			// Reset loading state on any result
-			isSubmitting = false;
-		},
-		onError: () => {
-			// Reset loading state on error
-			isSubmitting = false;
-		}
-	});
-
-	const { form: formData, enhance } = form;
-
 	function formatDateForInput(date: Date | null | undefined): string {
 		if (!date) return '';
 		return date.toISOString().split('T')[0];
@@ -114,6 +121,10 @@
 	$effect(() => {
 		$formData.dueDate = parseDateFromInput(dueDateString);
 	});
+
+
+
+
 </script>
 
 <!-- Loading Overlay -->
@@ -248,34 +259,52 @@
 
 		<!-- Week and Due Date fields remain the same -->
 		<div class="col-span-3">
-			<Form.Field {form} name="subjectWeek">
+			<Form.Field {form} name="type">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Week</Form.Label>
-						<Input
-							{...props}
-							type="number"
-							min="0"
-							bind:value={$formData.subjectWeek}
-							placeholder="1"
-						/>
+						<Form.Label>Type</Form.Label>
+						<Select.Root
+							type="single"
+							bind:value={$formData.type}
+							name={props.name}
+						>
+							<Select.Trigger {...props} class="w-full">
+								<span class="capitalize">
+									{$formData.type || 'Select type'}
+								</span>
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Item value="lesson" label="Lesson">
+									<span class="capitalize">Lesson</span>
+								</Select.Item>
+								<Select.Item value="homework" label="Homework">
+									<span class="capitalize">Homework</span>
+								</Select.Item>
+								<Select.Item value="assignment" label="Assignment">
+									<span class="capitalize">Assignment</span>
+								</Select.Item>
+							</Select.Content>
+						</Select.Root>
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
 		</div>
 
-		<div class="col-span-3">
-			<Form.Field {form} name="dueDate">
-				<Form.Control>
-					{#snippet children({ props })}
-						<Form.Label>Due Date</Form.Label>
-						<Input {...props} type="date" bind:value={dueDateString} />
-					{/snippet}
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
-		</div>
+		<!-- Conditional Due Date field - only show for homework and assignment -->
+		{#if $formData.type === 'homework' || $formData.type === 'assignment'}
+			<div class="col-span-3">
+				<Form.Field {form} name="dueDate">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Due Date</Form.Label>
+							<Input {...props} type="date" bind:value={dueDateString} />
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+			</div>
+		{/if}
 	</div>
 
 	<!-- Rest of your form remains the same -->

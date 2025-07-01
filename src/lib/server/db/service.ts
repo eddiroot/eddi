@@ -361,17 +361,27 @@ export async function createLesson(
 	title: string,
 	description: string,
 	lessonStatus: 'draft' | 'published' | 'archived',
-	index: number,
+	type: string,
 	lessonTopicId: number,
 	dueDate?: Date | null
 ) {
+	const maxLessonIndexPerTopic = await db
+		.select({ index: table.lesson.index })
+		.from(table.lesson)
+		.where(eq(table.lesson.lessonTopicId, lessonTopicId))
+		.orderBy(desc(table.lesson.index))
+		.limit(1);
+
+	const nextIndex = (maxLessonIndexPerTopic[0]?.index ?? -1) + 1;
+
 	const [lesson] = await db
 		.insert(table.lesson)
 		.values({
 			title,
 			description,
 			lessonStatus,
-			index,
+			type,
+			index: nextIndex,
 			lessonTopicId,
 			dueDate
 		})

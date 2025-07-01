@@ -45,9 +45,7 @@ export const formSchema = z
 			.max(500, 'Description cannot exceed 500 characters'),
 		lessonTopicId: z.number().optional(), // Make this optional
 		newTopicName: z.string().optional(), // Add this for new topic creation
-		subjectWeek: z
-			.number({ required_error: 'Please enter a week' })
-			.min(0, 'Subject week must be at least 0'),
+		type: z.enum(['lesson', 'homework', 'assignment']).default('lesson'),
 		dueDate: z.date().optional(),
 		files: filesSchema.optional(),
 		creationMethod: z.enum(['manual', 'ai'], {

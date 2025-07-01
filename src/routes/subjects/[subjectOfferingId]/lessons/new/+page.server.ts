@@ -247,7 +247,7 @@ export const actions = {
 			form.data.title,
 			form.data.description,
 			'draft',
-			form.data.subjectWeek,
+			form.data.type,
 			lessonTopicId,
 			form.data.dueDate
 		);
