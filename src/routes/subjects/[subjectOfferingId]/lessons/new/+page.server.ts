@@ -8,8 +8,7 @@ import {
 	createLesson,
 	createLessonTopic,
 	getLessonTopicsBySubjectOfferingId,
-	createLessonSectionBlock,
-	getLessonSectionsByLessonId
+	createLessonBlock
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -38,16 +37,6 @@ async function createBlocksFromSchema(lessonSchema: string, lessonId: number) {
 	try {
 		// Parse the JSON schema
 		const parsedSchema = JSON.parse(lessonSchema);
-
-		// Get the lesson sections (should have a default section created)
-		const sections = await getLessonSectionsByLessonId(lessonId);
-		if (sections.length === 0) {
-			console.error('No sections found for lesson');
-			return;
-		}
-
-		const defaultSectionId = sections[0].id;
-
 		// Extract lesson components from schema
 		const lessonComponents = parsedSchema?.lesson || [];
 
@@ -61,7 +50,7 @@ async function createBlocksFromSchema(lessonSchema: string, lessonId: number) {
 		// Process each component and create blocks
 		for (const component of lessonComponents) {
 			try {
-				await createBlockFromComponent(component, defaultSectionId);
+				await createBlockFromComponent(component, lessonId);
 			} catch (error) {
 				console.error('Error creating block from component:', component, error);
 				// Continue processing other components even if one fails
@@ -76,7 +65,7 @@ async function createBlocksFromSchema(lessonSchema: string, lessonId: number) {
 
 // Helper function to create individual blocks from components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createBlockFromComponent(component: any, sectionId: number) {
+async function createBlockFromComponent(component: any, lessonId: number) {
 	if (!component || !component.type) {
 		console.warn('Invalid component structure:', component);
 		return;
@@ -92,7 +81,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 		case 'h5': {
 			// Extract text content properly
 			const headingText = content?.text || content || 'Heading';
-			await createLessonSectionBlock(sectionId, type, headingText);
+			await createLessonBlock(lessonId, type, headingText);
 			console.log(`Created ${type} block with content: "${headingText}"`);
 			break;
 		}
@@ -102,7 +91,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 		case 'text': {
 			// Extract markdown content properly
 			const markdownContent = content?.markdown || content?.text || content || '';
-			await createLessonSectionBlock(sectionId, 'markdown', markdownContent);
+			await createLessonBlock(lessonId, 'markdown', markdownContent);
 			console.log(`Created markdown block with content length: ${markdownContent.length}`);
 			break;
 		}
@@ -116,7 +105,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 					answer: content.answer,
 					multiple: content.multiple || (Array.isArray(content.answer) ? true : false)
 				};
-				await createLessonSectionBlock(sectionId, 'multiple_choice', multipleChoiceContent);
+				await createLessonBlock(lessonId, 'multiple_choice', multipleChoiceContent);
 				console.log(`Created multiple choice block: "${content.question}"`);
 			} else {
 				console.warn('Invalid multiple choice content structure:', content);
@@ -131,7 +120,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 					alt: content.alt || content.caption || 'Image',
 					caption: content.caption || content.alt || ''
 				};
-				await createLessonSectionBlock(sectionId, 'image', imageContent);
+				await createLessonBlock(lessonId, 'image', imageContent);
 				console.log(`Created image block: "${imageContent.caption}"`);
 			} else {
 				console.warn('Invalid image content structure:', content);
@@ -145,7 +134,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 					src: content.url || content.src || '',
 					title: content.title || content.caption || 'Video'
 				};
-				await createLessonSectionBlock(sectionId, 'video', videoContent);
+				await createLessonBlock(lessonId, 'video', videoContent);
 				console.log(`Created video block: "${videoContent.title}"`);
 			} else {
 				console.warn('Invalid video content structure:', content);
@@ -159,7 +148,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 					src: content.url || content.src || '',
 					title: content.title || content.caption || 'Audio'
 				};
-				await createLessonSectionBlock(sectionId, 'audio', audioContent);
+				await createLessonBlock(lessonId, 'audio', audioContent);
 				console.log(`Created audio block: "${audioContent.title}"`);
 			} else {
 				console.warn('Invalid audio content structure:', content);
@@ -169,14 +158,14 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 		// Handle title and subtitle as headings
 		case 'title': {
 			const titleText = content?.text || content || 'Title';
-			await createLessonSectionBlock(sectionId, 'h1', titleText);
+			await createLessonBlock(lessonId, 'h1', titleText);
 			console.log(`Created h1 block from title: "${titleText}"`);
 			break;
 		}
 
 		case 'subtitle': {
 			const subtitleText = content?.text || content || 'Subtitle';
-			await createLessonSectionBlock(sectionId, 'h2', subtitleText);
+			await createLessonBlock(lessonId, 'h2', subtitleText);
 			console.log(`Created h2 block from subtitle: "${subtitleText}"`);
 			break;
 		}
@@ -189,7 +178,7 @@ async function createBlockFromComponent(component: any, sectionId: number) {
 					sentence: content.sentence,
 					answer: content.answer
 				};
-				await createLessonSectionBlock(sectionId, 'fill_in_blank', fillInBlankContent);
+				await createLessonBlock(lessonId, 'fill_in_blank', fillInBlankContent);
 				console.log(`Created fill-in-blank block: "${content.sentence}"`);
 			} else {
 				console.warn('Invalid fill-in-blank content structure:', content);
