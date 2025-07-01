@@ -12,11 +12,13 @@
 	import { createBlock, deleteBlock, updateBlock, updateLessonTitle } from './client';
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let elementDragStarted = $state<string>('');
 	let draggedOverElement = $state<string>('');
+	let mouseOverElement = $state<string>('');
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -113,40 +115,54 @@
 						{/if}
 					</div>
 					<div
-						use:draggable={{
-							container: 'lesson',
-							dragData: block
-						}}
+						class="grid grid-cols-[30px_1fr] items-center gap-2"
+						role="group"
+						onmouseover={() => (mouseOverElement = `lesson-${block.id}`)}
+						onfocus={() => (mouseOverElement = `lesson-${block.id}`)}
 					>
-						{#if block.type[0] === 'h'}
-							<Heading
-								headingSize={parseInt(block.type[1]) + 1}
-								text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'markdown'}
-							<Markdown
-								content={typeof block.content === 'string' ? block.content : ''}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'image'}
-							<Image
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'video'}
-							<Video
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'audio'}
-							<Audio
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
+						{#if mouseOverElement === `lesson-${block.id}`}
+							<div
+								use:draggable={{
+									container: 'lesson',
+									dragData: block
+								}}
+							>
+								<GripVerticalIcon class="text-muted-foreground" />
+							</div>
 						{:else}
-							<p>Content for {block.type} block.</p>
+							<div></div>
 						{/if}
+						<div>
+							{#if block.type[0] === 'h'}
+								<Heading
+									headingSize={parseInt(block.type[1]) + 1}
+									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'markdown'}
+								<Markdown
+									content={typeof block.content === 'string' ? block.content : ''}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'image'}
+								<Image
+									content={block.content as Record<string, any> | undefined}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'video'}
+								<Video
+									content={block.content as Record<string, any> | undefined}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'audio'}
+								<Audio
+									content={block.content as Record<string, any> | undefined}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else}
+								<p>Content for {block.type} block.</p>
+							{/if}
+						</div>
 					</div>
 				{/each}
 				<div
