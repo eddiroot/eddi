@@ -4,8 +4,8 @@ import {
 	getLessonBlocksByLessonId,
 	createLessonBlock,
 	updateLessonBlock,
-	swapLessonBlocks,
-	deleteLessonBlock
+	deleteLessonBlock,
+	updateLessonBlocksOrder
 } from '$lib/server/db/service';
 import { fail, redirect } from '@sveltejs/kit';
 
@@ -123,42 +123,6 @@ export const actions = {
 		await deleteLessonBlock(blockIdInt);
 	},
 
-	swapBlocks: async (event) => {
-		const formData = await event.request.formData();
-		const blockOneId = formData.get('blockOneId');
-		const blockTwoId = formData.get('blockTwoId');
-		const blockOneIndex = formData.get('blockOneIndex');
-		const blockTwoIndex = formData.get('blockTwoIndex');
-
-		if (!blockOneId || !blockTwoId || blockOneIndex === null || blockTwoIndex === null) {
-			return fail(400, { message: 'Block IDs and indices are required' });
-		}
-
-		if (
-			typeof blockOneId !== 'string' ||
-			typeof blockTwoId !== 'string' ||
-			typeof blockOneIndex !== 'string' ||
-			typeof blockTwoIndex !== 'string'
-		) {
-			return fail(400, { message: 'Invalid input types' });
-		}
-
-		let blockOneIdInt;
-		let blockTwoIdInt;
-		let blockOneIndexInt;
-		let blockTwoIndexInt;
-		try {
-			blockOneIdInt = parseInt(blockOneId, 10);
-			blockTwoIdInt = parseInt(blockTwoId, 10);
-			blockOneIndexInt = parseInt(blockOneIndex, 10);
-			blockTwoIndexInt = parseInt(blockTwoIndex, 10);
-		} catch {
-			return fail(400, { message: 'Invalid block IDs or indices' });
-		}
-
-		await swapLessonBlocks(blockOneIdInt, blockTwoIdInt, blockOneIndexInt, blockTwoIndexInt);
-	},
-
 	getBlocks: async (event) => {
 		const formData = await event.request.formData();
 		const lessonId = formData.get('lessonId');
@@ -176,5 +140,27 @@ export const actions = {
 
 		const blocks = await getLessonBlocksByLessonId(lessonIdInt);
 		return { blocks };
+	},
+
+	updateBlockOrder: async (event) => {
+		const formData = await event.request.formData();
+		const blockOrder = formData.get('blockOrder');
+
+		if (!blockOrder) {
+			return fail(400, { message: 'Block order is required' });
+		}
+
+		if (typeof blockOrder !== 'string') {
+			return fail(400, { message: 'Invalid input type' });
+		}
+
+		let blockUpdates;
+		try {
+			blockUpdates = JSON.parse(blockOrder);
+		} catch {
+			return fail(400, { message: 'Invalid block order data' });
+		}
+
+		await updateLessonBlocksOrder(blockUpdates);
 	}
 };

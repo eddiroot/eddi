@@ -443,25 +443,6 @@ export async function deleteLessonBlock(blockId: number) {
 	await db.delete(table.lessonBlock).where(eq(table.lessonBlock.id, blockId));
 }
 
-export async function swapLessonBlocks(
-	blockOneId: number,
-	blockTwoId: number,
-	blockOneIndex: number,
-	blockTwoIndex: number
-) {
-	await db.transaction(async (tx) => {
-		await tx
-			.update(table.lessonBlock)
-			.set({ index: blockTwoIndex })
-			.where(eq(table.lessonBlock.id, blockOneId));
-
-		await tx
-			.update(table.lessonBlock)
-			.set({ index: blockOneIndex })
-			.where(eq(table.lessonBlock.id, blockTwoId));
-	});
-}
-
 // Whiteboard functions
 export async function createWhiteboard(lessonId: number, title?: string | null) {
 	const [newWhiteboard] = await db
@@ -843,4 +824,15 @@ export async function getChatbotChatsWithFirstMessageByUserId(userId: string) {
 	}
 
 	return Array.from(chatMap.values());
+}
+
+export async function updateLessonBlocksOrder(blockUpdates: Array<{ id: number; index: number }>) {
+	await db.transaction(async (tx) => {
+		for (const update of blockUpdates) {
+			await tx
+				.update(table.lessonBlock)
+				.set({ index: update.index })
+				.where(eq(table.lessonBlock.id, update.id));
+		}
+	});
 }
