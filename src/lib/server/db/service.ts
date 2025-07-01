@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, inArray, asc } from 'drizzle-orm';
+import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -416,15 +416,18 @@ export async function updateLessonTitle(lessonId: number, title: string) {
 	return lesson;
 }
 
-export async function createLessonBlock(lessonId: number, type: string, content: unknown) {
-	const maxIndexResult = await db
-		.select({ index: table.lessonBlock.index })
-		.from(table.lessonBlock)
-		.where(eq(table.lessonBlock.lessonId, lessonId))
-		.orderBy(desc(table.lessonBlock.index))
-		.limit(1);
-
-	const nextIndex = (maxIndexResult[0]?.index ?? -1) + 1;
+export async function createLessonBlock(
+	lessonId: number,
+	type: string,
+	content: unknown,
+	index: number
+) {
+	await db
+		.update(table.lessonBlock)
+		.set({
+			index: sql`${table.lessonBlock.index} + 1`
+		})
+		.where(and(eq(table.lessonBlock.lessonId, lessonId), gte(table.lessonBlock.index, index)));
 
 	const [lessonBlock] = await db
 		.insert(table.lessonBlock)
@@ -432,7 +435,7 @@ export async function createLessonBlock(lessonId: number, type: string, content:
 			lessonId,
 			type,
 			content,
-			index: nextIndex
+			index
 		})
 		.returning();
 

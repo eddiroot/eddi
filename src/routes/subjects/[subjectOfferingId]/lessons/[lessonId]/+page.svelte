@@ -1,142 +1,78 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
-	import { dndzone } from 'svelte-dnd-action';
-	import { invalidateAll } from '$app/navigation';
-	import { type LessonBlock } from '$lib/server/db/schema';
-
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
 	import Markdown from './blocks/markdown.svelte';
 	import Image from './blocks/image.svelte';
 	import Video from './blocks/video.svelte';
 	import Audio from './blocks/audio.svelte';
-	import Whiteboard from './blocks/whiteboard.svelte';
-	import MultipleChoice from './blocks/multiple-choice.svelte';
-	import FillInBlankBlock from './blocks/fill-in-blank.svelte';
 
-	import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
-	import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
-	import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
-	import HeadingFourIcon from '@lucide/svelte/icons/heading-4';
-	import HeadingFiveIcon from '@lucide/svelte/icons/heading-5';
-	import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
-	import ImageIcon from '@lucide/svelte/icons/image';
-	import FilmIcon from '@lucide/svelte/icons/film';
-	import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
-	import PresentationIcon from '@lucide/svelte/icons/presentation';
-	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+	import { type LessonBlock } from '$lib/server/db/schema';
+	import { createBlock, deleteBlock, updateBlock, updateLessonTitle } from './client';
+	import { blockTypes } from './constants';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	let { data } = $props();
+	let blocks = $state(data.blocks);
+	let elementDragStarted = $state<string>('');
+	let draggedOverElement = $state<string>('');
 
-	let blocks: LessonBlock[] = $state(data.blocks);
+	const draggedOverClasses = 'border-accent-foreground';
+	const notDraggedOverClasses = 'border-bg';
 
-	const flipDurationMs = 300;
-	async function handleDndFinalise(e: any) {
-		blocks = e.detail.items;
-		// if (!targetContainer) return;
+	async function handleDrop(state: DragDropState<LessonBlock>) {
+		const { draggedItem, sourceContainer, targetContainer } = state;
+		if (!targetContainer) return;
 
-		// if (sourceContainer === 'blockSelectionMenu' && targetContainer === 'sectionColumn') {
-		// 	await createBlock(draggedItem);
-		// 	return;
-		// }
+		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('lesson')) {
+			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
 
-		// if (sourceContainer === 'sectionColumn' && targetContainer === 'blockSelectionMenu') {
-		// 	await deleteBlock(draggedItem);
-		// 	return;
-		// }
+			const { block } = await createBlock({
+				lessonId: data.lesson.id,
+				type: draggedItem.type,
+				content: draggedItem.content,
+				index: targetContainer === 'lesson-bottom' ? blocks.length : index
+			});
 
-		// if (sourceContainer.startsWith('block-') && targetContainer.startsWith('block-')) {
-		// 	const sourceId = parseInt(sourceContainer.split('-')[1]);
-		// 	const targetId = parseInt(targetContainer.split('-')[1]);
+			if (!block) {
+				alert('Failed to create block. Please try again.');
+				return;
+			}
 
-		// 	if (sourceId === targetId) return;
-
-		// 	const sourceBlock = data.blocks.find((b) => b.id === sourceId);
-		// 	const targetBlock = data.blocks.find((b) => b.id === targetId);
-
-		// 	if (!sourceBlock || !targetBlock) return;
-
-		// 	await swapBlocks(sourceBlock, targetBlock);
-		// 	return;
-		// }
-	}
-
-	async function updateLessonTitle(title: string) {
-		const formData = new FormData();
-		formData.append('lessonId', data.lesson.id.toString());
-		formData.append('title', title);
-
-		const response = await fetch('?/updateLessonTitle', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) {
-			await invalidateAll();
+			if (targetContainer === 'lesson-bottom') {
+				blocks = [...blocks, block];
+			} else {
+				if (index === 0) {
+					blocks = [block, ...blocks];
+				} else if (index !== -1) {
+					blocks = [...blocks.slice(0, index + 1), block, ...blocks.slice(index + 1)];
+				} else {
+					alert('Failed to insert block at the correct position. Please try again.');
+					return;
+				}
+			}
 		}
-	}
 
-	async function createBlock(draggedItem: LessonBlock) {
-		const formData = new FormData();
-		formData.append('lessonId', data.lesson.id.toString());
-		formData.append('type', draggedItem.type);
-		formData.append('content', JSON.stringify(draggedItem.content ?? ''));
-
-		const response = await fetch('?/createBlock', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) {
-			await invalidateAll();
+		if (sourceContainer.startsWith('lesson') && targetContainer === 'blockPalette') {
+			const { success } = await deleteBlock(draggedItem.id);
+			if (!success) {
+				alert('Failed to delete block. Please try again.');
+				return;
+			}
+			blocks = blocks.filter((block) => block.id !== draggedItem.id);
 		}
+
+		draggedOverElement = '';
 	}
 
-	async function updateBlockContent(block: LessonBlock, content: unknown) {
-		const formData = new FormData();
-		formData.append('blockId', block.id.toString());
-		formData.append('content', JSON.stringify(content));
-
-		const response = await fetch('?/updateBlock', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) {
-			await invalidateAll();
+	function handleDragOver(state: DragDropState<LessonBlock>) {
+		const { sourceContainer, targetContainer } = state;
+		if (sourceContainer) {
+			elementDragStarted = sourceContainer;
 		}
-	}
-
-	async function deleteBlock(block: LessonBlock) {
-		const formData = new FormData();
-		formData.append('blockId', block.id.toString());
-
-		const response = await fetch('?/deleteBlock', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) {
-			await invalidateAll();
-		}
-	}
-
-	async function swapBlocks(blockA: LessonBlock, blockB: LessonBlock) {
-		const formData = new FormData();
-		formData.append('blockOneId', blockA.id.toString());
-		formData.append('blockTwoId', blockB.id.toString());
-		formData.append('blockOneIndex', blockA.index.toString());
-		formData.append('blockTwoIndex', blockB.index.toString());
-
-		const response = await fetch('?/swapBlocks', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) {
-			await invalidateAll();
+		if (targetContainer) {
+			draggedOverElement = targetContainer;
 		}
 	}
 </script>
@@ -145,63 +81,68 @@
 	<Card.Root class="h-full">
 		<Card.Header>
 			<Card.Title class="text-lg">Contents</Card.Title>
-			<Card.Description>Navigate between headings in the lesson</Card.Description>
+			<Card.Description>Choose a heading to navigate to.</Card.Description>
 		</Card.Header>
-		<Card.Content></Card.Content>
+		<Card.Content class="space-y-4"></Card.Content>
 	</Card.Root>
 
-	<Card.Root class="h-full">
+	<Card.Root class="h-full gap-0">
 		<Card.Header>
 			<Heading
 				headingSize={1}
 				text={data.lesson.title}
-				onUpdate={(newText: string) => updateLessonTitle(newText)}
+				onUpdate={async (newText: string) =>
+					await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
 			/>
 		</Card.Header>
 		<Card.Content class="h-full">
-			<div class="flex h-full flex-col gap-4">
-				{#each data.blocks as block (block.id)}
-					<div animate:flip={{ duration: flipDurationMs }}>
+			<div class="flex h-full flex-col">
+				{#each blocks as block}
+					<div
+						class="h-4"
+						use:droppable={{
+							container: `lesson-${block.id}`,
+							callbacks: {
+								onDrop: handleDrop,
+								onDragOver: handleDragOver
+							}
+						}}
+					>
+						{#if draggedOverElement === `lesson-${block.id}`}
+							<Separator class="bg-accent-foreground" />
+						{/if}
+					</div>
+					<div
+						use:draggable={{
+							container: 'lesson',
+							dragData: block
+						}}
+					>
 						{#if block.type[0] === 'h'}
 							<Heading
 								headingSize={parseInt(block.type[1]) + 1}
 								text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-								onUpdate={(newText: string) => updateBlockContent(block, newText)}
+								onUpdate={async (content: string) => await updateBlock({ block, content })}
 							/>
 						{:else if block.type === 'markdown'}
 							<Markdown
 								content={typeof block.content === 'string' ? block.content : ''}
-								onUpdate={(newContent: string) => updateBlockContent(block, newContent)}
+								onUpdate={async (content: string) => await updateBlock({ block, content })}
 							/>
 						{:else if block.type === 'image'}
 							<Image
 								content={block.content as Record<string, any> | undefined}
-								onUpdate={(newContent: any) => updateBlockContent(block, newContent)}
+								onUpdate={async (content: string) => await updateBlock({ block, content })}
 							/>
 						{:else if block.type === 'video'}
 							<Video
 								content={block.content as Record<string, any> | undefined}
-								onUpdate={(newContent: any) => updateBlockContent(block, newContent)}
+								onUpdate={async (content: string) => await updateBlock({ block, content })}
 							/>
 						{:else if block.type === 'audio'}
 							<Audio
 								content={block.content as Record<string, any> | undefined}
-								onUpdate={(newContent: any) => updateBlockContent(block, newContent)}
-							/>
-						{:else if block.type === 'whiteboard'}
-							<Whiteboard
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={(newContent: any) => updateBlockContent(block, newContent)}
-							/>
-						{:else if block.type === 'multiple_choice'}
-							<MultipleChoice
-								content={block.content as any}
-								onUpdate={(newContent: any) => updateBlockContent(block, newContent)}
-							/>
-						{:else if block.type === 'fill_in_blank'}
-							<FillInBlankBlock
-								content={block.content as any}
-								onUpdate={(newContent: any) => updateBlockContent(block, newContent)}
+								onUpdate={async (content: string) => await updateBlock({ block, content })}
 							/>
 						{:else}
 							<p>Content for {block.type} block.</p>
@@ -209,11 +150,19 @@
 					</div>
 				{/each}
 				<div
-					use:dndzone={{ items: data.blocks, flipDurationMs }}
-					onfinalize={handleDndFinalise}
-					class={`${buttonVariants({ variant: 'outline' })} flex h-16 w-full cursor-default items-center justify-center`}
+					use:droppable={{
+						container: `lesson-bottom`,
+						callbacks: {
+							onDrop: handleDrop,
+							onDragOver: handleDragOver
+						}
+					}}
+					class="my-4 flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {draggedOverElement ===
+					'lesson-bottom'
+						? draggedOverClasses
+						: notDraggedOverClasses}"
 				>
-					<span>Drop blocks here to add them to the section</span>
+					<span class="text-muted-foreground text-sm">Add more blocks here</span>
 				</div>
 			</div>
 		</Card.Content>
@@ -228,14 +177,29 @@
 			</Card.Description>
 		</Card.Header>
 		<Card.Content class="flex h-full flex-col gap-4">
-			<div class="grid flex-1 grid-cols-2 gap-2">
-				{#each [{ icon: HeadingOneIcon, label: 'Heading 1' }, { icon: HeadingTwoIcon, label: 'Heading 2' }, { icon: HeadingThreeIcon, label: 'Heading 3' }, { icon: HeadingFourIcon, label: 'Heading 4' }, { icon: HeadingFiveIcon, label: 'Heading 5' }, { icon: PilcrowIcon, label: 'Paragraph' }, { icon: ImageIcon, label: 'Image' }, { icon: FilmIcon, label: 'Video' }, { icon: AudioLinesIcon, label: 'Audio' }, { icon: PresentationIcon, label: 'Whiteboard' }, { icon: HelpCircleIcon, label: 'Multiple Choice' }, { icon: PenToolIcon, label: 'Fill in Blank' }] as blockType (blockType.label)}
+			<div
+				class="grid grid-cols-2 gap-2 rounded-lg p-2 {elementDragStarted.startsWith('lesson') &&
+				draggedOverElement === 'blockPalette'
+					? 'border-destructive border border-dashed'
+					: notDraggedOverClasses}"
+				use:droppable={{
+					container: `blockPalette`,
+					callbacks: {
+						onDrop: handleDrop,
+						onDragOver: handleDragOver
+					}
+				}}
+			>
+				{#each blockTypes as { type, content, icon }}
+					{@const Icon = icon}
 					<div
-						class={`aspect-square h-full w-full ${buttonVariants({ variant: 'outline' })}`}
-						animate:flip={{ duration: flipDurationMs }}
-						title={blockType.label}
+						class="aspect-square h-full w-full {buttonVariants({ variant: 'outline' })}"
+						use:draggable={{
+							container: 'blockPalette',
+							dragData: { type, content, id: 0 }
+						}}
 					>
-						<blockType.icon class="size-8" />
+						<Icon class="size-8" />
 					</div>
 				{/each}
 			</div>
