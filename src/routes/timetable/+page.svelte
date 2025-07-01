@@ -54,6 +54,7 @@
 					{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
 					<a
 						href="/subjects/{cls.subject.id}"
+						class="transition-opacity duration-200 hover:opacity-75"
 						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
 						<Card.Root

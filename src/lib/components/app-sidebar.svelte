@@ -129,7 +129,7 @@
 		</Sidebar.Group>
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>
-				<a href="/subjects" class="text-lg font-semibold text-black"> Subjects </a>
+				<a href="/subjects" class="text-lg font-semibold"> Subjects </a>
 			</Sidebar.GroupLabel>
 
 			<Sidebar.Menu>

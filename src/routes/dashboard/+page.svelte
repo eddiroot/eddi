@@ -4,6 +4,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
 	import { formatDate, formatTime, addTimeAndDuration } from '$lib/utils';
+	import { generateSubjectColors } from '../timetable/utils';
 
 	let { data } = $props();
 
@@ -183,11 +184,11 @@
 				{#if data.userClasses && data.userClasses.length > 0}
 					<div class="space-y-2">
 						{#each data.userClasses as cls}
-							{@const borderColor = cls.userSubjectOffering.color}
+							{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
 							<a href="/subjects/{cls.subject.id}" class="block">
 								<div
-									class="border-border-6 hover:bg-muted/50 flex items-center justify-between rounded-lg border-2 border-t-3 p-3 transition-colors"
-									style="border-color: {borderColor};"
+									class="border-border-6 flex items-center justify-between rounded-lg border-1 border-t-10 p-3 transition-opacity duration-200 hover:opacity-75"
+									style="border-color: {colors.border}; background-color: {colors.background};"
 								>
 									<div class="flex-1">
 										<div class="text-foreground font-medium">{cls.subject.name}</div>
