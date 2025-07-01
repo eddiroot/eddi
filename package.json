@@ -58,18 +58,15 @@
 	},
 	"dependencies": {
 		"@google/genai": "^1.5.1",
-		"@google/generative-ai": "^0.24.1",
 		"@node-rs/argon2": "^2.0.2",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@thisux/sveltednd": "^0.0.20",
 		"drizzle-orm": "^0.40.0",
 		"fabric": "^6.7.0",
-		"lucide-svelte": "^0.523.0",
 		"marked": "^15.0.12",
 		"mode-watcher": "^1.0.7",
 		"postgres": "^3.4.5",
-		"readline-sync": "^1.4.10",
 		"uuid": "^11.1.0",
 		"zod": "^3.25.56"
 	},

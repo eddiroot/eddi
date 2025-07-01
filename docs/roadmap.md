@@ -4,26 +4,25 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 ## MVP
 
-- [x] Class announcements
 - [x] Create lessons with drag'n'drop blocks
-  - [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
-  - [ ] Add interactive components (Max, Raph)
-  - [ ] Re-think how we do lesson sections (Jack, Lachie)
-  - [ ] Improve the drag and drop experience (Jack, Lachie)
+  - Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
+  - Add interactive components (Max, Raph)
+  - Re-think how we do lesson sections (Jack, Lachie)
+  - Improve the drag and drop experience (Jack, Lachie)
+  - Ability to order topics and lessons within them (Lachie)
 - [x] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
-- [ ] Lessons (subject level)
-  - [ ] Ability to order topics and lessons within them (Lachie)
 - [x] Discussions (subject level)
 - [x] View your timetable
 - [x] Live whiteboards
 - [ ] AI Tutor "eddi" (teaching focus, not giving answers)
-  - [ ] Give context of previous chat messages from DB (Raph, Bella)
-  - [ ] Prevent prompt injection (Raph, Bella)
-  - [ ] Give context of current lesson (Raph, Bella)
+  - Give context of previous chat messages from DB (Raph, Bella)
+  - Prevent prompt injection (Raph, Bella)
+  - Give context of current lesson (Raph, Bella)
 - [ ] Home page
-  - [ ] Update the images (once all features can be screenshotted) (Beej)
-  - [ ] Change wording for best marketing (Beej)
+  - Update the images (once all features can be screenshotted) (Beej)
+  - Change wording for best marketing (Beej)
 - [ ] Onboarding flow
+- [x] Class announcements
 
 ## Post MVP
 

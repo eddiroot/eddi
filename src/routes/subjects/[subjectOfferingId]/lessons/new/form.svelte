@@ -10,7 +10,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { Loader2Icon } from 'lucide-svelte'; // Add this import
+	import LoaderIcon from '@lucide/svelte/icons/loader.svelte';
 
 	let creationMethod = $state<'manual' | 'ai'>('manual');
 	let aiFiles: FileList | null = $state(null);
@@ -46,20 +46,20 @@
 		if (aiFiles && aiFiles.length > 0) {
 			const fileArray = Array.from(aiFiles);
 			$formData.files = fileArray;
-			
+
 			// Also update the hidden file input
 			if (fileInputRef) {
 				const dataTransfer = new DataTransfer();
-				fileArray.forEach(file => dataTransfer.items.add(file));
+				fileArray.forEach((file) => dataTransfer.items.add(file));
 				fileInputRef.files = dataTransfer.files;
 			}
-			
+
 			const validationResult = filesSchema.safeParse(fileArray);
-			
+
 			if (validationResult.success) {
 				fileValidationErrors = [];
 			} else {
-				fileValidationErrors = validationResult.error.errors.map(err => err.message);
+				fileValidationErrors = validationResult.error.errors.map((err) => err.message);
 			}
 		} else {
 			$formData.files = undefined;
@@ -69,7 +69,6 @@
 			fileValidationErrors = [];
 		}
 	});
-
 
 	let {
 		data
@@ -101,7 +100,6 @@
 
 	const { form: formData, enhance } = form;
 
-
 	function formatDateForInput(date: Date | null | undefined): string {
 		if (!date) return '';
 		return date.toISOString().split('T')[0];
@@ -112,7 +110,6 @@
 	}
 
 	let dueDateString = $state(formatDateForInput($formData.dueDate));
-	
 
 	$effect(() => {
 		$formData.dueDate = parseDateFromInput(dueDateString);
@@ -121,19 +118,21 @@
 
 <!-- Loading Overlay -->
 {#if isSubmitting && creationMethod === 'ai'}
-    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-xl flex flex-col items-center space-y-4 max-w-sm mx-4">
-            <Loader2Icon class="h-12 w-12 animate-spin text-blue-600" />
-            <div class="text-center">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Generating Lesson with AI
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Please wait while we create your lesson content...
-                </p>
-            </div>
-        </div>
-    </div>
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+		<div
+			class="mx-4 flex max-w-sm flex-col items-center space-y-4 rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800"
+		>
+			<LoaderIcon class="h-12 w-12 animate-spin text-blue-600" />
+			<div class="text-center">
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+					Generating Lesson with AI
+				</h3>
+				<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+					Please wait while we create your lesson content...
+				</p>
+			</div>
+		</div>
+	</div>
 {/if}
 
 <form
@@ -174,7 +173,7 @@
 	</Form.Field>
 
 	<!-- Updated Topic selection -->
-	<div class="grid grid-cols-6 lg:grid-cols-12 gap-4">
+	<div class="grid grid-cols-6 gap-4 lg:grid-cols-12">
 		<div class="col-span-6">
 			<Form.Field {form} name="lessonTopicId">
 				<Form.Control>
@@ -189,22 +188,27 @@
 								/>
 								<button
 									type="button"
-									class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+									class="absolute top-1/2 right-2 -translate-y-1/2 transform p-1 text-gray-400 hover:text-gray-600"
 									onclick={() => {
 										isCreatingNewTopic = false;
 										newTopicName = '';
 									}}
 									aria-label="Cancel creating new topic"
 								>
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M6 18L18 6M6 6l12 12"
+										/>
 									</svg>
 								</button>
 							</div>
 						{:else}
-							<Select.Root 
-								type="single" 
-								bind:value={selectedTopicId} 
+							<Select.Root
+								type="single"
+								bind:value={selectedTopicId}
 								name={props.name}
 								onValueChange={(value) => {
 									if (value === '__create_new__') {
@@ -275,88 +279,81 @@
 	</div>
 
 	<!-- Rest of your form remains the same -->
-	<div class="space-y-2 -mt-5">
-		<Tabs.Root bind:value={creationMethod} class="w-full flex">
-            <Tabs.List
-              class="
+	<div class="-mt-5 space-y-2">
+		<Tabs.Root bind:value={creationMethod} class="flex w-full">
+			<Tabs.List
+				class="
                 flex space-x-2
-                bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600
-                dark:bg-gradient-to-r dark:from-blue-500 dark:via-purple-500 dark:to-blue-600
-                text-white
-                border-0 shadow-lg
-                transition-all duration-200
+                border-0 bg-gradient-to-r from-blue-500 via-purple-500
+                to-blue-600 text-white shadow-lg transition-all
+                duration-200
+                dark:bg-gradient-to-r dark:from-blue-500
+                dark:via-purple-500 dark:to-blue-600
               "
-            >
-              <Tabs.Trigger
-                value="manual"
-                class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white"
-              >
-                Create Manual
-              </Tabs.Trigger>
-              <Tabs.Trigger
-                value="ai"
-                class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white "
-              >
-                Generate with AI
-              </Tabs.Trigger>
-            </Tabs.List>
-            
-            <Tabs.Content value="manual" class="mt-1"></Tabs.Content>      
-            <Tabs.Content value="ai" class="mt-1 w-full">
+			>
+				<Tabs.Trigger
+					value="manual"
+					class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white"
+				>
+					Create Manual
+				</Tabs.Trigger>
+				<Tabs.Trigger
+					value="ai"
+					class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white "
+				>
+					Generate with AI
+				</Tabs.Trigger>
+			</Tabs.List>
+
+			<Tabs.Content value="manual" class="mt-1"></Tabs.Content>
+			<Tabs.Content value="ai" class="mt-1 w-full">
 				<div class="w-full">
 					<!-- Remove Form.Field wrapper and just use the dropzone -->
-                    <Label class="text-sm font-medium">Supporting Material (Optional)</Label>
-                    <Label class="text-muted-foreground text-sm font-weight-normal font-medium space-y-3">
-                        Upload materials for AI to analyse and generate lesson content from.
-                    </Label>
-                    
-                    <!-- Display validation errors -->
-                    {#if fileValidationErrors.length > 0}
-                        <div class="space-y-1 mt-2">
-                            {#each fileValidationErrors as error}
-                                <p class="text-sm text-destructive">{error}</p>
-                            {/each}
-                        </div>
-                    {/if}
-                    
-                    <div class="w-full max-w-none">
-                        <Dropzone 
-                            bind:files={aiFiles}
-                            accept=".png,.jpg,.jpeg,.pdf"
-                            multiple={true}
-                        />
-                    </div>
+					<Label class="text-sm font-medium">Supporting Material (Optional)</Label>
+					<Label class="text-muted-foreground font-weight-normal space-y-3 text-sm font-medium">
+						Upload materials for AI to analyse and generate lesson content from.
+					</Label>
+
+					<!-- Display validation errors -->
+					{#if fileValidationErrors.length > 0}
+						<div class="mt-2 space-y-1">
+							{#each fileValidationErrors as error}
+								<p class="text-destructive text-sm">{error}</p>
+							{/each}
+						</div>
+					{/if}
+
+					<div class="w-full max-w-none">
+						<Dropzone bind:files={aiFiles} accept=".png,.jpg,.jpeg,.pdf" multiple={true} />
+					</div>
 				</div>
-            </Tabs.Content>
-        </Tabs.Root>
-    </div>
+			</Tabs.Content>
+		</Tabs.Root>
+	</div>
 
 	<!-- Hidden inputs for new topic -->
 	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
 	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
 
-    <!-- Add hidden file input -->
-    <input
-        bind:this={fileInputRef}
-        type="file"
-        name="files"
-        multiple
-        accept=".png,.jpg,.jpeg,.pdf"
-        class="hidden"
-        aria-hidden="true"
-    />
+	<!-- Add hidden file input -->
+	<input
+		bind:this={fileInputRef}
+		type="file"
+		name="files"
+		multiple
+		accept=".png,.jpg,.jpeg,.pdf"
+		class="hidden"
+		aria-hidden="true"
+	/>
 
-    <div class="flex justify-end gap-2">
-        <Form.Button 
-            type="submit"
-            disabled={fileValidationErrors.length > 0 || isSubmitting}
-        >
-            {#if isSubmitting && creationMethod === 'ai'}
-                <Loader2Icon class="h-4 w-4 animate-spin mr-2" />
-                Generating...
-            {:else}
-                Create
-            {/if}
-        </Form.Button>
-    </div>
+	<div class="flex justify-end gap-2">
+		<Form.Button type="submit" disabled={fileValidationErrors.length > 0 || isSubmitting}>
+			{#if isSubmitting && creationMethod === 'ai'}
+				<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+				Generating...
+			{:else}
+				Create
+			{/if}
+		</Form.Button>
+	</div>
 </form>
