@@ -7,16 +7,14 @@
 	import { filesSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import LoaderIcon from '@lucide/svelte/icons/loader';
 
-	let creationMethod = $state<'manual' | 'ai'>('manual');
 	let aiFiles: FileList | null = $state(null);
 	let fileValidationErrors = $state<string[]>([]);
 	let fileInputRef: HTMLInputElement;
-	let isSubmitting = $state(false); 
+	let isSubmitting = $state(false);
 
 	let {
 		data
@@ -59,10 +57,6 @@
 	let selectedTopicId = $state('');
 	let newTopicName = $state('');
 	let isCreatingNewTopic = $state(false);
-
-	$effect(() => {
-		$formData.creationMethod = creationMethod;
-	});
 
 	// Handle topic selection/creation
 	$effect(() => {
@@ -121,25 +115,19 @@
 	$effect(() => {
 		$formData.dueDate = parseDateFromInput(dueDateString);
 	});
-
-
-
-
 </script>
 
 <!-- Loading Overlay -->
-{#if isSubmitting && creationMethod === 'ai'}
+{#if isSubmitting}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
 		<div
 			class="mx-4 flex max-w-sm flex-col items-center space-y-4 rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800"
 		>
 			<LoaderIcon class="h-12 w-12 animate-spin text-blue-600" />
 			<div class="text-center">
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-					Generating Lesson with AI
-				</h3>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Generating Lesson</h3>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-					Please wait while we create your lesson content...
+					Please wait while we create your lesson...
 				</p>
 			</div>
 		</div>
@@ -149,7 +137,7 @@
 <form
 	method="POST"
 	action="?/createLesson"
-	class="w-2/3 space-y-6"
+	class="max-w-3xl space-y-6"
 	enctype="multipart/form-data"
 	use:enhance
 >
@@ -263,11 +251,7 @@
 				<Form.Control>
 					{#snippet children({ props })}
 						<Form.Label>Type</Form.Label>
-						<Select.Root
-							type="single"
-							bind:value={$formData.type}
-							name={props.name}
-						>
+						<Select.Root type="single" bind:value={$formData.type} name={props.name}>
 							<Select.Trigger {...props} class="w-full">
 								<span class="capitalize">
 									{$formData.type || 'Select type'}
@@ -307,62 +291,26 @@
 		{/if}
 	</div>
 
-	<!-- Rest of your form remains the same -->
-	<div class="-mt-5 space-y-2">
-		<Tabs.Root bind:value={creationMethod} class="flex w-full">
-			<Tabs.List
-				class="
-                flex space-x-2
-                border-0 bg-gradient-to-r from-blue-500 via-purple-500
-                to-blue-600 text-white shadow-lg transition-all
-                duration-200
-                dark:bg-gradient-to-r dark:from-blue-500
-                dark:via-purple-500 dark:to-blue-600
-              "
-			>
-				<Tabs.Trigger
-					value="manual"
-					class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white"
-				>
-					Create Manual
-				</Tabs.Trigger>
-				<Tabs.Trigger
-					value="ai"
-					class="flex-1 data-[state=active]:shadow-sm data-[state=inactive]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black dark:data-[state=inactive]:text-white "
-				>
-					Generate with AI
-				</Tabs.Trigger>
-			</Tabs.List>
+	<div>
+		<Label>Supporting Material (optional)</Label>
+		<ul class="text-muted-foreground my-2 list-disc pl-4 text-sm font-medium">
+			<li>If you upload material here, we will use it to scaffold the lesson.</li>
+			<li>If you would instead like to create the lesson from scratch, please leave this empty.</li>
+		</ul>
 
-			<Tabs.Content value="manual" class="mt-1"></Tabs.Content>
-			<Tabs.Content value="ai" class="mt-1 w-full">
-				<div class="w-full">
-					<!-- Remove Form.Field wrapper and just use the dropzone -->
-					<Label class="text-sm font-medium">Supporting Material (Optional)</Label>
-					<Label class="text-muted-foreground font-weight-normal space-y-3 text-sm font-medium">
-						Upload materials for AI to analyse and generate lesson content from.
-					</Label>
+		{#if fileValidationErrors.length > 0}
+			<div class="mt-2 space-y-1">
+				{#each fileValidationErrors as error}
+					<p class="text-destructive text-sm">{error}</p>
+				{/each}
+			</div>
+		{/if}
 
-					<!-- Display validation errors -->
-					{#if fileValidationErrors.length > 0}
-						<div class="mt-2 space-y-1">
-							{#each fileValidationErrors as error}
-								<p class="text-destructive text-sm">{error}</p>
-							{/each}
-						</div>
-					{/if}
-
-					<div class="w-full max-w-none">
-						<Dropzone bind:files={aiFiles} accept=".png,.jpg,.jpeg,.pdf" multiple={true} />
-					</div>
-				</div>
-			</Tabs.Content>
-		</Tabs.Root>
+		<Dropzone bind:files={aiFiles} accept=".png,.jpg,.jpeg,.pdf" multiple={true} />
 	</div>
 
 	<!-- Hidden inputs for new topic -->
 	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
-	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
 
 	<!-- Add hidden file input -->
 	<input
@@ -377,7 +325,7 @@
 
 	<div class="flex justify-end gap-2">
 		<Form.Button type="submit" disabled={fileValidationErrors.length > 0 || isSubmitting}>
-			{#if isSubmitting && creationMethod === 'ai'}
+			{#if isSubmitting}
 				<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
 				Generating...
 			{:else}
