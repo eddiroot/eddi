@@ -9,7 +9,13 @@
 	import Audio from './blocks/audio.svelte';
 
 	import { type LessonBlock } from '$lib/server/db/schema';
-	import { createBlock, deleteBlock, updateBlock, updateLessonTitle } from './client';
+	import {
+		createBlock,
+		deleteBlock,
+		updateBlock,
+		updateLessonTitle,
+		updateBlockOrder
+	} from './client';
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
@@ -26,6 +32,8 @@
 	async function handleDrop(state: DragDropState<LessonBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
 		if (!targetContainer) return;
+
+		draggedOverElement = '';
 
 		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('lesson')) {
 			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
@@ -56,6 +64,49 @@
 			}
 		}
 
+		if (sourceContainer.startsWith('lesson') && targetContainer.startsWith('lesson')) {
+			const sourceIndex = draggedItem.index;
+			const targetIndex = blocks.findIndex(
+				(b) => b.id.toString() === targetContainer.split('-')[1]
+			);
+
+			if (targetIndex === -1 || sourceIndex === -1) {
+				alert('Failed to find block for drag and drop. Please try again.');
+				return;
+			}
+
+			if (sourceIndex === targetIndex) {
+				return;
+			}
+
+			const newBlocks = [...blocks];
+			const [movedBlock] = newBlocks.splice(sourceIndex, 1);
+
+			// Adjust target index if moving downwards (after removing the source item, indices shift)
+			const adjustedTargetIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+			newBlocks.splice(adjustedTargetIndex, 0, movedBlock);
+
+			const finalisedBlocks = newBlocks.map((block, index) => ({
+				...block,
+				index
+			}));
+
+			const blockOrder = finalisedBlocks.map(({ id, index }) => ({
+				id,
+				index
+			}));
+
+			try {
+				await updateBlockOrder({ blockOrder });
+			} catch (error) {
+				blocks = [...blocks];
+				alert('Failed to update block order. Please try again.');
+				console.error('Error updating block order:', error);
+			}
+
+			blocks = finalisedBlocks;
+		}
+
 		if (sourceContainer.startsWith('lesson') && targetContainer === 'blockPalette') {
 			const { success } = await deleteBlock(draggedItem.id);
 			if (!success) {
@@ -64,8 +115,6 @@
 			}
 			blocks = blocks.filter((block) => block.id !== draggedItem.id);
 		}
-
-		draggedOverElement = '';
 	}
 
 	function handleDragOver(state: DragDropState<LessonBlock>) {
