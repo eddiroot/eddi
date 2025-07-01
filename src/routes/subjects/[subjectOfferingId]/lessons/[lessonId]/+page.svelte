@@ -111,7 +111,7 @@
 						}}
 					>
 						{#if draggedOverElement === `lesson-${block.id}`}
-							<Separator class="bg-accent-foreground" />
+							<Separator class="bg-accent-foreground my-2" />
 						{/if}
 					</div>
 					<div
