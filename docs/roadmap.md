@@ -44,6 +44,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [ ] Fees / breakdowns
 - [ ] Export all data for the organisation
 - [ ] Handling of multiple campuses
+- [ ] Titles on every page
 
 ## Future Functionality
 

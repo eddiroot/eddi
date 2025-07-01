@@ -1,5 +1,5 @@
 <script>
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
 	import ThumbsUpIcon from '@lucide/svelte/icons/thumbs-up';
 	import TagIcon from '@lucide/svelte/icons/tag';
@@ -26,7 +26,7 @@
 				</p>
 				<div class="flex flex-col gap-3 sm:flex-row">
 					<Button variant="secondary" size="lg">Watch the demo</Button>
-					<Button variant="default" size="lg">Get started</Button>
+					<a href="/onboarding" class={buttonVariants({ size: 'lg' })}>Get started</a>
 				</div>
 			</div>
 			<div class="order-first md:order-last">
