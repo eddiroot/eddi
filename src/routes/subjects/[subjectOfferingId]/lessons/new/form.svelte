@@ -4,13 +4,13 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { formSchema, type FormSchema } from './schema';
-	import { filesSchema, type FilesSchema } from './schema';
+	import { filesSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import LoaderIcon from '@lucide/svelte/icons/loader.svelte';
+	import LoaderIcon from '@lucide/svelte/icons/loader';
 
 	let creationMethod = $state<'manual' | 'ai'>('manual');
 	let aiFiles: FileList | null = $state(null);
