@@ -1,16 +1,54 @@
-export const lessonCreationPrompt = `Analyse the attached documents/images and create an educational lesson.
+export const lessonCreationPrompts = {
+	lesson: `Analyse the attached documents/images and create an educational lesson.
 
 Using the provided schema, create a comprehensive lesson with:
     1. A title and subtitle
     2. A number of sections matching the complexity of the content. Sections shouldn't be too long. Sections should have appropriate headers (h1, h2, h3)
-    3. Explanatory content using paragraphs
-    4. Try to use the interactive elements provided in the schema including:
-        - Multiple choice questions (both single and multiple answer)
+    3. Explanatory content using paragraphs and markdown
+    4. Interactive elements to engage students including:
+        - Multiple choice questions (both single and multiple answer) for knowledge checking (make sure answers are string of options)
         - Math input questions (if applicable)
         - Fill in the blank questions (use the format "_____" for blanks)
         - Text input questions for open-ended responses
-        - Matching or drag-and-drop activities
-Each component should be structured according to the provided schema.`;
+        - Matching or drag-and-drop activities for concept reinforcement
+    5. A good balance of explanation and interactive practice
+Each component should be structured according to the provided schema.`,
+
+	homework: `Analyse the attached documents/images and create homework assignments.
+
+Using the provided schema, create homework that reinforces learning with:
+    1. A clear title describing the homework assignment
+    2. Brief instructions or review sections with headers (h1, h2, h3)
+    3. Practice problems and exercises including:
+        - Multiple choice questions for self-assessment (make sure answers are string of options)
+        - Fill in the blank exercises for key concepts (use the format "_____" for blanks)
+        - Math input problems (if applicable) for calculation practice
+        - Text input questions for written responses
+        - Matching activities to connect concepts
+    4. Focus primarily on practice questions rather than lengthy explanations
+    5. Progressive difficulty from basic recall to application
+    6. Clear instructions for each section
+Each component should be structured according to the provided schema. Prioritize interactive practice over explanatory content.`,
+
+	assessment: `Analyse the attached documents/images and create a comprehensive assessment.
+
+Using the provided schema, create an assessment that evaluates student understanding with:
+    1. A clear assessment title and brief instructions
+    2. Varied question types to test different skill levels:
+        - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options)
+        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks)
+        - Math input questions (if applicable) for problem-solving skills
+        - Text input questions for analysis and evaluation
+        - Matching activities for concept connections
+    3. Questions that progress from basic recall to higher-order thinking
+    4. Clear, unambiguous question wording
+    5. Comprehensive coverage of the topic material
+    6. Minimal explanatory content - focus on evaluation questions
+Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`
+};
+
+// Keep the original as the default for backward compatibility
+export const lessonCreationPrompt = lessonCreationPrompts.lesson;
 
 export const lessonComponentSchema = {
 	type: 'OBJECT',

@@ -207,7 +207,7 @@ export type LessonTopic = typeof lessonTopic.$inferSelect;
 export const lesson = pgTable('lesson', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	title: text('title').notNull(),
-	type: text('type').notNull().default('lesson'), // either 'lesson', 'assignment', or 'homework'
+	type: text('type').notNull().default('lesson'), // either 'lesson', 'assessment', or 'homework'
 	description: text('description').notNull(),
 	lessonStatus: text('status').notNull(), // either 'draft', 'published', or 'archived'
 	index: integer('index').notNull(),

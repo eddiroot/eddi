@@ -3,7 +3,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
-import { lessonComponentSchema, lessonCreationPrompt } from './constants';
+import { lessonComponentSchema, lessonCreationPrompts } from './constants';
 import {
 	createLesson,
 	createLessonTopic,
@@ -306,7 +306,7 @@ export const actions = {
 				for (const tempFilePath of tempFilePaths) {
 					console.log(`Processing temp file: ${tempFilePath}`);
 					lessonSchema += await geminiCompletion(
-						lessonCreationPrompt,
+						lessonCreationPrompts[form.data.type],
 						tempFilePath,
 						lessonComponentSchema
 					);
@@ -315,7 +315,7 @@ export const actions = {
 				// AI mode but no files
 				console.log('AI mode with no files - sending text-only prompt to Gemini');
 				lessonSchema = await geminiCompletion(
-					lessonCreationPrompt,
+					lessonCreationPrompts[form.data.type],
 					undefined,
 					lessonComponentSchema
 				);

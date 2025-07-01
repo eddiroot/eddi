@@ -45,7 +45,7 @@ export const formSchema = z
 			.max(500, 'Description cannot exceed 500 characters'),
 		lessonTopicId: z.number().optional(), // Make this optional
 		newTopicName: z.string().optional(), // Add this for new topic creation
-		type: z.enum(['lesson', 'homework', 'assignment']).default('lesson'),
+		type: z.enum(['lesson', 'homework', 'assessment']).default('lesson'),
 		dueDate: z.date().optional(),
 		files: filesSchema.optional(),
 		creationMethod: z.enum(['manual', 'ai'], {

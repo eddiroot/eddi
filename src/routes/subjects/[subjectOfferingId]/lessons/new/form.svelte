@@ -280,8 +280,8 @@
 								<Select.Item value="homework" label="Homework">
 									<span class="capitalize">Homework</span>
 								</Select.Item>
-								<Select.Item value="assignment" label="Assignment">
-									<span class="capitalize">Assignment</span>
+								<Select.Item value="assessment" label="Assessment">
+									<span class="capitalize">Assessment</span>
 								</Select.Item>
 							</Select.Content>
 						</Select.Root>
@@ -292,7 +292,7 @@
 		</div>
 
 		<!-- Conditional Due Date field - only show for homework and assignment -->
-		{#if $formData.type === 'homework' || $formData.type === 'assignment'}
+		{#if $formData.type === 'homework' || $formData.type === 'assessment'}
 			<div class="col-span-3">
 				<Form.Field {form} name="dueDate">
 					<Form.Control>
