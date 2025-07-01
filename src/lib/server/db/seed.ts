@@ -294,77 +294,88 @@ async function main() {
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'teacher',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 100
 		},
 		{
 			userId: users[4].id, // teacher003
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'teacher',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 120
 		},
 		{
 			userId: users[3].id, // teacher002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'teacher',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 140
 		},
 		{
 			userId: users[4].id, // teacher003
 			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'teacher',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 180
 		},
 		{
 			userId: users[5].id, // teacher004
 			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'teacher',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 220
 		},
 		{
 			userId: users[6].id, // teacher005
 			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'teacher',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 100
 		},
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			role: 'student',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 0
 		},
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			role: 'student',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 100
 		},
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[2].id, // History
 			role: 'student',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 30
 		},
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[3].id, // English
 			role: 'student',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 240
 		},
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[4].id, // Geography
 			role: 'student',
 			isComplete: 0,
-			isArchived: 0
+			isArchived: 0,
+			color: 300
 		},
 		{
 			userId: users[8].id, // student002

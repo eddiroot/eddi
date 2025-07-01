@@ -7,14 +7,14 @@ export const load = async ({ locals: { security, user } }) => {
 		return { user: null, subjects: [] };
 	}
 
-	const classTimesAndLocations = await getSubjectClassAllocationByUserId(user.id);
+	const classAllocation = await getSubjectClassAllocationByUserId(user.id);
 
-	if (!classTimesAndLocations || classTimesAndLocations.length === 0) {
-		return { user, classTimes: [] };
+	if (!classAllocation || classAllocation.length === 0) {
+		return { user, classAllocation: [] };
 	}
 
 	return {
 		user,
-		classTimes: classTimesAndLocations
+		classAllocation: classAllocation
 	};
 };

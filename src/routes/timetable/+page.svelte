@@ -1,10 +1,10 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { formatTime, days, addTimeAndDuration } from '$lib/utils';
-	import { generateTimeslots, getClassPosition } from './utils.js';
+	import { generateSubjectColors, generateTimeslots, getClassPosition } from './utils.js';
 
 	let { data } = $props();
-	let { classTimes } = data;
+	let { classAllocation: classTimes } = data;
 
 	let timeslots = generateTimeslots(8, 17);
 </script>
@@ -28,21 +28,19 @@
 		<div class="bg-background relative">
 			{#each timeslots as slot, index}
 				<div
-					class="text-muted-foreground text-s flex items-start justify-end pr-4"
-					style="height: {100 / timeslots.length}%; transform: translateY(-12px);"
+					class="text-muted-foreground flex items-start justify-end pr-4 text-xs"
+					style="height: {100 / timeslots.length}%; transform: translateY(-8px);"
 				>
-					{#if index % 2 === 0}
-						{slot}
-					{/if}
+					{slot}
 				</div>
 			{/each}
 		</div>
 
 		{#each days as day}
-			<div class="border-border/50 relative border-r last:border-r-0">
+			<div class="border-border relative border-r-2 last:border-r-0">
 				<!-- Background timeslot lines -->
 				{#each timeslots}
-					<div class="border-border/80 border-t" style="height: {100 / timeslots.length}%;"></div>
+					<div class="border-border border-t" style="height: {100 / timeslots.length}%;"></div>
 				{/each}
 
 				<!-- Classes for this day -->
@@ -53,15 +51,19 @@
 						cls.classAllocation.duration,
 						timeslots
 					)}
+					{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
 					<a
 						href="/subjects/{cls.subject.id}"
 						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
-						<Card.Root class="h-full overflow-hidden border-2 px-2 py-0 pt-1">
+						<Card.Root
+							class="h-full overflow-hidden border-0 border-t-10 px-2 py-2 pt-0"
+							style="border-color: {colors.border}; background-color: {colors.background};"
+						>
 							<Card.Header class="p-2">
-								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap"
-									>{cls.subject.name}</Card.Title
-								>
+								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap">
+									{cls.subject.name}
+								</Card.Title>
 								<Card.Description class="overflow-hidden text-xs text-ellipsis whitespace-nowrap">
 									{formatTime(cls.classAllocation.startTime)} - {formatTime(
 										addTimeAndDuration(cls.classAllocation.startTime, cls.classAllocation.duration)

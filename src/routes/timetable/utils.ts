@@ -30,3 +30,26 @@ export function getClassPosition(
 		height: `calc(${height}% - 4px)`
 	};
 }
+
+// export function generateSubjectColors(hue: number, isDark: boolean) {
+// 	if (isDark) {
+// 		return {
+// 			background: `hsl(${hue}, 70%, 15%)`,
+// 			border: `hsl(${hue}, 60%, 60%)`,
+// 			text: `hsl(${hue}, 40%, 90%)`
+// 		};
+// 	} else {
+// 		return {
+// 			background: `hsl(${hue}, 60%, 95%)`,
+// 			border: `hsl(${hue}, 70%, 50%)`,
+// 			text: `hsl(${hue}, 80%, 20%)`
+// 		};
+// 	}
+// }
+export function generateSubjectColors(hue: number) {
+	return {
+		background: `light-dark(hsl(${hue}, 40%, 93%), hsl(${hue}, 50%, 16%))`,
+		border: `light-dark(hsl(${hue}, 55%, 58%), hsl(${hue}, 50%, 55%))`,
+		text: `light-dark(hsl(${hue}, 65%, 28%), hsl(${hue}, 35%, 87%))`
+	};
+}

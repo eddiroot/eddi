@@ -161,7 +161,8 @@ export async function getSubjectClassAllocationByUserId(userId: string) {
 			subject: {
 				id: table.subject.id,
 				name: table.subject.name
-			}
+			},
+			userSubjectOffering: table.userSubjectOffering
 		})
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
@@ -178,6 +179,13 @@ export async function getSubjectClassAllocationByUserId(userId: string) {
 			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
 		)
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.userSubjectOffering,
+			and(
+				eq(table.userSubjectOffering.subjectOfferingId, table.subjectOffering.id),
+				eq(table.userSubjectOffering.userId, userId)
+			)
+		)
 		.where(eq(table.userSubjectClass.userId, userId))
 		.orderBy(desc(table.subjectClassAllocation.startTime));
 
@@ -200,7 +208,8 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 			subject: {
 				id: table.subject.id,
 				name: table.subject.name
-			}
+			},
+			userSubjectOffering: table.userSubjectOffering
 		})
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
@@ -217,6 +226,13 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
 		)
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.userSubjectOffering,
+			and(
+				eq(table.userSubjectOffering.subjectOfferingId, table.subjectOffering.id),
+				eq(table.userSubjectOffering.userId, userId)
+			)
+		)
 		.where(
 			and(
 				eq(table.userSubjectClass.userId, userId),

@@ -91,6 +91,7 @@ export const userSubjectOffering = pgTable('user_subject', {
 	role: text('role').notNull(), // either 'student', 'teacher', or 'moderator'
 	isComplete: integer('is_complete').default(0).notNull(),
 	isArchived: integer('is_archived').default(0).notNull(),
+	color: integer('color').default(100).notNull(), // default color for the subject offering
 	...timestamps
 });
 
@@ -115,7 +116,6 @@ export const userSubjectClass = pgTable('user_subject_class', {
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
 	role: text('role').notNull(), // either 'student' or 'teacher'
-	color: text('color'), // e.g., '#FF5733' for a specific color code
 	...timestamps
 });
 

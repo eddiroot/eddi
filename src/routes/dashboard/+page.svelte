@@ -181,11 +181,13 @@
 			</Card.Header>
 			<Card.Content>
 				{#if data.userClasses && data.userClasses.length > 0}
-					<div class="space-y-3">
+					<div class="space-y-2">
 						{#each data.userClasses as cls}
-							<a href="/subjects/{cls.subject.id}" class="p-0.5">
+							{@const borderColor = cls.userSubjectOffering.color}
+							<a href="/subjects/{cls.subject.id}" class="block">
 								<div
-									class="border-border hover:bg-muted/50 flex items-center justify-between rounded-lg border-2 p-3 transition-colors"
+									class="border-border-6 hover:bg-muted/50 flex items-center justify-between rounded-lg border-2 border-t-3 p-3 transition-colors"
+									style="border-color: {borderColor};"
 								>
 									<div class="flex-1">
 										<div class="text-foreground font-medium">{cls.subject.name}</div>
