@@ -260,8 +260,8 @@
 		<Card.Header>
 			<Card.Title class="text-lg">Blocks</Card.Title>
 			<Card.Description>
-				Drag and drop blocks from here to the lesson content area, or drag blocks to the delete bin
-				below to remove them.
+				Drag and drop blocks from here to the lesson content area. If you'd like to delete a block,
+				simply drag it to the area below.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content class="flex h-full flex-col gap-4">
