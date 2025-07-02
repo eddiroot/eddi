@@ -20,7 +20,10 @@
 		{#each data.subjects as subject}
 			{@const colors = generateSubjectColors(subject.userSubjectOffering.color)}
 			<a href="/subjects/{subject.subjectOffering.id}" class="block">
-				<Card.Root class="h-full shadow-none" style="background-color: {colors.background}">
+				<Card.Root
+					class="h-full border-t-5 shadow-lg transition-opacity duration-200 hover:opacity-70"
+					style="border-top-color: {colors.border};"
+				>
 					<Card.Header>
 						<div class="flex items-start justify-between">
 							<Card.Title class="text-lg leading-tight">{subject.subject.name}</Card.Title>
