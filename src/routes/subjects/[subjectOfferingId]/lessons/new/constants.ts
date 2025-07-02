@@ -6,7 +6,7 @@ Using the provided schema, create a comprehensive lesson with:
     2. A number of sections matching the complexity of the content. Sections shouldn't be too long. Sections should have appropriate headers (h1, h2, h3)
     3. Explanatory content using paragraphs and markdown
     4. Interactive elements to engage students including:
-        - Multiple choice questions (both single and multiple answer) for knowledge checking (make sure answers are string of options)
+        - Multiple choice questions (both single and multiple answer) for knowledge checking (make sure answers are string of options (not a,b,c or 1,2,3))
         - Math input questions (if applicable)
         - Fill in the blank questions (use the format "_____" for blanks)
         - Text input questions for open-ended responses
@@ -20,7 +20,7 @@ Using the provided schema, create homework that reinforces learning with:
     1. A clear title describing the homework assignment
     2. Brief instructions or review sections with headers (h1, h2, h3)
     3. Practice problems and exercises including:
-        - Multiple choice questions for self-assessment (make sure answers are string of options)
+        - Multiple choice questions for self-assessment (make sure answers are string of options (not a,b,c or 1,2,3))
         - Fill in the blank exercises for key concepts (use the format "_____" for blanks)
         - Math input problems (if applicable) for calculation practice
         - Text input questions for written responses
@@ -35,7 +35,7 @@ Each component should be structured according to the provided schema. Prioritize
 Using the provided schema, create an assessment that evaluates student understanding with:
     1. A clear assessment title and brief instructions
     2. Varied question types to test different skill levels:
-        - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options)
+        - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
         - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks)
         - Math input questions (if applicable) for problem-solving skills
         - Text input questions for analysis and evaluation
