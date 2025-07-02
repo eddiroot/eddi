@@ -404,19 +404,17 @@ export const whiteboard = pgTable('whiteboard', {
 export type Whiteboard = typeof whiteboard.$inferSelect;
 
 export enum whiteboardObjectTypeEnum {
-	rect = 'rect',
-	circle = 'circle',
-	path = 'path',
-	textbox = 'textbox',
-	image = 'image'
+	rect = 'Rect',
+	circle = 'Circle',
+	path = 'Path',
+	textbox = 'Textbox'
 }
 
 export const whiteboardObjectTypeEnumPg = pgEnum('whiteboard_object_type', [
 	whiteboardObjectTypeEnum.rect,
 	whiteboardObjectTypeEnum.circle,
 	whiteboardObjectTypeEnum.path,
-	whiteboardObjectTypeEnum.textbox,
-	whiteboardObjectTypeEnum.image
+	whiteboardObjectTypeEnum.textbox
 ]);
 
 export const whiteboardObject = pgTable('whiteboard_object', {
