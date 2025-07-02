@@ -855,3 +855,26 @@ export async function updateLessonBlocksOrder(blockUpdates: Array<{ id: number; 
 		}
 	});
 }
+
+export async function getSubjectOfferingContextForAI(userID: string, subjectOfferingId: number) {
+	const subjectOfferingContext = await db
+		.select({
+			lessonTopicName: table.lessonTopic.name,
+			lessonTitle: table.lesson.title,
+			lessonBlock: table.lessonBlock,
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
+		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
+		.leftJoin(table.lessonBlock, eq(table.lessonBlock.lessonId, table.lesson.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.userId, userID),
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+			)
+		)
+		.orderBy(asc(table.lessonTopic.index));
+
+	return subjectOfferingContext;
+};

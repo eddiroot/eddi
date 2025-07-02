@@ -15,6 +15,19 @@
 	let { children, data } = $props();
 
 	const user = $derived(() => data?.user);
+	
+	// Extract subjectOfferingId from URL if on a subject-specific page
+	const currentSubjectOfferingId = $derived(() => {
+		const pathname = page.url.pathname;
+		const subjectMatch = pathname.match(/^\/subjects\/(\d+)/);
+		return subjectMatch ? parseInt(subjectMatch[1], 10) : null;
+	});
+
+	// Check if user is on any subjects page
+	const isOnSubjectsPage = $derived(() => {
+		const pathname = page.url.pathname;
+		return pathname.startsWith('/subjects/');
+	});
 
 	const generateBreadcrumbItems = (url: string) => {
 		const segments = url.split('/').filter(Boolean);
@@ -92,7 +105,7 @@
 						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
 					{/if}
 					<ThemeToggle />
-					{#if user()}
+					{#if user() && isOnSubjectsPage()}
 						<Sidebar.Trigger name="right" aria-label="Toggle AI Helper" />
 					{/if}
 				</div>
@@ -102,7 +115,7 @@
 			{@render children()}
 		</main>
 	</div>
-	{#if user()}
-		<AiSidebar />
+	{#if user() && isOnSubjectsPage()}
+		<AiSidebar subjectOfferingId={currentSubjectOfferingId()} />
 	{/if}
 </Sidebar.Provider>
