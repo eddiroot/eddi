@@ -164,10 +164,10 @@
 			>
 				{#if isEditMode}
 					<EyeIcon class="h-4 w-4" />
-					Preview Mode
+					Switch to Preview Mode
 				{:else}
 					<EditIcon class="h-4 w-4" />
-					Edit Mode
+					Switch to Edit Mode
 				{/if}
 			</Button>
 		</div>
@@ -189,7 +189,7 @@
 						{/if}
 					</div>
 					<div
-						class="grid grid-cols-[30px_1fr] items-center gap-2"
+						class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 						role="group"
 						onmouseover={() => (mouseOverElement = `lesson-${block.id}`)}
 						onfocus={() => (mouseOverElement = `lesson-${block.id}`)}
@@ -206,7 +206,7 @@
 									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
 								/>
 							</div>
-						{:else}
+						{:else if isEditMode}
 							<div></div>
 						{/if}
 						<div>
