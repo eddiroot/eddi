@@ -428,7 +428,7 @@ export async function createLessonBlock(
 	lessonId: number,
 	type: table.lessonBlockTypeEnum,
 	content: unknown,
-	index?: number
+	index: number | undefined = undefined
 ) {
 	// If index is not provided, calculate the next available index used for LLM
 	if (index === undefined) {
@@ -881,7 +881,7 @@ export async function getSubjectOfferingContextForAI(userID: string, subjectOffe
 		.select({
 			lessonTopicName: table.lessonTopic.name,
 			lessonTitle: table.lesson.title,
-			lessonBlock: table.lessonBlock,
+			lessonBlock: table.lessonBlock
 		})
 		.from(table.userSubjectClass)
 		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
@@ -897,4 +897,4 @@ export async function getSubjectOfferingContextForAI(userID: string, subjectOffe
 		.orderBy(asc(table.lessonTopic.index));
 
 	return subjectOfferingContext;
-};
+}
