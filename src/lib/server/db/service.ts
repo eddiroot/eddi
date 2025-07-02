@@ -16,6 +16,24 @@ export async function getSubjectsByUserId(userId: string) {
 	return subjects.map((row) => row.subject);
 }
 
+export async function getSubjectsOfferingsUserSubjectOfferingsByUserId(userId: string) {
+	const subjectOfferings = await db
+		.select({
+			subjectOffering: table.subjectOffering,
+			subject: table.subject,
+			userSubjectOffering: table.userSubjectOffering
+		})
+		.from(table.userSubjectOffering)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.userSubjectOffering.subjectOfferingId)
+		)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.where(eq(table.userSubjectOffering.userId, userId));
+
+	return subjectOfferings;
+}
+
 export async function getSubjectById(subjectId: number) {
 	const subject = await db
 		.select({ subject: table.subject })
@@ -90,7 +108,7 @@ export async function getSubjectThreadById(threadId: number) {
 }
 
 export async function createSubjectThread(
-	type: table.subjectThreadTypeEnum,
+	type: 'announcement' | 'qanda' | 'discussion' | 'question',
 	subjectOfferingId: number,
 	userId: string,
 	title: string,
@@ -99,7 +117,7 @@ export async function createSubjectThread(
 	const [thread] = await db
 		.insert(table.subjectThread)
 		.values({
-			type,
+			type: type as table.subjectThreadTypeEnum,
 			subjectOfferingId,
 			userId,
 			title,
@@ -130,7 +148,7 @@ export async function getSubjectThreadResponsesById(threadId: number) {
 }
 
 export async function createSubjectThreadResponse(
-	type: table.subjectThreadResponseTypeEnum,
+	type: 'answer' | 'comment',
 	subjectThreadId: number,
 	userId: string,
 	content: string,
@@ -139,7 +157,7 @@ export async function createSubjectThreadResponse(
 	const [response] = await db
 		.insert(table.subjectThreadResponse)
 		.values({
-			type,
+			type: type as table.subjectThreadResponseTypeEnum,
 			subjectThreadId,
 			userId,
 			content,
