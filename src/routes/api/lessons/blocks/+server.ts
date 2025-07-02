@@ -31,30 +31,30 @@ export async function POST({ request }: { request: Request }) {
 // PATCH /api/lessons/blocks - Update a block
 export async function PATCH({ request }: { request: Request }) {
 	try {
-		const { blockId, content, type } = await request.json();
+		const { block, content } = await request.json();
 
-		if (!blockId) {
+		if (!block.id) {
 			return json({ error: 'Block ID is required' }, { status: 400 });
 		}
 
-		if (typeof blockId !== 'number') {
+		if (typeof block.id !== 'number') {
 			return json({ error: 'Invalid block ID type' }, { status: 400 });
 		}
 
 		const updates: { content?: unknown; type?: lessonBlockTypeEnum } = {};
 		if (content !== undefined) updates.content = content;
-		if (type !== undefined) {
-			if (typeof type !== 'string') {
+		if (block.type !== undefined) {
+			if (typeof block.type !== 'string') {
 				return json({ error: 'Invalid block type' }, { status: 400 });
 			}
-			updates.type = type as lessonBlockTypeEnum;
+			updates.type = block.type as lessonBlockTypeEnum;
 		}
 
 		if (Object.keys(updates).length === 0) {
 			return json({ error: 'No valid updates provided' }, { status: 400 });
 		}
 
-		const updatedBlock = await updateLessonBlock(blockId, updates);
+		const updatedBlock = await updateLessonBlock(block.id, updates);
 		return json({ block: updatedBlock });
 	} catch (error) {
 		console.error('Error updating block:', error);
