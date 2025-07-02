@@ -296,7 +296,8 @@ export enum lessonBlockTypeEnum {
 	video = 'video',
 	audio = 'audio',
 	fillInBlank = 'fill_in_blank',
-	multipleChoice = 'multiple_choice'
+	multipleChoice = 'multiple_choice',
+	whiteboard = 'whiteboard'
 }
 
 export const lessonBlock = pgTable('lesson_block', {

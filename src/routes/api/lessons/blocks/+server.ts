@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { createLessonBlock, updateLessonBlock, deleteLessonBlock } from '$lib/server/db/service';
+import { lessonBlockTypeEnum } from '$lib/server/db/schema';
 
 // POST /api/lessons/blocks - Create a new block
 export async function POST({ request }: { request: Request }) {
@@ -14,7 +15,11 @@ export async function POST({ request }: { request: Request }) {
 			return json({ error: 'Invalid input types' }, { status: 400 });
 		}
 
-		const block = await createLessonBlock(lessonId, type, content, index);
+		if (!Object.values(lessonBlockTypeEnum).includes(type as lessonBlockTypeEnum)) {
+			return json({ error: 'Invalid block type' }, { status: 400 });
+		}
+
+		const block = await createLessonBlock(lessonId, type as lessonBlockTypeEnum, content, index);
 
 		return json({ block });
 	} catch (error) {
@@ -36,9 +41,14 @@ export async function PATCH({ request }: { request: Request }) {
 			return json({ error: 'Invalid block ID type' }, { status: 400 });
 		}
 
-		const updates: { content?: unknown; type?: string } = {};
+		const updates: { content?: unknown; type?: lessonBlockTypeEnum } = {};
 		if (content !== undefined) updates.content = content;
-		if (type !== undefined && typeof type === 'string') updates.type = type;
+		if (type !== undefined) {
+			if (typeof type !== 'string') {
+				return json({ error: 'Invalid block type' }, { status: 400 });
+			}
+			updates.type = type as lessonBlockTypeEnum;
+		}
 
 		if (Object.keys(updates).length === 0) {
 			return json({ error: 'No valid updates provided' }, { status: 400 });

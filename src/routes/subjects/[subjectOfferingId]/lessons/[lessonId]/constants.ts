@@ -10,60 +10,66 @@ import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import List from '@lucide/svelte/icons/list';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+import { lessonBlockTypeEnum } from '$lib/server/db/schema';
+import type { Icon } from '@lucide/svelte';
 
-export const blockTypes = [
+export const blockTypes: {
+	type: lessonBlockTypeEnum;
+	content: unknown;
+	icon: typeof Icon;
+}[] = [
 	{
-		type: 'h1',
+		type: lessonBlockTypeEnum.h1,
 		content: 'This is a Heading 1',
 		icon: HeadingOneIcon
 	},
 	{
-		type: 'h2',
+		type: lessonBlockTypeEnum.h2,
 		content: 'This is a Heading 2',
 		icon: HeadingTwoIcon
 	},
 	{
-		type: 'h3',
+		type: lessonBlockTypeEnum.h3,
 		content: 'This is a Heading 3',
 		icon: HeadingThreeIcon
 	},
 	{
-		type: 'h4',
+		type: lessonBlockTypeEnum.h4,
 		content: 'This is a Heading 4',
 		icon: HeadingFourIcon
 	},
 	{
-		type: 'h5',
+		type: lessonBlockTypeEnum.h5,
 		content: 'This is a Heading 5',
 		icon: HeadingFiveIcon
 	},
 	{
-		type: 'markdown',
+		type: lessonBlockTypeEnum.markdown,
 		content: 'This is markdown content...',
 		icon: PilcrowIcon
 	},
 	{
-		type: 'image',
+		type: lessonBlockTypeEnum.image,
 		content: { src: '', alt: 'Image', caption: '' },
 		icon: ImageIcon
 	},
 	{
-		type: 'video',
+		type: lessonBlockTypeEnum.video,
 		content: { src: '', title: 'Video' },
 		icon: FilmIcon
 	},
 	{
-		type: 'audio',
+		type: lessonBlockTypeEnum.audio,
 		content: { src: '', title: 'Audio' },
 		icon: AudioLinesIcon
 	},
 	{
-		type: 'whiteboard',
+		type: lessonBlockTypeEnum.whiteboard,
 		content: { data: '', width: 800, height: 600 },
 		icon: PresentationIcon
 	},
 	{
-		type: 'multiple_choice',
+		type: lessonBlockTypeEnum.multipleChoice,
 		content: {
 			question: 'Multiple Choice Question',
 			options: [
@@ -74,7 +80,7 @@ export const blockTypes = [
 		icon: List
 	},
 	{
-		type: 'fill_in_blank',
+		type: lessonBlockTypeEnum.fillInBlank,
 		content: {
 			sentence: 'Fill in the blank _____.',
 			answer: 'Answer'

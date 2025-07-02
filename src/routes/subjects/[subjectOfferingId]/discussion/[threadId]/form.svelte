@@ -9,6 +9,7 @@
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import CheckCircle from '@lucide/svelte/icons/check-circle';
 	import { getResponseTypeDescription } from './utils.js';
+	import { subjectThreadResponseTypeEnum } from '$lib/server/db/schema.js';
 
 	let {
 		data,
@@ -72,7 +73,11 @@
 							type="single"
 							value={$formData.type}
 							onValueChange={(value: string | undefined) => {
-								if (value && (value === 'answer' || value === 'comment')) {
+								if (
+									value &&
+									(value === subjectThreadResponseTypeEnum.answer ||
+										value === subjectThreadResponseTypeEnum.comment)
+								) {
 									$formData.type = value;
 								}
 							}}

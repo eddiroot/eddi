@@ -25,7 +25,6 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 
-
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let elementDragStarted = $state<string>('');
@@ -214,22 +213,20 @@
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-								{:else if block.type === 'whiteboard'}
+							{:else if block.type === lessonBlockTypeEnum.whiteboard}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'multiple_choice'}
+							{:else if block.type === lessonBlockTypeEnum.multipleChoice}
 								<MultipleChoice
 									content={block.content as any}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
-
 								/>
-							{:else if block.type === 'fill_in_blank'}
-								<FillInBlank	
+							{:else if block.type === lessonBlockTypeEnum.fillInBlank}
+								<FillInBlank
 									content={block.content as any}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
-
 								/>
 							{:else}
 								<p>Content for {block.type} block.</p>
