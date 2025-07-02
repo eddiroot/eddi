@@ -90,7 +90,7 @@ export async function getSubjectThreadById(threadId: number) {
 }
 
 export async function createSubjectThread(
-	type: string,
+	type: table.subjectThreadTypeEnum,
 	subjectOfferingId: number,
 	userId: string,
 	title: string,
@@ -130,7 +130,7 @@ export async function getSubjectThreadResponsesById(threadId: number) {
 }
 
 export async function createSubjectThreadResponse(
-	type: string,
+	type: table.subjectThreadResponseTypeEnum,
 	subjectThreadId: number,
 	userId: string,
 	content: string,
@@ -193,10 +193,18 @@ export async function getSubjectClassAllocationByUserId(userId: string) {
 }
 
 export async function getSubjectClassAllocationsByUserIdForToday(userId: string) {
-	// Get today's day of the week in lowercase
 	const today = new Date();
-	const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-	const todayDayOfWeek = dayNames[today.getDay()];
+	const todayDayOfWeek = today.getDay();
+	const dayOfWeekKeys = [
+		'sunday',
+		'monday',
+		'tuesday',
+		'wednesday',
+		'thursday',
+		'friday',
+		'saturday'
+	] as const;
+	const tableDayOfWeek = table.dayOfWeekEnum[dayOfWeekKeys[todayDayOfWeek]];
 
 	const classAllocation = await db
 		.select({
@@ -236,7 +244,7 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 		.where(
 			and(
 				eq(table.userSubjectClass.userId, userId),
-				eq(table.subjectClassAllocation.dayOfWeek, todayDayOfWeek)
+				eq(table.subjectClassAllocation.dayOfWeek, tableDayOfWeek)
 			)
 		)
 		.orderBy(table.subjectClassAllocation.startTime); // Order by start time (earliest first) for today's schedule
@@ -304,7 +312,7 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 			table.subjectThread,
 			and(
 				eq(table.subjectThread.subjectOfferingId, table.subjectOffering.id),
-				eq(table.subjectThread.type, 'announcement'),
+				eq(table.subjectThread.type, table.subjectThreadTypeEnum.announcement),
 				gte(table.subjectThread.createdAt, oneWeekAgo.toISOString())
 			)
 		)
@@ -376,8 +384,8 @@ export async function getLessonBlocksByLessonId(lessonId: number) {
 export async function createLesson(
 	title: string,
 	description: string,
-	lessonStatus: 'draft' | 'published' | 'archived',
-	type: string,
+	lessonStatus: table.lessonStatusEnum,
+	type: table.lessonTypeEnum,
 	lessonTopicId: number,
 	dueDate?: Date | null
 ) {
@@ -418,7 +426,7 @@ export async function updateLessonTitle(lessonId: number, title: string) {
 
 export async function createLessonBlock(
 	lessonId: number,
-	type: string,
+	type: table.lessonBlockTypeEnum,
 	content: unknown,
 	index?: number
 ) {
@@ -458,7 +466,7 @@ export async function updateLessonBlock(
 	blockId: number,
 	updates: {
 		content?: unknown;
-		type?: string;
+		type?: table.lessonBlockTypeEnum;
 	}
 ) {
 	const [lessonBlock] = await db
@@ -533,7 +541,7 @@ export async function getWhiteboardObjects(whiteboardId: number = 1) {
 
 export async function saveWhiteboardObject(data: {
 	objectId: string;
-	objectType: string;
+	objectType: table.whiteboardObjectTypeEnum;
 	objectData: Record<string, unknown>;
 	whiteboardId?: number;
 }) {
@@ -601,7 +609,7 @@ export async function clearWhiteboard(whiteboardId: number = 1) {
 export async function createLocation(
 	schoolId: number,
 	name: string,
-	type: string,
+	type: table.schoolLocationTypeEnum,
 	capacity?: number | null,
 	description?: string | null,
 	isActive: boolean = true
@@ -647,7 +655,7 @@ export async function updateLocation(
 	locationId: number,
 	updates: {
 		name?: string;
-		type?: string;
+		type?: table.schoolLocationTypeEnum;
 		capacity?: number | null;
 		description?: string | null;
 		isActive?: boolean;
@@ -714,7 +722,7 @@ export async function getTeachersForUserInSubjectOffering(
 		.where(
 			and(
 				inArray(table.userSubjectClass.subjectClassId, subjectClassIds),
-				eq(table.userSubjectClass.role, 'teacher')
+				eq(table.userSubjectClass.role, table.userSubjectClassRoleEnum.teacher)
 			)
 		);
 

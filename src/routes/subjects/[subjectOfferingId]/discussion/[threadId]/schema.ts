@@ -1,7 +1,8 @@
+import { subjectThreadResponseTypeEnum } from '$lib/server/db/schema';
 import { z } from 'zod';
 
 export const formSchema = z.object({
-	type: z.enum(['comment', 'answer'], {
+	type: z.nativeEnum(subjectThreadResponseTypeEnum, {
 		required_error: 'Please select a response type'
 	}),
 	content: z

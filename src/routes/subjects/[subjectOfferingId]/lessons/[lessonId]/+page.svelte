@@ -12,6 +12,8 @@
 	import FillInBlank from './blocks/fill-in-blank.svelte';
 
 	import { type LessonBlock } from '$lib/server/db/schema';
+	import { lessonBlockTypeEnum } from '$lib/server/db/schema';
+
 	import {
 		createBlock,
 		deleteBlock,
@@ -186,28 +188,28 @@
 							<div></div>
 						{/if}
 						<div>
-							{#if block.type[0] === 'h'}
+							{#if block.type === lessonBlockTypeEnum.h1 || block.type === lessonBlockTypeEnum.h2 || block.type === lessonBlockTypeEnum.h3 || block.type === lessonBlockTypeEnum.h4 || block.type === lessonBlockTypeEnum.h5 || block.type === lessonBlockTypeEnum.h6}
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'markdown'}
+							{:else if block.type === lessonBlockTypeEnum.markdown}
 								<Markdown
 									content={typeof block.content === 'string' ? block.content : ''}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'image'}
+							{:else if block.type === lessonBlockTypeEnum.image}
 								<Image
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'video'}
+							{:else if block.type === lessonBlockTypeEnum.video}
 								<Video
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'audio'}
+							{:else if block.type === lessonBlockTypeEnum.audio}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
