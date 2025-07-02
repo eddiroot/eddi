@@ -28,6 +28,7 @@
 			answer: '',
 			multiple: false
 		} as MultipleChoiceContent,
+		isEditMode = true,
 		onUpdate = () => {}
 	} = $props();
 
@@ -39,9 +40,16 @@
 	let options = $state<string[]>([]);
 	let correctAnswers = $state<Set<string>>(new Set());
 
+	// Initialize editing state when component loads or content changes
+	$effect(() => {
+		if (isEditMode) {
+			initializeEditingState();
+		}
+	});
+
 	// Functions for student interaction
 	function toggleAnswer(option: string) {
-		if (hasSubmitted) return; // Prevent changes after submission
+		if (hasSubmitted || isEditMode) return; // Prevent changes after submission or in edit mode
 
 		if (!content.multiple) {
 			// Single choice - clear others and set this one
@@ -186,7 +194,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditing}
+	{#if isEditMode}
 		<!-- EDIT MODE: Shows form for creating/editing the multiple choice question -->
 		<Card.Root>
 			<Card.Header>
@@ -202,6 +210,7 @@
 					<Textarea
 						id="question-text"
 						bind:value={questionText}
+						onblur={saveChanges}
 						placeholder="Enter your multiple choice question..."
 						class="min-h-[80px] resize-none"
 					/>
@@ -243,6 +252,7 @@
 								<div class="flex-1">
 									<Input
 										bind:value={options[index]}
+										onblur={saveChanges}
 										placeholder={`Option ${index + 1}`}
 										class="w-full"
 									/>
@@ -267,184 +277,135 @@
 						Click the circle icon to mark correct answers. You can select multiple correct answers.
 					</p>
 				</div>
-
-				<!-- SAVE/CANCEL BUTTONS -->
-				<div class="flex gap-2">
-					<Button onclick={saveChanges}>Save Question</Button>
-					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
-				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		<!-- VIEW MODE: Shows the completed multiple choice question -->
-		<div class="group relative">
-			{#if content.question && content.options?.length > 0}
-				<!-- Display the complete question -->
-				<Card.Root>
-					<Card.Content class="pt-6">
-						<!-- Question Text -->
-						<div class="mb-6">
-							<h3 class="mb-2 text-lg font-medium">{content.question}</h3>
-							{#if content.multiple}
-								<p class="text-muted-foreground text-sm">Select all correct answers</p>
-							{:else}
-								<p class="text-muted-foreground text-sm">Select one answer</p>
-							{/if}
-						</div>
+		<!-- PREVIEW MODE: Shows the interactive multiple choice question -->
+		{#if content.question && content.options?.length > 0}
+			<Card.Root>
+				<Card.Content class="pt-6">
+					<div class="mb-6">
+						<h3 class="mb-2 text-lg font-medium">{content.question}</h3>
+						{#if content.multiple}
+							<p class="text-muted-foreground text-sm">Select all correct answers</p>
+						{:else}
+							<p class="text-muted-foreground text-sm">Select one answer</p>
+						{/if}
+					</div>
 
-						<!-- Answer Options -->
-						<div class="space-y-3">
-							{#each content.options as option, index}
-								{@const answerStatus = getAnswerStatus(option)}
-								{@const isSelected = selectedAnswers.has(option)}
-								{@const isCorrect = isAnswerCorrect(option)}
-								<button
-									class={`interactive flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200
-                                        ${!hasSubmitted ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default'}
-                                        ${isSelected && !hasSubmitted ? 'border-blue-200 bg-blue-50' : ''}
-                                        ${isSelected && isCorrect && hasSubmitted ? 'border-2 border-green-500 bg-green-50' : ''}
-                                        ${isSelected && !isCorrect && hasSubmitted ? 'border-red-200 bg-red-50' : ''}
-                                        ${!isSelected && isCorrect && hasSubmitted ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}
-                                    `}
-									onclick={() => toggleAnswer(option)}
-									disabled={hasSubmitted}
-								>
-									<!-- Selection indicator -->
-									<div class="mt-1 flex-shrink-0">
-										{#if content.multiple}
-											<!-- Checkbox style for multiple choice -->
-											{#if !hasSubmitted}
-												{#if isSelected}
-													<div
-														class="flex h-5 w-5 items-center justify-center rounded border-2 border-blue-600 bg-blue-600"
-													>
-														<CheckIcon class="h-3 w-3 text-white" />
-													</div>
-												{:else}
-													<div class="h-5 w-5 rounded border-2 border-gray-300"></div>
-												{/if}
-											{:else if isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded border-2 border-green-600 bg-green-600"
-												>
+					<div class="space-y-3">
+						{#each content.options as option, index}
+							{@const answerStatus = getAnswerStatus(option)}
+							{@const isSelected = selectedAnswers.has(option)}
+							{@const isCorrect = isAnswerCorrect(option)}
+							<button
+								class={`interactive flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200
+									${!hasSubmitted ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default'}
+									${isSelected && !hasSubmitted ? 'border-blue-200 bg-blue-50' : ''}
+									${isSelected && isCorrect && hasSubmitted ? 'border-2 border-green-500 bg-green-50' : ''}
+									${isSelected && !isCorrect && hasSubmitted ? 'border-red-200 bg-red-50' : ''}
+									${!isSelected && isCorrect && hasSubmitted ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}
+								`}
+								onclick={() => toggleAnswer(option)}
+								disabled={hasSubmitted}
+							>
+								<!-- Selection indicator -->
+								<div class="mt-1 flex-shrink-0">
+									{#if content.multiple}
+										<!-- Checkbox style for multiple choice -->
+										{#if !hasSubmitted}
+											{#if isSelected}
+												<div class="flex h-5 w-5 items-center justify-center rounded border-2 border-blue-600 bg-blue-600">
 													<CheckIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if isSelected && !isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded border-2 border-red-600 bg-red-600"
-												>
-													<XIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if !isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded border-2 border-yellow-400 bg-yellow-400"
-												>
-													<CheckIcon class="h-3 w-3 text-yellow-900" />
 												</div>
 											{:else}
 												<div class="h-5 w-5 rounded border-2 border-gray-300"></div>
 											{/if}
+										{:else if isSelected && isCorrect}
+											<div class="flex h-5 w-5 items-center justify-center rounded border-2 border-green-600 bg-green-600">
+												<CheckIcon class="h-3 w-3 text-white" />
+											</div>
+										{:else if isSelected && !isCorrect}
+											<div class="flex h-5 w-5 items-center justify-center rounded border-2 border-red-600 bg-red-600">
+												<XIcon class="h-3 w-3 text-white" />
+											</div>
+										{:else if !isSelected && isCorrect}
+											<div class="flex h-5 w-5 items-center justify-center rounded border-2 border-yellow-400 bg-yellow-400">
+												<CheckIcon class="h-3 w-3 text-yellow-900" />
+											</div>
 										{:else}
-											<!-- Radio button style for single choice -->
-											{#if !hasSubmitted}
-												{#if isSelected}
-													<div
-														class="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600"
-													>
-														<div class="h-2 w-2 rounded-full bg-white"></div>
-													</div>
-												{:else}
-													<div class="h-5 w-5 rounded-full border-2 border-gray-300"></div>
-												{/if}
-											{:else if isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded-full bg-green-600"
-												>
-													<CheckIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if isSelected && !isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded-full bg-red-600"
-												>
-													<XIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if !isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400"
-												>
-													<CheckIcon class="h-3 w-3 text-yellow-900" />
+											<div class="h-5 w-5 rounded border-2 border-gray-300"></div>
+										{/if}
+									{:else}
+										<!-- Radio button style for single choice -->
+										{#if !hasSubmitted}
+											{#if isSelected}
+												<div class="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600">
+													<div class="h-2 w-2 rounded-full bg-white"></div>
 												</div>
 											{:else}
 												<div class="h-5 w-5 rounded-full border-2 border-gray-300"></div>
 											{/if}
+										{:else if isSelected && isCorrect}
+											<div class="flex h-5 w-5 items-center justify-center rounded-full bg-green-600">
+												<CheckIcon class="h-3 w-3 text-white" />
+											</div>
+										{:else if isSelected && !isCorrect}
+											<div class="flex h-5 w-5 items-center justify-center rounded-full bg-red-600">
+												<XIcon class="h-3 w-3 text-white" />
+											</div>
+										{:else if !isSelected && isCorrect}
+											<div class="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400">
+												<CheckIcon class="h-3 w-3 text-yellow-900" />
+											</div>
+										{:else}
+											<div class="h-5 w-5 rounded-full border-2 border-gray-300"></div>
 										{/if}
-									</div>
+									{/if}
+								</div>
 
-									<!-- Option text with letter prefix -->
-									<span class="flex-1">
-										<span class="mr-2 text-sm font-medium text-gray-600">
-											{String.fromCharCode(65 + index)}.
-										</span>
-										<span
-											class={`
-                                            ${isSelected && isCorrect && hasSubmitted ? 'font-semibold text-green-800' : ''}
-                                            ${isSelected && !isCorrect && hasSubmitted ? 'text-red-800' : ''}
-                                            ${!isSelected && isCorrect && hasSubmitted ? 'font-medium text-yellow-800' : ''}
-                                        `}
-										>
-											{option}
-										</span>
-										{#if !isSelected && isCorrect && hasSubmitted}
-											<span class="ml-2 text-xs font-medium text-yellow-700">(Correct Answer)</span>
-										{/if}
+								<!-- Option text with letter prefix -->
+								<span class="flex-1">
+									<span class="mr-2 text-sm font-medium text-gray-600">
+										{String.fromCharCode(65 + index)}.
 									</span>
-								</button>
-							{/each}
-						</div>
-
-						<!-- Submit/Reset Button -->
-						{#if !hasSubmitted}
-							<div class="mt-6">
-								<Button
-									onclick={submitAnswers}
-									disabled={selectedAnswers.size === 0}
-									class="w-full"
-								>
-									Submit Answer{selectedAnswers.size > 1 ? 's' : ''}
-								</Button>
-							</div>
-						{:else}
-							<div class="mt-6 flex gap-2">
-								<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
-							</div>
-						{/if}
-					</Card.Content>
-				</Card.Root>
-			{:else}
-				<!-- Empty state when no question is created yet -->
-				<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
-					<div class="text-center">
-						<HelpCircleIcon class="text-muted-foreground mx-auto h-12 w-12" />
-						<p class="text-muted-foreground mt-2 text-sm">No question created</p>
-						<p class="text-muted-foreground text-xs">
-							Click edit to create a multiple choice question
-						</p>
+									<span class={`
+										${isSelected && isCorrect && hasSubmitted ? 'font-semibold text-green-800' : ''}
+										${isSelected && !isCorrect && hasSubmitted ? 'text-red-800' : ''}
+										${!isSelected && isCorrect && hasSubmitted ? 'font-medium text-yellow-800' : ''}
+									`}>
+										{option}
+									</span>
+									{#if !isSelected && isCorrect && hasSubmitted}
+										<span class="ml-2 text-xs font-medium text-yellow-700">(Correct Answer)</span>
+									{/if}
+								</span>
+							</button>
+						{/each}
 					</div>
-				</div>
-			{/if}
 
-			<!-- FLOATING EDIT BUTTON -->
-			<Button
-				onclick={() => {
-					initializeEditingState();
-					isEditing = true;
-				}}
-				class={'interactive absolute top-2 right-2'}
-				variant="outline"
-				size="sm"
-			>
-				<EditIcon />
-			</Button>
-		</div>
+					<!-- Submit/Reset Button -->
+					{#if !hasSubmitted}
+						<div class="mt-6">
+							<Button onclick={submitAnswers} disabled={selectedAnswers.size === 0} class="w-full">
+								Submit Answer{selectedAnswers.size > 1 ? 's' : ''}
+							</Button>
+						</div>
+					{:else}
+						<div class="mt-6 flex gap-2">
+							<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
+						</div>
+					{/if}
+				</Card.Content>
+			</Card.Root>
+		{:else}
+			<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
+				<div class="text-center">
+					<HelpCircleIcon class="text-muted-foreground mx-auto h-12 w-12" />
+					<p class="text-muted-foreground mt-2 text-sm">No question created</p>
+					<p class="text-muted-foreground text-xs">Switch to edit mode to create a multiple choice question</p>
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>

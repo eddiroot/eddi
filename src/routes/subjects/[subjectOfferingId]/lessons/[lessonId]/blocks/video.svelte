@@ -9,9 +9,9 @@
 
 	let {
 		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
+		isEditMode = true,
 		onUpdate = () => {}
 	} = $props();
-	let isEditing = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 
 	// Local state for editing
@@ -20,6 +20,17 @@
 	let autoplay = $state(content.autoplay || false);
 	let controls = $state(content.controls !== false);
 	let loop = $state(content.loop || false);
+
+	// Initialize editing state when component loads or content changes
+	$effect(() => {
+		if (isEditMode) {
+			src = content.src || '';
+			caption = content.caption || '';
+			autoplay = content.autoplay || false;
+			controls = content.controls !== false;
+			loop = content.loop || false;
+		}
+	});
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -47,12 +58,11 @@
 		const newContent = { src, caption, autoplay, controls, loop };
 		content = newContent;
 		onUpdate(newContent);
-		isEditing = false;
 	}
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditing}
+	{#if isEditMode}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
@@ -66,6 +76,7 @@
 					<Input
 						id="video-src"
 						bind:value={src}
+						onblur={saveChanges}
 						placeholder="Enter video URL (YouTube, Vimeo, or direct link)"
 					/>
 				</div>
@@ -94,90 +105,69 @@
 
 				<div class="space-y-2">
 					<Label for="video-caption">Caption (optional)</Label>
-					<Input id="video-caption" bind:value={caption} placeholder="Video caption" />
+					<Input id="video-caption" bind:value={caption} onblur={saveChanges} placeholder="Video caption" />
 				</div>
 
 				<div class="space-y-2">
 					<Label>Video Options</Label>
 					<div class="flex flex-col gap-2">
 						<label class="flex items-center gap-2">
-							<input type="checkbox" bind:checked={controls} />
+							<input type="checkbox" bind:checked={controls} onchange={saveChanges} />
 							<span class="text-sm">Show controls</span>
 						</label>
 						<label class="flex items-center gap-2">
-							<input type="checkbox" bind:checked={autoplay} />
+							<input type="checkbox" bind:checked={autoplay} onchange={saveChanges} />
 							<span class="text-sm">Autoplay</span>
 						</label>
 						<label class="flex items-center gap-2">
-							<input type="checkbox" bind:checked={loop} />
+							<input type="checkbox" bind:checked={loop} onchange={saveChanges} />
 							<span class="text-sm">Loop</span>
 						</label>
 					</div>
 				</div>
-
-				<div class="flex gap-2">
-					<Button onclick={saveChanges}>Save</Button>
-					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
-				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		<div class="group relative">
-			{#if content.src}
-				<figure class="space-y-2">
-					{#if isYouTubeUrl(content.src)}
-						<div class="relative aspect-video w-full overflow-hidden rounded-lg border">
-							<iframe
-								src={getYouTubeEmbedUrl(content.src)}
-								title="YouTube video"
-								frameborder="0"
-								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-								allowfullscreen
-								class="h-full w-full"
-							></iframe>
-						</div>
-					{:else}
-						<video
-							src={content.src}
-							controls={content.controls}
-							autoplay={content.autoplay}
-							loop={content.loop}
-							class="w-full rounded-lg border"
-							style="max-height: 400px;"
-						>
-							<track kind="captions" />
-							Your browser does not support the video tag.
-						</video>
-					{/if}
-					{#if content.caption}
-						<figcaption class="text-muted-foreground text-center text-sm">
-							{content.caption}
-						</figcaption>
-					{/if}
-				</figure>
-			{:else}
-				<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
-					<div class="text-center">
-						<FilmIcon class="text-muted-foreground mx-auto h-12 w-12" />
-						<p class="text-muted-foreground mt-2 text-sm">No video selected</p>
-						<p class="text-muted-foreground text-xs">Click edit to add a video</p>
+		{#if content.src}
+			<figure class="space-y-2">
+				{#if isYouTubeUrl(content.src)}
+					<div class="relative aspect-video w-full overflow-hidden rounded-lg border">
+						<iframe
+							src={getYouTubeEmbedUrl(content.src)}
+							title="YouTube video"
+							frameborder="0"
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+							allowfullscreen
+							class="h-full w-full"
+						></iframe>
 					</div>
+				{:else}
+					<video
+						src={content.src}
+						controls={content.controls}
+						autoplay={content.autoplay}
+						loop={content.loop}
+						class="w-full rounded-lg border"
+						style="max-height: 400px;"
+					>
+						<track kind="captions" />
+						Your browser does not support the video tag.
+					</video>
+				{/if}
+				{#if content.caption}
+					<figcaption class="text-muted-foreground text-center text-sm">
+						{content.caption}
+					</figcaption>
+				{/if}
+			</figure>
+		{:else}
+			<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
+				<div class="text-center">
+					<FilmIcon class="text-muted-foreground mx-auto h-12 w-12" />
+					<p class="text-muted-foreground mt-2 text-sm">No video selected</p>
+					<p class="text-muted-foreground text-xs">Switch to edit mode to add a video</p>
 				</div>
-			{/if}
-
-			<Button
-				onclick={() => {
-					src = content.src || '';
-					caption = content.caption || '';
-					autoplay = content.autoplay || false;
-					controls = content.controls !== false;
-					loop = content.loop || false;
-					isEditing = true;
-				}}
-				class="absolute top-2 right-2"
-			>
-				<EditIcon />
-			</Button>
-		</div>
+			</div>
+		{/if}
 	{/if}
 </div>

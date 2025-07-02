@@ -13,7 +13,7 @@ import {
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { lessonBlockTypeEnum, lessonStatusEnum } from '$lib/server/db/schema';
+import { lessonBlockTypeEnum, lessonStatusEnum, lessonTypeEnum } from '$lib/server/db/schema';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -241,7 +241,7 @@ export const actions = {
 			form.data.title,
 			form.data.description,
 			lessonStatusEnum.draft,
-			form.data.type,
+			lessonTypeEnum[form.data.type],
 			lessonTopicId,
 			form.data.dueDate
 		);

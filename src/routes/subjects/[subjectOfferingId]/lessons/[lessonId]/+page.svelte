@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
@@ -10,9 +10,10 @@
 	import Whiteboard from './blocks/whiteboard.svelte';
 	import MultipleChoice from './blocks/multiple-choice.svelte';
 	import FillInBlank from './blocks/fill-in-blank.svelte';
-
+	import EyeIcon from '@lucide/svelte/icons/eye';
+	import EditIcon from '@lucide/svelte/icons/edit';
 	import { type LessonBlock } from '$lib/server/db/schema';
-	import { type lessonBlockTypeEnum } from '$lib/server/db/schema';
+
 
 	import {
 		createBlock,
@@ -25,11 +26,13 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 
+
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let elementDragStarted = $state<string>('');
 	let draggedOverElement = $state<string>('');
 	let mouseOverElement = $state<string>('');
+	let isEditMode = $state(true);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -143,14 +146,31 @@
 	</Card.Root>
 
 	<Card.Root class="h-full gap-0">
-		<Card.Header>
-			<Heading
-				headingSize={1}
-				text={data.lesson.title}
-				onUpdate={async (newText: string) =>
-					await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
-			/>
-		</Card.Header>
+		<div class="flex items-center justify-between p-6 pb-4">
+			<div class="flex-1">
+				<Heading
+					headingSize={1}
+					text={data.lesson.title}
+					isEditMode={isEditMode}
+					onUpdate={async (newText: string) =>
+						await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
+				/>
+			</div>
+			<Button
+				variant="outline"
+				size="sm"
+				onclick={() => (isEditMode = !isEditMode)}
+				class="flex items-center gap-2"
+			>
+				{#if isEditMode}
+					<EyeIcon class="h-4 w-4" />
+					Preview Mode
+				{:else}
+					<EditIcon class="h-4 w-4" />
+					Edit Mode
+				{/if}
+			</Button>
+		</div>
 		<Card.Content class="h-full">
 			<div class="flex h-full flex-col">
 				{#each blocks as block}
@@ -174,7 +194,7 @@
 						onmouseover={() => (mouseOverElement = `lesson-${block.id}`)}
 						onfocus={() => (mouseOverElement = `lesson-${block.id}`)}
 					>
-						{#if mouseOverElement === `lesson-${block.id}`}
+						{#if isEditMode && mouseOverElement === `lesson-${block.id}`}
 							<div
 								use:draggable={{
 									container: 'lesson',
@@ -194,41 +214,49 @@
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'markdown'}
 								<Markdown
 									content={typeof block.content === 'string' ? block.content : ''}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'image'}
 								<Image
 									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'video'}
 								<Video
 									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'audio'}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'whiteboard'}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'multiple_choice'}
 								<MultipleChoice
 									content={block.content as any}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
 									content={block.content as any}
+									isEditMode={isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else}
