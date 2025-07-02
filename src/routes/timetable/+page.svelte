@@ -58,10 +58,10 @@
 						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
 						<Card.Root
-							class="h-full overflow-hidden border-0 border-t-10 px-2 py-2 pt-0"
-							style="border-color: {colors.border}; background-color: {colors.background};"
+							class="h-full overflow-hidden border-0 border-t-4 px-2 pt-0 shadow-lg"
+							style="border-top-color: {colors.border}; color: {colors.text};"
 						>
-							<Card.Header class="p-2">
+							<Card.Header class="p-1">
 								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap">
 									{cls.subject.name}
 								</Card.Title>
