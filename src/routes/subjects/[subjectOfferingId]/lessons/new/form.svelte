@@ -10,8 +10,9 @@
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import LoaderIcon from '@lucide/svelte/icons/loader';
-	import { type lessonTypeEnum } from '$lib/server/db/schema';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 
+	let creationMethod = $state<'manual' | 'ai'>('ai');
 	let aiFiles: FileList | null = $state(null);
 	let fileValidationErrors = $state<string[]>([]);
 	let fileInputRef: HTMLInputElement;
@@ -58,6 +59,10 @@
 	let selectedTopicId = $state('');
 	let newTopicName = $state('');
 	let isCreatingNewTopic = $state(false);
+
+	$effect(() => {
+		$formData.creationMethod = creationMethod;
+	});
 
 	// Handle topic selection/creation
 	$effect(() => {
@@ -119,7 +124,7 @@
 </script>
 
 <!-- Loading Overlay -->
-{#if isSubmitting}
+{#if isSubmitting && creationMethod === 'ai'}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
 		<div
 			class="mx-4 flex max-w-sm flex-col items-center space-y-4 rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800"
@@ -282,7 +287,7 @@
 				<Form.Field {form} name="dueDate">
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Due Date</Form.Label>
+							<Form.Label>Due Date (optional)</Form.Label>
 							<Input {...props} type="date" bind:value={dueDateString} />
 						{/snippet}
 					</Form.Control>
@@ -293,12 +298,6 @@
 	</div>
 
 	<div>
-		<Label>Supporting Material (optional)</Label>
-		<ul class="text-muted-foreground my-2 list-disc pl-4 text-sm font-medium">
-			<li>If you upload material here, we will use it to scaffold the lesson.</li>
-			<li>If you would instead like to create the lesson from scratch, please leave this empty.</li>
-		</ul>
-
 		{#if fileValidationErrors.length > 0}
 			<div class="mt-2 space-y-1">
 				{#each fileValidationErrors as error}
@@ -307,11 +306,45 @@
 			</div>
 		{/if}
 
-		<Dropzone bind:files={aiFiles} accept=".png,.jpg,.jpeg,.pdf" multiple={true} />
+		<Tabs.Root bind:value={creationMethod} class="flex w-full gap-0">
+			<Tabs.List class="w-full rounded-b-none">
+				<Tabs.Trigger value="ai">Generate with AI</Tabs.Trigger>
+				<Tabs.Trigger value="manual">Create Manually</Tabs.Trigger>
+			</Tabs.List>
+
+			<Tabs.Content value="manual" class="bg-muted rounded-b-lg">
+				<div class="flex h-[254px] w-full items-center justify-center p-2">
+					<p class="text-muted-foreground text-sm font-medium">
+						Switch to <span class="font-semibold">Generate with AI</span> to add supporting material.
+					</p>
+				</div>
+			</Tabs.Content>
+			<Tabs.Content value="ai" class="bg-muted rounded-b-lg p-2">
+				<div class="w-full">
+					<div class="p-1">
+						<Label>Supporting Material (Optional)</Label>
+						<p class="text-muted-foreground mt-1 text-sm font-medium">
+							Upload materials for AI to analyse and generate lesson content from.
+						</p>
+					</div>
+
+					<!-- Display validation errors -->
+					{#if fileValidationErrors.length > 0}
+						<div class="mt-2 space-y-1">
+							{#each fileValidationErrors as error}
+								<p class="text-destructive text-sm">{error}</p>
+							{/each}
+						</div>
+					{/if}
+
+					<Dropzone bind:files={aiFiles} accept=".png,.jpg,.jpeg,.pdf" multiple={true} />
+				</div>
+			</Tabs.Content>
+		</Tabs.Root>
 	</div>
 
-	<!-- Hidden inputs for new topic -->
 	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
+	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
 
 	<!-- Add hidden file input -->
 	<input
@@ -326,7 +359,7 @@
 
 	<div class="flex justify-end gap-2">
 		<Form.Button type="submit" disabled={fileValidationErrors.length > 0 || isSubmitting}>
-			{#if isSubmitting}
+			{#if isSubmitting && creationMethod === 'ai'}
 				<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
 				Generating...
 			{:else}

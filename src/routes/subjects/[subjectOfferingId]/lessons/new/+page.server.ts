@@ -274,8 +274,7 @@ export const actions = {
 		let lessonSchema = '';
 
 		try {
-			// Handle multiple AI files
-			if (validFiles.length > 0 && form.data.creationMethod === 'ai') {
+			if (validFiles.length > 0) {
 				console.log(`Processing ${validFiles.length} AI files...`);
 
 				// Save all files to temp directory
