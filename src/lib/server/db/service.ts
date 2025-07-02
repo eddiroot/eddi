@@ -420,8 +420,20 @@ export async function createLessonBlock(
 	lessonId: number,
 	type: string,
 	content: unknown,
-	index: number
+	index?: number
 ) {
+	// If index is not provided, calculate the next available index used for LLM
+	if (index === undefined) {
+		const maxIndexResult = await db
+			.select({ maxIndex: table.lessonBlock.index })
+			.from(table.lessonBlock)
+			.where(eq(table.lessonBlock.lessonId, lessonId))
+			.orderBy(desc(table.lessonBlock.index))
+			.limit(1);
+
+		index = (maxIndexResult[0]?.maxIndex ?? -1) + 1;
+	}
+
 	await db
 		.update(table.lessonBlock)
 		.set({

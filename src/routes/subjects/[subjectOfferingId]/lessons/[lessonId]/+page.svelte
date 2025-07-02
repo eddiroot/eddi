@@ -7,6 +7,9 @@
 	import Image from './blocks/image.svelte';
 	import Video from './blocks/video.svelte';
 	import Audio from './blocks/audio.svelte';
+	import Whiteboard from './blocks/whiteboard.svelte';
+	import MultipleChoice from './blocks/multiple-choice.svelte';
+	import FillInBlank from './blocks/fill-in-blank.svelte';
 
 	import { type LessonBlock } from '$lib/server/db/schema';
 	import {
@@ -19,6 +22,7 @@
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
@@ -207,6 +211,23 @@
 								<Audio
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+								{:else if block.type === 'whiteboard'}
+								<Whiteboard
+									content={block.content as Record<string, any> | undefined}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'multiple_choice'}
+								<MultipleChoice
+									content={block.content as any}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+
+								/>
+							{:else if block.type === 'fill_in_blank'}
+								<FillInBlank	
+									content={block.content as any}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+
 								/>
 							{:else}
 								<p>Content for {block.type} block.</p>
