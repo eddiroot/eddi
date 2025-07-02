@@ -180,8 +180,9 @@
 									container: 'lesson',
 									dragData: block
 								}}
+								class="group relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 active:cursor-grabbing"
 							>
-								<GripVerticalIcon class="text-muted-foreground" />
+								<GripVerticalIcon class="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors rounded" />
 							</div>
 						{:else}
 							<div></div>
