@@ -39,11 +39,46 @@ export const userTypeEnumPg = pgEnum('user_type', [
 	userTypeEnum.systemAdmin
 ]);
 
+export enum userHonorificEnum {
+	mr = 'Mr',
+	ms = 'Ms',
+	mrs = 'Mrs',
+	dr = 'Dr',
+	prof = 'Prof'
+}
+
+export const userHonorificEnumPg = pgEnum('user_honorific', [
+	userHonorificEnum.mr,
+	userHonorificEnum.ms,
+	userHonorificEnum.mrs,
+	userHonorificEnum.dr,
+	userHonorificEnum.prof
+]);
+
+export enum userGenderEnum {
+	male = 'male',
+	female = 'female',
+	nonBinary = 'non-binary',
+	other = 'other',
+	unspecified = 'unspecified'
+}
+
+export const userGenderEnumPg = pgEnum('gender', [
+	userGenderEnum.male,
+	userGenderEnum.female,
+	userGenderEnum.nonBinary,
+	userGenderEnum.other,
+	userGenderEnum.unspecified
+]);
+
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
 	type: userTypeEnumPg().notNull(),
+	gender: userGenderEnumPg(),
+	dateOfBirth: timestamp('date_of_birth', { withTimezone: true, mode: 'date' }),
+	honorific: userHonorificEnumPg(),
 	firstName: text('first_name').notNull(),
 	middleName: text('middle_name'),
 	lastName: text('last_name').notNull(),
