@@ -31,11 +31,19 @@ export enum userTypeEnum {
 	systemAdmin = 'systemAdmin'
 }
 
+export const userTypeEnumPg = pgEnum('user_type', [
+	userTypeEnum.student,
+	userTypeEnum.teacher,
+	userTypeEnum.principal,
+	userTypeEnum.schoolAdmin,
+	userTypeEnum.systemAdmin
+]);
+
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
-	type: pgEnum('type', userTypeEnum)().notNull(),
+	type: userTypeEnumPg().notNull(),
 	firstName: text('first_name').notNull(),
 	middleName: text('middle_name'),
 	lastName: text('last_name').notNull(),
@@ -93,6 +101,12 @@ export enum userSubjectOfferingRoleEnum {
 	moderator = 'moderator'
 }
 
+export const userSubjectOfferingRoleEnumPg = pgEnum('user_subject_offering_role', [
+	userSubjectOfferingRoleEnum.student,
+	userSubjectOfferingRoleEnum.teacher,
+	userSubjectOfferingRoleEnum.moderator
+]);
+
 export const userSubjectOffering = pgTable('user_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	userId: text('user_id')
@@ -101,7 +115,7 @@ export const userSubjectOffering = pgTable('user_subject', {
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	role: pgEnum('role', userSubjectOfferingRoleEnum)().notNull(),
+	role: userSubjectOfferingRoleEnumPg().notNull(),
 	isComplete: integer('is_complete').default(0).notNull(),
 	isArchived: integer('is_archived').default(0).notNull(),
 	color: integer('color').default(100).notNull(),
@@ -110,7 +124,7 @@ export const userSubjectOffering = pgTable('user_subject', {
 
 export type UserSubjectOffering = typeof userSubjectOffering.$inferSelect;
 
-export const subjectClass = pgTable('subjectClass', {
+export const subjectClass = pgTable('subject_class', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
@@ -125,6 +139,11 @@ export enum userSubjectClassRoleEnum {
 	teacher = 'teacher'
 }
 
+export const userSubjectClassRoleEnumPg = pgEnum('user_subject_class_role', [
+	userSubjectClassRoleEnum.student,
+	userSubjectClassRoleEnum.teacher
+]);
+
 export const userSubjectClass = pgTable('user_subject_class', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	userId: text('user_id')
@@ -133,7 +152,7 @@ export const userSubjectClass = pgTable('user_subject_class', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
-	role: pgEnum('role', userSubjectClassRoleEnum)().notNull(),
+	role: userSubjectClassRoleEnumPg().notNull(),
 	...timestamps
 });
 
@@ -149,6 +168,16 @@ export enum dayOfWeekEnum {
 	sunday = 'sunday'
 }
 
+export const dayOfWeekEnumPg = pgEnum('day_of_week', [
+	dayOfWeekEnum.monday,
+	dayOfWeekEnum.tuesday,
+	dayOfWeekEnum.wednesday,
+	dayOfWeekEnum.thursday,
+	dayOfWeekEnum.friday,
+	dayOfWeekEnum.saturday,
+	dayOfWeekEnum.sunday
+]);
+
 export const subjectClassAllocation = pgTable('subject_class_time', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	subjectClassId: integer('subject_class_id')
@@ -157,7 +186,7 @@ export const subjectClassAllocation = pgTable('subject_class_time', {
 	schoolLocationId: integer('schoolLocationId')
 		.notNull()
 		.references(() => schoolLocation.id, { onDelete: 'set null' }),
-	dayOfWeek: pgEnum('day_of_week', dayOfWeekEnum)().notNull(),
+	dayOfWeek: dayOfWeekEnumPg().notNull(),
 	startTime: time('start_time').notNull(),
 	duration: interval('duration').notNull(),
 	...timestamps
@@ -175,13 +204,23 @@ export enum schoolLocationTypeEnum {
 	online = 'online'
 }
 
+export const schoolLocationTypeEnumPg = pgEnum('school_location_type', [
+	schoolLocationTypeEnum.classroom,
+	schoolLocationTypeEnum.laboratory,
+	schoolLocationTypeEnum.gymnasium,
+	schoolLocationTypeEnum.pool,
+	schoolLocationTypeEnum.library,
+	schoolLocationTypeEnum.auditorium,
+	schoolLocationTypeEnum.online
+]);
+
 export const schoolLocation = pgTable('school_location', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	schoolId: integer('school_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
-	type: pgEnum('type', schoolLocationTypeEnum)().notNull(),
+	type: schoolLocationTypeEnumPg().notNull(),
 	capacity: integer('capacity'),
 	description: text('description'),
 	isActive: boolean('is_active').notNull().default(true),
@@ -197,9 +236,16 @@ export enum subjectThreadTypeEnum {
 	qanda = 'qanda'
 }
 
+export const subjectThreadTypeEnumPg = pgEnum('subject_thread_type', [
+	subjectThreadTypeEnum.discussion,
+	subjectThreadTypeEnum.question,
+	subjectThreadTypeEnum.announcement,
+	subjectThreadTypeEnum.qanda
+]);
+
 export const subjectThread = pgTable('sub_thread', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	type: pgEnum('type', subjectThreadTypeEnum)().notNull(),
+	type: subjectThreadTypeEnumPg().notNull(),
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
@@ -218,11 +264,16 @@ export enum subjectThreadResponseTypeEnum {
 	answer = 'answer'
 }
 
+export const subjectThreadResponseTypeEnumPg = pgEnum('subject_thread_response_type', [
+	subjectThreadResponseTypeEnum.comment,
+	subjectThreadResponseTypeEnum.answer
+]);
+
 export const subjectThreadResponse = pgTable(
 	'sub_thread_response',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		type: pgEnum('type', subjectThreadResponseTypeEnum)().notNull(),
+		type: subjectThreadResponseTypeEnumPg().notNull(),
 		subjectThreadId: integer('subject_thread_id')
 			.notNull()
 			.references(() => subjectThread.id, { onDelete: 'cascade' }),
@@ -267,13 +318,25 @@ export enum lessonStatusEnum {
 	archived = 'archived'
 }
 
+export const lessonTypeEnumPg = pgEnum('lesson_type', [
+	lessonTypeEnum.lesson,
+	lessonTypeEnum.assessment,
+	lessonTypeEnum.homework
+]);
+
+export const lessonStatusEnumPg = pgEnum('lesson_status', [
+	lessonStatusEnum.draft,
+	lessonStatusEnum.published,
+	lessonStatusEnum.archived
+]);
+
 export const lesson = pgTable('lesson', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	title: text('title').notNull(),
-	type: pgEnum('type', lessonTypeEnum)().notNull(),
+	type: lessonTypeEnumPg().notNull(),
 	description: text('description').notNull(),
 	// Cannot use 'status' as a column name because it is a reserved keyword in PostgreSQL
-	lessonStatus: pgEnum('lesson_status', lessonStatusEnum)().notNull(),
+	lessonStatus: lessonStatusEnumPg().notNull(),
 	index: integer('index').notNull(),
 	lessonTopicId: integer('lesson_topic_id')
 		.notNull()
@@ -300,12 +363,28 @@ export enum lessonBlockTypeEnum {
 	whiteboard = 'whiteboard'
 }
 
+export const lessonBlockTypeEnumPg = pgEnum('lesson_block_type', [
+	lessonBlockTypeEnum.h1,
+	lessonBlockTypeEnum.h2,
+	lessonBlockTypeEnum.h3,
+	lessonBlockTypeEnum.h4,
+	lessonBlockTypeEnum.h5,
+	lessonBlockTypeEnum.h6,
+	lessonBlockTypeEnum.markdown,
+	lessonBlockTypeEnum.image,
+	lessonBlockTypeEnum.video,
+	lessonBlockTypeEnum.audio,
+	lessonBlockTypeEnum.fillInBlank,
+	lessonBlockTypeEnum.multipleChoice,
+	lessonBlockTypeEnum.whiteboard
+]);
+
 export const lessonBlock = pgTable('lesson_block', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	lessonId: integer('lesson_id')
 		.notNull()
 		.references(() => lesson.id, { onDelete: 'cascade' }),
-	type: pgEnum('type', lessonBlockTypeEnum)().notNull(),
+	type: lessonBlockTypeEnumPg().notNull(),
 	content: jsonb('content').notNull(),
 	index: integer('index').notNull().default(0),
 	...timestamps
@@ -332,13 +411,21 @@ export enum whiteboardObjectTypeEnum {
 	image = 'image'
 }
 
+export const whiteboardObjectTypeEnumPg = pgEnum('whiteboard_object_type', [
+	whiteboardObjectTypeEnum.rect,
+	whiteboardObjectTypeEnum.circle,
+	whiteboardObjectTypeEnum.path,
+	whiteboardObjectTypeEnum.textbox,
+	whiteboardObjectTypeEnum.image
+]);
+
 export const whiteboardObject = pgTable('whiteboard_object', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	whiteboardId: integer('whiteboard_id')
 		.notNull()
 		.references(() => whiteboard.id, { onDelete: 'cascade' }),
 	objectId: text('object_id').notNull().unique(),
-	objectType: pgEnum('object_type', whiteboardObjectTypeEnum)().notNull(),
+	objectType: whiteboardObjectTypeEnumPg().notNull(),
 	objectData: jsonb('object_data').notNull(),
 	...timestamps
 });
