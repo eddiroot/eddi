@@ -16,7 +16,7 @@
 
 	const renderedMarkdown = $derived(() => {
 		try {
-			return marked(content);
+			return marked(editContent);
 		} catch (error) {
 			console.error('Error rendering markdown:', error);
 			return '<p>Error rendering markdown</p>';

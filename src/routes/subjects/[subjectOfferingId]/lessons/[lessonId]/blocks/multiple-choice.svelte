@@ -32,24 +32,40 @@
 		onUpdate = () => {}
 	} = $props();
 
-	let isEditing = $state(false);
 	let hasSubmitted = $state(false);
 	let selectedAnswers = $state<Set<string>>(new Set());
 
-	let questionText = $state('');
-	let options = $state<string[]>([]);
-	let correctAnswers = $state<Set<string>>(new Set());
+	// Edit mode state - simplified like markdown
+	let editData = $state({
+		question: '',
+		options: ['', ''],
+		correctAnswers: new Set<string>()
+	});
 
-	// Initialize editing state when component loads or content changes
+	// Sync edit data with content prop changes (like markdown does)
+	// Only sync when content actually changes, not on every render
+	let lastContentSync = $state('');
 	$effect(() => {
-		if (isEditMode) {
-			initializeEditingState();
+		const contentKey = `${content.question}-${JSON.stringify(content.options)}-${JSON.stringify(content.answer)}`;
+		if (contentKey !== lastContentSync) {
+			editData.question = content.question || '';
+			editData.options = content.options?.length > 0 ? [...content.options] : ['', ''];
+			
+			// Initialize correct answers set
+			editData.correctAnswers = new Set();
+			if (Array.isArray(content.answer)) {
+				content.answer.forEach((ans) => editData.correctAnswers.add(ans));
+			} else if (content.answer) {
+				editData.correctAnswers.add(content.answer);
+			}
+			
+			lastContentSync = contentKey;
 		}
 	});
 
 	// Functions for student interaction
 	function toggleAnswer(option: string) {
-		if (hasSubmitted || isEditMode) return; // Prevent changes after submission or in edit mode
+		if (hasSubmitted) return; // Only prevent changes after submission
 
 		if (!content.multiple) {
 			// Single choice - clear others and set this one
@@ -107,68 +123,76 @@
 		return 'neutral';
 	}
 
-	function initializeEditingState() {
-		questionText = content.question || '';
-		options = content.options?.length > 0 ? [...content.options] : ['', ''];
-
-		// Initialize correct answers set
-		correctAnswers = new Set();
-		if (Array.isArray(content.answer)) {
-			content.answer.forEach((ans) => correctAnswers.add(ans));
-		} else if (content.answer) {
-			correctAnswers.add(content.answer);
-		}
-
-		// Reset quiz state when entering edit mode
-		hasSubmitted = false;
-		selectedAnswers = new Set();
-	}
-
 	function addNewOption() {
-		options = [...options, ''];
+		editData.options = [...editData.options, ''];
 	}
 
 	function removeOption(index: number) {
-		if (options.length <= 2) {
+		if (editData.options.length <= 2) {
 			return;
 		}
-		const removedOption = options[index];
-		options = options.filter((_, i) => i !== index);
+		const removedOption = editData.options[index];
+		editData.options = editData.options.filter((_, i) => i !== index);
 		// Remove from correct answers if it was selected
-		correctAnswers.delete(removedOption);
-		correctAnswers = new Set(correctAnswers);
+		editData.correctAnswers.delete(removedOption);
+		editData.correctAnswers = new Set(editData.correctAnswers);
 	}
 
-	// Updated toggleCorrect function to also handle case-insensitive comparison
-	function toggleCorrect(option: string) {
+	// Updated toggleCorrect function to handle dynamic option values properly
+	function toggleCorrect(index: number) {
+		const currentOption = editData.options[index]?.trim();
+		
+		if (!currentOption) {
+			// If option is empty, we can't mark it as correct
+			return;
+		}
+
 		// Always allow multiple correct answers - user can toggle any option
-		if (correctAnswers.has(option)) {
+		if (editData.correctAnswers.has(currentOption)) {
 			// Prevent removing the last correct answer
-			if (correctAnswers.size === 1) {
+			if (editData.correctAnswers.size === 1) {
 				return;
 			}
-			correctAnswers.delete(option);
+			editData.correctAnswers.delete(currentOption);
 		} else {
-			correctAnswers.add(option);
+			editData.correctAnswers.add(currentOption);
 		}
-		correctAnswers = new Set(correctAnswers);
+		editData.correctAnswers = new Set(editData.correctAnswers);
+		
+		// Auto-save when toggling correct answers
+		saveChanges();
+	}
+
+	// Function to handle option text changes and update correct answers accordingly
+	function updateOptionText(index: number, newValue: string) {
+		const oldValue = editData.options[index];
+		editData.options[index] = newValue;
+		
+		// If the old value was marked as correct, update it to the new value
+		if (oldValue && editData.correctAnswers.has(oldValue.trim())) {
+			editData.correctAnswers.delete(oldValue.trim());
+			if (newValue.trim()) {
+				editData.correctAnswers.add(newValue.trim());
+			}
+			editData.correctAnswers = new Set(editData.correctAnswers);
+		}
 	}
 
 	// Updated saveChanges function to ensure consistent casing
 	function saveChanges() {
-		if (!questionText.trim()) {
+		if (!editData.question.trim()) {
 			alert('Question text is required');
 			return;
 		}
 
-		const validOptions = options.filter((opt) => opt.trim()).map((opt) => opt.trim());
+		const validOptions = editData.options.filter((opt) => opt.trim()).map((opt) => opt.trim());
 		if (validOptions.length < 2) {
 			alert('At least 2 options with text are required');
 			return;
 		}
 
 		// Filter correct answers to only include valid options (case-insensitive matching)
-		const validCorrectAnswers = Array.from(correctAnswers).filter((correctAns) =>
+		const validCorrectAnswers = Array.from(editData.correctAnswers).filter((correctAns) =>
 			validOptions.some((validOpt) => validOpt.toLowerCase() === correctAns.toLowerCase())
 		);
 
@@ -181,7 +205,7 @@
 		const isMultiple = validCorrectAnswers.length > 1;
 
 		const newContent: MultipleChoiceContent = {
-			question: questionText.trim(),
+			question: editData.question.trim(),
 			options: validOptions,
 			answer: isMultiple ? validCorrectAnswers : validCorrectAnswers[0],
 			multiple: isMultiple
@@ -189,7 +213,6 @@
 
 		content = newContent;
 		onUpdate(newContent);
-		isEditing = false;
 	}
 </script>
 
@@ -209,7 +232,7 @@
 					<Label for="question-text">Question</Label>
 					<Textarea
 						id="question-text"
-						bind:value={questionText}
+						bind:value={editData.question}
 						onblur={saveChanges}
 						placeholder="Enter your multiple choice question..."
 						class="min-h-[80px] resize-none"
@@ -231,17 +254,17 @@
 						</Button>
 					</div>
 					<div class="space-y-3">
-						{#each options as option, index}
+						{#each editData.options as option, index}
 							<div class="flex items-start gap-3 rounded-lg border p-3">
 								<!-- Correct Answer Checkbox -->
 								<button
 									type="button"
-									onclick={() => toggleCorrect(option)}
+									onclick={() => toggleCorrect(index)}
 									class="mt-1 text-green-600 transition-colors hover:text-green-700"
-									title={correctAnswers.has(option) ? 'Mark as incorrect' : 'Mark as correct'}
-									disabled={!option.trim()}
+									title={editData.correctAnswers.has(editData.options[index]?.trim() || '') ? 'Mark as incorrect' : 'Mark as correct'}
+									disabled={!editData.options[index]?.trim()}
 								>
-									{#if correctAnswers.has(option)}
+									{#if editData.correctAnswers.has(editData.options[index]?.trim() || '')}
 										<CheckCircleIcon class="h-5 w-5" />
 									{:else}
 										<CircleIcon class="h-5 w-5" />
@@ -251,7 +274,7 @@
 								<!-- Answer Text Input -->
 								<div class="flex-1">
 									<Input
-										bind:value={options[index]}
+										bind:value={editData.options[index]}
 										onblur={saveChanges}
 										placeholder={`Option ${index + 1}`}
 										class="w-full"
@@ -259,7 +282,7 @@
 								</div>
 
 								<!-- Delete Button (only show if more than 2 options) -->
-								{#if options.length > 2}
+								{#if editData.options.length > 2}
 									<Button
 										variant="ghost"
 										size="sm"

@@ -17,17 +17,79 @@
 
 <div class="w-full">
 	{#if isEditMode}
-		<Input
-			bind:value={editText}
-			onkeydown={(e) => {
-				if (e.key === 'Enter') {
-					saveText();
-				}
-			}}
-			onblur={saveText}
-			class="text-{headingSize === 1 ? '4xl' : headingSize === 2 ? '3xl' : headingSize === 3 ? '2xl' : headingSize === 4 ? 'xl' : 'lg'} font-{headingSize <= 3 ? 'extrabold' : 'semibold'} border-none shadow-none p-0 h-auto bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-			placeholder="Enter heading text..."
-		/>
+		{#if headingSize === 1}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 2}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-3xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 3}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-2xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 4}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 5}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-lg font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-base font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{/if}
 	{:else}
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
