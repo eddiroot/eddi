@@ -1,8 +1,7 @@
-import { subjectThreadTypeEnum } from '$lib/server/db/schema';
 import { z } from 'zod';
 
 export const formSchema = z.object({
-	type: z.nativeEnum(subjectThreadTypeEnum, {
+	type: z.enum(['qanda', 'discussion', 'announcement', 'question'], {
 		required_error: 'Please select a type'
 	}),
 	title: z.string({ required_error: 'Please enter a title' }),

@@ -12,7 +12,7 @@
 	import FillInBlank from './blocks/fill-in-blank.svelte';
 
 	import { type LessonBlock } from '$lib/server/db/schema';
-	import { lessonBlockTypeEnum } from '$lib/server/db/schema';
+	import { type lessonBlockTypeEnum } from '$lib/server/db/schema';
 
 	import {
 		createBlock,
@@ -180,51 +180,53 @@
 									container: 'lesson',
 									dragData: block
 								}}
-								class="group relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 active:cursor-grabbing"
+								class="group relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors hover:bg-gray-100 active:cursor-grabbing dark:hover:bg-gray-800"
 							>
-								<GripVerticalIcon class="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors rounded" />
+								<GripVerticalIcon
+									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
+								/>
 							</div>
 						{:else}
 							<div></div>
 						{/if}
 						<div>
-							{#if block.type === lessonBlockTypeEnum.h1 || block.type === lessonBlockTypeEnum.h2 || block.type === lessonBlockTypeEnum.h3 || block.type === lessonBlockTypeEnum.h4 || block.type === lessonBlockTypeEnum.h5 || block.type === lessonBlockTypeEnum.h6}
+							{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.markdown}
+							{:else if block.type === 'markdown'}
 								<Markdown
 									content={typeof block.content === 'string' ? block.content : ''}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.image}
+							{:else if block.type === 'image'}
 								<Image
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.video}
+							{:else if block.type === 'video'}
 								<Video
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.audio}
+							{:else if block.type === 'audio'}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.whiteboard}
+							{:else if block.type === 'whiteboard'}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.multipleChoice}
+							{:else if block.type === 'multiple_choice'}
 								<MultipleChoice
 									content={block.content as any}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === lessonBlockTypeEnum.fillInBlank}
+							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
 									content={block.content as any}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}

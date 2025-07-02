@@ -10,7 +10,7 @@
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import LoaderIcon from '@lucide/svelte/icons/loader';
-	import { lessonTypeEnum } from '$lib/server/db/schema';
+	import { type lessonTypeEnum } from '$lib/server/db/schema';
 
 	let aiFiles: FileList | null = $state(null);
 	let fileValidationErrors = $state<string[]>([]);
@@ -50,7 +50,7 @@
 	// Set default lesson type to 'lesson'
 	$effect(() => {
 		if (!$formData.type) {
-			$formData.type = lessonTypeEnum.lesson;
+			$formData.type = 'lesson';
 		}
 	});
 

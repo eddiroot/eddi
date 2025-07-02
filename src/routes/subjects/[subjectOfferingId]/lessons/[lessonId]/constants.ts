@@ -10,66 +10,65 @@ import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import List from '@lucide/svelte/icons/list';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
-import { lessonBlockTypeEnum } from '$lib/server/db/schema';
 import type { Icon } from '@lucide/svelte';
 
 export const blockTypes: {
-	type: lessonBlockTypeEnum;
+	type: string;
 	content: unknown;
 	icon: typeof Icon;
 }[] = [
 	{
-		type: lessonBlockTypeEnum.h1,
+		type: 'h1',
 		content: 'This is a Heading 1',
 		icon: HeadingOneIcon
 	},
 	{
-		type: lessonBlockTypeEnum.h2,
+		type: 'h2',
 		content: 'This is a Heading 2',
 		icon: HeadingTwoIcon
 	},
 	{
-		type: lessonBlockTypeEnum.h3,
+		type: 'h3',
 		content: 'This is a Heading 3',
 		icon: HeadingThreeIcon
 	},
 	{
-		type: lessonBlockTypeEnum.h4,
+		type: 'h4',
 		content: 'This is a Heading 4',
 		icon: HeadingFourIcon
 	},
 	{
-		type: lessonBlockTypeEnum.h5,
+		type: 'h5',
 		content: 'This is a Heading 5',
 		icon: HeadingFiveIcon
 	},
 	{
-		type: lessonBlockTypeEnum.markdown,
+		type: 'markdown',
 		content: 'This is markdown content...',
 		icon: PilcrowIcon
 	},
 	{
-		type: lessonBlockTypeEnum.image,
+		type: 'image',
 		content: { src: '', alt: 'Image', caption: '' },
 		icon: ImageIcon
 	},
 	{
-		type: lessonBlockTypeEnum.video,
+		type: 'video',
 		content: { src: '', title: 'Video' },
 		icon: FilmIcon
 	},
 	{
-		type: lessonBlockTypeEnum.audio,
+		type: 'audio',
 		content: { src: '', title: 'Audio' },
 		icon: AudioLinesIcon
 	},
 	{
-		type: lessonBlockTypeEnum.whiteboard,
+		type: 'whiteboard',
 		content: { data: '', width: 800, height: 600 },
 		icon: PresentationIcon
 	},
 	{
-		type: lessonBlockTypeEnum.multipleChoice,
+		type: 'multiple_choice',
 		content: {
 			question: 'Multiple Choice Question',
 			options: [
@@ -80,7 +79,7 @@ export const blockTypes: {
 		icon: List
 	},
 	{
-		type: lessonBlockTypeEnum.fillInBlank,
+		type: 'fill_in_blank',
 		content: {
 			sentence: 'Fill in the blank _____.',
 			answer: 'Answer'
