@@ -102,18 +102,66 @@ export type Session = typeof session.$inferSelect;
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull().unique(),
-	address: text('address').notNull(),
 	...timestamps
 });
 
 export type School = typeof school.$inferSelect;
 
-export const subject = pgTable('subject', {
+export const campus = pgTable('school_campus', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	schoolId: integer('school_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
+	address: text('address').notNull(),
+	description: text('description'),
+	isActive: boolean('is_active').notNull().default(true),
+	...timestamps
+});
+
+export type SchoolCampus = typeof campus.$inferSelect;
+
+export enum schoolLocationTypeEnum {
+	classroom = 'classroom',
+	laboratory = 'laboratory',
+	gymnasium = 'gymnasium',
+	pool = 'pool',
+	library = 'library',
+	auditorium = 'auditorium',
+	online = 'online'
+}
+
+export const schoolLocationTypeEnumPg = pgEnum('school_location_type', [
+	schoolLocationTypeEnum.classroom,
+	schoolLocationTypeEnum.laboratory,
+	schoolLocationTypeEnum.gymnasium,
+	schoolLocationTypeEnum.pool,
+	schoolLocationTypeEnum.library,
+	schoolLocationTypeEnum.auditorium,
+	schoolLocationTypeEnum.online
+]);
+
+export const schoolLocation = pgTable('school_location', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	campusId: integer('campus_id')
+		.notNull()
+		.references(() => campus.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	type: schoolLocationTypeEnumPg().notNull(),
+	capacity: integer('capacity'),
+	description: text('description'),
+	isActive: boolean('is_active').notNull().default(true),
+	...timestamps
+});
+
+export type SchoolLocation = typeof schoolLocation.$inferSelect;
+
+export const subject = pgTable('subject', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	name: text('name').notNull(),
+	schoolId: integer('school_id')
+		.notNull()
+		.references(() => school.id, { onDelete: 'cascade' }),
 	description: text('description'),
 	...timestamps
 });
@@ -125,7 +173,11 @@ export const subjectOffering = pgTable('subject_offering', {
 	subjectId: integer('subject_id')
 		.notNull()
 		.references(() => subject.id, { onDelete: 'cascade' }),
-	year: integer('year').notNull()
+	year: integer('year').notNull(),
+	semester: integer('semester').notNull(),
+	campusId: integer('campus_id')
+		.notNull()
+		.references(() => campus.id, { onDelete: 'cascade' })
 });
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
@@ -228,41 +280,6 @@ export const subjectClassAllocation = pgTable('subject_class_time', {
 });
 
 export type SubjectClassAllocation = typeof subjectClassAllocation.$inferSelect;
-
-export enum schoolLocationTypeEnum {
-	classroom = 'classroom',
-	laboratory = 'laboratory',
-	gymnasium = 'gymnasium',
-	pool = 'pool',
-	library = 'library',
-	auditorium = 'auditorium',
-	online = 'online'
-}
-
-export const schoolLocationTypeEnumPg = pgEnum('school_location_type', [
-	schoolLocationTypeEnum.classroom,
-	schoolLocationTypeEnum.laboratory,
-	schoolLocationTypeEnum.gymnasium,
-	schoolLocationTypeEnum.pool,
-	schoolLocationTypeEnum.library,
-	schoolLocationTypeEnum.auditorium,
-	schoolLocationTypeEnum.online
-]);
-
-export const schoolLocation = pgTable('school_location', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	schoolId: integer('school_id')
-		.notNull()
-		.references(() => school.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(),
-	type: schoolLocationTypeEnumPg().notNull(),
-	capacity: integer('capacity'),
-	description: text('description'),
-	isActive: boolean('is_active').notNull().default(true),
-	...timestamps
-});
-
-export type SchoolLocation = typeof schoolLocation.$inferSelect;
 
 export enum subjectThreadTypeEnum {
 	discussion = 'discussion',
