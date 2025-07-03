@@ -1,13 +1,14 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../schema';
 import postgres from 'postgres';
+import { hash } from '@node-rs/argon2';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
 export async function seed_students() {
 	// Generate a simple password hash for all students (in real app, use proper bcrypt)
-	const passwordHash = '$2a$10$example.hash.for.seeding.purposes.only';
+	const passwordHash = await hash('$2a$10$example.hash.for.seeding.purposes.only');
 
 	// Seed student users
 	const students = await db

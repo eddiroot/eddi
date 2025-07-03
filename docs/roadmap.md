@@ -61,6 +61,7 @@ Blake
 ## Future Functionality
 
 - [ ] Lesson / class plan marketplace
+- [ ] Check-in check-out software (compass does this)
 - [ ] Workspaces (like VMs but for coding)
 - [ ] App-wide search
 - [ ] Subject selection (example lessons)

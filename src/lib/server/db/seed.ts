@@ -9,6 +9,7 @@ const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
 async function main() {
+	console.log('Seeding database...');
 	await reset(db, schema);
 
 	const users = await db
