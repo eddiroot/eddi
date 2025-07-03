@@ -14,34 +14,49 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 ## Post MVP
 
-- [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
-- [ ] Add draggable interactive components (matching etc)
-- [ ] Onboarding flow
-- [ ] Home page
-- [ ] Order topics and lessons within them (Lachie)
-- [ ] Security review (e.g. prompt injection to eddi)
-- [ ] LLM access to lesson plans
-- [ ] A what to do button to generate study ideas
+Lachie
+
 - [ ] Class tests / quizzes
-- [ ] Roll call / attendance
-- [ ] Database per school (maybe)
-- [ ] Auto generated summaries of discussions
-- [ ] Profile (avatar, email, display name, etc)
-- [ ] Student reports live throughout semester
-- [ ] See attendance
-- [ ] View news feed
-- [ ] Student/lesson analytics
-- [ ] Math symbols / formulas
-- [ ] Integrate AI feedback / assisted marking
-- [ ] Onboarding experience (theming, roles, staff)
-- [ ] School theming (logos, colours)
-- [ ] Sick/not coming to school
-- [ ] View students work
-- [ ] Absence / late notifications
-- [ ] Fees / breakdowns
-- [ ] Export all data for the organisation
+- [ ] Order topics and lessons within them
+- [ ] Security review e.g. prompt injection
+- [ ] Database per school
+
+Max
+
 - [ ] Handling of multiple campuses
-- [ ] Titles on every page
+- [ ] A what to do button to generate study ideas
+- [ ] View news feed
+- [ ] Export all data for the organisation
+
+Jack
+
+- [ ] Add draggable interactive components such as matching
+- [ ] Student reports live throughout semester
+- [ ] View students work
+- [ ] Fees / breakdowns
+
+Raph
+
+- [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation
+- [ ] Complete LLM access to discussions + lessons
+- [ ] Auto generated summaries of discussions
+- [ ] Home page
+
+Beej
+
+- [ ] Onboarding flow
+- [ ] Onboarding experience (theming, roles, staff)
+- [ ] Student/lesson analytics
+- [ ] School theming (logos, colours)
+
+Blake
+
+- [ ] Roll call / attendance
+- [ ] Sick/not coming to school
+- [ ] Parents/teachers can see attendance
+- [ ] Absence / late notifications
+- [ ] Integrate AI feedback / assisted marking
+- [ ] Math symbols / formulas
 
 ## Future Functionality
 
