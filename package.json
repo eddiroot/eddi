@@ -15,7 +15,7 @@
 		"db:start": "docker compose up",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seed.ts",
+		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seedv2.ts",
 		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
@@ -30,6 +30,7 @@
 		"@tailwindcss/typography": "^0.5.16",
 		"@tailwindcss/vite": "^4.0.0",
 		"@types/node": "^22.15.33",
+		"@types/seedrandom": "^3.0.8",
 		"bits-ui": "^2.8.8",
 		"clsx": "^2.1.1",
 		"drizzle-kit": "^0.31.4",
@@ -67,6 +68,7 @@
 		"marked": "^15.0.12",
 		"mode-watcher": "^1.0.7",
 		"postgres": "^3.4.5",
+		"seedrandom": "^3.0.5",
 		"uuid": "^11.1.0",
 		"zod": "^3.25.56"
 	},
