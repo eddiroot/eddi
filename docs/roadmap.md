@@ -5,18 +5,18 @@ This list is ordered by priority, with the highest priority at the top and the l
 ## MVP
 
 - [x] Create lessons with drag'n'drop blocks
-  - Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
-  - Add draggable interactive components (matching etc)
-- [x] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
+- [x] Create lessons based on textbooks, slides, PDFs, images, etc
 - [x] Discussions (subject level)
 - [x] View your timetable
 - [x] Live whiteboards
 - [x] AI Tutor "eddi" (teaching focus, not giving answers)
-- [ ] Onboarding flow
 - [x] Class announcements
 
 ## Post MVP
 
+- [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
+- [ ] Add draggable interactive components (matching etc)
+- [ ] Onboarding flow
 - [ ] Home page
 - [ ] Order topics and lessons within them (Lachie)
 - [ ] Security review (e.g. prompt injection to eddi)
