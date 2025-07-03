@@ -101,19 +101,32 @@ async function main() {
 		.insert(schema.school)
 		.values([
 			{
-				name: 'School of Eddi',
-				address: '123 Eddi Street, Eddi Town, ED 1234'
+				name: 'School of Eddi'
 			}
 		])
 		.returning();
 
-	// Add schoolLocations for the school
+	// Create a campus for the school
+	const [campus] = await db
+		.insert(schema.campus)
+		.values([
+			{
+				schoolId: school.id,
+				name: 'Main Campus',
+				address: '123 Eddi Street, Eddi Town, ED 1234',
+				description: 'The main campus of School of Eddi',
+				isActive: true
+			}
+		])
+		.returning();
+
+	// Add schoolLocations for the campus
 	const schoolLocations = await db
 		.insert(schema.schoolLocation)
 		.values([
 			// Classrooms
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 101',
 				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 30,
@@ -121,7 +134,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 102',
 				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 28,
@@ -129,7 +142,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 201',
 				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 32,
@@ -137,7 +150,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 202',
 				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 25,
@@ -146,7 +159,7 @@ async function main() {
 			},
 			// Laboratories
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Chemistry Lab A',
 				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 24,
@@ -154,7 +167,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Physics Lab',
 				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 20,
@@ -162,7 +175,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Computer Lab',
 				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 30,
@@ -171,7 +184,7 @@ async function main() {
 			},
 			// Special purpose rooms
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Main Auditorium',
 				type: schema.schoolLocationTypeEnum.auditorium,
 				capacity: 200,
@@ -179,7 +192,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Gymnasium',
 				type: schema.schoolLocationTypeEnum.gymnasium,
 				capacity: 100,
@@ -187,7 +200,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Library Study Room',
 				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 15,
@@ -195,7 +208,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Art Studio',
 				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 22,
@@ -204,7 +217,7 @@ async function main() {
 			},
 			// Online/Virtual
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Virtual Classroom A',
 				type: schema.schoolLocationTypeEnum.online,
 				capacity: null,
@@ -212,7 +225,7 @@ async function main() {
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Virtual Classroom B',
 				type: schema.schoolLocationTypeEnum.online,
 				capacity: null,
@@ -221,7 +234,7 @@ async function main() {
 			},
 			// Inactive location for testing
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Old Room 103',
 				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 20,
@@ -267,23 +280,33 @@ async function main() {
 		.values([
 			{
 				subjectId: subjects[0].id, // Mathematics
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[1].id, // Science
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[2].id, // History
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[3].id, // English
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[4].id, // Geography
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			}
 		])
 		.returning();
