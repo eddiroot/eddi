@@ -17,6 +17,9 @@
 	import { formatDate } from '$lib/utils';
 	import { onMount } from 'svelte';
 
+	// Props
+	let { subjectOfferingId = null }: { subjectOfferingId?: number | null } = $props();
+
 	let chatId = $state<number | null>(null);
 	let messages = $state<ChatbotMessage[]>([]);
 	let currentMessage = $state('');
@@ -119,7 +122,16 @@
 			messages = [...messages, userMessage];
 
 			// Get the AI response
-			const chatbotMessageResponse = await fetch(`/api/chatbot/message?chatId=${chatId}`, {
+			if (!chatId) {
+				throw new Error('Chat ID is required');
+			}
+			
+			const urlParams = new URLSearchParams({ chatId: chatId.toString() });
+			if (subjectOfferingId !== null) {
+				urlParams.append('subjectOfferingId', subjectOfferingId.toString());
+			}
+			
+			const chatbotMessageResponse = await fetch(`/api/chatbot/message?${urlParams}`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'

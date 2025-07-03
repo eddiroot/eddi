@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const formSchema = z.object({
-	type: z.enum(['comment', 'answer'], {
+	type: z.enum(['answer', 'comment'], {
 		required_error: 'Please select a response type'
 	}),
 	content: z

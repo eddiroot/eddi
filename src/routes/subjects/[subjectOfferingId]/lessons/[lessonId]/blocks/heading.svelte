@@ -1,33 +1,95 @@
 <script>
-	import { Button } from '$lib/components/ui/button/index.js';
-	import EditIcon from '@lucide/svelte/icons/edit';
 	import Input from '$lib/components/ui/input/input.svelte';
 
-	let { headingSize = 1, text = 'Heading goes here', onUpdate } = $props();
-	let isEditing = $state(false);
+	let { headingSize = 1, text = 'Heading goes here', isEditMode = true, onUpdate } = $props();
 	let editText = $state(text);
 
 	function saveText() {
-		isEditing = false;
 		text = editText;
 		onUpdate(text);
 	}
+
+	// Update editText when text prop changes
+	$effect(() => {
+		editText = text;
+	});
 </script>
 
-<div class="flex w-full items-center justify-between gap-2">
-	{#if isEditing}
-		<Input
-			bind:value={editText}
-			onkeydown={(e) => {
-				if (e.key === 'Enter') {
-					saveText();
-				} else if (e.key === 'Escape') {
-					isEditing = false;
-					editText = text;
-				}
-			}}
-		/>
-		<Button onclick={saveText}>Save</Button>
+<div class="w-full">
+	{#if isEditMode}
+		{#if headingSize === 1}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 2}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-3xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 3}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-2xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 4}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else if headingSize === 5}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-lg font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{:else}
+			<input
+				bind:value={editText}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						saveText();
+					}
+				}}
+				onblur={saveText}
+				class="w-full scroll-m-20 text-base font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				placeholder="Enter heading text..."
+			/>
+		{/if}
 	{:else}
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
@@ -40,16 +102,7 @@
 		{:else if headingSize === 5}
 			<h5 class="scroll-m-20 text-lg font-semibold tracking-tight">{text}</h5>
 		{:else}
-			<h5 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h5>
+			<h6 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h6>
 		{/if}
-		<Button
-			variant="outline"
-			onclick={() => {
-				editText = text;
-				isEditing = true;
-			}}
-		>
-			<EditIcon />
-		</Button>
 	{/if}
 </div>

@@ -31,6 +31,20 @@ export async function geminiCompletion(
 			});
 		}
 
+		const config: {
+			systemInstruction?: string;
+			responseMimeType?: string;
+			responseSchema?: object;
+		} = {
+			systemInstruction
+		};
+
+		// Only use JSON response format when a schema is provided
+		if (responseSchema) {
+			config.responseMimeType = 'application/json';
+			config.responseSchema = responseSchema;
+		}
+
 		const { text } = await ai.models.generateContent({
 			model: 'gemini-2.0-flash',
 			contents: [
@@ -39,11 +53,7 @@ export async function geminiCompletion(
 					parts
 				}
 			],
-			config: {
-				responseMimeType: 'application/json',
-				responseSchema,
-				systemInstruction
-			}
+			config
 		});
 
 		if (typeof text === 'string') {
@@ -53,6 +63,41 @@ export async function geminiCompletion(
 		}
 	} catch (error) {
 		console.error('Error sending media to Gemini:', error);
+		throw error;
+	}
+}
+
+export async function geminiConversation(
+	messages: Array<{ role: 'user' | 'model'; content: string }>,
+	systemInstruction?: string
+): Promise<string> {
+	try {
+		const contents = messages.map(msg => ({
+			role: msg.role,
+			parts: [{ text: msg.content }]
+		}));
+
+		const config: {
+			systemInstruction?: string;
+		} = {};
+
+		if (systemInstruction) {
+			config.systemInstruction = systemInstruction;
+		}
+
+		const { text } = await ai.models.generateContent({
+			model: 'gemini-2.0-flash',
+			contents,
+			config
+		});
+
+		if (typeof text === 'string') {
+			return text;
+		} else {
+			throw new Error('No text response from Gemini');
+		}
+	} catch (error) {
+		console.error('Error in Gemini conversation:', error);
 		throw error;
 	}
 }

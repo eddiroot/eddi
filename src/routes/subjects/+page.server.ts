@@ -1,11 +1,16 @@
-export const load = async ({ locals: { security, user } }) => {
-	security.isAuthenticated();
+import { getSubjectsOfferingsUserSubjectOfferingsByUserId } from '$lib/server/db/service';
 
-	if (!user) {
-		return { user: null, subjects: [] };
-	}
+export const load = async ({ locals: { security } }) => {
+	const user = security.isAuthenticated().getUser();
+
+	const subjects = await getSubjectsOfferingsUserSubjectOfferingsByUserId(user.id);
+
+	// Fetch the upcoming assessments for each subject and add them in
+
+	// Fetch the teachers for the next class for each subject
 
 	return {
-		user
+		user,
+		subjects
 	};
 };

@@ -1,14 +1,16 @@
 <script>
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
 	import ThumbsUpIcon from '@lucide/svelte/icons/thumbs-up';
 	import TagIcon from '@lucide/svelte/icons/tag';
-	import CheckIcon from '@lucide/svelte/icons/check';
 	import TargetIcon from '@lucide/svelte/icons/target';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 </script>
 
 <!-- Main Hero Section -->
@@ -17,14 +19,14 @@
 		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
 			<div class="space-y-6">
 				<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-					Openly evolving education
+					Redefining how schools work
 				</h1>
 				<p class="text-muted-foreground text-xl">
-					with a learning and teaching system that <strong>anyone</strong> can use.
+					with a <strong>modern</strong> approach to education
 				</p>
 				<div class="flex flex-col gap-3 sm:flex-row">
 					<Button variant="secondary" size="lg">Watch the demo</Button>
-					<Button variant="default" size="lg">Get started</Button>
+					<a href="/onboarding" class={buttonVariants({ size: 'lg' })}>Get started</a>
 				</div>
 			</div>
 			<div class="order-first md:order-last">
@@ -129,15 +131,15 @@
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						<MessageSquareIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Instant answers to your questions
 					</li>
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						<BookOpenIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Personalised learning recommendations
 					</li>
 					<li class="flex items-center">
-						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						<TrendingUpIcon class="mr-3 h-5 w-5 flex-shrink-0" />
 						Study plan optimisation
 					</li>
 				</ul>

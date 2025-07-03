@@ -13,9 +13,9 @@
 
 	let {
 		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
+		isEditMode = true,
 		onUpdate = () => {}
 	} = $props();
-	let isEditing = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let audioElement = $state<HTMLAudioElement>();
 	let isPlaying = $state(false);
@@ -30,6 +30,17 @@
 	let autoplay = $state(content.autoplay || false);
 	let controls = $state(content.controls !== false);
 	let loop = $state(content.loop || false);
+
+	// Initialize editing state when component loads or content changes
+	$effect(() => {
+		if (isEditMode) {
+			src = content.src || '';
+			caption = content.caption || '';
+			autoplay = content.autoplay || false;
+			controls = content.controls !== false;
+			loop = content.loop || false;
+		}
+	});
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -47,7 +58,6 @@
 		const newContent = { src, caption, autoplay, controls, loop };
 		content = newContent;
 		onUpdate(newContent);
-		isEditing = false;
 	}
 
 	function togglePlay() {
@@ -103,7 +113,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditing}
+	{#if isEditMode}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
@@ -114,7 +124,7 @@
 			<Card.Content class="space-y-4">
 				<div class="space-y-2">
 					<Label for="audio-src">Audio URL</Label>
-					<Input id="audio-src" bind:value={src} placeholder="Enter audio URL or upload file" />
+					<Input id="audio-src" bind:value={src} onblur={saveChanges} placeholder="Enter audio URL or upload file" />
 				</div>
 
 				<div class="space-y-2">
@@ -141,145 +151,120 @@
 
 				<div class="space-y-2">
 					<Label for="audio-caption">Caption (optional)</Label>
-					<Input id="audio-caption" bind:value={caption} placeholder="Audio caption" />
+					<Input id="audio-caption" bind:value={caption} onblur={saveChanges} placeholder="Audio caption" />
 				</div>
 
 				<div class="space-y-2">
 					<Label>Audio Options</Label>
 					<div class="flex flex-col gap-2">
 						<label class="flex items-center gap-2">
-							<input type="checkbox" bind:checked={controls} />
+							<input type="checkbox" bind:checked={controls} onchange={saveChanges} />
 							<span class="text-sm">Show controls</span>
 						</label>
 						<label class="flex items-center gap-2">
-							<input type="checkbox" bind:checked={autoplay} />
+							<input type="checkbox" bind:checked={autoplay} onchange={saveChanges} />
 							<span class="text-sm">Autoplay</span>
 						</label>
 						<label class="flex items-center gap-2">
-							<input type="checkbox" bind:checked={loop} />
+							<input type="checkbox" bind:checked={loop} onchange={saveChanges} />
 							<span class="text-sm">Loop</span>
 						</label>
 					</div>
 				</div>
-
-				<div class="flex gap-2">
-					<Button onclick={saveChanges}>Save</Button>
-					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
-				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		<div class="group relative">
-			{#if content.src}
-				<figure class="space-y-2">
-					{#if content.controls}
-						<!-- Custom Audio Player -->
-						<div class="bg-card w-full rounded-lg border p-4">
-							<audio
-								bind:this={audioElement}
-								src={content.src}
-								autoplay={content.autoplay}
-								loop={content.loop}
-								ontimeupdate={handleTimeUpdate}
-								onloadedmetadata={handleLoadedMetadata}
-								onplay={() => (isPlaying = true)}
-								onpause={() => (isPlaying = false)}
-								class="hidden"
-							>
-								Your browser does not support the audio element.
-							</audio>
-
-							<div class="flex items-center gap-4">
-								<!-- Play/Pause Button -->
-								<Button variant="outline" size="sm" onclick={togglePlay} disabled={!content.src}>
-									{#if isPlaying}
-										<PauseIcon class="h-4 w-4" />
-									{:else}
-										<PlayIcon class="h-4 w-4" />
-									{/if}
-								</Button>
-
-								<!-- Progress Bar -->
-								<div class="flex flex-1 items-center gap-2">
-									<span class="text-muted-foreground text-xs">
-										{formatTime(currentTime)}
-									</span>
-									<input
-										type="range"
-										min="0"
-										max={duration || 0}
-										value={currentTime}
-										oninput={seek}
-										class="flex-1"
-									/>
-									<span class="text-muted-foreground text-xs">
-										{formatTime(duration)}
-									</span>
-								</div>
-
-								<!-- Volume Control -->
-								<div class="flex items-center gap-2">
-									<Button variant="ghost" size="sm" onclick={toggleMute}>
-										{#if isMuted}
-											<VolumeXIcon class="h-4 w-4" />
-										{:else}
-											<Volume2Icon class="h-4 w-4" />
-										{/if}
-									</Button>
-									<input
-										type="range"
-										min="0"
-										max="1"
-										step="0.1"
-										bind:value={volume}
-										oninput={handleVolumeChange}
-										class="w-16"
-									/>
-								</div>
-							</div>
-						</div>
-					{:else}
-						<!-- Simple Audio Element -->
+		{#if content.src}
+			<figure class="space-y-2">
+				{#if content.controls}
+					<!-- Custom Audio Player -->
+					<div class="bg-card w-full rounded-lg border p-4">
 						<audio
+							bind:this={audioElement}
 							src={content.src}
-							controls={content.controls}
 							autoplay={content.autoplay}
 							loop={content.loop}
-							class="w-full"
+							ontimeupdate={handleTimeUpdate}
+							onloadedmetadata={handleLoadedMetadata}
+							onplay={() => (isPlaying = true)}
+							onpause={() => (isPlaying = false)}
+							class="hidden"
 						>
 							Your browser does not support the audio element.
 						</audio>
-					{/if}
 
-					{#if content.caption}
-						<figcaption class="text-muted-foreground text-center text-sm">
-							{content.caption}
-						</figcaption>
-					{/if}
-				</figure>
-			{:else}
-				<div class="flex h-24 w-full items-center justify-center rounded-lg border border-dashed">
-					<div class="text-center">
-						<AudioLinesIcon class="text-muted-foreground mx-auto h-8 w-8" />
-						<p class="text-muted-foreground mt-1 text-sm">No audio selected</p>
-						<p class="text-muted-foreground text-xs">Click edit to add audio</p>
+						<div class="flex items-center gap-4">
+							<Button variant="outline" size="sm" onclick={togglePlay} disabled={!content.src}>
+								{#if isPlaying}
+									<PauseIcon class="h-4 w-4" />
+								{:else}
+									<PlayIcon class="h-4 w-4" />
+								{/if}
+							</Button>
+
+							<div class="flex flex-1 items-center gap-2">
+								<span class="text-muted-foreground text-xs">
+									{formatTime(currentTime)}
+								</span>
+								<input
+									type="range"
+									min="0"
+									max={duration || 0}
+									value={currentTime}
+									oninput={seek}
+									class="flex-1"
+								/>
+								<span class="text-muted-foreground text-xs">
+									{formatTime(duration)}
+								</span>
+							</div>
+
+							<div class="flex items-center gap-2">
+								<Button variant="ghost" size="sm" onclick={toggleMute}>
+									{#if isMuted}
+										<VolumeXIcon class="h-4 w-4" />
+									{:else}
+										<Volume2Icon class="h-4 w-4" />
+									{/if}
+								</Button>
+								<input
+									type="range"
+									min="0"
+									max="1"
+									step="0.1"
+									bind:value={volume}
+									oninput={handleVolumeChange}
+									class="w-16"
+								/>
+							</div>
+						</div>
 					</div>
-				</div>
-			{/if}
+				{:else}
+					<audio
+						src={content.src}
+						controls={content.controls}
+						autoplay={content.autoplay}
+						loop={content.loop}
+						class="w-full"
+					>
+						Your browser does not support the audio element.
+					</audio>
+				{/if}
 
-			<Button
-				onclick={() => {
-					src = content.src || '';
-					caption = content.caption || '';
-					autoplay = content.autoplay || false;
-					controls = content.controls !== false;
-					loop = content.loop || false;
-					isEditing = true;
-				}}
-				class="absolute top-2 right-2"
-			>
-				<EditIcon class="h-3 w-3" />
-			</Button>
-		</div>
+				{#if content.caption}
+					<figcaption class="text-muted-foreground text-center text-sm">
+						{content.caption}
+					</figcaption>
+				{/if}
+			</figure>
+		{:else}
+			<div class="flex h-24 w-full items-center justify-center rounded-lg border border-dashed">
+				<div class="text-center">
+					<AudioLinesIcon class="text-muted-foreground mx-auto h-8 w-8" />
+					<p class="text-muted-foreground mt-1 text-sm">No audio selected</p>
+					<p class="text-muted-foreground text-xs">Switch to edit mode to add audio</p>
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>

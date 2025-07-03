@@ -114,7 +114,7 @@
 				<Sidebar.Menu>
 					{#each items as item}
 						<Sidebar.MenuItem>
-							<Sidebar.MenuButton tooltipContent={item.title}>
+							<Sidebar.MenuButton side="left" tooltipContent={item.title}>
 								{#snippet child({ props })}
 									<a href={item.url} {...props}>
 										<item.icon />
@@ -145,7 +145,7 @@
 							{#snippet child({ props })}
 								{#if sidebar.leftOpen == false}
 									<a href="/subjects/{subject.id}">
-										<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
+										<Sidebar.MenuButton side="left" tooltipContent={subject.name} {...props}>
 											{@const IconComponent = subjectNameToIcon(subject.name)}
 											<IconComponent class="mr-2" />
 
@@ -156,7 +156,7 @@
 										</Sidebar.MenuButton>
 									</a>
 								{:else}
-									<Sidebar.MenuButton tooltipContent={subject.name} {...props}>
+									<Sidebar.MenuButton side="left" tooltipContent={subject.name} {...props}>
 										{@const IconComponent = subjectNameToIcon(subject.name)}
 										<IconComponent class="mr-2" />
 
@@ -197,6 +197,7 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Sidebar.MenuButton
+								side="left"
 								size="lg"
 								class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 								{...props}

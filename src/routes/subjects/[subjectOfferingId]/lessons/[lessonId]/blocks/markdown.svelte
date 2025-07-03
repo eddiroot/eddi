@@ -1,42 +1,53 @@
 <script lang="ts">
 	import { marked } from 'marked';
+	import { Textarea } from '$lib/components/ui/textarea';
 
-	let { content = '', onUpdate } = $props();
-	let markdownContent = $state(content);
+	let { content = '', isEditMode = true, onUpdate } = $props();
+	let editContent = $state(content);
 
-	// Update local state when content prop changes (e.g., when switching sections)
+	function saveContent() {
+		onUpdate(editContent);
+	}
+
+	// Update editContent when content prop changes
 	$effect(() => {
-		markdownContent = content;
+		editContent = content;
 	});
 
-	// Update parent when local content changes
-	$effect(() => {
-		if (markdownContent !== content) {
-			onUpdate(markdownContent);
+	const renderedMarkdown = $derived(() => {
+		try {
+			return marked(editContent);
+		} catch (error) {
+			console.error('Error rendering markdown:', error);
+			return '<p>Error rendering markdown</p>';
 		}
 	});
 </script>
 
-<div class="flex h-80 flex-col space-y-4">
-	<div class="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2 lg:gap-4">
-		<!-- Editor Section -->
-		<div class="flex flex-col">
-			<p class="text-muted-foreground mb-2 text-sm font-medium">Editor</p>
-			<textarea
-				bind:value={markdownContent}
-				class="bg-background border-input focus:ring-ring w-full flex-1 resize-none overflow-auto rounded-md border p-3 font-mono text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none"
-				placeholder="Start typing your markdown..."
-			></textarea>
+<div class="w-full">
+	{#if isEditMode}
+		<Textarea
+			bind:value={editContent}
+			onblur={saveContent}
+			onkeydown={(e) => {
+				if (e.key === 'Tab') {
+					e.preventDefault();
+					const target = e.target as HTMLTextAreaElement;
+					const start = target.selectionStart;
+					const end = target.selectionEnd;
+					editContent = editContent.substring(0, start) + '\t' + editContent.substring(end);
+					// Set cursor position after the tab
+					setTimeout(() => {
+						target.selectionStart = target.selectionEnd = start + 1;
+					}, 0);
+				}
+			}}
+			class="min-h-32 border-dashed"
+			placeholder="Enter markdown content..."
+		/>
+	{:else}
+		<div class="prose prose-sm max-w-none dark:prose-invert">
+			{@html renderedMarkdown()}
 		</div>
-
-		<!-- Preview Section -->
-		<div class="flex flex-col">
-			<p class="text-muted-foreground mb-2 text-sm font-medium">Preview</p>
-			<div
-				class="bg-background border-input prose prose-sm dark:prose-invert w-full max-w-none flex-1 overflow-auto rounded-md border p-3 text-sm"
-			>
-				{@html marked.parse(markdownContent)}
-			</div>
-		</div>
-	</div>
+	{/if}
 </div>

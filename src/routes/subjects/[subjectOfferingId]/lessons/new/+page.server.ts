@@ -13,6 +13,7 @@ import {
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { lessonBlockTypeEnum, lessonStatusEnum, lessonTypeEnum } from '$lib/server/db/schema';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -91,7 +92,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 		case 'text': {
 			// Extract markdown content properly
 			const markdownContent = content?.markdown || content?.text || content || '';
-			await createLessonBlock(lessonId, 'markdown', markdownContent);
+			await createLessonBlock(lessonId, lessonBlockTypeEnum.markdown, markdownContent);
 			console.log(`Created markdown block with content length: ${markdownContent.length}`);
 			break;
 		}
@@ -105,7 +106,11 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					answer: content.answer,
 					multiple: content.multiple || (Array.isArray(content.answer) ? true : false)
 				};
-				await createLessonBlock(lessonId, 'multiple_choice', multipleChoiceContent);
+				await createLessonBlock(
+					lessonId,
+					lessonBlockTypeEnum.multipleChoice,
+					multipleChoiceContent
+				);
 				console.log(`Created multiple choice block: "${content.question}"`);
 			} else {
 				console.warn('Invalid multiple choice content structure:', content);
@@ -120,7 +125,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					alt: content.alt || content.caption || 'Image',
 					caption: content.caption || content.alt || ''
 				};
-				await createLessonBlock(lessonId, 'image', imageContent);
+				await createLessonBlock(lessonId, lessonBlockTypeEnum.image, imageContent);
 				console.log(`Created image block: "${imageContent.caption}"`);
 			} else {
 				console.warn('Invalid image content structure:', content);
@@ -134,7 +139,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					src: content.url || content.src || '',
 					title: content.title || content.caption || 'Video'
 				};
-				await createLessonBlock(lessonId, 'video', videoContent);
+				await createLessonBlock(lessonId, lessonBlockTypeEnum.video, videoContent);
 				console.log(`Created video block: "${videoContent.title}"`);
 			} else {
 				console.warn('Invalid video content structure:', content);
@@ -148,7 +153,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					src: content.url || content.src || '',
 					title: content.title || content.caption || 'Audio'
 				};
-				await createLessonBlock(lessonId, 'audio', audioContent);
+				await createLessonBlock(lessonId, lessonBlockTypeEnum.audio, audioContent);
 				console.log(`Created audio block: "${audioContent.title}"`);
 			} else {
 				console.warn('Invalid audio content structure:', content);
@@ -158,14 +163,14 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 		// Handle title and subtitle as headings
 		case 'title': {
 			const titleText = content?.text || content || 'Title';
-			await createLessonBlock(lessonId, 'h1', titleText);
+			await createLessonBlock(lessonId, lessonBlockTypeEnum.h1, titleText);
 			console.log(`Created h1 block from title: "${titleText}"`);
 			break;
 		}
 
 		case 'subtitle': {
 			const subtitleText = content?.text || content || 'Subtitle';
-			await createLessonBlock(lessonId, 'h2', subtitleText);
+			await createLessonBlock(lessonId, lessonBlockTypeEnum.h2, subtitleText);
 			console.log(`Created h2 block from subtitle: "${subtitleText}"`);
 			break;
 		}
@@ -178,7 +183,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					sentence: content.sentence,
 					answer: content.answer
 				};
-				await createLessonBlock(lessonId, 'fill_in_blank', fillInBlankContent);
+				await createLessonBlock(lessonId, lessonBlockTypeEnum.fillInBlank, fillInBlankContent);
 				console.log(`Created fill-in-blank block: "${content.sentence}"`);
 			} else {
 				console.warn('Invalid fill-in-blank content structure:', content);
@@ -235,8 +240,8 @@ export const actions = {
 		const lesson = await createLesson(
 			form.data.title,
 			form.data.description,
-			'draft',
-			form.data.type,
+			lessonStatusEnum.draft,
+			lessonTypeEnum[form.data.type],
 			lessonTopicId,
 			form.data.dueDate
 		);
@@ -269,8 +274,7 @@ export const actions = {
 		let lessonSchema = '';
 
 		try {
-			// Handle multiple AI files
-			if (validFiles.length > 0 && form.data.creationMethod === 'ai') {
+			if (validFiles.length > 0) {
 				console.log(`Processing ${validFiles.length} AI files...`);
 
 				// Save all files to temp directory

@@ -9,13 +9,19 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 
-	let { content = { whiteboardId: null, title: '' }, onUpdate = () => {} } = $props();
-
-	let isEditing = $state(false);
+	let { content = { whiteboardId: null, title: '' }, isEditMode = true, onUpdate = () => {} } = $props();
 
 	// Local state for editing
 	let title = $state(content.title || '');
 	let whiteboardId = $state(content.whiteboardId);
+
+	// Initialize editing state when component loads or content changes
+	$effect(() => {
+		if (isEditMode) {
+			title = content.title || '';
+			whiteboardId = content.whiteboardId;
+		}
+	});
 
 	const { lessonId, subjectOfferingId } = $page.params;
 
@@ -57,7 +63,6 @@
 
 		content = newContent;
 		onUpdate(newContent);
-		isEditing = false;
 	};
 
 	const openWhiteboard = async () => {
@@ -88,7 +93,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditing}
+	{#if isEditMode}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
@@ -102,51 +107,34 @@
 					<Input
 						id="whiteboard-title"
 						bind:value={title}
+						onblur={saveChanges}
 						placeholder="Enter whiteboard title (optional)"
 					/>
-				</div>
-
-				<div class="flex gap-2">
-					<Button onclick={saveChanges}>Save</Button>
-					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		<div class="group relative">
-			{#if whiteboardId}
-				<div class="rounded-lg border p-6 text-center">
-					<PresentationIcon class="text-muted-foreground mx-auto mb-3 h-12 w-12" />
-					<h3 class="mb-2 text-lg font-semibold">
-						{title || 'Interactive Whiteboard'}
-					</h3>
-					<Button onclick={openWhiteboard}>Open Whiteboard</Button>
-				</div>
-			{:else}
-				<button
-					type="button"
-					class="focus:ring-primary flex h-32 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed focus:ring-2 focus:outline-none"
-					onclick={openWhiteboard}
-					aria-label="Create and open whiteboard"
-				>
-					<div class="pointer-events-none text-center">
-						<PresentationIcon class="text-muted-foreground mx-auto h-12 w-12" />
-						<p class="text-muted-foreground mt-2 text-sm">No whiteboard created</p>
-						<p class="text-muted-foreground text-xs">Click to create and open whiteboard</p>
-					</div>
-				</button>
-			{/if}
-
-			<Button
-				onclick={(e) => {
-					e.stopPropagation();
-					title = content.title || '';
-					isEditing = true;
-				}}
-				class="absolute top-2 right-2"
+		{#if whiteboardId}
+			<div class="rounded-lg border p-6 text-center">
+				<PresentationIcon class="text-muted-foreground mx-auto mb-3 h-12 w-12" />
+				<h3 class="mb-2 text-lg font-semibold">
+					{title || 'Interactive Whiteboard'}
+				</h3>
+				<Button onclick={openWhiteboard}>Open Whiteboard</Button>
+			</div>
+		{:else}
+			<button
+				type="button"
+				class="focus:ring-primary flex h-32 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed focus:ring-2 focus:outline-none"
+				onclick={openWhiteboard}
+				aria-label="Create and open whiteboard"
 			>
-				<EditIcon class="h-3 w-3" />
-			</Button>
-		</div>
+				<div class="pointer-events-none text-center">
+					<PresentationIcon class="text-muted-foreground mx-auto h-12 w-12" />
+					<p class="text-muted-foreground mt-2 text-sm">No whiteboard created</p>
+					<p class="text-muted-foreground text-xs">Click to create and open whiteboard</p>
+				</div>
+			</button>
+		{/if}
 	{/if}
 </div>

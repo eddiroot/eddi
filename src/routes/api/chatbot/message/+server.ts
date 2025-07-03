@@ -1,10 +1,11 @@
-import { geminiCompletion } from '$lib/server/ai';
+import { geminiConversation } from '$lib/server/ai';
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { systemInstructionChatbot } from '../constants.js';
+import { createContextualSystemInstruction, type LessonContextItem } from '../constants.js';
 import {
 	createChatbotMessage,
 	getChatbotChatById,
-	getLatestChatbotMessageByChatId
+	getChatbotMessagesByChatId,
+	getSubjectOfferingContextForAI
 } from '$lib/server/db/service';
 
 // This endpoint handles creating a new message in a chat.
@@ -49,6 +50,7 @@ export const GET: RequestHandler = async (event) => {
 	try {
 		const url = new URL(event.request.url);
 		const chatIdParam = url.searchParams.get('chatId');
+		const subjectOfferingIdParam = url.searchParams.get('subjectOfferingId');
 
 		if (!chatIdParam) {
 			return json({ error: 'Chat ID is required' }, { status: 400 });
@@ -57,6 +59,15 @@ export const GET: RequestHandler = async (event) => {
 		const chatId = parseInt(chatIdParam, 10);
 		if (isNaN(chatId)) {
 			return json({ error: 'Invalid Chat ID' }, { status: 400 });
+		}
+
+		// Parse subjectOfferingId if provided
+		let subjectOfferingId: number | null = null;
+		if (subjectOfferingIdParam) {
+			subjectOfferingId = parseInt(subjectOfferingIdParam, 10);
+			if (isNaN(subjectOfferingId)) {
+				return json({ error: 'Invalid Subject Offering ID' }, { status: 400 });
+			}
 		}
 
 		const user = event.locals.security.getUser();
@@ -73,18 +84,36 @@ export const GET: RequestHandler = async (event) => {
 			return json({ error: 'Forbidden: You do not have access to this chat' }, { status: 403 });
 		}
 
-		const latestMessage = await getLatestChatbotMessageByChatId(chatId);
+		// Get all messages in the chat for conversation history
+		const allMessages = await getChatbotMessagesByChatId(chatId);
 
-		if (!latestMessage) {
+		if (allMessages.length === 0) {
 			return json({ error: 'No messages found for this chat' }, { status: 404 });
 		}
 
-		const response = await geminiCompletion(
-			latestMessage.content,
-			undefined,
-			undefined,
-			systemInstructionChatbot
-		);
+		// Get lesson context for the specific subject offering if provided
+		let lessonContexts: LessonContextItem[] = [];
+		try {
+			if (subjectOfferingId) {
+				// Get context only for the specific subject offering
+				lessonContexts = await getSubjectOfferingContextForAI(user.id, subjectOfferingId);
+			}
+			// If no subjectOfferingId is provided, the chatbot will work without lesson context
+		} catch (contextError) {
+			console.error('Failed to gather lesson context for AI:', contextError);
+			// Continue without context rather than failing the entire request
+		}
+
+		// Create contextual system instruction with lesson content
+		const systemInstruction = createContextualSystemInstruction(lessonContexts);
+
+		// Convert chat messages to conversation format for AI
+		const conversationMessages = allMessages.map(msg => ({
+			role: msg.authorId ? 'user' as const : 'model' as const,
+			content: msg.content
+		}));
+
+		const response = await geminiConversation(conversationMessages, systemInstruction);
 
 		const responseText =
 			response || "I apologise, but I couldn't generate a response. Please try again.";

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
@@ -7,16 +7,32 @@
 	import Image from './blocks/image.svelte';
 	import Video from './blocks/video.svelte';
 	import Audio from './blocks/audio.svelte';
-
+	import Whiteboard from './blocks/whiteboard.svelte';
+	import MultipleChoice from './blocks/multiple-choice.svelte';
+	import FillInBlank from './blocks/fill-in-blank.svelte';
+	import EyeIcon from '@lucide/svelte/icons/eye';
+	import EditIcon from '@lucide/svelte/icons/edit';
 	import { type LessonBlock } from '$lib/server/db/schema';
-	import { createBlock, deleteBlock, updateBlock, updateLessonTitle } from './client';
+
+
+	import {
+		createBlock,
+		deleteBlock,
+		updateBlock,
+		updateLessonTitle,
+		updateBlockOrder
+	} from './client';
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let elementDragStarted = $state<string>('');
 	let draggedOverElement = $state<string>('');
+	let mouseOverElement = $state<string>('');
+	let isEditMode = $state(true);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -24,6 +40,8 @@
 	async function handleDrop(state: DragDropState<LessonBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
 		if (!targetContainer) return;
+
+		draggedOverElement = '';
 
 		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('lesson')) {
 			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
@@ -54,6 +72,49 @@
 			}
 		}
 
+		if (sourceContainer.startsWith('lesson') && targetContainer.startsWith('lesson')) {
+			const sourceIndex = draggedItem.index;
+			const targetIndex = blocks.findIndex(
+				(b) => b.id.toString() === targetContainer.split('-')[1]
+			);
+
+			if (targetIndex === -1 || sourceIndex === -1) {
+				alert('Failed to find block for drag and drop. Please try again.');
+				return;
+			}
+
+			if (sourceIndex === targetIndex) {
+				return;
+			}
+
+			const newBlocks = [...blocks];
+			const [movedBlock] = newBlocks.splice(sourceIndex, 1);
+
+			// Adjust target index if moving downwards (after removing the source item, indices shift)
+			const adjustedTargetIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+			newBlocks.splice(adjustedTargetIndex, 0, movedBlock);
+
+			const finalisedBlocks = newBlocks.map((block, index) => ({
+				...block,
+				index
+			}));
+
+			const blockOrder = finalisedBlocks.map(({ id, index }) => ({
+				id,
+				index
+			}));
+
+			try {
+				await updateBlockOrder({ blockOrder });
+			} catch (error) {
+				blocks = [...blocks];
+				alert('Failed to update block order. Please try again.');
+				console.error('Error updating block order:', error);
+			}
+
+			blocks = finalisedBlocks;
+		}
+
 		if (sourceContainer.startsWith('lesson') && targetContainer === 'blockPalette') {
 			const { success } = await deleteBlock(draggedItem.id);
 			if (!success) {
@@ -62,8 +123,6 @@
 			}
 			blocks = blocks.filter((block) => block.id !== draggedItem.id);
 		}
-
-		draggedOverElement = '';
 	}
 
 	function handleDragOver(state: DragDropState<LessonBlock>) {
@@ -87,14 +146,31 @@
 	</Card.Root>
 
 	<Card.Root class="h-full gap-0">
-		<Card.Header>
-			<Heading
-				headingSize={1}
-				text={data.lesson.title}
-				onUpdate={async (newText: string) =>
-					await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
-			/>
-		</Card.Header>
+		<div class="flex items-center justify-between p-6 pb-4">
+			<div class="flex-1">
+				<Heading
+					headingSize={1}
+					text={data.lesson.title}
+					isEditMode={isEditMode}
+					onUpdate={async (newText: string) =>
+						await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
+				/>
+			</div>
+			<Button
+				variant="outline"
+				size="sm"
+				onclick={() => (isEditMode = !isEditMode)}
+				class="flex items-center gap-2"
+			>
+				{#if isEditMode}
+					<EyeIcon class="h-4 w-4" />
+					Switch to Preview Mode
+				{:else}
+					<EditIcon class="h-4 w-4" />
+					Switch to Edit Mode
+				{/if}
+			</Button>
+		</div>
 		<Card.Content class="h-full">
 			<div class="flex h-full flex-col">
 				{#each blocks as block}
@@ -109,44 +185,84 @@
 						}}
 					>
 						{#if draggedOverElement === `lesson-${block.id}`}
-							<Separator class="bg-accent-foreground" />
+							<Separator class="bg-accent-foreground my-2" />
 						{/if}
 					</div>
 					<div
-						use:draggable={{
-							container: 'lesson',
-							dragData: block
-						}}
+						class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
+						role="group"
+						onmouseover={() => (mouseOverElement = `lesson-${block.id}`)}
+						onfocus={() => (mouseOverElement = `lesson-${block.id}`)}
 					>
-						{#if block.type[0] === 'h'}
-							<Heading
-								headingSize={parseInt(block.type[1]) + 1}
-								text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'markdown'}
-							<Markdown
-								content={typeof block.content === 'string' ? block.content : ''}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'image'}
-							<Image
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'video'}
-							<Video
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else if block.type === 'audio'}
-							<Audio
-								content={block.content as Record<string, any> | undefined}
-								onUpdate={async (content: string) => await updateBlock({ block, content })}
-							/>
-						{:else}
-							<p>Content for {block.type} block.</p>
+						{#if isEditMode && mouseOverElement === `lesson-${block.id}`}
+							<div
+								use:draggable={{
+									container: 'lesson',
+									dragData: block
+								}}
+								class="group relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors hover:bg-gray-100 active:cursor-grabbing dark:hover:bg-gray-800"
+							>
+								<GripVerticalIcon
+									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
+								/>
+							</div>
+						{:else if isEditMode}
+							<div></div>
 						{/if}
+						<div>
+							{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
+								<Heading
+									headingSize={parseInt(block.type[1]) + 1}
+									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'markdown'}
+								<Markdown
+									content={typeof block.content === 'string' ? block.content : ''}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'image'}
+								<Image
+									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'video'}
+								<Video
+									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'audio'}
+								<Audio
+									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'whiteboard'}
+								<Whiteboard
+									content={block.content as Record<string, any> | undefined}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'multiple_choice'}
+								<MultipleChoice
+									content={block.content as any}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'fill_in_blank'}
+								<FillInBlank
+									content={block.content as any}
+									isEditMode={isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else}
+								<p>Content for {block.type} block.</p>
+							{/if}
+						</div>
 					</div>
 				{/each}
 				<div
@@ -172,8 +288,8 @@
 		<Card.Header>
 			<Card.Title class="text-lg">Blocks</Card.Title>
 			<Card.Description>
-				Drag and drop blocks from here to the lesson content area, or drag blocks to the delete bin
-				below to remove them.
+				Drag and drop blocks from here to the lesson content area. If you'd like to delete a block,
+				simply drag it to the area below.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content class="flex h-full flex-col gap-4">

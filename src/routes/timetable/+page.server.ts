@@ -1,11 +1,7 @@
 import { getSubjectClassAllocationByUserId } from '$lib/server/db/service';
 
-export const load = async ({ locals: { security, user } }) => {
-	security.isAuthenticated();
-
-	if (!user) {
-		return { user: null, subjects: [] };
-	}
+export const load = async ({ locals: { security } }) => {
+	const user = security.isAuthenticated().getUser();
 
 	const classAllocation = await getSubjectClassAllocationByUserId(user.id);
 

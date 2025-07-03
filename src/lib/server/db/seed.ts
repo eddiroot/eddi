@@ -18,7 +18,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'admin@eddi.com.au',
 				passwordHash: await hash('systemAdmin'),
-				type: 'systemAdmin',
+				type: schema.userTypeEnum.systemAdmin,
 				firstName: 'SystemAdmin',
 				lastName: 'One'
 			},
@@ -26,7 +26,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'admin@school.edu.au',
 				passwordHash: await hash('schoolAdmin'),
-				type: 'schoolAdmin',
+				type: schema.userTypeEnum.schoolAdmin,
 				firstName: 'SchoolAdmin',
 				lastName: 'One'
 			},
@@ -34,7 +34,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'teacher001@school.edu.au',
 				passwordHash: await hash('teacher'),
-				type: 'teacher',
+				type: schema.userTypeEnum.teacher,
 				firstName: 'Teacher',
 				lastName: '001'
 			},
@@ -42,7 +42,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'teacher002@school.edu.au',
 				passwordHash: await hash('teacher'),
-				type: 'teacher',
+				type: schema.userTypeEnum.teacher,
 				firstName: 'Teacher',
 				lastName: '002'
 			},
@@ -50,7 +50,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'teacher003@school.edu.au',
 				passwordHash: await hash('teacher'),
-				type: 'teacher',
+				type: schema.userTypeEnum.teacher,
 				firstName: 'Teacher',
 				lastName: '003'
 			},
@@ -58,7 +58,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'teacher004@school.edu.au',
 				passwordHash: await hash('teacher'),
-				type: 'teacher',
+				type: schema.userTypeEnum.teacher,
 				firstName: 'Teacher',
 				lastName: '004'
 			},
@@ -66,7 +66,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'teacher005@school.edu.au',
 				passwordHash: await hash('teacher'),
-				type: 'teacher',
+				type: schema.userTypeEnum.teacher,
 				firstName: 'Teacher',
 				lastName: '005'
 			},
@@ -74,7 +74,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'student001@school.edu.au',
 				passwordHash: await hash('student'),
-				type: 'student',
+				type: schema.userTypeEnum.student,
 				firstName: 'Student',
 				lastName: 'One'
 			},
@@ -82,7 +82,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'student002@school.edu.au',
 				passwordHash: await hash('student'),
-				type: 'student',
+				type: schema.userTypeEnum.student,
 				firstName: 'Student',
 				lastName: 'Two'
 			},
@@ -90,7 +90,7 @@ async function main() {
 				id: generateUserId(),
 				email: 'student003@school.edu.au',
 				passwordHash: await hash('student'),
-				type: 'student',
+				type: schema.userTypeEnum.student,
 				firstName: 'Student',
 				lastName: 'Three'
 			}
@@ -101,129 +101,142 @@ async function main() {
 		.insert(schema.school)
 		.values([
 			{
-				name: 'School of Eddi',
-				address: '123 Eddi Street, Eddi Town, ED 1234'
+				name: 'School of Eddi'
 			}
 		])
 		.returning();
 
-	// Add schoolLocations for the school
+	// Create a campus for the school
+	const [campus] = await db
+		.insert(schema.campus)
+		.values([
+			{
+				schoolId: school.id,
+				name: 'Main Campus',
+				address: '123 Eddi Street, Eddi Town, ED 1234',
+				description: 'The main campus of School of Eddi',
+				isActive: true
+			}
+		])
+		.returning();
+
+	// Add schoolLocations for the campus
 	const schoolLocations = await db
 		.insert(schema.schoolLocation)
 		.values([
 			// Classrooms
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 101',
-				type: 'classroom',
+				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 30,
 				description: 'Main building, ground floor - equipped with smart board',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 102',
-				type: 'classroom',
+				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 28,
 				description: 'Main building, ground floor - traditional classroom setup',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 201',
-				type: 'classroom',
+				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 32,
 				description: 'Main building, second floor - large windows, natural lighting',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Room 202',
-				type: 'classroom',
+				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 25,
 				description: 'Main building, second floor - compact classroom for small groups',
 				isActive: true
 			},
 			// Laboratories
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Chemistry Lab A',
-				type: 'laboratory',
+				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 24,
 				description: 'Fully equipped chemistry lab with fume hoods and safety equipment',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Physics Lab',
-				type: 'laboratory',
+				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 20,
 				description: 'Physics laboratory with experiment stations and demonstration area',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Computer Lab',
-				type: 'laboratory',
+				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 30,
 				description: 'Modern computer lab with 30 workstations and high-speed internet',
 				isActive: true
 			},
 			// Special purpose rooms
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Main Auditorium',
-				type: 'auditorium',
+				type: schema.schoolLocationTypeEnum.auditorium,
 				capacity: 200,
 				description: 'Large auditorium for assemblies, presentations, and performances',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Gymnasium',
-				type: 'gymnasium',
+				type: schema.schoolLocationTypeEnum.gymnasium,
 				capacity: 100,
 				description: 'Full-size gymnasium for sports and physical education',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Library Study Room',
-				type: 'classroom',
+				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 15,
 				description: 'Quiet study room in the library for small group work',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Art Studio',
-				type: 'laboratory',
+				type: schema.schoolLocationTypeEnum.laboratory,
 				capacity: 22,
 				description: 'Creative arts studio with easels, pottery wheels, and art supplies',
 				isActive: true
 			},
 			// Online/Virtual
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Virtual Classroom A',
-				type: 'online',
+				type: schema.schoolLocationTypeEnum.online,
 				capacity: null,
 				description: 'Zoom meeting room for remote learning sessions',
 				isActive: true
 			},
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Virtual Classroom B',
-				type: 'online',
+				type: schema.schoolLocationTypeEnum.online,
 				capacity: null,
 				description: 'Microsoft Teams room for hybrid learning',
 				isActive: true
 			},
 			// Inactive location for testing
 			{
-				schoolId: school.id,
+				campusId: campus.id,
 				name: 'Old Room 103',
-				type: 'classroom',
+				type: schema.schoolLocationTypeEnum.classroom,
 				capacity: 20,
 				description: 'Previously used classroom, now under renovation',
 				isActive: false
@@ -267,23 +280,33 @@ async function main() {
 		.values([
 			{
 				subjectId: subjects[0].id, // Mathematics
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[1].id, // Science
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[2].id, // History
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[3].id, // English
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			},
 			{
 				subjectId: subjects[4].id, // Geography
-				year: 2025
+				year: 2025,
+				semester: 2,
+				campusId: campus.id
 			}
 		])
 		.returning();
@@ -292,7 +315,7 @@ async function main() {
 		{
 			userId: users[2].id, // teacher001
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
-			role: 'teacher',
+			role: schema.userSubjectOfferingRoleEnum.teacher,
 			isComplete: 0,
 			isArchived: 0,
 			color: 100
@@ -300,7 +323,7 @@ async function main() {
 		{
 			userId: users[4].id, // teacher003
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
-			role: 'teacher',
+			role: schema.userSubjectOfferingRoleEnum.teacher,
 			isComplete: 0,
 			isArchived: 0,
 			color: 120
@@ -308,7 +331,7 @@ async function main() {
 		{
 			userId: users[3].id, // teacher002
 			subjectOfferingId: subjectOfferings[1].id, // Science
-			role: 'teacher',
+			role: schema.userSubjectOfferingRoleEnum.teacher,
 			isComplete: 0,
 			isArchived: 0,
 			color: 140
@@ -316,7 +339,7 @@ async function main() {
 		{
 			userId: users[4].id, // teacher003
 			subjectOfferingId: subjectOfferings[2].id, // History
-			role: 'teacher',
+			role: schema.userSubjectOfferingRoleEnum.teacher,
 			isComplete: 0,
 			isArchived: 0,
 			color: 180
@@ -324,7 +347,7 @@ async function main() {
 		{
 			userId: users[5].id, // teacher004
 			subjectOfferingId: subjectOfferings[3].id, // English
-			role: 'teacher',
+			role: schema.userSubjectOfferingRoleEnum.teacher,
 			isComplete: 0,
 			isArchived: 0,
 			color: 220
@@ -332,7 +355,7 @@ async function main() {
 		{
 			userId: users[6].id, // teacher005
 			subjectOfferingId: subjectOfferings[4].id, // Geography
-			role: 'teacher',
+			role: schema.userSubjectOfferingRoleEnum.teacher,
 			isComplete: 0,
 			isArchived: 0,
 			color: 100
@@ -340,7 +363,7 @@ async function main() {
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0,
 			color: 0
@@ -348,7 +371,7 @@ async function main() {
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[1].id, // Science
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0,
 			color: 100
@@ -356,7 +379,7 @@ async function main() {
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[2].id, // History
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0,
 			color: 30
@@ -364,7 +387,7 @@ async function main() {
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[3].id, // English
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0,
 			color: 240
@@ -372,7 +395,7 @@ async function main() {
 		{
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[4].id, // Geography
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0,
 			color: 300
@@ -380,70 +403,70 @@ async function main() {
 		{
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[1].id, // Science
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[2].id, // History
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[3].id, // English
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[4].id, // Geography
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[1].id, // Science
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[2].id, // History
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[3].id, // English
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		},
 		{
 			userId: users[9].id, // student003
 			subjectOfferingId: subjectOfferings[4].id, // Geography
-			role: 'student',
+			role: schema.userSubjectOfferingRoleEnum.student,
 			isComplete: 0,
 			isArchived: 0
 		}
@@ -451,14 +474,14 @@ async function main() {
 
 	await db.insert(schema.subjectThread).values([
 		{
-			type: 'announcement',
+			type: schema.subjectThreadTypeEnum.announcement,
 			userId: users[2].id, // teacher
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			title: 'Welcome to Mathematics',
 			content: 'This is the first thread in Mathematics.'
 		},
 		{
-			type: 'announcement',
+			type: schema.subjectThreadTypeEnum.announcement,
 			userId: users[2].id, // teacher
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			title: 'Quiz Next Week',
@@ -466,21 +489,21 @@ async function main() {
 				'We will have a quiz on algebra basics next Monday. Please review chapters 1-3 in your textbook.'
 		},
 		{
-			type: 'question',
+			type: schema.subjectThreadTypeEnum.question,
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[0].id, // Mathematics
 			title: 'Help with long division',
 			content: 'I am struggling with long division. Can anyone help?'
 		},
 		{
-			type: 'announcement',
+			type: schema.subjectThreadTypeEnum.announcement,
 			userId: users[2].id, // teacher
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Welcome to Science',
 			content: 'This is the first thread in Science.'
 		},
 		{
-			type: 'announcement',
+			type: schema.subjectThreadTypeEnum.announcement,
 			userId: users[2].id, // teacher
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Lab Safety Reminder',
@@ -488,7 +511,7 @@ async function main() {
 				'Please remember to bring your safety goggles to tomorrows lab session. We will be working with chemicals.'
 		},
 		{
-			type: 'announcement',
+			type: schema.subjectThreadTypeEnum.announcement,
 			userId: users[2].id, // teacher
 			subjectOfferingId: subjectOfferings[2].id, // History
 			title: 'Field Trip Permission Slips',
@@ -496,7 +519,7 @@ async function main() {
 				'Field trip permission slips for the museum visit are due by Friday. Please have your parents sign and return them.'
 		},
 		{
-			type: 'announcement',
+			type: schema.subjectThreadTypeEnum.announcement,
 			userId: users[2].id, // teacher
 			subjectOfferingId: subjectOfferings[3].id, // English
 			title: 'Book Report Due Date',
@@ -504,14 +527,14 @@ async function main() {
 				'Your book reports on the assigned novels are due next Wednesday. Late submissions will receive a penalty.'
 		},
 		{
-			type: 'question',
+			type: schema.subjectThreadTypeEnum.question,
 			userId: users[7].id, // student001
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Scientific method',
 			content: 'Can someone explain the scientific method to me?'
 		},
 		{
-			type: 'question',
+			type: schema.subjectThreadTypeEnum.question,
 			userId: users[8].id, // student002
 			subjectOfferingId: subjectOfferings[1].id, // Science
 			title: 'Experiments',
@@ -548,7 +571,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[0].id,
 			schoolLocationId: schoolLocations[7].id,
-			dayOfWeek: 'monday',
+			dayOfWeek: schema.dayOfWeekEnum.monday,
 			startTime: '08:30:00',
 			duration: '00:55:00'
 		},
@@ -556,7 +579,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[3].id,
 			schoolLocationId: schoolLocations[1].id,
-			dayOfWeek: 'monday',
+			dayOfWeek: schema.dayOfWeekEnum.monday,
 			startTime: '09:25:00',
 			duration: '00:55:00'
 		},
@@ -564,7 +587,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[1].id,
 			schoolLocationId: schoolLocations[2].id,
-			dayOfWeek: 'monday',
+			dayOfWeek: schema.dayOfWeekEnum.monday,
 			startTime: '10:40:00',
 			duration: '00:55:00'
 		},
@@ -572,7 +595,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[2].id,
 			schoolLocationId: schoolLocations[1].id,
-			dayOfWeek: 'monday',
+			dayOfWeek: schema.dayOfWeekEnum.monday,
 			startTime: '11:35:00',
 			duration: '00:55:00'
 		},
@@ -580,7 +603,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[4].id,
 			schoolLocationId: schoolLocations[3].id,
-			dayOfWeek: 'monday',
+			dayOfWeek: schema.dayOfWeekEnum.monday,
 			startTime: '13:15:00',
 			duration: '00:55:00'
 		},
@@ -588,7 +611,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[0].id,
 			schoolLocationId: schoolLocations[7].id,
-			dayOfWeek: 'monday',
+			dayOfWeek: schema.dayOfWeekEnum.monday,
 			startTime: '14:10:00',
 			duration: '00:55:00'
 		},
@@ -598,7 +621,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[1].id,
 			schoolLocationId: schoolLocations[2].id,
-			dayOfWeek: 'tuesday',
+			dayOfWeek: schema.dayOfWeekEnum.tuesday,
 			startTime: '08:30:00',
 			duration: '00:55:00'
 		},
@@ -606,7 +629,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[0].id,
 			schoolLocationId: schoolLocations[0].id, // Room 101
-			dayOfWeek: 'tuesday',
+			dayOfWeek: schema.dayOfWeekEnum.tuesday,
 			startTime: '09:25:00',
 			duration: '00:55:00'
 		},
@@ -614,7 +637,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[4].id,
 			schoolLocationId: schoolLocations[3].id,
-			dayOfWeek: 'tuesday',
+			dayOfWeek: schema.dayOfWeekEnum.tuesday,
 			startTime: '10:40:00',
 			duration: '00:55:00'
 		},
@@ -622,7 +645,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[3].id,
 			schoolLocationId: schoolLocations[1].id,
-			dayOfWeek: 'tuesday',
+			dayOfWeek: schema.dayOfWeekEnum.tuesday,
 			startTime: '11:35:00',
 			duration: '00:55:00'
 		},
@@ -630,7 +653,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[2].id,
 			schoolLocationId: schoolLocations[4].id,
-			dayOfWeek: 'tuesday',
+			dayOfWeek: schema.dayOfWeekEnum.tuesday,
 			startTime: '13:15:00',
 			duration: '00:55:00'
 		},
@@ -638,7 +661,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[1].id,
 			schoolLocationId: schoolLocations[2].id,
-			dayOfWeek: 'tuesday',
+			dayOfWeek: schema.dayOfWeekEnum.tuesday,
 			startTime: '14:10:00',
 			duration: '00:55:00'
 		},
@@ -648,7 +671,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[3].id,
 			schoolLocationId: schoolLocations[1].id,
-			dayOfWeek: 'wednesday',
+			dayOfWeek: schema.dayOfWeekEnum.wednesday,
 			startTime: '08:30:00',
 			duration: '00:55:00'
 		},
@@ -656,7 +679,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[2].id,
 			schoolLocationId: schoolLocations[4].id,
-			dayOfWeek: 'wednesday',
+			dayOfWeek: schema.dayOfWeekEnum.wednesday,
 			startTime: '09:25:00',
 			duration: '00:55:00'
 		},
@@ -664,7 +687,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[0].id,
 			schoolLocationId: schoolLocations[0].id,
-			dayOfWeek: 'wednesday',
+			dayOfWeek: schema.dayOfWeekEnum.wednesday,
 			startTime: '10:40:00',
 			duration: '00:55:00'
 		},
@@ -672,7 +695,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[4].id,
 			schoolLocationId: schoolLocations[3].id,
-			dayOfWeek: 'wednesday',
+			dayOfWeek: schema.dayOfWeekEnum.wednesday,
 			startTime: '11:35:00',
 			duration: '00:55:00'
 		},
@@ -680,7 +703,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[1].id,
 			schoolLocationId: schoolLocations[2].id,
-			dayOfWeek: 'wednesday',
+			dayOfWeek: schema.dayOfWeekEnum.wednesday,
 			startTime: '13:15:00',
 			duration: '00:55:00'
 		},
@@ -688,7 +711,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[3].id,
 			schoolLocationId: schoolLocations[1].id,
-			dayOfWeek: 'wednesday',
+			dayOfWeek: schema.dayOfWeekEnum.wednesday,
 			startTime: '14:10:00',
 			duration: '00:55:00'
 		},
@@ -698,7 +721,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[4].id,
 			schoolLocationId: schoolLocations[3].id,
-			dayOfWeek: 'thursday',
+			dayOfWeek: schema.dayOfWeekEnum.thursday,
 			startTime: '08:30:00',
 			duration: '00:55:00'
 		},
@@ -706,7 +729,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[1].id,
 			schoolLocationId: schoolLocations[2].id,
-			dayOfWeek: 'thursday',
+			dayOfWeek: schema.dayOfWeekEnum.thursday,
 			startTime: '09:25:00',
 			duration: '00:55:00'
 		},
@@ -714,7 +737,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[3].id,
 			schoolLocationId: schoolLocations[1].id,
-			dayOfWeek: 'thursday',
+			dayOfWeek: schema.dayOfWeekEnum.thursday,
 			startTime: '10:40:00',
 			duration: '00:55:00'
 		},
@@ -722,7 +745,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[0].id,
 			schoolLocationId: schoolLocations[0].id,
-			dayOfWeek: 'thursday',
+			dayOfWeek: schema.dayOfWeekEnum.thursday,
 			startTime: '11:35:00',
 			duration: '00:55:00'
 		},
@@ -730,7 +753,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[3].id,
 			schoolLocationId: schoolLocations[1].id, // Room 102
-			dayOfWeek: 'thursday',
+			dayOfWeek: schema.dayOfWeekEnum.thursday,
 			startTime: '13:15:00',
 			duration: '00:55:00'
 		},
@@ -738,7 +761,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[2].id,
 			schoolLocationId: schoolLocations[4].id, // Physics Lab
-			dayOfWeek: 'thursday',
+			dayOfWeek: schema.dayOfWeekEnum.thursday,
 			startTime: '14:10:00',
 			duration: '00:55:00'
 		},
@@ -748,7 +771,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[2].id,
 			schoolLocationId: schoolLocations[4].id, // Physics Lab
-			dayOfWeek: 'friday',
+			dayOfWeek: schema.dayOfWeekEnum.friday,
 			startTime: '08:30:00',
 			duration: '00:55:00'
 		},
@@ -756,7 +779,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[4].id,
 			schoolLocationId: schoolLocations[3].id, // Computer Lab
-			dayOfWeek: 'friday',
+			dayOfWeek: schema.dayOfWeekEnum.friday,
 			startTime: '09:25:00',
 			duration: '00:55:00'
 		},
@@ -764,7 +787,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[2].id,
 			schoolLocationId: schoolLocations[4].id, // Physics Lab
-			dayOfWeek: 'friday',
+			dayOfWeek: schema.dayOfWeekEnum.friday,
 			startTime: '10:40:00',
 			duration: '00:55:00'
 		},
@@ -772,7 +795,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[1].id,
 			schoolLocationId: schoolLocations[2].id, // Chemistry Lab A
-			dayOfWeek: 'friday',
+			dayOfWeek: schema.dayOfWeekEnum.friday,
 			startTime: '11:35:00',
 			duration: '00:55:00'
 		},
@@ -780,7 +803,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[0].id,
 			schoolLocationId: schoolLocations[0].id, // Room 101
-			dayOfWeek: 'friday',
+			dayOfWeek: schema.dayOfWeekEnum.friday,
 			startTime: '13:15:00',
 			duration: '00:55:00'
 		},
@@ -788,7 +811,7 @@ async function main() {
 		{
 			subjectClassId: subjectClasses[4].id,
 			schoolLocationId: schoolLocations[3].id, // Computer Lab
-			dayOfWeek: 'friday',
+			dayOfWeek: schema.dayOfWeekEnum.friday,
 			startTime: '14:10:00',
 			duration: '00:55:00'
 		}
@@ -798,102 +821,102 @@ async function main() {
 		{
 			userId: users[2].id, // teacher001
 			subjectClassId: subjectClasses[0].id, // Maths
-			role: 'teacher'
+			role: schema.userSubjectClassRoleEnum.teacher
 		},
 		{
 			userId: users[3].id, // teacher002
 			subjectClassId: subjectClasses[1].id, // Science
-			role: 'teacher'
+			role: schema.userSubjectClassRoleEnum.teacher
 		},
 		{
 			userId: users[4].id, // teacher003
 			subjectClassId: subjectClasses[2].id, // History
-			role: 'teacher'
+			role: schema.userSubjectClassRoleEnum.teacher
 		},
 		{
 			userId: users[5].id, // teacher004
 			subjectClassId: subjectClasses[3].id, // English
-			role: 'teacher'
+			role: schema.userSubjectClassRoleEnum.teacher
 		},
 		{
 			userId: users[6].id, // teacher005
 			subjectClassId: subjectClasses[4].id, // Geography
-			role: 'teacher'
+			role: schema.userSubjectClassRoleEnum.teacher
 		},
 		{
 			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[0].id, // Maths
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[1].id, // Science
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[2].id, // History
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[3].id, // English
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[7].id, // student001
 			subjectClassId: subjectClasses[4].id, // Geography
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[0].id, // Maths
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[1].id, // Science
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[2].id, // History
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[3].id, // English
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[8].id, // student002
 			subjectClassId: subjectClasses[4].id, // Geography
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[0].id, // Maths
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[1].id, // Science
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[2].id, // History
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[3].id, // English
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		},
 		{
 			userId: users[9].id, // student003
 			subjectClassId: subjectClasses[4].id, // Geography
-			role: 'student'
+			role: schema.userSubjectClassRoleEnum.student
 		}
 	]);
 
@@ -940,21 +963,24 @@ async function main() {
 				index: 0,
 				title: 'Introduction to Variables',
 				description: 'Learn about variables and their role in algebra',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[0].id,
 				index: 1,
 				title: 'Basic Operations with Variables',
 				description: 'Addition, subtraction, multiplication and division with variables',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[0].id,
 				index: 2,
 				title: 'Simplifying Expressions',
 				description: 'Learn to combine like terms and simplify algebraic expressions',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 
 			// Linear Equations lessons
@@ -963,21 +989,24 @@ async function main() {
 				index: 0,
 				title: 'Solving One-Step Equations',
 				description: 'Basic techniques for solving simple linear equations',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[1].id,
 				index: 1,
 				title: 'Solving Multi-Step Equations',
 				description: 'Advanced techniques for complex linear equations',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[1].id,
 				index: 2,
 				title: 'Graphing Linear Equations',
 				description: 'Visual representation of linear equations on coordinate plane',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 
 			// Quadratic Functions lessons
@@ -986,21 +1015,24 @@ async function main() {
 				index: 0,
 				title: 'Introduction to Quadratics',
 				description: 'Understanding quadratic functions and their properties',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[2].id,
 				index: 1,
 				title: 'Factoring Quadratics',
 				description: 'Methods for factoring quadratic expressions',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[2].id,
 				index: 2,
 				title: 'Quadratic Formula',
 				description: 'Using the quadratic formula to solve equations',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 
 			// Geometry Fundamentals lessons
@@ -1009,21 +1041,24 @@ async function main() {
 				index: 0,
 				title: 'Points, Lines, and Planes',
 				description: 'Basic geometric concepts and definitions',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[3].id,
 				index: 1,
 				title: 'Angles and Their Measures',
 				description: 'Understanding different types of angles',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[3].id,
 				index: 2,
 				title: 'Triangles and Their Properties',
 				description: 'Exploring triangle classifications and properties',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 
 			// Trigonometry lessons
@@ -1032,21 +1067,24 @@ async function main() {
 				index: 0,
 				title: 'Introduction to Trigonometry',
 				description: 'Basic trigonometric concepts and ratios',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[4].id,
 				index: 1,
 				title: 'Sine, Cosine, and Tangent',
 				description: 'Understanding the primary trigonometric functions',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			},
 			{
 				lessonTopicId: mathLessonTopics[4].id,
 				index: 2,
 				title: 'Solving Right Triangles',
 				description: 'Using trigonometry to find missing sides and angles',
-				lessonStatus: 'draft'
+				type: schema.lessonTypeEnum.lesson,
+				lessonStatus: schema.lessonStatusEnum.draft
 			}
 		])
 		.returning();

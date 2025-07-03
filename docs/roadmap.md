@@ -6,28 +6,21 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 - [x] Create lessons with drag'n'drop blocks
   - Fix whiteboard component issues and mc alerts and text overflow in question and explanation (Raph)
-  - Add interactive components (Max, Raph)
-  - Re-think how we do lesson sections (Jack, Lachie)
-  - Improve the drag and drop experience (Jack, Lachie)
-  - Ability to order topics and lessons within them (Lachie)
+  - Add draggable interactive components (matching etc)
 - [x] Create lessons based on textbooks, slides, PDFs, images, etc (Jack)
 - [x] Discussions (subject level)
 - [x] View your timetable
 - [x] Live whiteboards
-- [ ] AI Tutor "eddi" (teaching focus, not giving answers)
-  - Give context of previous chat messages from DB (Raph, Bella)
-  - Prevent prompt injection (Raph, Bella)
-  - Give context of current lesson (Raph, Bella)
-- [ ] Home page
-  - Update the images (once all features can be screenshotted) (Beej)
-  - Change wording for best marketing (Beej)
+- [x] AI Tutor "eddi" (teaching focus, not giving answers)
 - [ ] Onboarding flow
 - [x] Class announcements
 
 ## Post MVP
 
-- [ ] Security review
-- [ ] LLM access to lesson plans\
+- [ ] Home page
+- [ ] Order topics and lessons within them (Lachie)
+- [ ] Security review (e.g. prompt injection to eddi)
+- [ ] LLM access to lesson plans
 - [ ] A what to do button to generate study ideas
 - [ ] Class tests / quizzes
 - [ ] Roll call / attendance
@@ -48,6 +41,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [ ] Fees / breakdowns
 - [ ] Export all data for the organisation
 - [ ] Handling of multiple campuses
+- [ ] Titles on every page
 
 ## Future Functionality
 

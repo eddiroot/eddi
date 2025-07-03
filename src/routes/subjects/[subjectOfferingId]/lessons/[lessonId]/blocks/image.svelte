@@ -7,14 +7,22 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UploadIcon from '@lucide/svelte/icons/upload';
 
-	let { content = { src: '', alt: 'Image', caption: '' }, onUpdate = () => {} } = $props();
-	let isEditing = $state(false);
+	let { content = { src: '', alt: 'Image', caption: '' }, isEditMode = true, onUpdate = () => {} } = $props();
 	let fileInput = $state<HTMLInputElement>();
 
 	// Local state for editing
 	let src = $state(content.src || '');
 	let alt = $state(content.alt || 'Image');
 	let caption = $state(content.caption || '');
+
+	// Initialize editing state when component loads or content changes
+	$effect(() => {
+		if (isEditMode) {
+			src = content.src || '';
+			alt = content.alt || 'Image';
+			caption = content.caption || '';
+		}
+	});
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -32,12 +40,11 @@
 		const newContent = { src, alt, caption };
 		content = newContent;
 		onUpdate(newContent);
-		isEditing = false;
 	}
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditing}
+	{#if isEditMode}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
@@ -48,7 +55,7 @@
 			<Card.Content class="space-y-4">
 				<div class="space-y-2">
 					<Label for="image-src">Image URL</Label>
-					<Input id="image-src" bind:value={src} placeholder="Enter image URL or upload file" />
+					<Input id="image-src" bind:value={src} onblur={saveChanges} placeholder="Enter image URL or upload file" />
 				</div>
 
 				<div class="space-y-2">
@@ -75,57 +82,38 @@
 
 				<div class="space-y-2">
 					<Label for="image-alt">Alt Text</Label>
-					<Input id="image-alt" bind:value={alt} placeholder="Describe the image" />
+					<Input id="image-alt" bind:value={alt} onblur={saveChanges} placeholder="Describe the image" />
 				</div>
 
 				<div class="space-y-2">
 					<Label for="image-caption">Caption (optional)</Label>
-					<Input id="image-caption" bind:value={caption} placeholder="Image caption" />
-				</div>
-
-				<div class="flex gap-2">
-					<Button onclick={saveChanges}>Save</Button>
-					<Button variant="outline" onclick={() => (isEditing = false)}>Cancel</Button>
+					<Input id="image-caption" bind:value={caption} onblur={saveChanges} placeholder="Image caption" />
 				</div>
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		<div class="group relative">
-			{#if content.src}
-				<figure class="space-y-2">
-					<img
-						src={content.src}
-						alt={content.alt}
-						class="w-full rounded-lg border object-cover"
-						style="max-height: 400px;"
-					/>
-					{#if content.caption}
-						<figcaption class="text-muted-foreground text-center text-sm">
-							{content.caption}
-						</figcaption>
-					{/if}
-				</figure>
-			{:else}
-				<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
-					<div class="text-center">
-						<ImageIcon class="text-muted-foreground mx-auto h-12 w-12" />
-						<p class="text-muted-foreground mt-2 text-sm">No image selected</p>
-						<p class="text-muted-foreground text-xs">Click edit to add an image</p>
-					</div>
+		{#if content.src}
+			<figure class="space-y-2">
+				<img
+					src={content.src}
+					alt={content.alt}
+					class="w-full rounded-lg border object-cover"
+					style="max-height: 400px;"
+				/>
+				{#if content.caption}
+					<figcaption class="text-muted-foreground text-center text-sm">
+						{content.caption}
+					</figcaption>
+				{/if}
+			</figure>
+		{:else}
+			<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
+				<div class="text-center">
+					<ImageIcon class="text-muted-foreground mx-auto h-12 w-12" />
+					<p class="text-muted-foreground mt-2 text-sm">No image selected</p>
+					<p class="text-muted-foreground text-xs">Switch to edit mode to add an image</p>
 				</div>
-			{/if}
-
-			<Button
-				onclick={() => {
-					src = content.src || '';
-					alt = content.alt || 'Image';
-					caption = content.caption || '';
-					isEditing = true;
-				}}
-				class={`interactive absolute top-2 right-2`}
-			>
-				<EditIcon />
-			</Button>
-		</div>
+			</div>
+		{/if}
 	{/if}
 </div>

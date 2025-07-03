@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
 	import { formatDate, formatTime, addTimeAndDuration } from '$lib/utils';
@@ -28,17 +27,9 @@
 		{ title: 'Contact Teacher', description: 'Send a message', icon: '💬' },
 		{ title: 'View Grades', description: 'Check recent results', icon: '📊' }
 	];
-
-	const mockRecentActivity = [
-		{ action: 'Submitted Math homework', time: '2 hours ago' },
-		{ action: 'Joined English discussion', time: '4 hours ago' },
-		{ action: 'Downloaded Chemistry notes', time: '1 day ago' },
-		{ action: 'Completed Science quiz', time: '2 days ago' }
-	];
 </script>
 
 <div class="grid h-full grid-cols-1 gap-6 p-8 xl:grid-cols-[2fr_2fr_1fr]">
-	<!-- Left 2x2 Grid Section -->
 	<div class="xl:col-span-2">
 		<div class="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
 			<!-- Recent Forum Announcements -->
@@ -173,25 +164,23 @@
 	<!-- Right Sidebar - Today's Timetable -->
 	<div class="xl:col-span-1">
 		<Card.Root class="h-full border-2 shadow-none">
-			<Card.Header class="flex flex-row items-center justify-between">
+			<Card.Header>
 				<Card.Title class="text-xl">Today's Timetable</Card.Title>
-				<Button variant="ghost" size="sm" class="h-8 w-8 p-0">
-					<span class="text-2xl">🙋‍♂️</span>
-					<span class="sr-only">Ask Eddi</span>
-				</Button>
 			</Card.Header>
 			<Card.Content>
 				{#if data.userClasses && data.userClasses.length > 0}
-					<div class="space-y-2">
+					<div class="space-y-3">
 						{#each data.userClasses as cls}
 							{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
 							<a href="/subjects/{cls.subject.id}" class="block">
 								<div
-									class="border-border-6 flex items-center justify-between rounded-lg border-1 border-t-10 p-3 transition-opacity duration-200 hover:opacity-75"
-									style="border-color: {colors.border}; background-color: {colors.background};"
+									class="border-border flex items-center justify-between rounded-lg border-2 border-t-3 p-3 shadow-lg transition-opacity duration-200 hover:opacity-75"
+									style="border-top-color: {colors.border};"
 								>
 									<div class="flex-1">
-										<div class="text-foreground font-medium">{cls.subject.name}</div>
+										<div class="text-foreground font-medium" style="color: {colors.text}">
+											{cls.subject.name}
+										</div>
 										<div class="text-muted-foreground text-sm">{cls.schoolLocation.name}</div>
 									</div>
 									<div class="text-muted-foreground text-sm font-medium">
@@ -209,19 +198,6 @@
 				{:else}
 					<p class="text-muted-foreground text-center">No classes scheduled for today.</p>
 				{/if}
-
-				<!-- Recent Activity Section -->
-				<!-- <div class="mt-8">
-					<h3 class="text-foreground mb-4 text-lg font-semibold">Recent Activity</h3>
-					<div class="space-y-2">
-						{#each mockRecentActivity as activity}
-							<div class="border-border rounded-lg border-2 p-2">
-								<p class="text-foreground text-sm">{activity.action}</p>
-								<span class="text-muted-foreground text-xs">{activity.time}</span>
-							</div>
-						{/each}
-					</div>
-				</div> -->
 			</Card.Content>
 		</Card.Root>
 	</div>
