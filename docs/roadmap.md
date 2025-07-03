@@ -20,7 +20,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [ ] Home page
 - [ ] Order topics and lessons within them (Lachie)
 - [ ] Security review (e.g. prompt injection to eddi)
-- [ ] LLM access to lesson plans\
+- [ ] LLM access to lesson plans
 - [ ] A what to do button to generate study ideas
 - [ ] Class tests / quizzes
 - [ ] Roll call / attendance

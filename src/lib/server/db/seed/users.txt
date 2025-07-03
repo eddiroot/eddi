@@ -1,0 +1,93 @@
+STUDENTS
+Emma Thompson
+Liam Chen
+Sophia Rodriguez
+Mason Williams
+Olivia Patel
+Ethan Johnson
+Ava Singh
+Noah Martinez
+Isabella Brown
+Lucas Kim
+Mia Davis
+Alexander Lee
+Charlotte Wilson
+Benjamin Taylor
+Amelia Garcia
+James Anderson
+Harper Miller
+Samuel Jackson
+Evelyn White
+Daniel Moore
+Abigail Thomas
+Michael Zhang
+Emily Clark
+David Kumar
+Grace Robinson
+Ryan O'Connor
+Chloe Lewis
+Jack Murphy
+Zoe Walker
+Tyler Nguyen
+Lily Hall
+Jordan Green
+Maya Brooks
+Cameron Smith
+Natalie Adams
+Connor Walsh
+Brooke Campbell
+Dylan Foster
+Paige Cooper
+Austin Reid
+Madeline King
+Logan Stewart
+Haley Torres
+Blake Hughes
+Rachel Peterson
+Trevor Collins
+Samantha Bell
+
+
+TEACHERS
+Mr. David Thompson
+Mrs. Jennifer Walsh
+Ms. Amanda Rodriguez
+Mr. Robert Johnson
+Mrs. Lisa Patel
+Mr. Christopher Wilson
+Ms. Rachel Anderson
+Mr. James Murphy
+Mr. Daniel Lee
+Ms. Emily Parker
+
+
+SUBJECTS
+English
+English as an Additional Language (EAL)
+Literature
+Foundation Mathematics
+General Mathematics
+Mathematical Methods
+Specialist Mathematics
+Biology
+Chemistry
+Physics
+Psychology
+History: Revolutions
+
+timetable restrictions
+
+Start time: 8:30
+End time: 3:20
+
+P1: 0830-0940
+P2: 0945-1025
+Recess: 1030-1055
+P3: 1100-1210
+P4: 1215-1255
+Lunch: 1300-1355
+P5: 1400-1515
+
+5 classes per day => 25 classes per week => 1 student with 5 subjects
+must have 5 classes for each subject per week.........this will work 
+for the seeding data. 
