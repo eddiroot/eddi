@@ -27,9 +27,9 @@
 	let hasSubmitted = $state(false);
 	let userAnswer = $state('');
 
-	// Edit mode state
-	let sentenceText = $state('');
-	let correctAnswer = $state('');
+	// Edit mode state - simple initialization like markdown
+	let sentenceText = $state(content.sentence || '');
+	let correctAnswer = $state(content.answer || '');
 
 	// Functions for student interaction
 	function submitAnswer() {
@@ -58,15 +58,6 @@
 		};
 	}
 
-	function initializeEditingState() {
-		sentenceText = content.sentence || '';
-		correctAnswer = content.answer || '';
-
-		// Reset quiz state when entering edit mode
-		hasSubmitted = false;
-		userAnswer = '';
-	}
-
 	function saveChanges() {
 		if (!sentenceText.trim()) {
 			alert('Sentence text is required');
@@ -92,19 +83,13 @@
 		onUpdate(newContent);
 	}
 
-	// Initialize editing state when component loads or content changes
+	// Update edit state when content prop changes (like markdown)
 	$effect(() => {
-		if (isEditMode) {
-			initializeEditingState();
-		}
-	});
-
-	$effect(() => {
-		if (content.sentence && content.answer) {
-			// Reset quiz state when content changes
-			hasSubmitted = false;
-			userAnswer = '';
-		}
+		sentenceText = content.sentence || '';
+		correctAnswer = content.answer || '';
+		// Reset quiz state
+		hasSubmitted = false;
+		userAnswer = '';
 	});
 </script>
 
