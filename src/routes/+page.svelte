@@ -1,5 +1,5 @@
 <script>
-	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
 	import ThumbsUpIcon from '@lucide/svelte/icons/thumbs-up';
 	import TagIcon from '@lucide/svelte/icons/tag';
@@ -25,8 +25,10 @@
 					with a <strong>modern</strong> approach to education
 				</p>
 				<div class="flex flex-col gap-3 sm:flex-row">
-					<Button variant="secondary" size="lg" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700">Watch the demo</Button>
-					<a href="/onboarding" class={buttonVariants({ size: 'lg' })}>Get started</a>
+					<Button size="lg" variant="secondary" class="bg-primary/15 hover:bg-primary/10"
+						>Watch the demo</Button
+					>
+					<Button href="/onboarding" size="lg">Get started</Button>
 				</div>
 			</div>
 			<div class="order-first md:order-last">

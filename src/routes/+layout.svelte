@@ -5,17 +5,17 @@
 
 	import { page } from '$app/state';
 
-	import { buttonVariants } from '$lib/components/ui/button';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import AiSidebar from '$lib/components/ai-sidebar.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let { children, data } = $props();
 
 	const user = $derived(() => data?.user);
-	
+
 	// Extract subjectOfferingId from URL if on a subject-specific page
 	const currentSubjectOfferingId = $derived(() => {
 		const pathname = page.url.pathname;
@@ -102,7 +102,7 @@
 				</div>
 				<div class="flex items-center space-x-4">
 					{#if !user() && page.url.pathname !== '/auth/login'}
-						<a href="/auth/login" class={buttonVariants({ variant: 'default' })}>Login</a>
+						<Button href="/auth/login">Login</Button>
 					{/if}
 					<ThemeToggle />
 					{#if user() && isOnSubjectsPage()}

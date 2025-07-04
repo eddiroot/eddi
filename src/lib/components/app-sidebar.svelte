@@ -87,14 +87,16 @@
 	// Helper function to check if a subject sub-item is active
 	function isSubjectSubItemActive(subjectId: string, subUrl: string): boolean {
 		const subjectBasePath = `/subjects/${subjectId}`;
-		
+
 		if (subUrl === '') {
 			// For home (empty subUrl), only match the exact base path
 			return $page.url.pathname === subjectBasePath;
 		} else {
 			// For other sub-items, check if current path starts with the expected path
 			const expectedPath = `${subjectBasePath}/${subUrl}`;
-			return $page.url.pathname === expectedPath || $page.url.pathname.startsWith(expectedPath + '/');
+			return (
+				$page.url.pathname === expectedPath || $page.url.pathname.startsWith(expectedPath + '/')
+			);
 		}
 	}
 
@@ -140,10 +142,10 @@
 				<Sidebar.Menu>
 					{#each items as item}
 						<Sidebar.MenuItem>
-							<Sidebar.MenuButton 
-								side="left" 
+							<Sidebar.MenuButton
+								side="left"
+								isActive={isMainItemActive(item.url)}
 								tooltipContent={item.title}
-								class={isMainItemActive(item.url) ? 'bg-primary/20 text-primary font-semibold' : ''}
 							>
 								{#snippet child({ props })}
 									<a href={item.url} {...props}>
@@ -175,10 +177,10 @@
 							{#snippet child({ props })}
 								{#if sidebar.leftOpen == false}
 									<a href="/subjects/{subject.id}">
-										<Sidebar.MenuButton 
-											side="left" 
+										<Sidebar.MenuButton
+											side="left"
 											tooltipContent={subject.name}
-											class={isSubjectActive(subject.id.toString()) ? 'bg-primary/20 text-primary font-semibold' : ''}
+											isActive={isSubjectActive(subject.id.toString())}
 											{...props}
 										>
 											{@const IconComponent = subjectNameToIcon(subject.name)}
@@ -191,10 +193,10 @@
 										</Sidebar.MenuButton>
 									</a>
 								{:else}
-									<Sidebar.MenuButton 
-										side="left" 
+									<Sidebar.MenuButton
+										side="left"
 										tooltipContent={subject.name}
-										class={isSubjectActive(subject.id.toString()) ? 'bg-primary/20 text-primary font-semibold' : ''}
+										isActive={isSubjectActive(subject.id.toString())}
 										{...props}
 									>
 										{@const IconComponent = subjectNameToIcon(subject.name)}
@@ -213,12 +215,11 @@
 								{#each subjectItems as item}
 									<Sidebar.MenuSubItem>
 										<Sidebar.MenuSubButton
-											class={isSubjectSubItemActive(subject.id.toString(), item.url) ? 'bg-primary/15 text-primary font-medium ml-2' : ''}
+											isActive={isSubjectSubItemActive(subject.id.toString(), item.url)}
 										>
 											{#snippet child({ props })}
 												<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
 													<item.icon />
-
 													<span>{item.title}</span>
 												</a>
 											{/snippet}

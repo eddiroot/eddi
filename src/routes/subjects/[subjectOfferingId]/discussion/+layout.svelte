@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Resizable from '$lib/components/ui/resizable/index.js';
 	import * as Card from '$lib/components/ui/card';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
@@ -21,9 +21,10 @@
 <div class="grid h-full grid-cols-[300px_1fr] overflow-y-hidden">
 	<div class="h-full border-r border-b">
 		<div class="p-2">
-			<a
+			<Button
 				href="/subjects/{data.subjectOfferingIdInt}/discussion/new"
-				class={`${buttonVariants({ variant: 'outline' })} w-full`}>New Post <PlusIcon /></a
+				variant="outline"
+				class="w-full">New Post <PlusIcon /></Button
 			>
 		</div>
 		<Separator />

@@ -14,7 +14,6 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import { type LessonBlock } from '$lib/server/db/schema';
 
-
 	import {
 		createBlock,
 		deleteBlock,
@@ -25,7 +24,6 @@
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
-
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
@@ -60,15 +58,13 @@
 
 			if (targetContainer === 'lesson-bottom') {
 				blocks = [...blocks, block];
+			} else if (index === 0) {
+				blocks = [block, ...blocks];
+			} else if (index !== -1) {
+				blocks = [...blocks.slice(0, index + 1), block, ...blocks.slice(index + 1)];
 			} else {
-				if (index === 0) {
-					blocks = [block, ...blocks];
-				} else if (index !== -1) {
-					blocks = [...blocks.slice(0, index + 1), block, ...blocks.slice(index + 1)];
-				} else {
-					alert('Failed to insert block at the correct position. Please try again.');
-					return;
-				}
+				alert('Failed to insert block at the correct position. Please try again.');
+				return;
 			}
 		}
 
@@ -151,7 +147,7 @@
 				<Heading
 					headingSize={1}
 					text={data.lesson.title}
-					isEditMode={isEditMode}
+					{isEditMode}
 					onUpdate={async (newText: string) =>
 						await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
 				/>
@@ -214,49 +210,49 @@
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'markdown'}
 								<Markdown
 									content={typeof block.content === 'string' ? block.content : ''}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'image'}
 								<Image
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'video'}
 								<Video
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'audio'}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'whiteboard'}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'multiple_choice'}
 								<MultipleChoice
 									content={block.content as any}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
 									content={block.content as any}
-									isEditMode={isEditMode}
+									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else}

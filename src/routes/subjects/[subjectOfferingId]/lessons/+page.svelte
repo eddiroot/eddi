@@ -1,11 +1,10 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { buttonVariants } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import type { Lesson, LessonTopic } from '$lib/server/db/schema.js';
 	import { page } from '$app/state';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let { data } = $props();
 
@@ -28,10 +27,10 @@
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Lessons</h1>
-		<a href={`${page.url.pathname}/new`} class={buttonVariants({ variant: 'outline' })}>
+		<Button href={`${page.url.pathname}/new`} variant="outline">
 			<PlusIcon class="h-4 w-4" />
 			New Lesson
-		</a>
+		</Button>
 	</div>
 
 	<!-- Lessons grouped by topic -->
