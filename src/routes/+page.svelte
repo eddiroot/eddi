@@ -25,7 +25,7 @@
 					with a <strong>modern</strong> approach to education
 				</p>
 				<div class="flex flex-col gap-3 sm:flex-row">
-					<Button variant="secondary" size="lg">Watch the demo</Button>
+					<Button variant="secondary" size="lg" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700">Watch the demo</Button>
 					<a href="/onboarding" class={buttonVariants({ size: 'lg' })}>Get started</a>
 				</div>
 			</div>
