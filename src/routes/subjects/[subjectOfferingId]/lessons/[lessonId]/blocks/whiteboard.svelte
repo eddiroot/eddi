@@ -117,7 +117,7 @@
 		{#if whiteboardId}
 			<div class="rounded-lg border p-6 text-center">
 				<PresentationIcon class="text-muted-foreground mx-auto mb-3 h-12 w-12" />
-				<h3 class="mb-2 text-lg font-semibold">
+				<h3 class="mb-2 text-lg font-semibold break-words">
 					{title || 'Interactive Whiteboard'}
 				</h3>
 				<Button onclick={openWhiteboard}>Open Whiteboard</Button>
