@@ -58,10 +58,8 @@
 
 			if (targetContainer === 'lesson-bottom') {
 				blocks = [...blocks, block];
-			} else if (index === 0) {
-				blocks = [block, ...blocks];
 			} else if (index !== -1) {
-				blocks = [...blocks.slice(0, index + 1), block, ...blocks.slice(index + 1)];
+				blocks = [...blocks.slice(0, index), block, ...blocks.slice(index)];
 			} else {
 				alert('Failed to insert block at the correct position. Please try again.');
 				return;
