@@ -41,8 +41,7 @@
 					<a href="forgot-password" class="text-primary font-semibold">Forgot password?</a>
 				</div>
 			</div>
-
-			<Button type="submit">Sign in</Button>
+			<Button class="w-full" type="submit">Sign in</Button>
 		</form>
 	</div>
 
