@@ -19,6 +19,7 @@
 	import type { Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
+	import { page } from '$app/stores';
 
 	const items = [
 		{
@@ -73,10 +74,35 @@
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
 
+	// Helper function to check if a main menu item is active
+	function isMainItemActive(itemUrl: string): boolean {
+		return $page.url.pathname === itemUrl;
+	}
+
+	// Helper function to check if a subject is active (any of its sub-pages are active)
+	function isSubjectActive(subjectId: string): boolean {
+		return $page.url.pathname.startsWith(`/subjects/${subjectId}`);
+	}
+
+	// Helper function to check if a subject sub-item is active
+	function isSubjectSubItemActive(subjectId: string, subUrl: string): boolean {
+		const subjectBasePath = `/subjects/${subjectId}`;
+		
+		if (subUrl === '') {
+			// For home (empty subUrl), only match the exact base path
+			return $page.url.pathname === subjectBasePath;
+		} else {
+			// For other sub-items, check if current path starts with the expected path
+			const expectedPath = `${subjectBasePath}/${subUrl}`;
+			return $page.url.pathname === expectedPath || $page.url.pathname.startsWith(expectedPath + '/');
+		}
+	}
+
 	// Track the open state of each collapsible
 	let collapsibleStates = $state(
 		subjects.reduce(
 			(acc, subject) => {
+				// Don't auto-open, start with all collapsed
 				acc[subject.id] = false;
 				return acc;
 			},
@@ -114,7 +140,11 @@
 				<Sidebar.Menu>
 					{#each items as item}
 						<Sidebar.MenuItem>
-							<Sidebar.MenuButton side="left" tooltipContent={item.title}>
+							<Sidebar.MenuButton 
+								side="left" 
+								tooltipContent={item.title}
+								class={isMainItemActive(item.url) ? 'bg-primary/20 text-primary font-semibold' : ''}
+							>
 								{#snippet child({ props })}
 									<a href={item.url} {...props}>
 										<item.icon />
@@ -145,7 +175,12 @@
 							{#snippet child({ props })}
 								{#if sidebar.leftOpen == false}
 									<a href="/subjects/{subject.id}">
-										<Sidebar.MenuButton side="left" tooltipContent={subject.name} {...props}>
+										<Sidebar.MenuButton 
+											side="left" 
+											tooltipContent={subject.name}
+											class={isSubjectActive(subject.id.toString()) ? 'bg-primary/20 text-primary font-semibold' : ''}
+											{...props}
+										>
 											{@const IconComponent = subjectNameToIcon(subject.name)}
 											<IconComponent class="mr-2" />
 
@@ -156,7 +191,12 @@
 										</Sidebar.MenuButton>
 									</a>
 								{:else}
-									<Sidebar.MenuButton side="left" tooltipContent={subject.name} {...props}>
+									<Sidebar.MenuButton 
+										side="left" 
+										tooltipContent={subject.name}
+										class={isSubjectActive(subject.id.toString()) ? 'bg-primary/20 text-primary font-semibold' : ''}
+										{...props}
+									>
 										{@const IconComponent = subjectNameToIcon(subject.name)}
 										<IconComponent class="mr-2" />
 
@@ -172,7 +212,9 @@
 							<Sidebar.MenuSub>
 								{#each subjectItems as item}
 									<Sidebar.MenuSubItem>
-										<Sidebar.MenuSubButton>
+										<Sidebar.MenuSubButton
+											class={isSubjectSubItemActive(subject.id.toString(), item.url) ? 'bg-primary/15 text-primary font-medium ml-2' : ''}
+										>
 											{#snippet child({ props })}
 												<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
 													<item.icon />
