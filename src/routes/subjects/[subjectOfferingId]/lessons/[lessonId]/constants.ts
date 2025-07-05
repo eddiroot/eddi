@@ -70,11 +70,10 @@ export const blockTypes: {
 	{
 		type: 'multiple_choice',
 		content: {
-			question: 'Multiple Choice Question',
-			options: [
-				{ text: 'Option 1', isCorrect: true },
-				{ text: 'Option 2', isCorrect: false }
-			]
+			question: 'Sample multiple choice question?',
+			options: ['Option 1', 'Option 2'],
+			answer: 'Option 1',
+			multiple: false
 		},
 		icon: List
 	},
