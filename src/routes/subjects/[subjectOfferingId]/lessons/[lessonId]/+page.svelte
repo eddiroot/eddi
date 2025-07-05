@@ -10,6 +10,7 @@
 	import Whiteboard from './blocks/whiteboard.svelte';
 	import MultipleChoice from './blocks/multiple-choice.svelte';
 	import FillInBlank from './blocks/fill-in-blank.svelte';
+	import Matching from './blocks/matching.svelte';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import { type LessonBlock } from '$lib/server/db/schema';
@@ -249,6 +250,12 @@
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'matching'}
+								<Matching
 									content={block.content as any}
 									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}

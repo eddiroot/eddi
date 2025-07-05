@@ -412,7 +412,8 @@ export enum lessonBlockTypeEnum {
 	audio = 'audio',
 	fillInBlank = 'fill_in_blank',
 	multipleChoice = 'multiple_choice',
-	whiteboard = 'whiteboard'
+	whiteboard = 'whiteboard',
+	matching = 'matching'
 }
 
 export const lessonBlockTypeEnumPg = pgEnum('lesson_block_type', [
@@ -428,7 +429,8 @@ export const lessonBlockTypeEnumPg = pgEnum('lesson_block_type', [
 	lessonBlockTypeEnum.audio,
 	lessonBlockTypeEnum.fillInBlank,
 	lessonBlockTypeEnum.multipleChoice,
-	lessonBlockTypeEnum.whiteboard
+	lessonBlockTypeEnum.whiteboard,
+	lessonBlockTypeEnum.matching
 ]);
 
 export const lessonBlock = pgTable('lesson_block', {

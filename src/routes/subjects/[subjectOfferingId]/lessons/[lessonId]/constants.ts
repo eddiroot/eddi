@@ -10,6 +10,7 @@ import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import List from '@lucide/svelte/icons/list';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+import LinkIcon from '@lucide/svelte/icons/link';
 import type { Icon } from '@lucide/svelte';
 
 export const blockTypes: {
@@ -84,5 +85,16 @@ export const blockTypes: {
 			answer: 'Answer'
 		},
 		icon: PenToolIcon
+	},
+	{
+		type: 'matching',
+		content: {
+			instructions: 'Match the items on the left with the correct answers on the right.',
+			pairs: [
+				{ left: 'Item 1', right: 'Answer 1' },
+				{ left: 'Item 2', right: 'Answer 2' }
+			]
+		},
+		icon: LinkIcon
 	}
 ];
