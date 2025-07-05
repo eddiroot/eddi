@@ -8,6 +8,7 @@
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
+	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 
 	interface MatchingPair {
@@ -52,8 +53,8 @@
 
 	// Preview mode state
 	let hasSubmitted = $state(false);
-	let userMatches = $state<Map<string, string>>(new Map()); // Maps left item to right item
 	let showFeedback = $state(false);
+	let rightItemsOrder = $state<string[]>([]);
 
 	// Drag and drop state for preview mode
 	let draggedItem = $state<string | null>(null);
@@ -65,6 +66,11 @@
 			normalizedContent = newNormalized;
 			instructions = newNormalized.instructions;
 			pairs = newNormalized.pairs.length > 0 ? [...newNormalized.pairs] : [{ left: '', right: '' }];
+			
+			// Reset right items order when content changes
+			if (newNormalized.pairs.length > 0) {
+				rightItemsOrder = [...newNormalized.pairs.map(pair => pair.right)].sort(() => Math.random() - 0.5);
+			}
 		}
 	});
 
@@ -74,6 +80,11 @@
 			const normalized = normalizeContent(content);
 			instructions = normalized.instructions;
 			pairs = normalized.pairs.length > 0 ? [...normalized.pairs] : [{ left: '', right: '' }];
+			
+			// Initialize right items in random order
+			if (normalized.pairs.length > 0) {
+				rightItemsOrder = [...normalized.pairs.map(pair => pair.right)].sort(() => Math.random() - 0.5);
+			}
 		}
 	});
 
@@ -111,38 +122,38 @@
 	}
 
 	// Preview mode functions
-	function handleDragStart(item: string) {
-		draggedItem = item;
-	}
-
 	function handleDragOver(state: DragDropState<any>) {
-		const { draggedItem: draggedData, sourceContainer, targetContainer } = state;
+		const { draggedItem: draggedData, sourceContainer } = state;
 		
-		// Update visual state
+		// Update visual state for right items reordering
 		if (sourceContainer === 'right-items') {
-			draggedItem = draggedData; // draggedData should be the right item text
+			draggedItem = draggedData;
 		}
 	}
 
 	function handleDrop(state: DragDropState<any>) {
-		const { draggedItem: droppedItem, targetContainer } = state;
+		const { draggedItem: droppedItem, targetContainer, sourceContainer } = state;
 		
-		if (!droppedItem || !targetContainer) return;
+		if (!droppedItem || !targetContainer || sourceContainer !== 'right-items' || !targetContainer.startsWith('right-item-')) {
+			return;
+		}
 
-		// Extract the left item from the drop target
-		const leftItem = targetContainer.replace('drop-zone-', '');
+		// Extract target index from container name
+		const targetIndex = parseInt(targetContainer.replace('right-item-', ''), 10);
+		const sourceIndex = rightItemsOrder.indexOf(droppedItem);
 		
-		// Update user matches - droppedItem should be the dragData (the right item text)
-		userMatches.set(leftItem, droppedItem);
-		userMatches = new Map(userMatches);
+		if (sourceIndex === -1 || targetIndex < 0 || targetIndex >= rightItemsOrder.length) {
+			return;
+		}
+
+		// Reorder the right items
+		const newOrder = [...rightItemsOrder];
+		const [movedItem] = newOrder.splice(sourceIndex, 1);
+		newOrder.splice(targetIndex, 0, movedItem);
+		rightItemsOrder = newOrder;
 		
 		// Reset drag state
 		draggedItem = null;
-	}
-
-	function removeMatch(leftItem: string) {
-		userMatches.delete(leftItem);
-		userMatches = new Map(userMatches);
 	}
 
 	function submitAnswers() {
@@ -153,19 +164,33 @@
 	function resetAnswers() {
 		hasSubmitted = false;
 		showFeedback = false;
-		userMatches = new Map();
+		// Shuffle right items again
+		const validPairs = pairs.filter(pair => pair.left.trim() && pair.right.trim());
+		rightItemsOrder = [...validPairs.map(pair => pair.right)].sort(() => Math.random() - 0.5);
 	}
 
-	function isCorrectMatch(leftItem: string): boolean {
-		const userAnswer = userMatches.get(leftItem);
-		const correctPair = pairs.find(pair => pair.left === leftItem);
-		return userAnswer === correctPair?.right;
+	function isCorrectMatch(index: number): boolean {
+		const validPairs = pairs.filter(pair => pair.left.trim() && pair.right.trim());
+		if (index >= validPairs.length || index >= rightItemsOrder.length) return false;
+		
+		const leftItem = validPairs[index].left;
+		const rightItem = rightItemsOrder[index];
+		const correctPair = validPairs.find(pair => pair.left === leftItem);
+		
+		return rightItem === correctPair?.right;
 	}
 
-	// Get available right items (not yet matched)
-	function getAvailableRightItems(): string[] {
-		const matchedRightItems = new Set(userMatches.values());
-		return pairs.map(pair => pair.right).filter(right => !matchedRightItems.has(right));
+	function getScore(): { correct: number; total: number } {
+		const validPairs = pairs.filter(pair => pair.left.trim() && pair.right.trim());
+		let correct = 0;
+		
+		for (let i = 0; i < Math.min(validPairs.length, rightItemsOrder.length); i++) {
+			if (isCorrectMatch(i)) {
+				correct++;
+			}
+		}
+		
+		return { correct, total: validPairs.length };
 	}
 </script>
 
@@ -247,68 +272,74 @@
 		</Card.Header>
 		<Card.Content class="space-y-6">
 			{#if pairs.length > 0 && pairs.some(pair => pair.left.trim() && pair.right.trim())}
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-					<!-- Left Items (Drop Zones) -->
+				<div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-8 items-start">
+					<!-- Left Items (Fixed Order) -->
 					<div class="space-y-3">
-						<h3 class="font-medium text-sm text-muted-foreground">Match these items:</h3>
-						{#each pairs.filter(pair => pair.left.trim() && pair.right.trim()) as pair}
-							<div 
-								use:droppable={{
-									container: `drop-zone-${pair.left}`,
-									callbacks: {
-										onDrop: handleDrop,
-										onDragOver: handleDragOver
-									}
-								}}
-								class="min-h-12 p-3 border-2 border-dashed rounded-lg bg-muted/30 flex items-center justify-between transition-colors hover:bg-muted/50
-									{draggedItem ? 'border-primary' : 'border-border'}"
-							>
-								<span class="font-medium">{pair.left}</span>
-								
-								{#if userMatches.has(pair.left)}
-									<div class="flex items-center gap-2">
-										<span class="px-2 py-1 bg-primary text-primary-foreground rounded text-sm">
-											{userMatches.get(pair.left)}
-										</span>
-										{#if showFeedback}
-											{#if isCorrectMatch(pair.left)}
-												<CheckIcon class="w-4 h-4 text-green-600" />
-											{:else}
-												<XIcon class="w-4 h-4 text-red-600" />
-											{/if}
-										{/if}
-										{#if !hasSubmitted}
-											<Button 
-												variant="ghost" 
-												size="sm" 
-												onclick={() => removeMatch(pair.left)}
-												class="h-6 w-6 p-0"
-											>
-												<XIcon class="w-3 h-3" />
-											</Button>
-										{/if}
+						<h3 class="font-medium text-sm text-muted-foreground">Items to match:</h3>
+						<div class="space-y-2 min-h-[200px]">
+							{#each pairs.filter(pair => pair.left.trim() && pair.right.trim()) as pair, index}
+								<div class="min-h-12 p-3 border rounded-lg bg-muted/20 flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<span class="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
+										<span class="font-medium">{pair.left}</span>
 									</div>
-								{:else}
-									<span class="text-xs text-muted-foreground">Drop here</span>
-								{/if}
-							</div>
-						{/each}
+									{#if showFeedback}
+										{#if isCorrectMatch(index)}
+											<CheckIcon class="w-4 h-4 text-green-600" />
+										{:else}
+											<XIcon class="w-4 h-4 text-red-600" />
+										{/if}
+									{/if}
+								</div>
+							{/each}
+						</div>
 					</div>
 
-					<!-- Right Items (Draggable) -->
+					<!-- Arrow Column (hidden on mobile) -->
+					<div class="hidden md:flex flex-col items-center justify-center min-h-[200px] px-2">
+						<div class="text-muted-foreground">
+							<ArrowRightIcon class="w-6 h-6" />
+						</div>
+						<div class="text-xs text-muted-foreground text-center mt-2 writing-mode-vertical">
+							Match order
+						</div>
+					</div>
+
+					<!-- Right Items (Reorderable) -->
 					<div class="space-y-3">
-						<h3 class="font-medium text-sm text-muted-foreground">Available answers:</h3>
-						<div class="space-y-2">
-							{#each getAvailableRightItems() as rightItem}
+						<h3 class="font-medium text-sm text-muted-foreground">
+							{hasSubmitted ? 'Your answers:' : 'Drag to reorder these answers:'}
+						</h3>
+						<div class="space-y-2 min-h-[200px]">
+							{#each rightItemsOrder as rightItem, index}
 								<div 
 									use:draggable={{
 										container: 'right-items',
 										dragData: rightItem
 									}}
-									class="p-3 bg-secondary hover:bg-secondary/80 rounded-lg cursor-grab active:cursor-grabbing transition-colors border
-										{draggedItem === rightItem ? 'opacity-50' : ''}"
+									use:droppable={{
+										container: `right-item-${index}`,
+										callbacks: {
+											onDrop: handleDrop,
+											onDragOver: handleDragOver
+										}
+									}}
+									class="min-h-12 p-3 border rounded-lg flex items-center justify-between transition-colors
+										{hasSubmitted ? 'bg-muted/20' : 'bg-secondary hover:bg-secondary/80 cursor-grab active:cursor-grabbing'}
+										{draggedItem === rightItem ? 'opacity-50' : ''}
+										{showFeedback ? (isCorrectMatch(index) ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : ''}"
 								>
-									{rightItem}
+									<div class="flex items-center gap-3">
+										<span class="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
+										<span class="font-medium">{rightItem}</span>
+									</div>
+									{#if showFeedback}
+										{#if isCorrectMatch(index)}
+											<CheckIcon class="w-4 h-4 text-green-600" />
+										{:else}
+											<XIcon class="w-4 h-4 text-red-600" />
+										{/if}
+									{/if}
 								</div>
 							{/each}
 						</div>
@@ -320,7 +351,7 @@
 					{#if !hasSubmitted}
 						<Button 
 							onclick={submitAnswers}
-							disabled={userMatches.size !== pairs.filter(pair => pair.left.trim() && pair.right.trim()).length}
+							disabled={rightItemsOrder.length !== pairs.filter(pair => pair.left.trim() && pair.right.trim()).length}
 						>
 							Submit Answers
 						</Button>
@@ -333,23 +364,24 @@
 
 				<!-- Feedback -->
 				{#if showFeedback}
+					{@const score = getScore()}
 					<div class="mt-4 p-4 rounded-lg border bg-muted/30">
 						<h4 class="font-medium mb-2">Results:</h4>
 						<div class="space-y-1 text-sm">
-							{#each pairs.filter(pair => pair.left.trim() && pair.right.trim()) as pair}
+							{#each pairs.filter(pair => pair.left.trim() && pair.right.trim()) as pair, index}
 								<div class="flex items-center gap-2">
-									{#if isCorrectMatch(pair.left)}
+									{#if isCorrectMatch(index)}
 										<CheckIcon class="w-4 h-4 text-green-600" />
-										<span><strong>{pair.left}</strong> → {pair.right} ✓</span>
+										<span><strong>{index + 1}. {pair.left}</strong> → {rightItemsOrder[index]} ✓</span>
 									{:else}
 										<XIcon class="w-4 h-4 text-red-600" />
-										<span><strong>{pair.left}</strong> → {userMatches.get(pair.left) || 'No answer'} (Correct: {pair.right})</span>
+										<span><strong>{index + 1}. {pair.left}</strong> → {rightItemsOrder[index] || 'No answer'} (Correct: {pair.right})</span>
 									{/if}
 								</div>
 							{/each}
 						</div>
 						<div class="mt-3 text-sm font-medium">
-							Score: {pairs.filter(pair => pair.left.trim() && pair.right.trim() && isCorrectMatch(pair.left)).length} / {pairs.filter(pair => pair.left.trim() && pair.right.trim()).length}
+							Score: {score.correct} / {score.total}
 						</div>
 					</div>
 				{/if}
