@@ -191,6 +191,39 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 			break;
 
 		case 'matching':
+			// Validate and transform matching content structure
+			if (content && content.instructions !== undefined && Array.isArray(content.pairs)) {
+				const matchingContent = {
+					instructions: content.instructions || '',
+					pairs: content.pairs
+						.filter(
+							(pair: { left?: unknown; right?: unknown }) =>
+								pair &&
+								typeof pair.left === 'string' &&
+								typeof pair.right === 'string' &&
+								pair.left.trim() &&
+								pair.right.trim()
+						)
+						.map((pair: { left: string; right: string }) => ({
+							left: pair.left.trim(),
+							right: pair.right.trim()
+						}))
+				};
+
+				// Only create the block if we have valid pairs
+				if (matchingContent.pairs.length > 0) {
+					await createLessonBlock(lessonId, lessonBlockTypeEnum.matching, matchingContent);
+					console.log(
+						`Created matching block with ${matchingContent.pairs.length} pairs: "${matchingContent.instructions}"`
+					);
+				} else {
+					console.warn('No valid matching pairs found in content:', content);
+				}
+			} else {
+				console.warn('Invalid matching content structure:', content);
+			}
+			break;
+
 		case 'drag_and_drop':
 		case 'math_input':
 		case 'text_input':

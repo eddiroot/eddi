@@ -7,10 +7,10 @@ Using the provided schema, create a comprehensive lesson with:
     3. Explanatory content using paragraphs and markdown
     4. Interactive elements to engage students including:
         - Multiple choice questions (both single and multiple answer) for knowledge checking (make sure answers are string of options (not a,b,c or 1,2,3))
+		- Matching activities for concept reinforcement
+		- Text input questions for open-ended responses
         - Math input questions (if applicable)
-        - Fill in the blank questions (use the format "_____" for blanks)
-        - Text input questions for open-ended responses
-        - Matching or drag-and-drop activities for concept reinforcement
+        - Fill in the blank questions (use the format "_____" for blanks) limit to maximum 3
     5. A good balance of explanation and interactive practice
 Each component should be structured according to the provided schema.`,
 
@@ -21,7 +21,7 @@ Using the provided schema, create homework that reinforces learning with:
     2. Brief instructions or review sections with headers (h1, h2, h3)
     3. Practice problems and exercises including:
         - Multiple choice questions for self-assessment (make sure answers are string of options (not a,b,c or 1,2,3))
-        - Fill in the blank exercises for key concepts (use the format "_____" for blanks)
+        - Fill in the blank exercises for key concepts (use the format "_____" for blanks) limit to maximum 3
         - Math input problems (if applicable) for calculation practice
         - Text input questions for written responses
         - Matching activities to connect concepts
@@ -36,7 +36,7 @@ Using the provided schema, create an assessment that evaluates student understan
     1. A clear assessment title and brief instructions
     2. Varied question types to test different skill levels:
         - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
-        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks)
+        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks) limit to maximum 3
         - Math input questions (if applicable) for problem-solving skills
         - Text input questions for analysis and evaluation
         - Matching activities for concept connections
