@@ -15,7 +15,7 @@
 		"db:start": "docker compose up",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seedv2.ts",
+		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seed.ts",
 		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {

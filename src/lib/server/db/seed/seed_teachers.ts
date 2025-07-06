@@ -6,8 +6,7 @@ const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
 export async function seed_teachers() {
-	// Generate a simple password hash for all teachers (in real app, use proper bcrypt)
-	const passwordHash = '$2a$10$example.hash.for.seeding.purposes.only';
+	const passwordHash = 'teacher';
 
 	// Seed teacher users
 	const teachers = await db
