@@ -5,6 +5,7 @@ import postgres from 'postgres';
 import { seed_school } from './seed/seed_school';
 import { seed_students } from './seed/seed_students';
 import { seed_teachers } from './seed/seed_teachers';
+import { seed_admins } from './seed/seed_admins';
 import { seed_subjects } from './seed/seed_subjects';
 import { assignUsersToSubjectOfferings } from './seed/seed_user_subject_offerings';
 import { seedSubjectClasses } from './seed/seed_classes';
@@ -25,6 +26,7 @@ async function main() {
 	// Seed all the users in the school
 	const { students } = await seed_students();
 	const { teachers } = await seed_teachers();
+	const { admins } = await seed_admins();
 
 	// Seed subjects and subject offerings
 	const { subjects, subjectOfferings } = await seed_subjects(school.id, campuses);
@@ -60,6 +62,7 @@ async function main() {
 	console.log(
 		`   - ${teachers.length} teachers with ${teacherAssignments.length} subject assignments`
 	);
+	console.log(`   - ${admins.length} admins`);
 }
 
 main()

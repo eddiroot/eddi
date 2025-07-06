@@ -149,7 +149,7 @@
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					{#each items as item}
-						{#if item.roles.includes('any') || item.roles.includes(user.role)}
+						{#if item.roles.includes('any') || item.roles.includes(user.type)}
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
 									side="left"
