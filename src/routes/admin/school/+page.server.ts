@@ -5,7 +5,7 @@ import { schoolFormSchema } from './schema';
 import { getSchoolById, updateSchool } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security } }) => {
-	const user = security.isAuthenticated().getUser();
+	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const school = await getSchoolById(user.schoolId);
 
 	if (!school) {
@@ -25,7 +25,7 @@ export const load = async ({ locals: { security } }) => {
 
 export const actions = {
 	default: async ({ request, locals: { security } }) => {
-		const user = security.isAuthenticated().getUser();
+		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const formData = await request.formData();
 		const form = await superValidate(formData, zod(schoolFormSchema));
