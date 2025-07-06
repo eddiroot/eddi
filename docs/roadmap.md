@@ -19,7 +19,7 @@ Lachie
 - [x] Order topics and lessons within them
 - [ ] Better rich text editor (e.g. math symbols)
 - [ ] Setup object storage
-- [ ] Admin dashboard (setup subjects, campuses, importing data, etc)
+- [ ] Admin dashboard (basic subject setup, campuses, importing data, etc)
 - [ ] Export all data for a given school
 
 Max
@@ -52,9 +52,10 @@ Beej + Blake
 Bella
 
 - [ ] Roll call / attendance
-- [ ] Sick/not coming to school
-- [ ] Parents/teachers can see attendance
-- [ ] Absence / late notifications
+- [ ] Sick/not coming to school/absence/late notifications
+- [ ] Behavioural reporting
+- [ ] Teachers can see attendance
+- [ ] Parents can see some/all of the above
 
 ## Future Functionality
 
