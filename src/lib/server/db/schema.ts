@@ -103,6 +103,7 @@ export type Session = typeof session.$inferSelect;
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull().unique(),
+	emailSuffix: text('email_suffix').notNull().unique(),
 	...timestamps
 });
 

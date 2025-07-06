@@ -12,46 +12,46 @@
 
 	const adminSections = [
 		{
-			title: 'Allocations',
-			description: 'Allocate students and staff to campuses and subjects',
-			icon: ContactIcon,
-			href: '/admin/campuses'
+			title: 'School Details',
+			description: "Configure your school's name, logo, branding, and theme settings",
+			icon: SchoolIcon,
+			href: '/admin/school'
 		},
 		{
 			title: 'Campuses',
-			description: 'Manage school campuses and locations',
+			description: 'Manage campus locations, contact information, and physical addresses',
 			icon: BuildingIcon,
 			href: '/admin/campuses'
 		},
 		{
 			title: 'Locations',
-			description: 'Manage rooms and teaching spaces',
+			description: 'Configure learning spaces, classrooms, and facilities within each campus',
 			icon: MapPinIcon,
 			href: '/admin/locations'
 		},
 		{
-			title: 'School',
-			description: 'Configure school information and settings',
-			icon: SchoolIcon,
-			href: '/admin/school'
+			title: 'Users',
+			description: 'Manage user accounts for students, staff, guardians, and administrators',
+			icon: UsersIcon,
+			href: '/admin/users'
 		},
 		{
 			title: 'Subjects',
-			description: 'Manage subjects and curriculum',
+			description: 'Define the subjects that your school offers as well as their descriptions',
 			icon: BookOpenIcon,
 			href: '/admin/subjects'
 		},
 		{
 			title: 'Timetables',
-			description: 'Configure class schedules and periods',
+			description: 'Set up school periods, schedules, and generate class timetables',
 			icon: CalendarDaysIcon,
 			href: '/admin/timetables'
 		},
 		{
-			title: 'Users',
-			description: 'Manage teachers, students and staff',
-			icon: UsersIcon,
-			href: '/admin/users'
+			title: 'Allocations',
+			description: 'Assign students and teachers to classes and manage enrollments',
+			icon: ContactIcon,
+			href: '/admin/allocations'
 		}
 	];
 

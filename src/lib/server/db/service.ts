@@ -21,6 +21,29 @@ export async function getUsersBySchoolId(schoolId: number) {
 	return users;
 }
 
+export async function getSchoolById(schoolId: number) {
+	const schools = await db
+		.select()
+		.from(table.school)
+		.where(eq(table.school.id, schoolId))
+		.limit(1);
+
+	return schools.length > 0 ? schools[0] : null;
+}
+
+export async function updateSchool(schoolId: number, name: string, emailSuffix: string) {
+	const [updatedSchool] = await db
+		.update(table.school)
+		.set({
+			name: name,
+			emailSuffix: emailSuffix
+		})
+		.where(eq(table.school.id, schoolId))
+		.returning();
+
+	return updatedSchool;
+}
+
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
 		.select({ subject: table.subject })
