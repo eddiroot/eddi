@@ -1,3 +1,4 @@
+name: eddi
 services:
   db:
     image: postgres
@@ -9,6 +10,34 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: eddi
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql/data
+
+  obj:
+    image: minio/minio
+    restart: always
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minioAccessKey
+      MINIO_ROOT_PASSWORD: minioSecretKey
+    volumes:
+      - objdata:/data
+    command: server /data --console-address ":9001"
+
+  obj_buckets:
+    image: minio/mc
+    depends_on:
+      - obj
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set dockerminio http://minio:9000 minioAccessKey minioSecretKey;
+      /usr/bin/mc mb dockerminio/media;
+      exit 0;
+      "
+
 volumes:
-  pgdata:
+  dbdata:
+  objdata:
