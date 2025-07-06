@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { commands } from '../../commands/commands.js';
 	import type { ShouldShowProps } from '../../utils.js';
-	import { isTextSelection, type Editor } from '@tiptap/core';
-	import { BubbleMenu } from 'svelte-tiptap';
+	import { isTextSelection } from '@tiptap/core';
+	import { BubbleMenu, type Editor } from 'svelte-tiptap';
 	import EdraToolBarIcon from '../components/EdraToolBarIcon.svelte';
 	import FontSize from '../components/FontSize.svelte';
 	import QuickColor from '../components/QuickColor.svelte';
@@ -86,7 +86,7 @@
 <BubbleMenu
 	{editor}
 	class={cn(
-		'edra-bubblemenu flex h-fit w-fit items-center gap-1 rounded-md border bg-background/90 p-0.5 backdrop-blur-md',
+		'edra-bubblemenu bg-background/90 flex h-fit w-fit items-center gap-1 rounded-md border p-0.5 backdrop-blur-md',
 		className
 	)}
 	{shouldShow}

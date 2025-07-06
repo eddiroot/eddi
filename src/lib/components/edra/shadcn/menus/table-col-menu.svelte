@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { type Editor } from '@tiptap/core';
-	import { BubbleMenu } from 'svelte-tiptap';
+	import { BubbleMenu, type Editor } from 'svelte-tiptap';
 	import ArrowLeftFromLine from '@lucide/svelte/icons/arrow-left-from-line';
 	import ArrowRightFromLine from '@lucide/svelte/icons/arrow-right-from-line';
 	import Trash from '@lucide/svelte/icons/trash';

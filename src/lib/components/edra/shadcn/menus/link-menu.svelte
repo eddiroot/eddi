@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { type Editor } from '@tiptap/core';
-	import { BubbleMenu } from 'svelte-tiptap';
+	import { BubbleMenu, type Editor } from 'svelte-tiptap';
 	import type { ShouldShowProps } from '../../utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Copy from '@lucide/svelte/icons/copy';

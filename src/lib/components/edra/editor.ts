@@ -1,4 +1,5 @@
-import { Editor, type Content, type EditorOptions, type Extensions } from '@tiptap/core';
+import { type Content, type EditorOptions, type Extensions } from '@tiptap/core';
+import { Editor } from 'svelte-tiptap';
 import Color from '@tiptap/extension-color';
 import Link from '@tiptap/extension-link';
 import Subscript from '@tiptap/extension-subscript';

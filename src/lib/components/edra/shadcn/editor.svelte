@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Editor } from '@tiptap/core';
+	import type { Editor } from 'svelte-tiptap';
 	import { onMount } from 'svelte';
 	import { initiateEditor } from '../editor.js';
 
@@ -94,11 +94,11 @@
 	{@render children?.()}
 	{#if editor}
 		{#if showLinkBubbleMenu}
-			<LinkMenu {editor} />
+			<LinkMenu editor={editor as Editor} />
 		{/if}
 		{#if showTableBubbleMenu}
-			<TableColMenu {editor} />
-			<TableRowMenu {editor} />
+			<TableColMenu editor={editor as Editor} />
+			<TableRowMenu editor={editor as Editor} />
 		{/if}
 	{/if}
 	{#if !editor}

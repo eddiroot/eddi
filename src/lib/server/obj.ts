@@ -1,6 +1,5 @@
 import * as Minio from 'minio';
 import { env } from '$env/dynamic/private';
-import type { UploadedObjectInfo } from 'minio/index';
 
 if (!env.OBJ_ENDPOINT) throw new Error('OBJ_ENDPOINT is not set');
 if (!env.OBJ_PORT) throw new Error('OBJ_PORT is not set');
@@ -16,11 +15,7 @@ const minioClient = new Minio.Client({
 	secretKey: env.OBJ_SECRET_KEY
 });
 
-export async function uploadFile(
-	bucketName: string,
-	objectName: string,
-	filePath: string
-): Promise<UploadedObjectInfo> {
+export async function uploadFile(bucketName: string, objectName: string, filePath: string) {
 	try {
 		const res = await minioClient.fPutObject(bucketName, objectName, filePath);
 		return res;

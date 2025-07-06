@@ -75,6 +75,9 @@ export const user = pgTable('user', {
 	id: text('id').primaryKey(),
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
+	schoolId: integer('school_id')
+		.notNull()
+		.references(() => school.id, { onDelete: 'cascade' }),
 	type: userTypeEnumPg().notNull(),
 	gender: userGenderEnumPg(),
 	dateOfBirth: timestamp('date_of_birth', { withTimezone: true, mode: 'date' }),
