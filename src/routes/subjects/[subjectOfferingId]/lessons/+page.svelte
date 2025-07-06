@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
@@ -10,6 +11,7 @@
 
 	let { data } = $props();
 	let topicsWithLessons = $state(data.topicsWithLessons || []);
+	let isRearrangeMode = $state(false);
 
 	// When switching to other subject lesson pages, we need to update the state
 	$effect(() => {
@@ -17,6 +19,8 @@
 	});
 
 	async function handleDrop(state: DragDropState<any>) {
+		if (!isRearrangeMode) return;
+
 		const { sourceContainer, targetContainer } = state;
 		if (!targetContainer || !sourceContainer || !topicsWithLessons.length) return;
 
@@ -104,25 +108,36 @@
 <div class="space-y-6 p-8">
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Lessons</h1>
-		<Button href={`${page.url.pathname}/new`} variant="outline">
-			<PlusIcon class="h-4 w-4" />
-			New Lesson
-		</Button>
+		<div class="flex items-center gap-2">
+			<Button
+				onclick={() => (isRearrangeMode = !isRearrangeMode)}
+				variant={isRearrangeMode ? 'default' : 'outline'}
+			>
+				<ArrowUpDownIcon class="h-4 w-4" />
+				{isRearrangeMode ? 'Done' : 'Rearrange'}
+			</Button>
+			<Button href={`${page.url.pathname}/new`} variant="outline">
+				<PlusIcon class="h-4 w-4" />
+				New Lesson
+			</Button>
+		</div>
 	</div>
 
 	<div>
 		{#each topicsWithLessons as { topic, lessons }}
 			<div>
 				<div class="flex items-center gap-2">
-					<div
-						use:draggable={{
-							container: `topic-${topic.id}`,
-							dragData: topic
-						}}
-						class="bg-secondary hover:bg-secondary/90 dark:hover:bg-secondary/90 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
-					>
-						<GripVerticalIcon class="text-muted-foreground h-3 w-3 rounded" />
-					</div>
+					{#if isRearrangeMode}
+						<div
+							use:draggable={{
+								container: `topic-${topic.id}`,
+								dragData: topic
+							}}
+							class="bg-secondary hover:bg-secondary/90 dark:hover:bg-secondary/90 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
+						>
+							<GripVerticalIcon class="text-muted-foreground h-3 w-3 rounded" />
+						</div>
+					{/if}
 					<h2 class="text-foreground text-xl font-semibold">{topic.name}</h2>
 				</div>
 
@@ -134,15 +149,17 @@
 					{/if}
 					{#each lessons as lesson}
 						<div class="relative">
-							<div
-								use:draggable={{
-									container: `lesson-${lesson.id}`,
-									dragData: lesson
-								}}
-								class="bg-secondary hover:bg-secondary/90 dark:hover:bg-secondary/90 absolute -top-2 -left-2 z-10 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
-							>
-								<GripVerticalIcon class="text-muted-foreground h-3 w-3 rounded" />
-							</div>
+							{#if isRearrangeMode}
+								<div
+									use:draggable={{
+										container: `lesson-${lesson.id}`,
+										dragData: lesson
+									}}
+									class="bg-secondary hover:bg-secondary/90 dark:hover:bg-secondary/90 absolute -top-2 -left-2 z-10 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
+								>
+									<GripVerticalIcon class="text-muted-foreground h-3 w-3 rounded" />
+								</div>
+							{/if}
 
 							<a
 								href={`${page.url.pathname}/${lesson.id}`}
@@ -155,9 +172,8 @@
 								}}
 							>
 								<Card.Root
-									class="h-full transition-shadow hover:shadow-md {dndState.sourceContainer.startsWith(
-										'lesson'
-									) &&
+									class="h-full transition-shadow hover:shadow-md {isRearrangeMode &&
+									dndState.sourceContainer.startsWith('lesson') &&
 									dndState.sourceContainer !== `lesson-${lesson.id}` &&
 									dndState.targetContainer === `lesson-${lesson.id}`
 										? 'border-accent-foreground border-dashed'
@@ -185,7 +201,7 @@
 						}
 					}}
 				>
-					{#if dndState.sourceContainer.startsWith('topic') && dndState.sourceContainer != `topic-${topic.id}` && dndState.targetContainer == `topic-${topic.id}`}
+					{#if isRearrangeMode && dndState.sourceContainer.startsWith('topic') && dndState.sourceContainer != `topic-${topic.id}` && dndState.targetContainer == `topic-${topic.id}`}
 						<Separator class="bg-accent-foreground" />
 					{/if}
 				</div>
