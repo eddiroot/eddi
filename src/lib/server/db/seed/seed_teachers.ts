@@ -1,12 +1,13 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../schema';
 import postgres from 'postgres';
+import { hash } from '@node-rs/argon2';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
 export async function seed_teachers() {
-	const passwordHash = 'teacher';
+	const passwordHash = await hash('teacher');
 
 	// Seed teacher users
 	const teachers = await db
