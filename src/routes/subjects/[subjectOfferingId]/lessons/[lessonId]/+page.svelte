@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
+	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
 	import Markdown from './blocks/markdown.svelte';
 	import Image from './blocks/image.svelte';
@@ -28,8 +28,6 @@
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
-	let elementDragStarted = $state<string>('');
-	let draggedOverElement = $state<string>('');
 	let mouseOverElement = $state<string>('');
 	let isEditMode = $state(true);
 
@@ -39,8 +37,6 @@
 	async function handleDrop(state: DragDropState<LessonBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
 		if (!targetContainer) return;
-
-		draggedOverElement = '';
 
 		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('lesson')) {
 			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
@@ -119,16 +115,6 @@
 			blocks = blocks.filter((block) => block.id !== draggedItem.id);
 		}
 	}
-
-	function handleDragOver(state: DragDropState<LessonBlock>) {
-		const { sourceContainer, targetContainer } = state;
-		if (sourceContainer) {
-			elementDragStarted = sourceContainer;
-		}
-		if (targetContainer) {
-			draggedOverElement = targetContainer;
-		}
-	}
 </script>
 
 <div class="grid h-full grid-cols-[300px_1fr_300px] gap-4 p-4">
@@ -174,12 +160,11 @@
 						use:droppable={{
 							container: `lesson-${block.id}`,
 							callbacks: {
-								onDrop: handleDrop,
-								onDragOver: handleDragOver
+								onDrop: handleDrop
 							}
 						}}
 					>
-						{#if draggedOverElement === `lesson-${block.id}`}
+						{#if dndState.targetContainer === `lesson-${block.id}`}
 							<Separator class="bg-accent-foreground my-2" />
 						{/if}
 					</div>
@@ -195,7 +180,7 @@
 									container: 'lesson',
 									dragData: block
 								}}
-								class="group relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors hover:bg-gray-100 active:cursor-grabbing dark:hover:bg-gray-800"
+								class="group hover:bg-muted relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
 							>
 								<GripVerticalIcon
 									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
@@ -270,11 +255,10 @@
 					use:droppable={{
 						container: `lesson-bottom`,
 						callbacks: {
-							onDrop: handleDrop,
-							onDragOver: handleDragOver
+							onDrop: handleDrop
 						}
 					}}
-					class="my-4 flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {draggedOverElement ===
+					class="my-4 flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
 					'lesson-bottom'
 						? draggedOverClasses
 						: notDraggedOverClasses}"
@@ -295,15 +279,15 @@
 		</Card.Header>
 		<Card.Content class="flex h-full flex-col gap-4">
 			<div
-				class="grid grid-cols-2 gap-2 rounded-lg p-2 {elementDragStarted.startsWith('lesson') &&
-				draggedOverElement === 'blockPalette'
+				class="grid grid-cols-2 gap-2 rounded-lg p-2 {dndState.sourceContainer.startsWith(
+					'lesson'
+				) && dndState.targetContainer === 'blockPalette'
 					? 'border-destructive border border-dashed'
 					: notDraggedOverClasses}"
 				use:droppable={{
 					container: `blockPalette`,
 					callbacks: {
-						onDrop: handleDrop,
-						onDragOver: handleDragOver
+						onDrop: handleDrop
 					}
 				}}
 			>
