@@ -17,7 +17,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 Lachie
 
 - [ ] Class tests / quizzes
-- [ ] Order topics and lessons within them
+- [x] Order topics and lessons within them
 - [ ] Security review e.g. prompt injection
 - [ ] Database per school
 
