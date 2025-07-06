@@ -26,18 +26,21 @@
 		{
 			title: 'Dashboard',
 			url: '/dashboard',
-			icon: LayoutDashboardIcon
+			icon: LayoutDashboardIcon,
+			roles: ['any']
 		},
 		{
 			title: 'Admin',
 			url: '/admin',
-			icon: WrenchIcon
+			icon: WrenchIcon,
+			roles: ['schoolAdmin']
 		},
 
 		{
 			title: 'Timetable',
 			url: '/timetable',
-			icon: CalendarDaysIcon
+			icon: CalendarDaysIcon,
+			roles: ['any']
 		}
 	];
 
@@ -146,27 +149,29 @@
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					{#each items as item}
-						<Sidebar.MenuItem>
-							<Sidebar.MenuButton
-								side="left"
-								isActive={isMainItemActive(item.url)}
-								tooltipContent={item.title}
-							>
-								{#snippet child({ props })}
-									<a href={item.url} {...props}>
-										<item.icon />
-										<span>{item.title}</span>
-									</a>
-								{/snippet}
-							</Sidebar.MenuButton>
-						</Sidebar.MenuItem>
+						{#if item.roles.includes('any') || item.roles.includes(user.role)}
+							<Sidebar.MenuItem>
+								<Sidebar.MenuButton
+									side="left"
+									isActive={isMainItemActive(item.url)}
+									tooltipContent={item.title}
+								>
+									{#snippet child({ props })}
+										<a href={item.url} {...props}>
+											<item.icon />
+											<span>{item.title}</span>
+										</a>
+									{/snippet}
+								</Sidebar.MenuButton>
+							</Sidebar.MenuItem>
+						{/if}
 					{/each}
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>
-				<a href="/subjects" class="text-lg font-semibold"> Subjects </a>
+				<a href="/subjects" class="text-lg font-semibold">Subjects</a>
 			</Sidebar.GroupLabel>
 
 			<Sidebar.Menu>
