@@ -16,50 +16,53 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 Lachie
 
-- [ ] Class tests / quizzes
 - [x] Order topics and lessons within them
-- [ ] Security review e.g. prompt injection
-- [ ] Database per school
+- [ ] Better rich text editor (e.g. math symbols)
+- [ ] Setup object storage
+- [ ] Admin dashboard (setup subjects, campuses, importing data, etc)
+- [ ] Export all data for a given school
 
 Max
 
 - [ ] Handling of multiple campuses
-- [ ] A what to do button to generate study ideas
-- [ ] View news feed
-- [ ] Export all data for the organisation
+- [ ] Exam timetabling
+- [ ] Timetabling
+- [ ] News feed
 
 Jack
 
-- [ ] Add draggable interactive components such as matching
-- [ ] Student reports live throughout semester
+- [x] Add draggable interactive components such as matching
+- [ ] Class tests / quizzes
+- [ ] AI feedback / assisted marking
 - [ ] View students work
-- [ ] Fees / breakdowns
 
 Raph
 
-- [ ] Fix whiteboard component issues and mc alerts and text overflow in question and explanation
-- [ ] Complete LLM access to discussions + lessons
-- [ ] Home page
+- [ ] Add/refine current components
+  - Fix whiteboard component issues and mc alerts and text overflow in question and explanation
+  - Expanding the whiteboard
+- [ ] Student/lesson analytics
+- [ ] Student reports live throughout semester
 
-Beej
+Beej + Blake
 
 - [ ] Onboarding flow
-- [ ] Onboarding experience (theming, roles, staff)
-- [ ] Student/lesson analytics
-- [ ] School theming (logos, colours)
+- [ ] Onboarding experience (school theming, roles, staff)
 
-Blake
+Bella
 
 - [ ] Roll call / attendance
 - [ ] Sick/not coming to school
 - [ ] Parents/teachers can see attendance
 - [ ] Absence / late notifications
-- [ ] Integrate AI feedback / assisted marking
-- [ ] Math symbols / formulas
 
 ## Future Functionality
 
-- [ ] Lesson / class plan marketplace
+- [ ] Home page
+- [ ] A what to do button to generate study ideas
+- [ ] Complete LLM access to discussions + lessons
+- [ ] Security review e.g. prompt injection
+- [ ] Fees / breakdowns
 - [ ] Check-in check-out software (compass does this)
 - [ ] Workspaces (like VMs but for coding)
 - [ ] App-wide search
@@ -71,8 +74,6 @@ Blake
 - [ ] AI tutor audit trails
 - [ ] AI presentations
 - [ ] Parent/teacher interviews
-- [ ] Exam timetabling
-- [ ] Timetabling
 - [ ] Create news
 - [ ] Notifications for high interaction with discussion (eg 10 upvotes)
 - [ ] School map / directions
@@ -81,8 +82,9 @@ Blake
 - [ ] Class location shifts
 - [ ] See teacher's feedback
 - [ ] Teacher to parent comms (one way)
-- [ ] Auto generated summaries of discussions
 - [ ] Events appearing in everyone's timetables
+- [ ] Lesson / class plan marketplace
+- [ ] Auto generated summaries of discussions
 - [ ] Contractors signing in with working with childrens checks (eg school photographers)
 
 # UI Feedback
