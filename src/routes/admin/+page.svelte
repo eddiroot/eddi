@@ -8,7 +8,9 @@
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import ContactIcon from '@lucide/svelte/icons/contact';
 	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
-	import ClockIcon from '@lucide/svelte/icons/clock';
+	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
+
+	const { data } = $props();
 
 	const adminSections = [
 		{
@@ -55,26 +57,26 @@
 		}
 	];
 
-	const quickStats = [
+	const stats = [
 		{
 			title: 'Total Students',
-			value: '1024',
+			value: data.stats.totalStudents,
 			icon: UsersIcon
 		},
 		{
-			title: 'Total Staff',
-			value: '512',
+			title: 'Total Teachers',
+			value: data.stats.totalTeachers,
 			icon: GraduationCapIcon
 		},
 		{
-			title: 'Subjects',
-			value: '34',
-			icon: BookOpenIcon
+			title: 'Total Admins',
+			value: data.stats.totalAdmins,
+			icon: UserRoundCogIcon
 		},
 		{
-			title: 'Classes Today',
-			value: '156',
-			icon: ClockIcon
+			title: 'Total Subjects',
+			value: data.stats.totalSubjects,
+			icon: BookOpenIcon
 		}
 	];
 </script>
@@ -92,7 +94,7 @@
 						<Card.Header class="gap-4">
 							<div class="flex items-center gap-3">
 								<div class="bg-secondary rounded-lg p-2">
-									<svelte:component this={section.icon} class="text-secondary-foreground" />
+									<section.icon class="text-secondary-foreground" />
 								</div>
 								<div class="flex-1">
 									<Card.Title class="text-lg font-semibold">{section.title}</Card.Title>
@@ -110,11 +112,11 @@
 	<div class="space-y-4">
 		<h2 class="text-2xl font-semibold tracking-tight">Stats</h2>
 		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-			{#each quickStats as stat}
+			{#each stats as stat}
 				<Card.Root>
 					<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 						<Card.Title class="text-muted-foreground text-sm font-medium">{stat.title}</Card.Title>
-						<svelte:component this={stat.icon} class="text-muted-foreground h-4 w-4" />
+						<stat.icon class="text-muted-foreground h-4 w-4" />
 					</Card.Header>
 					<Card.Content>
 						<p class="text-2xl font-bold">{stat.value}</p>

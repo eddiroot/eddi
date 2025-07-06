@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
+import { desc, eq, and, gte, inArray, asc, sql, count } from 'drizzle-orm';
 
 export async function getUsersBySchoolId(schoolId: number) {
 	const users = await db
@@ -29,6 +29,42 @@ export async function getSchoolById(schoolId: number) {
 		.limit(1);
 
 	return schools.length > 0 ? schools[0] : null;
+}
+
+export async function getSchoolStatsById(schoolId: number) {
+	const totalStudents = await db
+		.select({ count: count() })
+		.from(table.user)
+		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, table.userTypeEnum.student)))
+		.limit(1);
+
+	const totalTeachers = await db
+		.select({ count: count() })
+		.from(table.user)
+		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, table.userTypeEnum.teacher)))
+		.limit(1);
+
+	const totalAdmins = await db
+		.select({ count: count() })
+		.from(table.user)
+		.where(
+			and(eq(table.user.schoolId, schoolId), eq(table.user.type, table.userTypeEnum.schoolAdmin))
+		)
+		.limit(1);
+
+	const totalSubjects = await db
+		.select({ count: count() })
+		.from(table.subject)
+		.where(eq(table.subject.schoolId, schoolId))
+		.groupBy(table.subject.schoolId)
+		.limit(1);
+
+	return {
+		totalStudents: totalStudents[0].count || 0,
+		totalTeachers: totalTeachers[0].count || 0,
+		totalAdmins: totalAdmins[0].count || 0,
+		totalSubjects: totalSubjects[0].count || 0
+	};
 }
 
 export async function updateSchool(schoolId: number, name: string, emailSuffix: string) {

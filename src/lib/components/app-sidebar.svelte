@@ -10,7 +10,7 @@
 	import PiIcon from '@lucide/svelte/icons/pi';
 	import BookOpenTextIcon from '@lucide/svelte/icons/book-open-text';
 	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
-	import ClockIcon from '@lucide/svelte/icons/clock';
+	import BowArrowIcon from '@lucide/svelte/icons/bow-arrow';
 	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
 	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
 	import MapIcon from '@lucide/svelte/icons/map';
@@ -21,6 +21,7 @@
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
+	import OrbitIcon from '@lucide/svelte/icons/orbit';
 
 	const items = [
 		{
@@ -63,20 +64,25 @@
 	];
 
 	const subjectNameToIcon = (name: string) => {
-		switch (name.toLowerCase()) {
-			case 'maths':
-				return PiIcon;
-			case 'science':
-				return FlaskConicalIcon;
-			case 'history':
-				return ClockIcon;
-			case 'english':
-				return BookOpenTextIcon;
-			case 'geography':
-				return MapIcon;
-			default:
-				return FileQuestionIcon;
+		if (name.toLowerCase().includes('math')) {
+			return PiIcon;
 		}
+		if (name.toLowerCase().includes('science')) {
+			return FlaskConicalIcon;
+		}
+		if (name.toLowerCase().includes('physics')) {
+			return OrbitIcon;
+		}
+		if (name.toLowerCase().includes('history')) {
+			return BowArrowIcon;
+		}
+		if (name.toLowerCase().includes('english')) {
+			return BookOpenTextIcon;
+		}
+		if (name.toLowerCase().includes('geography')) {
+			return MapIcon;
+		}
+		return FileQuestionIcon;
 	};
 
 	let { subjects, user }: { subjects: Subject[]; user: any } = $props();
@@ -169,24 +175,35 @@
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
-		<Sidebar.Group>
-			<Sidebar.GroupLabel>
-				<a href="/subjects" class="text-lg font-semibold">Subjects</a>
-			</Sidebar.GroupLabel>
+		{#if subjects.length > 0}
+			<Sidebar.Group>
+				<Sidebar.GroupLabel>
+					<a href="/subjects" class="text-lg font-semibold">Subjects</a>
+				</Sidebar.GroupLabel>
 
-			<Sidebar.Menu>
-				{#each subjects as subject}
-					<Collapsible.Root bind:open={collapsibleStates[subject.id]} class="group/collapsible">
-						<Collapsible.Trigger
-							onclick={() => {
-								if (!sidebar.leftOpen) {
-									sidebar.setLeftOpen(true);
-								}
-							}}
-						>
-							{#snippet child({ props })}
-								{#if sidebar.leftOpen == false}
-									<a href="/subjects/{subject.id}">
+				<Sidebar.Menu>
+					{#each subjects as subject}
+						<Collapsible.Root bind:open={collapsibleStates[subject.id]} class="group/collapsible">
+							<Collapsible.Trigger>
+								{#snippet child({ props })}
+									{#if sidebar.leftOpen == false}
+										<a href="/subjects/{subject.id}">
+											<Sidebar.MenuButton
+												side="left"
+												tooltipContent={subject.name}
+												isActive={isSubjectActive(subject.id.toString())}
+												{...props}
+											>
+												{@const IconComponent = subjectNameToIcon(subject.name)}
+												<IconComponent class="mr-2" />
+
+												<span>{subject.name}</span>
+												<ChevronDownIcon
+													class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
+												/>
+											</Sidebar.MenuButton>
+										</a>
+									{:else}
 										<Sidebar.MenuButton
 											side="left"
 											tooltipContent={subject.name}
@@ -196,52 +213,37 @@
 											{@const IconComponent = subjectNameToIcon(subject.name)}
 											<IconComponent class="mr-2" />
 
-											<span>{subject.name}</span>
+											<span class="whitespace-nowrap">{subject.name}</span>
 											<ChevronDownIcon
 												class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
 											/>
 										</Sidebar.MenuButton>
-									</a>
-								{:else}
-									<Sidebar.MenuButton
-										side="left"
-										tooltipContent={subject.name}
-										isActive={isSubjectActive(subject.id.toString())}
-										{...props}
-									>
-										{@const IconComponent = subjectNameToIcon(subject.name)}
-										<IconComponent class="mr-2" />
-
-										<span>{subject.name}</span>
-										<ChevronDownIcon
-											class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
-										/>
-									</Sidebar.MenuButton>
-								{/if}
-							{/snippet}
-						</Collapsible.Trigger>
-						<Collapsible.Content>
-							<Sidebar.MenuSub>
-								{#each subjectItems as item}
-									<Sidebar.MenuSubItem>
-										<Sidebar.MenuSubButton
-											isActive={isSubjectSubItemActive(subject.id.toString(), item.url)}
-										>
-											{#snippet child({ props })}
-												<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
-													<item.icon />
-													<span>{item.title}</span>
-												</a>
-											{/snippet}
-										</Sidebar.MenuSubButton>
-									</Sidebar.MenuSubItem>
-								{/each}
-							</Sidebar.MenuSub>
-						</Collapsible.Content>
-					</Collapsible.Root>
-				{/each}
-			</Sidebar.Menu>
-		</Sidebar.Group>
+									{/if}
+								{/snippet}
+							</Collapsible.Trigger>
+							<Collapsible.Content>
+								<Sidebar.MenuSub>
+									{#each subjectItems as item}
+										<Sidebar.MenuSubItem>
+											<Sidebar.MenuSubButton
+												isActive={isSubjectSubItemActive(subject.id.toString(), item.url)}
+											>
+												{#snippet child({ props })}
+													<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
+														<item.icon />
+														<span>{item.title}</span>
+													</a>
+												{/snippet}
+											</Sidebar.MenuSubButton>
+										</Sidebar.MenuSubItem>
+									{/each}
+								</Sidebar.MenuSub>
+							</Collapsible.Content>
+						</Collapsible.Root>
+					{/each}
+				</Sidebar.Menu>
+			</Sidebar.Group>
+		{/if}
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<Sidebar.Menu>
