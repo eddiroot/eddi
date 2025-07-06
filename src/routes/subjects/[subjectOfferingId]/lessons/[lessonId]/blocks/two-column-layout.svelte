@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
 	import type { LessonBlock } from '$lib/server/db/schema';
-	
+
 	// Import block components
 	import Heading from './heading.svelte';
-	import Markdown from './markdown.svelte';
+	import RichTextEditor from './rich-text-editor.svelte';
 	import Image from './image.svelte';
 	import Video from './video.svelte';
 	import Audio from './audio.svelte';
@@ -19,13 +19,18 @@
 		rightColumn: any[];
 	}
 
-	let { content, isEditMode, onUpdate, onGlobalDrop }: {
+	let {
+		content,
+		isEditMode,
+		onUpdate,
+		onGlobalDrop
+	}: {
 		content: TwoColumnContent;
 		isEditMode: boolean;
 		onUpdate: (content: any) => Promise<void>;
 		onGlobalDrop?: (state: DragDropState<any>) => Promise<void>;
 	} = $props();
-	
+
 	let localContent = $state<TwoColumnContent>({
 		leftColumn: content?.leftColumn || [],
 		rightColumn: content?.rightColumn || []
@@ -39,13 +44,19 @@
 	// Helper function to check if the current drag operation should trigger column highlighting
 	function shouldHighlightColumn(targetContainer: string, sourceContainer?: string): boolean {
 		if (!targetContainer) return false;
-		
+
 		// Don't highlight if this is an internal matching block drag operation
-		if (sourceContainer === 'matching-right-items' || sourceContainer?.startsWith('matching-right-item-')) {
-			console.log('Blocking highlight for matching block internal drag:', { sourceContainer, targetContainer });
+		if (
+			sourceContainer === 'matching-right-items' ||
+			sourceContainer?.startsWith('matching-right-item-')
+		) {
+			console.log('Blocking highlight for matching block internal drag:', {
+				sourceContainer,
+				targetContainer
+			});
 			return false;
 		}
-		
+
 		console.log('Allowing highlight for drag:', { sourceContainer, targetContainer });
 		return true;
 	}
@@ -70,11 +81,14 @@
 
 	function handleDrop(state: DragDropState<any>, targetColumn: 'left' | 'right') {
 		const { draggedItem, sourceContainer, targetContainer } = state;
-		
+
 		if (!targetContainer || !targetContainer.startsWith('two-column-')) return;
 
 		// Ignore drops from internal matching block containers
-		if (sourceContainer === 'matching-right-items' || sourceContainer?.startsWith('matching-right-item-')) {
+		if (
+			sourceContainer === 'matching-right-items' ||
+			sourceContainer?.startsWith('matching-right-item-')
+		) {
 			return;
 		}
 
@@ -84,15 +98,30 @@
 		}
 
 		// Only allow lessonComponentItems to be dropped in columns
-		const allowedTypes = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'markdown', 'image', 'video', 'audio', 'whiteboard', 'multiple_choice', 'fill_in_blank', 'matching'];
-		
+		const allowedTypes = [
+			'h1',
+			'h2',
+			'h3',
+			'h4',
+			'h5',
+			'h6',
+			'markdown',
+			'image',
+			'video',
+			'audio',
+			'whiteboard',
+			'multiple_choice',
+			'fill_in_blank',
+			'matching'
+		];
+
 		if (!allowedTypes.includes(draggedItem.type)) {
 			console.warn('Only lesson component items can be dropped in columns');
 			return;
 		}
 
 		const targetColumnKey = targetColumn === 'left' ? 'leftColumn' : 'rightColumn';
-		
+
 		// Check if target column already has a block (limit to one block per column)
 		if (localContent[targetColumnKey].length > 0) {
 			console.warn('Each column can only contain one block at a time');
@@ -118,10 +147,10 @@
 			// Handle moving items between columns
 			const sourceColumn = sourceContainer.includes('left') ? 'left' : 'right';
 			const sourceColumnKey = sourceColumn === 'left' ? 'leftColumn' : 'rightColumn';
-			
+
 			// Remove from source column
 			const sourceItem = localContent[sourceColumnKey][0]; // Only one item per column
-			
+
 			localContent = {
 				...localContent,
 				[sourceColumnKey]: [],
@@ -144,12 +173,14 @@
 	}
 </script>
 
-<div class="grid grid-cols-2 gap-4 min-h-[200px] rounded-lg border p-4">
+<div class="grid min-h-[200px] grid-cols-2 gap-4 rounded-lg border p-4">
 	<!-- Left Column -->
-	<div 
-		class="flex flex-col gap-2 p-2 rounded border border-dashed transition-colors {
-			dndState.targetContainer === 'two-column-left-drop' && shouldHighlightColumn(dndState.targetContainer, dndState.sourceContainer) ? draggedOverClasses : notDraggedOverClasses
-		}"
+	<div
+		class="flex flex-col gap-2 rounded border border-dashed p-2 transition-colors {dndState.targetContainer ===
+			'two-column-left-drop' &&
+		shouldHighlightColumn(dndState.targetContainer, dndState.sourceContainer)
+			? draggedOverClasses
+			: notDraggedOverClasses}"
 		use:droppable={{
 			container: 'two-column-left-drop',
 			callbacks: {
@@ -158,12 +189,14 @@
 		}}
 	>
 		{#if localContent.leftColumn.length === 0}
-			<div class="flex-1 flex items-center justify-center text-muted-foreground text-sm min-h-[100px]">
+			<div
+				class="text-muted-foreground flex min-h-[100px] flex-1 items-center justify-center text-sm"
+			>
 				Drop a block here
 			</div>
 		{:else}
 			{@const block = localContent.leftColumn[0]}
-			<div class="relative group">
+			<div class="group relative">
 				<div
 					class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 					role="group"
@@ -189,7 +222,7 @@
 					{:else if isEditMode}
 						<div></div>
 					{/if}
-					
+
 					<div class="relative">
 						{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
 							<Heading
@@ -199,29 +232,17 @@
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'markdown'}
-							<Markdown
-								content={typeof block.content === 'string' ? block.content : ''}
+							<RichTextEditor
+								initialContent={block.content}
 								{isEditMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'image'}
-							<Image
-								content={block.content}
-								{isEditMode}
-								onUpdate={createUpdateHandler('left')}
-							/>
+							<Image content={block.content} {isEditMode} onUpdate={createUpdateHandler('left')} />
 						{:else if block.type === 'video'}
-							<Video
-								content={block.content}
-								{isEditMode}
-								onUpdate={createUpdateHandler('left')}
-							/>
+							<Video content={block.content} {isEditMode} onUpdate={createUpdateHandler('left')} />
 						{:else if block.type === 'audio'}
-							<Audio
-								content={block.content}
-								{isEditMode}
-								onUpdate={createUpdateHandler('left')}
-							/>
+							<Audio content={block.content} {isEditMode} onUpdate={createUpdateHandler('left')} />
 						{:else if block.type === 'whiteboard'}
 							<Whiteboard
 								content={block.content}
@@ -247,7 +268,7 @@
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else}
-							<div class="p-2 bg-muted rounded">
+							<div class="bg-muted rounded p-2">
 								Unsupported block type: {block.type}
 							</div>
 						{/if}
@@ -258,10 +279,12 @@
 	</div>
 
 	<!-- Right Column -->
-	<div 
-		class="flex flex-col gap-2 p-2 rounded border border-dashed transition-colors {
-			dndState.targetContainer === 'two-column-right-drop' && shouldHighlightColumn(dndState.targetContainer, dndState.sourceContainer) ? draggedOverClasses : notDraggedOverClasses
-		}"
+	<div
+		class="flex flex-col gap-2 rounded border border-dashed p-2 transition-colors {dndState.targetContainer ===
+			'two-column-right-drop' &&
+		shouldHighlightColumn(dndState.targetContainer, dndState.sourceContainer)
+			? draggedOverClasses
+			: notDraggedOverClasses}"
 		use:droppable={{
 			container: 'two-column-right-drop',
 			callbacks: {
@@ -270,12 +293,14 @@
 		}}
 	>
 		{#if localContent.rightColumn.length === 0}
-			<div class="flex-1 flex items-center justify-center text-muted-foreground text-sm min-h-[100px]">
+			<div
+				class="text-muted-foreground flex min-h-[100px] flex-1 items-center justify-center text-sm"
+			>
 				Drop a block here
 			</div>
 		{:else}
 			{@const block = localContent.rightColumn[0]}
-			<div class="relative group">
+			<div class="group relative">
 				<div
 					class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 					role="group"
@@ -301,7 +326,7 @@
 					{:else if isEditMode}
 						<div></div>
 					{/if}
-					
+
 					<div class="relative">
 						{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
 							<Heading
@@ -311,29 +336,17 @@
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'markdown'}
-							<Markdown
-								content={typeof block.content === 'string' ? block.content : ''}
+							<RichTextEditor
+								initialContent={block.content}
 								{isEditMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'image'}
-							<Image
-								content={block.content}
-								{isEditMode}
-								onUpdate={createUpdateHandler('right')}
-							/>
+							<Image content={block.content} {isEditMode} onUpdate={createUpdateHandler('right')} />
 						{:else if block.type === 'video'}
-							<Video
-								content={block.content}
-								{isEditMode}
-								onUpdate={createUpdateHandler('right')}
-							/>
+							<Video content={block.content} {isEditMode} onUpdate={createUpdateHandler('right')} />
 						{:else if block.type === 'audio'}
-							<Audio
-								content={block.content}
-								{isEditMode}
-								onUpdate={createUpdateHandler('right')}
-							/>
+							<Audio content={block.content} {isEditMode} onUpdate={createUpdateHandler('right')} />
 						{:else if block.type === 'whiteboard'}
 							<Whiteboard
 								content={block.content}
@@ -359,7 +372,7 @@
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else}
-							<div class="p-2 bg-muted rounded">
+							<div class="bg-muted rounded p-2">
 								Unsupported block type: {block.type}
 							</div>
 						{/if}

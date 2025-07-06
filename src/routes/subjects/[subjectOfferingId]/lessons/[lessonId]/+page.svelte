@@ -3,7 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
-	import Markdown from './blocks/markdown.svelte';
+	import RichTextEditor from './blocks/rich-text-editor.svelte';
 	import Image from './blocks/image.svelte';
 	import Video from './blocks/video.svelte';
 	import Audio from './blocks/audio.svelte';
@@ -242,8 +242,8 @@
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'markdown'}
-								<Markdown
-									content={typeof block.content === 'string' ? block.content : ''}
+								<RichTextEditor
+									initialContent={block.content as string | undefined}
 									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
@@ -334,7 +334,9 @@
 			<div
 				class="grid grid-cols-2 gap-2 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
 					'lesson'
-				) || dndState.sourceContainer.startsWith('two-column-')) && dndState.targetContainer === 'blockPalette'
+				) ||
+					dndState.sourceContainer.startsWith('two-column-')) &&
+				dndState.targetContainer === 'blockPalette'
 					? 'border-destructive border border-dashed'
 					: notDraggedOverClasses}"
 				use:droppable={{
