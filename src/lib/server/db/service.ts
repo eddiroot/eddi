@@ -2,6 +2,25 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 
+export async function getUsersBySchoolId(schoolId: number) {
+	const users = await db
+		// Selecting specific user fields to avoid returning sensitive data
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			type: table.user.type,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			avatarUrl: table.user.avatarUrl
+		})
+		.from(table.user)
+		.where(eq(table.user.schoolId, schoolId))
+		.orderBy(asc(table.user.type), asc(table.user.lastName), asc(table.user.firstName));
+
+	return users;
+}
+
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
 		.select({ subject: table.subject })

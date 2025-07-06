@@ -27,16 +27,14 @@ export enum userTypeEnum {
 	student = 'student',
 	teacher = 'teacher',
 	principal = 'principal',
-	schoolAdmin = 'schoolAdmin',
-	systemAdmin = 'systemAdmin'
+	schoolAdmin = 'schoolAdmin'
 }
 
 export const userTypeEnumPg = pgEnum('user_type', [
 	userTypeEnum.student,
 	userTypeEnum.teacher,
 	userTypeEnum.principal,
-	userTypeEnum.schoolAdmin,
-	userTypeEnum.systemAdmin
+	userTypeEnum.schoolAdmin
 ]);
 
 export enum userHonorificEnum {

@@ -42,13 +42,6 @@ export class Security {
 		return this;
 	}
 
-	isSystemAdmin() {
-		if (!this.user?.type || this.user.type !== 'systemAdmin') {
-			error(403, 'not system admin');
-		}
-		return this;
-	}
-
 	getUser() {
 		if (!this.user) {
 			error(401);
