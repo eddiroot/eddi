@@ -74,30 +74,40 @@
 				const topicLessons = topicsWithLessons.find(
 					(item) => item.topic.id === sourceLesson.lessonTopicId
 				)?.lessons;
-				const sourceIndex = sourceLesson.index;
-				const targetIndex = targetLesson.index;
 
-				if (sourceIndex !== -1 && targetIndex !== -1 && topicLessons) {
-					const newLessons = [...topicLessons];
-					const [movedLesson] = newLessons.splice(sourceIndex, 1);
-					newLessons.splice(targetIndex, 0, movedLesson);
+				if (topicLessons) {
+					// Find the actual array indices, not the database indices
+					const sourceIndex = topicLessons.findIndex((l) => l.id === sourceLessonId);
+					const targetIndex = topicLessons.findIndex((l) => l.id === targetLessonId);
 
-					const lessonOrder = newLessons.map((lesson, index) => ({
-						id: lesson.id,
-						index
-					}));
+					if (sourceIndex !== -1 && targetIndex !== -1) {
+						const newLessons = [...topicLessons];
+						const [movedLesson] = newLessons.splice(sourceIndex, 1);
+						newLessons.splice(targetIndex, 0, movedLesson);
 
-					try {
-						await updateLessonOrder({ lessonOrder });
-						topicsWithLessons = topicsWithLessons.map((item) => {
-							if (item.topic.id === sourceLesson.lessonTopicId) {
-								return { ...item, lessons: newLessons };
-							}
-							return item;
-						});
-					} catch (error) {
-						console.error('Error updating lesson order:', error);
-						alert('Failed to update lesson order. Please try again.');
+						const lessonOrder = newLessons.map((lesson, index) => ({
+							id: lesson.id,
+							index
+						}));
+
+						try {
+							await updateLessonOrder({ lessonOrder });
+							topicsWithLessons = topicsWithLessons.map((item) => {
+								if (item.topic.id === sourceLesson.lessonTopicId) {
+									return {
+										...item,
+										lessons: newLessons.map((lesson, index) => ({
+											...lesson,
+											index
+										}))
+									};
+								}
+								return item;
+							});
+						} catch (error) {
+							console.error('Error updating lesson order:', error);
+							alert('Failed to update lesson order. Please try again.');
+						}
 					}
 				}
 			}
@@ -133,9 +143,9 @@
 								container: `topic-${topic.id}`,
 								dragData: topic
 							}}
-							class="bg-secondary hover:bg-secondary/90 dark:hover:bg-secondary/90 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
+							class="bg-primary hover:bg-primary/90 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
 						>
-							<GripVerticalIcon class="text-muted-foreground h-3 w-3 rounded" />
+							<GripVerticalIcon class="text-primary-foreground h-3 w-3 rounded" />
 						</div>
 					{/if}
 					<h2 class="text-foreground text-xl font-semibold">{topic.name}</h2>
@@ -155,9 +165,9 @@
 										container: `lesson-${lesson.id}`,
 										dragData: lesson
 									}}
-									class="bg-secondary hover:bg-secondary/90 dark:hover:bg-secondary/90 absolute -top-2 -left-2 z-10 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
+									class="bg-secondary hover:bg-secondary/90 absolute -top-2 -left-2 z-10 flex h-6 w-6 cursor-grab items-center justify-center rounded-full shadow-md transition-colors active:cursor-grabbing"
 								>
-									<GripVerticalIcon class="text-muted-foreground h-3 w-3 rounded" />
+									<GripVerticalIcon class="text-secondary-foreground h-3 w-3 rounded" />
 								</div>
 							{/if}
 
@@ -201,7 +211,7 @@
 						}
 					}}
 				>
-					{#if isRearrangeMode && dndState.sourceContainer.startsWith('topic') && dndState.sourceContainer != `topic-${topic.id}` && dndState.targetContainer == `topic-${topic.id}`}
+					{#if isRearrangeMode && dndState.sourceContainer.startsWith('topic') && dndState.sourceContainer != `topic-${topic.id}`}
 						<Separator class="bg-accent-foreground" />
 					{/if}
 				</div>
