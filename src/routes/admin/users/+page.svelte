@@ -3,13 +3,11 @@
 	import {
 		type ColumnDef,
 		type ColumnFiltersState,
-		type PaginationState,
 		type RowSelectionState,
 		type SortingState,
 		type VisibilityState,
 		getCoreRowModel,
 		getFilteredRowModel,
-		getPaginationRowModel,
 		getSortedRowModel
 	} from '@tanstack/table-core';
 	import * as Table from '$lib/components/ui/table/index.js';
@@ -23,6 +21,7 @@
 	} from '$lib/components/ui/data-table/index.js';
 	import DataTableCheckbox from '$lib/components/ui/data-table/data-table-checkbox.svelte';
 	import TypeBadge from './TypeBadge.svelte';
+	import TypeFilter from './TypeFilter.svelte';
 	import ActionsCell from './ActionsCell.svelte';
 
 	const { data } = $props();
@@ -72,7 +71,13 @@
 		},
 		{
 			accessorKey: 'type',
-			header: 'Type',
+			header: ({ table }) => {
+				const column = table.getColumn('type');
+				return renderComponent(TypeFilter, {
+					value: column?.getFilterValue() as string,
+					onValueChange: (value) => column?.setFilterValue(value)
+				});
+			},
 			filterFn: 'includesString',
 			size: 100,
 			cell: ({ getValue }) => {
@@ -92,7 +97,6 @@
 		}
 	];
 
-	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let sorting = $state<SortingState>([]);
 	let columnFilters = $state<ColumnFiltersState>([]);
 	let rowSelection = $state<RowSelectionState>({});
@@ -106,9 +110,6 @@
 		},
 		columns,
 		state: {
-			get pagination() {
-				return pagination;
-			},
 			get sorting() {
 				return sorting;
 			},
@@ -123,16 +124,8 @@
 			}
 		},
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
-		onPaginationChange: (updater) => {
-			if (typeof updater === 'function') {
-				pagination = updater(pagination);
-			} else {
-				pagination = updater;
-			}
-		},
 		onSortingChange: (updater) => {
 			if (typeof updater === 'function') {
 				sorting = updater(sorting);
@@ -164,9 +157,9 @@
 	});
 </script>
 
-<div class="space-y-2">
+<div class="flex h-full flex-col space-y-2">
 	<h1 class="text-3xl font-bold tracking-tight">Users</h1>
-	<div class="w-full">
+	<div class="flex min-h-0 flex-1 flex-col">
 		<div class="flex items-center py-4">
 			<Input
 				placeholder="Filter emails..."
@@ -190,15 +183,15 @@
 						<DropdownMenu.CheckboxItem
 							bind:checked={() => column.getIsVisible(), (v) => column.toggleVisibility(!!v)}
 						>
-							{column.columnDef.header}
+							{column.id == 'type' ? 'Type' : column.columnDef.header}
 						</DropdownMenu.CheckboxItem>
 					{/each}
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>
-		<div class="rounded-md border">
-			<Table.Root>
-				<Table.Header>
+		<div class="flex flex-1 flex-col overflow-hidden rounded-md border">
+			<Table.Root class="h-full">
+				<Table.Header class="bg-background sticky top-0 z-10">
 					{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
 						<Table.Row>
 							{#each headerGroup.headers as header (header.id)}
@@ -214,7 +207,7 @@
 						</Table.Row>
 					{/each}
 				</Table.Header>
-				<Table.Body>
+				<Table.Body class="overflow-auto">
 					{#each table.getRowModel().rows as row (row.id)}
 						<Table.Row data-state={row.getIsSelected() && 'selected'}>
 							{#each row.getVisibleCells() as cell (cell.id)}
@@ -235,24 +228,6 @@
 			<div class="text-muted-foreground flex-1 text-sm">
 				{table.getFilteredSelectedRowModel().rows.length} of
 				{table.getFilteredRowModel().rows.length} row(s) selected.
-			</div>
-			<div class="space-x-2">
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => table.previousPage()}
-					disabled={!table.getCanPreviousPage()}
-				>
-					Previous
-				</Button>
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => table.nextPage()}
-					disabled={!table.getCanNextPage()}
-				>
-					Next
-				</Button>
 			</div>
 		</div>
 	</div>
