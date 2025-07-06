@@ -16,6 +16,7 @@
 	import MapIcon from '@lucide/svelte/icons/map';
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import type { Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
@@ -27,6 +28,12 @@
 			url: '/dashboard',
 			icon: LayoutDashboardIcon
 		},
+		{
+			title: 'Admin',
+			url: '/admin',
+			icon: WrenchIcon
+		},
+
 		{
 			title: 'Timetable',
 			url: '/timetable',
