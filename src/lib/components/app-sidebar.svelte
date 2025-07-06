@@ -19,7 +19,7 @@
 	import type { Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	const items = [
 		{
@@ -76,12 +76,12 @@
 
 	// Helper function to check if a main menu item is active
 	function isMainItemActive(itemUrl: string): boolean {
-		return $page.url.pathname === itemUrl;
+		return page.url.pathname === itemUrl;
 	}
 
 	// Helper function to check if a subject is active (any of its sub-pages are active)
 	function isSubjectActive(subjectId: string): boolean {
-		return $page.url.pathname.startsWith(`/subjects/${subjectId}`);
+		return page.url.pathname.startsWith(`/subjects/${subjectId}`);
 	}
 
 	// Helper function to check if a subject sub-item is active
@@ -90,13 +90,11 @@
 
 		if (subUrl === '') {
 			// For home (empty subUrl), only match the exact base path
-			return $page.url.pathname === subjectBasePath;
+			return page.url.pathname === subjectBasePath;
 		} else {
 			// For other sub-items, check if current path starts with the expected path
 			const expectedPath = `${subjectBasePath}/${subUrl}`;
-			return (
-				$page.url.pathname === expectedPath || $page.url.pathname.startsWith(expectedPath + '/')
-			);
+			return page.url.pathname === expectedPath || page.url.pathname.startsWith(expectedPath + '/');
 		}
 	}
 
