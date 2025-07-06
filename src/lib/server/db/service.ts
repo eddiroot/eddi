@@ -44,6 +44,16 @@ export async function updateSchool(schoolId: number, name: string, emailSuffix: 
 	return updatedSchool;
 }
 
+export async function getCampusesBySchoolId(schoolId: number) {
+	const campuses = await db
+		.select()
+		.from(table.campus)
+		.where(eq(table.campus.schoolId, schoolId))
+		.orderBy(asc(table.campus.name));
+
+	return campuses;
+}
+
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
 		.select({ subject: table.subject })
