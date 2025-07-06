@@ -40,6 +40,20 @@ export interface UpdateBlockOrderRequest {
 	}>;
 }
 
+export interface UpdateLessonOrderRequest {
+	lessonOrder: Array<{
+		id: number;
+		index: number;
+	}>;
+}
+
+export interface UpdateTopicOrderRequest {
+	topicOrder: Array<{
+		id: number;
+		index: number;
+	}>;
+}
+
 export interface ApiErrorResponse {
 	error: string;
 }

@@ -357,7 +357,7 @@ export async function getUserLessonsBySubjectOfferingId(userId: string, subjectO
 				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
 			)
 		)
-		.orderBy(desc(table.lesson.createdAt));
+		.orderBy(asc(table.lessonTopic.index), asc(table.lesson.index));
 
 	return lessons;
 }
@@ -370,7 +370,8 @@ export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: numb
 		})
 		.from(table.lessonTopic)
 		.innerJoin(table.subjectClass, eq(table.subjectClass.subjectOfferingId, subjectOfferingId))
-		.where(eq(table.lessonTopic.subjectClassId, table.subjectClass.id));
+		.where(eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
+		.orderBy(asc(table.lessonTopic.index));
 
 	return lessonTopics;
 }
@@ -625,7 +626,7 @@ export async function clearWhiteboard(whiteboardId: number = 1) {
 
 // Location related functions:
 export async function createLocation(
-	schoolId: number,
+	campusId: number,
 	name: string,
 	type: table.schoolLocationTypeEnum,
 	capacity?: number | null,
@@ -635,7 +636,7 @@ export async function createLocation(
 	const [location] = await db
 		.insert(table.schoolLocation)
 		.values({
-			schoolId,
+			campusId,
 			name,
 			type,
 			capacity: capacity || null,
@@ -647,12 +648,12 @@ export async function createLocation(
 	return location;
 }
 
-export async function getLocationsBySchoolId(schoolId: number) {
+export async function getLocationsByCampusId(campusId: number) {
 	const locations = await db
 		.select()
 		.from(table.schoolLocation)
 		.where(
-			and(eq(table.schoolLocation.schoolId, schoolId), eq(table.schoolLocation.isActive, true))
+			and(eq(table.schoolLocation.campusId, campusId), eq(table.schoolLocation.isActive, true))
 		)
 		.orderBy(table.schoolLocation.name);
 
@@ -915,4 +916,30 @@ export async function getSubjectOfferingContextForAI(userID: string, subjectOffe
 		.orderBy(asc(table.lessonTopic.index));
 
 	return subjectOfferingContext;
+}
+
+export async function updateLessonOrder(
+	lessonOrder: Array<{ id: number; index: number }>
+): Promise<void> {
+	await db.transaction(async (tx) => {
+		for (const lesson of lessonOrder) {
+			await tx
+				.update(table.lesson)
+				.set({ index: lesson.index })
+				.where(eq(table.lesson.id, lesson.id));
+		}
+	});
+}
+
+export async function updateTopicOrder(
+	topicOrder: Array<{ id: number; index: number }>
+): Promise<void> {
+	await db.transaction(async (tx) => {
+		for (const topic of topicOrder) {
+			await tx
+				.update(table.lessonTopic)
+				.set({ index: topic.index })
+				.where(eq(table.lessonTopic.id, topic.id));
+		}
+	});
 }

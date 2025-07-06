@@ -1,7 +1,8 @@
+import type { Lesson, LessonTopic } from '$lib/server/db/schema.js';
 import { getUserLessonsBySubjectOfferingId } from '$lib/server/db/service';
 
-export const load = async ({ locals: { security, user }, params: { subjectOfferingId } }) => {
-	security.isAuthenticated();
+export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
+	const user = security.isAuthenticated().getUser();
 
 	let subjectOfferingIdInt;
 	try {
@@ -10,8 +11,21 @@ export const load = async ({ locals: { security, user }, params: { subjectOfferi
 		return { subject: null };
 	}
 
-	// User is guaranteed to exist due to security.isAuthenticated()
-	const lessons = await getUserLessonsBySubjectOfferingId(user!.id, subjectOfferingIdInt);
+	const lessons = await getUserLessonsBySubjectOfferingId(user.id, subjectOfferingIdInt);
 
-	return { user, lessons };
+	const topicsWithLessons = lessons.reduce(
+		(acc, lesson) => {
+			const topicId = lesson.lessonTopic.id;
+			let topicEntry = acc.find((item) => item.topic.id === topicId);
+			if (!topicEntry) {
+				topicEntry = { topic: lesson.lessonTopic, lessons: [] };
+				acc.push(topicEntry);
+			}
+			topicEntry.lessons.push(lesson.lesson);
+			return acc;
+		},
+		[] as Array<{ topic: LessonTopic; lessons: Array<Lesson> }>
+	);
+
+	return { user, topicsWithLessons };
 };
