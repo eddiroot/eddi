@@ -18,7 +18,7 @@ Lachie
 
 - [x] Order topics and lessons within them
 - [x] Better rich text editor
-- [ ] Setup object storage
+- [x] Setup object storage
 - [ ] Admin dashboard (basic subject setup, campuses, importing data, etc)
 - [ ] Export all data for a given school
 
