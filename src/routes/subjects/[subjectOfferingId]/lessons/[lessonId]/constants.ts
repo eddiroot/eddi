@@ -11,6 +11,7 @@ import PresentationIcon from '@lucide/svelte/icons/presentation';
 import List from '@lucide/svelte/icons/list';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 import LinkIcon from '@lucide/svelte/icons/link';
+import ColumnsIcon from '@lucide/svelte/icons/columns';
 import type { Icon } from '@lucide/svelte';
 
 export const blockTypes: {
@@ -96,5 +97,13 @@ export const blockTypes: {
 			]
 		},
 		icon: LinkIcon
+	},
+	{
+		type: 'two_column_layout',
+		content: {
+			leftColumn: [],
+			rightColumn: []
+		},
+		icon: ColumnsIcon
 	}
 ];

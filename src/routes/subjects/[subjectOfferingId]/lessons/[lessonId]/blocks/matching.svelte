@@ -125,8 +125,10 @@
 	function handleDragOver(state: DragDropState<any>) {
 		const { draggedItem: draggedData, sourceContainer } = state;
 		
+		console.log('Matching block drag over:', { sourceContainer, draggedData });
+		
 		// Update visual state for right items reordering
-		if (sourceContainer === 'right-items') {
+		if (sourceContainer === 'matching-right-items') {
 			draggedItem = draggedData;
 		}
 	}
@@ -134,12 +136,14 @@
 	function handleDrop(state: DragDropState<any>) {
 		const { draggedItem: droppedItem, targetContainer, sourceContainer } = state;
 		
-		if (!droppedItem || !targetContainer || sourceContainer !== 'right-items' || !targetContainer.startsWith('right-item-')) {
+		console.log('Matching block drop:', { sourceContainer, targetContainer, droppedItem });
+		
+		if (!droppedItem || !targetContainer || sourceContainer !== 'matching-right-items' || !targetContainer.startsWith('matching-right-item-')) {
 			return;
 		}
 
 		// Extract target index from container name
-		const targetIndex = parseInt(targetContainer.replace('right-item-', ''), 10);
+		const targetIndex = parseInt(targetContainer.replace('matching-right-item-', ''), 10);
 		const sourceIndex = rightItemsOrder.indexOf(droppedItem);
 		
 		if (sourceIndex === -1 || targetIndex < 0 || targetIndex >= rightItemsOrder.length) {
@@ -310,15 +314,26 @@
 						<h3 class="font-medium text-sm text-muted-foreground">
 							{hasSubmitted ? 'Your answers:' : 'Drag to reorder these answers:'}
 						</h3>
-						<div class="space-y-2 min-h-[200px]">
+						<!-- Drag isolation wrapper -->
+						<div 
+							class="space-y-2 min-h-[200px] matching-drag-area"
+							style="position: relative; z-index: 1;"
+							role="group"
+							aria-label="Matching exercise drag area"
+							ondragstart={(e) => e.stopPropagation()}
+							ondragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
+							ondrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+							ondragenter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+							ondragleave={(e) => { e.preventDefault(); e.stopPropagation(); }}
+						>
 							{#each rightItemsOrder as rightItem, index}
 								<div 
 									use:draggable={{
-										container: 'right-items',
+										container: 'matching-right-items',
 										dragData: rightItem
 									}}
 									use:droppable={{
-										container: `right-item-${index}`,
+										container: `matching-right-item-${index}`,
 										callbacks: {
 											onDrop: handleDrop,
 											onDragOver: handleDragOver
@@ -328,6 +343,15 @@
 										{hasSubmitted ? 'bg-muted/20' : 'bg-secondary hover:bg-secondary/80 cursor-grab active:cursor-grabbing'}
 										{draggedItem === rightItem ? 'opacity-50' : ''}
 										{showFeedback ? (isCorrectMatch(index) ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : ''}"
+									style="position: relative; z-index: 2;"
+									role="button"
+									aria-label="Drag to reorder item: {rightItem}"
+									tabindex="0"
+									ondragstart={(e) => e.stopPropagation()}
+									ondragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
+									ondrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+									ondragenter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+									ondragleave={(e) => { e.preventDefault(); e.stopPropagation(); }}
 								>
 									<div class="flex items-center gap-3">
 										<span class="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>

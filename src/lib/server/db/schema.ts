@@ -413,7 +413,8 @@ export enum lessonBlockTypeEnum {
 	fillInBlank = 'fill_in_blank',
 	multipleChoice = 'multiple_choice',
 	whiteboard = 'whiteboard',
-	matching = 'matching'
+	matching = 'matching',
+	twoColumnLayout = 'two_column_layout'
 }
 
 export const lessonBlockTypeEnumPg = pgEnum('lesson_block_type', [
@@ -430,7 +431,8 @@ export const lessonBlockTypeEnumPg = pgEnum('lesson_block_type', [
 	lessonBlockTypeEnum.fillInBlank,
 	lessonBlockTypeEnum.multipleChoice,
 	lessonBlockTypeEnum.whiteboard,
-	lessonBlockTypeEnum.matching
+	lessonBlockTypeEnum.matching,
+	lessonBlockTypeEnum.twoColumnLayout
 ]);
 
 export const lessonBlock = pgTable('lesson_block', {

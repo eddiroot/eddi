@@ -11,6 +11,7 @@
 	import MultipleChoice from './blocks/multiple-choice.svelte';
 	import FillInBlank from './blocks/fill-in-blank.svelte';
 	import Matching from './blocks/matching.svelte';
+	import TwoColumnLayout from './blocks/two-column-layout.svelte';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import { type LessonBlock } from '$lib/server/db/schema';
@@ -39,6 +40,32 @@
 		if (!targetContainer) return;
 
 		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('lesson')) {
+			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
+
+			const { block } = await createBlock({
+				lessonId: data.lesson.id,
+				type: draggedItem.type,
+				content: draggedItem.content,
+				index: targetContainer === 'lesson-bottom' ? blocks.length : index
+			});
+
+			if (!block) {
+				alert('Failed to create block. Please try again.');
+				return;
+			}
+
+			if (targetContainer === 'lesson-bottom') {
+				blocks = [...blocks, block];
+			} else if (index !== -1) {
+				blocks = [...blocks.slice(0, index), block, ...blocks.slice(index)];
+			} else {
+				alert('Failed to insert block at the correct position. Please try again.');
+				return;
+			}
+		}
+
+		// Handle drops from two-column layout to main lesson
+		if (sourceContainer.startsWith('two-column-') && targetContainer.startsWith('lesson')) {
 			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
 
 			const { block } = await createBlock({
@@ -110,6 +137,23 @@
 			const { success } = await deleteBlock(draggedItem.id);
 			if (!success) {
 				alert('Failed to delete block. Please try again.');
+				return;
+			}
+			blocks = blocks.filter((block) => block.id !== draggedItem.id);
+		}
+
+		// Handle drops from two-column layout to palette (deletion)
+		if (sourceContainer.startsWith('two-column-') && targetContainer === 'blockPalette') {
+			// No server action needed since two-column blocks are not persisted individually
+			// The onDragEnd callback in the two-column component will handle removal
+			console.log('Block dragged from two-column to palette for deletion');
+		}
+
+		// Handle drops from main lesson to two-column layout
+		if (sourceContainer.startsWith('lesson') && targetContainer.startsWith('two-column-')) {
+			const { success } = await deleteBlock(draggedItem.id);
+			if (!success) {
+				alert('Failed to move block to column. Please try again.');
 				return;
 			}
 			blocks = blocks.filter((block) => block.id !== draggedItem.id);
@@ -245,6 +289,15 @@
 									{isEditMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
+							{:else if block.type === 'two_column_layout'}
+								<TwoColumnLayout
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => {
+										await updateBlock({ block, content });
+									}}
+									onGlobalDrop={handleDrop}
+								/>
 							{:else}
 								<p>Content for {block.type} block.</p>
 							{/if}
@@ -279,9 +332,9 @@
 		</Card.Header>
 		<Card.Content class="flex h-full flex-col gap-4">
 			<div
-				class="grid grid-cols-2 gap-2 rounded-lg p-2 {dndState.sourceContainer.startsWith(
+				class="grid grid-cols-2 gap-2 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
 					'lesson'
-				) && dndState.targetContainer === 'blockPalette'
+				) || dndState.sourceContainer.startsWith('two-column-')) && dndState.targetContainer === 'blockPalette'
 					? 'border-destructive border border-dashed'
 					: notDraggedOverClasses}"
 				use:droppable={{
