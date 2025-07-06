@@ -17,7 +17,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 Lachie
 
 - [x] Order topics and lessons within them
-- [ ] Better rich text editor (e.g. math symbols)
+- [x] Better rich text editor
 - [ ] Setup object storage
 - [ ] Admin dashboard (basic subject setup, campuses, importing data, etc)
 - [ ] Export all data for a given school
@@ -59,6 +59,9 @@ Bella
 
 ## Future Functionality
 
+- [ ] Premade math symbols to insert in rich text editor
+  - Option in RTE toolbar brings up a modal
+  - Clicking on a formula in the modal inserts it into the editor
 - [ ] Home page
 - [ ] A what to do button to generate study ideas
 - [ ] Complete LLM access to discussions + lessons
