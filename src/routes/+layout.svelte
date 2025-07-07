@@ -50,6 +50,16 @@
 				const subjectId = Number(segment);
 				const subject = data?.subjects?.find((s) => s.id === subjectId);
 				label = subject?.name || `Subject ${segment}`;
+			} else if (segments[i - 1] === 'lessons' && !isNaN(Number(segment))) {
+				const lessonId = Number(segment);
+				const pageData = page.data as any;
+				const lesson = pageData?.lesson || pageData?.lessons?.find((l: any) => l.id === lessonId);
+				label = lesson?.title || `Lesson ${segment}`;
+			} else if (segments[i - 1] === 'whiteboard' && !isNaN(Number(segment))) {
+				const whiteboardId = Number(segment);
+				const pageData = page.data as any;
+				const whiteboard = pageData?.whiteboard || pageData?.whiteboards?.find((w: any) => w.id === whiteboardId);
+				label = whiteboard?.title || `Whiteboard ${segment}`;
 			} else {
 				label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
 			}
