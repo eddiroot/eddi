@@ -7,7 +7,8 @@ const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
 export async function seed_admins() {
-	const passwordHash = await hash('admin');
+	// Needs to be plural to meet the 6 character limit
+	const passwordHash = await hash('admins');
 
 	const admins = await db
 		.insert(schema.user)
