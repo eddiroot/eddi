@@ -161,41 +161,47 @@
 	}
 </script>
 
-<div class="grid h-full grid-cols-[300px_1fr_300px] gap-4 p-4">
-	<Card.Root class="h-full">
-		<Card.Header>
-			<Card.Title class="text-lg">Contents</Card.Title>
-			<Card.Description>Choose a heading to navigate to.</Card.Description>
-		</Card.Header>
-		<Card.Content class="space-y-4"></Card.Content>
-	</Card.Root>
+<div class="flex h-full flex-col gap-4 p-4">
+	<div class="grid grid-cols-[300px_1fr_300px] gap-4">
+		<div></div>
+		<div></div>
+		<Button
+			variant="outline"
+			size="sm"
+			onclick={() => (isEditMode = !isEditMode)}
+			class="flex items-center justify-center gap-2"
+		>
+			{#if isEditMode}
+				<EyeIcon class="h-4 w-4" />
+				Switch to Preview Mode
+			{:else}
+				<EditIcon class="h-4 w-4" />
+				Switch to Edit Mode
+			{/if}
+		</Button>
+	</div>
 
-	<Card.Root class="h-full gap-0">
-		<div class="flex items-center justify-between p-6 pb-4">
-			<div class="flex-1">
-				<Heading
-					headingSize={1}
-					text={data.lesson.title}
-					{isEditMode}
-					onUpdate={async (newText: string) =>
-						await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
-				/>
+	<div class="grid h-full grid-cols-[300px_1fr_300px] gap-4">
+		<Card.Root class="h-full">
+			<Card.Header>
+				<Card.Title class="text-lg">Contents</Card.Title>
+				<Card.Description>Choose a heading to navigate to.</Card.Description>
+			</Card.Header>
+			<Card.Content class="space-y-4"></Card.Content>
+		</Card.Root>
+
+		<Card.Root class="h-full gap-0">
+			<div class="flex items-center justify-between p-6 pb-4">
+				<div class="flex-1">
+					<Heading
+						headingSize={1}
+						text={data.lesson.title}
+						{isEditMode}
+						onUpdate={async (newText: string) =>
+							await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
+					/>
+				</div>
 			</div>
-			<Button
-				variant="outline"
-				size="sm"
-				onclick={() => (isEditMode = !isEditMode)}
-				class="flex items-center gap-2"
-			>
-				{#if isEditMode}
-					<EyeIcon class="h-4 w-4" />
-					Switch to Preview Mode
-				{:else}
-					<EditIcon class="h-4 w-4" />
-					Switch to Edit Mode
-				{/if}
-			</Button>
-		</div>
 		<Card.Content class="h-full">
 			<div class="flex h-full flex-col">
 				{#each blocks as block}
@@ -362,4 +368,5 @@
 			</div>
 		</Card.Content>
 	</Card.Root>
+	</div>
 </div>
