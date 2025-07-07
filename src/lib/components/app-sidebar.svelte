@@ -144,14 +144,25 @@
 
 <Sidebar.Root collapsible="icon" class="h-full">
 	<Sidebar.Header>
-		<a href="/" class="flex items-center gap-x-1">
-			<img src={school?.logoUrl} alt="{school?.name || 'school'} logo" class="h-8 w-8" />
-			{#if !sidebar.isMobile && sidebar.leftOpen}
-				<h1 class="text-center text-lg font-semibold whitespace-nowrap">
-					{school?.name || 'eddi'}
-				</h1>
-			{/if}
-		</a>
+		<Sidebar.Menu>
+			<Sidebar.MenuItem>
+				<Sidebar.MenuButton size="lg" side="left" class="hover:bg-sidebar active:bg-sidebar">
+					{#snippet child({ props })}
+						<a href="/" {...props}>
+							<div
+								class="bg-sidebar-accent dark:bg-sidebar-primary text-sidebar-accent-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
+							>
+								<img src={school?.logoUrl} alt="{school?.name || 'school'} logo" class="size-5" />
+							</div>
+							<div class="grid flex-1 text-left text-sm leading-tight">
+								<span class="truncate font-medium">{school?.name}</span>
+								<span class="truncate text-xs">Wheeler's Hill Campus</span>
+							</div>
+						</a>
+					{/snippet}
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
+		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<Sidebar.Group>
