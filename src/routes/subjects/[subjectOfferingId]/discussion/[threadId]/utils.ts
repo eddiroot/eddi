@@ -50,20 +50,6 @@ export function getThreadTypeDisplay(type: string): string {
 	}
 }
 
-export function getThreadTypeVariant(type: string) {
-	switch (type) {
-		case 'question':
-		case 'qanda':
-			return 'default';
-		case 'announcement':
-			return 'destructive';
-		case 'discussion':
-			return 'secondary';
-		default:
-			return 'secondary';
-	}
-}
-
 export function getResponseTypeDescription(type: string): string {
 	switch (type) {
 		case 'answer':

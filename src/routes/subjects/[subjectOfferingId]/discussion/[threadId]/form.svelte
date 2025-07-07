@@ -80,10 +80,10 @@
 							<Select.Trigger {...props}>
 								<div class="flex items-center gap-2">
 									{#if $formData.type === 'answer'}
-										<CheckCircle class="h-4 w-4 text-green-600" />
+										<CheckCircle class="text-primary h-4 w-4" />
 										Answer
 									{:else}
-										<MessageSquare class="h-4 w-4 text-blue-600" />
+										<MessageSquare class="text-primary h-4 w-4" />
 										Comment
 									{/if}
 								</div>
@@ -91,7 +91,7 @@
 							<Select.Content>
 								<Select.Item value="answer" label="Answer">
 									<div class="flex items-center gap-2">
-										<CheckCircle class="h-4 w-4 text-green-600" />
+										<CheckCircle class="text-primary h-4 w-4" />
 										<div class="flex flex-col">
 											<span class="font-medium">Answer</span>
 											<span class="text-muted-foreground text-xs">Provide a solution</span>
@@ -100,7 +100,7 @@
 								</Select.Item>
 								<Select.Item value="comment" label="Comment">
 									<div class="flex items-center gap-2">
-										<MessageSquare class="h-4 w-4 text-blue-600" />
+										<MessageSquare class="text-primary h-4 w-4" />
 										<div class="flex flex-col">
 											<span class="font-medium">Comment</span>
 											<span class="text-muted-foreground text-xs">Ask or discuss</span>

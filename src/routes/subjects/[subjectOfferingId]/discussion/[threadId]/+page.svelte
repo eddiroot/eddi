@@ -9,7 +9,7 @@
 	import CheckCircle from '@lucide/svelte/icons/check-circle';
 	import User from '@lucide/svelte/icons/user';
 	import Clock from '@lucide/svelte/icons/clock';
-	import { getThreadTypeDisplay, getThreadTypeVariant } from './utils';
+	import { getThreadTypeDisplay } from './utils';
 
 	let { data } = $props();
 	const thread = $derived(() => data.thread);
@@ -55,7 +55,7 @@
 					</Avatar.Root>
 					<div class="flex-1 space-y-3">
 						<div class="flex flex-wrap items-center gap-3">
-							<Badge variant={getThreadTypeVariant(thread()!.thread.type)} class="font-medium">
+							<Badge class="font-medium">
 								{thread() ? getThreadTypeDisplay(thread()!.thread.type) : 'Thread'}
 							</Badge>
 							<div class="text-muted-foreground flex items-center gap-1 text-sm">
@@ -86,7 +86,7 @@
 		{#if (thread()?.thread.type === 'question' || thread()?.thread.type === 'qanda') && answers().length > 0}
 			<div class="space-y-4">
 				<div class="flex items-center gap-2">
-					<CheckCircle class="h-5 w-5 text-green-600" />
+					<CheckCircle class="text-primary h-5 w-5" />
 					<h2 class="text-xl font-semibold">Answers ({answers().length})</h2>
 				</div>
 				<div class="space-y-4">

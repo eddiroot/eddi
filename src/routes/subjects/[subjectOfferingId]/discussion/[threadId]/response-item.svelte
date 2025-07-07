@@ -48,11 +48,7 @@
 			<div class="flex items-center gap-3">
 				<Avatar.Root class="h-9 w-9">
 					<Avatar.Image src={response.user.avatarUrl || ''} alt={authorName()} />
-					<Avatar.Fallback
-						class="text-xs font-medium {response.response.type === 'answer'
-							? 'bg-green-100 text-green-700'
-							: 'bg-blue-100 text-blue-700'}"
-					>
+					<Avatar.Fallback class="text-xs font-medium">
 						{authorName()
 							.split(' ')
 							.map((n) => n[0])
@@ -63,12 +59,7 @@
 				</Avatar.Root>
 				<div class="flex-1 space-y-1">
 					<div class="flex items-center gap-2">
-						<Badge
-							variant={response.response.type === 'answer' ? 'default' : 'secondary'}
-							class={response.response.type === 'answer'
-								? 'border-green-200 bg-green-50 text-green-700'
-								: 'border-blue-200 bg-blue-50 text-blue-700'}
-						>
+						<Badge>
 							{#if response.response.type === 'answer'}
 								<CheckCircle class="mr-1 h-3 w-3" />
 								Answer
