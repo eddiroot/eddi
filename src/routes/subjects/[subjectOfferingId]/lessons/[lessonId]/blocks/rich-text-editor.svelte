@@ -22,7 +22,7 @@
 	});
 </script>
 
-<div class="z-50 size-full max-w-5xl rounded-md {isEditMode ? 'border border-dashed' : ''}">
+<div class="z-50 w-full rounded-md {isEditMode ? 'border border-dashed' : ''}">>
 	{#if editor && !editor.isDestroyed && isEditMode}
 		<EdraToolbar
 			class="bg-secondary/50 flex w-full items-center overflow-x-auto border-b border-dashed p-0.5"
