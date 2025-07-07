@@ -30,7 +30,9 @@
 		<Separator />
 		{#if data?.threads}
 			<Resizable.PaneGroup direction="vertical">
-				<div class="bg-accent flex items-center justify-between border-b px-6">
+				<div
+					class="bg-primary text-primary-foreground flex items-center justify-between border-b px-6"
+				>
 					<h3 class="text-sm font-medium">Announcements</h3>
 					<Button
 						onclick={() => {
@@ -95,7 +97,7 @@
 					</ScrollArea>
 				</Resizable.Pane>
 				<Resizable.Handle withHandle />
-				<div class="bg-accent border-b px-6 py-2">
+				<div class="bg-primary text-primary-foreground border-b px-6 py-2">
 					<h3 class="text-sm font-medium">Other</h3>
 				</div>
 				<Resizable.Pane defaultSize={70}>

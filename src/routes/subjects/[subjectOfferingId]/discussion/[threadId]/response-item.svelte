@@ -38,11 +38,11 @@
 	}
 </script>
 
-<div class={depth > 0 ? 'border-accent border-l-2 pl-8' : ''}>
+<div class={depth > 0 ? 'border-muted-foreground border-l-2 pl-8' : ''}>
 	<Card.Root
-		class="border-l-4 {response.response.type === 'answer'
-			? 'border-l-green-500'
-			: 'border-l-blue-500'} shadow-sm"
+		class="border-l-4 {response.response.type === 'answer' && depth === 0
+			? 'border-l-primary'
+			: 'border-l-secondary'} shadow-sm"
 	>
 		<Card.Header class="pb-3">
 			<div class="flex items-center gap-3">
@@ -59,15 +59,6 @@
 				</Avatar.Root>
 				<div class="flex-1 space-y-1">
 					<div class="flex items-center gap-2">
-						<Badge>
-							{#if response.response.type === 'answer'}
-								<CheckCircle class="mr-1 h-3 w-3" />
-								Answer
-							{:else}
-								<MessageSquare class="mr-1 h-3 w-3" />
-								Comment
-							{/if}
-						</Badge>
 						<span class="text-muted-foreground text-sm">
 							by {authorName()}
 						</span>
