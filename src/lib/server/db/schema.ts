@@ -555,9 +555,9 @@ export const curriculum = pgTable('curriculum', {
 
 export type Curriculum = typeof curriculum.$inferSelect;
 
-export const curriculumSubject = pgTable('curriculum_subject', {
+export const curriculumSubject = pgTable('cur_sub', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	curriculumId: integer('curriculum_id')
+	curriculumId: integer('cur_id')
 		.notNull()
 		.references(() => curriculum.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
@@ -569,7 +569,7 @@ export type CurriculumSubject = typeof curriculumSubject.$inferSelect;
 
 export const learningArea = pgTable('learning_area', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	curriculumSubjectId: integer('curriculum_subject_id')
+	curriculumSubjectId: integer('cur_sub_id')
 		.notNull()
 		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
@@ -580,9 +580,9 @@ export const learningArea = pgTable('learning_area', {
 
 export type LearningArea = typeof learningArea.$inferSelect;
 
-export const learningAreaContent = pgTable('learning_area_content', {
+export const learningAreaContent = pgTable('la_content', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaId: integer('learning_area_id')
+	learningAreaId: integer('la_id')
 		.notNull()
 		.references(() => learningArea.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
@@ -593,9 +593,9 @@ export const learningAreaContent = pgTable('learning_area_content', {
 
 export type LearningAreaContent = typeof learningAreaContent.$inferSelect;
 
-export const contentElaboration = pgTable('content_elaboration', {
+export const contentElaboration = pgTable('content_elab', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaContentId: integer('learning_area_content_id')
+	learningAreaContentId: integer('la_content_id')
 		.notNull()
 		.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
@@ -604,3 +604,46 @@ export const contentElaboration = pgTable('content_elaboration', {
 });
 
 export type ContentElaboration = typeof contentElaboration.$inferSelect;
+
+// Curriculum Planning Schema Components
+
+export const term = pgTable('term', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	schoolId: integer('school_id').references(() => school.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(), // e.g., "Term 1", "Semester 1"
+	endDate: timestamp('end_date', { withTimezone: true, mode: 'date' }).notNull(),
+	...timestamps
+});
+
+export type Term = typeof term.$inferSelect;
+
+export const week = pgTable('week', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	termId: integer('term_id')
+		.notNull()
+		.references(() => term.id, { onDelete: 'cascade' }),
+	weekNumber: integer('week_number').notNull(), // Week number within the term
+	startDate: timestamp('start_date', { withTimezone: true, mode: 'date' }).notNull(),
+	endDate: timestamp('end_date', { withTimezone: true, mode: 'date' }).notNull(),
+	...timestamps
+});
+
+export type Week = typeof week.$inferSelect;
+
+export const courseMapItem = pgTable('course_map_item', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	subjectId: integer('subject_id')
+		.notNull()
+		.references(() => subject.id, { onDelete: 'cascade' }),
+	title: text('title').notNull(),
+	description: text('description'),
+	lengthInWeeks: integer('length_in_weeks').notNull(),
+	startWeekNumber: integer('start_week_number').notNull(),
+	termNumber: integer('term_number').notNull().default(1), // 1, 2, 3, 4 for quarters or 1, 2 for semesters
+	academicYear: integer('academic_year').notNull().default(2025), // Year this curriculum is for
+	yearLevel: text('year_level').notNull(),
+	orderIndex: integer('order_index').notNull().default(0),
+	...timestamps
+});
+
+export type CourseMapItem = typeof courseMapItem.$inferSelect;

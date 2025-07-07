@@ -1114,14 +1114,7 @@ export async function getLocationsBySchoolId(schoolId: number) {
 
 export async function getSubjectsBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const subjects = await db
-		.select({
-			id: table.subject.id,
-			name: table.subject.name,
-			description: table.subject.description,
-			schoolId: table.subject.schoolId,
-			createdAt: table.subject.createdAt,
-			updatedAt: table.subject.updatedAt
-		})
+		.select()
 		.from(table.subject)
 		.where(
 			includeArchived
@@ -1189,4 +1182,135 @@ export async function unarchiveCampus(campusId: number) {
 		.returning();
 
 	return unarchivedCampus;
+	
+export async function getTermsBySchoolId(schoolId: number) {
+	const terms = await db
+		.select()
+		.from(table.term)
+		.where(eq(table.term.schoolId, schoolId))
+		.orderBy(desc(table.term.year), asc(table.term.termNumber));
+
+	return terms;
+}
+
+export async function getCourseMapItemsBySubjectId(subjectId: number) {
+	const items = await db
+		.select()
+		.from(table.courseMapItem)
+		.where(eq(table.courseMapItem.subjectId, subjectId))
+		.orderBy(
+			asc(table.courseMapItem.yearLevel),
+			asc(table.courseMapItem.termNumber),
+			asc(table.courseMapItem.startWeekNumber)
+		);
+
+	return items;
+}
+
+export async function getCourseMapItemsBySubjectAndYear(subjectId: number, yearLevel: string) {
+	const items = await db
+		.select()
+		.from(table.courseMapItem)
+		.where(
+			and(
+				eq(table.courseMapItem.subjectId, subjectId),
+				eq(table.courseMapItem.yearLevel, yearLevel)
+			)
+		)
+		.orderBy(asc(table.courseMapItem.termNumber), asc(table.courseMapItem.startWeekNumber));
+
+	return items;
+}
+
+export async function createCourseMapItem(data: {
+	subjectId: number;
+	title: string;
+	description?: string;
+	lengthInWeeks: number;
+	startWeekNumber: number;
+	termNumber: number;
+	academicYear: number;
+	yearLevel: string;
+	orderIndex?: number;
+}) {
+	const result = await db
+		.insert(table.courseMapItem)
+		.values({
+			...data,
+			orderIndex: data.orderIndex || 0
+		})
+		.returning();
+
+	return result[0];
+}
+
+export async function updateCourseMapItem(
+	id: number,
+	data: Partial<{
+		title: string;
+		description: string;
+		lengthInWeeks: number;
+		startWeekNumber: number;
+		termNumber: number;
+		academicYear: number;
+		yearLevel: string;
+		orderIndex: number;
+	}>
+) {
+	const result = await db
+		.update(table.courseMapItem)
+		.set(data)
+		.where(eq(table.courseMapItem.id, id))
+		.returning();
+
+	return result[0];
+}
+
+export async function deleteCourseMapItem(id: number) {
+	const result = await db
+		.delete(table.courseMapItem)
+		.where(eq(table.courseMapItem.id, id))
+		.returning();
+
+	return result[0];
+}
+
+export async function checkCourseMapItemConflict(
+	subjectId: number,
+	yearLevel: string,
+	termNumber: number,
+	academicYear: number,
+	startWeekNumber: number,
+	lengthInWeeks: number,
+	excludeItemId?: number
+) {
+	const endWeek = startWeekNumber + lengthInWeeks - 1;
+
+	const conditions = [
+		eq(table.courseMapItem.subjectId, subjectId),
+		eq(table.courseMapItem.yearLevel, yearLevel),
+		eq(table.courseMapItem.termNumber, termNumber),
+		eq(table.courseMapItem.academicYear, academicYear)
+	];
+
+	if (excludeItemId) {
+		conditions.push(sql`${table.courseMapItem.id} != ${excludeItemId}`);
+	}
+
+	const existingItems = await db
+		.select()
+		.from(table.courseMapItem)
+		.where(and(...conditions));
+
+	// Check for time conflicts
+	return existingItems.some((item) => {
+		const itemEndWeek = item.startWeekNumber + item.lengthInWeeks - 1;
+
+		// Check for overlap
+		return (
+			(startWeekNumber >= item.startWeekNumber && startWeekNumber <= itemEndWeek) ||
+			(endWeek >= item.startWeekNumber && endWeek <= itemEndWeek) ||
+			(startWeekNumber <= item.startWeekNumber && endWeek >= itemEndWeek)
+		);
+	});
 }
