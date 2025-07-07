@@ -346,16 +346,17 @@
 					}
 				}}
 			>
-				{#each blockTypes as { type, content, icon }}
+				{#each blockTypes as { type, name, content, icon }}
 					{@const Icon = icon}
 					<div
-						class="aspect-square h-full w-full {buttonVariants({ variant: 'outline' })}"
+						class="flex flex-col items-center justify-center gap-1 {buttonVariants({ variant: 'outline' })} aspect-square h-full w-full"
 						use:draggable={{
 							container: 'blockPalette',
 							dragData: { type, content, id: 0 }
 						}}
 					>
 						<Icon class="size-8" />
+						<span class="text-xs text-center leading-tight">{name}</span>
 					</div>
 				{/each}
 			</div>
