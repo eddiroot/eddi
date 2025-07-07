@@ -14,7 +14,7 @@
 
 	const adminSections = [
 		{
-			title: 'School Details',
+			title: 'School',
 			description: "Configure your school's name, logo, branding, and theme settings",
 			icon: SchoolIcon,
 			href: '/admin/school'
