@@ -6,6 +6,9 @@
 	import { type SuperValidated, type Infer, superForm, fileProxy } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 
+	// If we want to add a file preview in future, refer to the on:input section
+	// of this documentation: https://superforms.rocks/concepts/files#returning-files-in-form-actions
+
 	let {
 		data
 	}: {
