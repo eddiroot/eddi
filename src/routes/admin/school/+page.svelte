@@ -10,9 +10,9 @@
 
 	<Card.Root>
 		<Card.Header>
-			<Card.Title>Basic Information</Card.Title>
+			<Card.Title>School Information</Card.Title>
 			<Card.Description>
-				Update your school's name and email domain. These details will be used throughout the
+				Update your school's logo, name, and email domain. These details will be used throughout the
 				system.
 			</Card.Description>
 		</Card.Header>

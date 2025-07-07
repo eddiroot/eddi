@@ -62,47 +62,38 @@ async function uploadBuffer(
 	}
 }
 
-export async function uploadMediaForSchool(
-	schoolId: string,
+export async function uploadFileHelper(
 	filePath: string,
+	bucketName: string,
 	objectName: string
 ): Promise<string> {
-	const bucketName = `schools`;
-	const fullObjectName = `${schoolId}/${objectName}`;
-	await uploadFile(bucketName, fullObjectName, filePath);
-	return `https://${env.OBJ_ENDPOINT}/${bucketName}/${fullObjectName}`;
+	await uploadFile(bucketName, objectName, filePath);
+	return `${env.OBJ_URL_PREFIX}/${bucketName}/${objectName}`;
 }
 
-export async function uploadBufferForSchool(
-	schoolId: string,
+export async function uploadBufferHelper(
 	buffer: Buffer,
+	bucketName: string,
 	objectName: string,
 	contentType?: string
 ): Promise<string> {
-	const bucketName = `schools`;
-	const fullObjectName = `${schoolId}/${objectName}`;
-	await uploadBuffer(bucketName, fullObjectName, buffer, contentType);
-	return `https://${env.OBJ_ENDPOINT}/${bucketName}/${fullObjectName}`;
+	await uploadBuffer(bucketName, objectName, buffer, contentType);
+	return `${env.OBJ_URL_PREFIX}/${bucketName}/${objectName}`;
 }
 
-export async function deleteFileFromSchool(schoolId: string, objectName: string): Promise<void> {
-	const bucketName = `schools`;
-	const fullObjectName = `${schoolId}/${objectName}`;
+export async function deleteFile(bucketName: string, objectName: string): Promise<void> {
 	try {
-		await minioClient.removeObject(bucketName, fullObjectName);
+		await minioClient.removeObject(bucketName, objectName);
 	} catch (error) {
 		console.error('Error deleting file:', error);
 		throw error;
 	}
 }
 
-export async function listSchoolFiles(schoolId: string, prefix?: string): Promise<string[]> {
-	const bucketName = `schools`;
-	const objectPrefix = prefix ? `${schoolId}/${prefix}` : `${schoolId}/`;
-
+export async function listFiles(bucketName: string, prefix?: string): Promise<string[]> {
 	try {
 		const objects: string[] = [];
-		const stream = minioClient.listObjects(bucketName, objectPrefix, true);
+		const stream = minioClient.listObjects(bucketName, prefix, true);
 
 		return new Promise((resolve, reject) => {
 			stream.on('data', (obj) => {
@@ -167,26 +158,6 @@ export async function getFileMetadata(schoolId: string, objectName: string) {
 	}
 }
 
-export async function copyFile(
-	sourceSchoolId: string,
-	sourceObjectName: string,
-	targetSchoolId: string,
-	targetObjectName: string
-): Promise<void> {
-	const bucketName = `schools`;
-	const sourceFullName = `${sourceSchoolId}/${sourceObjectName}`;
-	const targetFullName = `${targetSchoolId}/${targetObjectName}`;
-
-	try {
-		await ensureBucketExists(bucketName);
-		await minioClient.copyObject(bucketName, targetFullName, `/${bucketName}/${sourceFullName}`);
-	} catch (error) {
-		console.error('Error copying file:', error);
-		throw error;
-	}
-}
-
-// Utility function to generate a unique filename
 export function generateUniqueFileName(originalName: string): string {
 	const timestamp = Date.now();
 	const randomString = Math.random().toString(36).substring(2, 8);

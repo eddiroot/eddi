@@ -145,7 +145,7 @@
 <Sidebar.Root collapsible="icon" class="h-full">
 	<Sidebar.Header>
 		<a href="/" class="flex items-center gap-x-1">
-			<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
+			<img src={school?.logoUrl} alt="{school?.name || 'school'} logo" class="h-8 w-8" />
 			{#if !sidebar.isMobile && sidebar.leftOpen}
 				<h1 class="text-center text-lg font-semibold whitespace-nowrap">
 					{school?.name || 'eddi'}

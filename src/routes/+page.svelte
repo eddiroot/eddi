@@ -25,9 +25,7 @@
 					with a <strong>modern</strong> approach to education
 				</p>
 				<div class="flex flex-col gap-3 sm:flex-row">
-					<Button size="lg" variant="secondary" class="bg-primary/15 hover:bg-primary/10"
-						>Watch the demo</Button
-					>
+					<Button size="lg" variant="outline">Watch the demo</Button>
 					<Button href="/onboarding" size="lg">Get started</Button>
 				</div>
 			</div>

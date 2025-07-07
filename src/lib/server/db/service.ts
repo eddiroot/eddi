@@ -67,12 +67,19 @@ export async function getSchoolStatsById(schoolId: number) {
 	};
 }
 
-export async function updateSchool(schoolId: number, name: string, emailSuffix: string) {
+export async function updateSchool(
+	schoolId: number,
+	name: string,
+	emailSuffix: string,
+	logoUrl?: string
+) {
 	const [updatedSchool] = await db
 		.update(table.school)
 		.set({
-			name: name,
-			emailSuffix: emailSuffix
+			name,
+			emailSuffix,
+			// drizzle ignores undefined values
+			logoUrl: logoUrl || undefined
 		})
 		.where(eq(table.school.id, schoolId))
 		.returning();
