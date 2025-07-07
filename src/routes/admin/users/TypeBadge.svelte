@@ -7,7 +7,7 @@
 
 	const { type }: Props = $props();
 
-	const variant = type === 'teacher' ? 'default' : type === 'student' ? 'secondary' : 'outline';
+	const variant = type === 'teacher' ? 'secondary' : type === 'student' ? 'outline' : 'default';
 </script>
 
 <Badge {variant} class="capitalize">{type}</Badge>

@@ -21,8 +21,6 @@
 	} from '$lib/components/ui/data-table/index.js';
 	import DataTableCheckbox from '$lib/components/ui/data-table/data-table-checkbox.svelte';
 	import TypeBadge from './TypeBadge.svelte';
-	import TypeFilter from './TypeFilter.svelte';
-	import ActionsCell from './ActionsCell.svelte';
 
 	const { data } = $props();
 
@@ -71,29 +69,13 @@
 		},
 		{
 			accessorKey: 'type',
-			header: ({ table }) => {
-				const column = table.getColumn('type');
-				return renderComponent(TypeFilter, {
-					value: column?.getFilterValue() as string,
-					onValueChange: (value) => column?.setFilterValue(value)
-				});
-			},
+			header: 'Type',
 			filterFn: 'includesString',
 			size: 100,
 			cell: ({ getValue }) => {
 				const type = getValue() as string;
 				return renderComponent(TypeBadge, { type });
 			}
-		},
-		{
-			id: 'actions',
-			header: 'Actions',
-			cell: ({ row }) => {
-				return renderComponent(ActionsCell, { row });
-			},
-			enableSorting: false,
-			enableHiding: false,
-			size: 80
 		}
 	];
 
