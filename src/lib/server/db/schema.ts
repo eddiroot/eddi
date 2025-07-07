@@ -509,3 +509,58 @@ export const chatbotMessage = pgTable('chatbot_message', {
 });
 
 export type ChatbotMessage = typeof chatbotMessage.$inferSelect;
+
+export const curriculum = pgTable('curriculum', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	name: text('name').notNull(),
+	version: text('version').notNull(),
+	...timestamps
+});
+
+export type Curriculum = typeof curriculum.$inferSelect;
+
+export const curriculumSubject = pgTable('curriculum_subject', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	curriculumId: integer('curriculum_id')
+		.notNull()
+		.references(() => curriculum.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	...timestamps
+});
+
+export type CurriculumSubject = typeof curriculumSubject.$inferSelect;
+
+export const learningArea = pgTable('learning_area', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	curriculumSubjectId: integer('curriculum_subject_id')
+		.notNull()
+		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	description: text('description'),
+	...timestamps
+});
+
+export type LearningArea = typeof learningArea.$inferSelect;
+
+export const learningAreaContent = pgTable('learning_area_content', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	learningAreaId: integer('learning_area_id')
+		.notNull()
+		.references(() => learningArea.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	description: text('description'),
+	yearLevel: text('year_level').notNull() // e.g. F,1,2,3,4,5,6,7,8,9,10
+});
+
+export type LearningAreaContent = typeof learningAreaContent.$inferSelect;
+
+export const contentElaboration = pgTable('content_elaboration', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	learningAreaContentId: integer('learning_area_content_id')
+		.notNull()
+		.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	contentElaboration: text('content_elaboration').notNull()
+});
+
+export type ContentElaboration = typeof contentElaboration.$inferSelect;
