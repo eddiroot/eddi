@@ -22,7 +22,15 @@ export const load = async ({ locals: { security }, params: { threadId } }) => {
 	const thread = await getSubjectThreadById(threadIdInt);
 	const responses = await getSubjectThreadResponsesById(threadIdInt);
 	const nestedResponses = getNestedResponses(responses);
-	const form = await superValidate(zod(formSchema));
+	const form = await superValidate(zod(formSchema), {
+		defaults: {
+			type:
+				thread?.thread?.type === 'question' || thread?.thread?.type === 'qanda'
+					? 'answer'
+					: 'comment',
+			content: ''
+		}
+	});
 
 	return { thread, nestedResponses, form };
 };
