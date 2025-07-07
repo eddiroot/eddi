@@ -120,7 +120,9 @@
 				<h3 class="mb-2 text-lg font-semibold break-words">
 					{title || 'Interactive Whiteboard'}
 				</h3>
-				<Button onclick={openWhiteboard}>Open Whiteboard</Button>
+				<Button class="w-full mt-6" onclick={openWhiteboard}>
+					Open Whiteboard
+				</Button>
 			</div>
 		{:else}
 			<button

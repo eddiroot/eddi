@@ -24,6 +24,10 @@
 	let canvas: fabric.Canvas;
 	let selectedTool = $state('select');
 	let whiteboardCanvas = $state<HTMLCanvasElement>();
+	
+	let isDragging = false;
+	let lastPos = { x: 0, y: 0 };
+	let currentMousePos = $state({ x: 0, y: 0 });
 
 	const { whiteboardId, lessonId, subjectOfferingId } = $page.params;
 	const whiteboardIdNum = parseInt(whiteboardId);
@@ -317,6 +321,59 @@
 				type: 'modify',
 				object: objData
 			});
+		});
+
+		canvas.on('mouse:wheel', (opt) => {
+			const delta = opt.e.deltaY;
+			let zoom = canvas.getZoom();
+			zoom *= 0.99 ** delta;
+			if (zoom > 10) zoom = 10;
+			if (zoom < 0.1) zoom = 0.1;
+			
+			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
+			canvas.zoomToPoint(point, zoom);
+			opt.e.preventDefault();
+			opt.e.stopPropagation();
+		});
+
+		canvas.on('mouse:down', (opt) => {
+			const evt = opt.e;
+			if (evt.altKey === true) {
+				isDragging = true;
+				canvas.selection = false;
+				canvas.setCursor('grab');
+				// Handle both mouse and touch events
+				const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
+				const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
+				lastPos = { x: clientX, y: clientY };
+			}
+		});
+
+		canvas.on('mouse:move', (opt) => {
+			// Update current mouse position for real-time tracking
+			const pointer = canvas.getScenePoint(opt.e);
+			currentMousePos = { x: pointer.x, y: pointer.y };
+			
+			if (isDragging) {
+				const e = opt.e;
+				// Handle both mouse and touch events
+				const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || 0;
+				const clientY = 'clientY' in e ? e.clientY : e.touches?.[0]?.clientY || 0;
+				
+				const deltaX = clientX - lastPos.x;
+				const deltaY = clientY - lastPos.y;
+				
+				canvas.relativePan(new fabric.Point(deltaX, deltaY));
+				lastPos = { x: clientX, y: clientY };
+			}
+		});
+
+		canvas.on('mouse:up', (opt) => {
+			if (isDragging) {
+				isDragging = false;
+				canvas.selection = true;
+				canvas.setCursor('default');
+			}
 		});
 
 		window.addEventListener('keydown', handleKeyDown);
