@@ -23,6 +23,18 @@ export async function seed_admins() {
 				honorific: schema.userHonorificEnum.mr,
 				firstName: 'Isaac',
 				lastName: 'Newton'
+			},
+			{
+				id: 'admin_002',
+				email: 'root@eddi.com.au',
+				passwordHash: passwordHash,
+				schoolId: 1000,
+				type: schema.userTypeEnum.systemAdmin,
+				gender: schema.userGenderEnum.female,
+				dateOfBirth: new Date('1900-11-09'),
+				honorific: schema.userHonorificEnum.mrs,
+				firstName: 'System',
+				lastName: 'Administrator'
 			}
 		])
 		.returning();
