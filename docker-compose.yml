@@ -34,7 +34,7 @@ services:
       /bin/sh -c "
       sleep 5;
       /usr/bin/mc alias set dockerminio http://minio:9000 minioAccessKey minioSecretKey;
-      /usr/bin/mc mb dockerminio/media;
+      /usr/bin/mc mb dockerminio/schools;
       exit 0;
       "
 
