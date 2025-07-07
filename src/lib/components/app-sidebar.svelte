@@ -17,7 +17,7 @@
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
-	import type { Subject } from '$lib/server/db/schema';
+	import type { School, Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
@@ -85,7 +85,8 @@
 		return FileQuestionIcon;
 	};
 
-	let { subjects, user }: { subjects: Subject[]; user: any } = $props();
+	let { subjects, user, school }: { subjects: Subject[]; user: any; school: School | null } =
+		$props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
@@ -146,7 +147,9 @@
 		<a href="/" class="flex items-center gap-x-1">
 			<img src="/wombat-no-bg.png" alt="eddi logo" class="h-8 w-8" />
 			{#if !sidebar.isMobile && sidebar.leftOpen}
-				<h1 class="text-center text-lg font-semibold">eddi</h1>
+				<h1 class="text-center text-lg font-semibold whitespace-nowrap">
+					{school?.name || 'eddi'}
+				</h1>
 			{/if}
 		</a>
 	</Sidebar.Header>

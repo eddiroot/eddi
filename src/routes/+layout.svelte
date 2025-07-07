@@ -72,7 +72,7 @@
 <ModeWatcher />
 <Sidebar.Provider class="h-full" leftOpen={false} rightOpen={false}>
 	{#if user()}
-		<AppSidebar subjects={data.subjects} user={user()} />
+		<AppSidebar subjects={data.subjects} user={user()} school={data.school} />
 	{/if}
 	<div class="relative flex h-full w-full flex-col">
 		<header
