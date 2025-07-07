@@ -44,9 +44,7 @@
 				<div class="flex items-start gap-4">
 					<Avatar.Root class="ring-border h-12 w-12 ring-2">
 						<Avatar.Image src={thread()?.user?.avatarUrl || ''} alt={authorFullName()} />
-						<Avatar.Fallback
-							class="bg-gradient-to-br from-blue-500 to-purple-600 font-semibold text-white"
-						>
+						<Avatar.Fallback class="bg-primary text-primary-foreground font-semibold">
 							{authorFullName()
 								.split(' ')
 								.map((n) => n[0])

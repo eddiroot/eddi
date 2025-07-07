@@ -146,7 +146,7 @@
 												{assessment.type} - {assessment.topic}
 											</p>
 										</div>
-										<span class="text-destructive text-xs font-medium">
+										<span class="text-primary text-xs font-medium">
 											Due: {assessment.dueDate}
 										</span>
 									</div>
