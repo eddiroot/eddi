@@ -181,7 +181,7 @@
 		</Button>
 	</div>
 
-	<div class="grid h-full grid-cols-[300px_1fr_300px] gap-4">
+	<div class="grid h-full gap-4 {isEditMode ? 'grid-cols-[300px_1fr_300px]' : 'grid-cols-[300px_1fr]'}">
 		<Card.Root class="h-full">
 			<Card.Header>
 				<Card.Title class="text-lg">Contents</Card.Title>
@@ -328,45 +328,47 @@
 		</Card.Content>
 	</Card.Root>
 
-	<Card.Root>
-		<Card.Header>
-			<Card.Title class="text-lg">Blocks</Card.Title>
-			<Card.Description>
-				Drag and drop blocks from here to the lesson content area. If you'd like to delete a block,
-				simply drag it to the area below.
-			</Card.Description>
-		</Card.Header>
-		<Card.Content class="flex h-full flex-col gap-4">
-			<div
-				class="grid grid-cols-2 gap-2 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
-					'lesson'
-				) ||
-					dndState.sourceContainer.startsWith('two-column-')) &&
-				dndState.targetContainer === 'blockPalette'
-					? 'border-destructive border border-dashed'
-					: notDraggedOverClasses}"
-				use:droppable={{
-					container: `blockPalette`,
-					callbacks: {
-						onDrop: handleDrop
-					}
-				}}
-			>
-				{#each blockTypes as { type, name, content, icon }}
-					{@const Icon = icon}
-					<div
-						class="flex flex-col items-center justify-center gap-1 {buttonVariants({ variant: 'outline' })} aspect-square h-full w-full"
-						use:draggable={{
-							container: 'blockPalette',
-							dragData: { type, content, id: 0 }
-						}}
-					>
-						<Icon class="size-8" />
-						<span class="text-xs text-center leading-tight">{name}</span>
-					</div>
-				{/each}
-			</div>
-		</Card.Content>
-	</Card.Root>
+	{#if isEditMode}
+		<Card.Root>
+			<Card.Header>
+				<Card.Title class="text-lg">Blocks</Card.Title>
+				<Card.Description>
+					Drag and drop blocks from here to the lesson content area. If you'd like to delete a block,
+					simply drag it to the area below.
+				</Card.Description>
+			</Card.Header>
+			<Card.Content class="flex h-full flex-col gap-4">
+				<div
+					class="grid grid-cols-2 gap-2 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
+						'lesson'
+					) ||
+						dndState.sourceContainer.startsWith('two-column-')) &&
+					dndState.targetContainer === 'blockPalette'
+						? 'border-destructive border border-dashed'
+						: notDraggedOverClasses}"
+					use:droppable={{
+						container: `blockPalette`,
+						callbacks: {
+							onDrop: handleDrop
+						}
+					}}
+				>
+					{#each blockTypes as { type, name, content, icon }}
+						{@const Icon = icon}
+						<div
+							class="flex flex-col items-center justify-center gap-1 {buttonVariants({ variant: 'outline' })} aspect-square h-full w-full"
+							use:draggable={{
+								container: 'blockPalette',
+								dragData: { type, content, id: 0 }
+							}}
+						>
+							<Icon class="size-8" />
+							<span class="text-xs text-center leading-tight">{name}</span>
+						</div>
+					{/each}
+				</div>
+			</Card.Content>
+		</Card.Root>
+	{/if}
 	</div>
 </div>
