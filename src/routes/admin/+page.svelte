@@ -93,8 +93,8 @@
 					<Card.Root class="h-40">
 						<Card.Header class="gap-4">
 							<div class="flex items-center gap-3">
-								<div class="bg-secondary rounded-lg p-2">
-									<section.icon class="text-secondary-foreground" />
+								<div class="bg-primary rounded-lg p-2">
+									<section.icon class="text-primary-foreground" />
 								</div>
 								<div class="flex-1">
 									<Card.Title class="text-lg font-semibold">{section.title}</Card.Title>
@@ -114,9 +114,9 @@
 		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 			{#each stats as stat}
 				<Card.Root>
-					<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-						<Card.Title class="text-muted-foreground text-sm font-medium">{stat.title}</Card.Title>
-						<stat.icon class="text-muted-foreground h-4 w-4" />
+					<Card.Header class="flex items-center justify-between">
+						<Card.Title class="text-primary">{stat.title}</Card.Title>
+						<stat.icon class="text-primary" />
 					</Card.Header>
 					<Card.Content>
 						<p class="text-2xl font-bold">{stat.value}</p>
