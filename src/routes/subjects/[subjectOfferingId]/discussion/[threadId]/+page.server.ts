@@ -3,8 +3,7 @@ import {
 	getSubjectThreadResponsesById,
 	createSubjectThreadResponse
 } from '$lib/server/db/service.js';
-import { fail } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
+import { superValidate, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema.js';
 import { getNestedResponses } from './utils.js';

@@ -1,5 +1,5 @@
-import { fail, error } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
+import { error } from '@sveltejs/kit';
+import { superValidate, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { schoolFormSchema, logoUploadSchema } from './schema';
 import { getSchoolById, updateSchool } from '$lib/server/db/service';
