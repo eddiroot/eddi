@@ -49,6 +49,7 @@ Raph
 - [ ] Add/refine current components
   - Fix whiteboard component issues and mc alerts and text overflow in question and explanation
   - Expanding the whiteboard
+  - Fix whiteboard vertical panning
 - [ ] Student/lesson analytics
 - [ ] Student reports live throughout semester
 

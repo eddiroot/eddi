@@ -28,6 +28,8 @@
 	let isDragging = false;
 	let lastPos = { x: 0, y: 0 };
 	let currentMousePos = $state({ x: 0, y: 0 });
+	let isPanning = false;
+	let lastWheelTime = 0;
 
 	const { whiteboardId, lessonId, subjectOfferingId } = $page.params;
 	const whiteboardIdNum = parseInt(whiteboardId);
@@ -325,6 +327,20 @@
 
 		canvas.on('mouse:wheel', (opt) => {
 			const delta = opt.e.deltaY;
+			const deltaX = opt.e.deltaX;
+			const now = Date.now();
+			
+			// Detect trackpad pan gesture (deltaX with small deltaY, and frequent events)
+			if (Math.abs(deltaX) > Math.abs(delta) && Math.abs(delta) < 10 && (now - lastWheelTime) < 50) {
+				// This is likely a trackpad pan gesture
+				canvas.relativePan(new fabric.Point(-deltaX * 2, -delta * 2));
+				opt.e.preventDefault();
+				opt.e.stopPropagation();
+				lastWheelTime = now;
+				return;
+			}
+			
+			// Regular zoom behavior
 			let zoom = canvas.getZoom();
 			zoom *= 0.99 ** delta;
 			if (zoom > 10) zoom = 10;
@@ -334,6 +350,7 @@
 			canvas.zoomToPoint(point, zoom);
 			opt.e.preventDefault();
 			opt.e.stopPropagation();
+			lastWheelTime = now;
 		});
 
 		canvas.on('mouse:down', (opt) => {
@@ -377,6 +394,44 @@
 		});
 
 		window.addEventListener('keydown', handleKeyDown);
+
+		// Add trackpad gesture support
+		whiteboardCanvas.addEventListener('touchstart', (e) => {
+			if (e.touches.length === 2) {
+				isPanning = true;
+				const touch1 = e.touches[0];
+				const touch2 = e.touches[1];
+				lastPos = {
+					x: (touch1.clientX + touch2.clientX) / 2,
+					y: (touch1.clientY + touch2.clientY) / 2
+				};
+				e.preventDefault();
+			}
+		});
+
+		whiteboardCanvas.addEventListener('touchmove', (e) => {
+			if (isPanning && e.touches.length === 2) {
+				const touch1 = e.touches[0];
+				const touch2 = e.touches[1];
+				const currentPos = {
+					x: (touch1.clientX + touch2.clientX) / 2,
+					y: (touch1.clientY + touch2.clientY) / 2
+				};
+				
+				const deltaX = currentPos.x - lastPos.x;
+				const deltaY = currentPos.y - lastPos.y;
+				
+				canvas.relativePan(new fabric.Point(deltaX, deltaY));
+				lastPos = currentPos;
+				e.preventDefault();
+			}
+		});
+
+		whiteboardCanvas.addEventListener('touchend', (e) => {
+			if (e.touches.length < 2) {
+				isPanning = false;
+			}
+		});
 
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
