@@ -62,6 +62,7 @@
 	</div>
 	<form method="POST" action="?/addResponse" class="space-y-4" use:enhance>
 		<input type="hidden" name="parentResponseId" value={parentResponseId || ''} />
+		<input type="hidden" name="type" value={$formData.type} />
 
 		{#if (threadType === 'question' || threadType === 'qanda') && !isReply}
 			<Form.Field {form} name="type">
@@ -109,7 +110,6 @@
 								</Select.Item>
 							</Select.Content>
 						</Select.Root>
-						<input type="hidden" name="type" value={$formData.type} />
 					{/snippet}
 				</Form.Control>
 				<Form.Description>{getResponseTypeDescription($formData.type)}</Form.Description>
