@@ -60,10 +60,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Get Team Help - eddi</title>
-</svelte:head>
-
 <div class="flex h-full items-center justify-center p-4">
 	<div class="max-w-lg">
 		{#if submitted}

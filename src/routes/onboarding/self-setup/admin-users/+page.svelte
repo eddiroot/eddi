@@ -74,10 +74,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Admin Users - eddi</title>
-</svelte:head>
-
 <div class="flex h-full items-center justify-center p-4">
 	<div class="w-full max-w-2xl">
 		<Card>

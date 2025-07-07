@@ -19,12 +19,12 @@
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 
 	let { data } = $props();
-	
+
 	let socket = $state() as WebSocket;
 	let canvas: fabric.Canvas;
 	let selectedTool = $state('select');
 	let whiteboardCanvas = $state<HTMLCanvasElement>();
-	
+
 	const { whiteboardId, lessonId, subjectOfferingId } = $page.params;
 	const whiteboardIdNum = parseInt(whiteboardId);
 
@@ -57,7 +57,7 @@
 
 	const addShape = (shapeType: string) => {
 		if (!canvas) return;
-		
+
 		setSelectTool();
 		let shape: fabric.Object;
 		const centerX = canvas.width! / 2;
@@ -117,7 +117,7 @@
 
 	const addText = () => {
 		if (!canvas) return;
-		
+
 		const text = new fabric.Textbox('Click to edit text', {
 			id: uuidv4(),
 			left: canvas.width! / 2 - 75,
@@ -141,7 +141,7 @@
 
 	const clearCanvas = () => {
 		if (!canvas) return;
-		
+
 		canvas.clear();
 		sendCanvasUpdate({
 			type: 'clear'
@@ -150,7 +150,7 @@
 
 	const deleteSelected = () => {
 		if (!canvas) return;
-		
+
 		const activeObjects = canvas.getActiveObjects();
 		if (activeObjects.length) {
 			activeObjects.forEach((obj) => canvas.remove(obj));
@@ -176,7 +176,7 @@
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (!canvas) return;
-		
+
 		if (event.key === 'Backspace' || event.key === 'Delete') {
 			const activeObject = canvas.getActiveObject();
 			// @ts-expect-error
@@ -205,10 +205,12 @@
 		socket.addEventListener('open', () => {
 			// Send whiteboard ID after connection is established
 			if (socket && socket.readyState === WebSocket.OPEN) {
-				socket.send(JSON.stringify({ 
-					type: 'init', 
-					whiteboardId: whiteboardIdNum
-				}));
+				socket.send(
+					JSON.stringify({
+						type: 'init',
+						whiteboardId: whiteboardIdNum
+					})
+				);
 			}
 		});
 
@@ -334,23 +336,21 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{data.whiteboard.title || 'Whiteboard'} - {data.lesson.title}</title>
-</svelte:head>
-
-<div class="flex h-screen flex-col bg-background">
+<div class="bg-background flex h-screen flex-col">
 	<!-- Header with back button and title -->
-	<header class="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+	<header
+		class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur"
+	>
 		<div class="flex h-14 items-center px-4">
 			<Button variant="ghost" size="sm" onclick={goBack} class="mr-4">
-				<ArrowLeftIcon class="h-4 w-4 mr-2" />
+				<ArrowLeftIcon class="mr-2 h-4 w-4" />
 				Back to Lesson
 			</Button>
 			<div class="flex-1">
 				<h1 class="text-lg font-semibold">
 					{data.whiteboard.title || 'Interactive Whiteboard'}
 				</h1>
-				<p class="text-sm text-muted-foreground">
+				<p class="text-muted-foreground text-sm">
 					{data.lesson.title}
 				</p>
 			</div>
@@ -358,9 +358,9 @@
 	</header>
 
 	<!-- Toolbar -->
-	<div class="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+	<div class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
 		<div class="flex justify-center py-3">
-			<div class="flex items-center gap-1 rounded-md border px-4 py-2 bg-background shadow-sm">
+			<div class="bg-background flex items-center gap-1 rounded-md border px-4 py-2 shadow-sm">
 				<!-- Selection Tool -->
 				<Tooltip.Root>
 					<Tooltip.Trigger>
@@ -454,8 +454,8 @@
 	</div>
 
 	<!-- Whiteboard Canvas -->
-	<main class="flex-1 flex items-center justify-center p-4 overflow-hidden">
-		<div class="rounded-lg border-2 shadow-lg dark:bg-neutral-700 bg-white">
+	<main class="flex flex-1 items-center justify-center overflow-hidden p-4">
+		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700">
 			<canvas bind:this={whiteboardCanvas}></canvas>
 		</div>
 	</main>

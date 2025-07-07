@@ -66,7 +66,7 @@
 </script>
 
 <svelte:head>
-	<title>eddi</title>
+	<title>{data?.school?.name || 'eddi'}</title>
 	<meta name="description" content="The AI-native LMS for schools" />
 </svelte:head>
 <ModeWatcher />

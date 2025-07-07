@@ -28,6 +28,7 @@ Lachie
   - [ ] Timetables
   - [ ] Allocations
 - [ ] Export all data for a given school
+- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
 
 Max
 

@@ -54,10 +54,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Create Account - eddi</title>
-</svelte:head>
-
 <div class="flex h-full items-center justify-center p-4">
 	<div class="w-full max-w-md">
 		<Card>
