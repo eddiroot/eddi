@@ -14,6 +14,18 @@ export async function seed_teachers() {
 		.insert(schema.user)
 		.values([
 			{
+				id: 'principal',
+				email: 'big.dawg@schoolofeddi.edu',
+				passwordHash: passwordHash,
+				schoolId: 1000,
+				type: schema.userTypeEnum.principal,
+				gender: schema.userGenderEnum.male,
+				dateOfBirth: new Date('2003-12-09'),
+				honorific: schema.userHonorificEnum.mr,
+				firstName: 'Big',
+				lastName: 'Dawg'
+			},
+			{
 				id: 'teacher_001',
 				email: 'david.thompson@schoolofeddi.edu',
 				passwordHash: passwordHash,
