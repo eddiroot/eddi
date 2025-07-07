@@ -1031,3 +1031,40 @@ export async function updateTopicOrder(
 		}
 	});
 }
+
+export async function getLocationsBySchoolId(schoolId: number) {
+	const locations = await db
+		.select({
+			id: table.schoolLocation.id,
+			name: table.schoolLocation.name,
+			type: table.schoolLocation.type,
+			capacity: table.schoolLocation.capacity,
+			description: table.schoolLocation.description,
+			isActive: table.schoolLocation.isActive,
+			campusName: table.campus.name,
+			campusId: table.campus.id
+		})
+		.from(table.schoolLocation)
+		.innerJoin(table.campus, eq(table.schoolLocation.campusId, table.campus.id))
+		.where(eq(table.campus.schoolId, schoolId))
+		.orderBy(asc(table.campus.name), asc(table.schoolLocation.name));
+
+	return locations;
+}
+
+export async function getSubjectsBySchoolId(schoolId: number) {
+	const subjects = await db
+		.select({
+			id: table.subject.id,
+			name: table.subject.name,
+			description: table.subject.description,
+			schoolId: table.subject.schoolId,
+			createdAt: table.subject.createdAt,
+			updatedAt: table.subject.updatedAt
+		})
+		.from(table.subject)
+		.where(eq(table.subject.schoolId, schoolId))
+		.orderBy(asc(table.subject.name));
+
+	return subjects;
+}
