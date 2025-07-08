@@ -188,7 +188,7 @@
 			</Card.Root>
 		</div>
 		<Card.Root class="h-full gap-0">
-			<div class="flex items-center justify-between p-6 pb-4">
+			<div class="flex items-center justify-between px-6 pb-4">
 				<div class="flex-1">
 					<Heading
 						headingSize={1}

@@ -22,10 +22,10 @@
 	});
 </script>
 
-<div class="z-50 w-full rounded-md {isEditMode ? 'border border-dashed' : ''}">
+<div class="z-50 w-full rounded-md {isEditMode ? 'border' : ''}">
 	{#if editor && !editor.isDestroyed && isEditMode}
 		<EdraToolbar
-			class="bg-secondary/50 flex w-full items-center overflow-x-auto border-b border-dashed p-0.5"
+			class="bg-background flex w-full items-center overflow-x-auto rounded-t-md border-b p-0.5"
 			excludedCommands={['colors', 'fonts', 'headings', 'media']}
 			{editor}
 		/>
@@ -33,7 +33,8 @@
 	<EdraEditor
 		bind:editor
 		{content}
-		class="h-[30rem] max-h-screen overflow-y-scroll pr-2 pl-6"
+		class="{isEditMode ? 'h-[30rem] pr-4 pl-4' : 'h-min'} overflow-y-scroll"
+		editorClass={isEditMode ? '' : 'px-0 py-0'}
 		onUpdate={onUpdateHandler}
 		showSlashCommands={false}
 	/>

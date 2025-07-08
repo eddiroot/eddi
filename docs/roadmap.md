@@ -20,8 +20,7 @@ Lachie
 - [x] Better rich text editor
 - [x] Setup object storage
 - [x] Admin dashboard
-- [ ] Export all data for a given school
-- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
+- [ ] Class tests / quizzes
 
 Max
 
@@ -33,7 +32,6 @@ Max
 Jack
 
 - [x] Add draggable interactive components such as matching
-- [ ] Class tests / quizzes
 - [ ] AI feedback / assisted marking
 - [ ] View students work
 
@@ -61,6 +59,8 @@ Bella
 
 ## Future Functionality
 
+- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
+- [ ] Export all data for a given school
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal
   - Clicking on a formula in the modal inserts it into the editor

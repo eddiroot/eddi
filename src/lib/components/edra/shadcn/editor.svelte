@@ -41,6 +41,7 @@
 
 	let {
 		class: className = '',
+		editorClass = '',
 		content = undefined,
 		limit = undefined,
 		editable = true,
@@ -116,6 +117,9 @@
 				focusEditor(editor, event);
 			}
 		}}
-		class="edra-editor prose dark:prose-invert h-full min-w-full cursor-auto px-2 py-2 *:outline-none"
+		class={cn(
+			'edra-editor prose dark:prose-invert h-full min-w-full cursor-auto px-2 py-2 *:outline-none',
+			editorClass
+		)}
 	></div>
 </div>

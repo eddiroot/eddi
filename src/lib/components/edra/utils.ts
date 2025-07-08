@@ -136,6 +136,7 @@ export function focusEditor(editor: Editor | undefined, event?: MouseEvent | Key
  */
 export interface EdraProps {
 	class?: string;
+	editorClass?: string;
 	content?: Content;
 	editable?: boolean;
 	limit?: number;
