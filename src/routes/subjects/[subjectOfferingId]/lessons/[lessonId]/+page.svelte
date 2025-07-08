@@ -307,20 +307,22 @@
 							</div>
 						</div>
 					{/each}
-					<div
-						use:droppable={{
-							container: `lesson-bottom`,
-							callbacks: {
-								onDrop: handleDrop
-							}
-						}}
-						class="my-4 flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
-						'lesson-bottom'
-							? draggedOverClasses
-							: notDraggedOverClasses}"
-					>
-						<span class="text-muted-foreground text-sm">Add more blocks here</span>
-					</div>
+					{#if isEditMode}
+						<div
+							use:droppable={{
+								container: `lesson-bottom`,
+								callbacks: {
+									onDrop: handleDrop
+								}
+							}}
+							class="my-4 flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
+							'lesson-bottom'
+								? draggedOverClasses
+								: notDraggedOverClasses}"
+						>
+							<span class="text-muted-foreground text-sm">Add more blocks here</span>
+						</div>
+					{/if}
 				</div>
 			</Card.Content>
 		</Card.Root>
