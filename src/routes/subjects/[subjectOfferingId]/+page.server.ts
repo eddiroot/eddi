@@ -1,7 +1,8 @@
 import {
 	getClassesForUserInSubjectOffering,
 	getSubjectBySubjectOfferingId,
-	getTeachersForUserInSubjectOffering
+	getTeachersForSubjectOfferingId,
+	getTeacherBySubjectOfferingIdForUserInClass
 } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
@@ -10,6 +11,10 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 	const user = security.isAuthenticated().getUser();
 	const userClasses = await getClassesForUserInSubjectOffering(user.id, Number(subjectOfferingId));
 	const subject = await getSubjectBySubjectOfferingId(Number(subjectOfferingId));
-	const teachers = await getTeachersForUserInSubjectOffering(user.id, Number(subjectOfferingId));
-	return { user, userClasses, subject, teachers };
+	const allTeachers = await getTeachersForSubjectOfferingId(Number(subjectOfferingId));
+	const mainTeacher = await getTeacherBySubjectOfferingIdForUserInClass(
+		user.id,
+		Number(subjectOfferingId)
+	);
+	return { user, userClasses, subject, mainTeacher: mainTeacher, teachers: allTeachers };
 };

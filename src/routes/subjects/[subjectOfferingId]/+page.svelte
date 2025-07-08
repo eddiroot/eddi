@@ -59,7 +59,7 @@
 		<div>
 			<h1 class="text-foreground text-3xl font-bold">{data.subject?.name}</h1>
 			<p class="text-muted-foreground mt-1">
-				Teacher: {data.teachers
+				Teacher: {data.mainTeacher
 					.map((teacher) => `${teacher.teacher.firstName} ${teacher.teacher.lastName}`)
 					.join(', ')}
 			</p>
@@ -179,12 +179,17 @@
 			<Card.Content>
 				<ScrollArea class="h-100">
 					<div class="space-y-2">
-						<div>
-							<h4 class="text-foreground text-sm font-medium">{subjectInfo.teacher}</h4>
-							<p class="text-muted-foreground mt-1 text-sm">
-								{subjectInfo.teacherEmail}
-							</p>
-						</div>
+						{#each data.teachers as teacher}
+							<div class="border-border rounded-lg border p-3">
+								<h4 class="text-foreground text-sm font-medium">
+									{teacher.teacher.firstName}
+									{teacher.teacher.lastName}
+								</h4>
+								<p class="text-muted-foreground mt-1 text-sm">
+									{teacher.teacher.email}
+								</p>
+							</div>
+						{/each}
 					</div>
 				</ScrollArea>
 			</Card.Content>

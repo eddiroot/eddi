@@ -843,7 +843,26 @@ export async function deleteLocation(locationId: number) {
 	return location;
 }
 
-export async function getTeachersForUserInSubjectOffering(
+export async function getTeachersForSubjectOfferingId(subjectOfferingId: number) {
+	const teachers = await db
+		.selectDistinct({
+			teacher: table.user
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.user, eq(table.user.id, table.userSubjectClass.userId))
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.where(
+			and(
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId),
+				eq(table.userSubjectClass.role, table.userSubjectClassRoleEnum.teacher)
+			)
+		)
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+
+	return teachers;
+}
+
+export async function getTeacherBySubjectOfferingIdForUserInClass(
 	userId: string,
 	subjectOfferingId: number
 ) {
