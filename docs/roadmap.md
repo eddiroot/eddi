@@ -21,12 +21,10 @@ Lachie
 - [x] Setup object storage
 - [ ] Admin dashboard
   - [x] School Details
-  - [ ] Campuses
+  - [x] Campuses
   - [ ] Locations (importing)
-  - [ ] Users (importing)
+  - [x] Users
   - [ ] Subjects (importing)
-  - [ ] Timetables
-  - [ ] Allocations
 - [ ] Export all data for a given school
 - [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
 
@@ -71,6 +69,7 @@ Bella
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal
   - Clicking on a formula in the modal inserts it into the editor
+- [ ] Admin dashboard allocations page
 - [ ] Home page
 - [ ] A what to do button to generate study ideas
 - [ ] Complete LLM access to discussions + lessons
@@ -99,6 +98,7 @@ Bella
 - [ ] Lesson / class plan marketplace
 - [ ] Auto generated summaries of discussions
 - [ ] Contractors signing in with working with childrens checks (eg school photographers)
+- [ ] Interactive map of locations in the school
 
 # UI Feedback
 

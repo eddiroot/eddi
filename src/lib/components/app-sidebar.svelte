@@ -160,7 +160,11 @@
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-medium">{school?.name}</span>
-								<span class="truncate text-xs">{campuses ? campuses[0]?.name : 'Mock Campus'}</span>
+								{#if campuses.length >= 1}
+									<span class="truncate text-xs">{campuses[0].name}</span>
+								{:else if campuses.length === 0}
+									<span class="truncate text-xs">No campuses</span>
+								{/if}
 							</div>
 						</a>
 					{/snippet}

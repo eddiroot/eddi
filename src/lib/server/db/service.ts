@@ -112,7 +112,7 @@ export async function getCampusesBySchoolId(schoolId: number, includeArchived: b
 				? eq(table.campus.schoolId, schoolId)
 				: and(eq(table.campus.schoolId, schoolId), eq(table.campus.isArchived, false))
 		)
-		.orderBy(asc(table.campus.name));
+		.orderBy(asc(table.campus.isArchived), asc(table.campus.name));
 
 	return campuses;
 }
@@ -1120,6 +1120,25 @@ export async function getSubjectsBySchoolId(schoolId: number, includeArchived: b
 	return subjects;
 }
 
+export async function createCampus(
+	schoolId: number,
+	name: string,
+	address: string,
+	description?: string
+) {
+	const [newCampus] = await db
+		.insert(table.campus)
+		.values({
+			schoolId,
+			name,
+			address,
+			description: description || undefined
+		})
+		.returning();
+
+	return newCampus;
+}
+
 export async function updateCampus(
 	campusId: number,
 	name: string,
@@ -1147,4 +1166,14 @@ export async function archiveCampus(campusId: number) {
 		.returning();
 
 	return archivedCampus;
+}
+
+export async function unarchiveCampus(campusId: number) {
+	const [unarchivedCampus] = await db
+		.update(table.campus)
+		.set({ isArchived: false })
+		.where(eq(table.campus.id, campusId))
+		.returning();
+
+	return unarchivedCampus;
 }

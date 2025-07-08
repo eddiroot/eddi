@@ -59,22 +59,22 @@
 
 	const stats = [
 		{
-			title: 'Total Students',
+			title: 'Students',
 			value: data.stats.totalStudents,
 			icon: UsersIcon
 		},
 		{
-			title: 'Total Teachers',
+			title: 'Teachers',
 			value: data.stats.totalTeachers,
 			icon: GraduationCapIcon
 		},
 		{
-			title: 'Total Admins',
+			title: 'Admins',
 			value: data.stats.totalAdmins,
 			icon: UserRoundCogIcon
 		},
 		{
-			title: 'Total Subjects',
+			title: 'Subjects',
 			value: data.stats.totalSubjects,
 			icon: BookOpenIcon
 		}

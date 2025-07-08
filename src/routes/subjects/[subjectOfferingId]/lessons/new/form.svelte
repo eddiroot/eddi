@@ -129,12 +129,10 @@
 		<div
 			class="mx-4 flex max-w-sm flex-col items-center space-y-4 rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800"
 		>
-			<LoaderIcon class="h-12 w-12 animate-spin text-blue-600" />
+			<LoaderIcon class="text-primary h-12 w-12 animate-spin" />
 			<div class="text-center">
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Generating Lesson</h3>
-				<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-					Please wait while we create your lesson...
-				</p>
+				<h3 class="text-secondary text-lg font-semibold">Generating Lesson</h3>
+				<p class="text-muted-foreground mt-1 text-sm">Please wait while we create your lesson...</p>
 			</div>
 		</div>
 	</div>
