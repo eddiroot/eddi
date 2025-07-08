@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import UploadIcon from '@lucide/svelte/icons/upload';
 	import {
 		type ColumnDef,
 		type ColumnFiltersState,
@@ -20,6 +21,7 @@
 		renderComponent
 	} from '$lib/components/ui/data-table/index.js';
 	import DataTableCheckbox from '$lib/components/ui/data-table/data-table-checkbox.svelte';
+	import ImportForm from './import-form.svelte';
 
 	const { data } = $props();
 
@@ -152,6 +154,12 @@
 			}
 		}
 	});
+
+	let importDialogOpen = $state(false);
+
+	function handleImportClick() {
+		importDialogOpen = true;
+	}
 </script>
 
 <div class="flex h-full flex-col space-y-2">
@@ -167,30 +175,36 @@
 				}}
 				class="max-w-sm"
 			/>
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger>
-					{#snippet child({ props })}
-						<Button {...props} variant="outline" class="ml-auto">
-							Columns <ChevronDownIcon class="ml-2 size-4" />
-						</Button>
-					{/snippet}
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content align="end">
-					{#each table.getAllColumns().filter((col) => col.getCanHide()) as column (column.id)}
-						<DropdownMenu.CheckboxItem
-							bind:checked={() => column.getIsVisible(), (v) => column.toggleVisibility(!!v)}
-						>
-							{column.id === 'type'
-								? 'Type'
-								: column.id === 'campusName'
-									? 'Campus'
-									: column.id === 'isActive'
-										? 'Status'
-										: column.columnDef.header}
-						</DropdownMenu.CheckboxItem>
-					{/each}
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
+			<div class="ml-auto flex space-x-2">
+				<Button variant="outline" onclick={handleImportClick}>
+					<UploadIcon class="mr-2 size-4" />
+					Import CSV
+				</Button>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button {...props} variant="outline">
+								Columns <ChevronDownIcon class="ml-2 size-4" />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content align="end">
+						{#each table.getAllColumns().filter((col) => col.getCanHide()) as column (column.id)}
+							<DropdownMenu.CheckboxItem
+								bind:checked={() => column.getIsVisible(), (v) => column.toggleVisibility(!!v)}
+							>
+								{column.id === 'type'
+									? 'Type'
+									: column.id === 'campusName'
+										? 'Campus'
+										: column.id === 'isActive'
+											? 'Status'
+											: column.columnDef.header}
+							</DropdownMenu.CheckboxItem>
+						{/each}
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</div>
 		</div>
 		<div class="flex flex-1 flex-col overflow-hidden rounded-md border">
 			<Table.Root class="h-full">
@@ -234,4 +248,7 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- CSV Import Form -->
+	<ImportForm data={data.form} bind:open={importDialogOpen} />
 </div>
