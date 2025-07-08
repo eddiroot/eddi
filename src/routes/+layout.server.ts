@@ -10,7 +10,8 @@ export const load = async ({ locals: { user } }) => {
 
 	// Needed to display the school and campus top left
 	const school = await getSchoolById(user.schoolId);
-	const campus = user.campusId ? await getCampusById(user.campusId) : null;
+	// const campus = user.campusId ? await getCampusById(user.campusId) : null;
+	const campus = { id: 1, name: "Wheeler's Hill Campus" };
 
 	return {
 		user,

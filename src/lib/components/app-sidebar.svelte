@@ -17,7 +17,7 @@
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
-	import type { School, Subject } from '$lib/server/db/schema';
+	import type { School, SchoolCampus, Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
@@ -85,7 +85,12 @@
 		return FileQuestionIcon;
 	};
 
-	let { subjects, user, school }: { subjects: Subject[]; user: any; school: School | null } =
+	let {
+		subjects,
+		user,
+		school,
+		campus
+	}: { subjects: Subject[]; user: any; school: School | null; campus: SchoolCampus | null } =
 		$props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
@@ -156,7 +161,7 @@
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-medium">{school?.name}</span>
-								<span class="truncate text-xs">Wheeler's Hill Campus</span>
+								<span class="truncate text-xs">{campus?.name}</span>
 							</div>
 						</a>
 					{/snippet}

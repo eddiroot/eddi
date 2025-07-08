@@ -58,7 +58,8 @@
 			} else if (segments[i - 1] === 'whiteboard' && !isNaN(Number(segment))) {
 				const whiteboardId = Number(segment);
 				const pageData = page.data as any;
-				const whiteboard = pageData?.whiteboard || pageData?.whiteboards?.find((w: any) => w.id === whiteboardId);
+				const whiteboard =
+					pageData?.whiteboard || pageData?.whiteboards?.find((w: any) => w.id === whiteboardId);
 				label = whiteboard?.title || `Whiteboard ${segment}`;
 			} else {
 				label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
@@ -82,7 +83,7 @@
 <ModeWatcher />
 <Sidebar.Provider class="h-full" leftOpen={false} rightOpen={false}>
 	{#if user()}
-		<AppSidebar subjects={data.subjects} user={user()} school={data.school} />
+		<AppSidebar subjects={data.subjects} user={user()} school={data.school} campus={data.campus} />
 	{/if}
 	<div class="relative flex h-full w-full flex-col">
 		<header
