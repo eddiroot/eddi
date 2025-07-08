@@ -18,6 +18,7 @@
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import type { School, Campus, Subject, SubjectOffering } from '$lib/server/db/schema';
+	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
@@ -60,6 +61,11 @@
 			title: 'Lessons',
 			url: 'lessons',
 			icon: BookOpenCheckIcon
+		},
+		{
+			title: 'Analytics',
+			url: 'analytics',
+			icon: BarChart3Icon
 		}
 	];
 
