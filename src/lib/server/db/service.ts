@@ -862,6 +862,10 @@ export async function getTeachersForSubjectOfferingId(subjectOfferingId: number)
 	return teachers;
 }
 
+// export async function getNextClassForUser(userId: string) {
+
+// }
+
 export async function getTeacherBySubjectOfferingIdForUserInClass(
 	userId: string,
 	subjectOfferingId: number

@@ -15,16 +15,18 @@
 
 	<!-- Subjects Grid -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-		{#each data.subjects as subject}
-			{@const colors = generateSubjectColors(subject.userSubjectOffering.color)}
-			<a href="/subjects/{subject.subjectOffering.id}" class="block">
+		{#each data.info as subjectInfo}
+			{@const colors = generateSubjectColors(subjectInfo.subject.userSubjectOffering.color)}
+			<a href="/subjects/{subjectInfo.subject.subjectOffering.id}" class="block">
 				<Card.Root
 					class="h-full border-t-5 shadow-lg transition-opacity duration-200 hover:opacity-70"
 					style="border-top-color: {colors.border};"
 				>
 					<Card.Header>
 						<div class="flex items-start justify-between">
-							<Card.Title class="text-lg leading-tight">{subject.subject.name}</Card.Title>
+							<Card.Title class="text-lg leading-tight"
+								>{subjectInfo.subject.subject.name}</Card.Title
+							>
 							<!-- {#if subject.upcomingAssessments > 0}
 								<Badge variant="destructive" class="text-xs">
 									{subject.upcomingAssessments} due
@@ -32,7 +34,7 @@
 							{/if} -->
 						</div>
 						<Card.Description class="text-sm">
-							{subject.subject.description}
+							{subjectInfo.subject.subject.description}
 						</Card.Description>
 					</Card.Header>
 					<Card.Content>
@@ -40,7 +42,11 @@
 							<!-- Teacher -->
 							<div class="flex items-center gap-2">
 								<span class="text-muted-foreground text-sm">Teacher:</span>
-								<span class="text-foreground text-sm font-medium">Mr Jones</span>
+								<span class="text-foreground text-sm font-medium">
+									{subjectInfo.teacher
+										.map((teacher) => `${teacher.teacher.firstName} ${teacher.teacher.lastName}`)
+										.join(', ')}
+								</span>
 							</div>
 
 							<!-- Next Class -->

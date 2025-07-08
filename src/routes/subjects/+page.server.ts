@@ -1,16 +1,27 @@
-import { getSubjectsOfferingsUserSubjectOfferingsByUserId } from '$lib/server/db/service';
+import {
+	getSubjectsOfferingsUserSubjectOfferingsByUserId,
+	getTeacherBySubjectOfferingIdForUserInClass
+} from '$lib/server/db/service';
+
+// import * as table from '$lib/server/db/schema';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().getUser();
 
-	const subjects = await getSubjectsOfferingsUserSubjectOfferingsByUserId(user.id);
+	const subjectInfo = await getSubjectsOfferingsUserSubjectOfferingsByUserId(user.id);
 
-	// Fetch the upcoming assessments for each subject and add them in
-
-	// Fetch the teachers for the next class for each subject
+	const info = await Promise.all(
+		subjectInfo.map(async (subject) => ({
+			subject,
+			teacher: await getTeacherBySubjectOfferingIdForUserInClass(
+				user.id,
+				subject.subjectOffering.id
+			)
+		}))
+	);
 
 	return {
 		user,
-		subjects
+		info
 	};
 };
