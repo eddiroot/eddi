@@ -75,7 +75,7 @@ PASSWORDS:
 student/teacher/admin (depending on the role of the user)
 
 
-SUBJECTS:
+SUBJECTS ():
 English
 English as an Additional Language (EAL)
 Literature
@@ -89,18 +89,21 @@ Physics
 Psychology
 History: Revolutions
 
+SUBJECTOFFERINGS:
+1 for each campus for each subject (2*12 = 24)
+
+SUBJECTCLASSES:
+2 for each subjectoffering (2*24 = 48)
+
 timetable restrictions
 
 Start time: 8:30
 End time: 3:20
 
-
-
 5 classes per day => 25 classes per week => 1 student with 5 subjects
 must have 5 classes, 1 for each subject per week.......this will work 
 for the seeding data. 
 
-things to understand about the seeded data.
 
 NOTE:
 only Emma Thompson has classes for the moment whilst we wait on timetable generation to be done.
@@ -120,6 +123,8 @@ P3: 1100-1210
 P4: 1215-1255
 Lunch: 1300-1355
 P5: 1400-1515
+
+
 
 - therefore 5 classes per day => 25 classes per week => 1 student with 5 subjects must have 1 class for 
 each subject per day.......this will work for the seeding data

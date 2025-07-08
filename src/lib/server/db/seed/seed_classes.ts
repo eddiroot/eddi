@@ -16,6 +16,7 @@ export async function seedSubjectClasses(subjectOfferings: schema.SubjectOfferin
 	const subjectClassesToCreate = [];
 
 	for (const offering of subjectOfferings) {
+		console.log(`Creating classes for offering ${offering.id}...`);
 		// Create 2 classes per offering (e.g., Class A and Class B)
 		for (let classNumber = 1; classNumber <= 2; classNumber++) {
 			subjectClassesToCreate.push({

@@ -857,13 +857,10 @@ export async function getTeachersForUserInSubjectOffering(
 		.where(
 			and(
 				eq(table.userSubjectClass.userId, userId),
-				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+				eq(table.subjectClass.subjectOfferingId, subjectOfferingId),
+				eq(table.userSubjectClass.isArchived, false) // Only consider non-archived records
 			)
 		);
-
-	if (userSubjectClasses.length === 0) {
-		return [];
-	}
 
 	const subjectClassIds = userSubjectClasses.map((usc) => usc.subjectClassId);
 
@@ -884,11 +881,68 @@ export async function getTeachersForUserInSubjectOffering(
 		.where(
 			and(
 				inArray(table.userSubjectClass.subjectClassId, subjectClassIds),
-				eq(table.userSubjectClass.role, table.userSubjectClassRoleEnum.teacher)
+				eq(table.userSubjectClass.role, table.userSubjectClassRoleEnum.teacher),
+				eq(table.userSubjectClass.isArchived, false) // Only consider non-archived records
 			)
 		);
 
 	return teachers;
+}
+
+export async function debugUserSubjectClasses(userId: string) {
+	console.log(`🔍 Debug: Checking all subject classes for user ${userId}`);
+
+	const allUserSubjectClasses = await db
+		.select({
+			userSubjectClass: table.userSubjectClass,
+			subjectClass: table.subjectClass,
+			subjectOffering: table.subjectOffering,
+			subject: table.subject
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectClass.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectClass.userId, userId));
+
+	console.log(`📚 Found ${allUserSubjectClasses.length} total subject classes for user ${userId}:`);
+	allUserSubjectClasses.forEach((record) => {
+		console.log(
+			`   - Class ${record.subjectClass.id}, Subject: ${record.subject.name}, Offering: ${record.subjectOffering.id}, Role: ${record.userSubjectClass.role}, Archived: ${record.userSubjectClass.isArchived}`
+		);
+	});
+
+	return allUserSubjectClasses;
+}
+
+export async function debugTeachersInSubjectClass(subjectClassId: number) {
+	console.log(`🔍 Debug: Checking teachers in subject class ${subjectClassId}`);
+
+	const teachersInClass = await db
+		.select({
+			userSubjectClass: table.userSubjectClass,
+			user: table.user
+		})
+		.from(table.userSubjectClass)
+		.innerJoin(table.user, eq(table.userSubjectClass.userId, table.user.id))
+		.where(
+			and(
+				eq(table.userSubjectClass.subjectClassId, subjectClassId),
+				eq(table.userSubjectClass.role, table.userSubjectClassRoleEnum.teacher)
+			)
+		);
+
+	console.log(`👨‍🏫 Found ${teachersInClass.length} teachers in class ${subjectClassId}:`);
+	teachersInClass.forEach((record) => {
+		console.log(
+			`   - Teacher: ${record.user.firstName} ${record.user.lastName} (${record.user.id}), Archived: ${record.userSubjectClass.isArchived}`
+		);
+	});
+
+	return teachersInClass;
 }
 
 export async function createLessonTopic(

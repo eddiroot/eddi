@@ -101,7 +101,7 @@ export async function seed_subjects(schoolId: number, campuses: { id: number; na
 
 	// Log each subject for verification
 	subjects.forEach((subject) => {
-		console.log(`- ${subject.name}: ${subject.description?.substring(0, 50)}...`);
+		console.log(`- ${subject.name}: ${subject.description?.substring(0, 30)}...`);
 	});
 
 	// Create subject offerings for semester 2, 2025 for each subject and each campus
