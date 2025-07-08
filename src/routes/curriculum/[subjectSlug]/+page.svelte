@@ -2,19 +2,29 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Card, CardContent } from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
-	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
-	import { Plus, BookOpen, Calendar } from 'lucide-svelte';
+	import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+	import * as Drawer from '$lib/components/ui/drawer';
+	import Plus from 'lucide-svelte/icons/plus';
+	import X from 'lucide-svelte/icons/x';
 	import CurriculumSingleYearView from '../components/CurriculumSingleYearView.svelte';
 	import CurriculumMultiYearView from '../components/CurriculumMultiYearView.svelte';
-	import AddCourseMapItemDialog from '../components/AddCourseMapItemDialog.svelte';
 	import { YEAR_LEVELS } from '../curriculum-utils';
 	import type { PageData } from './$types';
+	import type { CourseMapItem } from '$lib/server/db/schema';
 
 	export let data: PageData;
 
 	let showAddDialog = false;
+	let drawerOpen = false;
+	let selectedCourseMapItem: CourseMapItem | null = null;
+
+	// Function to handle course map item click
+	function handleCourseMapItemClick(item: CourseMapItem) {
+		selectedCourseMapItem = item;
+		drawerOpen = true;
+	}
 
 	// Reactive URL parameters
 	$: selectedYearLevel = data.selectedYearLevel;
@@ -64,10 +74,6 @@
 				<p class="text-muted-foreground mt-1">{data.subject.description}</p>
 			{/if}
 		</div>
-		<Button onclick={() => showAddDialog = true} class="gap-2">
-			<Plus class="h-4 w-4" />
-			Add Course Map Item
-		</Button>
 	</div>
 
 	<!-- Controls -->
@@ -129,36 +135,81 @@
 	</Card>
 
 	<!-- Content -->
-	{#if data.courseMapItems.length === 0}
-		<Card>
-			<CardContent class="text-center py-12">
-				<BookOpen class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-				<h3 class="text-lg font-semibold mb-2">No Course Map Items</h3>
-				<p class="text-muted-foreground mb-4">
-					Start building your curriculum map for {data.subject.name} by adding course map items.
-				</p>
-				<Button onclick={() => showAddDialog = true} class="gap-2">
-					<Plus class="h-4 w-4" />
-					Add First Item
-				</Button>
-			</CardContent>
-		</Card>
-	{:else if viewMode === 'single'}
+	{#if viewMode === 'single'}
 		<CurriculumSingleYearView 
 			courseMapItems={filteredCourseMapItems}
 			yearLevel={selectedYearLevel}
 			bind:showAddDialog
+			onCourseMapItemClick={handleCourseMapItemClick}
 		/>
 	{:else}
 		<CurriculumMultiYearView 
 			courseMapItems={data.courseMapItems}
 			bind:showAddDialog
+			onCourseMapItemClick={handleCourseMapItemClick}
 		/>
 	{/if}
 </div>
 
-<!-- Add Course Map Item Dialog -->
-<AddCourseMapItemDialog 
-	subjectId={data.subject.id}
-	bind:open={showAddDialog}
-/>
+<!-- Course Map Item Drawer -->
+<Drawer.Root bind:open={drawerOpen} direction="right">
+	<Drawer.Content class="!max-w-[1400px]">
+			<Drawer.Header>
+				<Drawer.Title>{selectedCourseMapItem?.title || 'Course Map Item'}</Drawer.Title>
+				<Drawer.Description>View and manage course map item details</Drawer.Description>
+			</Drawer.Header>
+			
+			<div class="p-4 pb-0">
+				{#if selectedCourseMapItem}
+					<div class="space-y-4">
+						<div>
+							<h3 class="font-medium text-sm text-muted-foreground mb-1">Title</h3>
+							<p class="text-sm">{selectedCourseMapItem.title}</p>
+						</div>
+						
+						{#if selectedCourseMapItem.description}
+							<div>
+								<h3 class="font-medium text-sm text-muted-foreground mb-1">Description</h3>
+								<p class="text-sm">{selectedCourseMapItem.description}</p>
+							</div>
+						{/if}
+						
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<h3 class="font-medium text-sm text-muted-foreground mb-1">Year Level</h3>
+								<p class="text-sm">{selectedCourseMapItem.yearLevel}</p>
+							</div>
+							
+							<div>
+								<h3 class="font-medium text-sm text-muted-foreground mb-1">Duration</h3>
+								<p class="text-sm">{selectedCourseMapItem.lengthInWeeks} weeks</p>
+							</div>
+						</div>
+						
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<h3 class="font-medium text-sm text-muted-foreground mb-1">Start Week</h3>
+								<p class="text-sm">Week {selectedCourseMapItem.startWeekNumber}</p>
+							</div>
+							
+							<div>
+								<h3 class="font-medium text-sm text-muted-foreground mb-1">Semester</h3>
+								<p class="text-sm">Semester {selectedCourseMapItem.termNumber}</p>
+							</div>
+						</div>
+					</div>
+				{/if}
+			</div>
+			
+			<Drawer.Footer>
+				<div class="flex gap-2 w-full">
+					<Button variant="outline" class="flex-1">Edit</Button>
+					<Button variant="destructive" class="flex-1">Delete</Button>
+				</div>
+				<Drawer.Close class="w-full">
+					<Button variant="outline" class="w-full">Close</Button>
+				</Drawer.Close>
+			</Drawer.Footer>
+	
+	</Drawer.Content>
+</Drawer.Root>

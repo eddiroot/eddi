@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { BookOpen, Calendar, ArrowRight } from 'lucide-svelte';
+	import BookOpen from 'lucide-svelte/icons/book-open';
+	import Calendar from 'lucide-svelte/icons/calendar';
+	import ArrowRight from 'lucide-svelte/icons/arrow-right';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

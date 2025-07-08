@@ -209,15 +209,18 @@ export const subjectOffering = pgTable('subject_offering', {
 		.notNull()
 		.references(() => campus.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
+	...timestamps,
+	curriculumSubjectId: integer('cur_sub_id').references(() => curriculumSubject.id, {
+		onDelete: 'set null'
+	})
 });
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
 
 export enum userSubjectOfferingRoleEnum {
+	moderator = 'moderator',
 	student = 'student',
-	teacher = 'teacher',
-	moderator = 'moderator'
+	teacher = 'teacher'
 }
 
 export const userSubjectOfferingRoleEnumPg = pgEnum('user_subject_offering_role', [
@@ -431,6 +434,9 @@ export const lesson = pgTable('lesson', {
 	lessonTopicId: integer('lesson_topic_id')
 		.notNull()
 		.references(() => lessonTopic.id, { onDelete: 'cascade' }),
+	learningAreaContentId: integer('la_content_id').references(() => learningAreaContent.id, {
+		onDelete: 'set null'
+	}),
 	dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps

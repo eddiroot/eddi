@@ -539,7 +539,8 @@ export async function createLesson(
 	type: table.lessonTypeEnum,
 	lessonTopicId: number,
 	dueDate?: Date | null,
-	isArchived: boolean = false
+	isArchived: boolean = false,
+	learningAreaContentId?: number | null
 ) {
 	const maxLessonIndexPerTopic = await db
 		.select({ index: table.lesson.index })
@@ -560,7 +561,9 @@ export async function createLesson(
 			index: nextIndex,
 			lessonTopicId,
 			dueDate,
-			isArchived
+			isArchived,
+			learningAreaContentId: learningAreaContentId || null,
+			dueDate
 		})
 		.returning();
 
@@ -1313,4 +1316,113 @@ export async function checkCourseMapItemConflict(
 			(startWeekNumber <= item.startWeekNumber && endWeek >= itemEndWeek)
 		);
 	});
+}
+
+export async function getLearningAreasBySubject(subjectId: number, year: number) {
+	const learningAreas = await db
+		.select({
+			learningArea: table.learningArea,
+			curriculumSubject: table.curriculumSubject,
+			subjectOffering: table.subjectOffering
+		})
+		.from(table.subject)
+		.innerJoin(table.subjectOffering, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.curriculumSubject,
+			eq(table.curriculumSubject.id, table.subjectOffering.curriculumSubjectId)
+		)
+		.innerJoin(
+			table.learningArea,
+			eq(table.learningArea.curriculumSubjectId, table.curriculumSubject.id)
+		)
+		.where(and(eq(table.subject.id, subjectId), eq(table.subjectOffering.year, year)))
+		.orderBy(asc(table.learningArea.name));
+
+	return learningAreas;
+}
+
+export async function getLearningAreaContent(subjectId: number, year: number, yearLevel: string) {
+	const content = await db
+		.select({
+			learningArea: table.learningArea,
+			content: table.learningAreaContent
+		})
+		.from(table.subject)
+		.innerJoin(table.subjectOffering, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.curriculumSubject,
+			eq(table.curriculumSubject.id, table.subjectOffering.curriculumSubjectId)
+		)
+		.innerJoin(
+			table.learningArea,
+			eq(table.learningArea.curriculumSubjectId, table.curriculumSubject.id)
+		)
+		.innerJoin(
+			table.learningAreaContent,
+			eq(table.learningAreaContent.learningAreaId, table.learningArea.id)
+		)
+		.where(
+			and(
+				eq(table.subject.id, subjectId),
+				eq(table.subjectOffering.year, year),
+				eq(table.learningAreaContent.yearLevel, yearLevel)
+			)
+		)
+		.orderBy(asc(table.learningArea.name), asc(table.learningAreaContent.name));
+
+	return content;
+}
+
+export async function getLessonsByYearAndYearLevel(
+	subjectId: number,
+	year: number,
+	yearLevel: string
+) {
+	const lessons = await db
+		.select({
+			lesson: table.lesson,
+			lessonTopic: table.lessonTopic,
+			learningArea: table.learningArea,
+			learningAreaContent: table.learningAreaContent,
+			subjectClass: table.subjectClass,
+			subjectOffering: table.subjectOffering
+		})
+		.from(table.lesson)
+		.innerJoin(table.lessonTopic, eq(table.lessonTopic.id, table.lesson.lessonTopicId))
+		.innerJoin(table.subjectClass, eq(table.subjectClass.id, table.lessonTopic.subjectClassId))
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.subjectClass.subjectOfferingId)
+		)
+		.leftJoin(
+			table.learningAreaContent,
+			eq(table.learningAreaContent.id, table.lesson.learningAreaContentId)
+		)
+		.leftJoin(
+			table.learningArea,
+			eq(table.learningArea.id, table.learningAreaContent.learningAreaId)
+		)
+		.where(
+			and(
+				eq(table.subjectOffering.subjectId, subjectId),
+				eq(table.subjectOffering.year, year),
+				eq(table.learningAreaContent.yearLevel, yearLevel)
+			)
+		)
+		.orderBy(asc(table.lessonTopic.index), asc(table.lesson.index));
+
+	return lessons;
+}
+
+export async function updateLessonLearningAreaContent(
+	lessonId: number,
+	learningAreaContentId: number | null
+) {
+	const [lesson] = await db
+		.update(table.lesson)
+		.set({ learningAreaContentId })
+		.where(eq(table.lesson.id, lessonId))
+		.returning();
+
+	return lesson;
 }

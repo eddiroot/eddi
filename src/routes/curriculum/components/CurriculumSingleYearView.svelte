@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Plus, Calendar } from 'lucide-svelte';
+	import Plus from 'lucide-svelte/icons/plus';
+	import Calendar from 'lucide-svelte/icons/calendar';
 	import CourseMapItemTableCell from './CourseMapItemTableCell.svelte';
 	import { SEMESTERS } from '../curriculum-utils';
 	import type { CourseMapItem,  } from '$lib/server/db/schema';
@@ -8,6 +9,7 @@
 	export let courseMapItems: CourseMapItem[];
 	export let yearLevel: string;
 	export let showAddDialog: boolean;
+	export let onCourseMapItemClick: (item: CourseMapItem) => void;
 
 	// Group course map items by semester and term
 	$: courseMapItemsByTerm = courseMapItems.reduce((acc, item) => {
@@ -114,6 +116,7 @@
 														{item} 
 														isStart={true}
 														weekLength={calculateWeekLength(item, weekNum)}
+														{onCourseMapItemClick}
 													/>
 												</div>
 											{/if}
@@ -132,22 +135,5 @@
 				</tbody>
 			</table>
 		</div>
-		
-		<!-- Summary -->
-		{#if courseMapItems.length === 0}
-			<div class="text-center py-8 text-muted-foreground">
-				<Calendar class="h-8 w-8 mx-auto mb-2 opacity-50" />
-				<p class="text-sm">No course map items for Year {yearLevel}</p>
-				<Button 
-					variant="outline" 
-					size="sm" 
-					class="mt-2"
-					onclick={() => showAddDialog = true}
-				>
-					<Plus class="h-4 w-4 mr-2" />
-					Add First Item
-				</Button>
-			</div>
-		{/if}
 	</div>
 </div>
