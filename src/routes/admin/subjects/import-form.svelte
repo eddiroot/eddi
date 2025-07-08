@@ -1,14 +1,20 @@
 <script lang="ts">
-	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
+	import { type SuperValidated, type Infer, superForm, fileProxy } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import Dropzone from '$lib/components/ui/dropzone/dropzone.svelte';
 	import { validateCSVFile, type CSVValidationResult } from '$lib/utils.js';
-	import { subjectsImportSchema, type SubjectsImportSchema } from './schema.js';
+	import {
+		optionalColumns,
+		requiredColumns,
+		subjectsImportSchema,
+		type SubjectsImportSchema
+	} from './schema.js';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { invalidateAll } from '$app/navigation';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import Label from '$lib/components/ui/label/label.svelte';
 
 	type Props = {
 		data: SuperValidated<Infer<SubjectsImportSchema>>;
@@ -16,9 +22,6 @@
 	};
 
 	let { data, open = $bindable() }: Props = $props();
-
-	const requiredColumns = ['name', 'description'];
-	const optionalColumns: string[] = [];
 
 	let csvValidationResult = $state<CSVValidationResult | null>(null);
 
@@ -28,21 +31,9 @@
 		onResult: ({ result }) => {
 			if (result.type === 'success') {
 				invalidateAll();
-				setTimeout(() => {
-					open = false;
-					csvValidationResult = null;
-				}, 2000);
+				open = false;
+				csvValidationResult = null;
 			}
-		}
-	});
-
-	$effect(() => {
-		if ($form.file && $form.file.size > 0) {
-			validateCSVFile($form.file, requiredColumns, optionalColumns).then((result) => {
-				csvValidationResult = result;
-			});
-		} else {
-			csvValidationResult = null;
 		}
 	});
 
@@ -50,21 +41,34 @@
 		if (!$submitting) {
 			open = false;
 			csvValidationResult = null;
+			$form.file = undefined as any;
 		}
 	}
+
+	const file = fileProxy(form, 'file');
+
+	file.subscribe((files) => {
+		if (files && files.length > 0 && files[0].size > 0) {
+			validateCSVFile(files[0], requiredColumns, optionalColumns).then((result) => {
+				csvValidationResult = result;
+			});
+		} else {
+			csvValidationResult = null;
+		}
+	});
 </script>
 
 <Dialog.Root bind:open onOpenChange={handleDialogClose}>
 	<Dialog.Content class="max-w-2xl">
-		<Dialog.Header>
-			<Dialog.Title>Import Subjects from CSV</Dialog.Title>
-			<Dialog.Description>
-				Upload a CSV file to import subjects. The file must contain the required columns listed
-				below.
-			</Dialog.Description>
-		</Dialog.Header>
-
 		<form method="POST" enctype="multipart/form-data" use:enhance>
+			<Dialog.Header>
+				<Dialog.Title>Import Subjects from CSV</Dialog.Title>
+				<Dialog.Description>
+					Upload a CSV file to import subjects. The file must contain the required columns listed
+					below.
+				</Dialog.Description>
+			</Dialog.Header>
+
 			<div class="space-y-6">
 				<!-- Required Columns Info -->
 				<div class="bg-muted rounded-lg p-4">
@@ -94,7 +98,10 @@
 
 				<!-- File Upload -->
 				<div class="space-y-4">
-					<Dropzone bind:files={$form.file} accept=".csv" />
+					<div class="space-y-2">
+						<Label for="csvFile">CSV File</Label>
+						<Input id="csvFile" name="file" type="file" accept=".csv" bind:files={$file} />
+					</div>
 					{#if $errors.file}
 						<div class="bg-destructive/10 text-destructive flex items-center gap-2 rounded-md p-3">
 							<XIcon class="size-4 flex-shrink-0" />
@@ -179,7 +186,7 @@
 				</div>
 			</div>
 
-			<Dialog.Footer>
+			<Dialog.Footer class="mt-4">
 				<Button variant="outline" onclick={handleDialogClose} disabled={$submitting}>Cancel</Button>
 				<Button
 					type="submit"

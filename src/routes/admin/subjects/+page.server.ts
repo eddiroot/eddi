@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
 import { subject } from '$lib/server/db/schema.js';
-import { subjectsImportSchema } from './schema.js';
+import { optionalColumns, requiredColumns, subjectsImportSchema } from './schema.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
@@ -13,9 +13,6 @@ export const load = async ({ locals: { security } }) => {
 	const form = await superValidate(zod(subjectsImportSchema));
 	return { subjects, form };
 };
-
-const requiredColumns = ['name', 'description'];
-const optionalColumns: string[] = [];
 
 export const actions = {
 	default: async ({ request, locals: { security } }) => {
@@ -55,20 +52,23 @@ export const actions = {
 			const subjectsToInsert: Array<{
 				name: string;
 				description: string | null;
+				yearLevel: string;
 				schoolId: number;
 			}> = [];
 
 			for (const rowData of csvData) {
 				const name = rowData['name']?.trim();
 				const description = rowData['description']?.trim() || null;
+				const yearLevel = rowData['yearlevel']?.trim();
 
-				if (!name) {
+				if (!name || !yearLevel) {
 					continue;
 				}
 
 				subjectsToInsert.push({
 					name,
 					description,
+					yearLevel,
 					schoolId: user.schoolId
 				});
 			}
@@ -81,23 +81,11 @@ export const actions = {
 				});
 			}
 
-			const insertedSubjects = await db.insert(subject).values(subjectsToInsert).returning({
-				id: subject.id,
-				name: subject.name,
-				description: subject.description,
-				schoolId: subject.schoolId,
-				createdAt: subject.createdAt,
-				updatedAt: subject.updatedAt
-			});
+			await db.insert(subject).values(subjectsToInsert);
 
 			return withFiles({
 				form,
-				success: true,
-				message: `Successfully imported ${insertedSubjects.length} subjects`,
-				data: {
-					imported: insertedSubjects.length,
-					subjects: insertedSubjects
-				}
+				success: true
 			});
 		} catch (err) {
 			console.error('Error importing subjects:', err);

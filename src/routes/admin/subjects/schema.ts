@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+export const requiredColumns = ['name', 'yearLevel'];
+export const optionalColumns: string[] = ['description'];
+
 export const subjectsImportSchema = z.object({
 	file: z
 		.instanceof(File)
