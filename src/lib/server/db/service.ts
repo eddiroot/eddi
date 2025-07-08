@@ -44,7 +44,7 @@ export async function getCampusesByUserId(userId: string) {
 		.innerJoin(table.campus, eq(table.userCampus.campusId, table.campus.id))
 		.where(eq(table.userCampus.userId, userId));
 
-	return campuses.length > 0 ? campuses : null;
+	return campuses.map((row) => row.campus);
 }
 
 export async function getSchoolStatsById(schoolId: number) {

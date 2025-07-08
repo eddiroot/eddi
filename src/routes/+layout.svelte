@@ -87,7 +87,7 @@
 			subjects={data.subjects}
 			user={user()}
 			school={data.school}
-			campuses={data.campuses}
+			campuses={data.campuses ?? []}
 		/>
 	{/if}
 	<div class="relative flex h-full w-full flex-col">

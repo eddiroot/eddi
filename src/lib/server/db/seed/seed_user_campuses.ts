@@ -9,10 +9,7 @@ const db = drizzle(client, { schema });
 // Create a seeded random number generator
 const rng = seedrandom('myconsistentseed');
 
-export async function assign_users_to_campuses(
-	users: schema.User[],
-	campuses: schema.SchoolCampus[]
-) {
+export async function assign_users_to_campuses(users: schema.User[], campuses: schema.Campus[]) {
 	console.log(`🔗 Assigning ${users.length} users to campuses...`);
 	const userCampusesToInsert = [];
 

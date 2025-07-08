@@ -69,7 +69,8 @@ export async function seedLessons(subjectClasses: { id: number }[]) {
 			topicsToInsert.push({
 				name: topicName,
 				index: topicIdx,
-				subjectClassId: subjectClass.id
+				subjectClassId: subjectClass.id,
+				isArchived: false
 			});
 		});
 	}
@@ -95,7 +96,8 @@ export async function seedLessons(subjectClasses: { id: number }[]) {
 					template.type === schema.lessonTypeEnum.homework ||
 					template.type === schema.lessonTypeEnum.assessment
 						? new Date(Date.now() + (lessonIdx + 1) * 7 * 24 * 60 * 60 * 1000) // 1 week per lesson
-						: null
+						: null,
+				isArchived: false
 			});
 		});
 	}

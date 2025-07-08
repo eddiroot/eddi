@@ -90,8 +90,7 @@
 		user,
 		school,
 		campuses
-	}: { subjects: Subject[]; user: any; school: School | null; campuses: SchoolCampus[] | null } =
-		$props();
+	}: { subjects: Subject[]; user: any; school: School | null; campuses: Campus[] } = $props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
@@ -161,7 +160,7 @@
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-medium">{school?.name}</span>
-								<span class="truncate text-xs">{campuses[0]?.name}</span>
+								<span class="truncate text-xs">{campuses ? campuses[0]?.name : 'Mock Campus'}</span>
 							</div>
 						</a>
 					{/snippet}
