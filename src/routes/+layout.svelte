@@ -47,9 +47,9 @@
 			let href = currentPath;
 
 			if (segments[i - 1] === 'subjects' && !isNaN(Number(segment))) {
-				const subjectId = Number(segment);
-				const subject = data?.subjects?.find((s) => s.id === subjectId);
-				label = subject?.name || `Subject ${segment}`;
+				const subjectOfferingId = Number(segment);
+				const subject = data?.subjects?.find((s) => s.subjectOffering.id === subjectOfferingId);
+				label = subject?.subject.name || `Subject ${segment}`;
 			} else if (segments[i - 1] === 'lessons' && !isNaN(Number(segment))) {
 				const lessonId = Number(segment);
 				const pageData = page.data as any;

@@ -19,12 +19,7 @@ Lachie
 - [x] Order topics and lessons within them
 - [x] Better rich text editor
 - [x] Setup object storage
-- [ ] Admin dashboard
-  - [x] School Details
-  - [x] Campuses
-  - [ ] Locations (importing)
-  - [x] Users
-  - [ ] Subjects (importing)
+- [x] Admin dashboard
 - [ ] Export all data for a given school
 - [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
 

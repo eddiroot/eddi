@@ -57,7 +57,7 @@
 	<!-- Header -->
 	<div class="mb-8 flex items-center justify-between">
 		<div>
-			<h1 class="text-foreground text-3xl font-bold">{data.subject.name}</h1>
+			<h1 class="text-foreground text-3xl font-bold">{data.subject?.name}</h1>
 			<p class="text-muted-foreground mt-1">
 				Teacher: {data.teachers
 					.map((teacher) => `${teacher.teacher.firstName} ${teacher.teacher.lastName}`)
@@ -77,7 +77,7 @@
 				<Card.Content>
 					<ScrollArea class="h-24">
 						<p class="text-muted-foreground pr-4 leading-relaxed">
-							{data.subject.description}
+							{data.subject?.description}
 						</p>
 					</ScrollArea>
 				</Card.Content>

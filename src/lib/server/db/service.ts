@@ -119,7 +119,7 @@ export async function getCampusesBySchoolId(schoolId: number, includeArchived: b
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
-		.select({ subject: table.subject })
+		.select({ subject: table.subject, subjectOffering: table.subjectOffering })
 		.from(table.userSubjectOffering)
 		.innerJoin(
 			table.subjectOffering,
@@ -128,7 +128,7 @@ export async function getSubjectsByUserId(userId: string) {
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.where(eq(table.userSubjectOffering.userId, userId));
 
-	return subjects.map((row) => row.subject);
+	return subjects;
 }
 
 export async function getSubjectsOfferingsUserSubjectOfferingsByUserId(userId: string) {
@@ -157,6 +157,19 @@ export async function getSubjectById(subjectId: number) {
 		.limit(1);
 
 	return subject[0]?.subject;
+}
+
+export async function getSubjectBySubjectOfferingId(subjectOfferingId: number) {
+	const [subject] = await db
+		.select({
+			subject: table.subject
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.where(eq(table.subjectOffering.id, subjectOfferingId))
+		.limit(1);
+
+	return subject ? subject.subject : null;
 }
 
 export async function getSubjectOfferingsBySubjectId(subjectId: number) {

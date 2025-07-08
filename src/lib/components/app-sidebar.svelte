@@ -17,7 +17,7 @@
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
-	import type { School, Campus, Subject } from '$lib/server/db/schema';
+	import type { School, Campus, Subject, SubjectOffering } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
@@ -90,7 +90,12 @@
 		user,
 		school,
 		campuses
-	}: { subjects: Subject[]; user: any; school: School | null; campuses: Campus[] } = $props();
+	}: {
+		subjects: { subject: Subject; subjectOffering: SubjectOffering }[];
+		user: any;
+		school: School | null;
+		campuses: Campus[];
+	} = $props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
@@ -124,7 +129,7 @@
 		subjects.reduce(
 			(acc, subject) => {
 				// Don't auto-open, start with all collapsed
-				acc[subject.id] = false;
+				acc[subject.subject.id] = false;
 				return acc;
 			},
 			{} as Record<string, boolean>
@@ -137,7 +142,7 @@
 			// Close all collapsibles when sidebar is collapsed
 			collapsibleStates = subjects.reduce(
 				(acc, subject) => {
-					acc[subject.id] = false;
+					acc[subject.subject.id] = false;
 					return acc;
 				},
 				{} as Record<string, boolean>
@@ -205,7 +210,10 @@
 
 				<Sidebar.Menu>
 					{#each subjects as subject}
-						<Collapsible.Root bind:open={collapsibleStates[subject.id]} class="group/collapsible">
+						<Collapsible.Root
+							bind:open={collapsibleStates[subject.subject.id]}
+							class="group/collapsible"
+						>
 							<Collapsible.Trigger>
 								onclick={() => {
 									if (!sidebar.leftOpen) {
@@ -214,17 +222,17 @@
 								}}
 								{#snippet child({ props })}
 									{#if sidebar.leftOpen == false}
-										<a href="/subjects/{subject.id}">
+										<a href="/subjects/{subject.subjectOffering.id}">
 											<Sidebar.MenuButton
 												side="left"
-												tooltipContent={subject.name}
-												isActive={isSubjectActive(subject.id.toString())}
+												tooltipContent={subject.subject.name}
+												isActive={isSubjectActive(subject.subjectOffering.id.toString())}
 												{...props}
 											>
-												{@const IconComponent = subjectNameToIcon(subject.name)}
+												{@const IconComponent = subjectNameToIcon(subject.subject.name)}
 												<IconComponent class="mr-2" />
 
-												<span>{subject.name}</span>
+												<span>{subject.subject.name}</span>
 												<ChevronDownIcon
 													class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
 												/>
@@ -233,14 +241,14 @@
 									{:else}
 										<Sidebar.MenuButton
 											side="left"
-											tooltipContent={subject.name}
-											isActive={isSubjectActive(subject.id.toString())}
+											tooltipContent={subject.subject.name}
+											isActive={isSubjectActive(subject.subjectOffering.id.toString())}
 											{...props}
 										>
-											{@const IconComponent = subjectNameToIcon(subject.name)}
+											{@const IconComponent = subjectNameToIcon(subject.subject.name)}
 											<IconComponent class="mr-2" />
 
-											<span class="whitespace-nowrap">{subject.name}</span>
+											<span class="whitespace-nowrap">{subject.subject.name}</span>
 											<ChevronDownIcon
 												class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180"
 											/>
@@ -253,10 +261,16 @@
 									{#each subjectItems as item}
 										<Sidebar.MenuSubItem>
 											<Sidebar.MenuSubButton
-												isActive={isSubjectSubItemActive(subject.id.toString(), item.url)}
+												isActive={isSubjectSubItemActive(
+													subject.subjectOffering.id.toString(),
+													item.url
+												)}
 											>
 												{#snippet child({ props })}
-													<a href={`/subjects/${subject.id}/${item.url}`} {...props}>
+													<a
+														href={`/subjects/${subject.subjectOffering.id}/${item.url}`}
+														{...props}
+													>
 														<item.icon />
 														<span>{item.title}</span>
 													</a>

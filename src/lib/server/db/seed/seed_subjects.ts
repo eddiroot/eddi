@@ -13,72 +13,84 @@ export async function seed_subjects(schoolId: number, campuses: { id: number; na
 			{
 				name: 'English',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Core English language and communication skills, focusing on reading, writing, speaking, and listening.'
 			},
 			{
 				name: 'English as an Additional Language (EAL)',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Specialized English program for students who speak English as an additional language, with emphasis on language acquisition and academic writing.'
 			},
 			{
 				name: 'Literature',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Study of literary works including novels, poetry, drama, and short stories from various cultures and time periods.'
 			},
 			{
 				name: 'Foundation Mathematics',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Fundamental mathematical concepts and skills, covering basic arithmetic, algebra, geometry, and statistics for everyday applications.'
 			},
 			{
 				name: 'General Mathematics',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Practical mathematics for real-world applications including personal finance, data analysis, and problem-solving in various contexts.'
 			},
 			{
 				name: 'Mathematical Methods',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Advanced mathematics covering calculus, probability, statistics, and functions, preparing students for tertiary mathematics and science.'
 			},
 			{
 				name: 'Specialist Mathematics',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Highest level of secondary mathematics including complex numbers, advanced calculus, differential equations, and mathematical modeling.'
 			},
 			{
 				name: 'Biology',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Study of living organisms and life processes, covering cell biology, genetics, evolution, ecology, and human biology.'
 			},
 			{
 				name: 'Chemistry',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Study of matter and its properties, chemical reactions, atomic structure, and molecular interactions in various environments.'
 			},
 			{
 				name: 'Physics',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Study of matter, energy, and their interactions, covering mechanics, thermodynamics, electromagnetism, and modern physics.'
 			},
 			{
 				name: 'Psychology',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'Scientific study of human behavior and mental processes, including cognition, development, social psychology, and research methods.'
 			},
 			{
 				name: 'History: Revolutions',
 				schoolId: schoolId,
+				yearLevel: '10',
 				description:
 					'In-depth study of major historical revolutions and their impact on society, politics, and culture, with focus on causes, events, and consequences.'
 			}

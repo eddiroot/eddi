@@ -10,7 +10,8 @@ import {
 	interval,
 	boolean,
 	jsonb,
-	pgEnum
+	pgEnum,
+	unique
 } from 'drizzle-orm/pg-core';
 
 const timestamps = {
@@ -160,31 +161,40 @@ export const schoolLocationTypeEnumPg = pgEnum('school_location_type', [
 	schoolLocationTypeEnum.online
 ]);
 
-export const schoolLocation = pgTable('school_location', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	campusId: integer('campus_id')
-		.notNull()
-		.references(() => campus.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(),
-	type: schoolLocationTypeEnumPg().notNull(),
-	capacity: integer('capacity'),
-	description: text('description'),
-	isArchived: boolean('is_active').notNull().default(false),
-	...timestamps
-});
+export const schoolLocation = pgTable(
+	'school_location',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		campusId: integer('campus_id')
+			.notNull()
+			.references(() => campus.id, { onDelete: 'cascade' }),
+		name: text('name').notNull(),
+		type: schoolLocationTypeEnumPg().notNull(),
+		capacity: integer('capacity'),
+		description: text('description'),
+		isArchived: boolean('is_active').notNull().default(false),
+		...timestamps
+	},
+	(location) => [unique().on(location.campusId, subject.name)]
+);
 
 export type SchoolLocation = typeof schoolLocation.$inferSelect;
 
-export const subject = pgTable('subject', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	name: text('name').notNull(),
-	schoolId: integer('school_id')
-		.notNull()
-		.references(() => school.id, { onDelete: 'cascade' }),
-	description: text('description'),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
+export const subject = pgTable(
+	'subject',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		name: text('name').notNull(),
+		schoolId: integer('school_id')
+			.notNull()
+			.references(() => school.id, { onDelete: 'cascade' }),
+		description: text('description'),
+		yearLevel: text('year_level').notNull(), // e.g. F,1,2,3,4,5,6,7,8,9,10
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(subject) => [unique().on(subject.schoolId, subject.name)]
+);
 
 export type Subject = typeof subject.$inferSelect;
 
