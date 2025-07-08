@@ -189,7 +189,7 @@
 		</div>
 		<Card.Root class="h-full gap-0">
 			<div class="flex items-center justify-between px-6 pb-4">
-				<div class="flex-1">
+				<div class="flex-1 {isEditMode ? 'ml-[38px]' : ''}">
 					<Heading
 						headingSize={1}
 						text={data.lesson.title}
@@ -315,7 +315,7 @@
 									onDrop: handleDrop
 								}
 							}}
-							class="my-4 flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
+							class="my-4 ml-[38px] flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
 							'lesson-bottom'
 								? draggedOverClasses
 								: notDraggedOverClasses}"
@@ -357,7 +357,7 @@
 							<div
 								class="flex flex-col items-center justify-center gap-1 {buttonVariants({
 									variant: 'outline'
-								})} aspect-square h-full w-full"
+								})} aspect-square h-20 w-full"
 								use:draggable={{
 									container: 'blockPalette',
 									dragData: { type, content, id: 0 }
