@@ -115,7 +115,7 @@ export const school = pgTable('school', {
 
 export type School = typeof school.$inferSelect;
 
-export const campus = pgTable('school_campus', {
+export const campus = pgTable('campus', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	schoolId: integer('school_id')
 		.notNull()
@@ -127,7 +127,7 @@ export const campus = pgTable('school_campus', {
 	...timestamps
 });
 
-export type SchoolCampus = typeof campus.$inferSelect;
+export type Campus = typeof campus.$inferSelect;
 
 export enum schoolLocationTypeEnum {
 	classroom = 'classroom',

@@ -17,7 +17,7 @@
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
-	import type { School, SchoolCampus, Subject } from '$lib/server/db/schema';
+	import type { School, Campus, Subject } from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
@@ -90,8 +90,7 @@
 		user,
 		school,
 		campus
-	}: { subjects: Subject[]; user: any; school: School | null; campus: SchoolCampus | null } =
-		$props();
+	}: { subjects: Subject[]; user: any; school: School | null; campus: Campus | null } = $props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
