@@ -1,4 +1,4 @@
-import { getSchoolById, getSubjectsByUserId } from '$lib/server/db/service.js';
+import { getSchoolById, getCampusById, getSubjectsByUserId } from '$lib/server/db/service.js';
 
 export const load = async ({ locals: { user } }) => {
 	if (!user) {
@@ -8,12 +8,14 @@ export const load = async ({ locals: { user } }) => {
 	// Needed to populate the sidebar
 	const subjects = await getSubjectsByUserId(user.id);
 
-	// Needed to display the school top left
+	// Needed to display the school and campus top left
 	const school = await getSchoolById(user.schoolId);
+	const campus = user.campusId ? await getCampusById(user.campusId) : null;
 
 	return {
 		user,
 		school,
+		campus,
 		subjects
 	};
 };
