@@ -45,6 +45,12 @@ export const SEMESTERS = [
 	}
 ] as const;
 
+// For select components
+export const SEMESTER_OPTIONS = [
+	{ value: 1, label: 'Semester 1' },
+	{ value: 2, label: 'Semester 2' }
+];
+
 export const YEAR_LEVELS: YearLevelOption[] = [
 	{ value: 'all', label: 'All Years' },
 	{ value: 'F', label: 'Foundation' },

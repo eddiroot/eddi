@@ -15,7 +15,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { lessonBlockTypeEnum, lessonStatusEnum, lessonTypeEnum } from '$lib/server/db/schema';
 
-export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
+export const load = async ({ locals: { security }, params: { subjectOfferingId }, url }) => {
 	security.isAuthenticated();
 
 	let subjectOfferingIdInt;
@@ -25,12 +25,15 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 		throw new Error('Invalid subject offering ID');
 	}
 
+	// Get week number from URL parameters, default to 1
+	const weekNumber = parseInt(url.searchParams.get('week') || '1');
+
 	const [form, lessonTopics] = await Promise.all([
 		superValidate(zod(formSchema)),
 		getLessonTopicsBySubjectOfferingId(subjectOfferingIdInt)
 	]);
 
-	return { form, lessonTopics };
+	return { form, lessonTopics, weekNumber };
 };
 
 // Helper function to validate and create blocks from lesson schema
@@ -238,7 +241,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 }
 
 export const actions = {
-	createLesson: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
+	createLesson: async ({ request, locals: { security }, params: { subjectOfferingId }, url }) => {
 		security.isAuthenticated();
 
 		let subjectOfferingIdInt;
@@ -247,6 +250,9 @@ export const actions = {
 		} catch {
 			return fail(400, { message: 'Invalid subject offering ID' });
 		}
+
+		// Get week number from URL parameters, default to 1
+		const weekNumber = parseInt(url.searchParams.get('week') || '1');
 
 		// Read the form data ONCE
 		const formData = await request.formData();
@@ -276,6 +282,7 @@ export const actions = {
 			lessonStatusEnum.draft,
 			lessonTypeEnum[form.data.type],
 			lessonTopicId,
+			weekNumber,
 			form.data.dueDate
 		);
 		console.log('Created lesson:', form.data);

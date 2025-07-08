@@ -6,24 +6,208 @@
 	import * as Select from '$lib/components/ui/select';
 	import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import * as Drawer from '$lib/components/ui/drawer';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Separator } from '$lib/components/ui/separator';
 	import Plus from 'lucide-svelte/icons/plus';
 	import X from 'lucide-svelte/icons/x';
+	import Edit from 'lucide-svelte/icons/edit';
+	import Trash2 from 'lucide-svelte/icons/trash-2';
+	import Save from 'lucide-svelte/icons/save';
+	import BookOpen from 'lucide-svelte/icons/book-open';
+	import Clock from 'lucide-svelte/icons/clock';
+	import Calendar from 'lucide-svelte/icons/calendar';
 	import CurriculumSingleYearView from '../components/CurriculumSingleYearView.svelte';
 	import CurriculumMultiYearView from '../components/CurriculumMultiYearView.svelte';
-	import { YEAR_LEVELS } from '../curriculum-utils';
+	import { YEAR_LEVELS, SEMESTER_OPTIONS } from '../curriculum-utils';
 	import type { PageData } from './$types';
 	import type { CourseMapItem } from '$lib/server/db/schema';
 
 	export let data: PageData;
 
-	let showAddDialog = false;
 	let drawerOpen = false;
+	let isEditMode = false;
 	let selectedCourseMapItem: CourseMapItem | null = null;
+	let newItemWeek: number | null = null;
+	let newItemTerm: number | null = null;
+	// Edit form state
+	let editForm = {
+		title: '',
+		description: '',
+		startWeekNumber: 1,
+		lengthInWeeks: 1,
+		termNumber: 1,
+		yearLevel: '',
+		color: '#3b82f6', // Default blue color
+		learningAreaId: null as number | null
+	};
+
+	// Available colors for course map items
+	const availableColors = [
+		{ value: '#3b82f6', label: 'Blue' },
+		{ value: '#10b981', label: 'Green' },
+		{ value: '#f59e0b', label: 'Yellow' },
+		{ value: '#ef4444', label: 'Red' },
+		{ value: '#8b5cf6', label: 'Purple' },
+		{ value: '#06b6d4', label: 'Cyan' },
+		{ value: '#f97316', label: 'Orange' },
+		{ value: '#84cc16', label: 'Lime' }
+	];
+
+	// Reactive statement to fetch learning area content when learning area or year level changes
+	$: if (editForm.learningAreaId && editForm.yearLevel) {
+		// Filter learning area content from the existing data
+		filteredLearningAreaContent = data.learningAreaContent.filter(content => 
+			content.learningArea.id === editForm.learningAreaId && 
+			content.content.yearLevel === editForm.yearLevel
+		);
+	} else {
+		filteredLearningAreaContent = [];
+	}
+
+	// Debug logging
+	$: console.log('Debug - Learning areas available:', data.learningAreas?.length || 0);
+	$: console.log('Debug - Learning areas data:', data.learningAreas);
+	$: console.log('Debug - Is edit mode:', isEditMode);
+	$: console.log('Debug - Selected course map item:', selectedCourseMapItem?.id || 'none');
+	$: console.log('Debug - Drawer open:', drawerOpen);
+	$: console.log('Debug - Learning areas type:', typeof data.learningAreas);
+	$: console.log('Debug - Learning areas is array:', Array.isArray(data.learningAreas));
 
 	// Function to handle course map item click
 	function handleCourseMapItemClick(item: CourseMapItem) {
 		selectedCourseMapItem = item;
+		isEditMode = false;
 		drawerOpen = true;
+	}
+
+	// Function to handle empty cell click (for creating new items)
+	function handleEmptyCellClick(week: number, term: number) {
+		selectedCourseMapItem = null;
+		newItemWeek = week;
+		newItemTerm = term;
+		isEditMode = true;
+		// Initialize form for new item
+		editForm = {
+			title: '',
+			description: '',
+			startWeekNumber: week,
+			lengthInWeeks: 1,
+			termNumber: term,
+			yearLevel: selectedYearLevel === 'all' ? 'F' : selectedYearLevel,
+			color: '#3b82f6',
+			learningAreaId: null
+		};
+		drawerOpen = true;
+	}
+
+	// Function to switch to edit mode
+	function enterEditMode() {
+		if (selectedCourseMapItem) {
+			editForm = {
+				title: selectedCourseMapItem.title,
+				description: selectedCourseMapItem.description || '',
+				startWeekNumber: selectedCourseMapItem.startWeekNumber,
+				lengthInWeeks: selectedCourseMapItem.lengthInWeeks,
+				termNumber: selectedCourseMapItem.termNumber,
+				yearLevel: selectedCourseMapItem.yearLevel,
+				color: '#3b82f6', // TODO: Get from item when color field is added
+				learningAreaId: selectedCourseMapItem.learningAreaId || null
+			};
+		}
+		isEditMode = true;
+	}
+
+	// Function to cancel edit mode
+	function cancelEdit() {
+		isEditMode = false;
+		drawerOpen = false;
+		selectedCourseMapItem = null;
+		newItemWeek = null;
+		newItemTerm = null;
+	}
+
+	// Function to save course map item (create or update)
+	async function saveCourseMapItem() {
+		if (selectedCourseMapItem) {
+			// Update existing item
+			const formData = new FormData();
+			formData.append('id', selectedCourseMapItem.id.toString());
+			formData.append('title', editForm.title);
+			formData.append('description', editForm.description);
+			formData.append('yearLevel', editForm.yearLevel);
+			formData.append('termNumber', editForm.termNumber.toString());
+			formData.append('academicYear', data.academicYear.toString());
+			formData.append('startWeekNumber', editForm.startWeekNumber.toString());
+			formData.append('lengthInWeeks', editForm.lengthInWeeks.toString());
+			if (editForm.learningAreaId) {
+				formData.append('learningAreaId', editForm.learningAreaId.toString());
+			}
+
+			const response = await fetch('?/update', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				window.location.reload();
+			}
+		} else {
+			// Create new item
+			const formData = new FormData();
+			formData.append('title', editForm.title);
+			formData.append('description', editForm.description);
+			formData.append('yearLevel', editForm.yearLevel);
+			formData.append('termNumber', editForm.termNumber.toString());
+			formData.append('academicYear', data.academicYear.toString());
+			formData.append('startWeekNumber', editForm.startWeekNumber.toString());
+			formData.append('lengthInWeeks', editForm.lengthInWeeks.toString());
+			if (editForm.learningAreaId) {
+				formData.append('learningAreaId', editForm.learningAreaId.toString());
+			}
+
+			const response = await fetch('?/create', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				window.location.reload();
+			}
+		}
+	}
+
+	// Function to delete course map item
+	async function deleteCourseMapItem() {
+		if (!selectedCourseMapItem) return;
+		
+		try {
+			const formData = new FormData();
+			formData.append('id', selectedCourseMapItem.id.toString());
+
+			const response = await fetch('?/delete', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				drawerOpen = false;
+				window.location.reload();
+			}
+		} catch (error) {
+			console.error('Error deleting course map item:', error);
+		}
+	}
+
+	// Generate week range for display
+	function getWeekRange(startWeek: number, length: number) {
+		const weeks = [];
+		for (let i = startWeek; i < startWeek + length; i++) {
+			weeks.push(i);
+		}
+		return weeks;
 	}
 
 	// Reactive URL parameters
@@ -59,9 +243,51 @@
 		? data.courseMapItems.filter(item => selectedYearLevel === 'all' || item.yearLevel === selectedYearLevel)
 		: data.courseMapItems;
 
+	// Get lessons for the selected course map item and group by week
+	$: lessonsForItem = selectedCourseMapItem 
+		? data.lessons.filter(lesson => {
+				// Filter lessons that fall within the course map item's week range
+				if (!selectedCourseMapItem) return false;
+				return lesson.lesson.weekNumber >= selectedCourseMapItem.startWeekNumber &&
+					   lesson.lesson.weekNumber < selectedCourseMapItem.startWeekNumber + selectedCourseMapItem.lengthInWeeks;
+		  })
+		: [];
+
+	$: lessonsByWeek = lessonsForItem.reduce((acc, lesson) => {
+		const week = lesson.lesson.weekNumber;
+		if (!acc[week]) {
+			acc[week] = [];
+		}
+		acc[week].push(lesson);
+		return acc;
+	}, {} as Record<number, typeof lessonsForItem>);
+
+	// Get area of study content associated with the course map item
+	$: areaOfStudyContent = selectedCourseMapItem 
+		? data.learningAreaContent.filter(content => {
+				// This would need to be based on some relationship between course map items and learning area content
+				// For now, we'll show all content for the year level
+				return content.content.yearLevel === selectedCourseMapItem?.yearLevel;
+		  })
+		: [];
+
 	// Create subject slug for URL
 	function createSubjectSlug(subjectName: string): string {
 		return subjectName.toLowerCase().replace(/\s+/g, '-');
+	}
+
+	// Reactive variable for learning area content based on selected learning area and year level
+	let filteredLearningAreaContent: any[] = [];
+	
+	// Reactive statement to fetch learning area content when learning area or year level changes
+	$: if (editForm.learningAreaId && editForm.yearLevel) {
+		// Filter learning area content from the existing data
+		filteredLearningAreaContent = data.learningAreaContent.filter(content => 
+			content.learningArea.id === editForm.learningAreaId && 
+			content.content.yearLevel === editForm.yearLevel
+		);
+	} else {
+		filteredLearningAreaContent = [];
 	}
 </script>
 
@@ -139,77 +365,372 @@
 		<CurriculumSingleYearView 
 			courseMapItems={filteredCourseMapItems}
 			yearLevel={selectedYearLevel}
-			bind:showAddDialog
 			onCourseMapItemClick={handleCourseMapItemClick}
+			onEmptyCellClick={handleEmptyCellClick}
 		/>
 	{:else}
 		<CurriculumMultiYearView 
 			courseMapItems={data.courseMapItems}
-			bind:showAddDialog
 			onCourseMapItemClick={handleCourseMapItemClick}
+			onEmptyCellClick={handleEmptyCellClick}
 		/>
 	{/if}
 </div>
 
 <!-- Course Map Item Drawer -->
 <Drawer.Root bind:open={drawerOpen} direction="right">
-	<Drawer.Content class="!max-w-[1400px]">
-			<Drawer.Header>
-				<Drawer.Title>{selectedCourseMapItem?.title || 'Course Map Item'}</Drawer.Title>
-				<Drawer.Description>View and manage course map item details</Drawer.Description>
-			</Drawer.Header>
-			
-			<div class="p-4 pb-0">
-				{#if selectedCourseMapItem}
-					<div class="space-y-4">
-						<div>
-							<h3 class="font-medium text-sm text-muted-foreground mb-1">Title</h3>
-							<p class="text-sm">{selectedCourseMapItem.title}</p>
-						</div>
-						
-						{#if selectedCourseMapItem.description}
-							<div>
-								<h3 class="font-medium text-sm text-muted-foreground mb-1">Description</h3>
-								<p class="text-sm">{selectedCourseMapItem.description}</p>
-							</div>
+	<Drawer.Content class="!max-w-[1400px] rounded-l-lg">
+		<Drawer.Header class="pb-4">
+			<div class="flex items-center justify-between">
+				<div class="flex flex-col items-center text-center flex-1">
+					<Drawer.Title class="text-2xl font-semibold mb-2">
+						{#if isEditMode}
+							{selectedCourseMapItem ? 'Edit Course Map Item' : 'Create Course Map Item'}
+						{:else}
+							{selectedCourseMapItem?.title || 'Course Map Item'}
 						{/if}
-						
-						<div class="grid grid-cols-2 gap-4">
-							<div>
-								<h3 class="font-medium text-sm text-muted-foreground mb-1">Year Level</h3>
-								<p class="text-sm">{selectedCourseMapItem.yearLevel}</p>
+					</Drawer.Title>
+					{#if !isEditMode && selectedCourseMapItem?.description}
+						<Drawer.Description class="text-lg text-muted-foreground">
+							{selectedCourseMapItem.description}
+						</Drawer.Description>
+					{/if}
+				</div>
+				<div class="flex items-center gap-2">
+
+				</div>
+			</div>
+		</Drawer.Header>
+		
+		<div class="flex-1 overflow-y-auto px-4">
+			{#if !isEditMode && selectedCourseMapItem}
+				<!-- View Mode -->
+				<div class="space-y-6 pb-6">
+					<!-- Header Information -->
+					<div class="bg-muted/30 rounded-lg p-4 relative">
+						<div class="flex items-center gap-6 text-sm">
+							<div class="flex items-center gap-1">
+								<BookOpen class="h-4 w-4" />
+								<span>Year {selectedCourseMapItem.yearLevel}</span>
 							</div>
-							
-							<div>
-								<h3 class="font-medium text-sm text-muted-foreground mb-1">Duration</h3>
-								<p class="text-sm">{selectedCourseMapItem.lengthInWeeks} weeks</p>
+							<div class="flex items-center gap-1">
+								<Clock class="h-4 w-4" />
+								<span>Semester {selectedCourseMapItem.termNumber}</span>
+							</div>
+							<div class="flex items-center gap-1">
+								<Calendar class="h-4 w-4" />
+								<span>Weeks {selectedCourseMapItem.startWeekNumber}–{selectedCourseMapItem.startWeekNumber + selectedCourseMapItem.lengthInWeeks - 1}</span>
+							</div>
+							<div class="flex items-center gap-1">
+								<span>{selectedCourseMapItem.lengthInWeeks} weeks</span>
 							</div>
 						</div>
 						
-						<div class="grid grid-cols-2 gap-4">
-							<div>
-								<h3 class="font-medium text-sm text-muted-foreground mb-1">Start Week</h3>
-								<p class="text-sm">Week {selectedCourseMapItem.startWeekNumber}</p>
+						<!-- Floating Edit Button -->
+						<Button 
+							variant="default" 
+							size="sm" 
+							onclick={enterEditMode}
+							class="absolute top-4 right-4"
+						>
+							<Edit class="h-4 w-4 mr-1" />
+							Edit
+						</Button>
+					</div>
+
+					<!-- Areas of Study -->
+					{#if areaOfStudyContent.length > 0}
+						<div>
+							<h4 class="font-medium mb-3 flex items-center gap-2">
+								<BookOpen class="h-4 w-4" />
+								Areas of Study Content
+							</h4>
+							<div class="flex flex-wrap gap-2">
+								{#each areaOfStudyContent as content}
+									<Badge variant="secondary" class="text-xs">
+										{content.learningArea.name}: {content.content.name}
+									</Badge>
+								{/each}
 							</div>
-							
-							<div>
-								<h3 class="font-medium text-sm text-muted-foreground mb-1">Semester</h3>
-								<p class="text-sm">Semester {selectedCourseMapItem.termNumber}</p>
-							</div>
+						</div>
+					{/if}
+
+					<Separator />
+
+					<!-- Weekly Breakdown -->
+					<div>
+						<h4 class="font-medium mb-4 flex items-center gap-2">
+							<Calendar class="h-4 w-4" />
+							Weekly Breakdown
+						</h4>
+						
+						<div class="space-y-4">
+							{#each getWeekRange(selectedCourseMapItem.startWeekNumber, selectedCourseMapItem.lengthInWeeks) as week}
+								<!-- Week Header (outside card) -->
+								<div class="flex items-center justify-between mb-2">
+									<h5 class="font-medium text-lg">Week {week}</h5>
+								</div>
+								
+								<!-- Lessons Card -->
+								{#if lessonsByWeek[week] && lessonsByWeek[week].length > 0}
+									<div class="border rounded-lg p-4 bg-card">
+										<div class="space-y-2">
+											{#each lessonsByWeek[week] as lesson}
+												<div class="bg-muted/50 rounded p-3 text-sm">
+													<div class="flex items-start justify-between">
+														<div>
+															<p class="font-medium">{lesson.lesson.title}</p>
+															{#if lesson.lesson.description}
+																<p class="text-muted-foreground text-xs mt-1">{lesson.lesson.description}</p>
+															{/if}
+															{#if lesson.learningAreaContent}
+																<Badge variant="outline" class="text-xs mt-2">
+																	{lesson.learningArea?.name}: {lesson.learningAreaContent.name}
+																</Badge>
+															{/if}
+														</div>
+														<div class="text-xs text-muted-foreground">
+															{lesson.lesson.type === 'lesson' ? 'Lesson' : 'Assessment'}
+														</div>
+													</div>
+												</div>
+											{/each}
+										</div>
+									</div>
+								{:else}
+									<div class="border rounded-lg p-4 bg-muted/10 text-center text-muted-foreground text-sm">
+										No lessons scheduled for this week
+									</div>
+								{/if}
+							{/each}
 						</div>
 					</div>
+				</div>
+			{/if}
+
+			<!-- Edit Form -->
+			{#if isEditMode}
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+						<div class="space-y-2 md:col-span-2">
+							<Label for="title">Course Map Item Name</Label>
+							<Input
+								id="title"
+								bind:value={editForm.title}
+								placeholder="Enter course map item name"
+								required
+							/>
+						</div>
+
+						<!-- Description -->
+						<div class="space-y-2 md:col-span-2">
+							<Label for="description">Description</Label>
+							<Textarea
+								id="description"
+								bind:value={editForm.description}
+								placeholder="Enter description (optional)"
+								rows={3}
+							/>
+						</div>
+
+						<!-- Week and Length -->
+						<div class="space-y-2">
+							<Label for="startWeek">Start Week</Label>
+							<Input
+								id="startWeek"
+								type="number"
+								bind:value={editForm.startWeekNumber}
+								min="1"
+								max="40"
+								required
+							/>
+						</div>
+
+						<div class="space-y-2">
+							<Label for="length">Length (weeks)</Label>
+							<Input
+								id="length"
+								type="number"
+								bind:value={editForm.lengthInWeeks}
+								min="1"
+								max="20"
+								required
+							/>
+						</div>
+
+						<!-- Semester -->
+						<div class="space-y-2">
+							<Label for="semester">Semester</Label>
+							<Select.Root
+								type="single"
+								value={editForm.termNumber.toString()}
+								onValueChange={(value) => editForm.termNumber = parseInt(value)}
+							>
+								<Select.Trigger id="semester">
+									{SEMESTER_OPTIONS.find(s => s.value === editForm.termNumber)?.label || "Select semester"}
+								</Select.Trigger>
+								<Select.Content>
+									{#each SEMESTER_OPTIONS as semester}
+										<Select.Item value={semester.value.toString()}>{semester.label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						</div>
+
+						<!-- Year Level -->
+						<div class="space-y-2">
+							<Label for="yearLevel">Year Level</Label>
+							<Select.Root
+								type="single"
+								value={editForm.yearLevel}
+								onValueChange={(value) => editForm.yearLevel = value}
+							>
+								<Select.Trigger id="yearLevel">
+									{YEAR_LEVELS.find(y => y.value === editForm.yearLevel)?.label || "Select year level"}
+								</Select.Trigger>
+								<Select.Content>
+									{#each YEAR_LEVELS.filter(y => y.value !== 'all') as yearLevel}
+										<Select.Item value={yearLevel.value}>{yearLevel.label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						</div>
+
+						<!-- Color -->
+						<div class="space-y-2 md:col-span-2">
+							<Label for="color">Color</Label>
+							<Select.Root
+								type="single"
+								value={editForm.color}
+								onValueChange={(value) => editForm.color = value}
+							>
+								<Select.Trigger id="color" class="w-full">
+									<div class="flex items-center gap-2">
+										<div 
+											class="w-4 h-4 rounded-full border" 
+											style="background-color: {editForm.color}"
+										></div>
+										{availableColors.find(c => c.value === editForm.color)?.label || "Select color"}
+									</div>
+								</Select.Trigger>
+								<Select.Content>
+									{#each availableColors as color}
+										<Select.Item value={color.value}>
+											<div class="flex items-center gap-2">
+												<div 
+													class="w-4 h-4 rounded-full border" 
+													style="background-color: {color.value}"
+												></div>
+												{color.label}
+											</div>
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						</div>
+
+						<!-- Learning Area Selection -->
+						{#if Array.isArray(data.learningAreas) && data.learningAreas.length > 0}
+							<div class="space-y-4 md:col-span-2">
+								<Label>Learning Area (Optional)</Label>
+								<p class="text-sm text-muted-foreground">Select the learning area you want to cover in this course map item</p>
+								
+								<!-- Learning Area Cards -->
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+									<!-- No Learning Area Option -->
+									<button 
+										type="button"
+										class="border rounded-lg p-4 text-left transition-colors hover:bg-muted/50 {editForm.learningAreaId === null ? 'border-primary bg-primary/10' : 'border-border'}"
+										onclick={() => editForm.learningAreaId = null}
+									>
+										<div class="flex items-start gap-3">
+											<div class="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+												<X class="h-6 w-6 text-muted-foreground" />
+											</div>
+											<div class="flex-1">
+												<h4 class="font-medium text-sm">No Learning Area</h4>
+												<p class="text-xs text-muted-foreground mt-1">Don't associate with any specific learning area</p>
+											</div>
+										</div>
+									</button>
+
+									<!-- Learning Area Cards -->
+									{#each data.learningAreas as { learningArea }}
+										<button 
+											type="button"
+											class="border rounded-lg p-4 text-left transition-colors hover:bg-muted/50 {editForm.learningAreaId === learningArea.id ? 'border-primary bg-primary/10' : 'border-border'}"
+											onclick={() => editForm.learningAreaId = learningArea.id}
+										>
+											<div class="flex items-start gap-3">
+												<!-- Space for VCAA Logo -->
+												<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+													<BookOpen class="h-6 w-6 text-white" />
+												</div>
+												<div class="flex-1">
+													<h4 class="font-medium text-sm">{learningArea.name}</h4>
+													{#if learningArea.description}
+														<p class="text-xs text-muted-foreground mt-1 overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+															{learningArea.description}
+														</p>
+													{/if}
+												</div>
+											</div>
+										</button>
+									{/each}
+								</div>
+							</div>
+						{/if}
+
+						<!-- Learning Area Content Display -->
+						{#if editForm.learningAreaId && editForm.yearLevel && filteredLearningAreaContent.length > 0}
+							<div class="space-y-4 md:col-span-2">
+								<div class="flex items-center gap-2">
+									<Label>Learning Area Content</Label>
+									<Badge variant="secondary" class="text-xs">
+										Year {editForm.yearLevel}
+									</Badge>
+								</div>
+								<p class="text-sm text-muted-foreground">Available content descriptions for the selected learning area and year level</p>
+								
+								<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
+									{#each filteredLearningAreaContent as content}
+										<div 
+											class="border rounded-lg p-3 bg-background hover:bg-muted/30 transition-colors group"
+											title={content.content.description}
+										>
+											<div class="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+												{content.content.name}
+											</div>
+											{#if content.content.description}
+												<div class="text-xs text-muted-foreground mt-1 overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+													{content.content.description}
+												</div>
+											{/if}
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					</div>
+			{/if}
+		</div>
+		
+		<Drawer.Footer class="border-t bg-background">
+			<div class="flex gap-2 w-full">
+				{#if isEditMode}
+					<Button class="flex-1" onclick={saveCourseMapItem}>
+						<Save class="h-4 w-4 mr-1" />
+						Save Changes
+					</Button>
+					<Button variant="outline" class="flex-1" onclick={cancelEdit}>
+						<X class="h-4 w-4 mr-1" />
+						Cancel
+					</Button>
+				{:else}
+					<Drawer.Close class="w-full">
+						<Button variant="outline" class="w-full">Close</Button>
+					</Drawer.Close>
 				{/if}
 			</div>
-			
-			<Drawer.Footer>
-				<div class="flex gap-2 w-full">
-					<Button variant="outline" class="flex-1">Edit</Button>
-					<Button variant="destructive" class="flex-1">Delete</Button>
-				</div>
-				<Drawer.Close class="w-full">
-					<Button variant="outline" class="w-full">Close</Button>
-				</Drawer.Close>
-			</Drawer.Footer>
-	
+		</Drawer.Footer>
 	</Drawer.Content>
 </Drawer.Root>

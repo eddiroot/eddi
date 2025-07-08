@@ -8,8 +8,8 @@
 
 	export let courseMapItems: CourseMapItem[];
 	export let yearLevel: string;
-	export let showAddDialog: boolean;
 	export let onCourseMapItemClick: (item: CourseMapItem) => void;
+	export let onEmptyCellClick: (week: number, term: number) => void;
 
 	// Group course map items by semester and term
 	$: courseMapItemsByTerm = courseMapItems.reduce((acc, item) => {
@@ -21,8 +21,7 @@
 	}, {} as Record<number, CourseMapItem[]>);
 
 	function handleAddItem(termNumber: number, weekNum: number) {
-		// You could pass specific term and week data to the add dialog
-		showAddDialog = true;
+		onEmptyCellClick(weekNum, termNumber);
 	}
 
 	function getItemsForTermWeek(termNumber: number, weekNum: number): CourseMapItem[] {

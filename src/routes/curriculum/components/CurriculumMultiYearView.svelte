@@ -7,8 +7,8 @@
 	import type { CourseMapItem } from '$lib/server/db/schema';
 
 	export let courseMapItems: CourseMapItem[];
-	export let showAddDialog: boolean;
 	export let onCourseMapItemClick: (item: CourseMapItem) => void;
+	export let onEmptyCellClick: (week: number, term: number) => void;
 
 	// Group course map items by year level and term
 	$: courseMapItemsByYearAndTerm = courseMapItems.reduce((acc, item) => {
@@ -23,7 +23,7 @@
 	}, {} as Record<string, Record<number, CourseMapItem[]>>);
 
 	function handleAddItem(yearLevel: string, termNumber: number, weekNum: number) {
-		showAddDialog = true;
+		onEmptyCellClick(weekNum, termNumber);
 	}
 
 	function getItemsForYearTermWeek(yearLevel: string, termNumber: number, weekNum: number): CourseMapItem[] {

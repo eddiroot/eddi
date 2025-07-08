@@ -538,6 +538,7 @@ export async function createLesson(
 	lessonStatus: table.lessonStatusEnum,
 	type: table.lessonTypeEnum,
 	lessonTopicId: number,
+	weekNumber: number,
 	dueDate?: Date | null,
 	isArchived: boolean = false,
 	learningAreaContentId?: number | null
@@ -562,6 +563,7 @@ export async function createLesson(
 			lessonTopicId,
 			dueDate,
 			isArchived,
+			weekNumber,
 			learningAreaContentId: learningAreaContentId || null,
 			dueDate
 		})
@@ -1235,6 +1237,7 @@ export async function createCourseMapItem(data: {
 	academicYear: number;
 	yearLevel: string;
 	orderIndex?: number;
+	learningAreaId?: number;
 }) {
 	const result = await db
 		.insert(table.courseMapItem)
@@ -1258,6 +1261,7 @@ export async function updateCourseMapItem(
 		academicYear: number;
 		yearLevel: string;
 		orderIndex: number;
+		learningAreaId: number;
 	}>
 ) {
 	const result = await db
@@ -1425,4 +1429,54 @@ export async function updateLessonLearningAreaContent(
 		.returning();
 
 	return lesson;
+}
+
+export async function getAllLearningAreaContentBySubject(subjectId: number, year: number) {
+	const content = await db
+		.select({
+			learningArea: table.learningArea,
+			content: table.learningAreaContent
+		})
+		.from(table.subject)
+		.innerJoin(table.subjectOffering, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.curriculumSubject,
+			eq(table.curriculumSubject.id, table.subjectOffering.curriculumSubjectId)
+		)
+		.innerJoin(
+			table.learningArea,
+			eq(table.learningArea.curriculumSubjectId, table.curriculumSubject.id)
+		)
+		.innerJoin(
+			table.learningAreaContent,
+			eq(table.learningAreaContent.learningAreaId, table.learningArea.id)
+		)
+		.where(and(eq(table.subject.id, subjectId), eq(table.subjectOffering.year, year)))
+		.orderBy(
+			asc(table.learningArea.name),
+			asc(table.learningAreaContent.yearLevel),
+			asc(table.learningAreaContent.name)
+		);
+
+	return content;
+}
+
+export async function getLearningAreaContentByLearningAreaAndYearLevel(
+	learningAreaId: number,
+	yearLevel: string
+) {
+	const content = await db
+		.select({
+			content: table.learningAreaContent
+		})
+		.from(table.learningAreaContent)
+		.where(
+			and(
+				eq(table.learningAreaContent.learningAreaId, learningAreaId),
+				eq(table.learningAreaContent.yearLevel, yearLevel)
+			)
+		)
+		.orderBy(asc(table.learningAreaContent.name));
+
+	return content;
 }

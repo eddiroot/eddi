@@ -8,7 +8,7 @@ import {
 	learningAreaContent,
 	contentElaboration
 } from '../../src/lib/server/db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 interface ContentItem {
 	learningArea: string;
@@ -205,11 +205,11 @@ export class VCAAF10Scraper {
 			english: 'English',
 			science: 'Science',
 
-			// Technologies
-			'design-and-technologies': 'Technologies',
-			'digital-technologies': 'Technologies',
+			// Technologies - use individual names
+			'design-and-technologies': 'Design and Technologies',
+			'digital-technologies': 'Digital Technologies',
 
-			// Humanities
+			// Humanities - keep together
 			'civics-and-citizenship': 'Humanities',
 			'economics-and-business': 'Humanities',
 			geography: 'Humanities',
@@ -218,24 +218,42 @@ export class VCAAF10Scraper {
 			// Health & Physical Education
 			'health-and-physical-education': 'Health and Physical Education',
 
-			// Languages
-			chinese: 'Languages',
-			french: 'Languages',
-			german: 'Languages',
-			indonesian: 'Languages',
-			italian: 'Languages',
-			japanese: 'Languages',
-			korean: 'Languages',
-			'modern-greek': 'Languages',
-			spanish: 'Languages',
+			// Languages - use individual names
+			chinese: 'Chinese',
+			'chinese-f10': 'Chinese',
+			'chinese-710': 'Chinese',
+			french: 'French',
+			'french-f10': 'French',
+			'french-710': 'French',
+			german: 'German',
+			'german-f10': 'German',
+			'german-710': 'German',
+			indonesian: 'Indonesian',
+			'indonesian-f10': 'Indonesian',
+			'indonesian-710': 'Indonesian',
+			italian: 'Italian',
+			'italian-f10': 'Italian',
+			'italian-710': 'Italian',
+			japanese: 'Japanese',
+			'japanese-f10': 'Japanese',
+			'japanese-710': 'Japanese',
+			korean: 'Korean',
+			'korean-f10': 'Korean',
+			'korean-710': 'Korean',
+			'modern-greek': 'Modern Greek',
+			'modern-greek-f10': 'Modern Greek',
+			'modern-greek-710': 'Modern Greek',
+			spanish: 'Spanish',
+			'spanish-f10': 'Spanish',
+			'spanish-710': 'Spanish',
 
-			// The Arts
-			dance: 'The Arts',
-			drama: 'The Arts',
-			'media-arts': 'The Arts',
-			music: 'The Arts',
-			'visual-arts': 'The Arts',
-			'visual-communication-design': 'The Arts'
+			// Arts - use individual names
+			dance: 'Dance',
+			drama: 'Drama',
+			'media-arts': 'Media Arts',
+			music: 'Music',
+			'visual-arts': 'Visual Arts',
+			'visual-communication-design': 'Visual Communication Design'
 		};
 
 		return mapping[subject.toLowerCase()] || 'General';
@@ -317,6 +335,9 @@ export class VCAAF10Scraper {
 	async insertCurriculumData(contentItems: ContentItem[]): Promise<void> {
 		console.log('\n💾 Inserting curriculum data into database...');
 
+		// Track which curriculum subjects we've processed to create subject offerings
+		const processedCurriculumSubjects = new Set<string>();
+
 		for (const item of contentItems) {
 			try {
 				// Create or get curriculum
@@ -351,6 +372,12 @@ export class VCAAF10Scraper {
 							name: item.learningArea
 						})
 						.returning();
+				}
+
+				// Create subject offerings for this curriculum subject (only once per learning area)
+				if (!processedCurriculumSubjects.has(item.learningArea)) {
+					await this.createSubjectOfferingsForCurriculumSubject(subjectRecord);
+					processedCurriculumSubjects.add(item.learningArea);
 				}
 
 				// Create or get learning area (strand)
@@ -398,6 +425,82 @@ export class VCAAF10Scraper {
 			} catch (error) {
 				console.error(`   ❌ Error inserting ${item.vcaaCode}:`, error);
 			}
+		}
+	}
+
+	async createSubjectOfferingsForCurriculumSubject(curriculumSubject: any): Promise<void> {
+		console.log(`🔗 Creating subject offerings for ${curriculumSubject.name}...`);
+
+		// Import the schema here to avoid circular imports
+		const { subject, subjectOffering, school, campus } = await import(
+			'../../src/lib/server/db/schema.js'
+		);
+
+		try {
+			// Find all schools to create subject offerings for
+			const schools = await db.select().from(school);
+
+			for (const schoolRecord of schools) {
+				// Find or create a subject for this learning area at this school
+				let [subjectRecord] = await db
+					.select()
+					.from(subject)
+					.where(eq(subject.name, curriculumSubject.name))
+					.limit(1);
+
+				if (!subjectRecord) {
+					// Create the subject for this school
+					[subjectRecord] = await db
+						.insert(subject)
+						.values({
+							name: curriculumSubject.name,
+							schoolId: schoolRecord.id,
+							description: `${curriculumSubject.name} curriculum based on VCAA F-10`
+						})
+						.returning();
+				}
+
+				// Get all campuses for this school
+				const campuses = await db.select().from(campus).where(eq(campus.schoolId, schoolRecord.id));
+
+				// Create subject offerings for each campus and common year levels
+				const currentYear = new Date().getFullYear();
+
+				for (const campusRecord of campuses) {
+					// Create offerings for both semesters of the current year
+					for (const semester of [1, 2]) {
+						// Check if offering already exists
+						const existingOffering = await db
+							.select()
+							.from(subjectOffering)
+							.where(
+								and(
+									eq(subjectOffering.subjectId, subjectRecord.id),
+									eq(subjectOffering.year, currentYear),
+									eq(subjectOffering.semester, semester),
+									eq(subjectOffering.campusId, campusRecord.id)
+								)
+							)
+							.limit(1);
+
+						if (existingOffering.length === 0) {
+							await db.insert(subjectOffering).values({
+								subjectId: subjectRecord.id,
+								year: currentYear,
+								semester: semester,
+								campusId: campusRecord.id,
+								curriculumSubjectId: curriculumSubject.id
+							});
+
+							console.log(
+								`   ✅ Created offering: ${curriculumSubject.name} - ${schoolRecord.name} - ${campusRecord.name} - ${currentYear}/S${semester}`
+							);
+						}
+					}
+				}
+			}
+		} catch (error) {
+			console.error(`   ❌ Error creating subject offerings for ${curriculumSubject.name}:`, error);
 		}
 	}
 
@@ -519,8 +622,8 @@ export class VCAAF10Scraper {
 		await this.scrapeSubjectGroup(subjects, 'Languages');
 	}
 
-	async scrapeTheArts(): Promise<void> {
-		console.log('🎨 Scraping The Arts subjects...');
+	async scrapeArts(): Promise<void> {
+		console.log('🎨 Scraping Arts subjects...');
 		const subjects = [
 			'dance',
 			'drama',
@@ -529,7 +632,7 @@ export class VCAAF10Scraper {
 			'visual-arts',
 			'visual-communication-design'
 		];
-		await this.scrapeSubjectGroup(subjects, 'The Arts');
+		await this.scrapeSubjectGroup(subjects, 'Arts');
 	}
 
 	private async scrapeSubjectGroup(subjects: string[], groupName: string): Promise<void> {

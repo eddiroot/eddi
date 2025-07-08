@@ -5,7 +5,10 @@ import {
 	getCourseMapItemsBySubjectId,
 	createCourseMapItem,
 	updateCourseMapItem,
-	deleteCourseMapItem
+	deleteCourseMapItem,
+	getLessonsByYearAndYearLevel,
+	getLearningAreasBySubject,
+	getLearningAreaContent
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
@@ -33,10 +36,45 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	// Get course map items for this subject
 	const courseMapItems = await getCourseMapItemsBySubjectId(subject.id);
 
+	// Get lessons for the selected year level and academic year
+	const lessons =
+		selectedYearLevel !== 'all'
+			? await getLessonsByYearAndYearLevel(subject.id, academicYear, selectedYearLevel)
+			: [];
+
+	// Get learning areas and content for the subject
+	const learningAreas = await getLearningAreasBySubject(subject.id, academicYear);
+	console.log('🔍 Server debug - Learning areas count:', learningAreas.length);
+	console.log(
+		'🔍 Server debug - Learning areas sample:',
+		learningAreas.slice(0, 2).map((la) => ({
+			id: la.learningArea.id,
+			name: la.learningArea.name
+		}))
+	);
+
+	// Load learning area content - for all year levels if in multi-year view, or specific year level
+	let learningAreaContent = [];
+	if (selectedYearLevel !== 'all') {
+		learningAreaContent = await getLearningAreaContent(subject.id, academicYear, selectedYearLevel);
+	} else {
+		// Load content for all year levels to support course map creation in multi-year view
+		const yearLevels = ['F', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+		const allContent = await Promise.all(
+			yearLevels.map((yearLevel) => getLearningAreaContent(subject.id, academicYear, yearLevel))
+		);
+		learningAreaContent = allContent.flat();
+	}
+
+	console.log('🔍 Server debug - Learning area content count:', learningAreaContent.length);
+
 	return {
 		subject,
 		subjects,
 		courseMapItems,
+		lessons,
+		learningAreas,
+		learningAreaContent,
 		selectedYearLevel,
 		viewMode,
 		academicYear,
@@ -67,6 +105,9 @@ export const actions: Actions = {
 		const academicYear = parseInt(data.get('academicYear') as string);
 		const startWeekNumber = parseInt(data.get('startWeekNumber') as string);
 		const lengthInWeeks = parseInt(data.get('lengthInWeeks') as string);
+		const learningAreaId = data.get('learningAreaId')
+			? parseInt(data.get('learningAreaId') as string)
+			: undefined;
 
 		if (!title || !yearLevel || !termNumber || !startWeekNumber || !lengthInWeeks) {
 			return fail(400, { message: 'Missing required fields' });
@@ -82,7 +123,8 @@ export const actions: Actions = {
 				academicYear,
 				startWeekNumber,
 				lengthInWeeks,
-				orderIndex: 0
+				orderIndex: 0,
+				learningAreaId
 			});
 
 			return { success: true };
@@ -106,6 +148,9 @@ export const actions: Actions = {
 		const academicYear = parseInt(data.get('academicYear') as string);
 		const startWeekNumber = parseInt(data.get('startWeekNumber') as string);
 		const lengthInWeeks = parseInt(data.get('lengthInWeeks') as string);
+		const learningAreaId = data.get('learningAreaId')
+			? parseInt(data.get('learningAreaId') as string)
+			: undefined;
 
 		if (!id || !title || !yearLevel || !termNumber || !startWeekNumber || !lengthInWeeks) {
 			return fail(400, { message: 'Missing required fields' });
@@ -119,7 +164,8 @@ export const actions: Actions = {
 				termNumber,
 				academicYear,
 				startWeekNumber,
-				lengthInWeeks
+				lengthInWeeks,
+				learningAreaId
 			});
 
 			return { success: true };

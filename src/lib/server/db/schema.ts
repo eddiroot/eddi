@@ -431,6 +431,7 @@ export const lesson = pgTable('lesson', {
 	// Cannot use 'status' as a column name because it is a reserved keyword in PostgreSQL
 	lessonStatus: lessonStatusEnumPg().notNull(),
 	index: integer('index').notNull(),
+	weekNumber: integer('week_number').notNull(),
 	lessonTopicId: integer('lesson_topic_id')
 		.notNull()
 		.references(() => lessonTopic.id, { onDelete: 'cascade' }),
@@ -649,6 +650,9 @@ export const courseMapItem = pgTable('course_map_item', {
 	academicYear: integer('academic_year').notNull().default(2025), // Year this curriculum is for
 	yearLevel: text('year_level').notNull(),
 	orderIndex: integer('order_index').notNull().default(0),
+	learningAreaId: integer('learning_area_id').references(() => learningArea.id, {
+		onDelete: 'set null'
+	}),
 	...timestamps
 });
 
