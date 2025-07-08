@@ -1,12 +1,46 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { Label } from '$lib/components/ui/label';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
 	import BuildingIcon from '@lucide/svelte/icons/building';
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 	import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Button } from '$lib/components/ui/button';
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 
 	const { data } = $props();
+
+	let editDialogOpen = $state(false);
+	let selectedCampus = $state<any>(null);
+	let archiveDialogOpen = $state(false);
+
+	// Form data
+	let editFormData = $state({
+		campusId: 0,
+		name: '',
+		address: '',
+		description: ''
+	});
+
+	function openEditDialog(campus: any) {
+		selectedCampus = campus;
+		editFormData = {
+			campusId: campus.id,
+			name: campus.name,
+			address: campus.address,
+			description: campus.description || ''
+		};
+		editDialogOpen = true;
+	}
+
+	function openArchiveDialog(campus: any) {
+		selectedCampus = campus;
+		archiveDialogOpen = true;
+	}
 </script>
 
 <div class="space-y-8">
@@ -36,8 +70,15 @@
 										{/snippet}
 									</DropdownMenu.Trigger>
 									<DropdownMenu.Content align="end" class="w-[160px]">
-										<DropdownMenu.Item>Edit</DropdownMenu.Item>
-										<DropdownMenu.Item>Archive</DropdownMenu.Item>
+										<DropdownMenu.Item onclick={() => openEditDialog(campus)}>
+											Edit
+										</DropdownMenu.Item>
+										<DropdownMenu.Item
+											onclick={() => openArchiveDialog(campus)}
+											class="text-destructive focus:text-destructive"
+										>
+											Archive
+										</DropdownMenu.Item>
 									</DropdownMenu.Content>
 								</DropdownMenu.Root>
 							</div>
@@ -62,3 +103,86 @@
 		{/if}
 	</div>
 </div>
+
+<!-- Edit Campus Modal -->
+<Dialog.Root bind:open={editDialogOpen}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Edit Campus</Dialog.Title>
+			<Dialog.Description>
+				Make changes to the campus information here. Click save when you're done.
+			</Dialog.Description>
+		</Dialog.Header>
+		<form
+			method="POST"
+			action="?/editCampus"
+			use:enhance={({ formData }) => {
+				return async ({ result }) => {
+					if (result.type === 'success') {
+						editDialogOpen = false;
+						await invalidateAll();
+					} else if (result.type === 'failure') {
+						console.error('Failed to update campus');
+					}
+				};
+			}}
+		>
+			<div class="grid gap-4 py-4">
+				<input type="hidden" name="campusId" bind:value={editFormData.campusId} />
+
+				<div class="grid gap-2">
+					<Label for="name">Campus Name</Label>
+					<Input id="name" name="name" bind:value={editFormData.name} required />
+				</div>
+
+				<div class="grid gap-2">
+					<Label for="address">Address</Label>
+					<Input id="address" name="address" bind:value={editFormData.address} required />
+				</div>
+
+				<div class="grid gap-2">
+					<Label for="description">Description (Optional)</Label>
+					<Textarea id="description" name="description" bind:value={editFormData.description} />
+				</div>
+			</div>
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (editDialogOpen = false)}>
+					Cancel
+				</Button>
+				<Button type="submit">Save Changes</Button>
+			</Dialog.Footer>
+		</form>
+	</Dialog.Content>
+</Dialog.Root>
+
+<!-- Archive Campus Modal -->
+<Dialog.Root bind:open={archiveDialogOpen}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Archive Campus</Dialog.Title>
+			<Dialog.Description>
+				Are you sure you want to archive "{selectedCampus?.name}"? This action will hide the campus
+				from the active list but can be undone later.
+			</Dialog.Description>
+		</Dialog.Header>
+		<form
+			method="POST"
+			action="?/archiveCampus"
+			use:enhance={({ formData }) => {
+				formData.set('campusId', selectedCampus?.id.toString());
+				return async ({ result }) => {
+					if (result.type === 'success') {
+						archiveDialogOpen = false;
+					}
+				};
+			}}
+		>
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (archiveDialogOpen = false)}>
+					Cancel
+				</Button>
+				<Button type="submit" variant="destructive">Archive Campus</Button>
+			</Dialog.Footer>
+		</form>
+	</Dialog.Content>
+</Dialog.Root>

@@ -86,6 +86,7 @@ export const user = pgTable('user', {
 	middleName: text('middle_name'),
 	lastName: text('last_name').notNull(),
 	avatarUrl: text('avatar_url'),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -120,7 +121,7 @@ export const campus = pgTable('campus', {
 	name: text('name').notNull(),
 	address: text('address').notNull(),
 	description: text('description'),
-	isActive: boolean('is_active').notNull().default(true),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -168,7 +169,7 @@ export const schoolLocation = pgTable('school_location', {
 	type: schoolLocationTypeEnumPg().notNull(),
 	capacity: integer('capacity'),
 	description: text('description'),
-	isActive: boolean('is_active').notNull().default(true),
+	isArchived: boolean('is_active').notNull().default(false),
 	...timestamps
 });
 
@@ -181,6 +182,7 @@ export const subject = pgTable('subject', {
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
 	description: text('description'),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -195,7 +197,9 @@ export const subjectOffering = pgTable('subject_offering', {
 	semester: integer('semester').notNull(),
 	campusId: integer('campus_id')
 		.notNull()
-		.references(() => campus.id, { onDelete: 'cascade' })
+		.references(() => campus.id, { onDelete: 'cascade' }),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
 });
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
@@ -234,6 +238,7 @@ export const subjectClass = pgTable('subject_class', {
 	subjectOfferingId: integer('subject_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -258,6 +263,7 @@ export const userSubjectClass = pgTable('user_subject_class', {
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
 	role: userSubjectClassRoleEnumPg().notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -283,7 +289,7 @@ export const dayOfWeekEnumPg = pgEnum('day_of_week', [
 	dayOfWeekEnum.sunday
 ]);
 
-export const subjectClassAllocation = pgTable('subject_class_time', {
+export const subjectClassAllocation = pgTable('subject_class_allocation', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	subjectClassId: integer('subject_class_id')
 		.notNull()
@@ -294,6 +300,7 @@ export const subjectClassAllocation = pgTable('subject_class_time', {
 	dayOfWeek: dayOfWeekEnumPg().notNull(),
 	startTime: time('start_time').notNull(),
 	duration: interval('duration').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -324,6 +331,7 @@ export const subjectThread = pgTable('sub_thread', {
 		.references(() => user.id, { onDelete: 'cascade' }),
 	title: text('title').notNull(),
 	content: text('content').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -352,6 +360,7 @@ export const subjectThreadResponse = pgTable(
 			.references(() => user.id, { onDelete: 'cascade' }),
 		content: text('content').notNull(),
 		parentResponseId: integer('parent_id').references((): AnyPgColumn => subjectThreadResponse.id),
+		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},
 	(self) => [
@@ -371,6 +380,7 @@ export const lessonTopic = pgTable('lesson_topic', {
 	subjectClassId: integer('subject_class_id')
 		.notNull()
 		.references(() => subjectClass.id, { onDelete: 'cascade' }),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -412,6 +422,7 @@ export const lesson = pgTable('lesson', {
 		.notNull()
 		.references(() => lessonTopic.id, { onDelete: 'cascade' }),
 	dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -528,6 +539,7 @@ export const curriculum = pgTable('curriculum', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull(),
 	version: text('version').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -539,6 +551,7 @@ export const curriculumSubject = pgTable('curriculum_subject', {
 		.notNull()
 		.references(() => curriculum.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -551,6 +564,7 @@ export const learningArea = pgTable('learning_area', {
 		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
 	description: text('description'),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
@@ -563,7 +577,8 @@ export const learningAreaContent = pgTable('learning_area_content', {
 		.references(() => learningArea.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
 	description: text('description'),
-	yearLevel: text('year_level').notNull() // e.g. F,1,2,3,4,5,6,7,8,9,10
+	yearLevel: text('year_level').notNull(), // e.g. F,1,2,3,4,5,6,7,8,9,10
+	isArchived: boolean('is_archived').notNull().default(false)
 });
 
 export type LearningAreaContent = typeof learningAreaContent.$inferSelect;
@@ -574,7 +589,8 @@ export const contentElaboration = pgTable('content_elaboration', {
 		.notNull()
 		.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
-	contentElaboration: text('content_elaboration').notNull()
+	contentElaboration: text('content_elaboration').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false)
 });
 
 export type ContentElaboration = typeof contentElaboration.$inferSelect;

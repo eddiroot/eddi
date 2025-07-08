@@ -2,7 +2,7 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc, sql, count } from 'drizzle-orm';
 
-export async function getUsersBySchoolId(schoolId: number) {
+export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const users = await db
 		// Selecting specific user fields to avoid returning sensitive data
 		.select({
@@ -15,7 +15,11 @@ export async function getUsersBySchoolId(schoolId: number) {
 			avatarUrl: table.user.avatarUrl
 		})
 		.from(table.user)
-		.where(eq(table.user.schoolId, schoolId))
+		.where(
+			includeArchived
+				? eq(table.user.schoolId, schoolId)
+				: and(eq(table.user.schoolId, schoolId), eq(table.user.isArchived, false))
+		)
 		.orderBy(asc(table.user.type), asc(table.user.lastName), asc(table.user.firstName));
 
 	return users;
@@ -99,11 +103,15 @@ export async function updateSchool(
 	return updatedSchool;
 }
 
-export async function getCampusesBySchoolId(schoolId: number) {
+export async function getCampusesBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const campuses = await db
 		.select()
 		.from(table.campus)
-		.where(eq(table.campus.schoolId, schoolId))
+		.where(
+			includeArchived
+				? eq(table.campus.schoolId, schoolId)
+				: and(eq(table.campus.schoolId, schoolId), eq(table.campus.isArchived, false))
+		)
 		.orderBy(asc(table.campus.name));
 
 	return campuses;
@@ -219,7 +227,8 @@ export async function createSubjectThread(
 	subjectOfferingId: number,
 	userId: string,
 	title: string,
-	content: string
+	content: string,
+	isArchived: boolean = false
 ) {
 	const [thread] = await db
 		.insert(table.subjectThread)
@@ -228,7 +237,8 @@ export async function createSubjectThread(
 			subjectOfferingId,
 			userId,
 			title,
-			content
+			content,
+			isArchived
 		})
 		.returning();
 
@@ -259,7 +269,8 @@ export async function createSubjectThreadResponse(
 	subjectThreadId: number,
 	userId: string,
 	content: string,
-	parentResponseId?: number | null
+	parentResponseId?: number | null,
+	isArchived: boolean = false
 ) {
 	const [response] = await db
 		.insert(table.subjectThreadResponse)
@@ -268,7 +279,8 @@ export async function createSubjectThreadResponse(
 			subjectThreadId,
 			userId,
 			content,
-			parentResponseId: parentResponseId || null
+			parentResponseId: parentResponseId || null,
+			isArchived
 		})
 		.returning();
 
@@ -513,7 +525,8 @@ export async function createLesson(
 	lessonStatus: table.lessonStatusEnum,
 	type: table.lessonTypeEnum,
 	lessonTopicId: number,
-	dueDate?: Date | null
+	dueDate?: Date | null,
+	isArchived: boolean = false
 ) {
 	const maxLessonIndexPerTopic = await db
 		.select({ index: table.lesson.index })
@@ -533,7 +546,8 @@ export async function createLesson(
 			type,
 			index: nextIndex,
 			lessonTopicId,
-			dueDate
+			dueDate,
+			isArchived
 		})
 		.returning();
 
@@ -738,7 +752,7 @@ export async function createLocation(
 	type: table.schoolLocationTypeEnum,
 	capacity?: number | null,
 	description?: string | null,
-	isActive: boolean = true
+	isArchived: boolean = false
 ) {
 	const [location] = await db
 		.insert(table.schoolLocation)
@@ -748,30 +762,39 @@ export async function createLocation(
 			type,
 			capacity: capacity || null,
 			description: description || null,
-			isActive: isActive
+			isArchived
 		})
 		.returning();
 
 	return location;
 }
 
-export async function getLocationsByCampusId(campusId: number) {
+export async function getLocationsByCampusId(campusId: number, includeArchived: boolean = false) {
 	const locations = await db
 		.select()
 		.from(table.schoolLocation)
 		.where(
-			and(eq(table.schoolLocation.campusId, campusId), eq(table.schoolLocation.isActive, true))
+			includeArchived
+				? eq(table.schoolLocation.campusId, campusId)
+				: and(
+						eq(table.schoolLocation.campusId, campusId),
+						eq(table.schoolLocation.isArchived, false)
+					)
 		)
 		.orderBy(table.schoolLocation.name);
 
 	return locations;
 }
 
-export async function getLocationById(locationId: number) {
+export async function getLocationById(locationId: number, includeArchived: boolean = false) {
 	const locations = await db
 		.select()
 		.from(table.schoolLocation)
-		.where(eq(table.schoolLocation.id, locationId))
+		.where(
+			includeArchived
+				? eq(table.schoolLocation.id, locationId)
+				: and(eq(table.schoolLocation.id, locationId), eq(table.schoolLocation.isArchived, false))
+		)
 		.limit(1);
 
 	return locations.length > 0 ? locations[0] : null;
@@ -784,7 +807,7 @@ export async function updateLocation(
 		type?: table.schoolLocationTypeEnum;
 		capacity?: number | null;
 		description?: string | null;
-		isActive?: boolean;
+		isArchived?: boolean;
 	}
 ) {
 	const [location] = await db
@@ -797,10 +820,10 @@ export async function updateLocation(
 }
 
 export async function deleteLocation(locationId: number) {
-	// Soft delete by setting isActive to 0
+	// Soft delete by setting isArchived to true
 	const [location] = await db
 		.update(table.schoolLocation)
-		.set({ isActive: false })
+		.set({ isArchived: true })
 		.where(eq(table.schoolLocation.id, locationId))
 		.returning();
 
@@ -855,7 +878,11 @@ export async function getTeachersForUserInSubjectOffering(
 	return teachers;
 }
 
-export async function createLessonTopic(subjectClassId: number, name: string) {
+export async function createLessonTopic(
+	subjectClassId: number,
+	name: string,
+	isArchived: boolean = false
+) {
 	// Get the current max index for this subjectClassId
 	const maxIndexResult = await db
 		.select({ maxIndex: table.lessonTopic.index })
@@ -871,7 +898,8 @@ export async function createLessonTopic(subjectClassId: number, name: string) {
 		.values({
 			subjectClassId,
 			name,
-			index: nextIndex
+			index: nextIndex,
+			isArchived
 		})
 		.returning();
 
@@ -1059,7 +1087,7 @@ export async function getLocationsBySchoolId(schoolId: number) {
 			type: table.schoolLocation.type,
 			capacity: table.schoolLocation.capacity,
 			description: table.schoolLocation.description,
-			isActive: table.schoolLocation.isActive,
+			isArchived: table.schoolLocation.isArchived,
 			campusName: table.campus.name,
 			campusId: table.campus.id
 		})
@@ -1071,7 +1099,7 @@ export async function getLocationsBySchoolId(schoolId: number) {
 	return locations;
 }
 
-export async function getSubjectsBySchoolId(schoolId: number) {
+export async function getSubjectsBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const subjects = await db
 		.select({
 			id: table.subject.id,
@@ -1082,8 +1110,41 @@ export async function getSubjectsBySchoolId(schoolId: number) {
 			updatedAt: table.subject.updatedAt
 		})
 		.from(table.subject)
-		.where(eq(table.subject.schoolId, schoolId))
+		.where(
+			includeArchived
+				? eq(table.subject.schoolId, schoolId)
+				: and(eq(table.subject.schoolId, schoolId), eq(table.subject.isArchived, false))
+		)
 		.orderBy(asc(table.subject.name));
 
 	return subjects;
+}
+
+export async function updateCampus(
+	campusId: number,
+	name: string,
+	address: string,
+	description?: string
+) {
+	const [updatedCampus] = await db
+		.update(table.campus)
+		.set({
+			name,
+			address,
+			description: description || undefined
+		})
+		.where(eq(table.campus.id, campusId))
+		.returning();
+
+	return updatedCampus;
+}
+
+export async function archiveCampus(campusId: number) {
+	const [archivedCampus] = await db
+		.update(table.campus)
+		.set({ isArchived: true })
+		.where(eq(table.campus.id, campusId))
+		.returning();
+
+	return archivedCampus;
 }
