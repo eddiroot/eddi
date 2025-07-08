@@ -31,14 +31,16 @@ export async function getSchoolById(schoolId: number) {
 	return schools.length > 0 ? schools[0] : null;
 }
 
-export async function getCampusById(campusId: number) {
+export async function getCampusesByUserId(userId: string) {
 	const campuses = await db
-		.select()
-		.from(table.campus)
-		.where(eq(table.campus.id, campusId))
-		.limit(1);
+		.select({
+			campus: table.campus
+		})
+		.from(table.userCampus)
+		.innerJoin(table.campus, eq(table.userCampus.campusId, table.campus.id))
+		.where(eq(table.userCampus.userId, userId));
 
-	return campuses.length > 0 ? campuses[0] : null;
+	return campuses.length > 0 ? campuses : null;
 }
 
 export async function getSchoolStatsById(schoolId: number) {

@@ -1,4 +1,4 @@
-STUDENTS
+STUDENTS:
 Emma Thompson
 Liam Chen
 Sophia Rodriguez
@@ -60,8 +60,22 @@ Mr. James Murphy
 Mr. Daniel Lee
 Ms. Emily Parker
 
+PRINCIPAL:
+Mr Big Dawg
 
-SUBJECTS
+ADMINS:
+Isaac Newton (schoolAdmin)
+System Administrator (systemAdmin)
+
+
+EMAILS:
+firstName.LastName@schoolofeddi.edu
+
+PASSWORDS:
+student/teacher/admin (depending on the role of the user)
+
+
+SUBJECTS:
 English
 English as an Additional Language (EAL)
 Literature
@@ -88,6 +102,10 @@ for the seeding data.
 
 things to understand about the seeded data.
 
+NOTE:
+only Emma Thompson has classes for the moment whilst we wait on timetable generation to be done.
+
+
 For EACH subject, there is one subject offering for S1 2025. 
 - For EACH subject offering, there are 2 classes
 - There are 5 userSubjectOfferings for each student (EACH student is enrolled in 5 subjects)
@@ -106,4 +124,4 @@ P5: 1400-1515
 - therefore 5 classes per day => 25 classes per week => 1 student with 5 subjects must have 1 class for 
 each subject per day.......this will work for the seeding data
 - For each student, they will be allocated to a random class for each subject. (will be given a userSubjectClass)
-- For each class. there will be 
+

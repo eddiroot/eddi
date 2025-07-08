@@ -2,9 +2,11 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../schema';
 import { eq } from 'drizzle-orm';
 import postgres from 'postgres';
+import seedrandom from 'seedrandom';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
+const rng = seedrandom('myconsistentseed');
 
 export async function assignUserToSubjectClasses(user: schema.User) {
 	console.log(`🔗 Assigning ${user.firstName} ${user.lastName} to subject classes...`);
@@ -26,7 +28,7 @@ export async function assignUserToSubjectClasses(user: schema.User) {
 
 		// Only assign user to one random class per subject offering
 		if (subjectClasses.length > 0) {
-			const randomClass = subjectClasses[Math.floor(Math.random() * subjectClasses.length)];
+			const randomClass = subjectClasses[Math.floor(rng() * subjectClasses.length)];
 
 			userSubjectClassesToInsert.push({
 				userId: user.id,

@@ -89,8 +89,9 @@
 		subjects,
 		user,
 		school,
-		campus
-	}: { subjects: Subject[]; user: any; school: School | null; campus: Campus | null } = $props();
+		campuses
+	}: { subjects: Subject[]; user: any; school: School | null; campuses: SchoolCampus[] | null } =
+		$props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
@@ -160,7 +161,7 @@
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-medium">{school?.name}</span>
-								<span class="truncate text-xs">{campus?.name}</span>
+								<span class="truncate text-xs">{campuses[0]?.name}</span>
 							</div>
 						</a>
 					{/snippet}
@@ -203,6 +204,11 @@
 					{#each subjects as subject}
 						<Collapsible.Root bind:open={collapsibleStates[subject.id]} class="group/collapsible">
 							<Collapsible.Trigger>
+								onclick={() => {
+									if (!sidebar.leftOpen) {
+										sidebar.setLeftOpen(true);
+									}
+								}}
 								{#snippet child({ props })}
 									{#if sidebar.leftOpen == false}
 										<a href="/subjects/{subject.id}">

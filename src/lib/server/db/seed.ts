@@ -13,6 +13,8 @@ import { seedSubjectThreads } from './seed/seed_threads';
 import { seedLessons } from './seed/seed_lessons';
 import { assignUserToSubjectClasses } from './seed/seed_student_classes';
 import { seed_student_timetable } from './seed/seed_timetable';
+import { assign_teachers_to_subject_classes } from './seed/seed_teacher_roles';
+import { assign_users_to_campuses } from './seed/seed_user_campuses';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
@@ -31,6 +33,10 @@ async function main() {
 	// Seed subjects and subject offerings
 	const { subjects, subjectOfferings } = await seed_subjects(school.id, campuses);
 
+	// Assign users to campuses
+	console.log(`🔗 Assigning users to campuses...`);
+	await assign_users_to_campuses([...students, ...teachers, ...admins], campuses);
+
 	// Assign students and teachers to subject offerings
 	const { studentAssignments, teacherAssignments } = await assignUsersToSubjectOfferings(
 		students,
@@ -41,7 +47,12 @@ async function main() {
 	// Create subject classes (2 per offering)
 	const subjectClasses = await seedSubjectClasses(subjectOfferings);
 
+	// Give each class a random teacher that teaches that subject offering
+	await assign_teachers_to_subject_classes(teachers, subjectClasses);
+
+	// Generate random threads for each subject offering
 	await seedSubjectThreads(subjectOfferings, [...students, ...teachers]);
+
 	await seedLessons(subjectClasses);
 
 	const EmmaThompson = students[0];

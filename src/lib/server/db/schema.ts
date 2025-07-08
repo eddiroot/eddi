@@ -78,9 +78,6 @@ export const user = pgTable('user', {
 	schoolId: integer('school_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
-	campusId: integer('campus_id')
-		.notNull()
-		.references(() => campus.id, { onDelete: 'set null' }),
 	type: userTypeEnumPg().notNull(),
 	gender: userGenderEnumPg(),
 	dateOfBirth: timestamp('date_of_birth', { withTimezone: true, mode: 'date' }),
@@ -128,6 +125,19 @@ export const campus = pgTable('campus', {
 });
 
 export type Campus = typeof campus.$inferSelect;
+
+export const userCampus = pgTable('user_campus', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	campusId: integer('campus_id')
+		.notNull()
+		.references(() => campus.id, { onDelete: 'cascade' }),
+	...timestamps
+});
+
+export type UserCampus = typeof userCampus.$inferSelect;
 
 export enum schoolLocationTypeEnum {
 	classroom = 'classroom',
