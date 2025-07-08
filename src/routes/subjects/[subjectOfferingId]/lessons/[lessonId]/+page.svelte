@@ -26,11 +26,19 @@
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import { browser } from '$app/environment';
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let mouseOverElement = $state<string>('');
-	let isEditMode = $state(true);
+
+	let isEditMode = $state(
+		data.user.type === 'student'
+			? false
+			: browser
+				? localStorage.getItem('lesson-edit-mode') !== 'false'
+				: true
+	);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -166,20 +174,28 @@
 		class="grid h-full gap-4 {isEditMode ? 'grid-cols-[200px_1fr_300px]' : 'grid-cols-[200px_1fr]'}"
 	>
 		<div class="flex flex-col gap-2">
-			<Button
-				variant="outline"
-				onclick={() => (isEditMode = !isEditMode)}
-				size="lg"
-				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
-			>
-				{#if isEditMode}
-					<EyeIcon class="size-5" />
-					Switch to Preview Mode
-				{:else}
-					<EditIcon class="size-5" />
-					Switch to Edit Mode
-				{/if}
-			</Button>
+			{#if data.user.type !== 'student'}
+				<Button
+					variant="outline"
+					onclick={() => {
+						const newEditMode = !isEditMode;
+						if (browser) {
+							localStorage.setItem('lesson-edit-mode', newEditMode.toString());
+						}
+						isEditMode = newEditMode;
+					}}
+					size="lg"
+					class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
+				>
+					{#if isEditMode}
+						<EyeIcon class="size-5" />
+						Switch to Preview Mode
+					{:else}
+						<EditIcon class="size-5" />
+						Switch to Edit Mode
+					{/if}
+				</Button>
+			{/if}
 			<Card.Root class="h-full">
 				<Card.Header>
 					<Card.Title class="text-center text-lg">Contents</Card.Title>
@@ -338,7 +354,7 @@
 				</Card.Header>
 				<Card.Content class="flex h-full flex-col gap-4">
 					<div
-						class="grid grid-cols-2 gap-2 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
+						class="grid grid-cols-2 gap-3 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
 							'lesson'
 						) ||
 							dndState.sourceContainer.startsWith('two-column-')) &&

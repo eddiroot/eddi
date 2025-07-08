@@ -132,10 +132,12 @@
 					{@const parsed = parseSentence(sentenceText)}
 					<div class="space-y-2">
 						<Label>Preview</Label>
-						<div class="rounded-lg border bg-gray-50 p-4 dark:bg-gray-900">
+						<div class="dark:bg-input/30 border-input rounded-lg border bg-transparent p-4">
 							<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
 								<span>{parsed.before}</span>
-								<span class="border-primary/30 bg-background mx-2 inline-block max-w-[200px] min-w-[140px] rounded-lg border-2 px-3 py-2 text-center font-medium shadow-sm">
+								<span
+									class="border-primary/50 mx-2 inline-block max-w-[200px] min-w-[140px] rounded-lg border-2 px-3 py-2 text-center font-medium shadow-sm"
+								>
 									{correctAnswer}
 								</span>
 								<span>{parsed.after}</span>
@@ -149,10 +151,12 @@
 		<!-- PREVIEW MODE: Shows the interactive fill-in-blank question -->
 		{#if content.sentence && content.answer}
 			<Card.Root>
-				<Card.Content class="pt-6">
+				<Card.Content>
 					<div class="mb-6">
 						<h3 class="mb-2 text-lg font-medium">Fill in the Blank</h3>
-						<p class="text-muted-foreground text-sm">Complete the sentence by filling in the blank.</p>
+						<p class="text-muted-foreground mb-6 text-sm">
+							Complete the sentence by filling in the blank.
+						</p>
 					</div>
 
 					{@const parsed = parseSentence(content.sentence)}
@@ -181,11 +185,13 @@
 					</div>
 
 					{#if hasSubmitted}
-						<div class={`mb-6 rounded-lg border p-4 ${
-							isAnswerCorrect()
-								? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-								: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
-						}`}>
+						<div
+							class={`mb-6 rounded-lg border p-4 ${
+								isAnswerCorrect()
+									? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+									: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+							}`}
+						>
 							{#if isAnswerCorrect()}
 								<div class="flex items-center gap-2 text-green-800 dark:text-green-200">
 									<CheckIcon class="h-5 w-5" />
@@ -224,7 +230,9 @@
 				<div class="text-center">
 					<PenToolIcon class="text-muted-foreground mx-auto h-12 w-12" />
 					<p class="text-muted-foreground mt-2 text-sm">No fill-in-blank question created</p>
-					<p class="text-muted-foreground text-xs">Switch to edit mode to create a fill-in-blank question</p>
+					<p class="text-muted-foreground text-xs">
+						Switch to edit mode to create a fill-in-blank question
+					</p>
 				</div>
 			</div>
 		{/if}

@@ -2,7 +2,7 @@ import { getLessonById, getLessonBlocksByLessonId } from '$lib/server/db/service
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ locals: { security }, params: { lessonId, subjectOfferingId } }) => {
-	security.isAuthenticated();
+	const user = security.isAuthenticated().getUser();
 
 	let lessonIdInt;
 	try {
@@ -16,5 +16,5 @@ export const load = async ({ locals: { security }, params: { lessonId, subjectOf
 
 	const blocks = await getLessonBlocksByLessonId(lessonIdInt);
 
-	return { lesson, blocks, subjectOfferingId };
+	return { lesson, blocks, subjectOfferingId, user };
 };
