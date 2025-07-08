@@ -172,7 +172,7 @@
 					<div class="space-y-3">
 						{#each data.userClasses as cls}
 							{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
-							<a href="/subjects/{cls.subject.id}" class="block">
+							<a href="/subjects/{cls.subjectOffering.id}" class="block">
 								<div
 									class="border-border flex items-center justify-between rounded-lg border-2 border-t-3 p-3 shadow-lg transition-opacity duration-200 hover:opacity-75"
 									style="border-top-color: {colors.border};"
