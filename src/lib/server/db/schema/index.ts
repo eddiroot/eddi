@@ -5,9 +5,9 @@
 export * from './chatbot.js';
 
 // Lesson schemas
-export * from './lessons.js';
+export * from './task.js';
 
-// School schemas  
+// School schemas
 export * from './schools.js';
 
 // Subject schemas
