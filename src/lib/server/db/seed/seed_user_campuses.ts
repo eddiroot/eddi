@@ -24,13 +24,22 @@ export async function assign_users_to_campuses(users: schema.User[], campuses: s
 			continue; // Skip this user if no campuses are available for their school
 		}
 
-		// Randomly select a campus from the user's school
-		const selectedCampus = userCampuses[Math.floor(rng() * userCampuses.length)];
+		if (user.type === schema.userTypeEnum.systemAdmin) {
+			for (const campus of userCampuses) {
+				userCampusesToInsert.push({
+					userId: user.id,
+					campusId: campus.id
+				});
+			}
+			continue; // System admins are assigned to all campuses of their school
+		} else {
+			const selectedCampus = userCampuses[Math.floor(rng() * userCampuses.length)];
 
-		userCampusesToInsert.push({
-			userId: user.id,
-			campusId: selectedCampus.id
-		});
+			userCampusesToInsert.push({
+				userId: user.id,
+				campusId: selectedCampus.id
+			});
+		}
 	}
 
 	const createdUserCampuses = await db
