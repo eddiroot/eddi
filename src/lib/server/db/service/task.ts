@@ -4,140 +4,155 @@ import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 
 export async function getUserTasksBySchoolSubjectOfferingId(
 	userId: string,
-	schoolSubjectId: number
+	schoolSubjectOfferingId: number
 ) {
-	const lessons = await db
+	const tasks = await db
 		.select({
-			lesson: table.task,
-			lessonTopic: table.lessonTopic
+			task: table.task
 		})
-		.from(table.userSubjectClass)
-		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
+		.from(table.userSchoolSubjectOffering)
+		.innerJoin(
+			table.schoolSubjectOfferingClass,
+			eq(table.schoolSubjectOfferingClass.schSubOfferingId, schoolSubjectOfferingId)
+		)
+		.innerJoin(
+			table.classTask,
+			eq(table.schoolSubjectOfferingClass.id, table.classTask.schoolSubjectOfferingClassId)
+		)
+		.innerJoin(
+			table.schoolSubjectTask,
+			eq(table.classTask.schoolSubjectTaskId, table.schoolSubjectTask.id)
+		)
+		.innerJoin(table.task, eq(table.schoolSubjectTask.taskId, table.task.id))
 		.where(
 			and(
-				eq(table.userSubjectClass.userId, userId),
-				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+				eq(table.userSchoolSubjectOffering.userId, userId),
+				eq(table.schoolSubjectOfferingClass.schSubOfferingId, schoolSubjectOfferingId)
 			)
 		)
-		.orderBy(asc(table.lessonTopic.index), asc(table.lesson.index));
+		.orderBy(asc(table.task.index));
 
-	return lessons;
+	return tasks;
 }
 
-export async function getLessonTopicsBySubjectOfferingId(subjectOfferingId: number) {
-	const lessonTopics = await db
+export async function getTaskCMTopicsBySchoolSubjectOfferingId(schoolSubjectOfferingId: number) {
+	const TaskTopics = await db
 		.select({
-			id: table.lessonTopic.id,
-			name: table.lessonTopic.name
+			id: table.courseMapItem.id,
+			topic: table.courseMapItem.topic
 		})
-		.from(table.lessonTopic)
-		.innerJoin(table.subjectClass, eq(table.subjectClass.subjectOfferingId, subjectOfferingId))
-		.where(eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
-		.orderBy(asc(table.lessonTopic.index));
+		.from(table.courseMapItem)
+		.where(eq(table.courseMapItem.schoolSubjectOfferingId, schoolSubjectOfferingId))
+		.orderBy(asc(table.courseMapItem.id));
 
-	return lessonTopics;
+	return TaskTopics;
 }
 
-export async function getLessonById(lessonId: number) {
-	const lesson = await db
+export async function getTaskById(taskId: number) {
+	const task = await db
 		.select({
-			lesson: table.lesson
+			task: table.task
 		})
-		.from(table.lesson)
-		.where(eq(table.lesson.id, lessonId))
+		.from(table.task)
+		.where(eq(table.task.id, taskId))
 		.limit(1);
 
-	return lesson?.length ? lesson[0].lesson : null;
+	return task?.length ? task[0].task : null;
 }
 
-export async function getLessonBlocksByLessonId(lessonId: number) {
-	const lessonBlocks = await db
+export async function getTaskBlocksByTaskId(taskId: number) {
+	const taskBlocks = await db
 		.select({
-			block: table.lessonBlock
+			block: table.taskBlock
 		})
-		.from(table.lessonBlock)
-		.where(eq(table.lessonBlock.lessonId, lessonId))
-		.orderBy(table.lessonBlock.index);
+		.from(table.taskBlock)
+		.where(eq(table.taskBlock.taskId, taskId))
+		.orderBy(table.taskBlock.index);
 
-	return lessonBlocks.map((row) => row.block);
+	return taskBlocks.map((row) => row.block);
 }
 
-export async function createLesson(
+export async function createTask(
 	title: string,
 	description: string,
-	lessonStatus: table.lessonStatusEnum,
-	type: table.lessonTypeEnum,
-	lessonTopicId: number,
+	taskStatus: table.taskStatusEnum,
+	type: table.taskTypeEnum,
+	courseMapItemId: number,
 	dueDate?: Date | null,
 	isArchived: boolean = false
 ) {
-	const maxLessonIndexPerTopic = await db
-		.select({ index: table.lesson.index })
-		.from(table.lesson)
-		.where(eq(table.lesson.lessonTopicId, lessonTopicId))
-		.orderBy(desc(table.lesson.index))
+	const maxTaskIndexIfCM = await db
+		.select({ index: table.task.index })
+		.from(table.courseMapItem)
+		.innerJoin(
+			table.schoolSubjectTask,
+			eq(table.courseMapItem.id, table.schoolSubjectTask.courseMapItemId)
+		)
+		.innerJoin(table.task, eq(table.schoolSubjectTask.taskId, table.task.id))
+		.where(eq(table.courseMapItem.id, courseMapItemId))
+		.orderBy(desc(table.task.index))
 		.limit(1);
 
-	const nextIndex = (maxLessonIndexPerTopic[0]?.index ?? -1) + 1;
+	const nextIndex = (maxTaskIndexIfCM[0]?.index ?? -1) + 1;
 
-	const [lesson] = await db
-		.insert(table.lesson)
+	const [task] = await db
+		.insert(table.task)
 		.values({
 			title,
 			description,
-			lessonStatus,
+			isPublished: taskStatus === 'published',
 			type,
 			index: nextIndex,
-			lessonTopicId,
 			dueDate,
+			originalId: null,
+			previousId: null,
+			version: 1,
 			isArchived
 		})
 		.returning();
 
-	return lesson;
+	return task;
 }
 
-export async function updateLessonTitle(lessonId: number, title: string) {
-	const [lesson] = await db
-		.update(table.lesson)
+export async function updateTaskTitle(taskId: number, title: string) {
+	const [task] = await db
+		.update(table.task)
 		.set({ title })
-		.where(eq(table.lesson.id, lessonId))
+		.where(eq(table.task.id, taskId))
 		.returning();
 
-	return lesson;
+	return task;
 }
 
-export async function createLessonBlock(
-	lessonId: number,
-	type: table.lessonBlockTypeEnum,
+export async function createTaskBlock(
+	taskId: number,
+	type: table.taskBlockTypeEnum,
 	content: unknown,
 	index: number | undefined = undefined
 ) {
 	// If index is not provided, calculate the next available index used for LLM
 	if (index === undefined) {
 		const maxIndexResult = await db
-			.select({ maxIndex: table.lessonBlock.index })
-			.from(table.lessonBlock)
-			.where(eq(table.lessonBlock.lessonId, lessonId))
-			.orderBy(desc(table.lessonBlock.index))
+			.select({ maxIndex: table.taskBlock.index })
+			.from(table.taskBlock)
+			.where(eq(table.taskBlock.taskId, taskId))
+			.orderBy(desc(table.taskBlock.index))
 			.limit(1);
 
 		index = (maxIndexResult[0]?.maxIndex ?? -1) + 1;
 	}
 
 	await db
-		.update(table.lessonBlock)
+		.update(table.taskBlock)
 		.set({
-			index: sql`${table.lessonBlock.index} + 1`
+			index: sql`${table.taskBlock.index} + 1`
 		})
-		.where(and(eq(table.lessonBlock.lessonId, lessonId), gte(table.lessonBlock.index, index)));
+		.where(and(eq(table.taskBlock.taskId, taskId), gte(table.taskBlock.index, index)));
 
 	const [lessonBlock] = await db
-		.insert(table.lessonBlock)
+		.insert(table.taskBlock)
 		.values({
-			lessonId,
+			taskId,
 			type,
 			content,
 			index
@@ -147,32 +162,32 @@ export async function createLessonBlock(
 	return lessonBlock;
 }
 
-export async function updateLessonBlock(
+export async function updateTaskBlock(
 	blockId: number,
 	updates: {
 		content?: unknown;
-		type?: table.lessonBlockTypeEnum;
+		type?: table.taskBlockTypeEnum;
 	}
 ) {
-	const [lessonBlock] = await db
-		.update(table.lessonBlock)
+	const [taskBlock] = await db
+		.update(table.taskBlock)
 		.set({ ...updates })
-		.where(eq(table.lessonBlock.id, blockId))
+		.where(eq(table.taskBlock.id, blockId))
 		.returning();
 
-	return lessonBlock;
+	return taskBlock;
 }
 
-export async function deleteLessonBlock(blockId: number) {
-	await db.delete(table.lessonBlock).where(eq(table.lessonBlock.id, blockId));
+export async function deleteTaskBlock(blockId: number) {
+	await db.delete(table.taskBlock).where(eq(table.taskBlock.id, blockId));
 }
 
 // Whiteboard functions
-export async function createWhiteboard(lessonId: number, title?: string | null) {
+export async function createWhiteboard(taskId: number, title?: string | null) {
 	const [newWhiteboard] = await db
 		.insert(table.whiteboard)
 		.values({
-			lessonId,
+			taskId,
 			title: title && title.trim() ? title.trim() : null
 		})
 		.returning();
@@ -190,27 +205,27 @@ export async function getWhiteboardById(whiteboardId: number) {
 	return whiteboards[0] || null;
 }
 
-export async function getWhiteboardWithLesson(whiteboardId: number, lessonId: number) {
+export async function getWhiteboardWithTask(whiteboardId: number, taskId: number) {
 	const whiteboardData = await db
 		.select({
 			whiteboard: table.whiteboard,
-			lesson: {
-				id: table.lesson.id,
-				title: table.lesson.title
+			task: {
+				id: table.task.id,
+				title: table.task.title
 			}
 		})
 		.from(table.whiteboard)
-		.innerJoin(table.lesson, eq(table.whiteboard.lessonId, table.lesson.id))
+		.innerJoin(table.task, eq(table.whiteboard.taskId, table.task.id))
 		.where(eq(table.whiteboard.id, whiteboardId))
 		.limit(1);
 
-	if (!whiteboardData.length || whiteboardData[0].lesson.id !== lessonId) {
+	if (!whiteboardData.length || whiteboardData[0].task.id !== taskId) {
 		return null;
 	}
 
 	return {
 		whiteboard: whiteboardData[0].whiteboard,
-		lesson: whiteboardData[0].lesson
+		lesson: whiteboardData[0].task
 	};
 }
 
@@ -290,62 +305,71 @@ export async function clearWhiteboard(whiteboardId: number = 1) {
 		.where(eq(table.whiteboardObject.whiteboardId, whiteboardId));
 }
 
-export async function updateLessonBlocksOrder(blockUpdates: Array<{ id: number; index: number }>) {
+export async function updateTaskBlocksOrder(blockUpdates: Array<{ id: number; index: number }>) {
 	await db.transaction(async (tx) => {
 		for (const update of blockUpdates) {
 			await tx
-				.update(table.lessonBlock)
+				.update(table.taskBlock)
 				.set({ index: update.index })
-				.where(eq(table.lessonBlock.id, update.id));
+				.where(eq(table.taskBlock.id, update.id));
 		}
 	});
 }
 
-export async function getSubjectOfferingContextForAI(userID: string, subjectOfferingId: number) {
+export async function getSubjectOfferingContextForAI(userId: string, subjectOfferingId: number) {
 	const subjectOfferingContext = await db
 		.select({
-			lessonTopicName: table.lessonTopic.name,
-			lessonTitle: table.lesson.title,
-			lessonBlock: table.lessonBlock
+			taskTitle: table.task.title,
+			taskBlock: table.taskBlock
 		})
-		.from(table.userSubjectClass)
-		.innerJoin(table.subjectClass, eq(table.userSubjectClass.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lessonTopic, eq(table.lessonTopic.subjectClassId, table.subjectClass.id))
-		.innerJoin(table.lesson, eq(table.lesson.lessonTopicId, table.lessonTopic.id))
-		.leftJoin(table.lessonBlock, eq(table.lessonBlock.lessonId, table.lesson.id))
+		.from(table.userSchoolSubjectOfferingClass)
+		.innerJoin(
+			table.schoolSubjectOfferingClass,
+			eq(table.userSchoolSubjectOfferingClass.schSubOffClassId, table.schoolSubjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.schoolSubjectOffering,
+			eq(table.schoolSubjectOfferingClass.schSubOfferingId, table.schoolSubjectOffering.id)
+		)
+		.innerJoin(
+			table.classTask,
+			eq(table.schoolSubjectOfferingClass.id, table.classTask.schoolSubjectOfferingClassId)
+		)
+		.innerJoin(
+			table.schoolSubjectTask,
+			eq(table.classTask.schoolSubjectTaskId, table.schoolSubjectTask.id)
+		)
+		.innerJoin(table.task, eq(table.schoolSubjectTask.taskId, table.task.id))
+		.innerJoin(table.taskBlock, eq(table.task.id, table.taskBlock.taskId))
 		.where(
 			and(
-				eq(table.userSubjectClass.userId, userID),
-				eq(table.subjectClass.subjectOfferingId, subjectOfferingId)
+				eq(table.userSchoolSubjectOfferingClass.userId, userId),
+				eq(table.schoolSubjectOffering.id, subjectOfferingId)
 			)
 		)
-		.orderBy(asc(table.lessonTopic.index));
-
+		.orderBy(asc(table.taskBlock.index));
 	return subjectOfferingContext;
 }
 
-export async function updateLessonOrder(
-	lessonOrder: Array<{ id: number; index: number }>
+export async function updateTaskOrder(
+	taskOrder: Array<{ id: number; index: number }>
 ): Promise<void> {
 	await db.transaction(async (tx) => {
-		for (const lesson of lessonOrder) {
-			await tx
-				.update(table.lesson)
-				.set({ index: lesson.index })
-				.where(eq(table.lesson.id, lesson.id));
+		for (const lesson of taskOrder) {
+			await tx.update(table.task).set({ index: lesson.index }).where(eq(table.task.id, lesson.id));
 		}
 	});
 }
 
-export async function updateTopicOrder(
-	topicOrder: Array<{ id: number; index: number }>
-): Promise<void> {
-	await db.transaction(async (tx) => {
-		for (const topic of topicOrder) {
-			await tx
-				.update(table.lessonTopic)
-				.set({ index: topic.index })
-				.where(eq(table.lessonTopic.id, topic.id));
-		}
-	});
-}
+// export async function updateCMTopicOrder(
+// 	topicOrder: Array<{ id: number; index: number }>
+// ): Promise<void> {
+// 	await db.transaction(async (tx) => {
+// 		for (const topic of topicOrder) {
+// 			await tx
+// 				.update(table.lessonTopic)
+// 				.set({ index: topic.index })
+// 				.where(eq(table.lessonTopic.id, topic.id));
+// 		}
+// 	});
+// }

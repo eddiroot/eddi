@@ -502,6 +502,9 @@ export const schoolSubjectTask = pgTable(
 	'sch_sub_task',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
+			onDelete: 'cascade'
+		}),
 		schoolSubjectOfferingId: integer('sch_sub_off_id')
 			.notNull()
 			.references(() => schoolSubjectOffering.id, { onDelete: 'cascade' }),
@@ -535,6 +538,9 @@ export const schoolSubjectResource = pgTable(
 	'sch_sub_resource',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		coursemapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
+			onDelete: 'cascade'
+		}),
 		schoolSubjectOfferingId: integer('sch_sub_off_id')
 			.notNull()
 			.references(() => schoolSubjectOffering.id, { onDelete: 'cascade' }),
