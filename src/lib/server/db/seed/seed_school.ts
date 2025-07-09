@@ -1,5 +1,4 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { reset } from 'drizzle-seed';
 import * as schema from '../schema';
 import postgres from 'postgres';
 
@@ -7,7 +6,6 @@ const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
 export async function seed_school() {
-	await reset(db, schema);
 	const [school] = await db
 		.insert(schema.school)
 		.values([

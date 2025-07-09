@@ -11,11 +11,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		redirect(302, '/onboarding');
 	}
 
-	// Load subjects for the curriculum list view
-	const subjects = await service.getSubjectsBySchoolId(locals.user.schoolId);
+	// Load core subjects for the curriculum list view (not individual year-level subjects)
+	const coreSubjects = await service.getCoreSubjectsBySchoolId(locals.user.schoolId);
 
 	return {
-		subjects,
+		coreSubjects,
 		user: locals.user
 	};
 };

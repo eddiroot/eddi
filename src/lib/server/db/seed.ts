@@ -15,6 +15,8 @@ import { assignUserToSubjectClasses } from './seed/seed_student_classes';
 import { seed_student_timetable } from './seed/seed_timetable';
 import { assign_teachers_to_subject_classes } from './seed/seed_teacher_roles';
 import { assign_users_to_campuses } from './seed/seed_user_campuses';
+import { VCAAF10Scraper } from '../../scraper/vcaaF10-scraper.js';
+import { assignCurriculumToEnglishSubjects } from './seed/seed_subjects.js';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
@@ -26,9 +28,9 @@ async function main() {
 	const { school, campuses, schoolLocations } = await seed_school();
 
 	// Seed all the users in the school
-	const { students } = await seed_students();
-	const { teachers } = await seed_teachers();
-	const { admins } = await seed_admins();
+	const { students } = await seed_students(school.id);
+	const { teachers } = await seed_teachers(school.id);
+	const { admins } = await seed_admins(school.id);
 
 	// Seed subjects and subject offerings
 	const { subjects, subjectOfferings } = await seed_subjects(school.id, campuses);
@@ -74,6 +76,38 @@ async function main() {
 		`   - ${teachers.length} teachers with ${teacherAssignments.length} subject assignments`
 	);
 	console.log(`   - ${admins.length} admins`);
+
+	// Step 9: Scrape English curriculum data
+	console.log(`\n� Scraping English curriculum data...`);
+	const scraper = new VCAAF10Scraper();
+	try {
+		const englishItems = await scraper.scrapeSubject('english');
+		console.log(`✅ Found ${englishItems.length} English curriculum items`);
+
+		if (englishItems.length > 0) {
+			await scraper.insertCurriculumData(englishItems);
+			console.log(`✅ Inserted English curriculum data into database`);
+		}
+	} catch (error) {
+		console.error(`⚠️  Failed to scrape English curriculum: ${error}`);
+		console.log(`   You can run 'npm run scrape:english' manually later`);
+	}
+
+	// Step 10: Link English curriculum to subject offerings
+	console.log(`\n🔗 Linking English curriculum to subject offerings...`);
+	try {
+		const result = await assignCurriculumToEnglishSubjects(school.id);
+		if (result) {
+			console.log(
+				`✅ Successfully linked ${result.linkedOfferings} English subject offerings to curriculum`
+			);
+		}
+	} catch (error) {
+		console.error(`⚠️  Failed to link curriculum: ${error}`);
+		console.log(`   You can run 'npm run assign:curriculum' manually later`);
+	}
+
+	console.log(`\n🎉 Database seeded successfully with curriculum integration!`);
 }
 
 main()
@@ -82,7 +116,7 @@ main()
 		process.exit(1);
 	})
 	.finally(() => {
-		console.log('Database seeded successfully');
+		console.log('🎯 Complete! Database seeded with curriculum integration.');
 		client.end();
 		process.exit(0);
 	});

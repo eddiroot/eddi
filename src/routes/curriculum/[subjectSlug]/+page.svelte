@@ -2,9 +2,8 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent } from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
-	import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -19,7 +18,6 @@
 	import BookOpen from 'lucide-svelte/icons/book-open';
 	import Clock from 'lucide-svelte/icons/clock';
 	import Calendar from 'lucide-svelte/icons/calendar';
-	import CurriculumSingleYearView from '../components/CurriculumSingleYearView.svelte';
 	import CurriculumMultiYearView from '../components/CurriculumMultiYearView.svelte';
 	import { YEAR_LEVELS, SEMESTER_OPTIONS } from '../curriculum-utils';
 	import type { PageData } from './$types';
@@ -59,7 +57,7 @@
 	// Reactive statement to fetch learning area content when learning area or year level changes
 	$: if (editForm.learningAreaId && editForm.yearLevel) {
 		// Filter learning area content from the existing data
-		filteredLearningAreaContent = data.learningAreaContent.filter(content => 
+		filteredLearningAreaContent = data.learningAreaContent.filter((content: any) => 
 			content.learningArea.id === editForm.learningAreaId && 
 			content.content.yearLevel === editForm.yearLevel
 		);
@@ -75,6 +73,8 @@
 	$: console.log('Debug - Drawer open:', drawerOpen);
 	$: console.log('Debug - Learning areas type:', typeof data.learningAreas);
 	$: console.log('Debug - Learning areas is array:', Array.isArray(data.learningAreas));
+	$: console.log('Debug - Selected year level:', selectedYearLevel);
+	$: console.log('Debug - View mode:', viewMode);
 
 	// Function to handle course map item click
 	function handleCourseMapItemClick(item: CourseMapItem) {
@@ -96,7 +96,7 @@
 			startWeekNumber: week,
 			lengthInWeeks: 1,
 			termNumber: term,
-			yearLevel: selectedYearLevel === 'all' ? 'F' : selectedYearLevel,
+			yearLevel: 'F', // Default to Foundation
 			color: '#3b82f6',
 			learningAreaId: null
 		};
@@ -231,21 +231,12 @@
 		updateURL({ year: value });
 	}
 
-	function handleViewModeChange(value: string) {
-		updateURL({ view: value });
-	}
-
 	// Get year level options for filtering
 	$: yearLevelOptions = YEAR_LEVELS;
 
-	// Filter course map items by year level for single year view
-	$: filteredCourseMapItems = viewMode === 'single' 
-		? data.courseMapItems.filter(item => selectedYearLevel === 'all' || item.yearLevel === selectedYearLevel)
-		: data.courseMapItems;
-
 	// Get lessons for the selected course map item and group by week
 	$: lessonsForItem = selectedCourseMapItem 
-		? data.lessons.filter(lesson => {
+		? data.lessons.filter((lesson: any) => {
 				// Filter lessons that fall within the course map item's week range
 				if (!selectedCourseMapItem) return false;
 				return lesson.lesson.weekNumber >= selectedCourseMapItem.startWeekNumber &&
@@ -253,18 +244,18 @@
 		  })
 		: [];
 
-	$: lessonsByWeek = lessonsForItem.reduce((acc, lesson) => {
+	$: lessonsByWeek = lessonsForItem.reduce((acc: Record<number, any[]>, lesson: any) => {
 		const week = lesson.lesson.weekNumber;
 		if (!acc[week]) {
 			acc[week] = [];
 		}
 		acc[week].push(lesson);
 		return acc;
-	}, {} as Record<number, typeof lessonsForItem>);
+	}, {} as Record<number, any[]>);
 
 	// Get area of study content associated with the course map item
 	$: areaOfStudyContent = selectedCourseMapItem 
-		? data.learningAreaContent.filter(content => {
+		? data.learningAreaContent.filter((content: any) => {
 				// This would need to be based on some relationship between course map items and learning area content
 				// For now, we'll show all content for the year level
 				return content.content.yearLevel === selectedCourseMapItem?.yearLevel;
@@ -282,7 +273,7 @@
 	// Reactive statement to fetch learning area content when learning area or year level changes
 	$: if (editForm.learningAreaId && editForm.yearLevel) {
 		// Filter learning area content from the existing data
-		filteredLearningAreaContent = data.learningAreaContent.filter(content => 
+		filteredLearningAreaContent = data.learningAreaContent.filter((content: any) => 
 			content.learningArea.id === editForm.learningAreaId && 
 			content.content.yearLevel === editForm.yearLevel
 		);
@@ -295,49 +286,42 @@
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<div>
-			<h1 class="text-3xl font-bold tracking-tight">{data.subject.name} Curriculum Map</h1>
+			<h1 class="text-3xl font-bold tracking-tight">{data.subject.name} Curriculum Overview</h1>
 			{#if data.subject.description}
 				<p class="text-muted-foreground mt-1">{data.subject.description}</p>
 			{/if}
 		</div>
 	</div>
 
-	<!-- Controls -->
+	<!-- Year Level Navigation -->
+	<Card>
+		<CardHeader>
+			<CardTitle class="text-lg">Year Level Management</CardTitle>
+		</CardHeader>
+		<CardContent>
+			<div class="grid grid-cols-6 gap-3 sm:grid-cols-11 lg:grid-cols-11">
+				{#each data.availableYearLevels as yearLevel}
+					{@const subjectSlug = createSubjectSlug(data.subject.name)}
+					<Button 
+						variant="outline" 
+						size="sm"
+						onclick={() => goto(`/curriculum/${subjectSlug}/${yearLevel.toLowerCase()}`)}
+						class="justify-center"
+					>
+						{yearLevel === 'F' ? 'Foundation' : `Year ${yearLevel}`}
+					</Button>
+				{/each}
+			</div>
+			<p class="text-sm text-muted-foreground mt-3">
+				Click on a year level to manage course map items and detailed planning for that specific year.
+			</p>
+		</CardContent>
+	</Card>
+
+	<!-- View Controls -->
 	<Card>
 		<CardContent class="p-6">
 			<div class="flex items-center gap-6">
-				<!-- Year Level Filter (only for single year view) -->
-				{#if viewMode === 'single'}
-					<div class="space-y-2">
-						<label for="year-level-select" class="text-sm font-medium">Year Level</label>
-						<Select.Root
-							type="single"
-							value={selectedYearLevel}
-							onValueChange={handleYearLevelChange}
-						>
-							<Select.Trigger id="year-level-select" class="w-[180px]">
-								{yearLevelOptions.find(o => o.value === selectedYearLevel)?.label || "Select year level"}
-							</Select.Trigger>
-							<Select.Content>
-								{#each yearLevelOptions as option}
-									<Select.Item value={option.value}>{option.label}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-					</div>
-				{/if}
-
-				<!-- View Mode -->
-				<div class="space-y-2">
-					<span class="text-sm font-medium">View Mode</span>
-					<Tabs value={viewMode} onValueChange={handleViewModeChange} class="w-full" aria-label="Curriculum view mode">
-						<TabsList class="grid w-[400px] grid-cols-2">
-							<TabsTrigger value="single">Single Year</TabsTrigger>
-							<TabsTrigger value="multi">F-10 Overview</TabsTrigger>
-						</TabsList>
-					</Tabs>
-				</div>
-
 				<!-- Academic Year -->
 				<div class="space-y-2">
 					<label for="academic-year-select" class="text-sm font-medium">Academic Year</label>
@@ -360,21 +344,26 @@
 		</CardContent>
 	</Card>
 
-	<!-- Content -->
-	{#if viewMode === 'single'}
-		<CurriculumSingleYearView 
-			courseMapItems={filteredCourseMapItems}
-			yearLevel={selectedYearLevel}
-			onCourseMapItemClick={handleCourseMapItemClick}
-			onEmptyCellClick={handleEmptyCellClick}
-		/>
-	{:else}
-		<CurriculumMultiYearView 
-			courseMapItems={data.courseMapItems}
-			onCourseMapItemClick={handleCourseMapItemClick}
-			onEmptyCellClick={handleEmptyCellClick}
-		/>
-	{/if}
+	<!-- Main Content -->
+	<Card>
+		<CardHeader>
+			<CardTitle>Foundation to Year 10 Overview</CardTitle>
+			<p class="text-sm text-muted-foreground">
+				View course map items across all year levels. Click on any item to see details, or use the year level buttons above to manage specific year levels.
+			</p>
+		</CardHeader>
+		<CardContent>
+			<CurriculumMultiYearView 
+				courseMapItems={data.courseMapItems.map((item: any) => ({
+					...item,
+					createdAt: item.createdAt || new Date().toISOString(),
+					updatedAt: item.updatedAt || new Date().toISOString()
+				}))}
+				onCourseMapItemClick={handleCourseMapItemClick}
+				onEmptyCellClick={handleEmptyCellClick}
+			/>
+		</CardContent>
+	</Card>
 </div>
 
 <!-- Course Map Item Drawer -->
@@ -448,7 +437,7 @@
 							<div class="flex flex-wrap gap-2">
 								{#each areaOfStudyContent as content}
 									<Badge variant="secondary" class="text-xs">
-										{content.learningArea.name}: {content.content.name}
+										{(content as any).learningArea.name}: {(content as any).content.name}
 									</Badge>
 								{/each}
 							</div>
@@ -479,18 +468,18 @@
 												<div class="bg-muted/50 rounded p-3 text-sm">
 													<div class="flex items-start justify-between">
 														<div>
-															<p class="font-medium">{lesson.lesson.title}</p>
-															{#if lesson.lesson.description}
-																<p class="text-muted-foreground text-xs mt-1">{lesson.lesson.description}</p>
+															<p class="font-medium">{(lesson as any).lesson.title}</p>
+															{#if (lesson as any).lesson.description}
+																<p class="text-muted-foreground text-xs mt-1">{(lesson as any).lesson.description}</p>
 															{/if}
-															{#if lesson.learningAreaContent}
+															{#if (lesson as any).learningAreaContent}
 																<Badge variant="outline" class="text-xs mt-2">
-																	{lesson.learningArea?.name}: {lesson.learningAreaContent.name}
+																	{(lesson as any).learningArea?.name}: {(lesson as any).learningAreaContent.name}
 																</Badge>
 															{/if}
 														</div>
 														<div class="text-xs text-muted-foreground">
-															{lesson.lesson.type === 'lesson' ? 'Lesson' : 'Assessment'}
+															{(lesson as any).lesson.type === 'lesson' ? 'Lesson' : 'Assessment'}
 														</div>
 													</div>
 												</div>
@@ -654,7 +643,8 @@
 									</button>
 
 									<!-- Learning Area Cards -->
-									{#each data.learningAreas as { learningArea }}
+									{#each data.learningAreas as learningAreaWrapper}
+										{@const learningArea = (learningAreaWrapper as any).learningArea}
 										<button 
 											type="button"
 											class="border rounded-lg p-4 text-left transition-colors hover:bg-muted/50 {editForm.learningAreaId === learningArea.id ? 'border-primary bg-primary/10' : 'border-border'}"
@@ -695,14 +685,14 @@
 									{#each filteredLearningAreaContent as content}
 										<div 
 											class="border rounded-lg p-3 bg-background hover:bg-muted/30 transition-colors group"
-											title={content.content.description}
+											title={(content as any).content.description}
 										>
 											<div class="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
-												{content.content.name}
+												{(content as any).content.name}
 											</div>
-											{#if content.content.description}
+											{#if (content as any).content.description}
 												<div class="text-xs text-muted-foreground mt-1 overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-													{content.content.description}
+													{(content as any).content.description}
 												</div>
 											{/if}
 										</div>

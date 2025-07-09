@@ -93,6 +93,7 @@ export async function seedLessons(subjectClasses: { id: number }[]) {
 				index: lessonIdx,
 				lessonTopicId: topic.id,
 				learningAreaContentId: null, // No learning area content assigned by default
+				weekNumber: 1,
 				dueDate:
 					template.type === schema.lessonTypeEnum.homework ||
 					template.type === schema.lessonTypeEnum.assessment

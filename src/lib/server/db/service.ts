@@ -70,9 +70,8 @@ export async function getSchoolStatsById(schoolId: number) {
 
 	const totalSubjects = await db
 		.select({ count: count() })
-		.from(table.subject)
-		.where(eq(table.subject.schoolId, schoolId))
-		.groupBy(table.subject.schoolId)
+		.from(table.coreSubject)
+		.where(eq(table.coreSubject.schoolId, schoolId))
 		.limit(1);
 
 	return {
@@ -562,10 +561,9 @@ export async function createLesson(
 			index: nextIndex,
 			lessonTopicId,
 			dueDate,
-			isArchived,
 			weekNumber,
 			learningAreaContentId: learningAreaContentId || null,
-			dueDate
+			isArchived
 		})
 		.returning();
 
@@ -1117,16 +1115,72 @@ export async function getLocationsBySchoolId(schoolId: number) {
 	return locations;
 }
 
-export async function getSubjectsBySchoolId(schoolId: number, includeArchived: boolean = false) {
-	const subjects = await db
+export async function getCoreSubjectsBySchoolId(
+	schoolId: number,
+	includeArchived: boolean = false
+) {
+	const coreSubjects = await db
 		.select()
-		.from(table.subject)
+		.from(table.coreSubject)
 		.where(
 			includeArchived
-				? eq(table.subject.schoolId, schoolId)
-				: and(eq(table.subject.schoolId, schoolId), eq(table.subject.isArchived, false))
+				? eq(table.coreSubject.schoolId, schoolId)
+				: eq(table.coreSubject.schoolId, schoolId)
+		)
+		.orderBy(asc(table.coreSubject.name));
+
+	return coreSubjects;
+}
+
+export async function getSubjectsBySchoolId(schoolId: number, includeArchived: boolean = false) {
+	const subjects = await db
+		.select({
+			id: table.subject.id,
+			name: table.subject.name,
+			description: table.subject.description,
+			yearLevel: table.subject.yearLevel,
+			isArchived: table.subject.isArchived,
+			createdAt: table.subject.createdAt,
+			updatedAt: table.subject.updatedAt,
+			coreSubjectId: table.subject.coreSubjectId,
+			coreSubjectName: table.coreSubject.name
+		})
+		.from(table.subject)
+		.innerJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+		.where(
+			includeArchived
+				? eq(table.coreSubject.schoolId, schoolId)
+				: and(eq(table.coreSubject.schoolId, schoolId), eq(table.subject.isArchived, false))
 		)
 		.orderBy(asc(table.subject.name));
+
+	return subjects;
+}
+
+export async function getSubjectsByCoreSubjectId(
+	coreSubjectId: number,
+	includeArchived: boolean = false
+) {
+	const subjects = await db
+		.select({
+			id: table.subject.id,
+			name: table.subject.name,
+			description: table.subject.description,
+			yearLevel: table.subject.yearLevel,
+			isArchived: table.subject.isArchived,
+			createdAt: table.subject.createdAt,
+			updatedAt: table.subject.updatedAt,
+			coreSubjectId: table.subject.coreSubjectId,
+			coreSubjectName: table.coreSubject.name
+		})
+		.from(table.subject)
+		.innerJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+		.where(
+			includeArchived
+				? eq(table.subject.coreSubjectId, coreSubjectId)
+				: and(eq(table.subject.coreSubjectId, coreSubjectId), eq(table.subject.isArchived, false))
+		)
+		.orderBy(asc(table.subject.yearLevel), asc(table.subject.name));
 
 	return subjects;
 }
@@ -1187,15 +1241,34 @@ export async function unarchiveCampus(campusId: number) {
 		.returning();
 
 	return unarchivedCampus;
-	
-export async function getTermsBySchoolId(schoolId: number) {
-	const terms = await db
-		.select()
-		.from(table.term)
-		.where(eq(table.term.schoolId, schoolId))
-		.orderBy(desc(table.term.year), asc(table.term.termNumber));
+}
 
-	return terms;
+export async function getCourseMapItemsByCoreSubjectId(coreSubjectId: number) {
+	const items = await db
+		.select({
+			id: table.courseMapItem.id,
+			title: table.courseMapItem.title,
+			description: table.courseMapItem.description,
+			lengthInWeeks: table.courseMapItem.lengthInWeeks,
+			startWeekNumber: table.courseMapItem.startWeekNumber,
+			termNumber: table.courseMapItem.termNumber,
+			academicYear: table.courseMapItem.academicYear,
+			yearLevel: table.courseMapItem.yearLevel,
+			orderIndex: table.courseMapItem.orderIndex,
+			learningAreaId: table.courseMapItem.learningAreaId,
+			subjectId: table.courseMapItem.subjectId,
+			subject: table.subject
+		})
+		.from(table.courseMapItem)
+		.innerJoin(table.subject, eq(table.courseMapItem.subjectId, table.subject.id))
+		.where(eq(table.subject.coreSubjectId, coreSubjectId))
+		.orderBy(
+			asc(table.courseMapItem.yearLevel),
+			asc(table.courseMapItem.termNumber),
+			asc(table.courseMapItem.startWeekNumber)
+		);
+
+	return items;
 }
 
 export async function getCourseMapItemsBySubjectId(subjectId: number) {

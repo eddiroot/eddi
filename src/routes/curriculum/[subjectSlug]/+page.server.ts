@@ -1,14 +1,9 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import {
-	getSubjectsBySchoolId,
-	getCourseMapItemsBySubjectId,
-	createCourseMapItem,
-	updateCourseMapItem,
-	deleteCourseMapItem,
-	getLessonsByYearAndYearLevel,
-	getLearningAreasBySubject,
-	getLearningAreaContent
+	getCoreSubjectsBySchoolId,
+	getCourseMapItemsByCoreSubjectId,
+	getSubjectsByCoreSubjectId
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
@@ -17,60 +12,45 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		throw redirect(302, '/auth/login');
 	}
 
-	const subjects = await getSubjectsBySchoolId(locals.user.schoolId);
-	const subject = subjects.find(
+	const coreSubjects = await getCoreSubjectsBySchoolId(locals.user.schoolId);
+	const coreSubject = coreSubjects.find(
 		(s: { name: string }) => s.name.toLowerCase().replace(/\s+/g, '-') === params.subjectSlug
 	);
 
-	if (!subject) {
-		throw error(404, 'Subject not found');
+	if (!coreSubject) {
+		throw error(404, 'Core subject not found');
 	}
 
-	// Get URL parameters
+	// Get URL parameters - default to multi-year view for core subject overview
 	const selectedYearLevel = url.searchParams.get('year') || 'F';
-	const viewMode = (url.searchParams.get('view') as 'single' | 'multi') || 'single';
+	const viewMode = 'multi'; // Always default to multi-view for core subjects
 	const academicYear = parseInt(
 		url.searchParams.get('academicYear') || new Date().getFullYear().toString()
 	);
 
-	// Get course map items for this subject
-	const courseMapItems = await getCourseMapItemsBySubjectId(subject.id);
+	// Get course map items for this core subject
+	const courseMapItems = await getCourseMapItemsByCoreSubjectId(coreSubject.id);
 
-	// Get lessons for the selected year level and academic year
-	const lessons =
-		selectedYearLevel !== 'all'
-			? await getLessonsByYearAndYearLevel(subject.id, academicYear, selectedYearLevel)
-			: [];
+	// Get subjects for this core subject to determine available year levels
+	const subjects = await getSubjectsByCoreSubjectId(coreSubject.id);
+	const availableYearLevels = [...new Set(subjects.map((s) => s.yearLevel))].sort();
 
-	// Get learning areas and content for the subject
-	const learningAreas = await getLearningAreasBySubject(subject.id, academicYear);
+	// For now, set lessons to empty array since we're working with core subjects
+	// TODO: Implement lesson loading based on core subjects and their related subjects
+	const lessons: unknown[] = [];
+
+	// For now, set learning areas to empty array since we're working with core subjects
+	// TODO: Implement learning area loading based on core subjects
+	const learningAreas: unknown[] = [];
 	console.log('🔍 Server debug - Learning areas count:', learningAreas.length);
-	console.log(
-		'🔍 Server debug - Learning areas sample:',
-		learningAreas.slice(0, 2).map((la) => ({
-			id: la.learningArea.id,
-			name: la.learningArea.name
-		}))
-	);
 
-	// Load learning area content - for all year levels if in multi-year view, or specific year level
-	let learningAreaContent = [];
-	if (selectedYearLevel !== 'all') {
-		learningAreaContent = await getLearningAreaContent(subject.id, academicYear, selectedYearLevel);
-	} else {
-		// Load content for all year levels to support course map creation in multi-year view
-		const yearLevels = ['F', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-		const allContent = await Promise.all(
-			yearLevels.map((yearLevel) => getLearningAreaContent(subject.id, academicYear, yearLevel))
-		);
-		learningAreaContent = allContent.flat();
-	}
+	// For now, set learning area content to empty array
+	const learningAreaContent: unknown[] = [];
 
 	console.log('🔍 Server debug - Learning area content count:', learningAreaContent.length);
 
 	return {
-		subject,
-		subjects,
+		subject: coreSubject,
 		courseMapItems,
 		lessons,
 		learningAreas,
@@ -78,121 +58,57 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		selectedYearLevel,
 		viewMode,
 		academicYear,
+		availableYearLevels,
 		user: locals.user
 	};
 };
 
 export const actions: Actions = {
-	create: async ({ request, locals, params }) => {
+	create: async ({ locals, params }) => {
 		if (!locals.user) {
 			return fail(401, { message: 'Unauthorized' });
 		}
 
-		const subjects = await getSubjectsBySchoolId(locals.user.schoolId);
-		const subject = subjects.find(
+		const coreSubjects = await getCoreSubjectsBySchoolId(locals.user.schoolId);
+		const coreSubject = coreSubjects.find(
 			(s: { name: string }) => s.name.toLowerCase().replace(/\s+/g, '-') === params.subjectSlug
 		);
 
-		if (!subject) {
-			return fail(404, { message: 'Subject not found' });
+		if (!coreSubject) {
+			return fail(404, { message: 'Core subject not found' });
 		}
 
-		const data = await request.formData();
-		const title = data.get('title') as string;
-		const description = data.get('description') as string;
-		const yearLevel = data.get('yearLevel') as string;
-		const termNumber = parseInt(data.get('termNumber') as string);
-		const academicYear = parseInt(data.get('academicYear') as string);
-		const startWeekNumber = parseInt(data.get('startWeekNumber') as string);
-		const lengthInWeeks = parseInt(data.get('lengthInWeeks') as string);
-		const learningAreaId = data.get('learningAreaId')
-			? parseInt(data.get('learningAreaId') as string)
-			: undefined;
-
-		if (!title || !yearLevel || !termNumber || !startWeekNumber || !lengthInWeeks) {
-			return fail(400, { message: 'Missing required fields' });
-		}
-
-		try {
-			await createCourseMapItem({
-				title,
-				description: description || undefined,
-				subjectId: subject.id,
-				yearLevel,
-				termNumber,
-				academicYear,
-				startWeekNumber,
-				lengthInWeeks,
-				orderIndex: 0,
-				learningAreaId
-			});
-
-			return { success: true };
-		} catch (error) {
-			console.error('Error creating course map item:', error);
-			return fail(500, { message: 'Failed to create course map item' });
-		}
+		// TODO: Implement proper relationship between core subjects and individual subjects
+		// For now, we'll return an error since course map items belong to individual subjects
+		return fail(400, {
+			message:
+				'Course map item creation not yet supported for core subjects. Please create items at the individual subject level.'
+		});
 	},
 
-	update: async ({ request, locals }) => {
+	update: async ({ locals }) => {
 		if (!locals.user) {
 			return fail(401, { message: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const id = parseInt(data.get('id') as string);
-		const title = data.get('title') as string;
-		const description = data.get('description') as string;
-		const yearLevel = data.get('yearLevel') as string;
-		const termNumber = parseInt(data.get('termNumber') as string);
-		const academicYear = parseInt(data.get('academicYear') as string);
-		const startWeekNumber = parseInt(data.get('startWeekNumber') as string);
-		const lengthInWeeks = parseInt(data.get('lengthInWeeks') as string);
-		const learningAreaId = data.get('learningAreaId')
-			? parseInt(data.get('learningAreaId') as string)
-			: undefined;
-
-		if (!id || !title || !yearLevel || !termNumber || !startWeekNumber || !lengthInWeeks) {
-			return fail(400, { message: 'Missing required fields' });
-		}
-
-		try {
-			await updateCourseMapItem(id, {
-				title,
-				description: description || undefined,
-				yearLevel,
-				termNumber,
-				academicYear,
-				startWeekNumber,
-				lengthInWeeks,
-				learningAreaId
-			});
-
-			return { success: true };
-		} catch (error) {
-			console.error('Error updating course map item:', error);
-			return fail(500, { message: 'Failed to update course map item' });
-		}
+		// TODO: Implement proper relationship between core subjects and individual subjects
+		// For now, we'll return an error since course map items belong to individual subjects
+		return fail(400, {
+			message:
+				'Course map item update not yet supported for core subjects. Please update items at the individual subject level.'
+		});
 	},
 
-	delete: async ({ request, locals }) => {
+	delete: async ({ locals }) => {
 		if (!locals.user) {
 			return fail(401, { message: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const id = parseInt(data.get('id') as string);
-
-		if (!id) {
-			return fail(400, { message: 'Missing course map item ID' });
-		}
-
-		try {
-			await deleteCourseMapItem(id);
-			return { success: true };
-		} catch (error) {
-			console.error('Error deleting course map item:', error);
-			return fail(500, { message: 'Failed to delete course map item' });
-		}
+		// TODO: Implement proper relationship between core subjects and individual subjects
+		// For now, we'll return an error since course map items belong to individual subjects
+		return fail(400, {
+			message:
+				'Course map item deletion not yet supported for core subjects. Please delete items at the individual subject level.'
+		});
 	}
 };

@@ -39,7 +39,7 @@ async function main() {
 			await scraper.scrapeLanguages();
 		} else if (args.includes('--arts')) {
 			console.log('🎨 Scraping The Arts subjects...');
-			await scraper.scrapeTheArts();
+			await scraper.scrapeArts();
 		} else if (args.includes('--health')) {
 			console.log('🏃 Scraping Health & Physical Education...');
 			const items = await scraper.scrapeSubject('health-and-physical-education');

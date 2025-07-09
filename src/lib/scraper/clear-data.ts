@@ -7,7 +7,7 @@ import {
 	learningArea,
 	learningAreaContent,
 	contentElaboration
-} from '../../src/lib/server/db/schema.js';
+} from '../server/db/schema.js';
 
 async function clearData() {
 	console.log('🧹 Clearing existing curriculum data...');

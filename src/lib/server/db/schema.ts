@@ -180,8 +180,8 @@ export const schoolLocation = pgTable(
 
 export type SchoolLocation = typeof schoolLocation.$inferSelect;
 
-export const subject = pgTable(
-	'subject',
+export const coreSubject = pgTable(
+	'core_subject',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		name: text('name').notNull(),
@@ -189,12 +189,26 @@ export const subject = pgTable(
 			.notNull()
 			.references(() => school.id, { onDelete: 'cascade' }),
 		description: text('description'),
-		yearLevel: text('year_level').notNull(), // e.g. F,1,2,3,4,5,6,7,8,9,10
-		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},
-	(subject) => [unique().on(subject.schoolId, subject.name)]
+	(coreSubject) => [unique().on(coreSubject.schoolId, coreSubject.name)]
 );
+
+export type CoreSubject = typeof coreSubject.$inferSelect;
+
+export const subject = pgTable('subject', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	name: text('name').notNull(),
+	coreSubjectId: integer('core_subject_id')
+		.notNull()
+		.references(() => coreSubject.id, {
+			onDelete: 'cascade'
+		}),
+	description: text('description'),
+	yearLevel: text('year_level').notNull(), // e.g. F,1,2,3,4,5,6,7,8,9,10
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
 
 export type Subject = typeof subject.$inferSelect;
 
@@ -611,31 +625,6 @@ export const contentElaboration = pgTable('content_elab', {
 });
 
 export type ContentElaboration = typeof contentElaboration.$inferSelect;
-
-// Curriculum Planning Schema Components
-
-export const term = pgTable('term', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	schoolId: integer('school_id').references(() => school.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(), // e.g., "Term 1", "Semester 1"
-	endDate: timestamp('end_date', { withTimezone: true, mode: 'date' }).notNull(),
-	...timestamps
-});
-
-export type Term = typeof term.$inferSelect;
-
-export const week = pgTable('week', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	termId: integer('term_id')
-		.notNull()
-		.references(() => term.id, { onDelete: 'cascade' }),
-	weekNumber: integer('week_number').notNull(), // Week number within the term
-	startDate: timestamp('start_date', { withTimezone: true, mode: 'date' }).notNull(),
-	endDate: timestamp('end_date', { withTimezone: true, mode: 'date' }).notNull(),
-	...timestamps
-});
-
-export type Week = typeof week.$inferSelect;
 
 export const courseMapItem = pgTable('course_map_item', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

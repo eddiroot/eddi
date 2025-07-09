@@ -8,9 +8,9 @@
 
 	export let data: PageData;
 
-	// Create subject slug for URL
-	function createSubjectSlug(subjectName: string): string {
-		return subjectName.toLowerCase().replace(/\s+/g, '-');
+	// Create core subject slug for URL
+	function createCoreSubjectSlug(coreSubjectName: string): string {
+		return coreSubjectName.toLowerCase().replace(/\s+/g, '-');
 	}
 </script>
 
@@ -20,34 +20,34 @@
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">Curriculum Maps</h1>
 			<p class="text-muted-foreground mt-1">
-				Select a subject to view and edit its curriculum mapping
+				Select a core subject to view and edit its curriculum mapping across all year levels
 			</p>
 		</div>
 	</div>
 
-	<!-- Subjects Grid -->
-	{#if data.subjects.length === 0}
+	<!-- Core Subjects Grid -->
+	{#if data.coreSubjects.length === 0}
 		<Card>
 			<CardContent class="text-center py-12">
 				<BookOpen class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-				<h3 class="text-lg font-semibold mb-2">No Subjects Available</h3>
+				<h3 class="text-lg font-semibold mb-2">No Core Subjects Available</h3>
 				<p class="text-muted-foreground mb-4">
-					No subjects have been set up for your school yet. Please contact your administrator to add subjects.
+					No core subjects have been set up for your school yet. Please contact your administrator to add core subjects.
 				</p>
 			</CardContent>
 		</Card>
 	{:else}
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{#each data.subjects as subject}
+			{#each data.coreSubjects as coreSubject}
 				<Card class="hover:shadow-md transition-shadow cursor-pointer">
-					<a href="/curriculum/{createSubjectSlug(subject.name)}" class="block">
+					<a href="/curriculum/{createCoreSubjectSlug(coreSubject.name)}" class="block">
 						<CardHeader>
 							<CardTitle class="flex items-center gap-2">
 								<BookOpen class="h-5 w-5" />
-								{subject.name}
+								{coreSubject.name}
 							</CardTitle>
-							{#if subject.description}
-								<p class="text-sm text-muted-foreground">{subject.description}</p>
+							{#if coreSubject.description}
+								<p class="text-sm text-muted-foreground">{coreSubject.description}</p>
 							{/if}
 						</CardHeader>
 						<CardContent>
