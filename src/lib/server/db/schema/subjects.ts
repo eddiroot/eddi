@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { campus, school, schoolLocation } from './schools';
+import { task } from './task';
 import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
 import { check } from 'drizzle-orm/gel-core';
