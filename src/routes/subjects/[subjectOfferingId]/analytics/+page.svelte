@@ -2,16 +2,12 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import * as Table from '$lib/components/ui/table';
-	import { ChartContainer, type ChartConfig } from '$lib/components/ui/chart';
+	import * as Chart from '$lib/components/ui/chart';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Progress } from '$lib/components/ui/progress';
-	import { Chart, Svg, Area, Axis, Bars, Spline } from 'layerchart';
+	import { BarChart } from 'layerchart';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
-	import BookOpenIcon from '@lucide/svelte/icons/book-open';
-	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
-	import ClockIcon from '@lucide/svelte/icons/clock';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
 
 	let { data } = $props();
@@ -26,11 +22,17 @@
 			],
 			currentAverage: 65,
 			gradeDistribution: [
-				{ grade: 'A', count: 5 },
-				{ grade: 'B', count: 12 },
-				{ grade: 'C', count: 8 },
-				{ grade: 'D', count: 3 },
-				{ grade: 'F', count: 1 }
+				{ grade: 'F', count: 1 },
+				{ grade: 'D', count: 1 },
+				{ grade: 'C-', count: 1 },
+				{ grade: 'C', count: 2 },
+				{ grade: 'C+', count: 3 },
+				{ grade: 'B-', count: 4 },
+				{ grade: 'B', count: 6 },
+				{ grade: 'B+', count: 8 },
+				{ grade: 'A-', count: 6 },
+				{ grade: 'A', count: 4 },
+				{ grade: 'A+', count: 2 }
 			],
 			students: [
 				{
@@ -164,12 +166,18 @@
 			],
 			submissionsDue: 7,
 			avgScoreOverTime: [
-				{ lesson: 'L1', score: 65 },
-				{ lesson: 'L2', score: 72 },
-				{ lesson: 'L3', score: 68 },
-				{ lesson: 'L4', score: 78 },
-				{ lesson: 'L5', score: 82 },
-				{ lesson: 'L6', score: 85 }
+				{ lesson: 'Week 1', score: 58 },
+				{ lesson: 'Week 2', score: 65 },
+				{ lesson: 'Week 3', score: 62 },
+				{ lesson: 'Week 4', score: 72 },
+				{ lesson: 'Week 5', score: 68 },
+				{ lesson: 'Week 6', score: 78 },
+				{ lesson: 'Week 7', score: 75 },
+				{ lesson: 'Week 8', score: 82 },
+				{ lesson: 'Week 9', score: 79 },
+				{ lesson: 'Week 10', score: 85 },
+				{ lesson: 'Week 11', score: 83 },
+				{ lesson: 'Week 12', score: 88 }
 			],
 			tasks: [
 				{
@@ -255,12 +263,22 @@
 			],
 			viewsOnLastAnnouncement: { views: 19, total: 21 },
 			postsOverTime: [
-				{ week: 'W1', posts: 5 },
-				{ week: 'W2', posts: 8 },
-				{ week: 'W3', posts: 12 },
-				{ week: 'W4', posts: 15 },
-				{ week: 'W5', posts: 18 },
-				{ week: 'W6', posts: 22 }
+				{ week: 'Jan W1', posts: 3 },
+				{ week: 'Jan W2', posts: 5 },
+				{ week: 'Jan W3', posts: 8 },
+				{ week: 'Jan W4', posts: 12 },
+				{ week: 'Feb W1', posts: 15 },
+				{ week: 'Feb W2', posts: 18 },
+				{ week: 'Feb W3', posts: 22 },
+				{ week: 'Feb W4', posts: 25 },
+				{ week: 'Mar W1', posts: 28 },
+				{ week: 'Mar W2', posts: 32 },
+				{ week: 'Mar W3', posts: 29 },
+				{ week: 'Mar W4', posts: 35 },
+				{ week: 'Apr W1', posts: 38 },
+				{ week: 'Apr W2', posts: 42 },
+				{ week: 'Apr W3', posts: 45 },
+				{ week: 'Apr W4', posts: 48 }
 			],
 			students: [
 				{
@@ -332,17 +350,17 @@
 	};
 
 	// Chart configurations
-	const gradeDistributionConfig: ChartConfig = {
+	const gradeDistributionConfig = {
 		count: { label: 'Students', color: 'hsl(var(--primary))' }
-	};
+	} satisfies Chart.ChartConfig;
 
-	const scoreOverTimeConfig: ChartConfig = {
+	const scoreOverTimeConfig = {
 		score: { label: 'Average Score', color: 'hsl(var(--chart-2))' }
-	};
+	} satisfies Chart.ChartConfig;
 
-	const postsOverTimeConfig: ChartConfig = {
+	const postsOverTimeConfig = {
 		posts: { label: 'Posts', color: 'hsl(var(--chart-3))' }
-	};
+	} satisfies Chart.ChartConfig;
 
 	let activeTab = $state('student-performance');
 </script>
@@ -398,15 +416,30 @@
 						<Card.Title class="text-lg">Grade Distribution</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<ChartContainer config={gradeDistributionConfig} class="h-[200px]">
-							<Chart data={mockData.studentPerformance.gradeDistribution} x="grade" y="count" yDomain={[0, 15]} padding={{ left: 40, bottom: 40, right: 20, top: 20 }}>
-								<Svg>
-									<Axis placement="left" grid rule />
-									<Axis placement="bottom" rule />
-									<Bars y="count" fill="hsl(var(--primary))" radius={2} strokeWidth={1} />
-								</Svg>
-							</Chart>
-						</ChartContainer>
+						<Chart.Container config={gradeDistributionConfig}>
+							<BarChart
+								data={mockData.studentPerformance.gradeDistribution}
+								x="grade"
+								series={[
+									{
+										key: "count",
+										label: "Students",
+										color: gradeDistributionConfig.count.color,
+									},
+								]}
+								props={{
+									bars: {
+										radius: 2,
+										"stroke-width": 1,
+									},
+									yAxis: { format: (v) => `${v}` },
+								}}
+							>
+								{#snippet tooltip()}
+									<Chart.Tooltip />
+								{/snippet}
+							</BarChart>
+						</Chart.Container>
 					</Card.Content>
 				</Card.Root>
 			</div>
@@ -502,15 +535,30 @@
 						<Card.Title class="text-lg">Average Score per Lesson over Time</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<ChartContainer config={scoreOverTimeConfig} class="h-[200px]">
-							<Chart data={mockData.taskAnalytics.avgScoreOverTime} x="lesson" y="score" yDomain={[0, 100]} padding={{ left: 40, bottom: 40, right: 20, top: 20 }}>
-								<Svg>
-									<Axis placement="left" grid rule />
-									<Axis placement="bottom" rule />
-									<Bars y="score" fill="hsl(var(--chart-2))" radius={2} strokeWidth={1} />
-								</Svg>
-							</Chart>
-						</ChartContainer>
+						<Chart.Container config={scoreOverTimeConfig}>
+							<BarChart
+								data={mockData.taskAnalytics.avgScoreOverTime}
+								x="lesson"
+								series={[
+									{
+										key: "score",
+										label: "Average Score",
+										color: scoreOverTimeConfig.score.color,
+									},
+								]}
+								props={{
+									bars: {
+										radius: 2,
+										"stroke-width": 1,
+									},
+									yAxis: { format: (v) => `${v}%` },
+								}}
+							>
+								{#snippet tooltip()}
+									<Chart.Tooltip />
+								{/snippet}
+							</BarChart>
+						</Chart.Container>
 					</Card.Content>
 				</Card.Root>
 			</div>
@@ -545,7 +593,7 @@
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
-											<Progress value={(task.averageScore / task.totalScore) * 100} class="w-20" />
+											<Progress value={task.averageScore} class="w-20" />
 											<span class="text-sm">{task.averageScore}% ({task.scoreCount}/{task.totalScore})</span>
 										</div>
 									</Table.Cell>
@@ -598,15 +646,30 @@
 						<Card.Title class="text-lg">Number of Posts over Time</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<ChartContainer config={postsOverTimeConfig} class="h-[200px]">
-							<Chart data={mockData.discussionAnalytics.postsOverTime} x="week" y="posts" yDomain={[0, 25]} padding={{ left: 40, bottom: 40, right: 20, top: 20 }}>
-								<Svg>
-									<Axis placement="left" grid rule />
-									<Axis placement="bottom" rule />
-									<Bars y="posts" fill="hsl(var(--chart-3))" radius={2} strokeWidth={1} />
-								</Svg>
-							</Chart>
-						</ChartContainer>
+						<Chart.Container config={postsOverTimeConfig}>
+							<BarChart
+								data={mockData.discussionAnalytics.postsOverTime}
+								x="week"
+								series={[
+									{
+										key: "posts",
+										label: "Posts",
+										color: postsOverTimeConfig.posts.color,
+									},
+								]}
+								props={{
+									bars: {
+										radius: 2,
+										"stroke-width": 1,
+									},
+									yAxis: { format: (v) => `${v}` },
+								}}
+							>
+								{#snippet tooltip()}
+									<Chart.Tooltip />
+								{/snippet}
+							</BarChart>
+						</Chart.Container>
 					</Card.Content>
 				</Card.Root>
 			</div>
