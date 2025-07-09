@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+export function getPermissions(userType: string): string[] {
+	switch (userType) {
+		case 'student':
+			return ['view_lessons'];
+		case 'teacher':
+			return ['view_lessons', 'create_lessons'];
+		case 'schoolAdmin':
+			return [];
+		case 'systemAdmin':
+			return [];
+		default:
+			return [];
+	}
+}
+
 export function convertToFullName(
 	firstName: string | null | undefined,
 	middleName: string | null | undefined,

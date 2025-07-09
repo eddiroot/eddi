@@ -23,6 +23,7 @@
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
 	import OrbitIcon from '@lucide/svelte/icons/orbit';
+	import LocationEdit from '@lucide/svelte/icons/location-edit';
 
 	const items = [
 		{
@@ -155,6 +156,8 @@
 			);
 		}
 	});
+
+	let current_campus = $state(campuses.length > 0 ? campuses[0] : null);
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
@@ -169,14 +172,43 @@
 							>
 								<img src={school?.logoUrl} alt="{school?.name || 'school'} logo" class="size-5" />
 							</div>
-							<div class="grid flex-1 text-left text-sm leading-tight">
-								<span class="truncate font-medium">{school?.name}</span>
-								{#if campuses.length >= 1}
-									<span class="truncate text-xs">{campuses[0].name}</span>
-								{:else if campuses.length === 0}
-									<span class="truncate text-xs">No campuses</span>
+							{#if campuses.length >= 1}
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">{school?.name}</span>
+									{#if campuses.length >= 1 && current_campus}
+										<span class="truncate text-xs">{current_campus.name}</span>
+									{:else if campuses.length === 0}
+										<span class="truncate text-xs">No campuses</span>
+									{/if}
+								</div>
+								{#if campuses.length > 1}
+									{#if sidebar.leftOpen}
+										<DropdownMenu.Root>
+											<DropdownMenu.Trigger>
+												<LocationEdit class="ml-auto size-4 transition-transform" />
+											</DropdownMenu.Trigger>
+											<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
+												{#each campuses as campus}
+													<DropdownMenu.Item
+														class="cursor-pointer"
+														onclick={() => {
+															current_campus = campus;
+														}}
+													>
+														<span>{campus.name}</span>
+													</DropdownMenu.Item>
+												{/each}
+											</DropdownMenu.Content>
+										</DropdownMenu.Root>
+									{:else}
+										<LocationEdit class="ml-auto size-4 transition-transform" />
+									{/if}
 								{/if}
-							</div>
+							{:else}
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">{school?.name}</span>
+								</div>
+							{/if}
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>

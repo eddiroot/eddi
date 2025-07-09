@@ -8,6 +8,7 @@
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
 	import { updateLessonOrder, updateTopicOrder } from './client';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { getPermissions } from '$lib/utils';
 
 	let { data } = $props();
 	let topicsWithLessons = $state(data.topicsWithLessons || []);
@@ -113,24 +114,28 @@
 			}
 		}
 	}
+
+	const permissions = $state(getPermissions(data.user?.type || ''));
 </script>
 
 <div class="space-y-6 p-8">
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Lessons</h1>
-		<div class="flex items-center gap-2">
-			<Button
-				onclick={() => (isRearrangeMode = !isRearrangeMode)}
-				variant={isRearrangeMode ? 'default' : 'outline'}
-			>
-				<ArrowUpDownIcon class="h-4 w-4" />
-				{isRearrangeMode ? 'Done' : 'Rearrange'}
-			</Button>
-			<Button href={`${page.url.pathname}/new`} variant="outline">
-				<PlusIcon class="h-4 w-4" />
-				New Lesson
-			</Button>
-		</div>
+		{#if permissions.includes('create_lessons')}
+			<div class="flex items-center gap-2">
+				<Button
+					onclick={() => (isRearrangeMode = !isRearrangeMode)}
+					variant={isRearrangeMode ? 'default' : 'outline'}
+				>
+					<ArrowUpDownIcon class="h-4 w-4" />
+					{isRearrangeMode ? 'Done' : 'Rearrange'}
+				</Button>
+				<Button href={`${page.url.pathname}/new`} variant="outline">
+					<PlusIcon class="h-4 w-4" />
+					New Lesson
+				</Button>
+			</div>
+		{/if}
 	</div>
 
 	<div>

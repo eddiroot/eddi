@@ -20,69 +20,6 @@ import { assign_users_to_campuses } from './seed/seed_user_campuses';
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
-/**
- * Finds the subject offering ID associated with a user subject class
- * @param userSubjectClassId - The ID of the user subject class
- * @returns The subject offering ID or null if not found
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function getSubjectOfferingIdByUserSubjectClass(
-	userSubjectClassId: number
-): Promise<number | null> {
-	const result = await db
-		.select({
-			subjectOfferingId: schema.subjectOffering.id
-		})
-		.from(schema.userSubjectClass)
-		.innerJoin(
-			schema.subjectClass,
-			eq(schema.userSubjectClass.subjectClassId, schema.subjectClass.id)
-		)
-		.innerJoin(
-			schema.subjectOffering,
-			eq(schema.subjectClass.subjectOfferingId, schema.subjectOffering.id)
-		)
-		.where(eq(schema.userSubjectClass.id, userSubjectClassId))
-		.limit(1);
-
-	return result.length > 0 ? result[0].subjectOfferingId : null;
-}
-
-/**
- * Alternative function that takes userId and subjectClassId to find the subject offering
- * @param userId - The user ID
- * @param subjectClassId - The subject class ID
- * @returns The subject offering ID or null if not found
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function getSubjectOfferingIdByUserAndClass(
-	userId: string,
-	subjectClassId: number
-): Promise<number | null> {
-	const result = await db
-		.select({
-			subjectOfferingId: schema.subjectOffering.id
-		})
-		.from(schema.userSubjectClass)
-		.innerJoin(
-			schema.subjectClass,
-			eq(schema.userSubjectClass.subjectClassId, schema.subjectClass.id)
-		)
-		.innerJoin(
-			schema.subjectOffering,
-			eq(schema.subjectClass.subjectOfferingId, schema.subjectOffering.id)
-		)
-		.where(
-			and(
-				eq(schema.userSubjectClass.userId, userId),
-				eq(schema.userSubjectClass.subjectClassId, subjectClassId)
-			)
-		)
-		.limit(1);
-
-	return result.length > 0 ? result[0].subjectOfferingId : null;
-}
-
 async function main() {
 	await reset(db, schema);
 
