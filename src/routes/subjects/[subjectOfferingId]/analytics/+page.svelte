@@ -1,59 +1,653 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+	import * as Tabs from '$lib/components/ui/tabs';
+	import * as Table from '$lib/components/ui/table';
+	import { ChartContainer, type ChartConfig } from '$lib/components/ui/chart';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Progress } from '$lib/components/ui/progress';
+	import { Chart, Svg, Area, Axis, Bars, Spline } from 'layerchart';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
 
 	let { data } = $props();
 
-	// Mock data for the analytics
+	// Comprehensive mock data based on the designs
 	const mockData = {
-		overview: {
-			totalStudents: 156,
-			totalDiscussions: 89,
-			totalLessons: 24
+		// Student Performance Tab Data
+		studentPerformance: {
+			keyInsights: [
+				"2 students haven't turned in assignment 1",
+				"1 student hasn't visited your page in the past week"
+			],
+			currentAverage: 65,
+			gradeDistribution: [
+				{ grade: 'A', count: 5 },
+				{ grade: 'B', count: 12 },
+				{ grade: 'C', count: 8 },
+				{ grade: 'D', count: 3 },
+				{ grade: 'F', count: 1 }
+			],
+			students: [
+				{
+					name: 'Sam Smith',
+					avatar: '/avatars/sam.jpg',
+					assignmentsCompleted: 75, // percentage
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 3,
+					lessonsCompleted: 100,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 6,
+					homeworkCompleted: 75,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 3,
+					lastActive: '< 1 day',
+					grade: 85
+				},
+				{
+					name: 'Emma Johnson',
+					avatar: '/avatars/emma.jpg',
+					assignmentsCompleted: 100,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 4,
+					lessonsCompleted: 100,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 6,
+					homeworkCompleted: 100,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 4,
+					lastActive: '2 hours ago',
+					grade: 92
+				},
+				{
+					name: 'Michael Chen',
+					avatar: '/avatars/michael.jpg',
+					assignmentsCompleted: 50,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 2,
+					lessonsCompleted: 83,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 5,
+					homeworkCompleted: 25,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 1,
+					lastActive: '3 days ago',
+					grade: 68
+				},
+				{
+					name: 'Sarah Davis',
+					avatar: '/avatars/sarah.jpg',
+					assignmentsCompleted: 100,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 4,
+					lessonsCompleted: 100,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 6,
+					homeworkCompleted: 75,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 3,
+					lastActive: '1 day ago',
+					grade: 88
+				},
+				{
+					name: 'David Wilson',
+					avatar: '/avatars/david.jpg',
+					assignmentsCompleted: 25,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 1,
+					lessonsCompleted: 67,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 4,
+					homeworkCompleted: 0,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 0,
+					lastActive: '1 week ago',
+					grade: 45
+				},
+				{
+					name: 'Lisa Martinez',
+					avatar: '/avatars/lisa.jpg',
+					assignmentsCompleted: 100,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 4,
+					lessonsCompleted: 100,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 6,
+					homeworkCompleted: 100,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 4,
+					lastActive: '3 hours ago',
+					grade: 95
+				},
+				{
+					name: 'James Brown',
+					avatar: '/avatars/james.jpg',
+					assignmentsCompleted: 75,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 3,
+					lessonsCompleted: 83,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 5,
+					homeworkCompleted: 50,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 2,
+					lastActive: '2 days ago',
+					grade: 73
+				},
+				{
+					name: 'Ashley Taylor',
+					avatar: '/avatars/ashley.jpg',
+					assignmentsCompleted: 100,
+					assignmentsTotal: 4,
+					assignmentsCompletedCount: 4,
+					lessonsCompleted: 100,
+					lessonsTotal: 6,
+					lessonsCompletedCount: 6,
+					homeworkCompleted: 100,
+					homeworkTotal: 4,
+					homeworkCompletedCount: 4,
+					lastActive: '5 hours ago',
+					grade: 90
+				}
+			]
+		},
+
+		// Task Analytics Tab Data
+		taskAnalytics: {
+			keyInsights: [
+				"Your most used lesson component used to question is the fill in the blank block",
+				"Your students on average score best on the multiple choice block"
+			],
+			submissionsDue: 7,
+			avgScoreOverTime: [
+				{ lesson: 'L1', score: 65 },
+				{ lesson: 'L2', score: 72 },
+				{ lesson: 'L3', score: 68 },
+				{ lesson: 'L4', score: 78 },
+				{ lesson: 'L5', score: 82 },
+				{ lesson: 'L6', score: 85 }
+			],
+			tasks: [
+				{
+					name: 'Assignment 1',
+					studentsCompleted: 100,
+					totalStudents: 21,
+					completedCount: 21,
+					averageScore: 65,
+					totalScore: 40,
+					scoreCount: 26,
+					averageTime: '58 Minutes',
+					dueDate: '1 week ago',
+					status: 'completed'
+				},
+				{
+					name: 'Lesson 1',
+					studentsCompleted: 67,
+					totalStudents: 21,
+					completedCount: 14,
+					averageScore: 83,
+					totalScore: 40,
+					scoreCount: 33,
+					averageTime: '22 Minutes',
+					dueDate: 'In 1 day',
+					status: 'due'
+				},
+				{
+					name: 'Quiz 1',
+					studentsCompleted: 95,
+					totalStudents: 21,
+					completedCount: 20,
+					averageScore: 78,
+					totalScore: 40,
+					scoreCount: 31,
+					averageTime: '15 Minutes',
+					dueDate: '3 days ago',
+					status: 'completed'
+				},
+				{
+					name: 'Assignment 2',
+					studentsCompleted: 81,
+					totalStudents: 21,
+					completedCount: 17,
+					averageScore: 72,
+					totalScore: 40,
+					scoreCount: 29,
+					averageTime: '45 Minutes',
+					dueDate: 'In 3 days',
+					status: 'due'
+				},
+				{
+					name: 'Lesson 2',
+					studentsCompleted: 76,
+					totalStudents: 21,
+					completedCount: 16,
+					averageScore: 85,
+					totalScore: 40,
+					scoreCount: 34,
+					averageTime: '28 Minutes',
+					dueDate: '2 days ago',
+					status: 'completed'
+				},
+				{
+					name: 'Project Proposal',
+					studentsCompleted: 38,
+					totalStudents: 21,
+					completedCount: 8,
+					averageScore: 88,
+					totalScore: 40,
+					scoreCount: 35,
+					averageTime: '2 Hours',
+					dueDate: 'In 1 week',
+					status: 'due'
+				}
+			]
+		},
+
+		// Discussion Analytics Tab Data
+		discussionAnalytics: {
+			keyInsights: [
+				"The average response time on your discussion forum is 123 minutes",
+				"There are 2 unanswered questions"
+			],
+			viewsOnLastAnnouncement: { views: 19, total: 21 },
+			postsOverTime: [
+				{ week: 'W1', posts: 5 },
+				{ week: 'W2', posts: 8 },
+				{ week: 'W3', posts: 12 },
+				{ week: 'W4', posts: 15 },
+				{ week: 'W5', posts: 18 },
+				{ week: 'W6', posts: 22 }
+			],
+			students: [
+				{
+					name: 'Sam Smith',
+					avatar: '/avatars/sam.jpg',
+					questionsPosted: 7,
+					questionsAnswered: 15,
+					totalContributions: 22,
+					lastActive: '< 1 day'
+				},
+				{
+					name: 'Emma Johnson',
+					avatar: '/avatars/emma.jpg',
+					questionsPosted: 12,
+					questionsAnswered: 23,
+					totalContributions: 35,
+					lastActive: '2 hours ago'
+				},
+				{
+					name: 'Michael Chen',
+					avatar: '/avatars/michael.jpg',
+					questionsPosted: 3,
+					questionsAnswered: 8,
+					totalContributions: 11,
+					lastActive: '3 days ago'
+				},
+				{
+					name: 'Sarah Davis',
+					avatar: '/avatars/sarah.jpg',
+					questionsPosted: 9,
+					questionsAnswered: 18,
+					totalContributions: 27,
+					lastActive: '1 day ago'
+				},
+				{
+					name: 'David Wilson',
+					avatar: '/avatars/david.jpg',
+					questionsPosted: 1,
+					questionsAnswered: 2,
+					totalContributions: 3,
+					lastActive: '1 week ago'
+				},
+				{
+					name: 'Lisa Martinez',
+					avatar: '/avatars/lisa.jpg',
+					questionsPosted: 15,
+					questionsAnswered: 28,
+					totalContributions: 43,
+					lastActive: '3 hours ago'
+				},
+				{
+					name: 'James Brown',
+					avatar: '/avatars/james.jpg',
+					questionsPosted: 5,
+					questionsAnswered: 12,
+					totalContributions: 17,
+					lastActive: '2 days ago'
+				},
+				{
+					name: 'Ashley Taylor',
+					avatar: '/avatars/ashley.jpg',
+					questionsPosted: 8,
+					questionsAnswered: 20,
+					totalContributions: 28,
+					lastActive: '5 hours ago'
+				}
+			]
 		}
 	};
+
+	// Chart configurations
+	const gradeDistributionConfig: ChartConfig = {
+		count: { label: 'Students', color: 'hsl(var(--primary))' }
+	};
+
+	const scoreOverTimeConfig: ChartConfig = {
+		score: { label: 'Average Score', color: 'hsl(var(--chart-2))' }
+	};
+
+	const postsOverTimeConfig: ChartConfig = {
+		posts: { label: 'Posts', color: 'hsl(var(--chart-3))' }
+	};
+
+	let activeTab = $state('student-performance');
 </script>
 
 <div class="space-y-6 p-8">
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">{data.subject.name} Class Analytics</h1>
-			<p class="text-muted-foreground">Overview of student engagement, discussions, and lesson progress</p>
+			<p class="text-muted-foreground">Comprehensive analytics dashboard for tracking student progress and engagement</p>
 		</div>
 	</div>
 
-	<!-- Overview Cards -->
-	<div class="grid gap-4 md:grid-cols-3">
-		<Card.Root class="shadow-none">
-			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Total Students</Card.Title>
-				<UsersIcon class="h-4 w-4 text-muted-foreground" />
-			</Card.Header>
-			<Card.Content>
-				<div class="text-2xl font-bold">{mockData.overview.totalStudents}</div>
-			</Card.Content>
-		</Card.Root>
+	<!-- Tab Navigation -->
+	<Tabs.Root bind:value={activeTab} class="w-full">
+		<Tabs.List class="grid w-full grid-cols-3">
+			<Tabs.Trigger value="student-performance">Student Performance</Tabs.Trigger>
+			<Tabs.Trigger value="task-analytics">Task Analytics</Tabs.Trigger>
+			<Tabs.Trigger value="discussion-analytics">Discussion Analytics</Tabs.Trigger>
+		</Tabs.List>
 
-		<Card.Root class="shadow-none">
-			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Total Discussions</Card.Title>
-				<MessageSquareIcon class="h-4 w-4 text-muted-foreground" />
-			</Card.Header>
-			<Card.Content>
-				<div class="text-2xl font-bold">{mockData.overview.totalDiscussions}</div>
-			</Card.Content>
-		</Card.Root>
+		<!-- Student Performance Tab -->
+		<Tabs.Content value="student-performance" class="space-y-6">
+			<!-- Key Insights and Stats Row -->
+			<div class="grid gap-6 md:grid-cols-3">
+				<!-- Key Insights -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Key Insights</Card.Title>
+					</Card.Header>
+					<Card.Content class="space-y-3">
+						{#each mockData.studentPerformance.keyInsights as insight}
+							<div class="flex items-start gap-2">
+								<AlertCircleIcon class="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+								<p class="text-sm text-muted-foreground">{insight}</p>
+							</div>
+						{/each}
+					</Card.Content>
+				</Card.Root>
 
-		<Card.Root class="shadow-none">
-			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Total Lessons</Card.Title>
-				<BookOpenIcon class="h-4 w-4 text-muted-foreground" />
-			</Card.Header>
-			<Card.Content>
-				<div class="text-2xl font-bold">{mockData.overview.totalLessons}</div>
-			</Card.Content>
-		</Card.Root>
-	</div>
+				<!-- Current Average -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Current Average</Card.Title>
+					</Card.Header>
+					<Card.Content class="flex items-center justify-center">
+						<div class="text-4xl font-bold">{mockData.studentPerformance.currentAverage}%</div>
+					</Card.Content>
+				</Card.Root>
+
+				<!-- Grade Distribution Chart -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Grade Distribution</Card.Title>
+					</Card.Header>
+					<Card.Content>
+						<ChartContainer config={gradeDistributionConfig} class="h-[200px]">
+							<Chart data={mockData.studentPerformance.gradeDistribution} x="grade" y="count" yDomain={[0, 15]} padding={{ left: 40, bottom: 40, right: 20, top: 20 }}>
+								<Svg>
+									<Axis placement="left" grid rule />
+									<Axis placement="bottom" rule />
+									<Bars y="count" fill="hsl(var(--primary))" radius={2} strokeWidth={1} />
+								</Svg>
+							</Chart>
+						</ChartContainer>
+					</Card.Content>
+				</Card.Root>
+			</div>
+
+			<!-- Student Performance Table -->
+			<Card.Root class="shadow-none">
+				<Card.Header>
+					<Card.Title class="text-lg">Student Performance Overview</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>Student</Table.Head>
+								<Table.Head>Assignments Completed</Table.Head>
+								<Table.Head>Lessons Completed</Table.Head>
+								<Table.Head>Homework Completed</Table.Head>
+								<Table.Head>Last Active</Table.Head>
+								<Table.Head>Grade</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each mockData.studentPerformance.students as student}
+								<Table.Row>
+									<Table.Cell class="flex items-center gap-2">
+										<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+											<UsersIcon class="h-4 w-4" />
+										</div>
+										<span class="font-medium text-blue-600">{student.name}</span>
+									</Table.Cell>
+									<Table.Cell>
+										<div class="flex items-center gap-2">
+											<Progress value={student.assignmentsCompleted} class="w-20" />
+											<span class="text-sm">{student.assignmentsCompleted}% ({student.assignmentsCompletedCount}/{student.assignmentsTotal})</span>
+										</div>
+									</Table.Cell>
+									<Table.Cell>
+										<div class="flex items-center gap-2">
+											<Progress value={student.lessonsCompleted} class="w-20" />
+											<span class="text-sm">{student.lessonsCompleted}% ({student.lessonsCompletedCount}/{student.lessonsTotal})</span>
+										</div>
+									</Table.Cell>
+									<Table.Cell>
+										<div class="flex items-center gap-2">
+											<Progress value={student.homeworkCompleted} class="w-20" />
+											<span class="text-sm">{student.homeworkCompleted}% ({student.homeworkCompletedCount}/{student.homeworkTotal})</span>
+										</div>
+									</Table.Cell>
+									<Table.Cell>{student.lastActive}</Table.Cell>
+									<Table.Cell>
+										<Badge variant="secondary">{student.grade}%</Badge>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</Card.Content>
+			</Card.Root>
+		</Tabs.Content>
+
+		<!-- Task Analytics Tab -->
+		<Tabs.Content value="task-analytics" class="space-y-6">
+			<!-- Key Insights and Stats Row -->
+			<div class="grid gap-6 md:grid-cols-3">
+				<!-- Key Insights -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Key Insights</Card.Title>
+					</Card.Header>
+					<Card.Content class="space-y-3">
+						{#each mockData.taskAnalytics.keyInsights as insight}
+							<div class="flex items-start gap-2">
+								<AlertCircleIcon class="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+								<p class="text-sm text-muted-foreground">{insight}</p>
+							</div>
+						{/each}
+					</Card.Content>
+				</Card.Root>
+
+				<!-- Submissions Due -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Submission Due For Next Task</Card.Title>
+					</Card.Header>
+					<Card.Content class="flex items-center justify-center">
+						<div class="text-4xl font-bold">{mockData.taskAnalytics.submissionsDue}</div>
+					</Card.Content>
+				</Card.Root>
+
+				<!-- Average Score over Time Chart -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Average Score per Lesson over Time</Card.Title>
+					</Card.Header>
+					<Card.Content>
+						<ChartContainer config={scoreOverTimeConfig} class="h-[200px]">
+							<Chart data={mockData.taskAnalytics.avgScoreOverTime} x="lesson" y="score" yDomain={[0, 100]} padding={{ left: 40, bottom: 40, right: 20, top: 20 }}>
+								<Svg>
+									<Axis placement="left" grid rule />
+									<Axis placement="bottom" rule />
+									<Bars y="score" fill="hsl(var(--chart-2))" radius={2} strokeWidth={1} />
+								</Svg>
+							</Chart>
+						</ChartContainer>
+					</Card.Content>
+				</Card.Root>
+			</div>
+
+			<!-- Task Performance Table -->
+			<Card.Root class="shadow-none">
+				<Card.Header>
+					<Card.Title class="text-lg">Task Performance Overview</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>Task</Table.Head>
+								<Table.Head>Students Completed</Table.Head>
+								<Table.Head>Average Score</Table.Head>
+								<Table.Head>Average Time Taken</Table.Head>
+								<Table.Head>Due Date</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each mockData.taskAnalytics.tasks as task}
+								<Table.Row>
+									<Table.Cell>
+										<span class="font-medium text-blue-600">{task.name}</span>
+									</Table.Cell>
+									<Table.Cell>
+										<div class="flex items-center gap-2">
+											<Progress value={task.studentsCompleted} class="w-20" />
+											<span class="text-sm">{task.studentsCompleted}% ({task.completedCount}/{task.totalStudents})</span>
+										</div>
+									</Table.Cell>
+									<Table.Cell>
+										<div class="flex items-center gap-2">
+											<Progress value={(task.averageScore / task.totalScore) * 100} class="w-20" />
+											<span class="text-sm">{task.averageScore}% ({task.scoreCount}/{task.totalScore})</span>
+										</div>
+									</Table.Cell>
+									<Table.Cell>{task.averageTime}</Table.Cell>
+									<Table.Cell>
+										<Badge variant={task.status === 'due' ? 'destructive' : 'secondary'}>
+											{task.dueDate}
+										</Badge>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</Card.Content>
+			</Card.Root>
+		</Tabs.Content>
+
+		<!-- Discussion Analytics Tab -->
+		<Tabs.Content value="discussion-analytics" class="space-y-6">
+			<!-- Key Insights and Stats Row -->
+			<div class="grid gap-6 md:grid-cols-3">
+				<!-- Key Insights -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Key Insights</Card.Title>
+					</Card.Header>
+					<Card.Content class="space-y-3">
+						{#each mockData.discussionAnalytics.keyInsights as insight}
+							<div class="flex items-start gap-2">
+								<MessageSquareIcon class="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+								<p class="text-sm text-muted-foreground">{insight}</p>
+							</div>
+						{/each}
+					</Card.Content>
+				</Card.Root>
+
+				<!-- Views on Last Announcement -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Views on Last Announcement</Card.Title>
+					</Card.Header>
+					<Card.Content class="flex items-center justify-center">
+						<div class="text-4xl font-bold">{mockData.discussionAnalytics.viewsOnLastAnnouncement.views}/{mockData.discussionAnalytics.viewsOnLastAnnouncement.total}</div>
+					</Card.Content>
+				</Card.Root>
+
+				<!-- Number of Posts over Time Chart -->
+				<Card.Root class="shadow-none">
+					<Card.Header>
+						<Card.Title class="text-lg">Number of Posts over Time</Card.Title>
+					</Card.Header>
+					<Card.Content>
+						<ChartContainer config={postsOverTimeConfig} class="h-[200px]">
+							<Chart data={mockData.discussionAnalytics.postsOverTime} x="week" y="posts" yDomain={[0, 25]} padding={{ left: 40, bottom: 40, right: 20, top: 20 }}>
+								<Svg>
+									<Axis placement="left" grid rule />
+									<Axis placement="bottom" rule />
+									<Bars y="posts" fill="hsl(var(--chart-3))" radius={2} strokeWidth={1} />
+								</Svg>
+							</Chart>
+						</ChartContainer>
+					</Card.Content>
+				</Card.Root>
+			</div>
+
+			<!-- Discussion Participation Table -->
+			<Card.Root class="shadow-none">
+				<Card.Header>
+					<Card.Title class="text-lg">Discussion Participation Overview</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>Student</Table.Head>
+								<Table.Head>Questions Posted</Table.Head>
+								<Table.Head>Questions Answered</Table.Head>
+								<Table.Head>Total Contributions</Table.Head>
+								<Table.Head>Last Active</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each mockData.discussionAnalytics.students as student}
+								<Table.Row>
+									<Table.Cell class="flex items-center gap-2">
+										<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+											<UsersIcon class="h-4 w-4" />
+										</div>
+										<span class="font-medium text-blue-600">{student.name}</span>
+									</Table.Cell>
+									<Table.Cell>{student.questionsPosted}</Table.Cell>
+									<Table.Cell>{student.questionsAnswered}</Table.Cell>
+									<Table.Cell>
+										<Badge variant="secondary">{student.totalContributions}</Badge>
+									</Table.Cell>
+									<Table.Cell>{student.lastActive}</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</Card.Content>
+			</Card.Root>
+		</Tabs.Content>
+	</Tabs.Root>
 </div>
