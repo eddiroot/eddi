@@ -56,7 +56,7 @@ export const task = pgTable(
 	]
 );
 
-export type task = typeof task.$inferSelect;
+export type Task = typeof task.$inferSelect;
 
 export enum taskBlockTypeEnum {
 	h1 = 'h1',
@@ -105,7 +105,7 @@ export const taskBlock = pgTable('task_block', {
 	...timestamps
 });
 
-export type taskBlock = typeof taskBlock.$inferSelect;
+export type TaskBlock = typeof taskBlock.$inferSelect;
 
 export const whiteboard = pgTable('whiteboard', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

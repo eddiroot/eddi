@@ -2,10 +2,13 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 
-export async function getUserLessonsBySubjectOfferingId(userId: string, subjectOfferingId: number) {
+export async function getUserTasksBySchoolSubjectOfferingId(
+	userId: string,
+	schoolSubjectId: number
+) {
 	const lessons = await db
 		.select({
-			lesson: table.lesson,
+			lesson: table.task,
 			lessonTopic: table.lessonTopic
 		})
 		.from(table.userSubjectClass)
