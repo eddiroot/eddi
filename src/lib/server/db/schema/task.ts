@@ -1,4 +1,13 @@
-import { pgTable, text, integer, timestamp, boolean, jsonb, pgEnum } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	timestamp,
+	boolean,
+	jsonb,
+	pgEnum,
+	foreignKey
+} from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 
 export enum taskTypeEnum {
@@ -19,17 +28,33 @@ export const taskTypeEnumPg = pgEnum('task_type', [
 	taskTypeEnum.homework
 ]);
 
-export const task = pgTable('task', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	title: text('title').notNull(),
-	type: taskTypeEnumPg().notNull(),
-	description: text('description').notNull(),
-	index: integer('index').notNull(),
-	dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
-	isPublished: boolean('is_published').notNull().default(false),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
+export const task = pgTable(
+	'task',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		title: text('title').notNull(),
+		type: taskTypeEnumPg().notNull(),
+		description: text('description').notNull(),
+		index: integer('index').notNull(),
+		dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
+		isPublished: boolean('is_published').notNull().default(false),
+		originalId: integer('original_id'),
+		previousId: integer('previous_id'),
+		version: integer('version').notNull().default(1),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [
+		foreignKey({
+			columns: [self.originalId],
+			foreignColumns: [self.id]
+		}).onDelete('cascade'),
+		foreignKey({
+			columns: [self.previousId],
+			foreignColumns: [self.id]
+		}).onDelete('cascade')
+	]
+);
 
 export type task = typeof task.$inferSelect;
 
