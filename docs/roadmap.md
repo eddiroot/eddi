@@ -43,6 +43,7 @@ Raph
   - Fix whiteboard vertical panning
 - [ ] Student/lesson analytics
 - [ ] Student reports live throughout semester
+- [ ] Associate chatbot chats with the lesson/subject they were created in
 
 Beej + Blake
 
