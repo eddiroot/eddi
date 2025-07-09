@@ -228,7 +228,14 @@
 								}}
 								{#snippet child({ props })}
 									{#if sidebar.leftOpen == false}
-										<a href="/subjects/{subject.subjectOffering.id}">
+										<a 
+											href="/subjects/{subject.subjectOffering.id}"
+											onclick={() => {
+												if (!sidebar.leftOpen) {
+													sidebar.setLeftOpen(true);
+												}
+											}}
+										>
 											<Sidebar.MenuButton
 												side="left"
 												tooltipContent={subject.subject.name}
