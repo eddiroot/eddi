@@ -10,62 +10,42 @@ import {
 import { timestamps } from './utils';
 import { subjectClass } from './subjects';
 
-export const lessonTopic = pgTable('lesson_topic', {
-    id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-    name: text('name').notNull(),
-    index: integer('index').notNull(),
-    subjectClassId: integer('subject_class_id')
-        .notNull()
-        .references(() => subjectClass.id, { onDelete: 'cascade' }),
-    isArchived: boolean('is_archived').notNull().default(false),
-    ...timestamps
-});
-
-export type LessonTopic = typeof lessonTopic.$inferSelect;
-
-export enum lessonTypeEnum {
+export enum taskTypeEnum {
     lesson = 'lesson',
     assessment = 'assessment',
     homework = 'homework'
 }
 
-export enum lessonStatusEnum {
+export enum taskStatusEnum {
     draft = 'draft',
     published = 'published',
     archived = 'archived'
 }
 
-export const lessonTypeEnumPg = pgEnum('lesson_type', [
-    lessonTypeEnum.lesson,
-    lessonTypeEnum.assessment,
-    lessonTypeEnum.homework
+export const taskTypeEnumPg = pgEnum('task_type', [
+    taskTypeEnum.lesson,
+    taskTypeEnum.assessment,
+    taskTypeEnum.homework
 ]);
 
-export const lessonStatusEnumPg = pgEnum('lesson_status', [
-    lessonStatusEnum.draft,
-    lessonStatusEnum.published,
-    lessonStatusEnum.archived
-]);
-
-export const lesson = pgTable('lesson', {
+export const task = pgTable('task', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
     title: text('title').notNull(),
-    type: lessonTypeEnumPg().notNull(),
+    type: taskTypeEnumPg().notNull(),
     description: text('description').notNull(),
-    // Cannot use 'status' as a column name because it is a reserved keyword in PostgreSQL
-    lessonStatus: lessonStatusEnumPg().notNull(),
     index: integer('index').notNull(),
-    lessonTopicId: integer('lesson_topic_id')
+    subjectClassId: integer('subject_class_id')
         .notNull()
-        .references(() => lessonTopic.id, { onDelete: 'cascade' }),
+        .references(() => subjectClass.id, { onDelete: 'cascade' }),
     dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
+    isPublished: boolean('is_published').notNull().default(false),
     isArchived: boolean('is_archived').notNull().default(false),
     ...timestamps
 });
 
-export type Lesson = typeof lesson.$inferSelect;
+export type task = typeof task.$inferSelect;
 
-export enum lessonBlockTypeEnum {
+export enum taskBlockTypeEnum {
     h1 = 'h1',
     h2 = 'h2',
     h3 = 'h3',
@@ -83,42 +63,42 @@ export enum lessonBlockTypeEnum {
     twoColumnLayout = 'two_column_layout'
 }
 
-export const lessonBlockTypeEnumPg = pgEnum('lesson_block_type', [
-    lessonBlockTypeEnum.h1,
-    lessonBlockTypeEnum.h2,
-    lessonBlockTypeEnum.h3,
-    lessonBlockTypeEnum.h4,
-    lessonBlockTypeEnum.h5,
-    lessonBlockTypeEnum.h6,
-    lessonBlockTypeEnum.markdown,
-    lessonBlockTypeEnum.image,
-    lessonBlockTypeEnum.video,
-    lessonBlockTypeEnum.audio,
-    lessonBlockTypeEnum.fillInBlank,
-    lessonBlockTypeEnum.multipleChoice,
-    lessonBlockTypeEnum.whiteboard,
-    lessonBlockTypeEnum.matching,
-    lessonBlockTypeEnum.twoColumnLayout
+export const taskBlockTypeEnumPg = pgEnum('task_block_type', [
+    taskBlockTypeEnum.h1,
+    taskBlockTypeEnum.h2,
+    taskBlockTypeEnum.h3,
+    taskBlockTypeEnum.h4,
+    taskBlockTypeEnum.h5,
+    taskBlockTypeEnum.h6,
+    taskBlockTypeEnum.markdown,
+    taskBlockTypeEnum.image,
+    taskBlockTypeEnum.video,
+    taskBlockTypeEnum.audio,
+    taskBlockTypeEnum.fillInBlank,
+    taskBlockTypeEnum.multipleChoice,
+    taskBlockTypeEnum.whiteboard,
+    taskBlockTypeEnum.matching,
+    taskBlockTypeEnum.twoColumnLayout
 ]);
 
-export const lessonBlock = pgTable('lesson_block', {
+export const taskBlock = pgTable('task_block', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-    lessonId: integer('lesson_id')
+    taskId: integer('task_id')
         .notNull()
-        .references(() => lesson.id, { onDelete: 'cascade' }),
-    type: lessonBlockTypeEnumPg().notNull(),
+        .references(() => task.id, { onDelete: 'cascade' }),
+    type: taskBlockTypeEnumPg().notNull(),
     content: jsonb('content').notNull(),
     index: integer('index').notNull().default(0),
     ...timestamps
 });
 
-export type LessonBlock = typeof lessonBlock.$inferSelect;
+export type taskBlock = typeof taskBlock.$inferSelect;
 
 export const whiteboard = pgTable('whiteboard', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-    lessonId: integer('lesson_id')
+    taskId: integer('task_id')
         .notNull()
-        .references(() => lesson.id, { onDelete: 'cascade' }),
+        .references(() => task.id, { onDelete: 'cascade' }),
     title: text('title'),
     ...timestamps
 });
