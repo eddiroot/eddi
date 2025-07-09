@@ -406,3 +406,34 @@ export const schoolSubjectThreadResponse = pgTable(
 );
 
 export type SchoolSubjectThreadResponse = typeof schoolSubjectThreadResponse.$inferSelect;
+
+export const schoolSubjectTask = pgTable('sch_sub_task', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	schoolSubjectId: integer('sch_sub_id')
+		.notNull()
+		.references(() => schoolSubject.id, { onDelete: 'cascade' }),
+	taskId: integer('task_id')
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	assigneeUserId: text('assignee_user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type SchoolSubjectTask = typeof schoolSubjectTask.$inferSelect;
+
+export const classTask = pgTable('class_task', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	schoolSubjectOfferingClassId: integer('sch_sub_off_class_id')
+		.notNull()
+		.references(() => schoolSubjectOfferingClass.id, { onDelete: 'cascade' }),
+	schoolSubjectTaskId: integer('sch_sub_task_id')
+		.notNull()
+		.references(() => schoolSubjectTask.id, { onDelete: 'cascade' }),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type ClassTask = typeof classTask.$inferSelect;
