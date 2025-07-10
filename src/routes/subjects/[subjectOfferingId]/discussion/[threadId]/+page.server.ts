@@ -2,7 +2,7 @@ import {
 	getSubjectThreadById,
 	getSubjectThreadResponsesById,
 	createSubjectThreadResponse
-} from '$lib/server/db/service.js';
+} from '$lib/server/db/service';
 import { superValidate, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema.js';

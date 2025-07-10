@@ -33,9 +33,6 @@
 								</Badge>
 							{/if} -->
 						</div>
-						<Card.Description class="text-sm">
-							{subjectInfo.subject.subject.description}
-						</Card.Description>
 					</Card.Header>
 					<Card.Content>
 						<div class="space-y-3">

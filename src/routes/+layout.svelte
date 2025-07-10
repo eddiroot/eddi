@@ -50,11 +50,11 @@
 				const subjectOfferingId = Number(segment);
 				const subject = data?.subjects?.find((s) => s.subjectOffering.id === subjectOfferingId);
 				label = subject?.subject.name || `Subject ${segment}`;
-			} else if (segments[i - 1] === 'lessons' && !isNaN(Number(segment))) {
-				const lessonId = Number(segment);
+			} else if (segments[i - 1] === 'tasks' && !isNaN(Number(segment))) {
+				const taskId = Number(segment);
 				const pageData = page.data as any;
-				const lesson = pageData?.lesson || pageData?.lessons?.find((l: any) => l.id === lessonId);
-				label = lesson?.title || `Lesson ${segment}`;
+				const task = pageData?.task || pageData?.tasks?.find((l: any) => l.id === taskId);
+				label = task?.title || `Task ${segment}`;
 			} else if (segments[i - 1] === 'whiteboard' && !isNaN(Number(segment))) {
 				const whiteboardId = Number(segment);
 				const pageData = page.data as any;

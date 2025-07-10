@@ -1,31 +1,31 @@
-// Client-side API helper functions for Lessons ordering
+// Client-side API helper functions for Tasks ordering
 
 import type {
-	UpdateLessonOrderRequest,
+	UpdateTaskOrderRequest,
 	UpdateTopicOrderRequest,
 	ApiSuccessResponse
 } from '../../../api/tasks/types';
 
-const API_BASE = '/api/lessons';
+const API_BASE = '/api/tasks';
 
 /**
- * Update lesson order within topics
+ * Update task order within topics
  */
-export async function updateLessonOrder(
-	request: UpdateLessonOrderRequest
+export async function updateTaskOrder(
+	request: UpdateTaskOrderRequest
 ): Promise<ApiSuccessResponse> {
 	const response = await fetch(`${API_BASE}/order`, {
 		method: 'PATCH',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ type: 'lesson', ...request })
+		body: JSON.stringify({ type: 'task', ...request })
 	});
 
 	const data = await response.json();
 
 	if (!response.ok) {
-		throw new Error(data.error || 'Failed to update lesson order');
+		throw new Error(data.error || 'Failed to update task order');
 	}
 
 	return data;

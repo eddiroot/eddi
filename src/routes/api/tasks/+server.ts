@@ -1,23 +1,23 @@
 import { json } from '@sveltejs/kit';
-import { updateLessonTitle as updateLessonTitleService } from '$lib/server/db/service';
+import { updateTaskTitle as updateTaskTitleService } from '$lib/server/db/service';
 
-// PATCH /api/lessons - Update lesson title
+// PATCH /api/tasks - Update task title
 export async function PATCH({ request }: { request: Request }) {
 	try {
-		const { lessonId, title } = await request.json();
+		const { taskId, title } = await request.json();
 
-		if (!lessonId || !title) {
-			return json({ error: 'Lesson ID and title are required' }, { status: 400 });
+		if (!taskId || !title) {
+			return json({ error: 'Task ID and title are required' }, { status: 400 });
 		}
 
-		if (typeof lessonId !== 'number' || typeof title !== 'string') {
+		if (typeof taskId !== 'number' || typeof title !== 'string') {
 			return json({ error: 'Invalid input types' }, { status: 400 });
 		}
 
-		const updatedLesson = await updateLessonTitleService(lessonId, title);
-		return json({ lesson: updatedLesson });
+		const updatedTask = await updateTaskTitleService(taskId, title);
+		return json({ task: updatedTask });
 	} catch (error) {
-		console.error('Error updating lesson title:', error);
-		return json({ error: 'Failed to update lesson title' }, { status: 500 });
+		console.error('Error updating task title:', error);
+		return json({ error: 'Failed to update task title' }, { status: 500 });
 	}
 }

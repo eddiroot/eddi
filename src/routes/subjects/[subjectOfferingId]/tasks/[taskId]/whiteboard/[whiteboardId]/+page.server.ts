@@ -1,4 +1,4 @@
-import { getWhiteboardWithTask } from '$lib/server/db/service.js';
+import { getWhiteboardWithTask } from '$lib/server/db/service';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params }: { params: { whiteboardId: string; taskId: string } }) => {
