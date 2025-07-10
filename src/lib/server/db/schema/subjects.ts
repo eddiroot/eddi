@@ -202,7 +202,7 @@ export const courseMapItemAreaOfSudty = pgTable(
 	'course_map_item_area_of_study',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		coursemapItemId: integer('cm_item_id')
+		courseMapItemId: integer('cm_item_id')
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		learningAreaId: integer('learn_a_id')
@@ -233,7 +233,7 @@ export const courseMapItemAssessmentPlan = pgTable(
 	'cm_item_as_plan',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		coursemapItemId: integer('cm_item_id')
+		courseMapItemId: integer('cm_item_id')
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
@@ -262,7 +262,7 @@ export const courseMapItemLessonPlan = pgTable(
 	'cm_item_lesson_plan',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		coursemapItemId: integer('cm_item_id')
+		courseMapItemId: integer('cm_item_id')
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
@@ -291,7 +291,7 @@ export const courseMapItemResource = pgTable(
 	'course_map_item_resource',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		coursemapItemId: integer('cm_item_id')
+		courseMapItemId: integer('cm_item_id')
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		resourceId: integer('resource_id').notNull(),
