@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, desc } from 'drizzle-orm';
 
 // For simplicity, we will grab all of the coursemap topics and descriptions as well as the lesson names and descriptions to
 // provide context for the subject offering. This will be used to answer questions about the subject offering in the chatbot.
@@ -310,4 +310,107 @@ export async function getSubjectOfferingContextForChatbot(
 	};
 
 	return context;
+}
+
+export async function createChatbotChat(userId: string) {
+	const [chat] = await db
+		.insert(table.chatbotChat)
+		.values({
+			userId
+		})
+		.returning();
+
+	return chat;
+}
+
+export async function createChatbotMessage(
+	chatId: number,
+	authorId: string | null,
+	content: string
+) {
+	const [message] = await db
+		.insert(table.chatbotMessage)
+		.values({
+			chatId,
+			authorId,
+			content
+		})
+		.returning();
+
+	return message;
+}
+
+export async function getLatestChatbotMessageByChatId(chatId: number) {
+	const messages = await db
+		.select()
+		.from(table.chatbotMessage)
+		.where(eq(table.chatbotMessage.chatId, chatId))
+		.orderBy(desc(table.chatbotMessage.createdAt))
+		.limit(1);
+
+	return messages.length > 0 ? messages[0] : null;
+}
+
+export async function getChatbotMessagesByChatId(chatId: number) {
+	const messages = await db
+		.select()
+		.from(table.chatbotMessage)
+		.where(eq(table.chatbotMessage.chatId, chatId))
+		.orderBy(asc(table.chatbotMessage.createdAt));
+
+	return messages;
+}
+
+export async function getChatbotChatsByUserId(userId: string) {
+	const chats = await db
+		.select()
+		.from(table.chatbotChat)
+		.where(eq(table.chatbotChat.userId, userId))
+		.orderBy(desc(table.chatbotChat.createdAt));
+
+	return chats;
+}
+
+export async function getChatbotChatsWithFirstMessageByUserId(userId: string) {
+	const chats = await db
+		.select({
+			chat: table.chatbotChat,
+			firstMessage: {
+				content: table.chatbotMessage.content,
+				createdAt: table.chatbotMessage.createdAt
+			}
+		})
+		.from(table.chatbotChat)
+		.leftJoin(
+			table.chatbotMessage,
+			and(
+				eq(table.chatbotMessage.chatId, table.chatbotChat.id),
+				eq(table.chatbotMessage.authorId, userId) // Only user messages, not AI responses
+			)
+		)
+		.where(eq(table.chatbotChat.userId, userId))
+		.orderBy(desc(table.chatbotChat.createdAt));
+
+	// Group by chat and get the first user message for each
+	const chatMap = new Map();
+
+	for (const row of chats) {
+		const chatId = row.chat.id;
+		if (!chatMap.has(chatId)) {
+			chatMap.set(chatId, {
+				...row.chat,
+				firstMessage: row.firstMessage
+			});
+		} else if (
+			row.firstMessage &&
+			row.firstMessage.createdAt < chatMap.get(chatId).firstMessage?.createdAt
+		) {
+			chatMap.set(chatId, {
+				...row.chat,
+				firstMessage: row.firstMessage
+			});
+		}
+	}
+
+	return Array.from(chatMap.values());
 }
