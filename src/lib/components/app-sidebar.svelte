@@ -19,7 +19,7 @@
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import type { School, Campus, Subject, SubjectOffering } from '$lib/server/db/schema';
 	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
-	import { convertToFullName } from '$lib/utils';
+	import { convertToFullName, userPermissions, getPermissions } from '$lib/utils';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
 	import OrbitIcon from '@lucide/svelte/icons/orbit';
@@ -30,20 +30,20 @@
 			title: 'Dashboard',
 			url: '/dashboard',
 			icon: LayoutDashboardIcon,
-			roles: ['any']
+			repuiredPermission: userPermissions.viewDashboard
 		},
 		{
 			title: 'Admin',
 			url: '/admin',
 			icon: WrenchIcon,
-			roles: ['schoolAdmin']
+			repuiredPermission: userPermissions.viewAdmin
 		},
 
 		{
 			title: 'Timetable',
 			url: '/timetable',
 			icon: CalendarDaysIcon,
-			roles: ['any']
+			repuiredPermission: userPermissions.viewTimeTable
 		}
 	];
 
@@ -158,6 +158,8 @@
 	});
 
 	let current_campus = $state(campuses.length > 0 ? campuses[0] : null);
+
+	const permissions = $state(getPermissions(user?.type || ''));
 </script>
 
 <Sidebar.Root collapsible="icon" class="h-full">
@@ -220,7 +222,7 @@
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					{#each items as item}
-						{#if item.roles.includes('any') || item.roles.includes(user.type)}
+						{#if permissions.includes(item.repuiredPermission)}
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
 									side="left"
@@ -260,7 +262,7 @@
 								}}
 								{#snippet child({ props })}
 									{#if sidebar.leftOpen == false}
-										<a 
+										<a
 											href="/subjects/{subject.subjectOffering.id}"
 											onclick={() => {
 												if (!sidebar.leftOpen) {

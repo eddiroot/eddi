@@ -1,20 +1,68 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { userTypeEnum } from './server/db/schema';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function getPermissions(userType: string): string[] {
+export enum userPermissions {
+	viewLessons = 'view_lessons',
+	createLessons = 'create_lessons',
+	viewAnalytics = 'view_analytics',
+	manageTeachers = 'manage_teachers',
+	viewChildGrades = 'view_child_grades',
+	viewDashboard = 'view_dashboard',
+	viewAdmin = 'view_admin',
+	viewTimeTable = 'view_time_table',
+	etc = 'etc'
+}
+
+export function getPermissions(userType: userTypeEnum): string[] {
 	switch (userType) {
-		case 'student':
-			return ['view_lessons'];
+		case userTypeEnum.student:
+			return [userPermissions.viewLessons];
 		case 'teacher':
-			return ['view_lessons', 'create_lessons'];
-		case 'schoolAdmin':
-			return [];
-		case 'systemAdmin':
-			return [];
+			return [
+				userPermissions.viewLessons,
+				userPermissions.createLessons,
+				userPermissions.viewAnalytics,
+				userPermissions.viewTimeTable,
+				userPermissions.viewDashboard
+			];
+		case userTypeEnum.principal:
+			return [
+				userPermissions.manageTeachers,
+				userPermissions.viewAnalytics,
+				userPermissions.viewTimeTable,
+				userPermissions.viewDashboard
+			];
+		case userTypeEnum.parent:
+			return [
+				userPermissions.viewChildGrades,
+				userPermissions.viewLessons,
+				userPermissions.viewTimeTable,
+				userPermissions.viewDashboard
+			];
+		case userTypeEnum.schoolAdmin:
+			return [
+				userPermissions.viewAdmin,
+				userPermissions.viewDashboard,
+				userPermissions.viewTimeTable,
+				userPermissions.viewAnalytics,
+				userPermissions.manageTeachers,
+				userPermissions.viewLessons
+			];
+		case userTypeEnum.systemAdmin:
+			return [
+				userPermissions.viewAdmin,
+				userPermissions.viewDashboard,
+				userPermissions.viewTimeTable,
+				userPermissions.viewAnalytics,
+				userPermissions.manageTeachers,
+				userPermissions.viewLessons,
+				userPermissions.etc
+			];
 		default:
 			return [];
 	}

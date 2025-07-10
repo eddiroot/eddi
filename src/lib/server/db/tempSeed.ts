@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { reset } from 'drizzle-seed';
-import * as schema from './schema/index';
+import * as schema from './schema/index.js';
 import postgres from 'postgres';
 import { seed_school } from './seed/seed_school';
 import { seed_students } from './seed/seed_students';
