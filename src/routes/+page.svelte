@@ -93,7 +93,7 @@
 					Engage students with interactive lessons
 				</h2>
 				<p class="text-muted-foreground text-xl">
-					Use a drag-and-drop editor with AI assistance to speed up lesson creation.
+					Use a drag-and-drop editor with AI assistance to speed up task creation.
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">

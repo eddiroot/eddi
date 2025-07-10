@@ -51,7 +51,7 @@
 	// Set default task type to 'task'
 	$effect(() => {
 		if (!$formData.type) {
-			$formData.type = 'task';
+			$formData.type = 'lesson';
 		}
 	});
 
@@ -64,19 +64,6 @@
 		$formData.creationMethod = creationMethod;
 	});
 
-	// Handle topic selection/creation
-	$effect(() => {
-		if (isCreatingNewTopic) {
-			$formData.taskTopicId = undefined;
-			$formData.newTopicName = newTopicName;
-		} else if (selectedTopicId) {
-			$formData.taskTopicId = parseInt(selectedTopicId, 10);
-			$formData.newTopicName = undefined;
-		} else {
-			$formData.taskTopicId = undefined;
-			$formData.newTopicName = undefined;
-		}
-	});
 
 	// Connect aiFiles to form and validate
 	$effect(() => {

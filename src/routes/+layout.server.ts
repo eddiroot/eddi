@@ -1,4 +1,4 @@
-import { getSchoolById, getCampusesByUserId, getSubjectsByUserId } from '$lib/server/db/service.js';
+import { getSchoolById, getCampusesByUserId, getSubjectsByUserId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { user } }) => {
 	if (!user) {

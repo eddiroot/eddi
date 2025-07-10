@@ -333,7 +333,7 @@ export async function getWhiteboardWithTask(whiteboardId: number, taskId: number
 
 	return {
 		whiteboard: whiteboardData[0].whiteboard,
-		lesson: whiteboardData[0].task
+		task: whiteboardData[0].task
 	};
 }
 
