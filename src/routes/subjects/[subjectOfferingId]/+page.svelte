@@ -74,13 +74,6 @@
 				<Card.Header>
 					<Card.Title class="text-xl">Overview</Card.Title>
 				</Card.Header>
-				<Card.Content>
-					<ScrollArea class="h-24">
-						<p class="text-muted-foreground pr-4 leading-relaxed">
-							{data.subject?.description}
-						</p>
-					</ScrollArea>
-				</Card.Content>
 			</Card.Root>
 		</div>
 

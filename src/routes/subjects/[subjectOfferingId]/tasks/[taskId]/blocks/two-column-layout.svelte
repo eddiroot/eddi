@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
-	import type { LessonBlock } from '$lib/server/db/schema';
 
-	// Import block components
 	import Heading from './heading.svelte';
 	import RichTextEditor from './rich-text-editor.svelte';
 	import Image from './image.svelte';
@@ -92,12 +90,12 @@
 			return;
 		}
 
-		// Call the global drop handler first (for lesson-level operations)
+		// Call the global drop handler first (for task-level operations)
 		if (onGlobalDrop) {
 			onGlobalDrop(state);
 		}
 
-		// Only allow lessonComponentItems to be dropped in columns
+		// Only allow taskComponentItems to be dropped in columns
 		const allowedTypes = [
 			'h1',
 			'h2',
@@ -116,7 +114,7 @@
 		];
 
 		if (!allowedTypes.includes(draggedItem.type)) {
-			console.warn('Only lesson component items can be dropped in columns');
+			console.warn('Only task component items can be dropped in columns');
 			return;
 		}
 
@@ -128,12 +126,12 @@
 			return;
 		}
 
-		if (sourceContainer === 'blockPalette' || sourceContainer.startsWith('lesson')) {
-			// Add new item from palette or main lesson
-			// For lesson blocks, preserve the exact content structure
+		if (sourceContainer === 'blockPalette' || sourceContainer.startsWith('task')) {
+			// Add new item from palette or main task
+			// For task blocks, preserve the exact content structure
 			const newItem = {
 				type: draggedItem.type,
-				content: sourceContainer.startsWith('lesson') ? draggedItem.content : draggedItem.content,
+				content: sourceContainer.startsWith('task') ? draggedItem.content : draggedItem.content,
 				id: Date.now() // Temporary ID for local state
 			};
 
@@ -142,7 +140,7 @@
 				[targetColumnKey]: [newItem]
 			};
 
-			// If dragging from main lesson, the block will be removed by the main handleDrop function
+			// If dragging from main task, the block will be removed by the main handleDrop function
 		} else if (sourceContainer.startsWith('two-column-')) {
 			// Handle moving items between columns
 			const sourceColumn = sourceContainer.includes('left') ? 'left' : 'right';
@@ -167,7 +165,7 @@
 		};
 	}
 
-	// Handle when blocks are dragged OUT of columns to lesson or palette
+	// Handle when blocks are dragged OUT of columns to task or palette
 	function handleBlockDraggedOut(column: 'left' | 'right') {
 		removeItem(column);
 	}

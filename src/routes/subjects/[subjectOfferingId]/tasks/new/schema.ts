@@ -43,18 +43,18 @@ export const formSchema = z
 		description: z
 			.string({ required_error: 'Please enter a description' })
 			.max(500, 'Description cannot exceed 500 characters'),
-		lessonTopicId: z.number().optional(), // Make this optional
+		taskTopicId: z.number().optional(), // Make this optional
 		newTopicName: z.string().optional(), // Add this for new topic creation
-		type: z.enum(['lesson', 'homework', 'assessment']).default('lesson'),
+		type: z.enum(['task', 'homework', 'assessment']).default('task'),
 		dueDate: z.date().optional(),
 		files: filesSchema.optional(),
 		creationMethod: z.enum(['manual', 'ai'], {
 			required_error: 'Please select a creation method'
 		})
 	})
-	.refine((data) => data.lessonTopicId || data.newTopicName, {
+	.refine((data) => data.taskTopicId || data.newTopicName, {
 		message: 'Please select an existing topic or enter a new topic name',
-		path: ['lessonTopicId']
+		path: ['taskTopicId']
 	});
 
 export type FileSchema = typeof fileSchema;

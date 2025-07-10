@@ -1,25 +1,25 @@
 import { json } from '@sveltejs/kit';
-import { createLessonBlock, updateLessonBlock, deleteLessonBlock } from '$lib/server/db/service';
-import { lessonBlockTypeEnum } from '$lib/server/db/schema';
+import { createTaskBlock, updateTaskBlock, deleteTaskBlock } from '$lib/server/db/service';
+import { taskBlockTypeEnum } from '$lib/server/db/schema';
 
-// POST /api/lessons/blocks - Create a new block
+// POST /api/tasks/blocks - Create a new block
 export async function POST({ request }: { request: Request }) {
 	try {
-		const { lessonId, type, content, index } = await request.json();
+		const { taskId, type, content, index } = await request.json();
 
-		if (!lessonId || !type || (!index && index != 0) || content === undefined) {
-			return json({ error: 'Lesson ID, type, index, and content are required' }, { status: 400 });
+		if (!taskId || !type || (!index && index != 0) || content === undefined) {
+			return json({ error: 'Task ID, type, index, and content are required' }, { status: 400 });
 		}
 
-		if (typeof lessonId !== 'number' || typeof type !== 'string' || typeof index !== 'number') {
+		if (typeof taskId !== 'number' || typeof type !== 'string' || typeof index !== 'number') {
 			return json({ error: 'Invalid input types' }, { status: 400 });
 		}
 
-		if (!Object.values(lessonBlockTypeEnum).includes(type as lessonBlockTypeEnum)) {
+		if (!Object.values(taskBlockTypeEnum).includes(type as taskBlockTypeEnum)) {
 			return json({ error: 'Invalid block type' }, { status: 400 });
 		}
 
-		const block = await createLessonBlock(lessonId, type as lessonBlockTypeEnum, content, index);
+		const block = await createTaskBlock(taskId, type as taskBlockTypeEnum, content, index);
 
 		return json({ block });
 	} catch (error) {
@@ -28,7 +28,7 @@ export async function POST({ request }: { request: Request }) {
 	}
 }
 
-// PATCH /api/lessons/blocks - Update a block
+// PATCH /api/tasks/blocks - Update a block
 export async function PATCH({ request }: { request: Request }) {
 	try {
 		const { block, content } = await request.json();
@@ -41,20 +41,20 @@ export async function PATCH({ request }: { request: Request }) {
 			return json({ error: 'Invalid block ID type' }, { status: 400 });
 		}
 
-		const updates: { content?: unknown; type?: lessonBlockTypeEnum } = {};
+		const updates: { content?: unknown; type?: taskBlockTypeEnum } = {};
 		if (content !== undefined) updates.content = content;
 		if (block.type !== undefined) {
 			if (typeof block.type !== 'string') {
 				return json({ error: 'Invalid block type' }, { status: 400 });
 			}
-			updates.type = block.type as lessonBlockTypeEnum;
+			updates.type = block.type as taskBlockTypeEnum;
 		}
 
 		if (Object.keys(updates).length === 0) {
 			return json({ error: 'No valid updates provided' }, { status: 400 });
 		}
 
-		const updatedBlock = await updateLessonBlock(block.id, updates);
+		const updatedBlock = await updateTaskBlock(block.id, updates);
 		return json({ block: updatedBlock });
 	} catch (error) {
 		console.error('Error updating block:', error);
@@ -62,7 +62,7 @@ export async function PATCH({ request }: { request: Request }) {
 	}
 }
 
-// DELETE /api/lessons/blocks?blockId=123 - Delete a block
+// DELETE /api/tasks/blocks?blockId=123 - Delete a block
 export async function DELETE({ url }: { url: URL }) {
 	try {
 		const blockIdParam = url.searchParams.get('blockId');
@@ -78,7 +78,7 @@ export async function DELETE({ url }: { url: URL }) {
 			return json({ error: 'Invalid block ID' }, { status: 400 });
 		}
 
-		await deleteLessonBlock(blockId);
+		await deleteTaskBlock(blockId);
 		return json({ success: true });
 	} catch (error) {
 		console.error('Error deleting block:', error);

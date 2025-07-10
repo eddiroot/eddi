@@ -3,17 +3,17 @@ import { superValidate, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
-import { lessonComponentSchema, lessonCreationPrompts } from './constants';
+import { taskComponentSchema, taskCreationPrompts } from './constants';
 import {
-	createLesson,
-	createLessonTopic,
-	getLessonTopicsBySubjectOfferingId,
-	createLessonBlock
+	createTask,
+	createTaskTopic,
+	getTaskTopicsBySubjectOfferingId,
+	createTaskBlock
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { lessonBlockTypeEnum, lessonStatusEnum, lessonTypeEnum } from '$lib/server/db/schema';
+import { taskBlockTypeEnum, taskStatusEnum, taskTypeEnum } from '$lib/server/db/schema';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -25,48 +25,48 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 		throw new Error('Invalid subject offering ID');
 	}
 
-	const [form, lessonTopics] = await Promise.all([
+	const [form, taskTopics] = await Promise.all([
 		superValidate(zod(formSchema)),
-		getLessonTopicsBySubjectOfferingId(subjectOfferingIdInt)
+		getTaskTopicsBySubjectOfferingId(subjectOfferingIdInt)
 	]);
 
-	return { form, lessonTopics };
+	return { form, taskTopics };
 };
 
-// Helper function to validate and create blocks from lesson schema
-async function createBlocksFromSchema(lessonSchema: string, lessonId: number) {
+// Helper function to validate and create blocks from task schema
+async function createBlocksFromSchema(taskSchema: string, taskId: number) {
 	try {
 		// Parse the JSON schema
-		const parsedSchema = JSON.parse(lessonSchema);
-		// Extract lesson components from schema
-		const lessonComponents = parsedSchema?.lesson || [];
+		const parsedSchema = JSON.parse(taskSchema);
+		// Extract task components from schema
+		const taskComponents = parsedSchema?.task || [];
 
-		if (!Array.isArray(lessonComponents)) {
-			console.error('Lesson schema does not contain a valid lesson array');
+		if (!Array.isArray(taskComponents)) {
+			console.error('Task schema does not contain a valid task array');
 			return;
 		}
 
-		console.log(`Processing ${lessonComponents.length} lesson components`);
+		console.log(`Processing ${taskComponents.length} task components`);
 
 		// Process each component and create blocks
-		for (const component of lessonComponents) {
+		for (const component of taskComponents) {
 			try {
-				await createBlockFromComponent(component, lessonId);
+				await createBlockFromComponent(component, taskId);
 			} catch (error) {
 				console.error('Error creating block from component:', component, error);
 				// Continue processing other components even if one fails
 			}
 		}
 
-		console.log('Successfully processed all lesson components');
+		console.log('Successfully processed all task components');
 	} catch (error) {
-		console.error('Error parsing or processing lesson schema:', error);
+		console.error('Error parsing or processing task schema:', error);
 	}
 }
 
 // Helper function to create individual blocks from components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createBlockFromComponent(component: any, lessonId: number) {
+async function createBlockFromComponent(component: any, taskId: number) {
 	if (!component || !component.type) {
 		console.warn('Invalid component structure:', component);
 		return;
@@ -82,7 +82,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 		case 'h5': {
 			// Extract text content properly
 			const headingText = content?.text || content || 'Heading';
-			await createLessonBlock(lessonId, type, headingText);
+			await createTaskBlock(taskId, type, headingText);
 			console.log(`Created ${type} block with content: "${headingText}"`);
 			break;
 		}
@@ -92,7 +92,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 		case 'text': {
 			// Extract markdown content properly
 			const markdownContent = content?.markdown || content?.text || content || '';
-			await createLessonBlock(lessonId, lessonBlockTypeEnum.markdown, markdownContent);
+			await createTaskBlock(taskId, taskBlockTypeEnum.markdown, markdownContent);
 			console.log(`Created markdown block with content length: ${markdownContent.length}`);
 			break;
 		}
@@ -106,11 +106,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					answer: content.answer,
 					multiple: content.multiple || (Array.isArray(content.answer) ? true : false)
 				};
-				await createLessonBlock(
-					lessonId,
-					lessonBlockTypeEnum.multipleChoice,
-					multipleChoiceContent
-				);
+				await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, multipleChoiceContent);
 				console.log(`Created multiple choice block: "${content.question}"`);
 			} else {
 				console.warn('Invalid multiple choice content structure:', content);
@@ -125,7 +121,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					alt: content.alt || content.caption || 'Image',
 					caption: content.caption || content.alt || ''
 				};
-				await createLessonBlock(lessonId, lessonBlockTypeEnum.image, imageContent);
+				await createTaskBlock(taskId, taskBlockTypeEnum.image, imageContent);
 				console.log(`Created image block: "${imageContent.caption}"`);
 			} else {
 				console.warn('Invalid image content structure:', content);
@@ -139,7 +135,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					src: content.url || content.src || '',
 					title: content.title || content.caption || 'Video'
 				};
-				await createLessonBlock(lessonId, lessonBlockTypeEnum.video, videoContent);
+				await createTaskBlock(taskId, taskBlockTypeEnum.video, videoContent);
 				console.log(`Created video block: "${videoContent.title}"`);
 			} else {
 				console.warn('Invalid video content structure:', content);
@@ -153,7 +149,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					src: content.url || content.src || '',
 					title: content.title || content.caption || 'Audio'
 				};
-				await createLessonBlock(lessonId, lessonBlockTypeEnum.audio, audioContent);
+				await createTaskBlock(taskId, taskBlockTypeEnum.audio, audioContent);
 				console.log(`Created audio block: "${audioContent.title}"`);
 			} else {
 				console.warn('Invalid audio content structure:', content);
@@ -163,14 +159,14 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 		// Handle title and subtitle as headings
 		case 'title': {
 			const titleText = content?.text || content || 'Title';
-			await createLessonBlock(lessonId, lessonBlockTypeEnum.h1, titleText);
+			await createTaskBlock(taskId, taskBlockTypeEnum.h1, titleText);
 			console.log(`Created h1 block from title: "${titleText}"`);
 			break;
 		}
 
 		case 'subtitle': {
 			const subtitleText = content?.text || content || 'Subtitle';
-			await createLessonBlock(lessonId, lessonBlockTypeEnum.h2, subtitleText);
+			await createTaskBlock(taskId, taskBlockTypeEnum.h2, subtitleText);
 			console.log(`Created h2 block from subtitle: "${subtitleText}"`);
 			break;
 		}
@@ -183,7 +179,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 					sentence: content.sentence,
 					answer: content.answer
 				};
-				await createLessonBlock(lessonId, lessonBlockTypeEnum.fillInBlank, fillInBlankContent);
+				await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, fillInBlankContent);
 				console.log(`Created fill-in-blank block: "${content.sentence}"`);
 			} else {
 				console.warn('Invalid fill-in-blank content structure:', content);
@@ -212,7 +208,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 
 				// Only create the block if we have valid pairs
 				if (matchingContent.pairs.length > 0) {
-					await createLessonBlock(lessonId, lessonBlockTypeEnum.matching, matchingContent);
+					await createTaskBlock(taskId, taskBlockTypeEnum.matching, matchingContent);
 					console.log(
 						`Created matching block with ${matchingContent.pairs.length} pairs: "${matchingContent.instructions}"`
 					);
@@ -238,7 +234,7 @@ async function createBlockFromComponent(component: any, lessonId: number) {
 }
 
 export const actions = {
-	createLesson: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
+	createTask: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
 		security.isAuthenticated();
 
 		let subjectOfferingIdInt;
@@ -252,13 +248,13 @@ export const actions = {
 		const formData = await request.formData();
 		const form = await superValidate(formData, zod(formSchema));
 
-		let lessonTopicId = form.data.lessonTopicId;
+		let taskTopicId = form.data.taskTopicId;
 
 		// Create new topic if needed
-		if (form.data.newTopicName && !lessonTopicId) {
+		if (form.data.newTopicName && !taskTopicId) {
 			try {
-				const newTopic = await createLessonTopic(subjectOfferingIdInt, form.data.newTopicName);
-				lessonTopicId = newTopic.id;
+				const newTopic = await createTaskTopic(subjectOfferingIdInt, form.data.newTopicName);
+				taskTopicId = newTopic.id;
 				console.log('Created new topic:', newTopic);
 			} catch (error) {
 				console.error('Error creating new topic:', error);
@@ -266,19 +262,19 @@ export const actions = {
 			}
 		}
 
-		if (!lessonTopicId) {
+		if (!taskTopicId) {
 			return fail(400, { form, message: 'Topic is required' });
 		}
 
-		const lesson = await createLesson(
+		const task = await createTask(
 			form.data.title,
 			form.data.description,
-			lessonStatusEnum.draft,
-			lessonTypeEnum[form.data.type],
-			lessonTopicId,
+			taskStatusEnum.draft,
+			taskTypeEnum[form.data.type],
+			taskTopicId,
 			form.data.dueDate
 		);
-		console.log('Created lesson:', form.data);
+		console.log('Created task:', form.data);
 
 		// Now get the AI files from the same formData
 		const aiFiles = form.data.files || [];
@@ -304,7 +300,7 @@ export const actions = {
 		});
 
 		let tempFilePaths: string[] = [];
-		let lessonSchema = '';
+		let taskSchema = '';
 
 		try {
 			if (validFiles.length > 0) {
@@ -331,19 +327,19 @@ export const actions = {
 				console.log('Sending files to Gemini:', tempFilePaths);
 				for (const tempFilePath of tempFilePaths) {
 					console.log(`Processing temp file: ${tempFilePath}`);
-					lessonSchema += await geminiCompletion(
-						lessonCreationPrompts[form.data.type],
+					taskSchema += await geminiCompletion(
+						taskCreationPrompts[form.data.type],
 						tempFilePath,
-						lessonComponentSchema
+						taskComponentSchema
 					);
 				}
 			} else if (form.data.creationMethod === 'ai') {
 				// AI mode but no files
 				console.log('AI mode with no files - sending text-only prompt to Gemini');
-				lessonSchema = await geminiCompletion(
-					lessonCreationPrompts[form.data.type],
+				taskSchema = await geminiCompletion(
+					taskCreationPrompts[form.data.type],
 					undefined,
-					lessonComponentSchema
+					taskComponentSchema
 				);
 			} else {
 				console.log('Manual creation method selected');
@@ -375,20 +371,20 @@ export const actions = {
 		// Clear files from form to prevent serialization error
 		form.data.files = undefined;
 
-		// Process the lesson schema and create blocks
-		if (lessonSchema) {
-			console.log('Lesson schema from Gemini:', lessonSchema);
+		// Process the task schema and create blocks
+		if (taskSchema) {
+			console.log('Task schema from Gemini:', taskSchema);
 			try {
-				await createBlocksFromSchema(lessonSchema, lesson.id);
-				console.log('Successfully created lesson blocks from schema');
+				await createBlocksFromSchema(taskSchema, task.id);
+				console.log('Successfully created task blocks from schema');
 			} catch (error) {
 				console.error('Error creating blocks from schema:', error);
 				// Don't fail the entire request if block creation fails
 			}
 		} else {
-			console.log('No lesson schema generated (manual mode or failed AI generation)');
+			console.log('No task schema generated (manual mode or failed AI generation)');
 		}
 
-		throw redirect(303, `/subjects/${subjectOfferingIdInt}/lessons/${lesson.id}`);
+		throw redirect(303, `/subjects/${subjectOfferingIdInt}/tasks/${task.id}`);
 	}
 };

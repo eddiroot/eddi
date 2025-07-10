@@ -1,36 +1,36 @@
-import type { Lesson, LessonBlock } from '$lib/server/db/schema';
+import type { Task, TaskBlock } from '$lib/server/db/schema';
 
-export interface UpdateLessonTitleRequest {
-	lessonId: number;
+export interface UpdateTaskTitleRequest {
+	taskId: number;
 	title: string;
 }
 
-export interface UpdateLessonTitleResponse {
-	lesson: Lesson;
+export interface UpdateTaskTitleResponse {
+	task: Task;
 }
 
 export interface CreateBlockRequest {
-	lessonId: number;
+	taskId: number;
 	type: string;
 	content: unknown;
 	index: number;
 }
 
 export interface CreateBlockResponse {
-	block: LessonBlock;
+	block: TaskBlock;
 }
 
 export interface UpdateBlockRequest {
-	block: LessonBlock;
+	block: TaskBlock;
 	content?: unknown;
 }
 
 export interface UpdateBlockResponse {
-	block: LessonBlock;
+	block: TaskBlock;
 }
 
-export interface GetLessonBlocksResponse {
-	blocks: LessonBlock[];
+export interface GetTaskBlocksResponse {
+	blocks: TaskBlock[];
 }
 
 export interface UpdateBlockOrderRequest {
@@ -40,8 +40,8 @@ export interface UpdateBlockOrderRequest {
 	}>;
 }
 
-export interface UpdateLessonOrderRequest {
-	lessonOrder: Array<{
+export interface UpdateTaskOrderRequest {
+	taskOrder: Array<{
 		id: number;
 		index: number;
 	}>;

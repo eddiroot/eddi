@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { updateLessonBlocksOrder } from '$lib/server/db/service';
+import { updateTaskBlocksOrder } from '$lib/server/db/service';
 
 // PUT /api/lessons/blocks/order - Update block order
 export async function PUT({ request }: { request: Request }) {
@@ -21,7 +21,7 @@ export async function PUT({ request }: { request: Request }) {
 			}
 		}
 
-		await updateLessonBlocksOrder(blockOrder);
+		await updateTaskBlocksOrder(blockOrder);
 		return json({ success: true });
 	} catch (error) {
 		console.error('Error updating block order:', error);

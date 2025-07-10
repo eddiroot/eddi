@@ -1,11 +1,11 @@
 import { geminiConversation } from '$lib/server/ai';
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { createContextualSystemInstruction, type LessonContextItem } from '../constants.js';
+import { createContextualSystemInstruction, type TaskContextItem } from '../constants.js';
 import {
 	createChatbotMessage,
 	getChatbotChatById,
 	getChatbotMessagesByChatId,
-	getSubjectOfferingContextForAI
+	getSubjectOfferingContextForChatbot
 } from '$lib/server/db/service';
 
 // This endpoint handles creating a new message in a chat.
@@ -91,25 +91,25 @@ export const GET: RequestHandler = async (event) => {
 			return json({ error: 'No messages found for this chat' }, { status: 404 });
 		}
 
-		// Get lesson context for the specific subject offering if provided
-		let lessonContexts: LessonContextItem[] = [];
+		// Get task context for the specific subject offering if provided
+		let taskContexts: TaskContextItem[] = [];
 		try {
 			if (subjectOfferingId) {
 				// Get context only for the specific subject offering
-				lessonContexts = await getSubjectOfferingContextForAI(user.id, subjectOfferingId);
+				taskContexts = await getSubjectOfferingContextForChatbot(user.id, subjectOfferingId);
 			}
-			// If no subjectOfferingId is provided, the chatbot will work without lesson context
+			// If no subjectOfferingId is provided, the chatbot will work without task context
 		} catch (contextError) {
-			console.error('Failed to gather lesson context for AI:', contextError);
+			console.error('Failed to gather task context for AI:', contextError);
 			// Continue without context rather than failing the entire request
 		}
 
-		// Create contextual system instruction with lesson content
-		const systemInstruction = createContextualSystemInstruction(lessonContexts);
+		// Create contextual system instruction with task content
+		const systemInstruction = createContextualSystemInstruction(taskContexts);
 
 		// Convert chat messages to conversation format for AI
-		const conversationMessages = allMessages.map(msg => ({
-			role: msg.authorId ? 'user' as const : 'model' as const,
+		const conversationMessages = allMessages.map((msg) => ({
+			role: msg.authorId ? ('user' as const) : ('model' as const),
 			content: msg.content
 		}));
 

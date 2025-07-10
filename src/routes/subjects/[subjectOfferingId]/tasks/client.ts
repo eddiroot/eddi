@@ -4,7 +4,7 @@ import type {
 	UpdateLessonOrderRequest,
 	UpdateTopicOrderRequest,
 	ApiSuccessResponse
-} from '../../../api/lessons/types';
+} from '../../../api/tasks/types';
 
 const API_BASE = '/api/lessons';
 

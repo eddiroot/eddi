@@ -1,4 +1,4 @@
-export const lessonCreationPrompts = {
+export const taskCreationPrompts = {
 	lesson: `Analyse the attached documents/images and create an educational lesson.
 
 Using the provided schema, create a comprehensive lesson with:
@@ -48,10 +48,10 @@ Each component should be structured according to the provided schema. Prioritize
 };
 
 // Keep the original as the default for backward compatibility
-export const lessonCreationPrompt = lessonCreationPrompts.lesson;
+export const taskCreationPrompt = taskCreationPrompts.lesson;
 
-// Base lesson component schema (reusable)
-export const lessonComponentItems = [
+// Base task component schema (reusable)
+export const taskComponentItems = [
 	// Title component
 	{
 		type: 'OBJECT',
@@ -295,7 +295,7 @@ export const lessonComponentItems = [
 ];
 
 // Layout components schema
-export const lessonLayoutItems = [
+export const taskLayoutItems = [
 	// Two column layout component
 	{
 		type: 'OBJECT',
@@ -307,13 +307,13 @@ export const lessonLayoutItems = [
 					leftColumn: {
 						type: 'ARRAY',
 						items: {
-							anyOf: lessonComponentItems
+							anyOf: taskComponentItems
 						}
 					},
 					rightColumn: {
 						type: 'ARRAY',
 						items: {
-							anyOf: lessonComponentItems
+							anyOf: taskComponentItems
 						}
 					}
 				},
@@ -324,47 +324,47 @@ export const lessonLayoutItems = [
 	}
 ];
 
-// Combined schema for all lesson items (components + layouts)
-export const allLessonItems = [...lessonComponentItems, ...lessonLayoutItems];
+// Combined schema for all task items (components + layouts)
+export const allTaskItems = [...taskComponentItems, ...taskLayoutItems];
 
-// Original lesson component schema (for backwards compatibility)
-export const lessonComponentSchema = {
+// Original task component schema (for backwards compatibility)
+export const taskComponentSchema = {
 	type: 'OBJECT',
 	properties: {
-		lesson: {
+		task: {
 			type: 'ARRAY',
 			items: {
-				anyOf: allLessonItems
+				anyOf: allTaskItems
 			}
 		}
 	},
-	required: ['lesson']
+	required: ['task']
 };
 
 // New schema specifically for layouts that can contain other components
-export const lessonLayoutSchema = {
+export const taskLayoutSchema = {
 	type: 'OBJECT',
 	properties: {
-		lesson: {
+		task: {
 			type: 'ARRAY',
 			items: {
-				anyOf: lessonLayoutItems
+				anyOf: taskLayoutItems
 			}
 		}
 	},
-	required: ['lesson']
+	required: ['task']
 };
 
 // Schema for just basic components (no layouts)
 export const basicComponentSchema = {
 	type: 'OBJECT',
 	properties: {
-		lesson: {
+		task: {
 			type: 'ARRAY',
 			items: {
-				anyOf: lessonComponentItems
+				anyOf: taskComponentItems
 			}
 		}
 	},
-	required: ['lesson']
+	required: ['task']
 };

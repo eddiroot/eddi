@@ -23,7 +23,7 @@
 	}: {
 		data: {
 			form: SuperValidated<Infer<FormSchema>>;
-			lessonTopics: Array<{ id: number; name: string }>;
+			taskTopics: Array<{ id: number; name: string }>;
 		};
 	} = $props();
 
@@ -48,10 +48,10 @@
 
 	const { form: formData, enhance } = form;
 
-	// Set default lesson type to 'lesson'
+	// Set default task type to 'task'
 	$effect(() => {
 		if (!$formData.type) {
-			$formData.type = 'lesson';
+			$formData.type = 'task';
 		}
 	});
 
@@ -67,13 +67,13 @@
 	// Handle topic selection/creation
 	$effect(() => {
 		if (isCreatingNewTopic) {
-			$formData.lessonTopicId = undefined;
+			$formData.taskTopicId = undefined;
 			$formData.newTopicName = newTopicName;
 		} else if (selectedTopicId) {
-			$formData.lessonTopicId = parseInt(selectedTopicId, 10);
+			$formData.taskTopicId = parseInt(selectedTopicId, 10);
 			$formData.newTopicName = undefined;
 		} else {
-			$formData.lessonTopicId = undefined;
+			$formData.taskTopicId = undefined;
 			$formData.newTopicName = undefined;
 		}
 	});
@@ -131,8 +131,8 @@
 		>
 			<LoaderIcon class="text-primary h-12 w-12 animate-spin" />
 			<div class="text-center">
-				<h3 class="text-secondary text-lg font-semibold">Generating Lesson</h3>
-				<p class="text-muted-foreground mt-1 text-sm">Please wait while we create your lesson...</p>
+				<h3 class="text-secondary text-lg font-semibold">Generating Task</h3>
+				<p class="text-muted-foreground mt-1 text-sm">Please wait while we create your task...</p>
 			</div>
 		</div>
 	</div>
@@ -140,7 +140,7 @@
 
 <form
 	method="POST"
-	action="?/createLesson"
+	action="?/createTask"
 	class="max-w-3xl space-y-6"
 	enctype="multipart/form-data"
 	use:enhance
@@ -150,10 +150,10 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Title</Form.Label>
-				<Input {...props} bind:value={$formData.title} placeholder="Enter the lesson title" />
+				<Input {...props} bind:value={$formData.title} placeholder="Enter the task title" />
 			{/snippet}
 		</Form.Control>
-		<Form.Description>Provide a clear and descriptive title for your lesson.</Form.Description>
+		<Form.Description>Provide a clear and descriptive title for your task.</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 
@@ -164,13 +164,13 @@
 				<Textarea
 					{...props}
 					bind:value={$formData.description}
-					placeholder="Describe what students will learn in this lesson"
+					placeholder="Describe what students will learn in this task"
 					rows={4}
 				/>
 			{/snippet}
 		</Form.Control>
 		<Form.Description>
-			Briefly describe the lesson content and learning objectives (max 500 characters).
+			Briefly describe the task content and learning objectives (max 500 characters).
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
@@ -178,7 +178,7 @@
 	<!-- Updated Topic selection -->
 	<div class="grid grid-cols-6 gap-4 lg:grid-cols-12">
 		<div class="col-span-6">
-			<Form.Field {form} name="lessonTopicId">
+			<Form.Field {form} name="taskTopicId">
 				<Form.Control>
 					{#snippet children({ props })}
 						<Form.Label>Topic</Form.Label>
@@ -225,16 +225,16 @@
 								<Select.Trigger {...props} class="w-full truncate">
 									<span class="truncate">
 										{selectedTopicId
-											? data.lessonTopics.find((t) => t.id.toString() === selectedTopicId)?.name ||
+											? data.taskTopics.find((t) => t.id.toString() === selectedTopicId)?.name ||
 												'Select a topic'
 											: 'Select a topic'}
 									</span>
 								</Select.Trigger>
 								<Select.Content>
-									{#if data.lessonTopics.length === 0}
+									{#if data.taskTopics.length === 0}
 										<Select.Item value="" label="No topics available" disabled />
 									{:else}
-										{#each data.lessonTopics as topic}
+										{#each data.taskTopics as topic}
 											<Select.Item value={topic.id.toString()} label={topic.name} />
 										{/each}
 									{/if}
@@ -322,7 +322,7 @@
 					<div class="p-1">
 						<Label>Supporting Material (Optional)</Label>
 						<p class="text-muted-foreground mt-1 text-sm font-medium">
-							Upload materials for AI to analyse and generate lesson content from.
+							Upload materials for AI to analyse and generate task content from.
 						</p>
 					</div>
 

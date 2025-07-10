@@ -14,13 +14,13 @@
 	import TwoColumnLayout from './blocks/two-column-layout.svelte';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import EditIcon from '@lucide/svelte/icons/edit';
-	import { type LessonBlock } from '$lib/server/db/schema';
+	import { type TaskBlock } from '$lib/server/db/schema';
 
 	import {
 		createBlock,
 		deleteBlock,
 		updateBlock,
-		updateLessonTitle,
+		updateTaskTitle,
 		updateBlockOrder
 	} from './client';
 	import { blockTypes } from './constants';
@@ -36,25 +36,25 @@
 		data.user.type === 'student'
 			? false
 			: browser
-				? localStorage.getItem('lesson-edit-mode') !== 'false'
+				? localStorage.getItem('task-edit-mode') !== 'false'
 				: true
 	);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
 
-	async function handleDrop(state: DragDropState<LessonBlock>) {
+	async function handleDrop(state: DragDropState<TaskBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
 		if (!targetContainer) return;
 
-		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('lesson')) {
+		if (sourceContainer === 'blockPalette' && targetContainer.startsWith('task')) {
 			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
 
 			const { block } = await createBlock({
-				lessonId: data.lesson.id,
+				taskId: data.task.id,
 				type: draggedItem.type,
 				content: draggedItem.content,
-				index: targetContainer === 'lesson-bottom' ? blocks.length : index
+				index: targetContainer === 'task-bottom' ? blocks.length : index
 			});
 
 			if (!block) {
@@ -62,7 +62,7 @@
 				return;
 			}
 
-			if (targetContainer === 'lesson-bottom') {
+			if (targetContainer === 'task-bottom') {
 				blocks = [...blocks, block];
 			} else if (index !== -1) {
 				blocks = [...blocks.slice(0, index), block, ...blocks.slice(index)];
@@ -72,15 +72,15 @@
 			}
 		}
 
-		// Handle drops from two-column layout to main lesson
-		if (sourceContainer.startsWith('two-column-') && targetContainer.startsWith('lesson')) {
+		// Handle drops from two-column layout to main task
+		if (sourceContainer.startsWith('two-column-') && targetContainer.startsWith('task')) {
 			const index = blocks.findIndex((b) => b.id.toString() === targetContainer.split('-')[1]);
 
 			const { block } = await createBlock({
-				lessonId: data.lesson.id,
+				taskId: data.task.id,
 				type: draggedItem.type,
 				content: draggedItem.content,
-				index: targetContainer === 'lesson-bottom' ? blocks.length : index
+				index: targetContainer === 'task-bottom' ? blocks.length : index
 			});
 
 			if (!block) {
@@ -88,7 +88,7 @@
 				return;
 			}
 
-			if (targetContainer === 'lesson-bottom') {
+			if (targetContainer === 'task-bottom') {
 				blocks = [...blocks, block];
 			} else if (index !== -1) {
 				blocks = [...blocks.slice(0, index), block, ...blocks.slice(index)];
@@ -98,7 +98,7 @@
 			}
 		}
 
-		if (sourceContainer.startsWith('lesson') && targetContainer.startsWith('lesson')) {
+		if (sourceContainer.startsWith('task') && targetContainer.startsWith('task')) {
 			const sourceIndex = draggedItem.index;
 			const targetIndex = blocks.findIndex(
 				(b) => b.id.toString() === targetContainer.split('-')[1]
@@ -141,7 +141,7 @@
 			blocks = finalisedBlocks;
 		}
 
-		if (sourceContainer.startsWith('lesson') && targetContainer === 'blockPalette') {
+		if (sourceContainer.startsWith('task') && targetContainer === 'blockPalette') {
 			const { success } = await deleteBlock(draggedItem.id);
 			if (!success) {
 				alert('Failed to delete block. Please try again.');
@@ -157,8 +157,8 @@
 			console.log('Block dragged from two-column to palette for deletion');
 		}
 
-		// Handle drops from main lesson to two-column layout
-		if (sourceContainer.startsWith('lesson') && targetContainer.startsWith('two-column-')) {
+		// Handle drops from main task to two-column layout
+		if (sourceContainer.startsWith('task') && targetContainer.startsWith('two-column-')) {
 			const { success } = await deleteBlock(draggedItem.id);
 			if (!success) {
 				alert('Failed to move block to column. Please try again.');
@@ -180,7 +180,7 @@
 					onclick={() => {
 						const newEditMode = !isEditMode;
 						if (browser) {
-							localStorage.setItem('lesson-edit-mode', newEditMode.toString());
+							localStorage.setItem('task-edit-mode', newEditMode.toString());
 						}
 						isEditMode = newEditMode;
 					}}
@@ -208,10 +208,10 @@
 				<div class="flex-1 {isEditMode ? 'ml-[38px]' : ''}">
 					<Heading
 						headingSize={1}
-						text={data.lesson.title}
+						text={data.task.title}
 						{isEditMode}
 						onUpdate={async (newText: string) =>
-							await updateLessonTitle({ lessonId: data.lesson.id, title: newText })}
+							await updateTaskTitle({ taskId: data.task.id, title: newText })}
 					/>
 				</div>
 			</div>
@@ -221,26 +221,26 @@
 						<div
 							class="h-4"
 							use:droppable={{
-								container: `lesson-${block.id}`,
+								container: `task-${block.id}`,
 								callbacks: {
 									onDrop: handleDrop
 								}
 							}}
 						>
-							{#if dndState.targetContainer === `lesson-${block.id}`}
+							{#if dndState.targetContainer === `task-${block.id}`}
 								<Separator class="bg-accent-foreground my-2" />
 							{/if}
 						</div>
 						<div
 							class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 							role="group"
-							onmouseover={() => (mouseOverElement = `lesson-${block.id}`)}
-							onfocus={() => (mouseOverElement = `lesson-${block.id}`)}
+							onmouseover={() => (mouseOverElement = `task-${block.id}`)}
+							onfocus={() => (mouseOverElement = `task-${block.id}`)}
 						>
-							{#if isEditMode && mouseOverElement === `lesson-${block.id}`}
+							{#if isEditMode && mouseOverElement === `task-${block.id}`}
 								<div
 									use:draggable={{
-										container: 'lesson',
+										container: 'task',
 										dragData: block
 									}}
 									class="group hover:bg-muted relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
@@ -326,13 +326,13 @@
 					{#if isEditMode}
 						<div
 							use:droppable={{
-								container: `lesson-bottom`,
+								container: `task-bottom`,
 								callbacks: {
 									onDrop: handleDrop
 								}
 							}}
 							class="my-4 ml-[38px] flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
-							'lesson-bottom'
+							'task-bottom'
 								? draggedOverClasses
 								: notDraggedOverClasses}"
 						>
@@ -348,14 +348,14 @@
 				<Card.Header>
 					<Card.Title class="text-lg">Blocks</Card.Title>
 					<Card.Description>
-						Drag and drop blocks from here to the lesson content area. If you'd like to delete a
+						Drag and drop blocks from here to the task content area. If you'd like to delete a
 						block, simply drag it to the area below.
 					</Card.Description>
 				</Card.Header>
 				<Card.Content class="flex h-full flex-col gap-4">
 					<div
 						class="grid grid-cols-2 gap-3 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
-							'lesson'
+							'task'
 						) ||
 							dndState.sourceContainer.startsWith('two-column-')) &&
 						dndState.targetContainer === 'blockPalette'

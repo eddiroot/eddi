@@ -2,9 +2,9 @@ export const systemInstructionChatbot = `
 You are eddi, a helpful academic tutor and study companion. Your goal is to guide students toward solving their homework problems on their own. 
 
 STUDENT CONTEXT:
-- You have access to information about the student's current lessons, topics, and lesson content. 
+- You have access to information about the student's current tasks, topics, and task content. 
 - Use this context to provide more relevant and personalised guidance.
-- Always check the lessons above and reference specific lesson titles when students ask about topics.
+- Always check the tasks above and reference specific task titles when students ask about topics.
 
 CORE PRINCIPLES:
 - Never provide direct answers to homework problems
@@ -12,24 +12,24 @@ CORE PRINCIPLES:
 - Ask leading questions to help students think critically
 - Use examples only if they do not solve the original question directly
 - If the user insists on the answer, politely remind them that your goal is to help them learn
-- Look over the provided context before answering questions and point students to relevant lesson content
+- Look over the provided context before answering questions and point students to relevant task content
 
 CONVERSATION STYLE:
 - Be encouraging and supportive
-- Reference their specific lessons and topics when relevant
-- Help them connect new problems to concepts they've already learned in their lessons
-- Use the lesson content to guide your explanations and examples
+- Reference their specific tasks and topics when relevant
+- Help them connect new problems to concepts they've already learned in their tasks
+- Use the task content to guide your explanations and examples
 - Celebrate their progress and understanding
 
-If a student asks about their subjects, lessons, or assignments, you can provide information and help them organize their learning. Always focus on helping them understand concepts rather than just completing tasks.
+If a student asks about their subjects, tasks, or assignments, you can provide information and help them organize their learning. Always focus on helping them understand concepts rather than just completing tasks.
 `;
 
-export interface LessonContextItem {
-	lessonTopicName: string;
-	lessonTitle: string;
-	lessonBlock: {
+export interface TaskContextItem {
+	taskTopicName: string;
+	taskTitle: string;
+	taskBlock: {
 		id: number;
-		lessonId: number;
+		taskId: number;
 		type: string;
 		content: unknown;
 		index: number;
@@ -38,57 +38,57 @@ export interface LessonContextItem {
 	} | null;
 }
 
-export function createContextualSystemInstruction(lessonContexts: LessonContextItem[]): string {
+export function createContextualSystemInstruction(taskContexts: TaskContextItem[]): string {
 	let contextInfo = '';
 
-	if (lessonContexts && lessonContexts.length > 0) {
-		// Group lessons by topic
+	if (taskContexts && taskContexts.length > 0) {
+		// Group tasks by topic
 		const topicMap = new Map<
 			string,
 			{
-				lessons: Map<
+				tasks: Map<
 					string,
 					{
 						title: string;
-						blocks: LessonContextItem['lessonBlock'][];
+						blocks: TaskContextItem['taskBlock'][];
 					}
 				>;
 			}
 		>();
 
-		// Organize the data by topic and lesson
-		lessonContexts.forEach((context) => {
-			if (!topicMap.has(context.lessonTopicName)) {
-				topicMap.set(context.lessonTopicName, {
-					lessons: new Map()
+		// Organize the data by topic and task
+		taskContexts.forEach((context) => {
+			if (!topicMap.has(context.taskTopicName)) {
+				topicMap.set(context.taskTopicName, {
+					tasks: new Map()
 				});
 			}
 
-			const topic = topicMap.get(context.lessonTopicName)!;
-			if (!topic.lessons.has(context.lessonTitle)) {
-				topic.lessons.set(context.lessonTitle, {
-					title: context.lessonTitle,
+			const topic = topicMap.get(context.taskTopicName)!;
+			if (!topic.tasks.has(context.taskTitle)) {
+				topic.tasks.set(context.taskTitle, {
+					title: context.taskTitle,
 					blocks: []
 				});
 			}
 
 			// Only add the block if it exists (not null from LEFT JOIN)
-			if (context.lessonBlock) {
-				topic.lessons.get(context.lessonTitle)!.blocks.push(context.lessonBlock);
+			if (context.taskBlock) {
+				topic.tasks.get(context.taskTitle)!.blocks.push(context.taskBlock);
 			}
 		});
 
 		contextInfo += "\n\n=== STUDENT'S CURRENT SUBJECT LESSONS ===\n";
-		contextInfo += 'IMPORTANT: Use this information to help students find relevant lessons!\n\n';
+		contextInfo += 'IMPORTANT: Use this information to help students find relevant tasks!\n\n';
 
 		topicMap.forEach((topicData, topicName) => {
 			contextInfo += `TOPIC: ${topicName}\n`;
 
-			topicData.lessons.forEach((lessonData, lessonTitle) => {
-				contextInfo += `  LESSON: "${lessonTitle}"\n`;
+			topicData.tasks.forEach((taskData, taskTitle) => {
+				contextInfo += `  LESSON: "${taskTitle}"\n`;
 
-				// Process lesson blocks and extract useful content
-				const blockSummary = processLessonBlocks(lessonData.blocks);
+				// Process task blocks and extract useful content
+				const blockSummary = processTaskBlocks(taskData.blocks);
 				if (blockSummary.length > 0) {
 					contextInfo += `     Content: ${blockSummary}\n`;
 				} else {
@@ -100,13 +100,13 @@ export function createContextualSystemInstruction(lessonContexts: LessonContextI
 
 		contextInfo += '=== END LESSON CONTEXT ===\n';
 		contextInfo +=
-			'When students ask about topics, ALWAYS check the lessons above and reference specific lesson titles!\n';
+			'When students ask about topics, ALWAYS check the tasks above and reference specific task titles!\n';
 	}
 
 	return systemInstructionChatbot + contextInfo;
 }
 
-function processLessonBlocks(blocks: LessonContextItem['lessonBlock'][]): string {
+function processTaskBlocks(blocks: TaskContextItem['taskBlock'][]): string {
 	const contentSummary: string[] = [];
 
 	blocks.forEach((block) => {

@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
-import type { UpdateLessonOrderRequest, UpdateTopicOrderRequest } from '../types';
-import { updateLessonOrder, updateTopicOrder } from '$lib/server/db/service';
+import type { UpdateTaskOrderRequest } from '../types';
+import { updateTaskOrder } from '$lib/server/db/service';
 
 export const PATCH: RequestHandler = async ({ request, locals: { security } }) => {
 	security.isAuthenticated();
@@ -10,12 +10,9 @@ export const PATCH: RequestHandler = async ({ request, locals: { security } }) =
 		const body = await request.json();
 		const { type } = body;
 
-		if (type === 'lesson') {
-			const { lessonOrder } = body as UpdateLessonOrderRequest;
-			await updateLessonOrder(lessonOrder);
-		} else if (type === 'topic') {
-			const { topicOrder } = body as UpdateTopicOrderRequest;
-			await updateTopicOrder(topicOrder);
+		if (type === 'task') {
+			const { taskOrder } = body as UpdateTaskOrderRequest;
+			await updateTaskOrder(taskOrder);
 		} else {
 			return json({ error: 'Invalid order type' }, { status: 400 });
 		}

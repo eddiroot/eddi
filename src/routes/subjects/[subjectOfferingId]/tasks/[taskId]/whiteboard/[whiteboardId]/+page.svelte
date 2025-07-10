@@ -31,7 +31,7 @@
 	let isPanning = false;
 	let lastWheelTime = 0;
 
-	const { whiteboardId, lessonId, subjectOfferingId } = $page.params;
+	const { whiteboardId, taskId, subjectOfferingId } = $page.params;
 	const whiteboardIdNum = parseInt(whiteboardId);
 
 	const sendCanvasUpdate = (data: Object) => {
@@ -176,8 +176,8 @@
 	};
 
 	const goBack = () => {
-		// Navigate back to the lesson
-		goto(`/subjects/${subjectOfferingId}/lessons/${lessonId}`);
+		// Navigate back to the task
+		goto(`/subjects/${subjectOfferingId}/tasks/${taskId}`);
 	};
 
 	const handleKeyDown = (event: KeyboardEvent) => {
@@ -206,7 +206,7 @@
 		setSelectTool();
 
 		// Connect to WebSocket for real-time collaboration
-		socket = new WebSocket(`/subjects/${subjectOfferingId}/lessons/${lessonId}/whiteboard/ws`);
+		socket = new WebSocket(`/subjects/${subjectOfferingId}/tasks/${taskId}/whiteboard/ws`);
 
 		socket.addEventListener('open', () => {
 			// Send whiteboard ID after connection is established
@@ -456,14 +456,14 @@
 		<div class="flex h-14 items-center px-4">
 			<Button variant="ghost" size="sm" onclick={goBack} class="mr-4">
 				<ArrowLeftIcon class="mr-2 h-4 w-4" />
-				Back to Lesson
+				Back to Task
 			</Button>
 			<div class="flex-1">
 				<h1 class="text-lg font-semibold">
 					{data.whiteboard.title || 'Interactive Whiteboard'}
 				</h1>
 				<p class="text-muted-foreground text-sm">
-					{data.lesson.title}
+					{data.task.title}
 				</p>
 			</div>
 		</div>

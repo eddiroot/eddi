@@ -1,25 +1,25 @@
-// Client-side API helper functions for Lessons API
+// Client-side API helper functions for Tasks API
 
 import type {
-	UpdateLessonTitleRequest,
-	UpdateLessonTitleResponse,
+	UpdateTaskTitleRequest,
+	UpdateTaskTitleResponse,
 	CreateBlockRequest,
 	CreateBlockResponse,
 	UpdateBlockRequest,
 	UpdateBlockResponse,
-	GetLessonBlocksResponse,
+	GetTaskBlocksResponse,
 	UpdateBlockOrderRequest,
 	ApiSuccessResponse
-} from '../../../../api/lessons/types';
+} from '../../../../api/tasks/types';
 
-const API_BASE = '/api/lessons';
+const API_BASE = '/api/tasks';
 
 /**
- * Update a lesson's title
+ * Update a task's title
  */
-export async function updateLessonTitle(
-	request: UpdateLessonTitleRequest
-): Promise<UpdateLessonTitleResponse> {
+export async function updateTaskTitle(
+	request: UpdateTaskTitleRequest
+): Promise<UpdateTaskTitleResponse> {
 	const response = await fetch(API_BASE, {
 		method: 'PATCH',
 		headers: {
@@ -31,21 +31,21 @@ export async function updateLessonTitle(
 	const data = await response.json();
 
 	if (!response.ok) {
-		throw new Error(data.error || 'Failed to update lesson title');
+		throw new Error(data.error || 'Failed to update task title');
 	}
 
 	return data;
 }
 
 /**
- * Get blocks for a lesson
+ * Get blocks for a task
  */
-export async function getLessonBlocks(lessonId: number): Promise<GetLessonBlocksResponse> {
-	const response = await fetch(`${API_BASE}?lessonId=${lessonId}`);
+export async function getTaskBlocks(taskId: number): Promise<GetTaskBlocksResponse> {
+	const response = await fetch(`${API_BASE}?taskId=${taskId}`);
 	const data = await response.json();
 
 	if (!response.ok) {
-		throw new Error(data.error || 'Failed to fetch lesson blocks');
+		throw new Error(data.error || 'Failed to fetch task blocks');
 	}
 
 	return data;

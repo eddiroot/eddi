@@ -414,3 +414,13 @@ export async function getChatbotChatsWithFirstMessageByUserId(userId: string) {
 
 	return Array.from(chatMap.values());
 }
+
+export async function getChatbotChatById(chatId: number) {
+	const chat = await db
+		.select()
+		.from(table.chatbotChat)
+		.where(eq(table.chatbotChat.id, chatId))
+		.limit(1);
+
+	return chat.length > 0 ? chat[0] : null;
+}
