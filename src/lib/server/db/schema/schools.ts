@@ -1,7 +1,7 @@
 import { pgTable, text, integer, boolean, pgEnum, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { user } from './user';
-import { schoolSubject } from './subjects';
+import { subject } from './subjects';
 
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -74,7 +74,7 @@ export const schoolLocation = pgTable(
 		isArchived: boolean('is_active').notNull().default(false),
 		...timestamps
 	},
-	(location) => [unique().on(location.campusId, schoolSubject.name)]
+	(location) => [unique().on(location.campusId, subject.name)]
 );
 
 export type SchoolLocation = typeof schoolLocation.$inferSelect;

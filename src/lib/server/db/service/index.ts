@@ -1,7 +1,4 @@
-// Chatbot
-export * from './chatbot.js';
-
-// Lesson
+// task
 export * from './task.js';
 
 // School
@@ -12,6 +9,3 @@ export * from './subjects.js';
 
 // User
 export * from './user.js';
-
-// Utility
-export * from './utils.js';

@@ -35,7 +35,6 @@ export const task = pgTable(
 		title: text('title').notNull(),
 		type: taskTypeEnumPg().notNull(),
 		description: text('description').notNull(),
-		index: integer('index').notNull(),
 		dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
 		isPublished: boolean('is_published').notNull().default(false),
 		originalId: integer('original_id'),
