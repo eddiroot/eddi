@@ -6,7 +6,7 @@ import { hash } from '@node-rs/argon2';
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
 
-export async function seed_admins() {
+export async function seed_admins(schoolId: number) {
 	// Needs to be plural to meet the 6 character limit
 	const passwordHash = await hash('admins');
 
@@ -17,7 +17,7 @@ export async function seed_admins() {
 				id: 'admin_001',
 				email: 'isaac.newton@schoolofeddi.edu',
 				passwordHash: passwordHash,
-				schoolId: 1000,
+				schoolId: schoolId,
 				type: schema.userTypeEnum.schoolAdmin,
 				gender: schema.userGenderEnum.male,
 				dateOfBirth: new Date('1980-03-11'),
@@ -29,7 +29,7 @@ export async function seed_admins() {
 				id: 'admin_002',
 				email: 'root@eddi.com.au',
 				passwordHash: passwordHash,
-				schoolId: 1000,
+				schoolId: schoolId,
 				type: schema.userTypeEnum.systemAdmin,
 				gender: schema.userGenderEnum.female,
 				dateOfBirth: new Date('1900-11-09'),
