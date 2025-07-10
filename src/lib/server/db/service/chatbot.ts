@@ -138,8 +138,7 @@ export async function getSubjectOfferingClassContextForChatbot(
 			name:
 				classData.coreSubject?.name || classData.electiveSubject?.name || classData.subject.name,
 			description: classData.coreSubject?.description || classData.electiveSubject?.description,
-			yearLevel: classData.subject.yearLevel,
-			semester: classData.subjectOffering.semester
+			yearLevel: classData.subject.yearLevel
 		},
 		courseMapItems: groupedCourseMapItems.map((item) => ({
 			id: item.courseMapItem.id,
@@ -286,8 +285,7 @@ export async function getSubjectOfferingContextForChatbot(
 				offeringData.subject.name,
 			description:
 				offeringData.coreSubject?.description || offeringData.electiveSubject?.description,
-			yearLevel: offeringData.subject.yearLevel,
-			semester: offeringData.subjectOffering.semester
+			yearLevel: offeringData.subject.yearLevel
 		},
 		courseMapItems: groupedCourseMapItems.map((item) => ({
 			id: item.courseMapItem.id,

@@ -1,6 +1,6 @@
 import { geminiConversation } from '$lib/server/ai';
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { createContextualSystemInstruction, type TaskContextItem } from '../constants.js';
+import { createContextualSystemInstruction, type SubjectContextData } from '../constants.js';
 import {
 	createChatbotMessage,
 	getChatbotChatById,
@@ -92,11 +92,11 @@ export const GET: RequestHandler = async (event) => {
 		}
 
 		// Get task context for the specific subject offering if provided
-		let taskContexts: TaskContextItem[] = [];
+		let subjectContext: SubjectContextData | null = null;
 		try {
 			if (subjectOfferingId) {
 				// Get context only for the specific subject offering
-				taskContexts = await getSubjectOfferingContextForChatbot(user.id, subjectOfferingId);
+				subjectContext = await getSubjectOfferingContextForChatbot(user.id, subjectOfferingId);
 			}
 			// If no subjectOfferingId is provided, the chatbot will work without task context
 		} catch (contextError) {
@@ -105,7 +105,7 @@ export const GET: RequestHandler = async (event) => {
 		}
 
 		// Create contextual system instruction with task content
-		const systemInstruction = createContextualSystemInstruction(taskContexts);
+		const systemInstruction = createContextualSystemInstruction(subjectContext);
 
 		// Convert chat messages to conversation format for AI
 		const conversationMessages = allMessages.map((msg) => ({
