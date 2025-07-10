@@ -437,6 +437,29 @@ export async function updateTaskOrder(
 	});
 }
 
+export async function getLearningAreaContentByCourseMapItemId(
+	courseMapItemId: number,
+	yearLevel: table.yearLevelEnum
+) {
+	const learningAreaContents = await db
+		.select({
+			learningAreaContent: table.learningAreaContent
+		})
+		.from(table.learningAreaContent)
+		.innerJoin(
+			table.courseMapItemLearningArea,
+			eq(table.learningAreaContent.learningAreaId, table.courseMapItemLearningArea.learningAreaId)
+		)
+		.where(
+			and(
+				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),
+				eq(table.learningAreaContent.yearLevel, yearLevel)
+			)
+		)
+		.orderBy(asc(table.learningAreaContent.id));
+	return learningAreaContents.map((row) => row.learningAreaContent);
+}
+
 // Select the learningAreaContents and add this to the gemini service, use coursemap.ts funtion to get the learning area content
 export async function getContentElaborationsByLearningAreaContentIds(
 	learningAreaContentIds: number[]

@@ -64,12 +64,12 @@ export async function getSubjectOfferingClassContextForChatbot(
 		})
 		.from(table.courseMapItem)
 		.leftJoin(
-			table.courseMapItemAreaOfSudty,
-			eq(table.courseMapItemAreaOfSudty.courseMapItemId, table.courseMapItem.id)
+			table.courseMapItemLearningArea,
+			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
 		)
 		.leftJoin(
 			table.learningArea,
-			eq(table.learningArea.id, table.courseMapItemAreaOfSudty.learningAreaId)
+			eq(table.learningArea.id, table.courseMapItemLearningArea.learningAreaId)
 		)
 		.where(
 			and(
@@ -216,12 +216,12 @@ export async function getSubjectOfferingContextForChatbot(
 		})
 		.from(table.courseMapItem)
 		.leftJoin(
-			table.courseMapItemAreaOfSudty,
-			eq(table.courseMapItemAreaOfSudty.courseMapItemId, table.courseMapItem.id)
+			table.courseMapItemLearningArea,
+			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
 		)
 		.leftJoin(
 			table.learningArea,
-			eq(table.learningArea.id, table.courseMapItemAreaOfSudty.learningAreaId)
+			eq(table.learningArea.id, table.courseMapItemLearningArea.learningAreaId)
 		)
 		.where(
 			and(

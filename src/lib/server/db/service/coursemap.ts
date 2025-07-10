@@ -80,7 +80,7 @@ export async function addAreasOfStudyToCourseMapItem(
 	}
 
 	const newRelationships = await db
-		.insert(table.courseMapItemAreaOfSudty)
+		.insert(table.courseMapItemLearningArea)
 		.values(
 			learningAreaIds.map((learningAreaId) => ({
 				courseMapItemId: courseMapItemId,
@@ -102,11 +102,11 @@ export async function removeAreasOfStudyFromCourseMapItem(
 	}
 
 	const deletedRelationships = await db
-		.delete(table.courseMapItemAreaOfSudty)
+		.delete(table.courseMapItemLearningArea)
 		.where(
 			and(
-				eq(table.courseMapItemAreaOfSudty.courseMapItemId, courseMapItemId),
-				inArray(table.courseMapItemAreaOfSudty.learningAreaId, learningAreaIds)
+				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),
+				inArray(table.courseMapItemLearningArea.learningAreaId, learningAreaIds)
 			)
 		)
 		.returning();
@@ -116,8 +116,8 @@ export async function removeAreasOfStudyFromCourseMapItem(
 
 export async function removeAllAreasOfStudyFromCourseMapItem(courseMapItemId: number) {
 	const deletedRelationships = await db
-		.delete(table.courseMapItemAreaOfSudty)
-		.where(eq(table.courseMapItemAreaOfSudty.courseMapItemId, courseMapItemId))
+		.delete(table.courseMapItemLearningArea)
+		.where(eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId))
 		.returning();
 
 	return deletedRelationships;
@@ -129,12 +129,12 @@ export async function setCourseMapItemAreasOfStudy(
 ) {
 	return await db.transaction(async (tx) => {
 		await tx
-			.delete(table.courseMapItemAreaOfSudty)
-			.where(eq(table.courseMapItemAreaOfSudty.courseMapItemId, courseMapItemId));
+			.delete(table.courseMapItemLearningArea)
+			.where(eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId));
 
 		if (learningAreaIds.length > 0) {
 			const newRelationships = await tx
-				.insert(table.courseMapItemAreaOfSudty)
+				.insert(table.courseMapItemLearningArea)
 				.values(
 					learningAreaIds.map((learningAreaId) => ({
 						courseMapItemId: courseMapItemId,
@@ -150,18 +150,18 @@ export async function setCourseMapItemAreasOfStudy(
 	});
 }
 
-export async function getCourseMapItemAreasOfStudy(courseMapItemId: number) {
+export async function getCourseMapItemLearningAreas(courseMapItemId: number) {
 	const relationships = await db
 		.select({
 			learningArea: table.learningArea,
-			relationship: table.courseMapItemAreaOfSudty
+			relationship: table.courseMapItemLearningArea
 		})
-		.from(table.courseMapItemAreaOfSudty)
+		.from(table.courseMapItemLearningArea)
 		.innerJoin(
 			table.learningArea,
-			eq(table.learningArea.id, table.courseMapItemAreaOfSudty.learningAreaId)
+			eq(table.learningArea.id, table.courseMapItemLearningArea.learningAreaId)
 		)
-		.where(eq(table.courseMapItemAreaOfSudty.courseMapItemId, courseMapItemId))
+		.where(eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId))
 		.orderBy(table.learningArea.name);
 
 	return relationships.map((row) => row.learningArea);

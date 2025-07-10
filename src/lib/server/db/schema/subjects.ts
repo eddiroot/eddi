@@ -198,7 +198,7 @@ export const courseMapItem = pgTable(
 
 export type CourseMapItem = typeof courseMapItem.$inferSelect;
 
-export const courseMapItemAreaOfSudty = pgTable(
+export const courseMapItemLearningArea = pgTable(
 	'course_map_item_area_of_study',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -226,7 +226,7 @@ export const courseMapItemAreaOfSudty = pgTable(
 	]
 );
 
-export type CoursemapItemAreaOfStudy = typeof courseMapItemAreaOfSudty.$inferSelect;
+export type CourseMapItemLearningArea = typeof courseMapItemLearningArea.$inferSelect;
 
 // if we want to check across the area of study contents,
 export const courseMapItemAssessmentPlan = pgTable(
