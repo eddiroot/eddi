@@ -1,0 +1,510 @@
+enum day_of_week {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+enum school_location_type {
+  classroom
+  laboratory
+  gymnasium
+  pool
+  library
+  auditorium
+  online
+}
+
+enum subject_thread_response_type {
+  comment
+  answer
+}
+
+enum subject_thread_type {
+  discussion
+  question
+  announcement
+  qanda
+}
+
+enum task_block_type {
+  h1
+  h2
+  h3
+  h4
+  h5
+  h6
+  markdown
+  image
+  video
+  audio
+  fill_in_blank
+  multiple_choice
+  whiteboard
+  matching
+  two_column_layout
+}
+
+enum task_type {
+  lesson
+  assessment
+  homework
+}
+
+enum gender {
+  male
+  female
+  "non-binary"
+  other
+  unspecified
+}
+
+enum user_honorific {
+  Mr
+  Ms
+  Mrs
+  Dr
+  Prof
+}
+
+enum user_sch_sub_off_class_role {
+  student
+  teacher
+}
+
+enum user_sch_sub_offering_role {
+  student
+  teacher
+  moderator
+}
+
+enum user_type {
+  student
+  teacher
+  principal
+  schoolAdmin
+  systemAdmin
+}
+
+enum whiteboard_object_type {
+  Rect
+  Circle
+  Path
+  Textbox
+}
+
+enum year_level {
+  F
+  "1"
+  "2"
+  "3"
+  "4"
+  "5"
+  "6"
+  "7"
+  "8"
+  "9"
+  "10"
+  "10A"
+}
+
+table campus {
+  id integer [pk, not null]
+  school_id integer [not null]
+  name text [not null]
+  address text [not null]
+  description text
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table chatbot_chat {
+  id integer [pk, not null]
+  user_id text
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table chatbot_message {
+  id integer [pk, not null]
+  author_id text
+  chat_id integer [not null]
+  content text [not null]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table class_task {
+  id integer [pk, not null]
+  sch_sub_off_class_id integer [not null]
+  sch_sub_task_id integer [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table content_elaboration {
+  id integer [pk, not null]
+  learn_a_con_id integer [not null]
+  name text [not null]
+  cont_elab text [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table core_subject {
+  id integer [pk, not null]
+  name text [not null]
+  description text
+  cur_sub_id integer [not null]
+  school_id integer [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table course_map_item {
+  id integer [pk, not null]
+  sch_sub_off_id integer [not null]
+  topic text [not null]
+  description text
+  start_week integer [not null]
+  duration integer [not null]
+  semester integer [not null]
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_current_version boolean [not null, default: true]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table course_map_item_area_of_study {
+  id integer [pk, not null]
+  cm_item_id integer [not null]
+  learn_a_id integer [not null]
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table cm_item_as_plan {
+  id integer [pk, not null]
+  cm_item_id integer [not null]
+  name text [not null]
+  description text
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table cm_item_lesson_plan {
+  id integer [pk, not null]
+  cm_item_id integer [not null]
+  name text [not null]
+  description text
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table course_map_item_resource {
+  id integer [pk, not null]
+  sch_sub_off_id integer [not null]
+  resource_id integer [not null]
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table curriculum {
+  id integer [pk, not null]
+  name text [not null]
+  version text [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table curriculum_subject {
+  id integer [pk, not null]
+  name text [not null]
+  cur_id integer [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table elective_subject {
+  id integer [pk, not null]
+  name text [not null]
+  description text
+  school_id integer [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table learning_area {
+  id integer [pk, not null]
+  cur_sub_id integer [not null]
+  name text [not null]
+  description text
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table learning_area_content {
+  id integer [pk, not null]
+  learn_a_id integer [not null]
+  name text [not null]
+  description text
+  yearLevel year_level [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table school {
+  id integer [pk, not null]
+  name text [not null, unique]
+  email_suffix text [not null, unique]
+  logo_url text
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table school_location {
+  id integer [pk, not null]
+  campus_id integer [not null]
+  name text [not null]
+  type school_location_type [not null]
+  capacity integer
+  description text
+  is_active boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    (campus_id, name) [name: 'school_location_campus_id_name_unique', unique]
+  }
+}
+
+table school_subject {
+  id integer [pk, not null]
+  name text [not null]
+  school_id integer [not null]
+  core_sub_id integer
+  elective_sub_id integer
+  yearLevel year_level [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    (school_id, name) [name: 'school_subject_school_id_name_unique', unique]
+    
+  }
+}
+
+table school_sub_class_allo {
+  id integer [pk, not null]
+  sch_sub_off_class_id integer [not null]
+  schoolLocationId integer [not null]
+  dayOfWeek day_of_week [not null]
+  start_time time [not null]
+  duration interval [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table sch_sub_offering {
+  id integer [pk, not null]
+  sch_sub_id integer [not null]
+  year integer [not null]
+  semester integer [not null]
+  campus_id integer [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table sch_sub_offering_class {
+  id integer [pk, not null]
+  sch_sub_offering_id integer [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table sch_sub_resource {
+  id integer [pk, not null]
+  cm_item_id integer
+  sch_sub_off_id integer [not null]
+  assignee_user_id text [not null]
+  resource_id integer [not null]
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table sch_sub_task {
+  id integer [pk, not null]
+  cm_item_id integer
+  sch_sub_off_id integer [not null]
+  task_id integer [not null]
+  assignee_user_id text [not null]
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table sch_sub_thread {
+  id integer [pk, not null]
+  type subject_thread_type [not null]
+  sch_sub_offering_id integer [not null]
+  user_id text [not null]
+  title text [not null]
+  content text [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table sch_sub_thread_response {
+  id integer [pk, not null]
+  type subject_thread_response_type [not null]
+  sch_sub_thread_id integer [not null]
+  user_id text [not null]
+  content text [not null]
+  parent_id integer
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table session {
+  id text [pk, not null]
+  user_id text [not null]
+  expires_at "timestamp with time zone" [not null]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table task {
+  id integer [pk, not null]
+  title text [not null]
+  type task_type [not null]
+  description text [not null]
+  index integer [not null]
+  due_date "timestamp with time zone"
+  is_published boolean [not null, default: false]
+  original_id integer
+  previous_id integer
+  version integer [not null, default: 1]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table task_block {
+  id integer [pk, not null]
+  task_id integer [not null]
+  type task_block_type [not null]
+  content jsonb [not null]
+  index integer [not null, default: 0]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table user {
+  id text [pk, not null]
+  email text [not null, unique]
+  password_hash text [not null]
+  school_id integer [not null]
+  type user_type [not null]
+  gender gender
+  date_of_birth "timestamp with time zone"
+  honorific user_honorific
+  first_name text [not null]
+  middle_name text
+  last_name text [not null]
+  avatar_url text
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table user_campus {
+  id integer [pk, not null]
+  user_id text [not null]
+  campus_id integer [not null]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table user_sch_sub_offering {
+  id integer [pk, not null]
+  user_id text [not null]
+  sch_sub_offering_id integer [not null]
+  role user_sch_sub_offering_role [not null]
+  is_complete integer [not null, default: 0]
+  is_archived integer [not null, default: 0]
+  color integer [not null, default: 100]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table user_sch_sub_off_class {
+  id integer [pk, not null]
+  user_id text [not null]
+  sch_sub_off_class_id integer [not null]
+  role user_sch_sub_off_class_role [not null]
+  is_archived boolean [not null, default: false]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table whiteboard {
+  id integer [pk, not null]
+  task_id integer [not null]
+  title text
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
+
+table whiteboard_object {
+  id integer [pk, not null]
+  whiteboard_id integer [not null]
+  object_id text [not null, unique]
+  objectType whiteboard_object_type [not null]
+  object_data jsonb [not null]
+  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+}
