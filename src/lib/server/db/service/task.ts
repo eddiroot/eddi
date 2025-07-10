@@ -436,3 +436,21 @@ export async function updateTaskOrder(
 		}
 	});
 }
+
+// Select the learningAreaContents and add this to the gemini service, use coursemap.ts funtion to get the learning area content
+export async function getContentElaborationsByLearningAreaContentIds(
+	learningAreaContentIds: number[]
+) {
+	if (learningAreaContentIds.length === 0) return [];
+
+	const elaborations = await db
+		.select({
+			id: table.contentElaboration.id,
+			contentElaboration: table.contentElaboration.contentElaboration
+		})
+		.from(table.contentElaboration)
+		.where(inArray(table.contentElaboration.learningAreaContentId, learningAreaContentIds))
+		.orderBy(asc(table.contentElaboration.id));
+
+	return elaborations.map((row) => row.contentElaboration);
+}

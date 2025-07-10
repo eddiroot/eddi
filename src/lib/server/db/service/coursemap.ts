@@ -53,7 +53,7 @@ export async function getSubjectOfferingLearningAreas(subjectOfferingId: number)
 	}
 }
 
-export async function getAreaOfStudyContentByLearningAreaId(
+export async function getLearningAreaContentByLearningAreaId(
 	learningAreaId: number,
 	yearLevel: table.yearLevelEnum
 ) {
