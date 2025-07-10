@@ -570,9 +570,13 @@ export type SubjectOfferingResource = typeof subjectOfferingResource.$inferSelec
 
 export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	index: integer('index').notNull(),
 	subjectOfferingClassId: integer('sub_off_class_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
+	subjectOfferingTaskId: integer('sub_off_task_id')
+		.notNull()
+		.references(() => subjectOfferingTask.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
@@ -584,45 +588,11 @@ export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
 	subjectOfferingClassId: integer('sub_off_class_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
+	subjectOfferingResourceId: integer('sub_off_res_id')
+		.notNull()
+		.references(() => subjectOfferingResource.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
 export type SubjectOfferingClassResource = typeof subjectOfferingClassResource.$inferSelect;
-
-export const subjectOfferingTaskSubjectOfferingClassTask = pgTable(
-	'sub_off_task_sub_off_class_task',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		index: integer('index').notNull(),
-		subjectOfferingTaskId: integer('sub_off_task_id')
-			.notNull()
-			.references(() => subjectOfferingTask.id, { onDelete: 'cascade' }),
-		subjectOfferingClassTaskId: integer('sub_off_class_task_id')
-			.notNull()
-			.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	}
-);
-
-export type SubjectOfferingTaskSubjectOfferingClassTask =
-	typeof subjectOfferingTaskSubjectOfferingClassTask.$inferSelect;
-
-export const subjectOfferingResourceSubjectOfferingClassResource = pgTable(
-	'sub_off_res_sub_off_class_res',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		subjectOfferingResourceId: integer('sub_off_res_id')
-			.notNull()
-			.references(() => subjectOfferingResource.id, { onDelete: 'cascade' }),
-		subjectOfferingClassResourceId: integer('sub_off_class_res_id')
-			.notNull()
-			.references(() => subjectOfferingClassResource.id, { onDelete: 'cascade' }),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	}
-);
-
-export type SubjectOfferingResourceSubjectOfferingClassResource =
-	typeof subjectOfferingResourceSubjectOfferingClassResource.$inferSelect;

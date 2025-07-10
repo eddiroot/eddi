@@ -346,9 +346,10 @@ export async function getSubjectOfferingTasksByCourseMapItem(courseMapItemId: nu
 	try {
 		const tasks = await db
 			.select({
-				task: table.subjectOfferingTask
+				task: table.task
 			})
-			.from(table.subjectOfferingTask)
+			.from(table.task)
+			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
 			.where(eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId))
 			.orderBy(asc(table.subjectOfferingTask.createdAt));
 		return tasks.map((row) => row.task);
@@ -365,38 +366,27 @@ export async function getTeacherReleasedTasksByCourseMapItem(
 	try {
 		const tasks = await db
 			.select({
-				task: table.subjectOfferingTask
+				task: table.task
 			})
-			.from(table.subjectOfferingTask)
-			.innerJoin(
-				table.subjectOfferingTaskSubjectOfferingClassTask,
-				eq(
-					table.subjectOfferingTaskSubjectOfferingClassTask.subjectOfferingTaskId,
-					table.subjectOfferingTask.id
-				)
-			)
+			.from(table.task)
+			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
 			.innerJoin(
 				table.subjectOfferingClassTask,
-				eq(
-					table.subjectOfferingClassTask.id,
-					table.subjectOfferingTaskSubjectOfferingClassTask.subjectOfferingClassTaskId
-				)
-			)
-			.innerJoin(
-				table.subjectOfferingClass,
-				eq(table.subjectOfferingClass.id, table.subjectOfferingClassTask.subjectOfferingClassId)
+				eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
 			)
 			.innerJoin(
 				table.userSubjectOfferingClass,
-				eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+				eq(
+					table.subjectOfferingClassTask.subjectOfferingClassId,
+					table.userSubjectOfferingClass.subOffClassId
+				)
 			)
 			.where(
 				and(
-					eq(table.userSubjectOfferingClass.userId, userId),
-					eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId)
+					eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId),
+					eq(table.userSubjectOfferingClass.userId, userId)
 				)
-			)
-			.orderBy(asc(table.subjectOfferingTask.createdAt));
+			);
 		return tasks.map((row) => row.task);
 	} catch (error) {
 		console.error('Error fetching teacher released tasks for course map item:', error);

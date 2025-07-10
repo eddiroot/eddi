@@ -9,3 +9,9 @@ export * from './subjects.js';
 
 // User
 export * from './user.js';
+
+// Chatbot
+export * from './chatbot.js';
+
+// Course Map
+export * from './coursemap.js';

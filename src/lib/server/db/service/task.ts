@@ -2,50 +2,155 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 
-export async function getUserTasksBySchoolSubjectOfferingId(
+export async function getUserTasksSubjectOfferingClassId(
 	userId: string,
-	schoolSubjectOfferingId: number
+	subjectOfferingClassId: number
 ) {
 	const tasks = await db
 		.select({
 			task: table.task
 		})
-		.from(table.userSchoolSubjectOffering)
+		.from(table.task)
+		.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
 		.innerJoin(
-			table.schoolSubjectOfferingClass,
-			eq(table.schoolSubjectOfferingClass.schSubOfferingId, schoolSubjectOfferingId)
+			table.subjectOfferingClassTask,
+			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
 		)
 		.innerJoin(
-			table.classTask,
-			eq(table.schoolSubjectOfferingClass.id, table.classTask.schoolSubjectOfferingClassId)
-		)
-		.innerJoin(
-			table.schoolSubjectTask,
-			eq(table.classTask.schoolSubjectTaskId, table.schoolSubjectTask.id)
-		)
-		.innerJoin(table.task, eq(table.schoolSubjectTask.taskId, table.task.id))
-		.where(
-			and(
-				eq(table.userSchoolSubjectOffering.userId, userId),
-				eq(table.schoolSubjectOfferingClass.schSubOfferingId, schoolSubjectOfferingId)
+			table.userSubjectOfferingClass,
+			eq(
+				table.subjectOfferingClassTask.subjectOfferingClassId,
+				table.userSubjectOfferingClass.subOffClassId
 			)
 		)
-		.orderBy(asc(table.task.index));
-
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.userId, userId),
+				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId)
+			)
+		)
+		.orderBy(asc(table.task.id));
 	return tasks;
 }
 
-export async function getTaskCMTopicsBySchoolSubjectOfferingId(schoolSubjectOfferingId: number) {
-	const TaskTopics = await db
+export async function addTasksToClass(
+	subjectOfferingTaskIds: number[],
+	subjectOfferingClassId: number
+) {
+	if (subjectOfferingTaskIds.length === 0) {
+		return [];
+	}
+
+	// get the next available index for the class tasks
+	const maxIndexResult = await db
+		.select({ maxIndex: table.subjectOfferingClassTask.index })
+		.from(table.subjectOfferingClassTask)
+		.where(eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId))
+		.orderBy(desc(table.subjectOfferingClassTask.index))
+		.limit(1);
+	let nextIndex = (maxIndexResult[0]?.maxIndex ?? -1) + 1;
+
+	const classTasks = await db
+		.insert(table.subjectOfferingClassTask)
+		.values(
+			subjectOfferingTaskIds.map((taskId) => ({
+				subjectOfferingTaskId: taskId,
+				subjectOfferingClassId: subjectOfferingClassId,
+				index: nextIndex++
+			}))
+		)
+		.onConflictDoNothing()
+		.returning();
+
+	return classTasks;
+}
+
+// Remove a task from a class
+export async function removeTaskFromClass(
+	subjectOfferingTaskId: number,
+	subjectOfferingClassId: number
+) {
+	const deletedClassTask = await db
+		.delete(table.subjectOfferingClassTask)
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.subjectOfferingTaskId, subjectOfferingTaskId),
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId)
+			)
+		)
+		.returning();
+
+	return deletedClassTask;
+}
+
+// Get all tasks assigned to a specific class
+export async function getTasksForClass(subjectOfferingClassId: number) {
+	const classTasks = await db
+		.select({
+			classTask: table.subjectOfferingClassTask,
+			subjectOfferingTask: table.subjectOfferingTask,
+			task: table.task
+		})
+		.from(table.subjectOfferingClassTask)
+		.innerJoin(
+			table.subjectOfferingTask,
+			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
+		)
+		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.where(eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId))
+		.orderBy(asc(table.task.id));
+	if (classTasks.length === 0) {
+		// If no tasks are found, return an empty array
+		return [];
+	}
+	return classTasks;
+}
+
+export async function getTopics(subjectOfferingClassId: number) {
+	const topics = await db
 		.select({
 			id: table.courseMapItem.id,
 			topic: table.courseMapItem.topic
 		})
 		.from(table.courseMapItem)
-		.where(eq(table.courseMapItem.schoolSubjectOfferingId, schoolSubjectOfferingId))
-		.orderBy(asc(table.courseMapItem.id));
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.subjectOffering.id, table.subjectOfferingClass.subOfferingId)
+		)
+		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
+		.orderBy(asc(table.courseMapItem.startWeek));
 
-	return TaskTopics;
+	return topics.map((row) => row.topic);
+}
+
+export async function getClassTasksByTopicId(subjectOfferingClassId: number, topicId: number) {
+	const tasks = await db
+		.select({
+			task: table.task
+		})
+		.from(table.task)
+		.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.innerJoin(
+			table.subjectOfferingClassTask,
+			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
+		)
+		.innerJoin(
+			table.courseMapItem,
+			eq(table.subjectOfferingTask.courseMapItemId, table.courseMapItem.id)
+		)
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
+				eq(table.courseMapItem.id, topicId)
+			)
+		)
+		.orderBy(asc(table.subjectOfferingClassTask.index));
+
+	return tasks.map((row) => row.task);
 }
 
 export async function getTaskById(taskId: number) {
@@ -77,24 +182,9 @@ export async function createTask(
 	description: string,
 	taskStatus: table.taskStatusEnum,
 	type: table.taskTypeEnum,
-	courseMapItemId: number,
 	dueDate?: Date | null,
 	isArchived: boolean = false
 ) {
-	const maxTaskIndexIfCM = await db
-		.select({ index: table.task.index })
-		.from(table.courseMapItem)
-		.innerJoin(
-			table.schoolSubjectTask,
-			eq(table.courseMapItem.id, table.schoolSubjectTask.courseMapItemId)
-		)
-		.innerJoin(table.task, eq(table.schoolSubjectTask.taskId, table.task.id))
-		.where(eq(table.courseMapItem.id, courseMapItemId))
-		.orderBy(desc(table.task.index))
-		.limit(1);
-
-	const nextIndex = (maxTaskIndexIfCM[0]?.index ?? -1) + 1;
-
 	const [task] = await db
 		.insert(table.task)
 		.values({
@@ -102,7 +192,6 @@ export async function createTask(
 			description,
 			isPublished: taskStatus === 'published',
 			type,
-			index: nextIndex,
 			dueDate,
 			originalId: null,
 			previousId: null,
@@ -112,6 +201,25 @@ export async function createTask(
 		.returning();
 
 	return task;
+}
+
+export async function createSubjectOfferingTask(
+	subjectOfferingId: number,
+	taskId: number,
+	userId: string,
+	courseMapItemId: number | null = null
+) {
+	const [subjectOfferingTask] = await db
+		.insert(table.subjectOfferingTask)
+		.values({
+			subjectOfferingId,
+			taskId,
+			createdUserId: userId,
+			courseMapItemId: courseMapItemId
+		})
+		.returning();
+
+	return subjectOfferingTask;
 }
 
 export async function updateTaskTitle(taskId: number, title: string) {
@@ -316,60 +424,15 @@ export async function updateTaskBlocksOrder(blockUpdates: Array<{ id: number; in
 	});
 }
 
-export async function getSubjectOfferingContextForAI(userId: string, subjectOfferingId: number) {
-	const subjectOfferingContext = await db
-		.select({
-			taskTitle: table.task.title,
-			taskBlock: table.taskBlock
-		})
-		.from(table.userSchoolSubjectOfferingClass)
-		.innerJoin(
-			table.schoolSubjectOfferingClass,
-			eq(table.userSchoolSubjectOfferingClass.schSubOffClassId, table.schoolSubjectOfferingClass.id)
-		)
-		.innerJoin(
-			table.schoolSubjectOffering,
-			eq(table.schoolSubjectOfferingClass.schSubOfferingId, table.schoolSubjectOffering.id)
-		)
-		.innerJoin(
-			table.classTask,
-			eq(table.schoolSubjectOfferingClass.id, table.classTask.schoolSubjectOfferingClassId)
-		)
-		.innerJoin(
-			table.schoolSubjectTask,
-			eq(table.classTask.schoolSubjectTaskId, table.schoolSubjectTask.id)
-		)
-		.innerJoin(table.task, eq(table.schoolSubjectTask.taskId, table.task.id))
-		.innerJoin(table.taskBlock, eq(table.task.id, table.taskBlock.taskId))
-		.where(
-			and(
-				eq(table.userSchoolSubjectOfferingClass.userId, userId),
-				eq(table.schoolSubjectOffering.id, subjectOfferingId)
-			)
-		)
-		.orderBy(asc(table.taskBlock.index));
-	return subjectOfferingContext;
-}
-
 export async function updateTaskOrder(
 	taskOrder: Array<{ id: number; index: number }>
 ): Promise<void> {
 	await db.transaction(async (tx) => {
-		for (const lesson of taskOrder) {
-			await tx.update(table.task).set({ index: lesson.index }).where(eq(table.task.id, lesson.id));
+		for (const task of taskOrder) {
+			await tx
+				.update(table.subjectOfferingClassTask)
+				.set({ index: task.index })
+				.where(eq(table.task.id, task.id));
 		}
 	});
 }
-
-// export async function updateCMTopicOrder(
-// 	topicOrder: Array<{ id: number; index: number }>
-// ): Promise<void> {
-// 	await db.transaction(async (tx) => {
-// 		for (const topic of topicOrder) {
-// 			await tx
-// 				.update(table.lessonTopic)
-// 				.set({ index: topic.index })
-// 				.where(eq(table.lessonTopic.id, topic.id));
-// 		}
-// 	});
-// }
