@@ -1,4 +1,4 @@
-import { createSubjectThread } from '$lib/server/db/service.js';
+import { createSubjectThread } from '$lib/server/db/service';
 import { redirect } from '@sveltejs/kit';
 import { superValidate, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';

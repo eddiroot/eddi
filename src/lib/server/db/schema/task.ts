@@ -2,13 +2,12 @@ import {
 	pgTable,
 	text,
 	integer,
-	timestamp,
 	boolean,
 	jsonb,
 	pgEnum,
-	foreignKey
+	foreignKey,
+	unique
 } from 'drizzle-orm/pg-core';
-import { subjectOfferingTask } from './subjects';
 import { timestamps } from './utils';
 
 export enum taskTypeEnum {
@@ -36,13 +35,7 @@ export const task = pgTable(
 		title: text('title').notNull(),
 		type: taskTypeEnumPg().notNull(),
 		description: text('description').notNull(),
-		dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
-		subjectOfferingTaskId: integer('subject_offering_task_id')
-			.notNull()
-			.references(() => subjectOfferingTask.id, { onDelete: 'cascade' }),
-		isPublished: boolean('is_published').notNull().default(false),
 		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
@@ -52,10 +45,7 @@ export const task = pgTable(
 			columns: [self.originalId],
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
+		unique().on(self.originalId, self.version)
 	]
 );
 

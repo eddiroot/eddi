@@ -1,7 +1,22 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { eq, and, inArray, asc } from 'drizzle-orm';
+import { eq, and, inArray, asc, max } from 'drizzle-orm';
 
+export async function getMaxVersionForCourseMapBySubjectOfferingId(subjectOfferingId: number) {
+	// Get the maximum version of the course map item for this subject offering class
+	const [version] = await db
+		.select({ max: max(table.courseMapItem.version) })
+		.from(table.courseMapItem)
+		.where(
+			and(
+				eq(table.courseMapItem.subjectOfferingId, subjectOfferingId),
+				eq(table.courseMapItem.isArchived, false)
+			)
+		)
+		.limit(1);
+
+	return version?.max ?? null;
+}
 export async function getCourseMapItemsBySubjectOfferingId(subjectOfferingId: number) {
 	const courseMapItems = await db
 		.select({
@@ -342,17 +357,14 @@ export async function removeAllResourcesFromCourseMapItem(courseMapItemId: numbe
 	return deletedRelationships;
 }
 
-export async function getSubjectOfferingTasksByCourseMapItem(courseMapItemId: number) {
+export async function getTasksByCourseMapItemId(courseMapItemId: number) {
 	try {
 		const tasks = await db
 			.select({
 				task: table.task
 			})
 			.from(table.task)
-			.innerJoin(
-				table.subjectOfferingTask,
-				eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
-			)
+			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
 			.where(eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId))
 			.orderBy(asc(table.subjectOfferingTask.createdAt));
 		return tasks.map((row) => row.task);
@@ -372,10 +384,7 @@ export async function getTeacherReleasedTasksByCourseMapItem(
 				task: table.task
 			})
 			.from(table.task)
-			.innerJoin(
-				table.subjectOfferingTask,
-				eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
-			)
+			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
 			.innerJoin(
 				table.subjectOfferingClassTask,
 				eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)

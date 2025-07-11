@@ -17,7 +17,7 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seed.ts",
 		"db:studio": "drizzle-kit studio",
-		"dbml": "tsx ./src/lib/server/db/dbml.ts",
+		"db:diagram": "tsx ./src/lib/server/db/dbml.ts",
 		"scrape": "npx tsx --env-file=.env ./scripts/scraper/run-scraper.ts",
 		"scrape:math": "npm run scrape -- --mathematics",
 		"scrape:english": "npm run scrape -- --english",

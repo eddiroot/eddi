@@ -3,7 +3,7 @@ import { superValidate, withFiles, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
-import { schoolLocation, schoolLocationTypeEnum } from '$lib/server/db/schema.js';
+import { schoolLocation, schoolLocationTypeEnum } from '$lib/server/db/schema';
 import { optionalColumns, requiredColumns, locationsImportSchema } from './schema.js';
 
 export const load = async ({ locals: { security } }) => {

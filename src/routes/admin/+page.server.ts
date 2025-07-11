@@ -1,4 +1,4 @@
-import { getSchoolStatsById } from '$lib/server/db/service.js';
+import { getSchoolStatsById } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

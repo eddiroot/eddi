@@ -37,7 +37,7 @@ export function getPermissions(userType: userTypeEnum): string[] {
 				userPermissions.viewTimeTable,
 				userPermissions.viewDashboard
 			];
-		case userTypeEnum.parent:
+		case userTypeEnum.guardian:
 			return [
 				userPermissions.viewChildGrades,
 				userPermissions.viewLessons,

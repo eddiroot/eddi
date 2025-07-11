@@ -326,6 +326,7 @@ export class VCAAF10Scraper {
 			const html = await this.fetchPage(url);
 			const $ = cheerio.load(html);
 
+			// @ts-expect-error Next.js data is not typed
 			return this.extractContentFromNextJS($, subject);
 		} catch (error) {
 			console.error(`❌ Error scraping ${subject}:`, error);

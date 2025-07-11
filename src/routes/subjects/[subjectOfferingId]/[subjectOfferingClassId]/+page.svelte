@@ -6,12 +6,6 @@
 
 	let { data } = $props();
 
-	const subjectInfo = {
-		name: 'Maths Methods 1/2',
-		teacher: 'Mr Smith',
-		teacherEmail: 'msmith@eddi.edu.au'
-	};
-
 	const assessments = [
 		{ name: 'Test 1 - Functions and Relations', dueDate: '2025-07-15', type: 'Test' },
 		{ name: 'SAC 1 - Calculus Application', dueDate: '2025-07-22', type: 'SAC' }
@@ -30,36 +24,35 @@
 		{ title: 'Past exam papers', type: 'Exam Papers' }
 	];
 
-	// Create sorted array of user classes by day of week using derived rune
-	const sortedUserClasses = $derived(() => {
-		type UserClass = (typeof data.userClasses)[0];
-		const classesByDay: UserClass[][] = [[], [], [], [], []]; // Array for Mon-Fri (5 days)
+	// const sortedUserClasses = $derived(() => {
+	// 	type UserClass = (typeof data.userClasses)[0];
+	// 	const classesByDay: UserClass[][] = [[], [], [], [], []]; // Array for Mon-Fri (5 days)
 
-		data.userClasses?.forEach((cls) => {
-			const dayIndex = getDayIndex(cls.classAllocation.dayOfWeek);
-			if (dayIndex !== -1) {
-				classesByDay[dayIndex].push(cls);
-			}
-		});
+	// 	data.userClasses?.forEach((cls) => {
+	// 		const dayIndex = getDayIndex(cls.classAllocation.dayOfWeek);
+	// 		if (dayIndex !== -1) {
+	// 			classesByDay[dayIndex].push(cls);
+	// 		}
+	// 	});
 
-		// Sort classes within each day by start time
-		classesByDay.forEach((dayClasses) => {
-			dayClasses.sort((a, b) =>
-				a.classAllocation.startTime.localeCompare(b.classAllocation.startTime)
-			);
-		});
+	// 	// Sort classes within each day by start time
+	// 	classesByDay.forEach((dayClasses) => {
+	// 		dayClasses.sort((a, b) =>
+	// 			a.classAllocation.startTime.localeCompare(b.classAllocation.startTime)
+	// 		);
+	// 	});
 
-		return classesByDay;
-	});
+	// 	return classesByDay;
+	// });
 </script>
 
 <div class="p-8">
 	<!-- Header -->
 	<div class="mb-8 flex items-center justify-between">
 		<div>
-			<h1 class="text-foreground text-3xl font-bold">{data.subject?.name}</h1>
+			<h1 class="text-foreground text-3xl font-bold">Placeholder Name</h1>
 			<p class="text-muted-foreground mt-1">
-				Teacher: {data.mainTeacher
+				Teacher: {data.thisClassTeachers
 					.map((teacher) => `${teacher.teacher.firstName} ${teacher.teacher.lastName}`)
 					.join(', ')}
 			</p>
@@ -110,7 +103,7 @@
 			<Card.Content>
 				<ScrollArea class="h-100">
 					<div class="space-y-2 pr-4">
-						{#each sortedUserClasses() as dayClasses, dayIndex}
+						<!-- {#each sortedUserClasses() as dayClasses, dayIndex}
 							{#if dayClasses.length > 0}
 								<div>
 									<h4 class="text-foreground mb-2 font-medium">{days[dayIndex].name}</h4>
@@ -135,7 +128,7 @@
 									</div>
 								</div>
 							{/if}
-						{/each}
+						{/each} -->
 					</div>
 				</ScrollArea>
 			</Card.Content>
@@ -172,7 +165,7 @@
 			<Card.Content>
 				<ScrollArea class="h-100">
 					<div class="space-y-2">
-						{#each data.teachers as teacher}
+						{#each data.thisClassTeachers as teacher}
 							<div class="border-border rounded-lg border p-3">
 								<h4 class="text-foreground text-sm font-medium">
 									{teacher.teacher.firstName}

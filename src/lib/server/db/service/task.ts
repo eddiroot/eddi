@@ -1,42 +1,7 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
-
-export async function getUserTasksSubjectOfferingClassId(
-	userId: string,
-	subjectOfferingClassId: number
-) {
-	const tasks = await db
-		.select({
-			task: table.task,
-			courseMapItemId: table.courseMapItem.id,
-			courseMapItemTopic: table.courseMapItem.topic
-		})
-		.from(table.task)
-		.innerJoin(
-			table.subjectOfferingTask,
-			eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
-		)
-		.innerJoin(
-			table.subjectOfferingClassTask,
-			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
-		)
-		.innerJoin(
-			table.userSubjectOfferingClass,
-			eq(
-				table.subjectOfferingClassTask.subjectOfferingClassId,
-				table.userSubjectOfferingClass.subOffClassId
-			)
-		)
-		.where(
-			and(
-				eq(table.userSubjectOfferingClass.userId, userId),
-				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId)
-			)
-		)
-		.orderBy(asc(table.task.id));
-	return tasks;
-}
+import { verifyUserAccessToClass } from './user';
 
 export async function addTasksToClass(
 	subjectOfferingTaskIds: number[],
@@ -89,26 +54,37 @@ export async function removeTaskFromClass(
 }
 
 // Get all tasks assigned to a specific class
-export async function getTasksForClass(subjectOfferingClassId: number) {
+export async function getTasksBySubjectOfferingClassId(
+	userId: string,
+	subjectOfferingClassId: number
+) {
+	const userAccess = await verifyUserAccessToClass(userId, subjectOfferingClassId);
+
+	if (!userAccess) {
+		return [];
+	}
+
 	const classTasks = await db
 		.select({
-			classTask: table.subjectOfferingClassTask,
+			task: table.task,
 			subjectOfferingTask: table.subjectOfferingTask,
-			task: table.task
+			subjectOfferingClassTask: table.subjectOfferingClassTask,
+			courseMapItem: table.courseMapItem
 		})
 		.from(table.subjectOfferingClassTask)
 		.innerJoin(
 			table.subjectOfferingTask,
-			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
+			eq(table.subjectOfferingClassTask.subjectOfferingTaskId, table.subjectOfferingTask.id)
 		)
-		.innerJoin(table.task, eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id))
+		.innerJoin(table.task, eq(table.subjectOfferingTask.taskId, table.task.id))
+		.innerJoin(
+			table.courseMapItem,
+			eq(table.subjectOfferingTask.courseMapItemId, table.courseMapItem.id)
+		)
 		.where(eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId))
 		.orderBy(asc(table.task.id));
-	if (classTasks.length === 0) {
-		// If no tasks are found, return an empty array
-		return [];
-	}
-	return classTasks;
+
+	return classTasks?.length == 0 ? [] : classTasks;
 }
 
 export async function getTopics(subjectOfferingClassId: number) {
@@ -137,14 +113,10 @@ export async function getClassTasksByTopicId(subjectOfferingClassId: number, top
 		.select({
 			task: table.task
 		})
-		.from(table.task)
+		.from(table.subjectOfferingClassTask)
 		.innerJoin(
 			table.subjectOfferingTask,
-			eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
-		)
-		.innerJoin(
-			table.subjectOfferingClassTask,
-			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
+			eq(table.subjectOfferingClassTask.subjectOfferingTaskId, table.subjectOfferingTask.id)
 		)
 		.innerJoin(
 			table.courseMapItem,
@@ -188,24 +160,18 @@ export async function getTaskBlocksByTaskId(taskId: number) {
 export async function createTask(
 	title: string,
 	description: string,
-	taskStatus: table.taskStatusEnum,
-	subjectOfferingTaskId: number,
+	version: number,
 	type: table.taskTypeEnum,
-	dueDate?: Date | null,
 	isArchived: boolean = false
 ) {
 	const [task] = await db
 		.insert(table.task)
 		.values({
 			title,
-			description,
-			isPublished: taskStatus === 'published',
 			type,
-			dueDate,
-			subjectOfferingTaskId,
+			description,
 			originalId: null,
-			previousId: null,
-			version: 1,
+			version,
 			isArchived
 		})
 		.returning();
@@ -214,16 +180,18 @@ export async function createTask(
 }
 
 export async function createSubjectOfferingTask(
+	taskId: number,
 	subjectOfferingId: number,
-	userId: string,
+	authorId: string,
 	courseMapItemId: number | null = null
 ) {
 	const [subjectOfferingTask] = await db
 		.insert(table.subjectOfferingTask)
 		.values({
+			taskId,
 			subjectOfferingId,
-			createdUserId: userId,
-			courseMapItemId: courseMapItemId
+			authorId,
+			courseMapItemId
 		})
 		.returning();
 

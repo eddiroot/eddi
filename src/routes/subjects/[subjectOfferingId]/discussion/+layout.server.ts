@@ -1,4 +1,4 @@
-import { getSubjectThreadsMinimalBySubjectId } from '$lib/server/db/service.js';
+import { getSubjectThreadsMinimalBySubjectId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();

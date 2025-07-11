@@ -4,7 +4,7 @@
 // Chatbot schemas
 export * from './chatbot';
 
-// task schemas
+// Task schemas
 export * from './task';
 
 // School schemas
@@ -18,3 +18,9 @@ export * from './user';
 
 // Utility schemas
 export * from './utils';
+
+// Coursemap schemas
+export * from './coursemap';
+
+// Curriculum schemas
+export * from './curriculum';

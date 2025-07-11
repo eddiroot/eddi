@@ -15,98 +15,9 @@ import { timestamps } from './utils';
 import { campus, school, schoolLocation } from './schools';
 import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
-
-export const curriculum = pgTable('curriculum', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	name: text('name').notNull(),
-	version: text('version').notNull(),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
-
-export type Curriculum = typeof curriculum.$inferSelect;
-
-export const curriculumSubject = pgTable('curriculum_subject', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	name: text('name').notNull(),
-	curriculumId: integer('cur_id')
-		.notNull()
-		.references(() => curriculum.id, { onDelete: 'cascade' }),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
-
-export type CurriculumSubject = typeof curriculumSubject.$inferSelect;
-
-export const learningArea = pgTable('learning_area', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	curriculumSubjectId: integer('cur_sub_id')
-		.notNull()
-		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(),
-	description: text('description'),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
-
-export type LearningArea = typeof learningArea.$inferSelect;
-
-export enum yearLevelEnum {
-	foundation = 'F',
-	year1 = '1',
-	year2 = '2',
-	year3 = '3',
-	year4 = '4',
-	year5 = '5',
-	year6 = '6',
-	year7 = '7',
-	year8 = '8',
-	year9 = '9',
-	year10 = '10',
-	year10A = '10A'
-}
-
-export const yearLevelEnumPg = pgEnum('year_level', [
-	yearLevelEnum.foundation,
-	yearLevelEnum.year1,
-	yearLevelEnum.year2,
-	yearLevelEnum.year3,
-	yearLevelEnum.year4,
-	yearLevelEnum.year5,
-	yearLevelEnum.year6,
-	yearLevelEnum.year7,
-	yearLevelEnum.year8,
-	yearLevelEnum.year9,
-	yearLevelEnum.year10,
-	yearLevelEnum.year10A
-]);
-
-export const learningAreaContent = pgTable('learning_area_content', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaId: integer('learn_a_id')
-		.notNull()
-		.references(() => learningArea.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(),
-	description: text('description'),
-	yearLevel: yearLevelEnumPg().notNull(),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
-
-export type LearningAreaContent = typeof learningAreaContent.$inferSelect;
-
-export const contentElaboration = pgTable('content_elaboration', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaContentId: integer('learn_a_con_id')
-		.notNull()
-		.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(),
-	contentElaboration: text('cont_elab').notNull(),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
-
-export type ContentElaboration = typeof contentElaboration.$inferSelect;
+import { courseMapItem } from './coursemap';
+import { curriculumSubject, yearLevelEnumPg } from './curriculum';
+import { task } from './task';
 
 export const coreSubject = pgTable('core_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -163,155 +74,6 @@ export const subject = pgTable(
 );
 
 export type Subject = typeof subject.$inferSelect;
-
-export const courseMapItem = pgTable(
-	'course_map_item',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		subjectOfferingId: integer('sub_off_id')
-			.notNull()
-			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-		topic: text('topic').notNull(),
-		description: text('description'),
-		startWeek: integer('start_week'),
-		duration: integer('duration'),
-		semester: integer('semester'),
-		color: text('color').default('100'),
-		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
-		version: integer('version').notNull().default(1),
-		isCurrentVersion: boolean('is_current_version').notNull().default(true),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
-	]
-);
-
-export type CourseMapItem = typeof courseMapItem.$inferSelect;
-
-export const courseMapItemLearningArea = pgTable(
-	'course_map_item_area_of_study',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		courseMapItemId: integer('cm_item_id')
-			.notNull()
-			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
-		learningAreaId: integer('learn_a_id')
-			.notNull()
-			.references(() => learningArea.id, { onDelete: 'cascade' }),
-		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
-		version: integer('version').notNull().default(1),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
-	]
-);
-
-export type CourseMapItemLearningArea = typeof courseMapItemLearningArea.$inferSelect;
-
-// if we want to check across the area of study contents,
-export const courseMapItemAssessmentPlan = pgTable(
-	'cm_item_as_plan',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		courseMapItemId: integer('cm_item_id')
-			.notNull()
-			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
-		name: text('name').notNull(),
-		description: text('description'),
-		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
-		version: integer('version').notNull().default(1),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
-	]
-);
-
-export type CourseMapItemAssessmentPlan = typeof courseMapItemAssessmentPlan.$inferSelect;
-
-export const courseMapItemLessonPlan = pgTable(
-	'cm_item_lesson_plan',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		courseMapItemId: integer('cm_item_id')
-			.notNull()
-			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
-		name: text('name').notNull(),
-		description: text('description'),
-		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
-		version: integer('version').notNull().default(1),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
-	]
-);
-
-export type CourseMapItemLessonPlan = typeof courseMapItemLessonPlan.$inferSelect;
-
-export const courseMapItemResource = pgTable(
-	'course_map_item_resource',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		courseMapItemId: integer('cm_item_id')
-			.notNull()
-			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
-		resourceId: integer('resource_id').notNull(),
-		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
-		version: integer('version').notNull().default(1),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
-	]
-);
 
 export const subjectOffering = pgTable('sub_offering', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -513,13 +275,17 @@ export const subjectOfferingTask = pgTable(
 		subjectOfferingId: integer('sub_off_id')
 			.notNull()
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-		createdUserId: text('assignee_user_id')
+		taskId: integer('task_id')
+			.notNull()
+			.references(() => task.id, { onDelete: 'cascade' }),
+		authorId: text('author_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
 		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
+		dueDate: time('due_date', { withTimezone: true }),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
+		isPublished: boolean('is_published').notNull().default(false),
 		...timestamps
 	},
 	(self) => [
@@ -527,10 +293,7 @@ export const subjectOfferingTask = pgTable(
 			columns: [self.originalId],
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
+		unique().on(self.originalId, self.version)
 	]
 );
 
@@ -546,12 +309,11 @@ export const subjectOfferingResource = pgTable(
 		subjectOfferingId: integer('sub_off_id')
 			.notNull()
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-		createdUserId: text('assignee_user_id')
+		authorId: text('author_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
 		resourceId: integer('resource_id').notNull(),
 		originalId: integer('original_id'),
-		previousId: integer('previous_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
@@ -561,10 +323,7 @@ export const subjectOfferingResource = pgTable(
 			columns: [self.originalId],
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
-		foreignKey({
-			columns: [self.previousId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade')
+		unique().on(self.originalId, self.version)
 	]
 );
 

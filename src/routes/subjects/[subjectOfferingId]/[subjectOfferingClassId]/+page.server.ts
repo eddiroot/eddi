@@ -6,7 +6,9 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 	security.isAuthenticated();
 	const user = security.isAuthenticated().getUser();
 	const thisClass = await getClassById(Number(subjectOfferingClassId));
-	const thisTeacher = await getTeachersBySubjectOfferingClassId(Number(subjectOfferingClassId));
+	const thisClassTeachers = await getTeachersBySubjectOfferingClassId(
+		Number(subjectOfferingClassId)
+	);
 
-	return { user, thisClass, thisTeacher };
+	return { user, thisClass, thisClassTeachers };
 };

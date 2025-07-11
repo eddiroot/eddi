@@ -4,8 +4,9 @@ import { superValidate, withFiles } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
-import { subject } from '$lib/server/db/schema.js';
+import { subject } from '$lib/server/db/schema';
 import { optionalColumns, requiredColumns, subjectsImportSchema } from './schema.js';
+import type { yearLevelEnum } from '$lib/server/db/schema';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
@@ -51,15 +52,13 @@ export const actions = {
 
 			const subjectsToInsert: Array<{
 				name: string;
-				description: string | null;
-				yearLevel: string;
+				yearLevel: yearLevelEnum;
 				schoolId: number;
 			}> = [];
 
 			for (const rowData of csvData) {
 				const name = rowData['name']?.trim();
-				const description = rowData['description']?.trim() || null;
-				const yearLevel = rowData['yearlevel']?.trim();
+				const yearLevel = rowData['yearlevel']?.trim() as yearLevelEnum;
 
 				if (!name || !yearLevel) {
 					continue;
@@ -67,7 +66,6 @@ export const actions = {
 
 				subjectsToInsert.push({
 					name,
-					description,
 					yearLevel,
 					schoolId: user.schoolId
 				});

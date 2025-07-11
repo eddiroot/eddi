@@ -15,7 +15,7 @@ import {
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { taskBlockTypeEnum, taskStatusEnum, taskTypeEnum } from '$lib/server/db/schema';
+import { taskBlockTypeEnum, taskTypeEnum } from '$lib/server/db/schema';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -307,24 +307,17 @@ export const actions = {
 			return fail(400, { form, message: 'Topic is required' });
 		}
 
-		// Get the authenticated user
 		const user = security.isAuthenticated().getUser();
-
-		// First create the subject offering task
-		const subjectOfferingTask = await createSubjectOfferingTask(
-			subjectOfferingIdInt,
-			user.id,
-			taskTopicId
-		);
 
 		const task = await createTask(
 			form.data.title,
 			form.data.description,
-			taskStatusEnum.draft,
-			subjectOfferingTask.id,
-			taskTypeEnum[form.data.type as keyof typeof taskTypeEnum],
-			form.data.dueDate
+			1,
+			taskTypeEnum[form.data.type]
 		);
+
+		await createSubjectOfferingTask(task.id, subjectOfferingIdInt, user.id, taskTopicId);
+
 		console.log('Created task:', form.data);
 
 		// Now get the AI files from the same formData
