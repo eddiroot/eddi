@@ -333,6 +333,34 @@ export class VCAAF10Scraper {
 		}
 	}
 
+	/**
+	 * Convert VCAA year level to individual year levels
+	 */
+	private parseYearLevel(yearLevel: string): string[] {
+		// Normalize the input - remove "Year " prefix and extra spaces
+		const normalized = yearLevel.replace(/^Year\s+/i, '').trim();
+
+		// Handle Foundation year
+		if (normalized.toLowerCase() === 'foundation') {
+			return ['F'];
+		}
+
+		// Handle ranges like "9–10"
+		if (normalized.includes('–')) {
+			const [start, end] = normalized.split('–');
+			const startNum = parseInt(start);
+			const endNum = parseInt(end);
+			const result = [];
+			for (let i = startNum; i <= endNum; i++) {
+				result.push(i.toString());
+			}
+			return result;
+		}
+
+		// Handle individual year levels
+		return [normalized];
+	}
+
 	async insertCurriculumData(contentItems: ContentItem[]): Promise<void> {
 		console.log('\n💾 Inserting curriculum data into database...');
 
@@ -390,25 +418,30 @@ export class VCAAF10Scraper {
 						.returning();
 				}
 
-				// Create learning area content (main content description)
-				const [contentRecord] = await db
-					.insert(learningAreaContent)
-					.values({
-						learningAreaId: learningAreaRecord.id,
-						name: item.vcaaCode, // Use VCAA code as the name
-						description: item.description,
-						yearLevel: item.yearLevel as yearLevelEnum
-					})
-					.returning();
+				// Parse year levels (handle ranges like "9–10")
+				const yearLevels = this.parseYearLevel(item.yearLevel);
 
-				// Create content elaborations
-				for (let i = 0; i < item.elaborations.length; i++) {
-					const elaboration = item.elaborations[i];
-					await db.insert(contentElaboration).values({
-						learningAreaContentId: contentRecord.id,
-						name: `Elaboration ${i + 1}`,
-						contentElaboration: elaboration
-					});
+				// Create learning area content for each year level
+				for (const yl of yearLevels) {
+					const [contentRecord] = await db
+						.insert(learningAreaContent)
+						.values({
+							learningAreaId: learningAreaRecord.id,
+							name: item.vcaaCode, // Use VCAA code as the name
+							description: item.description,
+							yearLevel: yl as yearLevelEnum
+						})
+						.returning();
+
+					// Create content elaborations for this year level
+					for (let i = 0; i < item.elaborations.length; i++) {
+						const elaboration = item.elaborations[i];
+						await db.insert(contentElaboration).values({
+							learningAreaContentId: contentRecord.id,
+							name: `Elaboration ${i + 1}`,
+							contentElaboration: elaboration
+						});
+					}
 				}
 
 				console.log(
