@@ -6,9 +6,10 @@ import { geminiCompletion } from '$lib/server/ai';
 import { taskComponentSchema, taskCreationPrompts } from './constants';
 import {
 	createTask,
-	createTaskTopic,
-	getTaskTopicsBySubjectOfferingId,
-	createTaskBlock
+	createTaskBlock,
+	getTopics,
+	createCourseMapItem,
+	getLearningAreaContentWithElaborationsByIds
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -22,12 +23,12 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 	try {
 		subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
 	} catch {
-		throw new Error('Invalid subject offering ID');
+		throw new Error('Invalid subject offering ID or class ID');
 	}
 
 	const [form, taskTopics] = await Promise.all([
 		superValidate(zod(formSchema)),
-		getTaskTopicsBySubjectOfferingId(subjectOfferingIdInt)
+		getTopics(subjectOfferingIdInt)
 	]);
 
 	return { form, taskTopics };
@@ -248,12 +249,48 @@ export const actions = {
 		const formData = await request.formData();
 		const form = await superValidate(formData, zod(formSchema));
 
+		// Extract selected learning area content IDs
+		let selectedLearningAreaContentIds: number[] = [];
+		const learningContentData = formData.get('selectedLearningAreaContentIds');
+		if (learningContentData && typeof learningContentData === 'string') {
+			try {
+				selectedLearningAreaContentIds = JSON.parse(learningContentData);
+			} catch (error) {
+				console.error('Error parsing learning area content IDs:', error);
+			}
+		}
+
+		// Get learning area content with elaborations if any were selected
+		let learningAreaContentData: Array<{
+			id: number;
+			name: string;
+			description: string | null;
+			elaborations: Array<{
+				id: number;
+				learningAreaContentId: number;
+				name: string;
+				contentElaboration: string;
+			}>;
+		}> = [];
+		if (selectedLearningAreaContentIds.length > 0) {
+			try {
+				learningAreaContentData = await getLearningAreaContentWithElaborationsByIds(
+					selectedLearningAreaContentIds
+				);
+				console.log(
+					`Loaded ${learningAreaContentData.length} learning area content items with elaborations`
+				);
+			} catch (error) {
+				console.error('Error loading learning area content with elaborations:', error);
+			}
+		}
+
 		let taskTopicId = form.data.taskTopicId;
 
 		// Create new topic if needed
 		if (form.data.newTopicName && !taskTopicId) {
 			try {
-				const newTopic = await createTaskTopic(subjectOfferingIdInt, form.data.newTopicName);
+				const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
 				taskTopicId = newTopic.id;
 				console.log('Created new topic:', newTopic);
 			} catch (error) {
@@ -270,8 +307,8 @@ export const actions = {
 			form.data.title,
 			form.data.description,
 			taskStatusEnum.draft,
-			taskTypeEnum[form.data.type],
 			taskTopicId,
+			taskTypeEnum[form.data.type as keyof typeof taskTypeEnum],
 			form.data.dueDate
 		);
 		console.log('Created task:', form.data);
@@ -323,24 +360,59 @@ export const actions = {
 				tempFilePaths = await Promise.all(savePromises);
 				console.log('All temp files saved:', tempFilePaths);
 
+				// Create enhanced prompt with learning area content
+				let enhancedPrompt = taskCreationPrompts[form.data.type];
+				if (learningAreaContentData.length > 0) {
+					const curriculumContext = learningAreaContentData
+						.map((content) => {
+							let contextText = `${content.name}`;
+							if (content.description) {
+								contextText += `\nDescription: ${content.description}`;
+							}
+							if (content.elaborations.length > 0) {
+								const elaborationsText = content.elaborations
+									.map((elab) => `- ${elab.name}: ${elab.contentElaboration}`)
+									.join('\n');
+								contextText += `\nElaborations:\n${elaborationsText}`;
+							}
+							return contextText;
+						})
+						.join('\n\n');
+
+					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}\n\nUse this curriculum context to guide the content, complexity, and focus of the task you create.`;
+				}
+
 				// Pass files directly to Gemini instead of combining into text
 				console.log('Sending files to Gemini:', tempFilePaths);
 				for (const tempFilePath of tempFilePaths) {
 					console.log(`Processing temp file: ${tempFilePath}`);
-					taskSchema += await geminiCompletion(
-						taskCreationPrompts[form.data.type],
-						tempFilePath,
-						taskComponentSchema
-					);
+					taskSchema += await geminiCompletion(enhancedPrompt, tempFilePath, taskComponentSchema);
 				}
 			} else if (form.data.creationMethod === 'ai') {
 				// AI mode but no files
 				console.log('AI mode with no files - sending text-only prompt to Gemini');
-				taskSchema = await geminiCompletion(
-					taskCreationPrompts[form.data.type],
-					undefined,
-					taskComponentSchema
-				);
+				let enhancedPrompt = taskCreationPrompts[form.data.type];
+				if (learningAreaContentData.length > 0) {
+					const curriculumContext = learningAreaContentData
+						.map((content) => {
+							let contextText = `${content.name}`;
+							if (content.description) {
+								contextText += `\nDescription: ${content.description}`;
+							}
+							if (content.elaborations.length > 0) {
+								const elaborationsText = content.elaborations
+									.map((elab) => `- ${elab.name}: ${elab.contentElaboration}`)
+									.join('\n');
+								contextText += `\nElaborations:\n${elaborationsText}`;
+							}
+							return contextText;
+						})
+						.join('\n\n');
+
+					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease create a task that aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}\n\nUse this curriculum context to guide the content, complexity, and focus of the task you create. The task should be based on the title "${form.data.title}" and description "${form.data.description}".`;
+				}
+
+				taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);
 			} else {
 				console.log('Manual creation method selected');
 			}

@@ -48,10 +48,15 @@
 
 	const { form: formData, enhance } = form;
 
-	// Set default task type to 'task'
+	// Set default task type and handle topic requirements
 	$effect(() => {
 		if (!$formData.type) {
 			$formData.type = 'lesson';
+		}
+		
+		// If no topics are available, automatically switch to create new topic mode
+		if (data.taskTopics.length === 0 && !isCreatingNewTopic) {
+			isCreatingNewTopic = true;
 		}
 	});
 
@@ -59,9 +64,56 @@
 	let selectedTopicId = $state('');
 	let newTopicName = $state('');
 	let isCreatingNewTopic = $state(false);
+	
+	// Learning area content state
+	let learningAreaContents = $state<Array<{
+		id: number;
+		name: string;
+		description: string;
+	}>>([]);
+	let selectedLearningAreaContentIds = $state<number[]>([]);
+	let isLoadingLearningContent = $state(false);
 
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
+	});
+
+	// Load learning area content when topic changes
+	$effect(() => {
+		if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
+			isLoadingLearningContent = true;
+			
+			// Use a separate async function to handle the fetch
+			const loadContent = async () => {
+				try {
+					const response = await fetch(`/api/tasks?courseMapItemId=${selectedTopicId}`);
+					if (response.ok) {
+						const data = await response.json();
+						learningAreaContents = data.learningAreaContents || [];
+					} else {
+						console.error('Failed to load learning content');
+						learningAreaContents = [];
+					}
+				} catch (error) {
+					console.error('Error loading learning content:', error);
+					learningAreaContents = [];
+				} finally {
+					isLoadingLearningContent = false;
+				}
+			};
+			
+			loadContent();
+		} else {
+			learningAreaContents = [];
+			isLoadingLearningContent = false;
+		}
+		// Reset selected content when topic changes
+		selectedLearningAreaContentIds = [];
+	});
+
+	// Connect selected learning area content IDs to form data
+	$effect(() => {
+		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds;
 	});
 
 
@@ -175,6 +227,9 @@
 									bind:value={newTopicName}
 									placeholder="Enter new topic name"
 									class="w-full pr-8"
+									oninput={() => {
+										$formData.newTopicName = newTopicName;
+									}}
 								/>
 								<button
 									type="button"
@@ -182,6 +237,7 @@
 									onclick={() => {
 										isCreatingNewTopic = false;
 										newTopicName = '';
+										$formData.newTopicName = '';
 									}}
 									aria-label="Cancel creating new topic"
 								>
@@ -204,8 +260,11 @@
 									if (value === '__create_new__') {
 										isCreatingNewTopic = true;
 										selectedTopicId = '';
+										$formData.taskTopicId = undefined;
 									} else {
 										selectedTopicId = value || '';
+										$formData.taskTopicId = value ? parseInt(value, 10) : undefined;
+										console.log('Selected topic ID:', selectedTopicId, 'Form data:', $formData.taskTopicId);
 									}
 								}}
 							>
@@ -219,19 +278,26 @@
 								</Select.Trigger>
 								<Select.Content>
 									{#if data.taskTopics.length === 0}
-										<Select.Item value="" label="No topics available" disabled />
+										<Select.Item value="" label="No topics available - please create one" disabled />
 									{:else}
 										{#each data.taskTopics as topic}
 											<Select.Item value={topic.id.toString()} label={topic.name} />
 										{/each}
+										<Select.Separator />
 									{/if}
-									<Select.Separator />
 									<Select.Item value="__create_new__" label="Create new topic" />
 								</Select.Content>
 							</Select.Root>
 						{/if}
 					{/snippet}
 				</Form.Control>
+				<Form.Description>
+					{#if data.taskTopics.length === 0}
+						No topics available. Please create a new topic to organize your task.
+					{:else}
+						Select an existing topic or create a new one to organize your task.
+					{/if}
+				</Form.Description>
 				<Form.FieldErrors />
 			</Form.Field>
 		</div>
@@ -282,6 +348,56 @@
 		{/if}
 	</div>
 
+	<!-- Learning Area Content Selection -->
+	{#if (learningAreaContents.length > 0 || isLoadingLearningContent) && !isCreatingNewTopic && selectedTopicId}
+		<div class="space-y-4">
+			<div>
+				<Label class="text-base font-medium">Learning Area Content (Optional)</Label>
+				<p class="text-muted-foreground text-sm">
+					Select specific curriculum content to guide task generation. This helps ensure alignment with learning objectives.
+				</p>
+			</div>
+			
+			{#if isLoadingLearningContent}
+				<div class="flex items-center justify-center py-8">
+					<LoaderIcon class="h-6 w-6 animate-spin text-gray-500" />
+					<span class="ml-2 text-sm text-gray-500">Loading content...</span>
+				</div>
+			{:else if learningAreaContents.length === 0}
+				<div class="text-center py-8">
+					<p class="text-muted-foreground text-sm">No learning area content found for this topic.</p>
+				</div>
+			{:else}
+				<div class="grid gap-3 max-h-96 overflow-y-auto">
+					{#each learningAreaContents as content (content.id)}
+						<div class="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+							<label class="flex items-start space-x-3 cursor-pointer">
+								<input
+									type="checkbox"
+									bind:group={selectedLearningAreaContentIds}
+									value={content.id}
+									class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+								/>
+								<div class="flex-1 min-w-0">
+									<div class="font-medium text-sm">{content.name}</div>
+									{#if content.description}
+										<div class="text-gray-600 dark:text-gray-400 text-xs mt-1">{content.description}</div>
+									{/if}
+								</div>
+							</label>
+						</div>
+					{/each}
+				</div>
+				
+				{#if selectedLearningAreaContentIds.length > 0}
+					<div class="text-sm text-green-600 dark:text-green-400">
+						{selectedLearningAreaContentIds.length} content item{selectedLearningAreaContentIds.length !== 1 ? 's' : ''} selected for task generation
+					</div>
+				{/if}
+			{/if}
+		</div>
+	{/if}
+
 	<div>
 		{#if fileValidationErrors.length > 0}
 			<div class="mt-2 space-y-1">
@@ -330,6 +446,7 @@
 
 	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
 	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
+	<input type="hidden" name="selectedLearningAreaContentIds" value={JSON.stringify(selectedLearningAreaContentIds)} />
 
 	<!-- Add hidden file input -->
 	<input
@@ -343,7 +460,11 @@
 	/>
 
 	<div class="flex justify-end gap-2">
-		<Form.Button type="submit" disabled={fileValidationErrors.length > 0 || isSubmitting}>
+		<Form.Button type="submit" disabled={
+			fileValidationErrors.length > 0 || 
+			isSubmitting || 
+			(!selectedTopicId && !newTopicName.trim() && !isCreatingNewTopic)
+		}>
 			{#if isSubmitting && creationMethod === 'ai'}
 				<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
 				Generating...

@@ -176,6 +176,7 @@ export const courseMapItem = pgTable(
 		startWeek: integer('start_week'),
 		duration: integer('duration'),
 		semester: integer('semester'),
+		color: text('color').default('100'),
 		originalId: integer('original_id'),
 		previousId: integer('previous_id'),
 		version: integer('version').notNull().default(1),

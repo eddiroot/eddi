@@ -349,7 +349,10 @@ export async function getSubjectOfferingTasksByCourseMapItem(courseMapItemId: nu
 				task: table.task
 			})
 			.from(table.task)
-			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
+			.innerJoin(
+				table.subjectOfferingTask,
+				eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
+			)
 			.where(eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId))
 			.orderBy(asc(table.subjectOfferingTask.createdAt));
 		return tasks.map((row) => row.task);
@@ -369,7 +372,10 @@ export async function getTeacherReleasedTasksByCourseMapItem(
 				task: table.task
 			})
 			.from(table.task)
-			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
+			.innerJoin(
+				table.subjectOfferingTask,
+				eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
+			)
 			.innerJoin(
 				table.subjectOfferingClassTask,
 				eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
@@ -392,4 +398,25 @@ export async function getTeacherReleasedTasksByCourseMapItem(
 		console.error('Error fetching teacher released tasks for course map item:', error);
 		return [];
 	}
+}
+
+export async function createCourseMapItem(
+	subjectOfferingId: number,
+	topic: string,
+	semester?: number,
+	startWeek?: number,
+	description?: string | null
+) {
+	const [courseMapItem] = await db
+		.insert(table.courseMapItem)
+		.values({
+			subjectOfferingId,
+			topic,
+			semester,
+			startWeek,
+			description
+		})
+		.returning();
+
+	return courseMapItem;
 }

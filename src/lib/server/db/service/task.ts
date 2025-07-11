@@ -115,7 +115,7 @@ export async function getTopics(subjectOfferingClassId: number) {
 	const topics = await db
 		.select({
 			id: table.courseMapItem.id,
-			topic: table.courseMapItem.topic
+			name: table.courseMapItem.topic
 		})
 		.from(table.courseMapItem)
 		.innerJoin(
@@ -129,7 +129,7 @@ export async function getTopics(subjectOfferingClassId: number) {
 		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
 		.orderBy(asc(table.courseMapItem.startWeek));
 
-	return topics.map((row) => row.topic);
+	return topics;
 }
 
 export async function getClassTasksByTopicId(subjectOfferingClassId: number, topicId: number) {
@@ -445,10 +445,7 @@ export async function updateTaskOrder(
 	});
 }
 
-export async function getLearningAreaContentByCourseMapItemId(
-	courseMapItemId: number,
-	yearLevel: table.yearLevelEnum
-) {
+export async function getLearningAreaContentByCourseMapItemId(courseMapItemId: number) {
 	const learningAreaContents = await db
 		.select({
 			learningAreaContent: table.learningAreaContent
@@ -458,10 +455,19 @@ export async function getLearningAreaContentByCourseMapItemId(
 			table.courseMapItemLearningArea,
 			eq(table.learningAreaContent.learningAreaId, table.courseMapItemLearningArea.learningAreaId)
 		)
+		.innerJoin(
+			table.courseMapItem,
+			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.where(
 			and(
 				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),
-				eq(table.learningAreaContent.yearLevel, yearLevel)
+				eq(table.learningAreaContent.yearLevel, table.subject.yearLevel)
 			)
 		)
 		.orderBy(asc(table.learningAreaContent.id));
@@ -498,11 +504,46 @@ export async function getContentElaborationsByLearningAreaContentIds(
 	const elaborations = await db
 		.select({
 			id: table.contentElaboration.id,
+			learningAreaContentId: table.contentElaboration.learningAreaContentId,
+			name: table.contentElaboration.name,
 			contentElaboration: table.contentElaboration.contentElaboration
 		})
 		.from(table.contentElaboration)
 		.where(inArray(table.contentElaboration.learningAreaContentId, learningAreaContentIds))
 		.orderBy(asc(table.contentElaboration.id));
 
-	return elaborations.map((row) => row.contentElaboration);
+	return elaborations;
+}
+
+export async function getLearningAreaContentWithElaborationsByIds(
+	learningAreaContentIds: number[]
+) {
+	if (learningAreaContentIds.length === 0) return [];
+
+	// Get the learning area content
+	const learningAreaContents = await db
+		.select({
+			learningAreaContent: table.learningAreaContent
+		})
+		.from(table.learningAreaContent)
+		.where(inArray(table.learningAreaContent.id, learningAreaContentIds))
+		.orderBy(asc(table.learningAreaContent.id));
+
+	// Get elaborations for these content IDs
+	const elaborations = await getContentElaborationsByLearningAreaContentIds(learningAreaContentIds);
+
+	// Combine the data
+	const contentWithElaborations = learningAreaContents.map((row) => {
+		const content = row.learningAreaContent;
+		const contentElaborations = elaborations.filter(
+			(elaboration) => elaboration.learningAreaContentId === content.id
+		);
+
+		return {
+			...content,
+			elaborations: contentElaborations
+		};
+	});
+
+	return contentWithElaborations;
 }
