@@ -1,22 +1,12 @@
 // need to change over to ussing subjectOffering class instead
 
-import {
-	getClassesForUserInSubjectOffering,
-	getSubjectBySubjectOfferingId,
-	getTeachersForSubjectOfferingId,
-	getTeacherBySubjectOfferingIdForUserInClass
-} from '$lib/server/db/service';
+import { getClassById, getTeachersBySubjectOfferingClassId } from '$lib/server/db/service';
 
-export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
+export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
 	security.isAuthenticated();
-	// const userClasses = await getSubjectClassTimesAndLocationsByUserIdForToday(user.id);
 	const user = security.isAuthenticated().getUser();
-	const userClasses = await getClassesForUserInSubjectOffering(user.id, Number(subjectOfferingId));
-	const subject = await getSubjectBySubjectOfferingId(Number(subjectOfferingId));
-	const allTeachers = await getTeachersForSubjectOfferingId(Number(subjectOfferingId));
-	const mainTeacher = await getTeacherBySubjectOfferingIdForUserInClass(
-		user.id,
-		Number(subjectOfferingId)
-	);
-	return { user, userClasses, subject, mainTeacher: mainTeacher, teachers: allTeachers };
+	const thisClass = await getClassById(Number(subjectOfferingClassId));
+	const thisTeacher = await getTeachersBySubjectOfferingClassId(Number(subjectOfferingClassId));
+
+	return { user, thisClass, thisTeacher };
 };

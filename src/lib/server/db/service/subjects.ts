@@ -533,3 +533,44 @@ export async function getSubjectsWithClassesByUserId(userId: string) {
 
 	return subjectsWithClasses;
 }
+
+export async function getClassById(classId: number) {
+	const classData = await db
+		.select({
+			subjectOfferingClass: table.subjectOfferingClass
+		})
+		.from(table.subjectOfferingClass)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.subjectOfferingClass.subOfferingId)
+		)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.where(eq(table.subjectOfferingClass.id, classId))
+		.limit(1);
+
+	return classData[0];
+}
+
+export async function getTeachersBySubjectOfferingClassId(subjectOfferingClassId: number) {
+	const teachers = await db
+		.select({
+			teacher: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				email: table.user.email,
+				avatarUrl: table.user.avatarUrl
+			}
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(table.user, eq(table.user.id, table.userSubjectOfferingClass.userId))
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
+				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.teacher)
+			)
+		);
+
+	return teachers;
+}
