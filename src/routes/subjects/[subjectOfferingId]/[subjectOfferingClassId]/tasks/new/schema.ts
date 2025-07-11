@@ -43,6 +43,8 @@ export const formSchema = z
 		description: z
 			.string({ required_error: 'Please enter a description' })
 			.max(500, 'Description cannot exceed 500 characters'),
+		taskTopicId: z.number({ required_error: 'Please select a topic' }),
+		newTopicName: z.string().min(1, 'New topic name cannot be empty').optional(),
 		type: z.enum(['lesson', 'homework', 'assessment']).default('lesson'),
 		dueDate: z.date().optional(),
 		files: filesSchema.optional(),
