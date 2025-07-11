@@ -117,7 +117,7 @@ export async function getSubjectOfferingClassContextForChatbot(
 			table.subjectOfferingTask,
 			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
 		)
-		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.innerJoin(table.task, eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id))
 		.leftJoin(
 			table.courseMapItem,
 			eq(table.courseMapItem.id, table.subjectOfferingTask.courseMapItemId)
@@ -263,7 +263,7 @@ export async function getSubjectOfferingContextForChatbot(
 			courseMapItem: table.courseMapItem
 		})
 		.from(table.subjectOfferingTask)
-		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.innerJoin(table.task, eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id))
 		.leftJoin(
 			table.courseMapItem,
 			eq(table.courseMapItem.id, table.subjectOfferingTask.courseMapItemId)

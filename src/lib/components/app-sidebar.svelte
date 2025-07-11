@@ -59,11 +59,6 @@
 			icon: MessagesSquareIcon
 		},
 		{
-			title: 'Lessons',
-			url: 'lessons',
-			icon: BookOpenCheckIcon
-		},
-		{
 			title: 'Analytics',
 			url: 'analytics',
 			icon: BarChart3Icon
@@ -98,7 +93,15 @@
 		school,
 		campuses
 	}: {
-		subjects: { subject: Subject; subjectOffering: SubjectOffering }[];
+		subjects: Array<{
+			subject: Subject;
+			subjectOffering: SubjectOffering;
+			classes: Array<{
+				id: number;
+				name: string;
+				subOfferingId: number;
+			}>;
+		}>;
 		user: any;
 		school: School | null;
 		campuses: Campus[];
@@ -117,6 +120,11 @@
 		return page.url.pathname.startsWith(`/subjects/${subjectId}`);
 	}
 
+	// Helper function to check if a class is active
+	function isClassActive(subjectOfferingId: string, classId: string): boolean {
+		return page.url.pathname.startsWith(`/subjects/${subjectOfferingId}/${classId}`);
+	}
+
 	// Helper function to check if a subject sub-item is active
 	function isSubjectSubItemActive(subjectId: string, subUrl: string): boolean {
 		const subjectBasePath = `/subjects/${subjectId}`;
@@ -131,12 +139,26 @@
 		}
 	}
 
-	// Track the open state of each collapsible
+	// Helper function to check if a class sub-item is active
+	function isClassSubItemActive(subjectOfferingId: string, classId: string, subUrl: string): boolean {
+		const classBasePath = `/subjects/${subjectOfferingId}/${classId}`;
+
+		if (subUrl === '') {
+			// For home (empty subUrl), only match the exact base path
+			return page.url.pathname === classBasePath;
+		} else {
+			// For other sub-items, check if current path starts with the expected path
+			const expectedPath = `${classBasePath}/${subUrl}`;
+			return page.url.pathname === expectedPath || page.url.pathname.startsWith(expectedPath + '/');
+		}
+	}
+
+	// Track the open state of each collapsible (subjects only - classes are simple links)
 	let collapsibleStates = $state(
 		subjects.reduce(
 			(acc, subject) => {
 				// Don't auto-open, start with all collapsed
-				acc[subject.subject.id] = false;
+				acc[`subject-${subject.subject.id}`] = false;
 				return acc;
 			},
 			{} as Record<string, boolean>
@@ -149,7 +171,7 @@
 			// Close all collapsibles when sidebar is collapsed
 			collapsibleStates = subjects.reduce(
 				(acc, subject) => {
-					acc[subject.subject.id] = false;
+					acc[`subject-${subject.subject.id}`] = false;
 					return acc;
 				},
 				{} as Record<string, boolean>
@@ -251,7 +273,7 @@
 				<Sidebar.Menu>
 					{#each subjects as subject}
 						<Collapsible.Root
-							bind:open={collapsibleStates[subject.subject.id]}
+							bind:open={collapsibleStates[`subject-${subject.subject.id}`]}
 							class="group/collapsible"
 						>
 							<Collapsible.Trigger>
@@ -320,6 +342,25 @@
 													>
 														<item.icon />
 														<span>{item.title}</span>
+													</a>
+												{/snippet}
+											</Sidebar.MenuSubButton>
+										</Sidebar.MenuSubItem>
+									{/each}
+									
+									<!-- Classes under this subject - simple clickable links -->
+									{#each subject.classes as classItem}
+										<Sidebar.MenuSubItem>
+											<Sidebar.MenuSubButton
+												isActive={isClassActive(subject.subjectOffering.id.toString(), classItem.id.toString())}
+											>
+												{#snippet child({ props })}
+													<a
+														href={`/subjects/${subject.subjectOffering.id}/${classItem.id}`}
+														{...props}
+													>
+														<HomeIcon />
+														<span>{classItem.name}</span>
 													</a>
 												{/snippet}
 											</Sidebar.MenuSubButton>

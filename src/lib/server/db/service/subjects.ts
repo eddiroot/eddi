@@ -478,3 +478,58 @@ export async function getClassesByUserId(userId: string) {
 
 	return classes;
 }
+
+export async function getSubjectsWithClassesByUserId(userId: string) {
+	// Get all subject offerings for the user
+	const userSubjectOfferings = await db
+		.select({
+			subject: table.subject,
+			subjectOffering: table.subjectOffering
+		})
+		.from(table.userSubjectOffering)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.userSubjectOffering.subOfferingId)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectOffering.userId, userId));
+
+	// Get all classes for the user
+	const userClasses = await db
+		.select({
+			subjectOfferingClass: table.subjectOfferingClass,
+			subjectOffering: table.subjectOffering,
+			subject: table.subject
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.userSubjectOfferingClass.userId, userId))
+		.orderBy(asc(table.subjectOfferingClass.id));
+
+	// Group classes by subject offering
+	const subjectsWithClasses = userSubjectOfferings.map((subjectOffering) => {
+		const classes = userClasses.filter(
+			(userClass) => userClass.subjectOffering.id === subjectOffering.subjectOffering.id
+		);
+
+		return {
+			subject: subjectOffering.subject,
+			subjectOffering: subjectOffering.subjectOffering,
+			classes: classes.map((cls) => ({
+				id: cls.subjectOfferingClass.id,
+				name: `${subjectOffering.subject.name} ${cls.subjectOfferingClass.suffix}`,
+				subOfferingId: cls.subjectOfferingClass.subOfferingId
+			}))
+		};
+	});
+
+	return subjectsWithClasses;
+}

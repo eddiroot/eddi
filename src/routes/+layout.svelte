@@ -50,6 +50,12 @@
 				const subjectOfferingId = Number(segment);
 				const subject = data?.subjects?.find((s) => s.subjectOffering.id === subjectOfferingId);
 				label = subject?.subject.name || `Subject ${segment}`;
+			} else if (segments[i - 2] === 'subjects' && !isNaN(Number(segments[i - 1])) && !isNaN(Number(segment))) {
+				const subjectOfferingId = Number(segments[i - 1]);
+				const classId = Number(segment);
+				const subject = data?.subjects?.find((s) => s.subjectOffering.id === subjectOfferingId);
+				const classItem = subject?.classes?.find((c) => c.id === classId);
+				label = classItem?.name || `Class ${segment}`;
 			} else if (segments[i - 1] === 'tasks' && !isNaN(Number(segment))) {
 				const taskId = Number(segment);
 				const pageData = page.data as any;

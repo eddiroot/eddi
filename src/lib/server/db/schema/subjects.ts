@@ -357,14 +357,19 @@ export const userSubjectOffering = pgTable('user_sub_offering', {
 
 export type UserSubjectOffering = typeof userSubjectOffering.$inferSelect;
 
-export const subjectOfferingClass = pgTable('sub_offering_class', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	subOfferingId: integer('sub_offering_id')
-		.notNull()
-		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
+export const subjectOfferingClass = pgTable(
+	'sub_offering_class',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		suffix: text('suffix').notNull(),
+		subOfferingId: integer('sub_offering_id')
+			.notNull()
+			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.subOfferingId, self.suffix)]
+);
 
 export type SubjectOfferingClass = typeof subjectOfferingClass.$inferSelect;
 
