@@ -457,3 +457,24 @@ export async function getSubjectsBySchoolId(schoolId: number, includeArchived: b
 
 	return subjects;
 }
+
+export async function getClassesByUserId(userId: string) {
+	const classes = await db
+		.select({
+			subjectOfferingClass: table.subjectOfferingClass,
+			subjectOffering: table.subjectOffering
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.where(eq(table.userSubjectOfferingClass.userId, userId))
+		.orderBy(asc(table.subjectOfferingClass.id));
+
+	return classes;
+}

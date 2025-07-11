@@ -1,4 +1,9 @@
-import { getSchoolById, getCampusesByUserId, getSubjectsByUserId } from '$lib/server/db/service';
+import {
+	getSchoolById,
+	getCampusesByUserId,
+	getSubjectsByUserId,
+	getClassesByUserId
+} from '$lib/server/db/service';
 
 export const load = async ({ locals: { user } }) => {
 	if (!user) {
@@ -13,10 +18,13 @@ export const load = async ({ locals: { user } }) => {
 
 	const campuses = await getCampusesByUserId(user.id);
 
+	const classes = await getClassesByUserId(user.id);
+
 	return {
 		user,
 		school,
 		campuses,
-		subjects
+		subjects,
+		classes
 	};
 };
