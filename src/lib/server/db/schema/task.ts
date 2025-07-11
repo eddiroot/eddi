@@ -8,6 +8,7 @@ import {
 	pgEnum,
 	foreignKey
 } from 'drizzle-orm/pg-core';
+import { subjectOfferingTask } from './subjects';
 import { timestamps } from './utils';
 
 export enum taskTypeEnum {
@@ -36,6 +37,9 @@ export const task = pgTable(
 		type: taskTypeEnumPg().notNull(),
 		description: text('description').notNull(),
 		dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
+		subjectOfferingTaskId: integer('subject_offering_task_id')
+			.notNull()
+			.references(() => subjectOfferingTask.id, { onDelete: 'cascade' }),
 		isPublished: boolean('is_published').notNull().default(false),
 		originalId: integer('original_id'),
 		previousId: integer('previous_id'),

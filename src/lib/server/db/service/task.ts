@@ -8,10 +8,15 @@ export async function getUserTasksSubjectOfferingClassId(
 ) {
 	const tasks = await db
 		.select({
-			task: table.task
+			task: table.task,
+			courseMapItemId: table.courseMapItem.id,
+			courseMapItemTopic: table.courseMapItem.topic
 		})
 		.from(table.task)
-		.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.innerJoin(
+			table.subjectOfferingTask,
+			eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
+		)
 		.innerJoin(
 			table.subjectOfferingClassTask,
 			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
@@ -96,7 +101,7 @@ export async function getTasksForClass(subjectOfferingClassId: number) {
 			table.subjectOfferingTask,
 			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
 		)
-		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.innerJoin(table.task, eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id))
 		.where(eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId))
 		.orderBy(asc(table.task.id));
 	if (classTasks.length === 0) {
@@ -133,7 +138,10 @@ export async function getClassTasksByTopicId(subjectOfferingClassId: number, top
 			task: table.task
 		})
 		.from(table.task)
-		.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
+		.innerJoin(
+			table.subjectOfferingTask,
+			eq(table.task.subjectOfferingTaskId, table.subjectOfferingTask.id)
+		)
 		.innerJoin(
 			table.subjectOfferingClassTask,
 			eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
@@ -181,6 +189,7 @@ export async function createTask(
 	title: string,
 	description: string,
 	taskStatus: table.taskStatusEnum,
+	subjectOfferingTaskId: number,
 	type: table.taskTypeEnum,
 	dueDate?: Date | null,
 	isArchived: boolean = false
@@ -193,6 +202,7 @@ export async function createTask(
 			isPublished: taskStatus === 'published',
 			type,
 			dueDate,
+			subjectOfferingTaskId,
 			originalId: null,
 			previousId: null,
 			version: 1,
@@ -205,7 +215,6 @@ export async function createTask(
 
 export async function createSubjectOfferingTask(
 	subjectOfferingId: number,
-	taskId: number,
 	userId: string,
 	courseMapItemId: number | null = null
 ) {
@@ -213,7 +222,6 @@ export async function createSubjectOfferingTask(
 		.insert(table.subjectOfferingTask)
 		.values({
 			subjectOfferingId,
-			taskId,
 			createdUserId: userId,
 			courseMapItemId: courseMapItemId
 		})
@@ -458,6 +466,27 @@ export async function getLearningAreaContentByCourseMapItemId(
 		)
 		.orderBy(asc(table.learningAreaContent.id));
 	return learningAreaContents.map((row) => row.learningAreaContent);
+}
+
+export async function getLearningAreasBySubjectOfferingId(subjectOfferingId: number) {
+	const learningAreas = await db
+		.select({
+			learningArea: table.learningArea
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+		.innerJoin(
+			table.curriculumSubject,
+			eq(table.coreSubject.curriculumSubjectId, table.curriculumSubject.id)
+		)
+		.innerJoin(
+			table.learningArea,
+			eq(table.learningArea.curriculumSubjectId, table.curriculumSubject.id)
+		)
+		.where(eq(table.subjectOffering.id, subjectOfferingId))
+		.orderBy(asc(table.learningArea.id));
+	return learningAreas.map((row) => row.learningArea);
 }
 
 // Select the learningAreaContents and add this to the gemini service, use coursemap.ts funtion to get the learning area content

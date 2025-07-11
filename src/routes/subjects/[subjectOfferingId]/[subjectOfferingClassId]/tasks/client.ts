@@ -4,7 +4,7 @@ import type {
 	UpdateTaskOrderRequest,
 	UpdateTopicOrderRequest,
 	ApiSuccessResponse
-} from '../../../api/tasks/types';
+} from '../../../../api/tasks/types';
 
 const API_BASE = '/api/tasks';
 

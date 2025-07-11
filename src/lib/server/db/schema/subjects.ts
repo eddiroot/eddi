@@ -13,7 +13,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { campus, school, schoolLocation } from './schools';
-import { task } from './task';
 import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
 
@@ -174,9 +173,9 @@ export const courseMapItem = pgTable(
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 		topic: text('topic').notNull(),
 		description: text('description'),
-		startWeek: integer('start_week').notNull(),
-		duration: integer('duration').notNull(),
-		semester: integer('semester').notNull(),
+		startWeek: integer('start_week'),
+		duration: integer('duration'),
+		semester: integer('semester'),
 		originalId: integer('original_id'),
 		previousId: integer('previous_id'),
 		version: integer('version').notNull().default(1),
@@ -508,9 +507,6 @@ export const subjectOfferingTask = pgTable(
 		subjectOfferingId: integer('sub_off_id')
 			.notNull()
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-		taskId: integer('task_id')
-			.notNull()
-			.references(() => task.id, { onDelete: 'cascade' }),
 		createdUserId: text('assignee_user_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
