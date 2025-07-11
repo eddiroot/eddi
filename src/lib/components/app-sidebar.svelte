@@ -49,14 +49,22 @@
 
 	const subjectItems = [
 		{
+			title: 'Discussion',
+			url: 'discussion',
+			icon: MessagesSquareIcon
+		}
+	];
+
+	const classItems = [
+		{
 			title: 'Home',
 			url: '',
 			icon: HomeIcon
 		},
 		{
-			title: 'Discussion',
-			url: 'discussion',
-			icon: MessagesSquareIcon
+			title: 'Tasks',
+			url: 'tasks',
+			icon: BookOpenCheckIcon
 		},
 		{
 			title: 'Analytics',
@@ -153,12 +161,18 @@
 		}
 	}
 
-	// Track the open state of each collapsible (subjects only - classes are simple links)
+	// Track the open state of each collapsible (subjects and classes when multiple)
 	let collapsibleStates = $state(
 		subjects.reduce(
 			(acc, subject) => {
 				// Don't auto-open, start with all collapsed
 				acc[`subject-${subject.subject.id}`] = false;
+				// Add states for each class if there are multiple classes
+				if (subject.classes.length > 1) {
+					subject.classes.forEach((cls) => {
+						acc[`class-${cls.id}`] = false;
+					});
+				}
 				return acc;
 			},
 			{} as Record<string, boolean>
@@ -172,6 +186,12 @@
 			collapsibleStates = subjects.reduce(
 				(acc, subject) => {
 					acc[`subject-${subject.subject.id}`] = false;
+					// Add states for each class if there are multiple classes
+					if (subject.classes.length > 1) {
+						subject.classes.forEach((cls) => {
+							acc[`class-${cls.id}`] = false;
+						});
+					}
 					return acc;
 				},
 				{} as Record<string, boolean>
@@ -327,6 +347,7 @@
 							</Collapsible.Trigger>
 							<Collapsible.Content>
 								<Sidebar.MenuSub>
+									<!-- Always show subject-level items first -->
 									{#each subjectItems as item}
 										<Sidebar.MenuSubItem>
 											<Sidebar.MenuSubButton
@@ -348,24 +369,79 @@
 										</Sidebar.MenuSubItem>
 									{/each}
 									
-									<!-- Classes under this subject - simple clickable links -->
-									{#each subject.classes as classItem}
-										<Sidebar.MenuSubItem>
-											<Sidebar.MenuSubButton
-												isActive={isClassActive(subject.subjectOffering.id.toString(), classItem.id.toString())}
+									{#if subject.classes.length === 1}
+										<!-- Single class: show class items directly -->
+										{@const singleClass = subject.classes[0]}
+										{#each classItems as item}
+											<Sidebar.MenuSubItem>
+												<Sidebar.MenuSubButton
+													isActive={isClassSubItemActive(
+														subject.subjectOffering.id.toString(),
+														singleClass.id.toString(),
+														item.url
+													)}
+												>
+													{#snippet child({ props })}
+														<a
+															href={`/subjects/${subject.subjectOffering.id}/${singleClass.id}/${item.url}`}
+															{...props}
+														>
+															<item.icon />
+															<span>{item.title}</span>
+														</a>
+													{/snippet}
+												</Sidebar.MenuSubButton>
+											</Sidebar.MenuSubItem>
+										{/each}
+									{:else}
+										<!-- Multiple classes: show collapsible classes -->
+										{#each subject.classes as classItem}
+											<Collapsible.Root
+												bind:open={collapsibleStates[`class-${classItem.id}`]}
+												class="group/collapsible-class"
 											>
-												{#snippet child({ props })}
-													<a
-														href={`/subjects/${subject.subjectOffering.id}/${classItem.id}`}
-														{...props}
-													>
-														<HomeIcon />
-														<span>{classItem.name}</span>
-													</a>
-												{/snippet}
-											</Sidebar.MenuSubButton>
-										</Sidebar.MenuSubItem>
-									{/each}
+												<Collapsible.Trigger>
+													{#snippet child({ props })}
+														<Sidebar.MenuSubButton
+															isActive={isClassActive(subject.subjectOffering.id.toString(), classItem.id.toString())}
+															{...props}
+														>
+															<HomeIcon />
+															<span>{classItem.name}</span>
+															<ChevronDownIcon
+																class="ml-auto transition-transform group-data-[state=open]/collapsible-class:rotate-180"
+															/>
+														</Sidebar.MenuSubButton>
+													{/snippet}
+												</Collapsible.Trigger>
+												<Collapsible.Content>
+													<Sidebar.MenuSub>
+														{#each classItems as item}
+															<Sidebar.MenuSubItem>
+																<Sidebar.MenuSubButton
+																	isActive={isClassSubItemActive(
+																		subject.subjectOffering.id.toString(),
+																		classItem.id.toString(),
+																		item.url
+																	)}
+																>
+																	{#snippet child({ props })}
+																		<a
+																			href={`/subjects/${subject.subjectOffering.id}/${classItem.id}/${item.url}`}
+																			{...props}
+																		>
+																			<item.icon />
+																			<span>{item.title}</span>
+																		</a>
+																	{/snippet}
+																</Sidebar.MenuSubButton>
+															</Sidebar.MenuSubItem>
+														{/each}
+													</Sidebar.MenuSub>
+												</Collapsible.Content>
+											</Collapsible.Root>
+										{/each}
+									{/if}
 								</Sidebar.MenuSub>
 							</Collapsible.Content>
 						</Collapsible.Root>
