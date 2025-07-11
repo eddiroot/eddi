@@ -6,8 +6,9 @@ import {
 	curriculumSubject,
 	learningArea,
 	learningAreaContent,
-	contentElaboration
-} from '../../src/lib/server/db/schema.js';
+	contentElaboration,
+	yearLevelEnum
+} from '../server/db/schema';
 import { eq } from 'drizzle-orm';
 
 interface ContentItem {
@@ -205,11 +206,11 @@ export class VCAAF10Scraper {
 			english: 'English',
 			science: 'Science',
 
-			// Technologies
-			'design-and-technologies': 'Technologies',
-			'digital-technologies': 'Technologies',
+			// Technologies - use individual names
+			'design-and-technologies': 'Design and Technologies',
+			'digital-technologies': 'Digital Technologies',
 
-			// Humanities
+			// Humanities - keep together
 			'civics-and-citizenship': 'Humanities',
 			'economics-and-business': 'Humanities',
 			geography: 'Humanities',
@@ -218,24 +219,42 @@ export class VCAAF10Scraper {
 			// Health & Physical Education
 			'health-and-physical-education': 'Health and Physical Education',
 
-			// Languages
-			chinese: 'Languages',
-			french: 'Languages',
-			german: 'Languages',
-			indonesian: 'Languages',
-			italian: 'Languages',
-			japanese: 'Languages',
-			korean: 'Languages',
-			'modern-greek': 'Languages',
-			spanish: 'Languages',
+			// Languages - use individual names
+			chinese: 'Chinese',
+			'chinese-f10': 'Chinese',
+			'chinese-710': 'Chinese',
+			french: 'French',
+			'french-f10': 'French',
+			'french-710': 'French',
+			german: 'German',
+			'german-f10': 'German',
+			'german-710': 'German',
+			indonesian: 'Indonesian',
+			'indonesian-f10': 'Indonesian',
+			'indonesian-710': 'Indonesian',
+			italian: 'Italian',
+			'italian-f10': 'Italian',
+			'italian-710': 'Italian',
+			japanese: 'Japanese',
+			'japanese-f10': 'Japanese',
+			'japanese-710': 'Japanese',
+			korean: 'Korean',
+			'korean-f10': 'Korean',
+			'korean-710': 'Korean',
+			'modern-greek': 'Modern Greek',
+			'modern-greek-f10': 'Modern Greek',
+			'modern-greek-710': 'Modern Greek',
+			spanish: 'Spanish',
+			'spanish-f10': 'Spanish',
+			'spanish-710': 'Spanish',
 
-			// The Arts
-			dance: 'The Arts',
-			drama: 'The Arts',
-			'media-arts': 'The Arts',
-			music: 'The Arts',
-			'visual-arts': 'The Arts',
-			'visual-communication-design': 'The Arts'
+			// Arts - use individual names
+			dance: 'Dance',
+			drama: 'Drama',
+			'media-arts': 'Media Arts',
+			music: 'Music',
+			'visual-arts': 'Visual Arts',
+			'visual-communication-design': 'Visual Communication Design'
 		};
 
 		return mapping[subject.toLowerCase()] || 'General';
@@ -378,7 +397,7 @@ export class VCAAF10Scraper {
 						learningAreaId: learningAreaRecord.id,
 						name: item.vcaaCode, // Use VCAA code as the name
 						description: item.description,
-						yearLevel: item.yearLevel
+						yearLevel: item.yearLevel as yearLevelEnum
 					})
 					.returning();
 
@@ -519,8 +538,8 @@ export class VCAAF10Scraper {
 		await this.scrapeSubjectGroup(subjects, 'Languages');
 	}
 
-	async scrapeTheArts(): Promise<void> {
-		console.log('🎨 Scraping The Arts subjects...');
+	async scrapeArts(): Promise<void> {
+		console.log('🎨 Scraping Arts subjects...');
 		const subjects = [
 			'dance',
 			'drama',
@@ -529,7 +548,7 @@ export class VCAAF10Scraper {
 			'visual-arts',
 			'visual-communication-design'
 		];
-		await this.scrapeSubjectGroup(subjects, 'The Arts');
+		await this.scrapeSubjectGroup(subjects, 'Arts');
 	}
 
 	private async scrapeSubjectGroup(subjects: string[], groupName: string): Promise<void> {

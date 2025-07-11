@@ -5,7 +5,7 @@ import {
 	learningArea,
 	learningAreaContent,
 	contentElaboration
-} from '../../src/lib/server/db/schema.js';
+} from '../server/db/schema';
 import { eq, count } from 'drizzle-orm';
 
 async function viewScrapedData() {
