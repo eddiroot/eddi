@@ -9,7 +9,8 @@ import {
 	createTaskBlock,
 	getTopics,
 	createCourseMapItem,
-	getLearningAreaContentWithElaborationsByIds
+	getLearningAreaContentWithElaborationsByIds,
+	createSubjectOfferingTask
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -235,7 +236,11 @@ async function createBlockFromComponent(component: any, taskId: number) {
 }
 
 export const actions = {
-	createTask: async ({ request, locals: { security }, params: { subjectOfferingId } }) => {
+	createTask: async ({
+		request,
+		locals: { security },
+		params: { subjectOfferingId, subjectOfferingClassId }
+	}) => {
 		security.isAuthenticated();
 
 		let subjectOfferingIdInt;
@@ -298,16 +303,25 @@ export const actions = {
 				return fail(500, { form, message: 'Error creating new topic' });
 			}
 		}
-
 		if (!taskTopicId) {
 			return fail(400, { form, message: 'Topic is required' });
 		}
+
+		// Get the authenticated user
+		const user = security.isAuthenticated().getUser();
+
+		// First create the subject offering task
+		const subjectOfferingTask = await createSubjectOfferingTask(
+			subjectOfferingIdInt,
+			user.id,
+			taskTopicId
+		);
 
 		const task = await createTask(
 			form.data.title,
 			form.data.description,
 			taskStatusEnum.draft,
-			taskTopicId,
+			subjectOfferingTask.id,
 			taskTypeEnum[form.data.type as keyof typeof taskTypeEnum],
 			form.data.dueDate
 		);
@@ -457,6 +471,9 @@ export const actions = {
 			console.log('No task schema generated (manual mode or failed AI generation)');
 		}
 
-		throw redirect(303, `/subjects/${subjectOfferingIdInt}/tasks/${task.id}`);
+		throw redirect(
+			303,
+			`/subjects/${subjectOfferingId}/${subjectOfferingClassId}/tasks/${task.id}`
+		);
 	}
 };
