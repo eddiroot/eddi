@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { userTypeEnum } from './server/db/schema';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -18,9 +17,9 @@ export enum userPermissions {
 	etc = 'etc'
 }
 
-export function getPermissions(userType: userTypeEnum): string[] {
+export function getPermissions(userType: string): string[] {
 	switch (userType) {
-		case userTypeEnum.student:
+		case 'student':
 			return [userPermissions.viewLessons];
 		case 'teacher':
 			return [
@@ -30,21 +29,21 @@ export function getPermissions(userType: userTypeEnum): string[] {
 				userPermissions.viewTimeTable,
 				userPermissions.viewDashboard
 			];
-		case userTypeEnum.principal:
+		case 'principal':
 			return [
 				userPermissions.manageTeachers,
 				userPermissions.viewAnalytics,
 				userPermissions.viewTimeTable,
 				userPermissions.viewDashboard
 			];
-		case userTypeEnum.guardian:
+		case 'guardian':
 			return [
 				userPermissions.viewChildGrades,
 				userPermissions.viewLessons,
 				userPermissions.viewTimeTable,
 				userPermissions.viewDashboard
 			];
-		case userTypeEnum.schoolAdmin:
+		case 'schoolAdmin':
 			return [
 				userPermissions.viewAdmin,
 				userPermissions.viewDashboard,
@@ -53,7 +52,7 @@ export function getPermissions(userType: userTypeEnum): string[] {
 				userPermissions.manageTeachers,
 				userPermissions.viewLessons
 			];
-		case userTypeEnum.systemAdmin:
+		case 'systemAdmin':
 			return [
 				userPermissions.viewAdmin,
 				userPermissions.viewDashboard,
