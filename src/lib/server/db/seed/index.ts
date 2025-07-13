@@ -36,7 +36,6 @@ async function seed() {
 			.insert(schema.school)
 			.values({
 				name: 'School of eddi',
-				emailSuffix: 'eddi.edu'
 			})
 			.returning();
 

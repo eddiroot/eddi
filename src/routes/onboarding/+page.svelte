@@ -11,11 +11,9 @@
 		middleName: '',
 		lastName: '',
 		email: '',
+		schoolName: '',
 		password: '',
 		confirmPassword: '',
-		gender: '',
-		honorific: '',
-		dateOfBirth: '',
 		agreeToContact: false
 	};
 
@@ -38,10 +36,6 @@
 			errors.email = 'Please enter a valid email address';
 		}
 
-		if (!formData.gender.trim()) {
-			errors.gender = 'Gender is required';
-		}
-
 		if (!formData.password) {
 			errors.password = 'Password is required';
 		} else if (formData.password.length < 8) {
@@ -53,6 +47,10 @@
 		}
 
 		if (!formData.agreeToContact) {
+			errors.agreeToContact = 'Please agree to be contacted by our team';
+		}
+
+		if (!formData.schoolName) {
 			errors.agreeToContact = 'Please agree to be contacted by our team';
 		}
 
@@ -137,7 +135,20 @@
 						{/if}
 					</div>
 				</div>
-
+				<div class="space-y-0.5">
+					<Label for="schoolName">School Name</Label>
+					<Input
+						id="schoolName"
+						bind:value={formData.schoolName}
+						placeholder="School of eddi"
+						class={errors.schoolName ? 'border-destructive' : ''}
+					/>
+					<div class="h-3.5">
+						{#if errors.email}
+							<p class="text-red-500 text-xs">{errors.schoolName}</p>
+						{/if}
+					</div>
+				</div>
 				<div class="space-y-0.5">
 					<Label for="password">Password</Label>
 					<Input
@@ -181,13 +192,13 @@
 								I agree to be contacted by the eddi team to schedule a setup session
 							</Label>
 							{#if errors.agreeToContact}
-								<p class="text-destructive text-xs">{errors.agreeToContact}</p>
+								<p class="text-red-500 text-xs">{errors.agreeToContact}</p>
 							{/if}
 						</div>
 					</div>
 
 				<div class="flex gap-4 pt-2">
-					<Button variant="outline" href="/onboarding" class="flex-1">Back</Button>
+					<Button variant="outline" href="/" class="flex-1">Back</Button>
 					<button
 						type="button"
 						onclick={handleSubmit}
