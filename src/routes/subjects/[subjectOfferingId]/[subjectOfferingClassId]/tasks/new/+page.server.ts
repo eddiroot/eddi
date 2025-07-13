@@ -10,7 +10,7 @@ import {
 	getTopics,
 	createCourseMapItem,
 	getLearningAreaContentWithElaborationsByIds,
-	createSubjectOfferingTask
+	createSubjectOfferingClassTask
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -290,20 +290,20 @@ export const actions = {
 			}
 		}
 
-		let taskTopicId = form.data.taskTopicId;
+		let courseMapItemId = form.data.taskTopicId;
 
 		// Create new topic if needed
-		if (form.data.newTopicName && !taskTopicId) {
+		if (form.data.newTopicName && !courseMapItemId) {
 			try {
 				const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
-				taskTopicId = newTopic.id;
+				courseMapItemId = newTopic.id;
 				console.log('Created new topic:', newTopic);
 			} catch (error) {
 				console.error('Error creating new topic:', error);
 				return fail(500, { form, message: 'Error creating new topic' });
 			}
 		}
-		if (!taskTopicId) {
+		if (!courseMapItemId) {
 			return fail(400, { form, message: 'Topic is required' });
 		}
 
@@ -316,7 +316,7 @@ export const actions = {
 			taskTypeEnum[form.data.type]
 		);
 
-		await createSubjectOfferingTask(task.id, subjectOfferingIdInt, user.id, taskTopicId);
+		await createSubjectOfferingClassTask(task.id, subjectOfferingIdInt, user.id, courseMapItemId);
 
 		console.log('Created task:', form.data);
 

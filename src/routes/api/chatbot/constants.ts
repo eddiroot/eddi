@@ -40,7 +40,7 @@ export interface TaskItem {
 	name: string;
 	description: string | null;
 	index?: number;
-	subjectOfferingTaskId: number;
+	subjectOfferingClassTaskId: number;
 	courseMapItemId: number | null;
 	courseMapItemTopic: string | null;
 }
@@ -49,7 +49,6 @@ export interface SubjectContextData {
 	subjectInfo: {
 		id: number;
 		name: string;
-		description: string | null | undefined;
 		yearLevel: string;
 	};
 	courseMapItems: CourseMapItem[];
@@ -71,9 +70,6 @@ export function createContextualSystemInstruction(
 
 		// Subject Information
 		contextInfo += `SUBJECT: ${subjectContext.subjectInfo.name}\n`;
-		if (subjectContext.subjectInfo.description) {
-			contextInfo += `Description: ${subjectContext.subjectInfo.description}\n`;
-		}
 		contextInfo += `Year Level: ${subjectContext.subjectInfo.yearLevel}\n\n`;
 
 		// Course Map Items (Topics)

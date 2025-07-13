@@ -4,6 +4,7 @@ import { eq, and, asc, desc } from 'drizzle-orm';
 import { getTasksBySubjectOfferingClassId } from './task';
 import { verifyUserAccessToClass } from './user';
 import { getMaxVersionForCourseMapBySubjectOfferingId } from './coursemap';
+import type { SubjectContextData } from '../../../../routes/api/chatbot/constants';
 
 // For simplicity, we will grab all of the coursemap topics and descriptions as well as the lesson names and descriptions to
 // provide context for the subject offering. This will be used to answer questions about the subject offering in the chatbot.
@@ -143,7 +144,7 @@ export async function getSubjectOfferingClassContextForChatbot(
 export async function getSubjectOfferingContextForChatbot(
 	userId: string,
 	subjectOfferingId: number
-) {
+): Promise<SubjectContextData> {
 	// First verify the user has access to this subject offering
 	const userAccess = await db
 		.select()
@@ -262,8 +263,6 @@ export async function getSubjectOfferingContextForChatbot(
 				offeringData.coreSubject?.name ||
 				offeringData.electiveSubject?.name ||
 				offeringData.subject.name,
-			description:
-				offeringData.coreSubject?.description || offeringData.electiveSubject?.description,
 			yearLevel: offeringData.subject.yearLevel
 		},
 		courseMapItems: groupedCourseMapItems.map((item) => ({
