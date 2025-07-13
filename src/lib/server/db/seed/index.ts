@@ -1,4 +1,3 @@
-import { db } from '../index';
 import * as schema from '../schema';
 import {
 	userTypeEnum,
@@ -12,6 +11,18 @@ import {
 } from '../schema';
 import { hash } from '@node-rs/argon2';
 import { randomUUID } from 'crypto';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+	throw new Error('DATABASE_URL is not set in environment variables');
+}
+
+const client = postgres(databaseUrl);
+
+export const db = drizzle(client, { schema });
 
 async function seed() {
 	try {
@@ -478,17 +489,12 @@ async function seed() {
 	}
 }
 
-// Run the seed function if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-	seed()
-		.then(() => {
-			console.log('Seeding completed');
-			process.exit(0);
-		})
-		.catch((error) => {
-			console.error('Seeding failed:', error);
-			process.exit(1);
-		});
-}
-
-export { seed };
+seed()
+	.then(() => {
+		console.log('Seeding completed');
+		process.exit(0);
+	})
+	.catch((error) => {
+		console.error('Seeding failed:', error);
+		process.exit(1);
+	});
