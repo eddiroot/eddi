@@ -1,17 +1,7 @@
 /*eslint-disable @typescript-eslint/no-explicit-any */
 import * as cheerio from 'cheerio';
-import { db } from './db.js';
-import {
-	curriculum,
-	curriculumSubject,
-	learningArea,
-	learningAreaContent,
-	contentElaboration,
-	yearLevelEnum
-} from '../../schema';
-import { eq } from 'drizzle-orm';
 
-interface ContentItem {
+export interface ContentItem {
 	learningArea: string;
 	yearLevel: string;
 	vcaaCode: string;
@@ -29,7 +19,6 @@ export class VCAAF10Scraper {
 	}
 
 	private async fetchPage(url: string): Promise<string> {
-		console.log(`🔍 Fetching: ${url}`);
 		await this.delay(this.delayBetweenRequests);
 
 		const response = await fetch(url, {
@@ -50,34 +39,27 @@ export class VCAAF10Scraper {
 		return response.text();
 	}
 
-	private extractContentFromNextJS($: cheerio.CheerioAPI, subject: string): ContentItem[] {
+	private extractContentFromNextJS($: any, subject: string): ContentItem[] {
 		const contentItems: ContentItem[] = [];
-		console.log('\n🎯 Extracting content from Next.js data...');
 
 		// Find the Next.js data script
 		const nextDataScript = $('script[id="__NEXT_DATA__"]');
 		if (nextDataScript.length === 0) {
-			console.log('❌ No Next.js data script found');
 			return contentItems;
 		}
 
 		try {
 			const jsonData = JSON.parse(nextDataScript.html() || '{}');
-			console.log('✅ Found Next.js data script');
 
 			const curriculumLevels = jsonData.props?.pageProps?.additionalContent?.curriculum?.curriculum;
 
 			if (!curriculumLevels || !Array.isArray(curriculumLevels)) {
-				console.log('❌ Could not find curriculum levels in Next.js data');
 				return contentItems;
 			}
 
-			console.log(`📊 Found ${curriculumLevels.length} curriculum levels`);
-
 			// Process each year level
 			curriculumLevels.forEach((level: any) => {
-				const yearLevel = this.mapLevelIdToYearLevel(level.id);
-				console.log(`   🔍 Processing ${yearLevel} (${level.id})`);
+				const yearLevels = this.mapLevelIdToYearLevel(level.id);
 
 				if (level.contentDescriptionsContent && Array.isArray(level.contentDescriptionsContent)) {
 					// Process each strand
@@ -95,19 +77,19 @@ export class VCAAF10Scraper {
 									const description = this.stripHtmlTags(rawDescription);
 									const elaborations = this.extractElaborations(desc.elaborations);
 
-									const contentItem: ContentItem = {
-										learningArea: this.mapSubjectToLearningArea(subject),
-										yearLevel: yearLevel,
-										vcaaCode: desc.code,
-										description: description,
-										elaborations: elaborations,
-										strand: strandName
-									};
+									// Create content items for each year level in the range
+									yearLevels.forEach((yearLevel) => {
+										const contentItem: ContentItem = {
+											learningArea: strandName, // Use strand as learning area (e.g., "Number and Algebra")
+											yearLevel: yearLevel,
+											vcaaCode: desc.code,
+											description: description,
+											elaborations: elaborations,
+											strand: this.mapSubjectToLearningArea(subject) // Use subject as strand (e.g., "Mathematics")
+										};
 
-									contentItems.push(contentItem);
-									console.log(
-										`      ✅ ${desc.code}: ${description.substring(0, 50)}... (${elaborations.length} elaborations)`
-									);
+										contentItems.push(contentItem);
+									});
 								}
 							});
 						}
@@ -125,19 +107,19 @@ export class VCAAF10Scraper {
 											const description = this.stripHtmlTags(rawDescription);
 											const elaborations = this.extractElaborations(desc.elaborations);
 
-											const contentItem: ContentItem = {
-												learningArea: this.mapSubjectToLearningArea(subject),
-												yearLevel: yearLevel,
-												vcaaCode: desc.code,
-												description: description,
-												elaborations: elaborations,
-												strand: `${strandName} - ${subStrand.title || 'Sub-strand'}`
-											};
+											// Create content items for each year level in the range
+											yearLevels.forEach((yearLevel) => {
+												const contentItem: ContentItem = {
+													learningArea: `${strandName} - ${subStrand.title || 'Sub-strand'}`, // Use combined strand/substrand as learning area
+													yearLevel: yearLevel,
+													vcaaCode: desc.code,
+													description: description,
+													elaborations: elaborations,
+													strand: this.mapSubjectToLearningArea(subject) // Use subject as strand
+												};
 
-											contentItems.push(contentItem);
-											console.log(
-												`      ✅ ${desc.code}: ${description.substring(0, 50)}... (${elaborations.length} elaborations)`
-											);
+												contentItems.push(contentItem);
+											});
 										}
 									});
 								}
@@ -146,11 +128,10 @@ export class VCAAF10Scraper {
 					});
 				}
 			});
-		} catch (error) {
-			console.error('❌ Failed to parse Next.js data:', error);
+		} catch {
+			// Silently handle errors
 		}
 
-		console.log(`📊 Extracted ${contentItems.length} content items from Next.js data`);
 		return contentItems;
 	}
 
@@ -176,12 +157,34 @@ export class VCAAF10Scraper {
 			.filter((text) => text && text.length > 0) as string[];
 	}
 
-	private mapLevelIdToYearLevel(levelId: string): string {
-		const mapping: { [key: string]: string } = {
-			FLA: 'Foundation Level A',
-			FLB: 'Foundation Level B',
-			FLC: 'Foundation Level C',
-			FLD: 'Foundation Level D',
+	private mapLevelIdToYearLevel(levelId: string): string[] {
+		// Handle ranges and return all year levels in the range
+		const rangeMapping: { [key: string]: string[] } = {
+			'F-2': ['Foundation', 'Year 1', 'Year 2'],
+			'F–2': ['Foundation', 'Year 1', 'Year 2'],
+			'1–2': ['Year 1', 'Year 2'],
+			'1-2': ['Year 1', 'Year 2'],
+			'3-4': ['Year 3', 'Year 4'],
+			'3–4': ['Year 3', 'Year 4'],
+			'5–6': ['Year 5', 'Year 6'],
+			'5-6': ['Year 5', 'Year 6'],
+			'7–8': ['Year 7', 'Year 8'],
+			'7-8': ['Year 7', 'Year 8'],
+			'9–10': ['Year 9', 'Year 10'],
+			'9-10': ['Year 9', 'Year 10']
+		};
+
+		// Check if it's a range first
+		if (rangeMapping[levelId]) {
+			return rangeMapping[levelId];
+		}
+
+		// Handle individual year levels
+		const singleMapping: { [key: string]: string } = {
+			FLA: 'Foundation',
+			FLB: 'Foundation',
+			FLC: 'Foundation',
+			FLD: 'Foundation',
 			F: 'Foundation',
 			'1': 'Year 1',
 			'2': 'Year 2',
@@ -193,10 +196,11 @@ export class VCAAF10Scraper {
 			'8': 'Year 8',
 			'9': 'Year 9',
 			'10': 'Year 10',
-			'10A': 'Year 10A'
+			'10A': 'Year 10'
 		};
 
-		return mapping[levelId] || levelId;
+		const mapped = singleMapping[levelId] || levelId;
+		return [mapped];
 	}
 
 	private mapSubjectToLearningArea(subject: string): string {
@@ -261,8 +265,6 @@ export class VCAAF10Scraper {
 	}
 
 	async scrapeSubject(subject: string): Promise<ContentItem[]> {
-		console.log(`\n🎯 Scraping ${subject.toUpperCase()} curriculum...`);
-
 		// Define URL patterns for all subjects
 		const urlPatterns: { [key: string]: string } = {
 			// Core subjects
@@ -326,10 +328,8 @@ export class VCAAF10Scraper {
 			const html = await this.fetchPage(url);
 			const $ = cheerio.load(html);
 
-			// @ts-expect-error Next.js data is not typed
 			return this.extractContentFromNextJS($, subject);
-		} catch (error) {
-			console.error(`❌ Error scraping ${subject}:`, error);
+		} catch {
 			return [];
 		}
 	}
@@ -337,7 +337,7 @@ export class VCAAF10Scraper {
 	/**
 	 * Convert VCAA year level to individual year levels
 	 */
-	private parseYearLevel(yearLevel: string): string[] {
+	parseYearLevel(yearLevel: string): string[] {
 		// Normalize the input - remove "Year " prefix and extra spaces
 		const normalized = yearLevel.replace(/^Year\s+/i, '').trim();
 
@@ -347,8 +347,21 @@ export class VCAAF10Scraper {
 		}
 
 		// Handle ranges like "9–10"
-		if (normalized.includes('–')) {
-			const [start, end] = normalized.split('–');
+		if (normalized.includes('–') || normalized.includes('-')) {
+			const separator = normalized.includes('–') ? '–' : '-';
+			const [start, end] = normalized.split(separator);
+
+			// Handle Foundation ranges like "F-2"
+			if (start.toLowerCase() === 'f') {
+				const result = ['F'];
+				const endNum = parseInt(end);
+				for (let i = 1; i <= endNum; i++) {
+					result.push(i.toString());
+				}
+				return result;
+			}
+
+			// Handle numeric ranges
 			const startNum = parseInt(start);
 			const endNum = parseInt(end);
 			const result = [];
@@ -362,251 +375,23 @@ export class VCAAF10Scraper {
 		return [normalized];
 	}
 
-	async insertCurriculumData(contentItems: ContentItem[]): Promise<void> {
-		console.log('\n💾 Inserting curriculum data into database...');
-
-		for (const item of contentItems) {
-			try {
-				// Create or get curriculum
-				let [curriculumRecord] = await db
-					.select()
-					.from(curriculum)
-					.where(eq(curriculum.name, 'VCAA F-10 Curriculum'))
-					.limit(1);
-
-				if (!curriculumRecord) {
-					[curriculumRecord] = await db
-						.insert(curriculum)
-						.values({
-							name: 'VCAA F-10 Curriculum',
-							version: '2.0'
-						})
-						.returning();
-				}
-
-				// Create or get curriculum subject
-				let [subjectRecord] = await db
-					.select()
-					.from(curriculumSubject)
-					.where(eq(curriculumSubject.name, item.learningArea))
-					.limit(1);
-
-				if (!subjectRecord) {
-					[subjectRecord] = await db
-						.insert(curriculumSubject)
-						.values({
-							curriculumId: curriculumRecord.id,
-							name: item.learningArea
-						})
-						.returning();
-				}
-
-				// Create or get learning area (strand)
-				let [learningAreaRecord] = await db
-					.select()
-					.from(learningArea)
-					.where(eq(learningArea.name, item.strand))
-					.limit(1);
-
-				if (!learningAreaRecord) {
-					[learningAreaRecord] = await db
-						.insert(learningArea)
-						.values({
-							curriculumSubjectId: subjectRecord.id,
-							name: item.strand,
-							description: `${item.strand} strand for ${item.learningArea}`
-						})
-						.returning();
-				}
-
-				// Parse year levels (handle ranges like "9–10")
-				const yearLevels = this.parseYearLevel(item.yearLevel);
-
-				// Create learning area content for each year level
-				for (const yl of yearLevels) {
-					const [contentRecord] = await db
-						.insert(learningAreaContent)
-						.values({
-							learningAreaId: learningAreaRecord.id,
-							name: item.vcaaCode, // Use VCAA code as the name
-							description: item.description,
-							yearLevel: yl as yearLevelEnum
-						})
-						.returning();
-
-					// Create content elaborations for this year level
-					for (let i = 0; i < item.elaborations.length; i++) {
-						const elaboration = item.elaborations[i];
-						await db.insert(contentElaboration).values({
-							learningAreaContentId: contentRecord.id,
-							name: `Elaboration ${i + 1}`,
-							contentElaboration: elaboration
-						});
-					}
-				}
-
-				console.log(
-					`   ✅ Inserted: ${item.vcaaCode} with ${item.elaborations.length} elaborations`
-				);
-			} catch (error) {
-				console.error(`   ❌ Error inserting ${item.vcaaCode}:`, error);
-			}
-		}
-	}
-
-	async scrapeAll(): Promise<void> {
-		console.log('🚀 Starting VCAA F-10 curriculum scraping for ALL subjects...');
-
-		const subjects = [
-			// Core subjects (already working)
-			'mathematics',
-			'english',
-			'science',
-
-			// Technologies
-			'design-and-technologies',
-			'digital-technologies',
-
-			// Humanities
-			'civics-and-citizenship',
-			'economics-and-business',
-			'geography',
-			'history',
-
-			// Health & Physical Education
-			'health-and-physical-education',
-
-			// Languages (F-10 sequences)
-			'chinese-f10',
-			'french-f10',
-			'german-f10',
-			'indonesian-f10',
-			'italian-f10',
-			'japanese-f10',
-			'korean-f10',
-			'modern-greek-f10',
-			'spanish-f10',
-
-			// Languages (7-10 sequences)
-			'chinese-710',
-			'french-710',
-			'german-710',
-			'indonesian-710',
-			'italian-710',
-			'japanese-710',
-			'korean-710',
-			'modern-greek-710',
-			'spanish-710',
-
-			// The Arts
-			'dance',
-			'drama',
-			'media-arts',
-			'music',
-			'visual-arts',
-			'visual-communication-design'
-		];
-
-		console.log(`📋 Planning to scrape ${subjects.length} subjects...`);
-
+	/**
+	 * Scrape core subjects for F-10 curriculum
+	 */
+	async scrapeCoreSubjects(): Promise<ContentItem[]> {
+		const coreSubjects = ['mathematics', 'english', 'science', 'health-and-physical-education'];
 		const allContentItems: ContentItem[] = [];
 
-		for (const subject of subjects) {
+		for (const subject of coreSubjects) {
 			try {
-				console.log(
-					`\n📚 [${subjects.indexOf(subject) + 1}/${subjects.length}] Processing ${subject}...`
-				);
 				const items = await this.scrapeSubject(subject);
 				allContentItems.push(...items);
-				console.log(`   ✅ ${subject}: ${items.length} items extracted`);
-			} catch (error) {
-				console.error(`   ❌ Failed to scrape ${subject}:`, error);
+			} catch {
+				// Silently handle errors for individual subjects
 			}
 		}
 
-		console.log(`\n📊 Total items extracted: ${allContentItems.length}`);
-
-		if (allContentItems.length > 0) {
-			await this.insertCurriculumData(allContentItems);
-			console.log('✅ Scraping completed successfully for all subjects!');
-		} else {
-			console.log('⚠️  No content items were extracted');
-		}
-	}
-
-	// Convenience methods for scraping specific subject groups
-	async scrapeTechnologies(): Promise<void> {
-		console.log('🔧 Scraping Technologies subjects...');
-		const subjects = ['design-and-technologies', 'digital-technologies'];
-		await this.scrapeSubjectGroup(subjects, 'Technologies');
-	}
-
-	async scrapeHumanities(): Promise<void> {
-		console.log('🌍 Scraping Humanities subjects...');
-		const subjects = ['civics-and-citizenship', 'economics-and-business', 'geography', 'history'];
-		await this.scrapeSubjectGroup(subjects, 'Humanities');
-	}
-
-	async scrapeLanguages(): Promise<void> {
-		console.log('🗣️ Scraping Languages subjects...');
-		const subjects = [
-			'chinese-f10',
-			'chinese-710',
-			'french-f10',
-			'french-710',
-			'german-f10',
-			'german-710',
-			'indonesian-f10',
-			'indonesian-710',
-			'italian-f10',
-			'italian-710',
-			'japanese-f10',
-			'japanese-710',
-			'korean-f10',
-			'korean-710',
-			'modern-greek-f10',
-			'modern-greek-710',
-			'spanish-f10',
-			'spanish-710'
-		];
-		await this.scrapeSubjectGroup(subjects, 'Languages');
-	}
-
-	async scrapeArts(): Promise<void> {
-		console.log('🎨 Scraping Arts subjects...');
-		const subjects = [
-			'dance',
-			'drama',
-			'media-arts',
-			'music',
-			'visual-arts',
-			'visual-communication-design'
-		];
-		await this.scrapeSubjectGroup(subjects, 'Arts');
-	}
-
-	private async scrapeSubjectGroup(subjects: string[], groupName: string): Promise<void> {
-		const allContentItems: ContentItem[] = [];
-
-		for (const subject of subjects) {
-			try {
-				console.log(
-					`\n📚 [${subjects.indexOf(subject) + 1}/${subjects.length}] Processing ${subject}...`
-				);
-				const items = await this.scrapeSubject(subject);
-				allContentItems.push(...items);
-				console.log(`   ✅ ${subject}: ${items.length} items extracted`);
-			} catch (error) {
-				console.error(`   ❌ Failed to scrape ${subject}:`, error);
-			}
-		}
-
-		console.log(`\n📊 ${groupName} total: ${allContentItems.length} items extracted`);
-
-		if (allContentItems.length > 0) {
-			await this.insertCurriculumData(allContentItems);
-			console.log(`✅ ${groupName} scraping completed successfully!`);
-		}
+		return allContentItems;
 	}
 
 	private stripHtmlTags(text: string): string {

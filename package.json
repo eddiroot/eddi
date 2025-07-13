@@ -16,6 +16,7 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seed",
+		"db:seed:fresh": "npx tsx --env-file=.env ./src/lib/server/db/seed -- --fresh",
 		"db:studio": "drizzle-kit studio",
 		"db:diagram": "tsx ./src/lib/server/db/dbml.ts"
 	},
