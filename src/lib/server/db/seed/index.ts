@@ -10,7 +10,6 @@ import {
 	yearLevelEnum
 } from '../schema';
 import { hash } from '@node-rs/argon2';
-import { randomUUID } from 'crypto';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { VCAAF10Scraper } from './scraper/index';
@@ -473,7 +472,6 @@ async function seed() {
 		const [systemAdmin] = await db
 			.insert(schema.user)
 			.values({
-				id: randomUUID(),
 				email: 'root@eddi.com.au',
 				passwordHash,
 				schoolId: schoolRecord.id,
@@ -488,7 +486,6 @@ async function seed() {
 		const [schoolAdmin] = await db
 			.insert(schema.user)
 			.values({
-				id: randomUUID(),
 				email: 'admin@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
@@ -504,7 +501,6 @@ async function seed() {
 		const [student1] = await db
 			.insert(schema.user)
 			.values({
-				id: randomUUID(),
 				email: 'student001@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
@@ -519,7 +515,6 @@ async function seed() {
 		const [student2] = await db
 			.insert(schema.user)
 			.values({
-				id: randomUUID(),
 				email: 'student002@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
@@ -534,7 +529,6 @@ async function seed() {
 		const [student3] = await db
 			.insert(schema.user)
 			.values({
-				id: randomUUID(),
 				email: 'student003@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
@@ -575,7 +569,6 @@ async function seed() {
 			const [newTeacher] = await db
 				.insert(schema.user)
 				.values({
-					id: randomUUID(),
 					email: teacher.email,
 					passwordHash,
 					schoolId: schoolRecord.id,

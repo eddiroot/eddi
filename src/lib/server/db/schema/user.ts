@@ -53,7 +53,7 @@ export const userGenderEnumPg = pgEnum('gender', [
 ]);
 
 export const user = pgTable('user', {
-	id: uuid().defaultRandom().primaryKey(),
+	id: uuid('id').defaultRandom().primaryKey(),
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
 	schoolId: integer('school_id')
