@@ -3,6 +3,8 @@ import type { RequestHandler } from '@sveltejs/kit';
 import {
 	getCourseMapItemLearningAreas,
 	getCoursemapItemAssessmentPlans,
+	getCoursemapItemLessonPlans,
+	getTasksByCourseMapItemId,
 	getLearningAreaContentByLearningAreaId
 } from '$lib/server/db/service/coursemap';
 import { yearLevelEnum } from '$lib/server/db/schema';
@@ -45,7 +47,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		case 'learning-area-content': {
 			const learningAreaId = parseInt(url.searchParams.get('learningAreaId') || '');
-			const yearLevelParam = url.searchParams.get('yearLevel') || 'year9';
+			const yearLevelParam = url.searchParams.get('yearLevel') || '';
 
 			if (isNaN(learningAreaId)) {
 				return json({ error: 'Invalid learning area ID' }, { status: 400 });
@@ -112,6 +114,38 @@ export const GET: RequestHandler = async ({ url }) => {
 			} catch (error) {
 				console.error('Error fetching learning area content:', error);
 				return json({ error: 'Failed to fetch learning area content' }, { status: 500 });
+			}
+		}
+
+		case 'lesson-plans': {
+			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '');
+
+			if (isNaN(courseMapItemId)) {
+				return json({ error: 'Invalid course map item ID' }, { status: 400 });
+			}
+
+			try {
+				const lessonPlans = await getCoursemapItemLessonPlans(courseMapItemId);
+				return json(lessonPlans);
+			} catch (error) {
+				console.error('Error fetching lesson plans:', error);
+				return json({ error: 'Failed to fetch lesson plans' }, { status: 500 });
+			}
+		}
+
+		case 'tasks': {
+			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '');
+
+			if (isNaN(courseMapItemId)) {
+				return json({ error: 'Invalid course map item ID' }, { status: 400 });
+			}
+
+			try {
+				const tasks = await getTasksByCourseMapItemId(courseMapItemId);
+				return json(tasks);
+			} catch (error) {
+				console.error('Error fetching tasks:', error);
+				return json({ error: 'Failed to fetch tasks' }, { status: 500 });
 			}
 		}
 

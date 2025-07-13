@@ -3,10 +3,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { Checkbox} from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
-	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { toast } from 'svelte-sonner';
+	import  ChevronDown  from '@lucide/svelte/icons/chevron-down';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import Plus from '@lucide/svelte/icons/plus';
 	import type { CourseMapItem, LearningArea, LearningAreaContent } from '$lib/server/db/schema';
 
 	// Use Svelte 5 $props() for component props
@@ -69,10 +72,50 @@
 	// Learning area picker state
 	let showLearningAreaPicker = $state(false);
 
+	// New state for assessment plans, lesson plans, and tasks
+	let assessmentPlans = $state<any[]>([]);
+	let lessonPlans = $state<any[]>([]);
+	let tasks = $state<any[]>([]);
+	let isLoadingDrawerData = $state(false);
+
 	// Form element reference
 	let formElement: HTMLFormElement;
 
 	// Use Svelte 5 $effect for reactive statements
+
+	// Load drawer data when courseMapItem changes
+	$effect(() => {
+		if (courseMapItem && !isCreateMode) {
+			loadDrawerData(courseMapItem.id);
+		}
+	});
+
+	async function loadDrawerData(courseMapItemId: number) {
+		isLoadingDrawerData = true;
+		try {
+			// Load assessment plans
+			const assessmentResponse = await fetch(`/api/coursemap?action=assessment-plans&courseMapItemId=${courseMapItemId}`);
+			if (assessmentResponse.ok) {
+				assessmentPlans = await assessmentResponse.json();
+			}
+
+			// Load lesson plans
+			const lessonResponse = await fetch(`/api/coursemap?action=lesson-plans&courseMapItemId=${courseMapItemId}`);
+			if (lessonResponse.ok) {
+				lessonPlans = await lessonResponse.json();
+			}
+
+			// Load tasks
+			const tasksResponse = await fetch(`/api/coursemap?action=tasks&courseMapItemId=${courseMapItemId}`);
+			if (tasksResponse.ok) {
+				tasks = await tasksResponse.json();
+			}
+		} catch (error) {
+			console.error('Error loading drawer data:', error);
+		} finally {
+			isLoadingDrawerData = false;
+		}
+	}
 
 	$effect(() => {
 		if (courseMapItem && !isEditMode) {
@@ -267,7 +310,7 @@
 
 <Tooltip.Provider>
 	<Drawer bind:open onClose={handleClose} direction="right">
-		<DrawerContent class="max-h-[100vh] !max-w-[1600px] rounded-l-lg">
+		<DrawerContent class="max-h-[100vh] !max-w-[1600px] rounded-l-lg overflow-hidden flex flex-col">
 			<!-- Header -->
 			<div class="flex items-center justify-between p-6 pb-2">
 				<h2 class="text-3xl font-bold">
@@ -285,16 +328,6 @@
 					{#if isCreateMode}
 						<Button size="sm" onclick={handleSave} disabled={isLoading || !editForm.topic.trim()}>
 							Create Task
-						</Button>
-					{:else if !isEditMode}
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={() => {
-								/* TODO: Add create task functionality */
-							}}
-						>
-							Create Task +
 						</Button>
 					{/if}
 				</div>
@@ -405,8 +438,8 @@
 			{/if}
 
 			<!-- Main Content Area -->
-			<div class="flex-1 p-6 pt-0">
-				<div class="space-y-4">
+			<div class="flex-1 overflow-y-auto p-6 pt-0">
+				<div class="space-y-6">
 					<!-- Description -->
 					{#if isEditMode || isCreateMode}
 						<div>
@@ -426,225 +459,224 @@
 						</div>
 					{/if}
 
-					<!-- Learning Areas -->
+					<!-- Learning Areas Section -->
 					{#if availableLearningAreas.length > 0}
 						<div>
+							<h3 class="text-xl font-bold mb-4">Learning Areas</h3>
+							
 							{#if isEditMode || isCreateMode}
 								<!-- Edit Mode: Multi-select dropdown -->
-								<div>
-									<Label class="mb-2 block text-sm font-medium">Learning Areas</Label>
-									<div class="relative">
-										<button
-											type="button"
-											class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-between rounded-md border p-2 text-left text-sm"
-											onclick={() => (showLearningAreaPicker = !showLearningAreaPicker)}
-										>
-											<span>
-												{#if selectedLearningAreaIds.length === 0}
-													Select learning areas...
-												{:else}
-													{selectedLearningAreaIds.length} selected
-												{/if}
-											</span>
-											<svg
-												class="text-muted-foreground h-4 w-4"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M19 9l-7 7-7-7"
-												></path>
-											</svg>
-										</button>
-										{#if showLearningAreaPicker}
-											<div
-												class="absolute top-full right-0 left-0 z-50 mt-1 max-h-48 overflow-y-auto rounded-md border bg-white shadow-lg"
-											>
-												{#each availableLearningAreas as learningArea}
-													<label
-														class="flex cursor-pointer items-center space-x-2 p-2 hover:bg-gray-50"
-													>
-														<Checkbox
-															checked={selectedLearningAreaIds.includes(learningArea.id)}
-															onCheckedChange={() => toggleLearningArea(learningArea.id)}
-														/>
-														<span class="text-sm">{learningArea.name}</span>
-													</label>
-												{/each}
-											</div>
-										{/if}
-									</div>
+								<div class="relative">
+									<button
+										type="button"
+										class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-between rounded-md border p-2 text-left text-sm"
+										onclick={() => (showLearningAreaPicker = !showLearningAreaPicker)}
+									>
+										<span>
+											{#if selectedLearningAreaIds.length === 0}
+												Select learning areas...
+											{:else}
+												{selectedLearningAreaIds.length} selected
+											{/if}
+										</span>
+										<ChevronDown class="h-4 w-4" />
+									</button>
+									{#if showLearningAreaPicker}
+										<div class="absolute top-full right-0 left-0 z-50 mt-1 max-h-48 overflow-y-auto rounded-md border bg-white shadow-lg">
+											{#each availableLearningAreas as learningArea}
+												<label class="flex cursor-pointer items-center space-x-2 p-2 hover:bg-gray-50">
+													<Checkbox
+														checked={selectedLearningAreaIds.includes(learningArea.id)}
+														onCheckedChange={() => toggleLearningArea(learningArea.id)}
+													/>
+													<span class="text-sm">{learningArea.name}</span>
+												</label>
+											{/each}
+										</div>
+									{/if}
 								</div>
 							{:else}
-								<!-- View Mode: Excalidraw-style layout -->
-								<div class="mb-4 flex items-center justify-between">
-									<Label class="text-xl font-bold">Learning Areas</Label>
-								</div>
+								<!-- View Mode: Two column layout -->
 								{#if courseMapItemLearningAreas.length > 0}
-									{#each courseMapItemLearningAreas as learningArea}
-										<div class="mb-4 rounded-lg border bg-gray-50 p-4">
-											<div class="flex items-center gap-4">
-												<!-- Learning Area name with colon -->
-												<div class="flex items-center gap-3">
-													<span class="text-lg font-semibold">{learningArea.name}</span>
-													<span class="text-lg font-semibold">:</span>
-												</div>
-
-												<!-- Content items on the right with dynamic grid -->
-												<div class="flex-1">
-													{#if learningAreaContent[learningArea.id]?.length > 0}
-														{@const contents = learningAreaContent[learningArea.id]}
-														{@const contentCount = contents.length}
-
-														{#if contentCount <= 4}
-															<!-- Single row layout for 1-4 items -->
-															<div
-																class="grid {contentCount === 1
-																	? 'grid-cols-1'
-																	: contentCount === 2
-																		? 'grid-cols-2'
-																		: contentCount === 3
-																			? 'grid-cols-3'
-																			: 'grid-cols-4'} gap-3"
-															>
-																{#each contents as content}
-																	<Tooltip.Root>
-																		<Tooltip.Trigger>
-																			<div
-																				class="cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-colors hover:bg-gray-50"
-																			>
-																				<div class="text-center text-sm font-medium">
-																					{content.name}
-																				</div>
-																			</div>
-																		</Tooltip.Trigger>
-																		<Tooltip.Content
-																			class="z-50 max-w-xs rounded-lg border bg-white p-3 text-sm leading-relaxed text-black shadow-lg"
-																			side="top"
-																		>
-																			<div>{content.description}</div>
-																		</Tooltip.Content>
-																	</Tooltip.Root>
-																{/each}
-															</div>
-														{:else if contentCount === 5}
-															<!-- 5 items: 3 + 2 layout -->
-															<div class="space-y-3">
-																<div class="grid grid-cols-3 gap-3">
-																	{#each contents.slice(0, 3) as content}
+									<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+										{#each courseMapItemLearningAreas as learningArea}
+											{@const contents = learningAreaContent[learningArea.id] || []}
+											{@const contentCount = contents.length}
+											{@const isMultiRow = contentCount > 3}
+											
+											<div class="p-2 border rounded-lg bg-gray-50 {isMultiRow ? 'min-h-[5.5rem]' : 'min-h-[3.5rem]'} flex">
+												<div class="flex items-center gap-2 w-full">
+													<!-- Learning Area name with colon on the left -->
+													<div class="flex items-center gap-1 min-w-0 flex-shrink-0">
+														<span class="text-sm font-semibold">{learningArea.name}</span>
+														<span class="text-sm font-semibold">:</span>
+													</div>
+													
+													<!-- Content items bundled on the right -->
+													<div class="flex-1 min-w-0 {contentCount === 1 ? 'flex items-center' : 'flex items-center justify-center'}">
+														{#if contents.length > 0}
+															{#if contentCount <= 3}
+																<!-- Single row layout for 1-3 items -->
+																<div class="grid {contentCount === 1 ? 'grid-cols-1' : contentCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 w-full">
+																	{#each contents as content}
 																		<Tooltip.Root>
 																			<Tooltip.Trigger>
-																				<div
-																					class="cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-colors hover:bg-gray-50"
-																				>
-																					<div class="text-center text-sm font-medium">
-																						{content.name}
-																					</div>
+																				<div class="p-1.5 border rounded bg-white hover:bg-gray-50 transition-colors cursor-pointer shadow-sm">
+																					<div class="text-xs font-medium text-center leading-tight">{content.name}</div>
 																				</div>
 																			</Tooltip.Trigger>
-																			<Tooltip.Content
-																				class="z-50 max-w-xs rounded-lg border bg-white p-3 text-sm leading-relaxed text-black shadow-lg"
-																				side="top"
-																			>
+																			<Tooltip.Content class="max-w-xs p-3 bg-white text-black rounded-lg shadow-lg border z-50 text-sm leading-relaxed" side="top">
 																				<div>{content.description}</div>
 																			</Tooltip.Content>
 																		</Tooltip.Root>
 																	{/each}
 																</div>
-																<div class="grid grid-cols-2 gap-3">
-																	{#each contents.slice(3, 5) as content}
-																		<Tooltip.Root>
-																			<Tooltip.Trigger>
-																				<div
-																					class="cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-colors hover:bg-gray-50"
-																				>
-																					<div class="text-center text-sm font-medium">
-																						{content.name}
-																					</div>
-																				</div>
-																			</Tooltip.Trigger>
-																			<Tooltip.Content
-																				class="z-50 max-w-xs rounded-lg border bg-white p-3 text-sm leading-relaxed text-black shadow-lg"
-																				side="top"
-																			>
-																				<div>{content.description}</div>
-																			</Tooltip.Content>
-																		</Tooltip.Root>
-																	{/each}
-																</div>
-															</div>
-														{:else}
-															<!-- 6+ items: multiple rows with max 4 per row -->
-															<div class="space-y-3">
-																{#each Array(Math.ceil(contentCount / 4)) as _, rowIndex}
-																	{@const startIndex = rowIndex * 4}
-																	{@const endIndex = Math.min(startIndex + 4, contentCount)}
-																	{@const rowContents = contents.slice(startIndex, endIndex)}
-																	<div
-																		class="grid {rowContents.length === 1
-																			? 'grid-cols-1'
-																			: rowContents.length === 2
-																				? 'grid-cols-2'
-																				: rowContents.length === 3
-																					? 'grid-cols-3'
-																					: 'grid-cols-4'} gap-3"
-																	>
-																		{#each rowContents as content}
-																			<Tooltip.Root>
-																				<Tooltip.Trigger>
-																					<div
-																						class="cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-colors hover:bg-gray-50"
-																					>
-																						<div class="text-center text-sm font-medium">
-																							{content.name}
+															{:else}
+																<!-- Multiple rows with max 3 per row -->
+																<div class="space-y-1 w-full">
+																	{#each Array(Math.ceil(contentCount / 3)) as _, rowIndex}
+																		{@const startIndex = rowIndex * 3}
+																		{@const endIndex = Math.min(startIndex + 3, contentCount)}
+																		{@const rowContents = contents.slice(startIndex, endIndex)}
+																		<div class="grid {rowContents.length === 1 ? 'grid-cols-1' : rowContents.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1">
+																			{#each rowContents as content}
+																				<Tooltip.Root>
+																					<Tooltip.Trigger>
+																						<div class="p-1.5 border rounded bg-white hover:bg-gray-50 transition-colors cursor-pointer shadow-sm">
+																							<div class="text-xs font-medium text-center leading-tight">{content.name}</div>
 																						</div>
-																					</div>
-																				</Tooltip.Trigger>
-																				<Tooltip.Content
-																					class="z-50 max-w-xs rounded-lg border bg-white p-3 text-sm leading-relaxed text-black shadow-lg"
-																					side="top"
-																				>
-																					<div>{content.description}</div>
-																				</Tooltip.Content>
-																			</Tooltip.Root>
-																		{/each}
-																	</div>
-																{/each}
-															</div>
+																					</Tooltip.Trigger>
+																					<Tooltip.Content class="max-w-xs p-3 bg-white text-black rounded-lg shadow-lg border z-50 text-sm leading-relaxed" side="top">
+																						<div>{content.description}</div>
+																					</Tooltip.Content>
+																				</Tooltip.Root>
+																			{/each}
+																		</div>
+																	{/each}
+																</div>
+															{/if}
+														{:else}
+															<p class="text-xs text-gray-500 italic">No content available</p>
 														{/if}
-													{:else}
-														<p class="text-sm text-gray-500 italic">No content available</p>
-													{/if}
+													</div>
 												</div>
 											</div>
-										</div>
-									{/each}
+										{/each}
+									</div>
 								{:else}
 									<p class="text-sm text-gray-500">No learning areas selected</p>
 								{/if}
 							{/if}
 						</div>
 					{/if}
+
+					<!-- Assessment Plans Section -->
+					{#if !isCreateMode}
+						<div>
+							<div class="flex items-center justify-between mb-4">
+								<h3 class="text-xl font-bold">Assessment Plans</h3>
+								<Button variant="outline" size="sm">
+									<Plus class="h-4 w-4 mr-2" />
+									Assessment Plan
+								</Button>
+							</div>
+
+							{#if isLoadingDrawerData}
+								<p class="text-sm text-gray-500">Loading assessment plans...</p>
+							{:else if assessmentPlans.length > 0}
+								<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+									{#each assessmentPlans as plan}
+										<div class="p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer shadow-sm">
+											<h4 class="font-medium text-sm">{plan.name || 'Assessment Plan'}</h4>
+											{#if plan.description}
+												<p class="text-xs text-gray-600 mt-1">{plan.description}</p>
+											{/if}
+										</div>
+									{/each}
+								</div>
+							{:else}
+								<p class="text-sm text-gray-500 italic">No assessment plans available</p>
+							{/if}
+						</div>
+					{/if}
+
+					<!-- Lesson Plans Section -->
+					{#if !isCreateMode}
+						<div>
+							<div class="flex items-center justify-between mb-4">
+								<h3 class="text-xl font-bold">Lesson Plans</h3>
+								<Button variant="outline" size="sm">
+									<Plus class="h-4 w-4 mr-2" />
+									Lesson Plan
+								</Button>
+							</div>
+
+							{#if isLoadingDrawerData}
+								<p class="text-sm text-gray-500">Loading lesson plans...</p>
+							{:else if lessonPlans.length > 0}
+								<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+									{#each lessonPlans as plan}
+										<div class="p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer shadow-sm">
+											<h4 class="font-medium text-sm">{plan.name || 'Lesson Plan'}</h4>
+											{#if plan.description}
+												<p class="text-xs text-gray-600 mt-1">{plan.description}</p>
+											{/if}
+										</div>
+									{/each}
+								</div>
+							{:else}
+								<p class="text-sm text-gray-500 italic">No lesson plans available</p>
+							{/if}
+						</div>
+					{/if}
+
+					<!-- Tasks Section -->
+					<div>
+						<div class="flex items-center justify-between mb-4">
+							<h3 class="text-xl font-bold">Tasks</h3>
+							{#if !isCreateMode}
+								<Button variant="outline" size="sm">
+									<Plus class="h-4 w-4 mr-2" />
+									Task
+								</Button>
+							{/if}
+						</div>
+
+						{#if isLoadingDrawerData && !isCreateMode}
+							<p class="text-sm text-gray-500">Loading tasks...</p>
+						{:else if tasks.length > 0}
+							<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+								{#each tasks as task}
+									<div class="p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer shadow-sm">
+										<h4 class="font-medium text-sm">{task.name || task.title || 'Task'}</h4>
+										{#if task.description}
+											<p class="text-xs text-gray-600 mt-1">{task.description}</p>
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{:else}
+							<p class="text-sm text-gray-500 italic">No tasks available</p>
+						{/if}
+					</div>
 				</div>
 			</div>
 
 			<!-- Bottom Action Bar -->
-			{#if isEditMode && !isCreateMode}
-				<div class="flex gap-2 bg-gray-50 p-4">
-					<Button variant="outline" class="flex-1" onclick={handleCancel}>Cancel</Button>
-					<Button class="flex-1" onclick={handleSave} disabled={isLoading}>Save Changes</Button>
-				</div>
-			{:else if !isCreateMode}
-				<!-- View Mode Action Bar -->
-				<div class="flex gap-2 bg-gray-50 p-4">
-					<Button variant="outline" class="flex-1" onclick={handleClose}>Close</Button>
-					<Button class="flex-1" onclick={handleEdit}>Edit</Button>
-				</div>
-			{/if}
+			<div class="sticky bottom-0 bg-white border-t">
+				{#if isEditMode && !isCreateMode}
+					<div class="flex gap-2 p-4">
+						<Button variant="outline" class="flex-1" onclick={handleCancel}>Cancel</Button>
+						<Button class="flex-1" onclick={handleSave} disabled={isLoading}>Save Changes</Button>
+					</div>
+				{:else if !isCreateMode}
+					<!-- View Mode Action Bar -->
+					<div class="flex gap-2 p-4">
+						<Button variant="outline" class="flex-1" onclick={handleClose}>Close</Button>
+						<Button class="flex-1" onclick={handleEdit}>Edit</Button>
+					</div>
+				{/if}
+			</div>
 		</DrawerContent>
 	</Drawer>
 </Tooltip.Provider>
