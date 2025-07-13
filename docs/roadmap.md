@@ -19,6 +19,10 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 ## Doing
 
+All
+
+- [ ] Security review e.g. prompt injection
+
 Lachie
 
 - [ ] Move home above discussion in sidebar if only 1 class
@@ -29,6 +33,7 @@ Lachie
 - [ ] Parents can see some/all of the above
 - [ ] Class tests / quizzes
 - [ ] Admin dashboard allocations page
+- [ ] Home page
 
 Jack
 
@@ -36,6 +41,7 @@ Jack
 - [ ] Fix lesson generation with learning areas and content
 - [ ] AI feedback / assisted marking
 - [ ] View students work
+- [ ] Student note writing
 
 Raph
 
@@ -64,11 +70,15 @@ Bella
 - [ ] Create school news
 - [ ] News feed
 - [ ] Fees / breakdowns
+- [ ] Complete LLM access to discussions + lessons
 
 Max
 
 - [ ] Timetabling
 - [ ] Exam timetabling
+- [ ] Events appearing in everyone's timetables
+- [ ] Class location shifts
+- [ ] See teacher's feedback
 
 ## Future
 
@@ -77,10 +87,7 @@ Max
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal
   - Clicking on a formula in the modal inserts it into the editor
-- [ ] Home page
 - [ ] A what to do button to generate study ideas
-- [ ] Complete LLM access to discussions + lessons
-- [ ] Security review e.g. prompt injection
 - [ ] Check-in check-out software (compass does this)
 - [ ] Workspaces (like VMs but for coding)
 - [ ] App-wide search
@@ -91,13 +98,11 @@ Max
 - [ ] AI presentations
 - [ ] Notifications for high interaction with discussion (eg 10 upvotes)
 - [ ] Plagiarism detection
-- [ ] Class location shifts
-- [ ] See teacher's feedback
-- [ ] Events appearing in everyone's timetables
 - [ ] Lesson / class plan marketplace
 - [ ] Contractors signing in with working with childrens checks (eg school photographers)
 - [ ] Interactive map of locations in the school with directions
 - [ ] Keyboard shortcuts
+- [ ] Parent forum / teacher forum
 
 # UI Feedback
 
