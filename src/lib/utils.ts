@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export enum userPermissions {
 	viewLessons = 'view_lessons',
-	createLessons = 'create_lessons',
+	createTasks = 'create_tasks',
 	viewAnalytics = 'view_analytics',
 	manageTeachers = 'manage_teachers',
 	viewChildGrades = 'view_child_grades',
@@ -28,7 +28,7 @@ export function getPermissions(userType: string): string[] {
 		case 'teacher':
 			return [
 				userPermissions.viewLessons,
-				userPermissions.createLessons,
+				userPermissions.createTasks,
 				userPermissions.viewAnalytics,
 				userPermissions.viewTimeTable,
 				userPermissions.viewDashboard

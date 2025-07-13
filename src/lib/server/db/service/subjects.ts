@@ -566,7 +566,7 @@ export async function getSubjectsWithClassesByUserId(userId: string) {
 			subjectOffering: subjectOffering.subjectOffering,
 			classes: classes.map((cls) => ({
 				id: cls.subjectOfferingClass.id,
-				name: `${subjectOffering.subject.name} ${cls.subjectOfferingClass.suffix}`,
+				name: cls.subjectOfferingClass.name,
 				subOfferingId: cls.subjectOfferingClass.subOfferingId
 			}))
 		};

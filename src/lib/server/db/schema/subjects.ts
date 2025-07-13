@@ -124,14 +124,14 @@ export const subjectOfferingClass = pgTable(
 	'sub_offering_class',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		suffix: text('suffix').notNull(),
+		name: text('name').notNull(),
 		subOfferingId: integer('sub_offering_id')
 			.notNull()
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},
-	(self) => [unique().on(self.subOfferingId, self.suffix)]
+	(self) => [unique().on(self.subOfferingId, self.name)]
 );
 
 export type SubjectOfferingClass = typeof subjectOfferingClass.$inferSelect;

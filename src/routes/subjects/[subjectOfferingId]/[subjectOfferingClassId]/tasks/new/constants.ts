@@ -2,7 +2,7 @@ export const taskCreationPrompts = {
 	lesson: `Analyse the attached documents/images and create an educational lesson.
 
 Using the provided schema, create a comprehensive lesson with:
-    1. A title and subtitle
+    1. A subtitle as a h2. Do not include a title.
     2. A number of sections matching the complexity of the content. Sections shouldn't be too long. Sections should have appropriate headers (h1, h2, h3)
     3. Explanatory content using paragraphs and markdown
     4. Interactive elements to engage students including:
@@ -17,7 +17,7 @@ Each component should be structured according to the provided schema.`,
 	homework: `Analyse the attached documents/images and create homework assignments.
 
 Using the provided schema, create homework that reinforces learning with:
-    1. A clear title describing the homework assignment
+    1. A subtitle as a h2 about the homework. Do not include a title.
     2. Brief instructions or review sections with headers (h1, h2, h3)
     3. Practice problems and exercises including:
         - Multiple choice questions for self-assessment (make sure answers are string of options (not a,b,c or 1,2,3))
@@ -33,7 +33,7 @@ Each component should be structured according to the provided schema. Prioritize
 	assessment: `Analyse the attached documents/images and create a comprehensive assessment.
 
 Using the provided schema, create an assessment that evaluates student understanding with:
-    1. A clear assessment title and brief instructions
+    1. A clear assessment subtitle and brief instructions. Do not include a title.
     2. Varied question types to test different skill levels:
         - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
         - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks) limit to maximum 3
@@ -88,7 +88,7 @@ export const taskComponentItems = [
 	{
 		type: 'OBJECT',
 		properties: {
-			type: { type: 'STRING', enum: ['h1', 'h2', 'h3'] },
+			type: { type: 'STRING', enum: ['h2', 'h3', 'h4', 'h5', 'h6'] },
 			content: {
 				type: 'OBJECT',
 				properties: {

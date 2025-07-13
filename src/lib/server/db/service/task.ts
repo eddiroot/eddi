@@ -153,6 +153,7 @@ export async function createTask(
 	description: string,
 	version: number,
 	type: table.taskTypeEnum,
+	subjectOfferingId: number,
 	isArchived: boolean = false
 ) {
 	const [task] = await db
@@ -163,6 +164,7 @@ export async function createTask(
 			description,
 			originalId: null,
 			version,
+			subjectOfferingId,
 			isArchived
 		})
 		.returning();

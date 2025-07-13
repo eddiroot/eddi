@@ -9,6 +9,7 @@ import {
 	unique
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
+import { subjectOffering } from './subjects';
 
 export enum taskTypeEnum {
 	lesson = 'lesson',
@@ -37,6 +38,9 @@ export const task = pgTable(
 		description: text('description').notNull(),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
+		subjectOfferingId: integer('subject_offering_id')
+			.notNull()
+			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},

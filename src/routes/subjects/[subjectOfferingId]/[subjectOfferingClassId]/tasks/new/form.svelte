@@ -53,7 +53,7 @@
 		if (!$formData.type) {
 			$formData.type = 'lesson';
 		}
-		
+
 		// If no topics are available, automatically switch to create new topic mode
 		if (data.taskTopics.length === 0 && !isCreatingNewTopic) {
 			isCreatingNewTopic = true;
@@ -64,13 +64,15 @@
 	let selectedTopicId = $state('');
 	let newTopicName = $state('');
 	let isCreatingNewTopic = $state(false);
-	
+
 	// Learning area content state
-	let learningAreaContents = $state<Array<{
-		id: number;
-		name: string;
-		description: string;
-	}>>([]);
+	let learningAreaContents = $state<
+		Array<{
+			id: number;
+			name: string;
+			description: string;
+		}>
+	>([]);
 	let selectedLearningAreaContentIds = $state<number[]>([]);
 	let isLoadingLearningContent = $state(false);
 
@@ -82,7 +84,7 @@
 	$effect(() => {
 		if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
 			isLoadingLearningContent = true;
-			
+
 			// Use a separate async function to handle the fetch
 			const loadContent = async () => {
 				try {
@@ -101,7 +103,7 @@
 					isLoadingLearningContent = false;
 				}
 			};
-			
+
 			loadContent();
 		} else {
 			learningAreaContents = [];
@@ -115,7 +117,6 @@
 	$effect(() => {
 		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds;
 	});
-
 
 	// Connect aiFiles to form and validate
 	$effect(() => {
@@ -166,7 +167,7 @@
 {#if isSubmitting && creationMethod === 'ai'}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
 		<div
-			class="mx-4 flex max-w-sm flex-col items-center space-y-4 rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800"
+			class="bg-background mx-4 flex max-w-sm flex-col items-center space-y-4 rounded-lg p-8 shadow-xl"
 		>
 			<LoaderIcon class="text-primary h-12 w-12 animate-spin" />
 			<div class="text-center">
@@ -264,7 +265,12 @@
 									} else {
 										selectedTopicId = value || '';
 										$formData.taskTopicId = value ? parseInt(value, 10) : undefined;
-										console.log('Selected topic ID:', selectedTopicId, 'Form data:', $formData.taskTopicId);
+										console.log(
+											'Selected topic ID:',
+											selectedTopicId,
+											'Form data:',
+											$formData.taskTopicId
+										);
 									}
 								}}
 							>
@@ -278,7 +284,11 @@
 								</Select.Trigger>
 								<Select.Content>
 									{#if data.taskTopics.length === 0}
-										<Select.Item value="" label="No topics available - please create one" disabled />
+										<Select.Item
+											value=""
+											label="No topics available - please create one"
+											disabled
+										/>
 									{:else}
 										{#each data.taskTopics as topic}
 											<Select.Item value={topic.id.toString()} label={topic.name} />
@@ -354,44 +364,54 @@
 			<div>
 				<Label class="text-base font-medium">Learning Area Content (Optional)</Label>
 				<p class="text-muted-foreground text-sm">
-					Select specific curriculum content to guide task generation. This helps ensure alignment with learning objectives.
+					Select specific curriculum content to guide task generation. This helps ensure alignment
+					with learning objectives.
 				</p>
 			</div>
-			
+
 			{#if isLoadingLearningContent}
 				<div class="flex items-center justify-center py-8">
 					<LoaderIcon class="h-6 w-6 animate-spin text-gray-500" />
 					<span class="ml-2 text-sm text-gray-500">Loading content...</span>
 				</div>
 			{:else if learningAreaContents.length === 0}
-				<div class="text-center py-8">
-					<p class="text-muted-foreground text-sm">No learning area content found for this topic.</p>
+				<div class="py-8 text-center">
+					<p class="text-muted-foreground text-sm">
+						No learning area content found for this topic.
+					</p>
 				</div>
 			{:else}
-				<div class="grid gap-3 max-h-96 overflow-y-auto">
+				<div class="grid max-h-96 gap-3 overflow-y-auto">
 					{#each learningAreaContents as content (content.id)}
-						<div class="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-							<label class="flex items-start space-x-3 cursor-pointer">
+						<div
+							class="rounded-lg border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+						>
+							<label class="flex cursor-pointer items-start space-x-3">
 								<input
 									type="checkbox"
 									bind:group={selectedLearningAreaContentIds}
 									value={content.id}
-									class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+									class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
-								<div class="flex-1 min-w-0">
-									<div class="font-medium text-sm">{content.name}</div>
+								<div class="min-w-0 flex-1">
+									<div class="text-sm font-medium">{content.name}</div>
 									{#if content.description}
-										<div class="text-gray-600 dark:text-gray-400 text-xs mt-1">{content.description}</div>
+										<div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+											{content.description}
+										</div>
 									{/if}
 								</div>
 							</label>
 						</div>
 					{/each}
 				</div>
-				
+
 				{#if selectedLearningAreaContentIds.length > 0}
 					<div class="text-sm text-green-600 dark:text-green-400">
-						{selectedLearningAreaContentIds.length} content item{selectedLearningAreaContentIds.length !== 1 ? 's' : ''} selected for task generation
+						{selectedLearningAreaContentIds.length} content item{selectedLearningAreaContentIds.length !==
+						1
+							? 's'
+							: ''} selected for task generation
 					</div>
 				{/if}
 			{/if}
@@ -446,7 +466,11 @@
 
 	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
 	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
-	<input type="hidden" name="selectedLearningAreaContentIds" value={JSON.stringify(selectedLearningAreaContentIds)} />
+	<input
+		type="hidden"
+		name="selectedLearningAreaContentIds"
+		value={JSON.stringify(selectedLearningAreaContentIds)}
+	/>
 
 	<!-- Add hidden file input -->
 	<input
@@ -460,11 +484,12 @@
 	/>
 
 	<div class="flex justify-end gap-2">
-		<Form.Button type="submit" disabled={
-			fileValidationErrors.length > 0 || 
-			isSubmitting || 
-			(!selectedTopicId && !newTopicName.trim() && !isCreatingNewTopic)
-		}>
+		<Form.Button
+			type="submit"
+			disabled={fileValidationErrors.length > 0 ||
+				isSubmitting ||
+				(!selectedTopicId && !newTopicName.trim() && !isCreatingNewTopic)}
+		>
 			{#if isSubmitting && creationMethod === 'ai'}
 				<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
 				Generating...

@@ -313,7 +313,8 @@ export const actions = {
 			form.data.title,
 			form.data.description,
 			1,
-			taskTypeEnum[form.data.type]
+			taskTypeEnum[form.data.type],
+			subjectOfferingIdInt
 		);
 
 		await createSubjectOfferingClassTask(task.id, subjectOfferingIdInt, user.id, courseMapItemId);

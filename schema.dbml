@@ -371,14 +371,14 @@ table sub_offering {
 
 table sub_offering_class {
   id integer [pk, not null]
-  suffix text [not null]
+  name text [not null]
   sub_offering_id integer [not null]
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
 
   indexes {
-    (sub_offering_id, suffix) [name: 'sub_offering_class_sub_offering_id_suffix_unique', unique]
+    (sub_offering_id, name) [name: 'sub_offering_class_sub_offering_id_name_unique', unique]
   }
 }
 
@@ -435,6 +435,7 @@ table task {
   description text [not null]
   original_id integer
   version integer [not null, default: 1]
+  subject_offering_id integer [not null]
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]

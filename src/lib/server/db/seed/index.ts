@@ -209,19 +209,19 @@ async function seed() {
 			.insert(schema.subjectOfferingClass)
 			.values([
 				{
-					suffix: 'A',
+					name: 'Class A',
 					subOfferingId: subjectOfferings[0].id // Math
 				},
 				{
-					suffix: 'A',
+					name: 'Class A',
 					subOfferingId: subjectOfferings[1].id // English
 				},
 				{
-					suffix: 'A',
+					name: 'Class A',
 					subOfferingId: subjectOfferings[2].id // Science
 				},
 				{
-					suffix: 'A',
+					name: 'Class A',
 					subOfferingId: subjectOfferings[3].id // PE
 				}
 			])
