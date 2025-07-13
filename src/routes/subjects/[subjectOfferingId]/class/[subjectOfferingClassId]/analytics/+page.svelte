@@ -366,14 +366,7 @@
 </script>
 
 <div class="space-y-6 p-8">
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="text-3xl font-bold tracking-tight">{data.subject.name} Class Analytics</h1>
-			<p class="text-muted-foreground">
-				Comprehensive analytics dashboard for tracking student progress and engagement
-			</p>
-		</div>
-	</div>
+	<h1 class="text-3xl font-bold tracking-tight">Analytics</h1>
 
 	<!-- Tab Navigation -->
 	<Tabs.Root bind:value={activeTab} class="w-full">
