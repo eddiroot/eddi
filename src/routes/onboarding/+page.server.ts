@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { createAdminUser } from '$lib/server/db/service';
+import { message } from 'sveltekit-superforms';
 
 export const actions = {
 	default: async ({ request, locals }) => {
@@ -35,9 +36,9 @@ export const actions = {
 				schoolId: schoolId as number
 			});
 			return { success: true };
-		} catch (e: any) {
-			if (e.message && e.message.includes('already exists')) {
-				errors.email = e.message;
+		} catch (error) {
+			if (error instanceof Error && error.message.includes('already exists')) {
+				errors.email = error.message;
 				return fail(400, { errors });
 			}
 			return fail(500, { errors: { general: 'Failed to create admin user.' } });
