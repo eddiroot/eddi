@@ -54,14 +54,18 @@ Raph
 - [ ] Student reports live throughout semester
 - [ ] Associate chatbot chats with the lesson/subject they were created in
 
-Beej + Blake
+Beej
 
 - [ ] Onboarding flow
-- [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Parent/teacher interviews
-- [ ] Auto generated summaries of discussions
 - [ ] Teacher to parent comms (one way)
+
+Blake
+
+- [ ] Auto generated summaries of discussions
 - [ ] AI tutor audit trails
+- [ ] A what to do button to generate study ideas
+- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
 
 Bella
 
@@ -82,12 +86,11 @@ Max
 
 ## Future
 
-- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
 - [ ] Export all data for a given school
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal
   - Clicking on a formula in the modal inserts it into the editor
-- [ ] A what to do button to generate study ideas
+- [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Check-in check-out software (compass does this)
 - [ ] Workspaces (like VMs but for coding)
 - [ ] App-wide search
