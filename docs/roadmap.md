@@ -2,7 +2,7 @@
 
 This list is ordered by priority, with the highest priority at the top and the lowest priority at the bottom.
 
-## MVP
+## Done
 
 - [x] Create lessons with drag'n'drop blocks
 - [x] Create lessons based on textbooks, slides, PDFs, images, etc
@@ -11,34 +11,37 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Live whiteboards
 - [x] AI Tutor "eddi" (teaching focus, not giving answers)
 - [x] Class announcements
+- [x] Order topics and lessons within them
+- [x] Proper rich text editor
+- [x] Setup object storage
+- [x] Admin dashboard
+- [x] Add draggable interactive components such as matching
 
 ## Post MVP
 
 Lachie
 
-- [x] Order topics and lessons within them
-- [x] Better rich text editor
-- [x] Setup object storage
-- [x] Admin dashboard
+- [ ] Move home above discussion in sidebar if only 1 class
+- [ ] Roll call / attendance
+- [ ] Sick/not coming to school/absence/late notifications
+- [ ] Behavioural reporting
+- [ ] Teachers can see attendance
+- [ ] Parents can see some/all of the above
 - [ ] Class tests / quizzes
-
-Max
-
-- [ ] Handling of multiple campuses
-- [ ] Exam timetabling
-- [ ] Timetabling
-- [ ] News feed
+- [ ] Admin dashboard allocations page
 
 Jack
 
-- [x] Add draggable interactive components such as matching
+- [ ] Coursemap flow
+- [ ] Fix lesson generation with learning areas and content
 - [ ] AI feedback / assisted marking
 - [ ] View students work
 
 Raph
 
-- [ ] Add/refine current components
-  - Fix whiteboard component issues and mc alerts and text overflow in question and explanation
+- [ ] Class resources
+- [ ] Better whiteboard
+  - Fix mc alerts and text overflow in question and explanation
   - Expanding the whiteboard
   - Fix whiteboard vertical panning
 - [ ] Student/lesson analytics
@@ -48,15 +51,24 @@ Raph
 Beej + Blake
 
 - [ ] Onboarding flow
-- [ ] Onboarding experience (school theming, roles, staff)
+- [ ] Subject selection (see example lessons, choose your subjects as a student)
+- [ ] Parent/teacher interviews
+- [ ] Auto generated summaries of discussions
+- [ ] Teacher to parent comms (one way)
+- [ ] AI tutor audit trails
 
 Bella
 
-- [ ] Roll call / attendance
-- [ ] Sick/not coming to school/absence/late notifications
-- [ ] Behavioural reporting
-- [ ] Teachers can see attendance
-- [ ] Parents can see some/all of the above
+- [ ] Add/refine current task components (new question and answer type component)
+- [ ] Handling of multiple campuses
+- [ ] Create school news
+- [ ] News feed
+- [ ] Fees / breakdowns
+
+Max
+
+- [ ] Timetabling
+- [ ] Exam timetabling
 
 ## Future Functionality
 
@@ -65,36 +77,27 @@ Bella
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal
   - Clicking on a formula in the modal inserts it into the editor
-- [ ] Admin dashboard allocations page
 - [ ] Home page
 - [ ] A what to do button to generate study ideas
 - [ ] Complete LLM access to discussions + lessons
 - [ ] Security review e.g. prompt injection
-- [ ] Fees / breakdowns
 - [ ] Check-in check-out software (compass does this)
 - [ ] Workspaces (like VMs but for coding)
 - [ ] App-wide search
-- [ ] Subject selection (example lessons)
 - [ ] Club pages / discussions
 - [ ] Excursions (permission forms)
 - [ ] Whole school metrics
 - [ ] Class chat
-- [ ] AI tutor audit trails
 - [ ] AI presentations
-- [ ] Parent/teacher interviews
-- [ ] Create news
 - [ ] Notifications for high interaction with discussion (eg 10 upvotes)
-- [ ] School map / directions
 - [ ] Plagiarism detection
-- [ ] Keyboard shortcuts
 - [ ] Class location shifts
 - [ ] See teacher's feedback
-- [ ] Teacher to parent comms (one way)
 - [ ] Events appearing in everyone's timetables
 - [ ] Lesson / class plan marketplace
-- [ ] Auto generated summaries of discussions
 - [ ] Contractors signing in with working with childrens checks (eg school photographers)
-- [ ] Interactive map of locations in the school
+- [ ] Interactive map of locations in the school with directions
+- [ ] Keyboard shortcuts
 
 # UI Feedback
 
