@@ -21,19 +21,19 @@ This list is ordered by priority, with the highest priority at the top and the l
 
 All
 
-- [ ] Security review e.g. prompt injection
+- [ ] Security review e.g. prompt injection (Late October)
 
 Lachie
 
-- [ ] Move home above discussion in sidebar if only 1 class
-- [ ] Roll call / attendance
-- [ ] Sick/not coming to school/absence/late notifications
-- [ ] Behavioural reporting
-- [ ] Teachers can see attendance
-- [ ] Parents can see some/all of the above
-- [ ] Class tests / quizzes
-- [ ] Admin dashboard allocations page
-- [ ] Home page
+- [ ] Move home above discussion in sidebar if only 1 class (13/07)
+- [ ] Roll call / attendance (20/07)
+- [ ] Teachers can see attendance (23/07)
+- [ ] Class tests / quizzes (27/07)
+- [ ] Sick/not coming to school/absence/late notifications (27/07)
+- [ ] Behavioural reporting (07/08)
+- [ ] Parents can see some/all of the above (15/08)
+- [ ] Admin dashboard allocations page (20/08)
+- [ ] Home page (20/10)
 
 Jack
 
