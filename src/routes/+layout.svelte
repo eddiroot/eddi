@@ -50,8 +50,13 @@
 				const subjectOfferingId = Number(segment);
 				const subject = data?.subjects?.find((s) => s.subjectOffering.id === subjectOfferingId);
 				label = subject?.subject.name || `Subject ${segment}`;
-			} else if (segments[i - 2] === 'subjects' && !isNaN(Number(segments[i - 1])) && !isNaN(Number(segment))) {
-				const subjectOfferingId = Number(segments[i - 1]);
+			} else if (
+				segments[i - 1] === 'class' &&
+				segments[i - 2] &&
+				!isNaN(Number(segments[i - 2]))
+			) {
+				// This is the class ID in /subjects/[subjectOfferingId]/class/[classId]
+				const subjectOfferingId = Number(segments[i - 2]);
 				const classId = Number(segment);
 				const subject = data?.subjects?.find((s) => s.subjectOffering.id === subjectOfferingId);
 				const classItem = subject?.classes?.find((c) => c.id === classId);

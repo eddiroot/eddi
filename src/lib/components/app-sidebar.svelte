@@ -130,7 +130,7 @@
 
 	// Helper function to check if a class is active
 	function isClassActive(subjectOfferingId: string, classId: string): boolean {
-		return page.url.pathname.startsWith(`/subjects/${subjectOfferingId}/${classId}`);
+		return page.url.pathname.startsWith(`/subjects/${subjectOfferingId}/class/${classId}`);
 	}
 
 	// Helper function to check if a subject sub-item is active
@@ -153,7 +153,7 @@
 		classId: string,
 		subUrl: string
 	): boolean {
-		const classBasePath = `/subjects/${subjectOfferingId}/${classId}`;
+		const classBasePath = `/subjects/${subjectOfferingId}/class/${classId}`;
 
 		if (subUrl === '') {
 			// For home (empty subUrl), only match the exact base path
@@ -367,7 +367,7 @@
 												>
 													{#snippet child({ props })}
 														<a
-															href={`/subjects/${subject.subjectOffering.id}/${singleClass.id}/${homeItem.url}`}
+															href={`/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${homeItem.url}`}
 															{...props}
 														>
 															<homeItem.icon />
@@ -410,7 +410,7 @@
 												>
 													{#snippet child({ props })}
 														<a
-															href={`/subjects/${subject.subjectOffering.id}/${singleClass.id}/${item.url}`}
+															href={`/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${item.url}`}
 															{...props}
 														>
 															<item.icon />
@@ -478,7 +478,7 @@
 																>
 																	{#snippet child({ props })}
 																		<a
-																			href={`/subjects/${subject.subjectOffering.id}/${classItem.id}/${item.url}`}
+																			href={`/subjects/${subject.subjectOffering.id}/class/${classItem.id}/${item.url}`}
 																			{...props}
 																		>
 																			<item.icon />
