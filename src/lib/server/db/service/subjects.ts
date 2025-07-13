@@ -633,3 +633,38 @@ export async function getTasksBySubjectOfferingId(subjectOfferingId: number) {
 
 	return offeringTasks;
 }
+
+export async function getResourcesBySubjectOfferingId(subjectOfferingId: number) {
+	const resources = await db
+		.select({
+			resource: table.subjectOfferingClassResource,
+		})
+		.from(table.subjectOfferingClassResource)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.subjectOfferingClassResource.subjectOfferingClassId)
+		)
+		.where(eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingId));
+
+	return resources;
+}
+
+export async function getAssessmentsBySubjectOfferingId(subjectOfferingId: number) {
+	const assessments = await db
+		.select({
+			task: table.task,
+		})
+		.from(table.subjectOfferingClassTask)
+		.innerJoin(
+			table.task,
+			eq(table.task.id, table.subjectOfferingClassTask.taskId)
+		)
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingId),
+				eq(table.task.type, table.taskTypeEnum.assessment)
+			)
+		);
+
+	return assessments;
+}

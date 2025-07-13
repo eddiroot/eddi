@@ -1,28 +1,8 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { formatTime, getDayIndex, days, addTimeAndDuration } from '$lib/utils.js';
 
 	let { data } = $props();
-
-	const assessments = [
-		{ name: 'Test 1 - Functions and Relations', dueDate: '2025-07-15', type: 'Test' },
-		{ name: 'SAC 1 - Calculus Application', dueDate: '2025-07-22', type: 'SAC' }
-	];
-
-	const resources = [
-		{ title: 'PowerPoint on imaginary numbers week 3', type: 'Presentation' },
-		{ title: 'Textbook - linear algebra textbook', type: 'PDF' },
-		{ title: 'Video on calculus applications', type: 'Video' },
-		{ title: 'Worksheet on functions', type: 'Worksheet' },
-		{ title: 'Revision guide for SAC 1', type: 'Revision Guide' },
-		{ title: 'Practice questions for Test 1', type: 'Practice Questions' },
-		{ title: 'Online quiz on functions', type: 'Quiz' },
-		{ title: 'Interactive graphing tool', type: 'Tool' },
-		{ title: 'Forum discussion on calculus', type: 'Discussion' },
-		{ title: 'Past exam papers', type: 'Exam Papers' }
-	];
 
 	// const sortedUserClasses = $derived(() => {
 	// 	type UserClass = (typeof data.userClasses)[0];
@@ -52,7 +32,7 @@
 		<div>
 			<h1 class="text-foreground text-3xl font-bold">Placeholder Name</h1>
 			<p class="text-muted-foreground mt-1">
-				Teacher: {data.thisClassTeachers
+				Teacher: {data.thisSubjectOfferingTeachers
 					.map((teacher) => `${teacher.teacher.firstName} ${teacher.teacher.lastName}`)
 					.join(', ')}
 			</p>
@@ -78,14 +58,11 @@
 			<Card.Content>
 				<ScrollArea class="h-100">
 					<div class="space-y-2 pr-4">
-						{#each assessments as assessment}
+						{#each data.assessments as assessment}
 							<div class="border-border rounded-lg border p-3">
 								<div class="flex items-start justify-between">
 									<div class="flex-1">
-										<h4 class="text-foreground text-sm font-medium">{assessment.name}</h4>
-										<Badge variant="secondary" class="mt-1 text-xs">
-											{assessment.type}
-										</Badge>
+										<h4 class="text-foreground text-sm font-medium">{assessment.task.title}</h4>
 									</div>
 								</div>
 							</div>
@@ -142,14 +119,11 @@
 			<Card.Content>
 				<ScrollArea class="h-100">
 					<div class="space-y-2 pr-4">
-						{#each resources as resource}
+						{#each data.resources as resource}
 							<div class="border-border rounded-lg border p-3">
 								<h4 class="text-foreground text-sm leading-tight font-medium">
-									{resource.title}
+									resourse name placeholder
 								</h4>
-								<Badge variant="outline" class="mt-2 text-xs">
-									{resource.type}
-								</Badge>
 							</div>
 						{/each}
 					</div>
@@ -165,7 +139,7 @@
 			<Card.Content>
 				<ScrollArea class="h-100">
 					<div class="space-y-2">
-						{#each data.thisClassTeachers as teacher}
+						{#each data.thisSubjectOfferingTeachers as teacher}
 							<div class="border-border rounded-lg border p-3">
 								<h4 class="text-foreground text-sm font-medium">
 									{teacher.teacher.firstName}
