@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, boolean, pgEnum, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { school } from './schools';
 
@@ -53,7 +53,7 @@ export const userGenderEnumPg = pgEnum('gender', [
 ]);
 
 export const user = pgTable('user', {
-	id: text('id').primaryKey(),
+	id: uuid().defaultRandom().primaryKey(),
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
 	schoolId: integer('school_id')

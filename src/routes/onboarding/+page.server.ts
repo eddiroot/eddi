@@ -1,7 +1,8 @@
 import { fail } from '@sveltejs/kit';
 import { createUser } from '$lib/server/db/service/user';
 import { createSchool } from '$lib/server/db/service/schools';
-import { message } from 'sveltekit-superforms';
+import type { userTypeEnum } from '$lib/server/db/schema/user.js';
+import { hash } from '@node-rs/argon2';
 
 export const actions = {
 	default: async ({ request }) => {
@@ -22,7 +23,8 @@ export const actions = {
 		else if (password.length < 8) errors.password = 'Password must be at least 8 characters';
 		if (!passwordConfirm) errors.passwordConfirm = 'Please confirm your password';
 		else if (password !== passwordConfirm) errors.passwordConfirm = 'Passwords do not match';
-		if (!schoolName) errors.schoolName = 'School ID is missing. Please complete school details first.';
+		if (!schoolName)
+			errors.schoolName = 'School ID is missing. Please complete school details first.';
 
 		if (Object.keys(errors).length > 0) {
 			return fail(400, { errors });
@@ -30,20 +32,17 @@ export const actions = {
 
 		try {
 			const school = await createSchool(schoolName as string);
-
-
-			// Generate a unique id for the user, e.g., using crypto.randomUUID()
-			const userId = crypto.randomUUID();
+			const passwordHash = await hash(password as string);
 
 			await createUser(
-				userId,
 				email as string,
-				password as string, // You may want to hash the password before passing
+				passwordHash,
 				school.id,
-				'admin', // or the appropriate userTypeEnum value
+				'admin' as userTypeEnum,
 				firstName as string,
-				lastName as string,
+				lastName as string
 			);
+
 			return { success: true };
 		} catch (error) {
 			if (error instanceof Error && error.message.includes('already exists')) {
@@ -53,4 +52,4 @@ export const actions = {
 			return fail(500, { errors: { general: 'Failed to create admin user.' } });
 		}
 	}
-}; 
+};

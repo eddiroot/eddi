@@ -1,6 +1,7 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc } from 'drizzle-orm';
+import { getTableDayOfWeek } from './util';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -226,8 +227,8 @@ export async function createSubjectThreadResponse(
 	return response;
 }
 
-export async function getSubjectClassAllocationByUserId(userId: string) {
-	const classAllocation = await db
+export async function getSubjectClassAllocationsByUserId(userId: string) {
+	const classAllocations = await db
 		.select({
 			classAllocation: table.subjectClassAllocation,
 			schoolLocation: table.schoolLocation,
@@ -268,22 +269,11 @@ export async function getSubjectClassAllocationByUserId(userId: string) {
 		.where(eq(table.userSubjectOfferingClass.userId, userId))
 		.orderBy(desc(table.subjectClassAllocation.startTime));
 
-	return classAllocation;
+	return classAllocations;
 }
 
 export async function getSubjectClassAllocationsByUserIdForToday(userId: string) {
-	const today = new Date();
-	const todayDayOfWeek = today.getDay();
-	const dayOfWeekKeys = [
-		'sunday',
-		'monday',
-		'tuesday',
-		'wednesday',
-		'thursday',
-		'friday',
-		'saturday'
-	] as const;
-	const tableDayOfWeek = table.dayOfWeekEnum[dayOfWeekKeys[todayDayOfWeek]];
+	const tableDayOfWeek = getTableDayOfWeek();
 
 	const classAllocation = await db
 		.select({
@@ -332,6 +322,55 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 		.orderBy(table.subjectClassAllocation.startTime); // Order by start time (earliest first) for today's schedule
 
 	return classAllocation;
+}
+
+export async function getSubjectClassAllocationAndAttendancesByClassIdForToday(
+	subjectOfferingClassId: number
+) {
+	const tableDayOfWeek = getTableDayOfWeek();
+
+	const attendances = await db
+		.select({
+			attendance: table.subjectClassAllocationAttendance,
+			user: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				avatarUrl: table.user.avatarUrl
+			},
+			subjectClassAllocation: {
+				id: table.subjectClassAllocation.id
+			}
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(table.user, eq(table.user.id, table.userSubjectOfferingClass.userId))
+		.innerJoin(
+			table.subjectClassAllocation,
+			eq(
+				table.subjectClassAllocation.subjectOfferingClassId,
+				table.userSubjectOfferingClass.subOffClassId
+			)
+		)
+		.leftJoin(
+			table.subjectClassAllocationAttendance,
+			and(
+				eq(
+					table.subjectClassAllocationAttendance.subjectClassAllocationId,
+					table.subjectClassAllocation.id
+				),
+				eq(table.subjectClassAllocationAttendance.userId, table.user.id)
+			)
+		)
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
+				eq(table.subjectClassAllocation.dayOfWeek, tableDayOfWeek)
+			)
+		)
+		.orderBy(desc(table.userSubjectOfferingClass.role), table.user.lastName, table.user.firstName);
+
+	return attendances;
 }
 
 export async function getClassesForUserInSubjectOffering(
@@ -637,7 +676,7 @@ export async function getTasksBySubjectOfferingId(subjectOfferingId: number) {
 export async function getResourcesBySubjectOfferingId(subjectOfferingId: number) {
 	const resources = await db
 		.select({
-			resource: table.subjectOfferingClassResource,
+			resource: table.subjectOfferingClassResource
 		})
 		.from(table.subjectOfferingClassResource)
 		.innerJoin(
@@ -652,13 +691,10 @@ export async function getResourcesBySubjectOfferingId(subjectOfferingId: number)
 export async function getAssessmentsBySubjectOfferingId(subjectOfferingId: number) {
 	const assessments = await db
 		.select({
-			task: table.task,
+			task: table.task
 		})
 		.from(table.subjectOfferingClassTask)
-		.innerJoin(
-			table.task,
-			eq(table.task.id, table.subjectOfferingClassTask.taskId)
-		)
+		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingClassTask.taskId))
 		.where(
 			and(
 				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingId),
@@ -667,4 +703,33 @@ export async function getAssessmentsBySubjectOfferingId(subjectOfferingId: numbe
 		);
 
 	return assessments;
+}
+
+export async function upsertSubjectClassAllocationAttendance(
+	subjectClassAllocationId: number,
+	userId: string,
+	didAttend: boolean,
+	note?: string | null
+) {
+	const [attendance] = await db
+		.insert(table.subjectClassAllocationAttendance)
+		.values({
+			subjectClassAllocationId,
+			userId,
+			didAttend,
+			note
+		})
+		.onConflictDoUpdate({
+			target: [
+				table.subjectClassAllocationAttendance.subjectClassAllocationId,
+				table.subjectClassAllocationAttendance.userId
+			],
+			set: {
+				didAttend,
+				note
+			}
+		})
+		.returning();
+
+	return attendance;
 }

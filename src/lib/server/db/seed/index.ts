@@ -204,7 +204,7 @@ async function seed() {
 		});
 
 		// Initialize VCAA scraper and scrape core subjects
-		console.log('🎯 Initializing VCAA F-10 curriculum scraper...');
+		console.log('🎯 Initialising VCAA F-10 curriculum scraper...');
 		const scraper = new VCAAF10Scraper();
 
 		// Scrape core subject content from VCAA

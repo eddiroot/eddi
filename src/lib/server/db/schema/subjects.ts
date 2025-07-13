@@ -189,6 +189,7 @@ export const subjectClassAllocation = pgTable('sub_class_allo', {
 	schoolLocationId: integer('sch_loc_id')
 		.notNull()
 		.references(() => schoolLocation.id, { onDelete: 'set null' }),
+	// These need to change to start timestamp and end timestamp
 	dayOfWeek: dayOfWeekEnumPg().notNull(),
 	startTime: time('start_time').notNull(),
 	duration: interval('duration').notNull(),
@@ -197,6 +198,27 @@ export const subjectClassAllocation = pgTable('sub_class_allo', {
 });
 
 export type SubjectClassAllocation = typeof subjectClassAllocation.$inferSelect;
+
+export const subjectClassAllocationAttendance = pgTable(
+	'sub_class_allo_attendance',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		subjectClassAllocationId: integer('sub_class_allo_id')
+			.notNull()
+			.references(() => subjectClassAllocation.id, { onDelete: 'cascade' }),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		wasAbsent: boolean('was_absent').notNull().default(false),
+		didAttend: boolean('did_attend').notNull().default(false),
+		note: text('note'),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.subjectClassAllocationId, self.userId)]
+);
+
+export type SubjectClassAllocationAttendance = typeof subjectClassAllocationAttendance.$inferSelect;
 
 export enum subjectThreadTypeEnum {
 	discussion = 'discussion',

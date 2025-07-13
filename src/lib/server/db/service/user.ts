@@ -39,38 +39,36 @@ export async function verifyUserAccessToSubjectOffering(
 }
 
 export async function createUser(
-	id: string,
-    email: string,
-    passwordHash: string,
+	email: string,
+	passwordHash: string,
 	schoolId: number,
-    type: table.userTypeEnum,
-    firstName: string,
-    lastName: string,
-    gender?: table.userGenderEnum,
-    dateOfBirth?: Date,
-    honorific?: table.userHonorificEnum,
-    middleName?: string,
-    avatarUrl?: string,
+	type: table.userTypeEnum,
+	firstName: string,
+	lastName: string,
+	gender?: table.userGenderEnum,
+	dateOfBirth?: Date,
+	honorific?: table.userHonorificEnum,
+	middleName?: string,
+	avatarUrl?: string,
 	isArchived?: boolean
 ) {
-    const [user] = await db
-        .insert(table.user)
-        .values({
-			id,
-            email,
-            passwordHash,
+	const [user] = await db
+		.insert(table.user)
+		.values({
+			email,
+			passwordHash,
 			schoolId,
-            type,
-            firstName,
-            lastName,
-            gender,
-            dateOfBirth,
-            honorific,
-            middleName,
-            avatarUrl,
-			isArchived,
-        })
-        .returning();
+			type,
+			firstName,
+			lastName,
+			gender,
+			dateOfBirth,
+			honorific,
+			middleName,
+			avatarUrl,
+			isArchived
+		})
+		.returning();
 
-    return user;
+	return user;
 }
