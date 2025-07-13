@@ -148,7 +148,11 @@
 	}
 
 	// Helper function to check if a class sub-item is active
-	function isClassSubItemActive(subjectOfferingId: string, classId: string, subUrl: string): boolean {
+	function isClassSubItemActive(
+		subjectOfferingId: string,
+		classId: string,
+		subUrl: string
+	): boolean {
 		const classBasePath = `/subjects/${subjectOfferingId}/${classId}`;
 
 		if (subUrl === '') {
@@ -347,32 +351,55 @@
 							</Collapsible.Trigger>
 							<Collapsible.Content>
 								<Sidebar.MenuSub>
-									<!-- Always show subject-level items first -->
-									{#each subjectItems as item}
-										<Sidebar.MenuSubItem>
-											<Sidebar.MenuSubButton
-												isActive={isSubjectSubItemActive(
-													subject.subjectOffering.id.toString(),
-													item.url
-												)}
-											>
-												{#snippet child({ props })}
-													<a
-														href={`/subjects/${subject.subjectOffering.id}/${item.url}`}
-														{...props}
-													>
-														<item.icon />
-														<span>{item.title}</span>
-													</a>
-												{/snippet}
-											</Sidebar.MenuSubButton>
-										</Sidebar.MenuSubItem>
-									{/each}
-									
 									{#if subject.classes.length === 1}
-										<!-- Single class: show class items directly -->
+										<!-- Single class: show class items directly, with Home first -->
 										{@const singleClass = subject.classes[0]}
-										{#each classItems as item}
+										<!-- Show Home first -->
+										{@const homeItem = classItems.find((item) => item.url === '')}
+										{#if homeItem}
+											<Sidebar.MenuSubItem>
+												<Sidebar.MenuSubButton
+													isActive={isClassSubItemActive(
+														subject.subjectOffering.id.toString(),
+														singleClass.id.toString(),
+														homeItem.url
+													)}
+												>
+													{#snippet child({ props })}
+														<a
+															href={`/subjects/${subject.subjectOffering.id}/${singleClass.id}/${homeItem.url}`}
+															{...props}
+														>
+															<homeItem.icon />
+															<span>{homeItem.title}</span>
+														</a>
+													{/snippet}
+												</Sidebar.MenuSubButton>
+											</Sidebar.MenuSubItem>
+										{/if}
+										<!-- Then show subject-level items like Discussion -->
+										{#each subjectItems as item}
+											<Sidebar.MenuSubItem>
+												<Sidebar.MenuSubButton
+													isActive={isSubjectSubItemActive(
+														subject.subjectOffering.id.toString(),
+														item.url
+													)}
+												>
+													{#snippet child({ props })}
+														<a
+															href={`/subjects/${subject.subjectOffering.id}/${item.url}`}
+															{...props}
+														>
+															<item.icon />
+															<span>{item.title}</span>
+														</a>
+													{/snippet}
+												</Sidebar.MenuSubButton>
+											</Sidebar.MenuSubItem>
+										{/each}
+										<!-- Then show remaining class items (excluding Home) -->
+										{#each classItems.filter((item) => item.url !== '') as item}
 											<Sidebar.MenuSubItem>
 												<Sidebar.MenuSubButton
 													isActive={isClassSubItemActive(
@@ -394,6 +421,27 @@
 											</Sidebar.MenuSubItem>
 										{/each}
 									{:else}
+										<!-- Multiple classes: show subject-level items first, then collapsible classes -->
+										{#each subjectItems as item}
+											<Sidebar.MenuSubItem>
+												<Sidebar.MenuSubButton
+													isActive={isSubjectSubItemActive(
+														subject.subjectOffering.id.toString(),
+														item.url
+													)}
+												>
+													{#snippet child({ props })}
+														<a
+															href={`/subjects/${subject.subjectOffering.id}/${item.url}`}
+															{...props}
+														>
+															<item.icon />
+															<span>{item.title}</span>
+														</a>
+													{/snippet}
+												</Sidebar.MenuSubButton>
+											</Sidebar.MenuSubItem>
+										{/each}
 										<!-- Multiple classes: show collapsible classes -->
 										{#each subject.classes as classItem}
 											<Collapsible.Root
@@ -403,7 +451,10 @@
 												<Collapsible.Trigger>
 													{#snippet child({ props })}
 														<Sidebar.MenuSubButton
-															isActive={isClassActive(subject.subjectOffering.id.toString(), classItem.id.toString())}
+															isActive={isClassActive(
+																subject.subjectOffering.id.toString(),
+																classItem.id.toString()
+															)}
 															{...props}
 														>
 															<HomeIcon />
