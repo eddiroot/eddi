@@ -19,3 +19,21 @@ export async function verifyUserAccessToClass(
 		.limit(1);
 	return userAccess.length > 0;
 }
+
+export async function verifyUserAccessToSubjectOffering(
+	userId: string,
+	subjectOfferingId: number
+): Promise<boolean> {
+	const userAccess = await db
+		.select()
+		.from(table.userSubjectOffering)
+		.where(
+			and(
+				eq(table.userSubjectOffering.userId, userId),
+				eq(table.userSubjectOffering.subOfferingId, subjectOfferingId),
+				eq(table.userSubjectOffering.isArchived, 0)
+			)
+		)
+		.limit(1);
+	return userAccess.length > 0;
+}

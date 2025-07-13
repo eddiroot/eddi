@@ -34,6 +34,47 @@ export async function getSubjectsOfferingsUserSubjectOfferingsByUserId(userId: s
 	return subjectOfferings;
 }
 
+export async function getSubjectOfferingClassDetailsById(subjectOfferingClassId: number) {
+	const subjectOfferingClass = await db
+		.select({
+			subjectOfferingClass: table.subjectOfferingClass,
+			subjectOffering: table.subjectOffering,
+			subject: table.subject,
+			coreSubject: table.coreSubject,
+			electiveSubject: table.electiveSubject
+		})
+		.from(table.subjectOfferingClass)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.subjectOfferingClass.subOfferingId)
+		)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.leftJoin(table.coreSubject, eq(table.coreSubject.id, table.subject.coreSubjectId))
+		.leftJoin(table.electiveSubject, eq(table.electiveSubject.id, table.subject.electiveSubjectId))
+		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
+		.limit(1);
+
+	return subjectOfferingClass?.length ? subjectOfferingClass[0] : null;
+}
+
+export async function getSubjectOfferingById(subjectOfferingId: number) {
+	const subjectOffering = await db
+		.select({
+			subjectOffering: table.subjectOffering,
+			subject: table.subject,
+			coreSubject: table.coreSubject,
+			electiveSubject: table.electiveSubject
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.leftJoin(table.coreSubject, eq(table.coreSubject.id, table.subject.coreSubjectId))
+		.leftJoin(table.electiveSubject, eq(table.electiveSubject.id, table.subject.electiveSubjectId))
+		.where(eq(table.subjectOffering.id, subjectOfferingId))
+		.limit(1);
+
+	return subjectOffering?.length ? subjectOffering[0] : null;
+}
+
 export async function getSubjectById(subjectId: number) {
 	const subject = await db
 		.select({ subject: table.subject })
@@ -573,4 +614,22 @@ export async function getTeachersBySubjectOfferingClassId(subjectOfferingClassId
 		);
 
 	return teachers;
+}
+
+export async function getTasksBySubjectOfferingId(subjectOfferingId: number) {
+	const offeringTasks = await db
+		.select({
+			subjectOfferingClassTask: table.subjectOfferingClassTask,
+			task: table.task,
+			courseMapItem: table.courseMapItem
+		})
+		.from(table.subjectOfferingClassTask)
+		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
+		.leftJoin(
+			table.courseMapItem,
+			eq(table.courseMapItem.id, table.subjectOfferingClassTask.courseMapItemId)
+		)
+		.where(and(eq(table.courseMapItem.subjectOfferingId, subjectOfferingId)));
+
+	return offeringTasks;
 }

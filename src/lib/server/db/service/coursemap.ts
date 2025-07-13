@@ -2,8 +2,9 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq, and, inArray, asc, max } from 'drizzle-orm';
 
-export async function getMaxVersionForCourseMapBySubjectOfferingId(subjectOfferingId: number) {
-	// Get the maximum version of the course map item for this subject offering class
+export async function getLatestVersionForCourseMapItemBySubjectOfferingId(
+	subjectOfferingId: number
+) {
 	const [version] = await db
 		.select({ max: max(table.courseMapItem.version) })
 		.from(table.courseMapItem)
@@ -17,6 +18,7 @@ export async function getMaxVersionForCourseMapBySubjectOfferingId(subjectOfferi
 
 	return version?.max ?? null;
 }
+
 export async function getCourseMapItemsBySubjectOfferingId(subjectOfferingId: number) {
 	const courseMapItems = await db
 		.select({
@@ -27,6 +29,36 @@ export async function getCourseMapItemsBySubjectOfferingId(subjectOfferingId: nu
 		.orderBy(asc(table.courseMapItem.semester), asc(table.courseMapItem.startWeek));
 
 	return courseMapItems;
+}
+
+export async function getCourseMapItemAndLearningAreaByVersionAndBySubjectOfferingId(
+	subjectOfferingId: number,
+	version: number
+) {
+	const items = await db
+		.select({
+			courseMapItem: table.courseMapItem,
+			learningArea: table.learningArea
+		})
+		.from(table.courseMapItem)
+		.leftJoin(
+			table.courseMapItemLearningArea,
+			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
+		)
+		.leftJoin(
+			table.learningArea,
+			eq(table.learningArea.id, table.courseMapItemLearningArea.learningAreaId)
+		)
+		.where(
+			and(
+				eq(table.courseMapItem.subjectOfferingId, subjectOfferingId),
+				eq(table.courseMapItem.version, version),
+				eq(table.courseMapItem.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.courseMapItem.startWeek), asc(table.courseMapItem.semester));
+
+	return items;
 }
 
 export async function getCourseMapItemById(courseMapItemId: number) {

@@ -2,9 +2,17 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq, and, asc, desc } from 'drizzle-orm';
 import { getTasksBySubjectOfferingClassId } from './task';
-import { verifyUserAccessToClass } from './user';
-import { getMaxVersionForCourseMapBySubjectOfferingId } from './coursemap';
+import { verifyUserAccessToClass, verifyUserAccessToSubjectOffering } from './user';
+import {
+	getCourseMapItemAndLearningAreaByVersionAndBySubjectOfferingId,
+	getLatestVersionForCourseMapItemBySubjectOfferingId
+} from './coursemap';
 import type { SubjectContextData } from '../../../../routes/api/chatbot/constants';
+import {
+	getSubjectOfferingById,
+	getSubjectOfferingClassDetailsById,
+	getTasksBySubjectOfferingId
+} from './subjects';
 
 // For simplicity, we will grab all of the coursemap topics and descriptions as well as the lesson names and descriptions to
 // provide context for the subject offering. This will be used to answer questions about the subject offering in the chatbot.
@@ -23,65 +31,25 @@ export async function getSubjectOfferingClassContextForChatbot(
 		throw new Error('User does not have access to this subject offering class');
 	}
 
-	// Get subject offering class details
-	const subjectOfferingClass = await db
-		.select({
-			subjectOfferingClass: table.subjectOfferingClass,
-			subjectOffering: table.subjectOffering,
-			subject: table.subject,
-			coreSubject: table.coreSubject,
-			electiveSubject: table.electiveSubject
-		})
-		.from(table.subjectOfferingClass)
-		.innerJoin(
-			table.subjectOffering,
-			eq(table.subjectOffering.id, table.subjectOfferingClass.subOfferingId)
-		)
-		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
-		.leftJoin(table.coreSubject, eq(table.coreSubject.id, table.subject.coreSubjectId))
-		.leftJoin(table.electiveSubject, eq(table.electiveSubject.id, table.subject.electiveSubjectId))
-		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
-		.limit(1);
+	const classData = await getSubjectOfferingClassDetailsById(subjectOfferingClassId);
 
-	if (subjectOfferingClass.length === 0) {
+	if (!classData) {
 		throw new Error('Subject offering class not found');
 	}
 
-	const classData = subjectOfferingClass[0];
-
-	const maxVersion = await getMaxVersionForCourseMapBySubjectOfferingId(
+	const maxVersion = await getLatestVersionForCourseMapItemBySubjectOfferingId(
 		classData.subjectOffering.id
 	);
 
 	if (maxVersion === null) {
-		throw new Error('No course map items found for this subject offering class');
+		throw new Error('No course map item/s found for this subject offering class');
 	}
 
-	// Get all course map items for this subject offering
-	const courseMapItems = await db
-		.select({
-			courseMapItem: table.courseMapItem,
-			learningArea: table.learningArea
-		})
-		.from(table.courseMapItem)
-		.leftJoin(
-			table.courseMapItemLearningArea,
-			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
-		)
-		.leftJoin(
-			table.learningArea,
-			eq(table.learningArea.id, table.courseMapItemLearningArea.learningAreaId)
-		)
-		.where(
-			and(
-				eq(table.courseMapItem.subjectOfferingId, classData.subjectOffering.id),
-				eq(table.courseMapItem.version, maxVersion),
-				eq(table.courseMapItem.isArchived, false)
-			)
-		)
-		.orderBy(asc(table.courseMapItem.startWeek), asc(table.courseMapItem.semester));
+	const courseMapItems = await getCourseMapItemAndLearningAreaByVersionAndBySubjectOfferingId(
+		classData.subjectOffering.id,
+		maxVersion
+	);
 
-	// Group course map items with their learning areas
 	const groupedCourseMapItems = courseMapItems.reduce(
 		(acc, item) => {
 			const existingItem = acc.find((i) => i.courseMapItem.id === item.courseMapItem.id);
@@ -107,7 +75,6 @@ export async function getSubjectOfferingClassContextForChatbot(
 
 	const classTasks = await getTasksBySubjectOfferingClassId(userId, subjectOfferingClassId);
 
-	// Format the context data for the chatbot
 	const context = {
 		subjectInfo: {
 			id: classData.subjectOfferingClass.id,
@@ -145,46 +112,19 @@ export async function getSubjectOfferingContextForChatbot(
 	userId: string,
 	subjectOfferingId: number
 ): Promise<SubjectContextData> {
-	// First verify the user has access to this subject offering
-	const userAccess = await db
-		.select()
-		.from(table.userSubjectOffering)
-		.where(
-			and(
-				eq(table.userSubjectOffering.userId, userId),
-				eq(table.userSubjectOffering.subOfferingId, subjectOfferingId),
-				eq(table.userSubjectOffering.isArchived, 0)
-			)
-		)
-		.limit(1);
+	const hasAccess = await verifyUserAccessToSubjectOffering(userId, subjectOfferingId);
 
-	if (userAccess.length === 0) {
+	if (!hasAccess) {
 		throw new Error('User does not have access to this subject offering');
 	}
 
-	// Get subject offering details
-	const subjectOffering = await db
-		.select({
-			subjectOffering: table.subjectOffering,
-			subject: table.subject,
-			coreSubject: table.coreSubject,
-			electiveSubject: table.electiveSubject
-		})
-		.from(table.subjectOffering)
-		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
-		.leftJoin(table.coreSubject, eq(table.coreSubject.id, table.subject.coreSubjectId))
-		.leftJoin(table.electiveSubject, eq(table.electiveSubject.id, table.subject.electiveSubjectId))
-		.where(eq(table.subjectOffering.id, subjectOfferingId))
-		.limit(1);
+	const offeringData = await getSubjectOfferingById(subjectOfferingId);
 
-	if (subjectOffering.length === 0) {
+	if (!offeringData) {
 		throw new Error('Subject offering not found');
 	}
 
-	const offeringData = subjectOffering[0];
-
-	// Get the latest course map version for this subject offering
-	const maxVersion = await getMaxVersionForCourseMapBySubjectOfferingId(
+	const maxVersion = await getLatestVersionForCourseMapItemBySubjectOfferingId(
 		offeringData.subjectOffering.id
 	);
 
@@ -192,29 +132,10 @@ export async function getSubjectOfferingContextForChatbot(
 		throw new Error('No course map items found for this subject offering');
 	}
 
-	// Get all course map items for this subject offering
-	const courseMapItems = await db
-		.select({
-			courseMapItem: table.courseMapItem,
-			learningArea: table.learningArea
-		})
-		.from(table.courseMapItem)
-		.leftJoin(
-			table.courseMapItemLearningArea,
-			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
-		)
-		.leftJoin(
-			table.learningArea,
-			eq(table.learningArea.id, table.courseMapItemLearningArea.learningAreaId)
-		)
-		.where(
-			and(
-				eq(table.courseMapItem.subjectOfferingId, subjectOfferingId),
-				eq(table.courseMapItem.version, maxVersion),
-				eq(table.courseMapItem.isArchived, false)
-			)
-		)
-		.orderBy(asc(table.courseMapItem.startWeek), asc(table.courseMapItem.semester));
+	const courseMapItems = await getCourseMapItemAndLearningAreaByVersionAndBySubjectOfferingId(
+		offeringData.subjectOffering.id,
+		maxVersion
+	);
 
 	// Group course map items with their learning areas
 	const groupedCourseMapItems = courseMapItems.reduce(
@@ -241,19 +162,7 @@ export async function getSubjectOfferingContextForChatbot(
 	);
 
 	// Get all tasks for this subject offering (not class-specific)
-	const offeringTasks = await db
-		.select({
-			subjectOfferingClassTask: table.subjectOfferingClassTask,
-			task: table.task,
-			courseMapItem: table.courseMapItem
-		})
-		.from(table.subjectOfferingClassTask)
-		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
-		.leftJoin(
-			table.courseMapItem,
-			eq(table.courseMapItem.id, table.subjectOfferingClassTask.courseMapItemId)
-		)
-		.where(and(eq(table.courseMapItem.subjectOfferingId, subjectOfferingId)));
+	const offeringTasks = await getTasksBySubjectOfferingId(subjectOfferingId);
 
 	// Format the context data for the chatbot
 	const context = {
