@@ -24,6 +24,7 @@
 	import { page } from '$app/state';
 	import OrbitIcon from '@lucide/svelte/icons/orbit';
 	import LocationEdit from '@lucide/svelte/icons/location-edit';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	const items = [
 		{
@@ -47,31 +48,41 @@
 		}
 	];
 
-	const subjectItems = [
-		{
-			title: 'Discussion',
-			url: 'discussion',
-			icon: MessagesSquareIcon
-		}
-	];
-
-	const classItems = [
+	const nestedItems = [
 		{
 			title: 'Home',
 			url: '',
-			icon: HomeIcon
+			icon: HomeIcon,
+			classLevel: true
+		},
+		{
+			title: 'Attendance',
+			url: 'attendance',
+			icon: UsersIcon,
+			classLevel: true
+		},
+		{
+			title: 'Discussion',
+			url: 'discussion',
+			icon: MessagesSquareIcon,
+			classLevel: false
 		},
 		{
 			title: 'Tasks',
 			url: 'tasks',
-			icon: BookOpenCheckIcon
+			icon: BookOpenCheckIcon,
+			classLevel: true
 		},
 		{
 			title: 'Analytics',
 			url: 'analytics',
-			icon: BarChart3Icon
+			icon: BarChart3Icon,
+			classLevel: true
 		}
 	];
+
+	const classItems = nestedItems.filter((item) => item.classLevel);
+	const subjectItems = nestedItems.filter((item) => !item.classLevel);
 
 	const subjectNameToIcon = (name: string) => {
 		if (name.toLowerCase().includes('math')) {
@@ -288,6 +299,35 @@
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
+		{#if subjects.some((subject) => subject.classes.length > 1) && subjectItems.length > 0}
+			<Sidebar.Group>
+				<Sidebar.GroupContent>
+					<Sidebar.Menu>
+						{#each subjectItems as item}
+							{#each subjects.filter((subject) => subject.classes.length > 1) as subject}
+								<Sidebar.MenuItem>
+									<Sidebar.MenuButton
+										side="left"
+										isActive={isSubjectSubItemActive(
+											subject.subjectOffering.id.toString(),
+											item.url
+										)}
+										tooltipContent={`${subject.subject.name} - ${item.title}`}
+									>
+										{#snippet child({ props })}
+											<a href={`/subjects/${subject.subjectOffering.id}/${item.url}`} {...props}>
+												<item.icon />
+												<span>{subject.subject.name} - {item.title}</span>
+											</a>
+										{/snippet}
+									</Sidebar.MenuButton>
+								</Sidebar.MenuItem>
+							{/each}
+						{/each}
+					</Sidebar.Menu>
+				</Sidebar.GroupContent>
+			</Sidebar.Group>
+		{/if}
 		{#if subjects.length > 0}
 			<Sidebar.Group>
 				<Sidebar.GroupLabel>
@@ -352,65 +392,27 @@
 							<Collapsible.Content>
 								<Sidebar.MenuSub>
 									{#if subject.classes.length === 1}
-										<!-- Single class: show class items directly, with Home first -->
+										<!-- Single class: show ALL nested items under the subject dropdown -->
 										{@const singleClass = subject.classes[0]}
-										<!-- Show Home first -->
-										{@const homeItem = classItems.find((item) => item.url === '')}
-										{#if homeItem}
+										{#each nestedItems as item}
 											<Sidebar.MenuSubItem>
 												<Sidebar.MenuSubButton
-													isActive={isClassSubItemActive(
-														subject.subjectOffering.id.toString(),
-														singleClass.id.toString(),
-														homeItem.url
-													)}
+													isActive={item.classLevel
+														? isClassSubItemActive(
+																subject.subjectOffering.id.toString(),
+																singleClass.id.toString(),
+																item.url
+															)
+														: isSubjectSubItemActive(
+																subject.subjectOffering.id.toString(),
+																item.url
+															)}
 												>
 													{#snippet child({ props })}
 														<a
-															href={`/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${homeItem.url}`}
-															{...props}
-														>
-															<homeItem.icon />
-															<span>{homeItem.title}</span>
-														</a>
-													{/snippet}
-												</Sidebar.MenuSubButton>
-											</Sidebar.MenuSubItem>
-										{/if}
-										<!-- Then show subject-level items like Discussion -->
-										{#each subjectItems as item}
-											<Sidebar.MenuSubItem>
-												<Sidebar.MenuSubButton
-													isActive={isSubjectSubItemActive(
-														subject.subjectOffering.id.toString(),
-														item.url
-													)}
-												>
-													{#snippet child({ props })}
-														<a
-															href={`/subjects/${subject.subjectOffering.id}/${item.url}`}
-															{...props}
-														>
-															<item.icon />
-															<span>{item.title}</span>
-														</a>
-													{/snippet}
-												</Sidebar.MenuSubButton>
-											</Sidebar.MenuSubItem>
-										{/each}
-										<!-- Then show remaining class items (excluding Home) -->
-										{#each classItems.filter((item) => item.url !== '') as item}
-											<Sidebar.MenuSubItem>
-												<Sidebar.MenuSubButton
-													isActive={isClassSubItemActive(
-														subject.subjectOffering.id.toString(),
-														singleClass.id.toString(),
-														item.url
-													)}
-												>
-													{#snippet child({ props })}
-														<a
-															href={`/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${item.url}`}
+															href={item.classLevel
+																? `/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${item.url}`
+																: `/subjects/${subject.subjectOffering.id}/${item.url}`}
 															{...props}
 														>
 															<item.icon />
@@ -421,28 +423,7 @@
 											</Sidebar.MenuSubItem>
 										{/each}
 									{:else}
-										<!-- Multiple classes: show subject-level items first, then collapsible classes -->
-										{#each subjectItems as item}
-											<Sidebar.MenuSubItem>
-												<Sidebar.MenuSubButton
-													isActive={isSubjectSubItemActive(
-														subject.subjectOffering.id.toString(),
-														item.url
-													)}
-												>
-													{#snippet child({ props })}
-														<a
-															href={`/subjects/${subject.subjectOffering.id}/${item.url}`}
-															{...props}
-														>
-															<item.icon />
-															<span>{item.title}</span>
-														</a>
-													{/snippet}
-												</Sidebar.MenuSubButton>
-											</Sidebar.MenuSubItem>
-										{/each}
-										<!-- Multiple classes: show collapsible classes -->
+										<!-- Multiple classes: show collapsible classes with only class-level items -->
 										{#each subject.classes as classItem}
 											<Collapsible.Root
 												bind:open={collapsibleStates[`class-${classItem.id}`]}
