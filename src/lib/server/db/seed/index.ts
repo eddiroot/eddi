@@ -29,8 +29,8 @@ async function seed() {
 		const [schoolRecord] = await db
 			.insert(schema.school)
 			.values({
-				name: 'Eddi Grammar School',
-				emailSuffix: 'eddigs.vic.edu.au'
+				name: 'School of eddi',
+				emailSuffix: 'eddi.edu'
 			})
 			.returning();
 
@@ -40,7 +40,7 @@ async function seed() {
 				schoolId: schoolRecord.id,
 				name: 'Main Campus',
 				address: '123 Education Street, Melbourne VIC 3000',
-				description: 'Primary campus of Eddi Grammar School'
+				description: 'Primary campus of School of eddi'
 			})
 			.returning();
 
@@ -234,14 +234,14 @@ async function seed() {
 			.insert(schema.user)
 			.values({
 				id: randomUUID(),
-				email: 'system.admin@eddigs.vic.edu.au',
+				email: 'root@eddi.com.au',
 				passwordHash,
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.systemAdmin,
 				gender: userGenderEnum.unspecified,
 				honorific: userHonorificEnum.mr,
 				firstName: 'System',
-				lastName: 'Administrator'
+				lastName: 'Admin'
 			})
 			.returning();
 
@@ -249,14 +249,14 @@ async function seed() {
 			.insert(schema.user)
 			.values({
 				id: randomUUID(),
-				email: 'admin@eddigs.vic.edu.au',
+				email: 'admin@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.schoolAdmin,
 				gender: userGenderEnum.female,
 				honorific: userHonorificEnum.ms,
-				firstName: 'Sarah',
-				lastName: 'Johnson'
+				firstName: 'School',
+				lastName: 'Admin'
 			})
 			.returning();
 
@@ -265,13 +265,13 @@ async function seed() {
 			.insert(schema.user)
 			.values({
 				id: randomUUID(),
-				email: 'alice.smith@eddigs.vic.edu.au',
+				email: 'student001@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.student,
 				gender: userGenderEnum.female,
-				firstName: 'Alice',
-				lastName: 'Smith',
+				firstName: 'Student',
+				lastName: 'One',
 				dateOfBirth: new Date('2009-03-15')
 			})
 			.returning();
@@ -280,13 +280,13 @@ async function seed() {
 			.insert(schema.user)
 			.values({
 				id: randomUUID(),
-				email: 'bob.jones@eddigs.vic.edu.au',
+				email: 'student002@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.student,
 				gender: userGenderEnum.male,
-				firstName: 'Bob',
-				lastName: 'Jones',
+				firstName: 'Student',
+				lastName: 'Two',
 				dateOfBirth: new Date('2009-07-22')
 			})
 			.returning();
@@ -295,13 +295,13 @@ async function seed() {
 			.insert(schema.user)
 			.values({
 				id: randomUUID(),
-				email: 'charlie.brown@eddigs.vic.edu.au',
+				email: 'student003@eddi.edu',
 				passwordHash,
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.student,
 				gender: userGenderEnum.male,
-				firstName: 'Charlie',
-				lastName: 'Brown',
+				firstName: 'Student',
+				lastName: 'Three',
 				dateOfBirth: new Date('2009-11-08')
 			})
 			.returning();
@@ -310,28 +310,24 @@ async function seed() {
 		const teacherIds: string[] = [];
 		const teachers = [
 			{
-				name: 'Mathematics Teacher',
-				firstName: 'Emma',
-				lastName: 'Wilson',
-				email: 'e.wilson@eddigs.vic.edu.au'
+				firstName: 'Math',
+				lastName: 'Teacher',
+				email: 'm.teacher@eddi.edu'
 			},
 			{
-				name: 'English Teacher',
-				firstName: 'Michael',
-				lastName: 'Davis',
-				email: 'm.davis@eddigs.vic.edu.au'
+				firstName: 'English',
+				lastName: 'Teacher',
+				email: 'e.teacher@eddi.edu'
 			},
 			{
-				name: 'Science Teacher',
-				firstName: 'Rebecca',
-				lastName: 'Taylor',
-				email: 'r.taylor@eddigs.vic.edu.au'
+				firstName: 'Science',
+				lastName: 'Teacher',
+				email: 's.teacher@eddi.edu'
 			},
 			{
-				name: 'PE Teacher',
-				firstName: 'James',
-				lastName: 'Anderson',
-				email: 'j.anderson@eddigs.vic.edu.au'
+				firstName: 'PE',
+				lastName: 'Teacher',
+				email: 'pe.teacher@eddi.edu'
 			}
 		];
 
@@ -458,31 +454,6 @@ async function seed() {
 		];
 
 		await db.insert(schema.subjectClassAllocation).values(timetableEntries);
-
-		console.log('✅ Database seeded successfully!');
-		console.log(`
-📊 Summary:
-- School: ${schoolRecord.name}
-- Campus: ${campusRecord.name}
-- Locations: ${locations.length}
-- Users: ${allUserIds.length} total
-  - System Admin: 1
-  - School Admin: 1  
-  - Students: 3
-  - Teachers: 4
-- Subjects: ${subjects.length}
-- Subject Offerings: ${subjectOfferings.length}
-- Subject Classes: ${subjectOfferingClasses.length}
-- Timetable Entries: ${timetableEntries.length}
-
-🔐 Default password for all users: password123
-
-📧 User emails:
-- System Admin: system.admin@eddigs.vic.edu.au
-- School Admin: admin@eddigs.vic.edu.au
-- Students: alice.smith@eddigs.vic.edu.au, bob.jones@eddigs.vic.edu.au, charlie.brown@eddigs.vic.edu.au
-- Teachers: e.wilson@eddigs.vic.edu.au, m.davis@eddigs.vic.edu.au, r.taylor@eddigs.vic.edu.au, j.anderson@eddigs.vic.edu.au
-		`);
 	} catch (error) {
 		console.error('❌ Error seeding database:', error);
 		throw error;
