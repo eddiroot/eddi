@@ -20,7 +20,11 @@ export enum userPermissions {
 export function getPermissions(userType: string): string[] {
 	switch (userType) {
 		case 'student':
-			return [userPermissions.viewLessons];
+			return [
+				userPermissions.viewLessons,
+				userPermissions.viewDashboard,
+				userPermissions.viewTimeTable
+			];
 		case 'teacher':
 			return [
 				userPermissions.viewLessons,
