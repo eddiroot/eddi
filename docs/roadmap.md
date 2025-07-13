@@ -45,14 +45,14 @@ Jack
 
 Raph
 
-- [ ] Class resources
-- [ ] Better whiteboard
+- [ ] Class resources (14/07)
+- [ ] Better whiteboard (20/07)
   - Fix mc alerts and text overflow in question and explanation
   - Expanding the whiteboard
   - Fix whiteboard vertical panning
-- [ ] Student/lesson analytics
-- [ ] Student reports live throughout semester
-- [ ] Associate chatbot chats with the lesson/subject they were created in
+- [ ] Student reports live throughout semester (10/08)
+- [ ] Student/lesson analytics (20/08)
+- [ ] Associate chatbot chats with the lesson/subject they were created in (31/08)
 
 Beej
 
