@@ -56,16 +56,16 @@ Raph
 
 Beej
 
-- [ ] Onboarding flow
-- [ ] Parent/teacher interviews
-- [ ] Teacher to parent comms (one way)
+- [ ] Onboarding flow (14/07)
+- [ ] Parent/teacher interviews (21/07)
+- [ ] Teacher to parent comms (one way) (28/07)
+- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124) (04/08)
 
 Blake
 
-- [ ] Auto generated summaries of discussions
-- [ ] AI tutor audit trails
-- [ ] A what to do button to generate study ideas
-- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
+- [ ] Auto generated summaries of discussions (21/07)
+- [ ] Disable eddi AI on lesson/task (28/07)
+- [ ] A what to do button to generate study ideas (04/08)
 
 Bella
 
