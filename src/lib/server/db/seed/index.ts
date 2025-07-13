@@ -35,7 +35,7 @@ async function seed() {
 		const [schoolRecord] = await db
 			.insert(schema.school)
 			.values({
-				name: 'School of eddi',
+				name: 'School of eddi'
 			})
 			.returning();
 
@@ -180,34 +180,21 @@ async function seed() {
 			}
 		}
 
-		// Create subject offerings for all F-10 subjects (both semester 1 and 2)
+		// Create subject offerings for all F-10 subjects (year-long offerings with semester = null)
 		const subjectOfferings: (typeof schema.subjectOffering.$inferSelect)[] = [];
 		for (const subject of subjects) {
-			// Create semester 1 offering
-			const sem1OfferingValues = {
+			// Create year-long offering (semester = null for full year)
+			const yearOfferingValues = {
 				subjectId: subject.id,
 				year: 2025,
-				semester: 1,
+				semester: 0, // 0 indicates full year
 				campusId: campusRecord.id
 			};
-			const [sem1Offering] = await db
+			const [yearOffering] = await db
 				.insert(schema.subjectOffering)
-				.values(sem1OfferingValues)
+				.values(yearOfferingValues)
 				.returning();
-			subjectOfferings.push(sem1Offering);
-
-			// Create semester 2 offering
-			const sem2OfferingValues = {
-				subjectId: subject.id,
-				year: 2025,
-				semester: 2,
-				campusId: campusRecord.id
-			};
-			const [sem2Offering] = await db
-				.insert(schema.subjectOffering)
-				.values(sem2OfferingValues)
-				.returning();
-			subjectOfferings.push(sem2Offering);
+			subjectOfferings.push(yearOffering);
 		}
 
 		// Filter to get only Year 9 offerings for student/teacher assignments
@@ -326,9 +313,10 @@ async function seed() {
 
 		console.log(`📝 Created ${learningAreaContentMap.size} learning area content items`);
 
-		// Create 18-week coursemap items for each subject offering
+		// Create 36-week coursemap items for each subject offering (18 weeks per semester)
 		const courseMapItems = [];
 		const weeksPerSemester = 18;
+		const totalWeeks = 36; // Full year
 
 		for (const offering of subjectOfferings) {
 			// Find the corresponding subject and core subject info
@@ -343,20 +331,23 @@ async function seed() {
 			const baseTopics = getBaseTopicsForSubject(subjectName);
 			const duration = 6;
 
-			// Distribute topics across 18 weeks
-			for (let week = 1; week <= weeksPerSemester; week += duration) {
-				const topicIndex = Math.floor(((week - 1) / weeksPerSemester) * baseTopics.length);
+			// Distribute topics across 36 weeks (full year)
+			for (let week = 1; week <= totalWeeks; week += duration) {
+				const topicIndex = Math.floor(((week - 1) / totalWeeks) * baseTopics.length);
 				const topic = baseTopics[topicIndex] || `${subjectName} Review`;
+
+				// Determine which semester this week belongs to
+				const semester = week <= weeksPerSemester ? 1 : 2;
 
 				const [courseMapItem] = await db
 					.insert(schema.courseMapItem)
 					.values({
 						subjectOfferingId: offering.id,
-						topic: `Week ${week}: ${topic}`,
+						topic: `${topic}`,
 						description: `${topic} activities and learning for ${subjectName}`,
 						startWeek: week,
 						duration: duration,
-						semester: offering.semester,
+						semester: semester,
 						color: getSubjectColor(subjectName)
 					})
 					.returning();
@@ -427,16 +418,16 @@ async function seed() {
 			);
 		}
 
-		// Helper function to get subject color
+		// Helper function to get subject color (hex values)
 		function getSubjectColor(subjectName: string): string {
 			const colorMap: { [key: string]: string } = {
-				Mathematics: '500', // Blue
-				English: '600', // Purple
-				Science: '700', // Green
-				'Physical Education': '800' // Red
+				Mathematics: '#3B82F6', // Blue
+				English: '#8B5CF6', // Purple
+				Science: '#10B981', // Green
+				'Physical Education': '#EF4444' // Red
 			};
 
-			return colorMap[subjectName] || '100';
+			return colorMap[subjectName] || '#6B7280'; // Default gray
 		}
 
 		// Helper function to map subject to learning area
@@ -714,13 +705,13 @@ async function seed() {
   - Teachers: 4 (assigned to Year 9 only)
 -- Core Subjects: ${coreSubjects.length}
 -- Subjects: ${subjects.length} (Foundation to Year 10 for each core subject)
--- Subject Offerings: ${subjectOfferings.length} (F-10 offerings for all subjects)
+-- Subject Offerings: ${subjectOfferings.length} (F-10 year-long offerings, semester = null)
 -- Year 9 Offerings: ${year9Offerings.length} (used for student/teacher assignments)
 -- Subject Classes: ${subjectOfferingClasses.length} (Year 9 only)
 -- Timetable Entries: ${timetableEntries.length}
 -- VCAA Content Items: ${contentItems.length}
 -- Learning Areas: ${learningAreaMap.size}
--- Coursemap Items: ${courseMapItems.length} (${weeksPerSemester} weeks)
+-- Coursemap Items: ${courseMapItems.length} (36 weeks total, spanning both semesters)
 
 🔐 Default password for all users: password123
 
@@ -732,9 +723,10 @@ async function seed() {
 
 📚 Structure Created:
 -- Foundation to Year 10 subjects for Mathematics, English, Science, Physical Education
--- Full F-10 curriculum with subject offerings for 2025 Semester 1
+-- Full F-10 curriculum with year-long subject offerings for 2025 (semester = null)
 -- Students and teachers are only assigned to Year 9 offerings
--- Coursemap covers all F-10 subject offerings with 18-week structure
+-- Coursemap covers all F-10 subject offerings with 36-week structure (18 weeks per semester)
+-- Course map items properly assigned to semester 1 (weeks 1-18) and semester 2 (weeks 19-36)
 		`);
 	} catch (error) {
 		console.error('❌ Error seeding database:', error);

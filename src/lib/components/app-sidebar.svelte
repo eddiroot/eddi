@@ -25,6 +25,7 @@
 	import OrbitIcon from '@lucide/svelte/icons/orbit';
 	import LocationEdit from '@lucide/svelte/icons/location-edit';
 	import UsersIcon from '@lucide/svelte/icons/users';
+	import RouteIcon from '@lucide/svelte/icons/route';
 
 	const items = [
 		{
@@ -72,6 +73,12 @@
 			url: 'tasks',
 			icon: BookOpenCheckIcon,
 			classLevel: true
+		},
+		{
+			title: 'Course Map',
+			url: 'coursemap',
+			icon: RouteIcon,
+			classLevel: false
 		},
 		{
 			title: 'Analytics',
