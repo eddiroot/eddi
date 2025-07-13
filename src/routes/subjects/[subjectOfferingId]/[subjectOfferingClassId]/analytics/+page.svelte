@@ -161,8 +161,8 @@
 		// Task Analytics Tab Data
 		taskAnalytics: {
 			keyInsights: [
-				"Your most used lesson component used to question is the fill in the blank block",
-				"Your students on average score best on the multiple choice block"
+				'Your most used lesson component used to question is the fill in the blank block',
+				'Your students on average score best on the multiple choice block'
 			],
 			submissionsDue: 7,
 			avgScoreOverTime: [
@@ -258,8 +258,8 @@
 		// Discussion Analytics Tab Data
 		discussionAnalytics: {
 			keyInsights: [
-				"The average response time on your discussion forum is 123 minutes",
-				"There are 2 unanswered questions"
+				'The average response time on your discussion forum is 123 minutes',
+				'There are 2 unanswered questions'
 			],
 			viewsOnLastAnnouncement: { views: 19, total: 21 },
 			postsOverTime: [
@@ -369,7 +369,9 @@
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">{data.subject.name} Class Analytics</h1>
-			<p class="text-muted-foreground">Comprehensive analytics dashboard for tracking student progress and engagement</p>
+			<p class="text-muted-foreground">
+				Comprehensive analytics dashboard for tracking student progress and engagement
+			</p>
 		</div>
 	</div>
 
@@ -393,8 +395,8 @@
 					<Card.Content class="space-y-3">
 						{#each mockData.studentPerformance.keyInsights as insight}
 							<div class="flex items-start gap-2">
-								<AlertCircleIcon class="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-								<p class="text-sm text-muted-foreground">{insight}</p>
+								<AlertCircleIcon class="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
+								<p class="text-muted-foreground text-sm">{insight}</p>
 							</div>
 						{/each}
 					</Card.Content>
@@ -422,17 +424,17 @@
 								x="grade"
 								series={[
 									{
-										key: "count",
-										label: "Students",
-										color: gradeDistributionConfig.count.color,
-									},
+										key: 'count',
+										label: 'Students',
+										color: gradeDistributionConfig.count.color
+									}
 								]}
 								props={{
 									bars: {
 										radius: 2,
-										"stroke-width": 1,
+										'stroke-width': 1
 									},
-									yAxis: { format: (v) => `${v}` },
+									yAxis: { format: (v) => `${v}` }
 								}}
 							>
 								{#snippet tooltip()}
@@ -465,27 +467,33 @@
 							{#each mockData.studentPerformance.students as student}
 								<Table.Row>
 									<Table.Cell class="flex items-center gap-2">
-										<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
 											<UsersIcon class="h-4 w-4" />
 										</div>
-										<span class="font-medium text-blue-600">{student.name}</span>
+										<span class="text-primary font-medium">{student.name}</span>
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
 											<Progress value={student.assignmentsCompleted} class="w-20" />
-											<span class="text-sm">{student.assignmentsCompleted}% ({student.assignmentsCompletedCount}/{student.assignmentsTotal})</span>
+											<span class="text-sm"
+												>{student.assignmentsCompleted}% ({student.assignmentsCompletedCount}/{student.assignmentsTotal})</span
+											>
 										</div>
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
 											<Progress value={student.lessonsCompleted} class="w-20" />
-											<span class="text-sm">{student.lessonsCompleted}% ({student.lessonsCompletedCount}/{student.lessonsTotal})</span>
+											<span class="text-sm"
+												>{student.lessonsCompleted}% ({student.lessonsCompletedCount}/{student.lessonsTotal})</span
+											>
 										</div>
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
 											<Progress value={student.homeworkCompleted} class="w-20" />
-											<span class="text-sm">{student.homeworkCompleted}% ({student.homeworkCompletedCount}/{student.homeworkTotal})</span>
+											<span class="text-sm"
+												>{student.homeworkCompleted}% ({student.homeworkCompletedCount}/{student.homeworkTotal})</span
+											>
 										</div>
 									</Table.Cell>
 									<Table.Cell>{student.lastActive}</Table.Cell>
@@ -512,8 +520,8 @@
 					<Card.Content class="space-y-3">
 						{#each mockData.taskAnalytics.keyInsights as insight}
 							<div class="flex items-start gap-2">
-								<AlertCircleIcon class="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-								<p class="text-sm text-muted-foreground">{insight}</p>
+								<AlertCircleIcon class="text-primary mt-0.5 h-4 w-4 flex-shrink-0" />
+								<p class="text-muted-foreground text-sm">{insight}</p>
 							</div>
 						{/each}
 					</Card.Content>
@@ -541,17 +549,17 @@
 								x="lesson"
 								series={[
 									{
-										key: "score",
-										label: "Average Score",
-										color: scoreOverTimeConfig.score.color,
-									},
+										key: 'score',
+										label: 'Average Score',
+										color: scoreOverTimeConfig.score.color
+									}
 								]}
 								props={{
 									bars: {
 										radius: 2,
-										"stroke-width": 1,
+										'stroke-width': 1
 									},
-									yAxis: { format: (v) => `${v}%` },
+									yAxis: { format: (v) => `${v}%` }
 								}}
 							>
 								{#snippet tooltip()}
@@ -583,18 +591,22 @@
 							{#each mockData.taskAnalytics.tasks as task}
 								<Table.Row>
 									<Table.Cell>
-										<span class="font-medium text-blue-600">{task.name}</span>
+										<span class="text-primary font-medium">{task.name}</span>
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
 											<Progress value={task.studentsCompleted} class="w-20" />
-											<span class="text-sm">{task.studentsCompleted}% ({task.completedCount}/{task.totalStudents})</span>
+											<span class="text-sm"
+												>{task.studentsCompleted}% ({task.completedCount}/{task.totalStudents})</span
+											>
 										</div>
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
 											<Progress value={task.averageScore} class="w-20" />
-											<span class="text-sm">{task.averageScore}% ({task.scoreCount}/{task.totalScore})</span>
+											<span class="text-sm"
+												>{task.averageScore}% ({task.scoreCount}/{task.totalScore})</span
+											>
 										</div>
 									</Table.Cell>
 									<Table.Cell>{task.averageTime}</Table.Cell>
@@ -623,8 +635,8 @@
 					<Card.Content class="space-y-3">
 						{#each mockData.discussionAnalytics.keyInsights as insight}
 							<div class="flex items-start gap-2">
-								<MessageSquareIcon class="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-								<p class="text-sm text-muted-foreground">{insight}</p>
+								<MessageSquareIcon class="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
+								<p class="text-muted-foreground text-sm">{insight}</p>
 							</div>
 						{/each}
 					</Card.Content>
@@ -636,7 +648,10 @@
 						<Card.Title class="text-lg">Views on Last Announcement</Card.Title>
 					</Card.Header>
 					<Card.Content class="flex items-center justify-center">
-						<div class="text-4xl font-bold">{mockData.discussionAnalytics.viewsOnLastAnnouncement.views}/{mockData.discussionAnalytics.viewsOnLastAnnouncement.total}</div>
+						<div class="text-4xl font-bold">
+							{mockData.discussionAnalytics.viewsOnLastAnnouncement.views}/{mockData
+								.discussionAnalytics.viewsOnLastAnnouncement.total}
+						</div>
 					</Card.Content>
 				</Card.Root>
 
@@ -652,17 +667,17 @@
 								x="week"
 								series={[
 									{
-										key: "posts",
-										label: "Posts",
-										color: postsOverTimeConfig.posts.color,
-									},
+										key: 'posts',
+										label: 'Posts',
+										color: postsOverTimeConfig.posts.color
+									}
 								]}
 								props={{
 									bars: {
 										radius: 2,
-										"stroke-width": 1,
+										'stroke-width': 1
 									},
-									yAxis: { format: (v) => `${v}` },
+									yAxis: { format: (v) => `${v}` }
 								}}
 							>
 								{#snippet tooltip()}
@@ -694,10 +709,10 @@
 							{#each mockData.discussionAnalytics.students as student}
 								<Table.Row>
 									<Table.Cell class="flex items-center gap-2">
-										<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
 											<UsersIcon class="h-4 w-4" />
 										</div>
-										<span class="font-medium text-blue-600">{student.name}</span>
+										<span class="text-primary font-medium">{student.name}</span>
 									</Table.Cell>
 									<Table.Cell>{student.questionsPosted}</Table.Cell>
 									<Table.Cell>{student.questionsAnswered}</Table.Cell>
