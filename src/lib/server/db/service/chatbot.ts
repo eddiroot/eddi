@@ -130,7 +130,7 @@ export async function getSubjectOfferingClassContextForChatbot(
 			name: taskItem.task.title,
 			description: taskItem.task.description,
 			index: taskItem.subjectOfferingClassTask.index,
-			subjectOfferingTaskId: taskItem.subjectOfferingTask.id,
+			subjectOfferingClassTaskId: taskItem.subjectOfferingClassTask.id,
 			courseMapItemId: taskItem.courseMapItem?.id || null,
 			courseMapItemTopic: taskItem.courseMapItem?.topic || null
 		}))
@@ -242,22 +242,17 @@ export async function getSubjectOfferingContextForChatbot(
 	// Get all tasks for this subject offering (not class-specific)
 	const offeringTasks = await db
 		.select({
-			subjectOfferingTask: table.subjectOfferingTask,
+			subjectOfferingClassTask: table.subjectOfferingClassTask,
 			task: table.task,
 			courseMapItem: table.courseMapItem
 		})
-		.from(table.subjectOfferingTask)
-		.innerJoin(table.task, eq(table.subjectOfferingTask.taskId, table.task.id))
+		.from(table.subjectOfferingClassTask)
+		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
 		.leftJoin(
 			table.courseMapItem,
-			eq(table.courseMapItem.id, table.subjectOfferingTask.courseMapItemId)
+			eq(table.courseMapItem.id, table.subjectOfferingClassTask.courseMapItemId)
 		)
-		.where(
-			and(
-				eq(table.subjectOfferingTask.subjectOfferingId, subjectOfferingId),
-				eq(table.subjectOfferingTask.isArchived, false)
-			)
-		);
+		.where(and(eq(table.courseMapItem.subjectOfferingId, subjectOfferingId)));
 
 	// Format the context data for the chatbot
 	const context = {
@@ -285,7 +280,7 @@ export async function getSubjectOfferingContextForChatbot(
 			id: taskItem.task.id,
 			name: taskItem.task.title,
 			description: taskItem.task.description,
-			subjectOfferingTaskId: taskItem.subjectOfferingTask.id,
+			subjectOfferingClassTaskId: taskItem.subjectOfferingClassTask.id,
 			courseMapItemId: taskItem.courseMapItem?.id || null,
 			courseMapItemTopic: taskItem.courseMapItem?.topic || null
 		}))

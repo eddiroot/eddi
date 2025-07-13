@@ -364,9 +364,12 @@ export async function getTasksByCourseMapItemId(courseMapItemId: number) {
 				task: table.task
 			})
 			.from(table.task)
-			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
-			.where(eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId))
-			.orderBy(asc(table.subjectOfferingTask.createdAt));
+			.innerJoin(
+				table.subjectOfferingClassTask,
+				eq(table.task.id, table.subjectOfferingClassTask.taskId)
+			)
+			.where(eq(table.subjectOfferingClassTask.courseMapItemId, courseMapItemId))
+			.orderBy(asc(table.subjectOfferingClassTask.createdAt));
 		return tasks.map((row) => row.task);
 	} catch (error) {
 		console.error('Error fetching tasks for course map item:', error);
@@ -384,10 +387,9 @@ export async function getTeacherReleasedTasksByCourseMapItem(
 				task: table.task
 			})
 			.from(table.task)
-			.innerJoin(table.subjectOfferingTask, eq(table.task.id, table.subjectOfferingTask.taskId))
 			.innerJoin(
 				table.subjectOfferingClassTask,
-				eq(table.subjectOfferingTask.id, table.subjectOfferingClassTask.subjectOfferingTaskId)
+				eq(table.task.id, table.subjectOfferingClassTask.taskId)
 			)
 			.innerJoin(
 				table.userSubjectOfferingClass,
@@ -398,7 +400,7 @@ export async function getTeacherReleasedTasksByCourseMapItem(
 			)
 			.where(
 				and(
-					eq(table.subjectOfferingTask.courseMapItemId, courseMapItemId),
+					eq(table.subjectOfferingClassTask.courseMapItemId, courseMapItemId),
 					eq(table.userSubjectOfferingClass.userId, userId)
 				)
 			);

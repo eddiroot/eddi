@@ -4,10 +4,11 @@ import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
 import { verifyUserAccessToClass } from './user';
 
 export async function addTasksToClass(
-	subjectOfferingTaskIds: number[],
-	subjectOfferingClassId: number
+	taskIds: number[],
+	subjectOfferingClassId: number,
+	userId: string
 ) {
-	if (subjectOfferingTaskIds.length === 0) {
+	if (taskIds.length === 0) {
 		return [];
 	}
 
@@ -23,9 +24,10 @@ export async function addTasksToClass(
 	const classTasks = await db
 		.insert(table.subjectOfferingClassTask)
 		.values(
-			subjectOfferingTaskIds.map((taskId) => ({
-				subjectOfferingTaskId: taskId,
+			taskIds.map((taskId) => ({
+				taskId: taskId,
 				subjectOfferingClassId: subjectOfferingClassId,
+				authorId: userId,
 				index: nextIndex++
 			}))
 		)
@@ -36,15 +38,12 @@ export async function addTasksToClass(
 }
 
 // Remove a task from a class
-export async function removeTaskFromClass(
-	subjectOfferingTaskId: number,
-	subjectOfferingClassId: number
-) {
+export async function removeTaskFromClass(taskId: number, subjectOfferingClassId: number) {
 	const deletedClassTask = await db
 		.delete(table.subjectOfferingClassTask)
 		.where(
 			and(
-				eq(table.subjectOfferingClassTask.subjectOfferingTaskId, subjectOfferingTaskId),
+				eq(table.subjectOfferingClassTask.taskId, taskId),
 				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId)
 			)
 		)
@@ -67,19 +66,15 @@ export async function getTasksBySubjectOfferingClassId(
 	const classTasks = await db
 		.select({
 			task: table.task,
-			subjectOfferingTask: table.subjectOfferingTask,
 			subjectOfferingClassTask: table.subjectOfferingClassTask,
 			courseMapItem: table.courseMapItem
 		})
 		.from(table.subjectOfferingClassTask)
-		.innerJoin(
-			table.subjectOfferingTask,
-			eq(table.subjectOfferingClassTask.subjectOfferingTaskId, table.subjectOfferingTask.id)
-		)
-		.innerJoin(table.task, eq(table.subjectOfferingTask.taskId, table.task.id))
+
+		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
 		.innerJoin(
 			table.courseMapItem,
-			eq(table.subjectOfferingTask.courseMapItemId, table.courseMapItem.id)
+			eq(table.subjectOfferingClassTask.courseMapItemId, table.courseMapItem.id)
 		)
 		.where(eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId))
 		.orderBy(asc(table.task.id));
@@ -115,12 +110,8 @@ export async function getClassTasksByTopicId(subjectOfferingClassId: number, top
 		})
 		.from(table.subjectOfferingClassTask)
 		.innerJoin(
-			table.subjectOfferingTask,
-			eq(table.subjectOfferingClassTask.subjectOfferingTaskId, table.subjectOfferingTask.id)
-		)
-		.innerJoin(
 			table.courseMapItem,
-			eq(table.subjectOfferingTask.courseMapItemId, table.courseMapItem.id)
+			eq(table.subjectOfferingClassTask.courseMapItemId, table.courseMapItem.id)
 		)
 		.where(
 			and(
@@ -179,23 +170,32 @@ export async function createTask(
 	return task;
 }
 
-export async function createSubjectOfferingTask(
+export async function createSubjectOfferingClassTask(
 	taskId: number,
-	subjectOfferingId: number,
+	subjectOfferingClassId: number,
 	authorId: string,
 	courseMapItemId: number | null = null
 ) {
-	const [subjectOfferingTask] = await db
-		.insert(table.subjectOfferingTask)
+	const maxIndexResult = await db
+		.select({ maxIndex: table.subjectOfferingClassTask.index })
+		.from(table.subjectOfferingClassTask)
+		.where(eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId))
+		.orderBy(desc(table.subjectOfferingClassTask.index))
+		.limit(1);
+	const nextIndex = (maxIndexResult[0]?.maxIndex ?? -1) + 1;
+
+	const [subjectOfferingClassTask] = await db
+		.insert(table.subjectOfferingClassTask)
 		.values({
 			taskId,
-			subjectOfferingId,
+			index: nextIndex,
+			subjectOfferingClassId,
 			authorId,
 			courseMapItemId
 		})
 		.returning();
 
-	return subjectOfferingTask;
+	return subjectOfferingClassTask;
 }
 
 export async function updateTaskTitle(taskId: number, title: string) {

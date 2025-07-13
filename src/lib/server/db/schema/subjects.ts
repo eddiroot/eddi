@@ -265,79 +265,21 @@ export const subjectThreadResponse = pgTable(
 
 export type SubjectThreadResponse = typeof subjectThreadResponse.$inferSelect;
 
-export const subjectOfferingTask = pgTable(
-	'sub_off_task',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
-			onDelete: 'cascade'
-		}),
-		subjectOfferingId: integer('sub_off_id')
-			.notNull()
-			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-		taskId: integer('task_id')
-			.notNull()
-			.references(() => task.id, { onDelete: 'cascade' }),
-		authorId: text('author_id')
-			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
-		originalId: integer('original_id'),
-		dueDate: time('due_date', { withTimezone: true }),
-		version: integer('version').notNull().default(1),
-		isArchived: boolean('is_archived').notNull().default(false),
-		isPublished: boolean('is_published').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		unique().on(self.originalId, self.version)
-	]
-);
-
-export type SubjectOfferingTask = typeof subjectOfferingTask.$inferSelect;
-
-export const subjectOfferingResource = pgTable(
-	'sub_off_resource',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		coursemapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
-			onDelete: 'cascade'
-		}),
-		subjectOfferingId: integer('sub_off_id')
-			.notNull()
-			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-		authorId: text('author_id')
-			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
-		resourceId: integer('resource_id').notNull(),
-		originalId: integer('original_id'),
-		version: integer('version').notNull().default(1),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [
-		foreignKey({
-			columns: [self.originalId],
-			foreignColumns: [self.id]
-		}).onDelete('cascade'),
-		unique().on(self.originalId, self.version)
-	]
-);
-
-export type SubjectOfferingResource = typeof subjectOfferingResource.$inferSelect;
-
 export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	index: integer('index').notNull(),
 	subjectOfferingClassId: integer('sub_off_class_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-	subjectOfferingTaskId: integer('sub_off_task_id')
+	taskId: integer('task_id')
 		.notNull()
-		.references(() => subjectOfferingTask.id, { onDelete: 'cascade' }),
+		.references(() => task.id, { onDelete: 'cascade' }),
+	authorId: text('author_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
+		onDelete: 'cascade'
+	}),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
@@ -349,9 +291,12 @@ export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
 	subjectOfferingClassId: integer('sub_off_class_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-	subjectOfferingResourceId: integer('sub_off_res_id')
+	coursemapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
+		onDelete: 'cascade'
+	}),
+	authorId: text('author_id')
 		.notNull()
-		.references(() => subjectOfferingResource.id, { onDelete: 'cascade' }),
+		.references(() => user.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
