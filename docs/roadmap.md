@@ -17,7 +17,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Admin dashboard
 - [x] Add draggable interactive components such as matching
 
-## Post MVP
+## Doing
 
 Lachie
 
@@ -70,7 +70,7 @@ Max
 - [ ] Timetabling
 - [ ] Exam timetabling
 
-## Future Functionality
+## Future
 
 - [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
 - [ ] Export all data for a given school
