@@ -339,13 +339,16 @@ async function seed() {
 				// Determine which semester this week belongs to
 				const semester = week <= weeksPerSemester ? 1 : 2;
 
+				// Calculate the week within the semester (1-18 for each semester)
+				const startWeekInSemester = semester === 1 ? week : week - weeksPerSemester;
+
 				const [courseMapItem] = await db
 					.insert(schema.courseMapItem)
 					.values({
 						subjectOfferingId: offering.id,
 						topic: `${topic}`,
 						description: `${topic} activities and learning for ${subjectName}`,
-						startWeek: week,
+						startWeek: startWeekInSemester,
 						duration: duration,
 						semester: semester,
 						color: getSubjectColor(subjectName)

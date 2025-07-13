@@ -25,29 +25,45 @@
 		LearningAreaContent
 	} from '$lib/server/db/schema';
 
-	export let open = false;
-	export let courseMapItem: CourseMapItem | null = null;
-	export let subjectOfferingId: number;
-	export let availableLearningAreas: LearningArea[] = [];
-	export let courseMapItemLearningAreas: LearningArea[] = [];
-	export let learningAreaContent: Record<number, LearningAreaContent[]> = {};
-	export let isCreateMode = false;
-	export let createWeek: number | null = null;
-	export let createSemester: number | null = null;
-	export let onColorChange: ((itemId: number, newColor: string) => void) | undefined = undefined;
-	export let onItemCreated: ((newItem: CourseMapItem) => void) | undefined = undefined;
-	export let onItemUpdated: ((updatedItem: CourseMapItem) => void) | undefined = undefined;
+	// Use Svelte 5 $props() for component props
+	let {
+		open = $bindable(false),
+		courseMapItem = null,
+		subjectOfferingId,
+		availableLearningAreas = [],
+		courseMapItemLearningAreas = [],
+		learningAreaContent = {},
+		isCreateMode = false,
+		createWeek = null,
+		createSemester = null,
+		onColorChange = undefined,
+		onItemCreated = undefined,
+		onItemUpdated = undefined
+	}: {
+		open?: boolean;
+		courseMapItem?: CourseMapItem | null;
+		subjectOfferingId: number;
+		availableLearningAreas?: LearningArea[];
+		courseMapItemLearningAreas?: LearningArea[];
+		learningAreaContent?: Record<number, LearningAreaContent[]>;
+		isCreateMode?: boolean;
+		createWeek?: number | null;
+		createSemester?: number | null;
+		onColorChange?: ((itemId: number, newColor: string) => void) | undefined;
+		onItemCreated?: ((newItem: CourseMapItem) => void) | undefined;
+		onItemUpdated?: ((updatedItem: CourseMapItem) => void) | undefined;
+	} = $props();
 
 	// Form state
-	let isEditMode = false;
-	let isLoading = false;
-	let editForm = {
+	let isEditMode = $state(false);
+	let isLoading = $state(false);
+	let editForm = $state({
 		topic: '',
 		description: '',
 		startWeek: 1,
 		duration: 1,
 		color: ''
-	};
+	});
 
 	// Color options for course map items
 	const colorOptions = [
@@ -61,55 +77,59 @@
 	];
 
 	// Learning area selection state
-	let selectedLearningAreaIds: number[] = [];
+	let selectedLearningAreaIds = $state<number[]>([]);
 
 	// Color picker state
-	let showColorPicker = false;
+	let showColorPicker = $state(false);
 	
 	// Learning area picker state
-	let showLearningAreaPicker = false;
+	let showLearningAreaPicker = $state(false);
 	
 	// Form element reference
 	let formElement: HTMLFormElement;
 
-	// Reactive statement to update course map item color in real-time
-	$: if (editForm.color && onColorChange) {
-		// For edit mode: update existing item color immediately
-		if (!isCreateMode && courseMapItem) {
-			onColorChange(courseMapItem.id, editForm.color);
+	// Use Svelte 5 $effect for reactive statements
+	
+	$effect(() => {
+		if (courseMapItem && !isEditMode) {
+			editForm.topic = courseMapItem.topic || '';
+			editForm.description = courseMapItem.description || '';
+			editForm.startWeek = courseMapItem.startWeek || 1;
+			editForm.duration = courseMapItem.duration || 1;
+			editForm.color = courseMapItem.color || colorOptions[0].value;
+			selectedLearningAreaIds = courseMapItemLearningAreas.map(la => la.id);
+		} else if (isCreateMode && createWeek) {
+			editForm.topic = '';
+			editForm.description = '';
+			editForm.startWeek = createWeek;
+			editForm.duration = 1;
+			editForm.color = colorOptions[0].value;
+			selectedLearningAreaIds = [];
+			isEditMode = true;
 		}
-		// For create mode: we don't have an ID yet, so color will be applied on creation
-	}
+	});
 
-	$: if (courseMapItem && !isEditMode) {
-		editForm = {
-			topic: courseMapItem.topic || '',
-			description: courseMapItem.description || '',
-			startWeek: courseMapItem.startWeek || 1,
-			duration: courseMapItem.duration || 1,
-			color: courseMapItem.color || colorOptions[0].value
-		};
-		selectedLearningAreaIds = courseMapItemLearningAreas.map(la => la.id);
-	} else if (isCreateMode && createWeek) {
-		editForm = {
-			topic: '',
-			description: '',
-			startWeek: createWeek,
-			duration: 1,
-			color: colorOptions[0].value
-		};
-		selectedLearningAreaIds = [];
-		isEditMode = true;
-	}
+	// Reset edit mode and close color picker when switching between items
+	let previousCourseMapItem = $state<CourseMapItem | null>(null);
+	$effect(() => {
+		if (courseMapItem !== previousCourseMapItem) {
+			isEditMode = false;
+			showColorPicker = false;
+			showLearningAreaPicker = false;
+			previousCourseMapItem = courseMapItem;
+		}
+	});
 
 	// Reset edit mode only when drawer first opens with an existing course map item (view mode)
-	let previousOpen = false;
-	$: if (open && !previousOpen && courseMapItem && !isCreateMode) {
-		isEditMode = false;
-		previousOpen = true;
-	} else if (!open) {
-		previousOpen = false;
-	}
+	let previousOpen = $state(false);
+	$effect(() => {
+		if (open && !previousOpen && courseMapItem && !isCreateMode) {
+			isEditMode = false;
+			previousOpen = true;
+		} else if (!open) {
+			previousOpen = false;
+		}
+	});
 
 	function toggleLearningArea(learningAreaId: number) {
 		if (selectedLearningAreaIds.includes(learningAreaId)) {
@@ -119,6 +139,12 @@
 		}
 	}
 
+	// Helper function to get color name from value
+	function getColorName(colorValue: string): string {
+		const colorOption = colorOptions.find(option => option.value === colorValue);
+		return colorOption ? colorOption.name : 'Custom';
+	}
+
 	function handleEdit() {
 		isEditMode = true;
 	}
@@ -126,13 +152,11 @@
 	function handleCancel() {
 		isEditMode = false;
 		if (courseMapItem) {
-			editForm = {
-				topic: courseMapItem.topic || '',
-				description: courseMapItem.description || '',
-				startWeek: courseMapItem.startWeek || 1,
-				duration: courseMapItem.duration || 1,
-				color: courseMapItem.color || ''
-			};
+			editForm.topic = courseMapItem.topic || '';
+			editForm.description = courseMapItem.description || '';
+			editForm.startWeek = courseMapItem.startWeek || 1;
+			editForm.duration = courseMapItem.duration || 1;
+			editForm.color = courseMapItem.color || '';
 		}
 		selectedLearningAreaIds = courseMapItemLearningAreas.map(la => la.id);
 	}
@@ -160,10 +184,9 @@
 					originalId: null
 				};
 				
-				console.log('Adding temporary item immediately:', tempItem);
 				onItemCreated(tempItem);
 				
-				// Close drawer immediately
+				// Close drawer immediately for create mode
 				handleClose();
 				
 				// Show success message
@@ -183,10 +206,10 @@
 					method: 'POST',
 					body: formData
 				}).then(response => response.json()).then(result => {
-					if (result.success && result.courseMapItem && onItemCreated) {
+					if (result.success && result.courseMapItem) {
 						// Replace temp item with real item from server
-						console.log('Replacing with server item:', result.courseMapItem);
-						// The parent component will handle replacing the temp item
+						// TODO: Implement replacing temporary item with real server item
+						// This would require additional logic in the parent component
 					}
 				}).catch(error => {
 					console.error('Background save failed:', error);
@@ -205,14 +228,13 @@
 					updatedAt: new Date().toISOString()
 				};
 				
-				console.log('Updating item immediately:', updatedItem);
 				onItemUpdated(updatedItem);
 				
 				// Update local reference
 				courseMapItem = updatedItem;
 				
-				// Close drawer immediately
-				handleClose();
+				// Exit edit mode but keep drawer open for edit mode
+				isEditMode = false;
 				
 				// Show success message
 				toast.success('Course map item updated successfully');
@@ -231,7 +253,7 @@
 					method: 'POST',
 					body: formData
 				}).then(response => response.json()).then(result => {
-					console.log('Server update completed:', result);
+					// Background update completed
 				}).catch(error => {
 					console.error('Background update failed:', error);
 					toast.error('Failed to save to server, but item was updated locally');
@@ -251,11 +273,7 @@
 		isEditMode = false;
 		showColorPicker = false;
 		showLearningAreaPicker = false;
-		if (isCreateMode) {
-			isCreateMode = false;
-			createWeek = null;
-			createSemester = null;
-		}
+		// Don't reset createSemester and createWeek here - let parent handle it
 	}
 </script>
 
@@ -294,67 +312,73 @@
 		<!-- Metadata Section -->
 		{#if isEditMode || isCreateMode}
 			<div class="p-6 pt-2">
-				<div class="grid grid-cols-12 gap-4 items-end">
+				<div class="grid grid-cols-12 gap-4">
 					<!-- Topic -->
-					<div class="col-span-4">
-						<Label for="topic" class="text-xs font-medium">Topic</Label>
+					<div class="col-span-6">
+						<Label for="topic" class="text-sm font-medium">Topic</Label>
 						<Input 
 							id="topic" 
 							bind:value={editForm.topic}
 							placeholder="Enter topic"
-							class="mt-1"
+							class="mt-2"
 						/>
 					</div>
 					
 					<!-- Week & Duration -->
 					<div class="col-span-2">
-						<Label for="startWeek" class="text-xs font-medium">Week</Label>
+						<Label for="startWeek" class="text-sm font-medium">Week</Label>
 						<Input 
 							id="startWeek" 
 							type="number" 
 							bind:value={editForm.startWeek}
 							min="1" max="18"
-							class="mt-1"
+							class="mt-2"
 						/>
 					</div>
 					<div class="col-span-2">
-						<Label for="duration" class="text-xs font-medium">Duration</Label>
+						<Label for="duration" class="text-sm font-medium">Duration</Label>
 						<Input 
 							id="duration" 
 							type="number" 
 							bind:value={editForm.duration}
 							min="1" max="18"
-							class="mt-1"
+							class="mt-2"
 						/>
 					</div>
 
 					<!-- Color Picker -->
 					<div class="col-span-2">
-						<Label class="text-xs font-medium">Color</Label>
-						<div class="relative mt-1">
+						<Label class="text-sm font-medium">Color</Label>
+						<div class="relative mt-2">
 							<button
 								type="button"
-								class="w-8 h-8 rounded-full border-2 border-gray-300 shadow-sm"
-								style="background-color: {editForm.color}"
+								class="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm flex items-center justify-between"
 								onclick={() => showColorPicker = !showColorPicker}
 								title="Select color"
 								aria-label="Select color"
 							>
+								<div class="flex items-center gap-2">
+									<div
+										class="w-4 h-4 rounded-full border"
+										style="background-color: {editForm.color}"
+									></div>
+									<span>{getColorName(editForm.color)}</span>
+								</div>
+								<svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+								</svg>
 							</button>
 							{#if showColorPicker}
-								<div class="absolute top-10 left-0 z-10 bg-white border rounded-lg shadow-lg p-2">
+								<div class="absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg p-3 z-50">
 									<div class="grid grid-cols-4 gap-2">
 										{#each colorOptions as color}
 											<button
 												type="button"
-												class="w-6 h-6 rounded border-2 {editForm.color === color.value ? 'border-gray-800' : 'border-gray-300'} {color.class}"
+												class="w-8 h-8 rounded border-2 {editForm.color === color.value ? 'border-gray-800' : 'border-gray-300'} {color.class}"
 												onclick={() => { 
 													editForm.color = color.value; 
 													showColorPicker = false;
-													// Trigger immediate color change for edit mode only
-													if (!isCreateMode && courseMapItem && onColorChange) {
-														onColorChange(courseMapItem.id, color.value);
-													}
+													// Don't auto-save color changes - only update when user clicks Save
 												}}
 												title={color.name}
 												aria-label="Select {color.name} color"
@@ -366,8 +390,6 @@
 							{/if}
 						</div>
 					</div>
-
-					<!-- Empty column to maintain grid -->
 				</div>
 			</div>
 		{/if}
@@ -404,17 +426,19 @@
 								<div class="relative">
 									<button
 										type="button"
-										class="w-full p-2 border rounded-md text-left bg-background hover:bg-accent hover:text-accent-foreground flex items-center justify-between"
+										class="w-full p-2 border border-input rounded-md text-left bg-background hover:bg-accent hover:text-accent-foreground flex items-center justify-between text-sm"
 										onclick={() => showLearningAreaPicker = !showLearningAreaPicker}
 									>
-										<span class="text-sm">
+										<span>
 											{#if selectedLearningAreaIds.length === 0}
 												Select learning areas...
 											{:else}
 												{selectedLearningAreaIds.length} selected
 											{/if}
 										</span>
-										<span class="ml-2">▼</span>
+										<svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+										</svg>
 									</button>
 									{#if showLearningAreaPicker}
 										<div class="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50 max-h-48 overflow-y-auto">
@@ -575,8 +599,8 @@
 		{:else if !isCreateMode}
 			<!-- View Mode Action Bar -->
 			<div class="flex gap-2 p-4 bg-gray-50">
-				<Button variant="outline" class="flex-1" onclick={handleCancel}>
-					Cancel
+				<Button variant="outline" class="flex-1" onclick={handleClose}>
+					Close
 				</Button>
 				<Button class="flex-1" onclick={handleEdit}>
 					Edit

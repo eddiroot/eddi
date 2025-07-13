@@ -5,20 +5,28 @@
 	import CourseMapItemTableCell from './CourseMapItemTableCell.svelte';
 	import type { CourseMapItem } from '$lib/server/db/schema';
 
-	export let courseMapItems: CourseMapItem[];
-	export let yearLevel: string;
-	export let onCourseMapItemClick: (item: CourseMapItem) => void;
-	export let onEmptyCellClick: (week: number, term: number) => void;
+	// Use Svelte 5 $props() for component props
+	let {
+		courseMapItems,
+		yearLevel,
+		onCourseMapItemClick,
+		onEmptyCellClick
+	}: {
+		courseMapItems: CourseMapItem[];
+		yearLevel: string;
+		onCourseMapItemClick: (item: CourseMapItem) => void;
+		onEmptyCellClick: (week: number, term: number) => void;
+	} = $props();
 
-	// Group course map items by semester
-	$: courseMapItemsBySemester = courseMapItems.reduce((acc, item) => {
+	// Use Svelte 5 $derived for reactive computations
+	const courseMapItemsBySemester = $derived(courseMapItems.reduce((acc, item) => {
 		const semester = item.semester || 1;
 		if (!acc[semester]) {
 			acc[semester] = [];
 		}
 		acc[semester].push(item);
 		return acc;
-	}, {} as Record<number, CourseMapItem[]>);
+	}, {} as Record<number, CourseMapItem[]>));
 
 	function handleAddItem(semester: number, weekNum: number) {
 		onEmptyCellClick(weekNum, semester);
@@ -83,6 +91,7 @@
 					<!-- Semester rows -->
 					{#each [1, 2] as semester}
 						{@const semesterItems = courseMapItemsBySemester[semester] || []}
+						{@const currentSemester = semester}
 						
 						<tr>
 							<!-- Semester label -->
@@ -97,19 +106,21 @@
 
 							<!-- Week columns -->
 							{#each Array.from({length: 18}, (_, i) => i + 1) as weekNum}
-								{@const weekItems = getItemsForSemesterWeek(semester, weekNum)}
+								{@const weekItems = getItemsForSemesterWeek(currentSemester, weekNum)}
 								
 								<td class="relative h-80 border border-border/50 bg-muted/20 hover:bg-muted/40 transition-colors">
 									{#if weekItems.length === 0}
-										<!-- Empty week - show add button on hover -->
-										<Button
-											variant="ghost"
-											size="sm"
-											class="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity h-full w-full text-[10px] rounded-none"
-											onclick={() => handleAddItem(semester, weekNum)}
+										<!-- Empty week - clickable area with plus icon on hover -->
+										<button
+											type="button"
+											class="absolute inset-0 flex items-center justify-center cursor-pointer group bg-transparent border-0 p-0 m-0"
+											aria-label="Add item to week {weekNum} semester {currentSemester}"
+											onclick={() => handleAddItem(currentSemester, weekNum)}
 										>
-											<Plus class="h-3 w-3" />
-										</Button>
+											<span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+												<Plus class="h-6 w-6 text-muted-foreground" />
+											</span>
+										</button>
 									{:else}
 										<!-- Show course map items -->
 										{#each weekItems.slice(0, 1) as item, index}

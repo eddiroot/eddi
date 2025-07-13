@@ -10,35 +10,51 @@
 		CourseMapItemAssessmentPlan
 	} from '$lib/server/db/schema';
 
-	export let data;
-	export let form;
+	// Use Svelte 5 $props() for component props
+	let { data, form } = $props();
 
-	// Make courseMapItems reactive by copying the data
-	let courseMapItems = [...(data.courseMapItems || [])];
+	// Use Svelte 5 $state rune for reactive course map items
+	let courseMapItems = $state([...(data.courseMapItems || [])]);
 
-	// Watch for form responses and handle them
-	$: if (form) {
-		console.log('Form response received:', form);
-		if (form?.success && form?.courseMapItem) {
-			// Handle form submission success
-			if (form.action === 'create') {
-				handleItemCreated(form.courseMapItem);
-			} else if (form.action === 'update') {
-				handleItemUpdated(form.courseMapItem);
+	// Use Svelte 5 $effect to sync with new data when the route changes
+	$effect(() => {
+		if (data.courseMapItems) {
+			console.log('Loading courseMapItems from server:', data.courseMapItems);
+			console.log('Raw semester values:', data.courseMapItems.map(item => ({ 
+				id: item.id, 
+				topic: item.topic, 
+				semester: item.semester, 
+				startWeek: item.startWeek 
+			})));
+			courseMapItems = [...data.courseMapItems];
+		}
+	});
+
+	// Use Svelte 5 $effect rune to handle form responses
+	$effect(() => {
+		if (form) {
+			if (form?.success && form?.courseMapItem) {
+				// Handle form submission success
+				if (form.action === 'create') {
+					handleItemCreated(form.courseMapItem);
+				} else if (form.action === 'update') {
+					handleItemUpdated(form.courseMapItem);
+				}
 			}
 		}
-	}
-	let drawerOpen = false;
-	let selectedCourseMapItem: CourseMapItem | null = null;
-	let courseMapItemLearningAreas: LearningArea[] = [];
-	let learningAreaContent: Record<number, LearningAreaContent[]> = {};
-	let assessmentPlans: CourseMapItemAssessmentPlan[] = [];
-	let isLoadingDrawerData = false;
+	});
+
+	let drawerOpen = $state(false);
+	let selectedCourseMapItem = $state<CourseMapItem | null>(null);
+	let courseMapItemLearningAreas = $state<LearningArea[]>([]);
+	let learningAreaContent = $state<Record<number, LearningAreaContent[]>>({});
+	let assessmentPlans = $state<CourseMapItemAssessmentPlan[]>([]);
+	let isLoadingDrawerData = $state(false);
 	
 	// Create mode state
-	let isCreateMode = false;
-	let createWeek: number | null = null;
-	let createSemester: number | null = null;
+	let isCreateMode = $state(false);
+	let createWeek = $state<number | null>(null);
+	let createSemester = $state<number | null>(null);
 
 	async function handleCourseMapItemClick(item: CourseMapItem) {
 		selectedCourseMapItem = item;
@@ -112,14 +128,19 @@
 	// Handle new item creation - add to local state immediately
 	function handleItemCreated(newItem: CourseMapItem) {
 		console.log('handleItemCreated called with:', newItem);
-		console.log('Current courseMapItems length:', courseMapItems.length);
+		console.log('Current courseMapItems length before:', courseMapItems.length);
+		
+		// Use spread to trigger reactivity in Svelte 5
 		courseMapItems = [...courseMapItems, newItem];
-		console.log('New courseMapItems length:', courseMapItems.length);
+		
+		console.log('New courseMapItems length after:', courseMapItems.length);
+		console.log('Updated courseMapItems:', courseMapItems);
 	}
 
 	// Handle item updates - update local state immediately
 	function handleItemUpdated(updatedItem: CourseMapItem) {
-		console.log('handleItemUpdated called with:', updatedItem);
+		
+		// Use map to create new array and trigger reactivity
 		courseMapItems = courseMapItems.map(item => 
 			item.id === updatedItem.id ? updatedItem : item
 		);
@@ -127,7 +148,6 @@
 		// Also update the selectedCourseMapItem if it matches
 		if (selectedCourseMapItem && selectedCourseMapItem.id === updatedItem.id) {
 			selectedCourseMapItem = { ...updatedItem };
-			console.log('Updated selectedCourseMapItem:', selectedCourseMapItem);
 		}
 	}
 </script>
@@ -153,11 +173,11 @@
 		courseMapItem={selectedCourseMapItem}
 		subjectOfferingId={data.subjectOfferingId}
 		availableLearningAreas={data.availableLearningAreas}
-		{courseMapItemLearningAreas}
-		{learningAreaContent}
-		{isCreateMode}
-		{createWeek}
-		{createSemester}
+		courseMapItemLearningAreas={courseMapItemLearningAreas}
+		learningAreaContent={learningAreaContent}
+		isCreateMode={isCreateMode}
+		createWeek={createWeek}
+		createSemester={createSemester}
 		onColorChange={handleColorChange}
 		onItemCreated={handleItemCreated}
 		onItemUpdated={handleItemUpdated}

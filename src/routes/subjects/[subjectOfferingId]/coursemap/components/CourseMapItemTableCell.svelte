@@ -11,19 +11,25 @@
 	import { invalidateAll } from '$app/navigation'; 
 	import { toast } from 'svelte-sonner';
 
-	export let item: CourseMapItem;
-	export let isStart: boolean = true; // Whether this is the start week of the item
-	export let weekLength: number = 1; // How many weeks this item spans in this cell
-	export let onCourseMapItemClick: (item: CourseMapItem) => void;
+	// Use Svelte 5 $props() for component props
+	let {
+		item,
+		isStart = true,
+		weekLength = 1,
+		onCourseMapItemClick
+	}: {
+		item: CourseMapItem;
+		isStart?: boolean;
+		weekLength?: number;
+		onCourseMapItemClick: (item: CourseMapItem) => void;
+	} = $props();
 
-	// Reactive color calculation - this ensures updates when item.color changes
-	$: itemColor = item.color || '#3B82F6';
-	
-	// Force reactivity by creating a derived value that changes when the item changes
-	$: itemKey = `${item.id}-${item.color}-${item.topic}`;
+	// Use Svelte 5 $derived for reactive computations
+	let itemColor = $derived(item.color || '#3B82F6');
+	let itemKey = $derived(`${item.id}-${item.color}-${item.topic}`);
 
-	let showDeleteDialog = false;
-	let isDeleting = false;
+	let showDeleteDialog = $state(false);
+	let isDeleting = $state(false);
 
 	function handleItemClick() {
 		onCourseMapItemClick(item);
