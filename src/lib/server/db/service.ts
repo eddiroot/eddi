@@ -1,6 +1,8 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, inArray, asc, sql, count } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const users = await db
@@ -1266,4 +1268,48 @@ export async function unarchiveCampus(campusId: number) {
 		.returning();
 
 	return unarchivedCampus;
+}
+
+/**
+ * Creates a new admin user (schoolAdmin) in the database.
+ * Throws an error if the user already exists or if validation fails.
+ */
+export async function createAdminUser({
+	firstName,
+	lastName,
+	email,
+	password,
+	schoolId
+}: {
+	firstName: string;
+	lastName: string;
+	email: string;
+	password: string;
+	schoolId?: number;
+}) {
+	if (!firstName || !lastName || !email || !password) {
+		throw new Error('Missing required fields');
+	}
+	if (!/\S+@\S+\.\S+/.test(email)) {
+		throw new Error('Invalid email address');
+	}
+	if (password.length < 8) {
+		throw new Error('Password must be at least 8 characters');
+	}
+	// Check for existing user
+	const existing = await db.query.user.findFirst({ where: (u) => u.email.eq(email) });
+	if (existing) {
+		throw new Error('A user with this email already exists');
+	}
+	const passwordHash = await bcrypt.hash(password, 10);
+	await db.insert(table.user).values({
+		id: randomUUID(),
+		email,
+		passwordHash,
+		firstName,
+		lastName,
+		type: table.userTypeEnum.schoolAdmin,
+		schoolId: schoolId ?? undefined
+	});
+	return true;
 }

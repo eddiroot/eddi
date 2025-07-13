@@ -102,6 +102,7 @@
 		"@tiptap/starter-kit": "^2.24.2",
 		"@tiptap/suggestion": "^2.24.2",
 		"@types/cheerio": "^0.22.35",
+		"bcryptjs": "^3.0.2",
 		"cheerio": "^1.1.0",
 		"dotenv": "^17.0.1",
 		"drizzle-orm": "^0.44.2",

@@ -5,6 +5,7 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
 
 	let formData = {
 		schoolName: '',
@@ -55,7 +56,7 @@
 		if (validateForm()) {
 			// Mock: In real implementation, this would save school details
 			console.log('Saving school details:', formData);
-			goto('/onboarding/self-setup/admin-users');
+			goto('/onboarding/self-setup/validate-email');
 		}
 	}
 </script>
@@ -68,91 +69,56 @@
 				<p class="text-muted-foreground text-sm">Tell us about your school</p>
 			</CardHeader>
 			<CardContent class="space-y-4">
-				<div class="space-y-2">
-					<Label for="schoolName">School Name</Label>
-					<Input
-						id="schoolName"
-						bind:value={formData.schoolName}
-						placeholder="Greenwood High School"
-						class={errors.schoolName ? 'border-destructive' : ''}
-					/>
-					{#if errors.schoolName}
-						<p class="text-destructive text-xs">{errors.schoolName}</p>
-					{/if}
-				</div>
-
-				<div class="space-y-2">
-					<Label for="schoolAddress">School Address</Label>
-					<Textarea
-						id="schoolAddress"
-						bind:value={formData.schoolAddress}
-						placeholder="123 Education Street, Learning City, LC 12345"
-						class={errors.schoolAddress ? 'border-destructive' : ''}
-						rows={3}
-					/>
-					{#if errors.schoolAddress}
-						<p class="text-destructive text-xs">{errors.schoolAddress}</p>
-					{/if}
-				</div>
-
-				<div class="grid grid-cols-2 gap-4">
+				<form method="POST" use:enhance>
 					<div class="space-y-2">
-						<Label for="schoolPhone">Phone Number</Label>
-						<Input
-							id="schoolPhone"
-							bind:value={formData.schoolPhone}
-							placeholder="(03) 9696 1234"
-							type="tel"
-						/>
+						<Label for="schoolName">School Name</Label>
+						<Input id="schoolName" name="schoolName" bind:value={formData.schoolName} placeholder="Greenwood High School" class={errors.schoolName ? 'border-destructive' : ''} />
+						<div class="h-4">
+							{#if errors.schoolName}
+								<p class="text-destructive text-xs">{errors.schoolName}</p>
+							{/if}
+						</div>
 					</div>
 					<div class="space-y-2">
-						<Label for="schoolEmail">School Email</Label>
-						<Input
-							id="schoolEmail"
-							type="email"
-							bind:value={formData.schoolEmail}
-							placeholder="info@school.edu"
-							class={errors.schoolEmail ? 'border-destructive' : ''}
-						/>
-						{#if errors.schoolEmail}
-							<p class="text-destructive text-xs">{errors.schoolEmail}</p>
-						{/if}
+						<Label for="schoolAddress">School Address</Label>
+						<Textarea id="schoolAddress" name="schoolAddress" bind:value={formData.schoolAddress} placeholder="123 Education Street, Learning City, LC 12345" class={errors.schoolAddress ? 'border-destructive' : ''} rows={3} />
+						<div class="h-4">
+							{#if errors.schoolAddress}
+								<p class="text-destructive text-xs">{errors.schoolAddress}</p>
+							{/if}
+						</div>
 					</div>
-				</div>
-
-				<div class="space-y-2">
-					<Label for="logo">School Logo (Optional)</Label>
-					<div class="flex items-center gap-4">
-						{#if logoPreview}
-							<img
-								src={logoPreview}
-								alt="Logo preview"
-								class="h-16 w-16 rounded border object-contain"
-							/>
-						{/if}
-						<input
-							id="logo"
-							type="file"
-							accept="image/*"
-							on:change={handleLogoUpload}
-							class="text-muted-foreground border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-						/>
+					<div class="grid grid-cols-2 gap-4">
+						<div class="space-y-2">
+							<Label for="schoolPhone">Phone Number</Label>
+							<Input id="schoolPhone" name="schoolPhone" bind:value={formData.schoolPhone} placeholder="(03) 9696 1234" type="tel" />
+						</div>
+						<div class="space-y-2">
+							<Label for="schoolEmail">School Email</Label>
+							<Input id="schoolEmail" name="schoolEmail" type="email" bind:value={formData.schoolEmail} placeholder="info@school.edu" class={errors.schoolEmail ? 'border-destructive' : ''} />
+							<div class="h-4">
+								{#if errors.schoolEmail}
+									<p class="text-destructive text-xs">{errors.schoolEmail}</p>
+								{/if}
+							</div>
+						</div>
 					</div>
-					<p class="text-muted-foreground text-xs">
-						Upload a PNG, JPG, or SVG file (recommended: 200x200px)
-					</p>
-				</div>
-
-				<div class="flex gap-4 pt-4">
-					<Button variant="outline" href="/onboarding/self-setup" class="flex-1">Back</Button>
-					<button
-						type="button"
-						on:click={handleSubmit}
-						class="bg-primary text-primary-foreground hover:bg-primary/90 ring-offset-background focus-visible:ring-ring h-10 flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-					>
-						Continue
-					</button>
-				</div>
+					<div class="space-y-2">
+						<Label for="logo">School Logo (Optional)</Label>
+						<div class="flex items-center gap-4">
+							{#if logoPreview}
+								<img src={logoPreview} alt="Logo preview" class="h-16 w-16 rounded border object-contain" />
+							{/if}
+							<input id="logo" name="logo" type="file" accept="image/*" on:change={handleLogoUpload} class="text-muted-foreground border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50" />
+						</div>
+						<p class="text-muted-foreground text-xs">Upload a PNG, JPG, or SVG file (recommended: 200x200px)</p>
+					</div>
+					<div class="flex gap-4 pt-4">
+						<Button variant="outline" href="/onboarding/self-setup" class="flex-1">Back</Button>
+						
+						<button type="button" on:click={handleSubmit} class="bg-primary text-primary-foreground hover:bg-primary/90 ring-offset-background focus-visible:ring-ring h-10 flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50">Continue</button>
+					</div>
+				</form>
 			</CardContent>
 		</Card>
 	</div>
