@@ -84,6 +84,7 @@ enum user_sub_offering_role {
 enum user_type {
   student
   teacher
+  guardian
   principal
   schoolAdmin
   systemAdmin
@@ -173,6 +174,11 @@ table course_map_item {
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    
+    (original_id, version) [name: 'course_map_item_original_id_version_unique', unique]
+  }
 }
 
 table cm_item_as_plan {
@@ -185,6 +191,11 @@ table cm_item_as_plan {
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    
+    (original_id, version) [name: 'cm_item_as_plan_original_id_version_unique', unique]
+  }
 }
 
 table course_map_item_area_of_study {
@@ -196,6 +207,11 @@ table course_map_item_area_of_study {
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    
+    (original_id, version) [name: 'course_map_item_area_of_study_original_id_version_unique', unique]
+  }
 }
 
 table cm_item_lesson_plan {
@@ -208,6 +224,11 @@ table cm_item_lesson_plan {
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    
+    (original_id, version) [name: 'cm_item_lesson_plan_original_id_version_unique', unique]
+  }
 }
 
 table course_map_item_resource {
@@ -219,6 +240,11 @@ table course_map_item_resource {
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    
+    (original_id, version) [name: 'course_map_item_resource_original_id_version_unique', unique]
+  }
 }
 
 table curriculum {
@@ -286,7 +312,7 @@ table school_location {
   type school_location_type [not null]
   capacity integer
   description text
-  is_active boolean [not null, default: false]
+  is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
 
@@ -359,7 +385,8 @@ table sub_offering_class {
 table sub_off_class_resource {
   id integer [pk, not null]
   sub_off_class_id integer [not null]
-  sub_off_res_id integer [not null]
+  cm_item_id integer
+  author_id text [not null]
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
@@ -369,33 +396,9 @@ table sub_off_class_task {
   id integer [pk, not null]
   index integer [not null]
   sub_off_class_id integer [not null]
-  sub_off_task_id integer [not null]
-  is_archived boolean [not null, default: false]
-  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
-  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
-}
-
-table sub_off_resource {
-  id integer [pk, not null]
-  cm_item_id integer
-  sub_off_id integer [not null]
-  author_id text [not null]
-  resource_id integer [not null]
-  original_id integer
-  version integer [not null, default: 1]
-  is_archived boolean [not null, default: false]
-  createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
-  updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
-}
-
-table sub_off_task {
-  id integer [pk, not null]
-  cm_item_id integer
-  sub_off_id integer [not null]
   task_id integer [not null]
   author_id text [not null]
-  original_id integer
-  version integer [not null, default: 1]
+  cm_item_id integer
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
@@ -435,6 +438,11 @@ table task {
   is_archived boolean [not null, default: false]
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
+
+  indexes {
+    
+    (original_id, version) [name: 'task_original_id_version_unique', unique]
+  }
 }
 
 table task_block {

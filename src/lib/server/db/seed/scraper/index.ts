@@ -8,7 +8,7 @@ import {
 	learningAreaContent,
 	contentElaboration,
 	yearLevelEnum
-} from '../server/db/schema';
+} from '../../schema';
 import { eq } from 'drizzle-orm';
 
 interface ContentItem {

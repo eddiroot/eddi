@@ -17,19 +17,7 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "npx tsx --env-file=.env ./src/lib/server/db/seed.ts",
 		"db:studio": "drizzle-kit studio",
-		"db:diagram": "tsx ./src/lib/server/db/dbml.ts",
-		"scrape": "npx tsx --env-file=.env ./scripts/scraper/run-scraper.ts",
-		"scrape:math": "npm run scrape -- --mathematics",
-		"scrape:english": "npm run scrape -- --english",
-		"scrape:science": "npm run scrape -- --science",
-		"scrape:technologies": "npm run scrape -- --technologies",
-		"scrape:humanities": "npm run scrape -- --humanities",
-		"scrape:languages": "npm run scrape -- --languages",
-		"scrape:arts": "npm run scrape -- --arts",
-		"scrape:health": "npm run scrape -- --health",
-		"scrape:all": "npm run scrape -- --all",
-		"scrape:view": "npx tsx --env-file=.env ./scripts/scraper/view-data.ts",
-		"scrape:clear": "npx tsx --env-file=.env ./scripts/scraper/clear-data.ts"
+		"db:diagram": "tsx ./src/lib/server/db/dbml.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",

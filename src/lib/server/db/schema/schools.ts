@@ -71,7 +71,7 @@ export const schoolLocation = pgTable(
 		type: schoolLocationTypeEnumPg().notNull(),
 		capacity: integer('capacity'),
 		description: text('description'),
-		isArchived: boolean('is_active').notNull().default(false),
+		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},
 	(location) => [unique().on(location.campusId, subject.name)]
