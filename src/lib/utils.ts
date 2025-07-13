@@ -13,8 +13,8 @@ export enum userPermissions {
 	viewChildGrades = 'view_child_grades',
 	viewDashboard = 'view_dashboard',
 	viewAdmin = 'view_admin',
-	viewTimeTable = 'view_time_table',
-	etc = 'etc'
+	viewTimetable = 'view_timetable',
+	viewAttendance = 'view_attendance'
 }
 
 export function getPermissions(userType: string): string[] {
@@ -23,48 +23,51 @@ export function getPermissions(userType: string): string[] {
 			return [
 				userPermissions.viewLessons,
 				userPermissions.viewDashboard,
-				userPermissions.viewTimeTable
+				userPermissions.viewTimetable
 			];
 		case 'teacher':
 			return [
 				userPermissions.viewLessons,
 				userPermissions.createTasks,
 				userPermissions.viewAnalytics,
-				userPermissions.viewTimeTable,
-				userPermissions.viewDashboard
+				userPermissions.viewTimetable,
+				userPermissions.viewDashboard,
+				userPermissions.viewAttendance
 			];
 		case 'principal':
 			return [
 				userPermissions.manageTeachers,
 				userPermissions.viewAnalytics,
-				userPermissions.viewTimeTable,
-				userPermissions.viewDashboard
+				userPermissions.viewTimetable,
+				userPermissions.viewDashboard,
+				userPermissions.viewAttendance
 			];
 		case 'guardian':
 			return [
 				userPermissions.viewChildGrades,
 				userPermissions.viewLessons,
-				userPermissions.viewTimeTable,
+				userPermissions.viewTimetable,
 				userPermissions.viewDashboard
 			];
 		case 'schoolAdmin':
 			return [
 				userPermissions.viewAdmin,
 				userPermissions.viewDashboard,
-				userPermissions.viewTimeTable,
+				userPermissions.viewTimetable,
 				userPermissions.viewAnalytics,
 				userPermissions.manageTeachers,
-				userPermissions.viewLessons
+				userPermissions.viewLessons,
+				userPermissions.viewAttendance
 			];
 		case 'systemAdmin':
 			return [
 				userPermissions.viewAdmin,
 				userPermissions.viewDashboard,
-				userPermissions.viewTimeTable,
+				userPermissions.viewTimetable,
 				userPermissions.viewAnalytics,
 				userPermissions.manageTeachers,
 				userPermissions.viewLessons,
-				userPermissions.etc
+				userPermissions.viewAttendance
 			];
 		default:
 			return [];

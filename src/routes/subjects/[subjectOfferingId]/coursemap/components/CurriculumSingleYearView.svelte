@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import Plus from 'lucide-svelte/icons/plus';
-	import Calendar from 'lucide-svelte/icons/calendar';
+	import Plus from '@lucide/svelte/icons/plus';
+	import Calendar from '@lucide/svelte/icons/calendar';
 	import CourseMapItemTableCell from './CourseMapItemTableCell.svelte';
 	import type { CourseMapItem } from '$lib/server/db/schema';
 
-	// Use Svelte 5 $props() for component props
 	let {
 		courseMapItems,
 		yearLevel,
@@ -18,15 +16,19 @@
 		onEmptyCellClick: (week: number, term: number) => void;
 	} = $props();
 
-	// Use Svelte 5 $derived for reactive computations
-	const courseMapItemsBySemester = $derived(courseMapItems.reduce((acc, item) => {
-		const semester = item.semester || 1;
-		if (!acc[semester]) {
-			acc[semester] = [];
-		}
-		acc[semester].push(item);
-		return acc;
-	}, {} as Record<number, CourseMapItem[]>));
+	const courseMapItemsBySemester = $derived(
+		courseMapItems.reduce(
+			(acc, item) => {
+				const semester = item.semester || 1;
+				if (!acc[semester]) {
+					acc[semester] = [];
+				}
+				acc[semester].push(item);
+				return acc;
+			},
+			{} as Record<number, CourseMapItem[]>
+		)
+	);
 
 	function handleAddItem(semester: number, weekNum: number) {
 		onEmptyCellClick(weekNum, semester);
@@ -34,7 +36,7 @@
 
 	function getItemsForSemesterWeek(semester: number, weekNum: number): CourseMapItem[] {
 		const semesterItems = courseMapItemsBySemester[semester] || [];
-		return semesterItems.filter(item => {
+		return semesterItems.filter((item) => {
 			const startWeek = item.startWeek || 1;
 			const duration = item.duration || 1;
 			const endWeek = startWeek + duration - 1;
@@ -42,7 +44,10 @@
 		});
 	}
 
-	function getItemPosition(item: CourseMapItem, weekNum: number): { isStart: boolean; isEnd: boolean; position: number } {
+	function getItemPosition(
+		item: CourseMapItem,
+		weekNum: number
+	): { isStart: boolean; isEnd: boolean; position: number } {
 		const startWeek = item.startWeek || 1;
 		const duration = item.duration || 1;
 		const endWeek = startWeek + duration - 1;
@@ -70,32 +75,34 @@
 				Year {yearLevel} Curriculum Map
 			</h3>
 		</div>
-		
+
 		<div class="w-full overflow-x-auto">
-			<table class="w-full border-collapse border border-border">
+			<table class="border-border w-full border-collapse border">
 				<!-- Week headers -->
 				<thead>
 					<tr>
-						<th class="w-24 text-xs font-medium text-muted-foreground p-2 border text-left bg-muted/30">
+						<th
+							class="text-muted-foreground bg-muted/30 w-24 border p-2 text-left text-xs font-medium"
+						>
 							Semester
 						</th>
-						{#each Array.from({length: 18}, (_, i) => i + 1) as weekNum}
-							<th class="w-16 text-xs font-medium text-center p-1 border bg-muted/50">
+						{#each Array.from({ length: 18 }, (_, i) => i + 1) as weekNum}
+							<th class="bg-muted/50 w-16 border p-1 text-center text-xs font-medium">
 								{weekNum}
 							</th>
 						{/each}
 					</tr>
 				</thead>
-				
+
 				<tbody>
 					<!-- Semester rows -->
 					{#each [1, 2] as semester}
 						{@const semesterItems = courseMapItemsBySemester[semester] || []}
 						{@const currentSemester = semester}
-						
+
 						<tr>
 							<!-- Semester label -->
-							<td class="text-xs font-medium text-muted-foreground p-2 border bg-muted/30">
+							<td class="text-muted-foreground bg-muted/30 border p-2 text-xs font-medium">
 								<div>
 									<div class="font-medium">Semester {semester}</div>
 									<div class="text-xs opacity-70">
@@ -105,20 +112,24 @@
 							</td>
 
 							<!-- Week columns -->
-							{#each Array.from({length: 18}, (_, i) => i + 1) as weekNum}
+							{#each Array.from({ length: 18 }, (_, i) => i + 1) as weekNum}
 								{@const weekItems = getItemsForSemesterWeek(currentSemester, weekNum)}
-								
-								<td class="relative h-80 border border-border/50 bg-muted/20 hover:bg-muted/40 transition-colors">
+
+								<td
+									class="border-border/50 bg-muted/20 hover:bg-muted/40 relative h-80 border transition-colors"
+								>
 									{#if weekItems.length === 0}
 										<!-- Empty week - clickable area with plus icon on hover -->
 										<button
 											type="button"
-											class="absolute inset-0 flex items-center justify-center cursor-pointer group bg-transparent border-0 p-0 m-0"
+											class="group absolute inset-0 m-0 flex cursor-pointer items-center justify-center border-0 bg-transparent p-0"
 											aria-label="Add item to week {weekNum} semester {currentSemester}"
 											onclick={() => handleAddItem(currentSemester, weekNum)}
 										>
-											<span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-												<Plus class="h-6 w-6 text-muted-foreground" />
+											<span
+												class="pointer-events-none opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+											>
+												<Plus class="text-muted-foreground h-6 w-6" />
 											</span>
 										</button>
 									{:else}
@@ -129,8 +140,8 @@
 												<!-- Only render the widget at the start week -->
 												<div class="absolute inset-0" style="padding: 1px;">
 													{#key `${item.id}-${item.color}-${item.topic}`}
-														<CourseMapItemTableCell 
-															{item} 
+														<CourseMapItemTableCell
+															{item}
 															isStart={true}
 															weekLength={calculateWeekLength(item, weekNum)}
 															{onCourseMapItemClick}
@@ -139,9 +150,11 @@
 												</div>
 											{/if}
 										{/each}
-										
+
 										{#if weekItems.length > 1}
-											<div class="absolute bottom-1 right-1 text-[8px] text-muted-foreground bg-background rounded px-1 z-20">
+											<div
+												class="text-muted-foreground bg-background absolute right-1 bottom-1 z-20 rounded px-1 text-[8px]"
+											>
 												+{weekItems.length - 1}
 											</div>
 										{/if}

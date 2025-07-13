@@ -32,20 +32,20 @@
 			title: 'Dashboard',
 			url: '/dashboard',
 			icon: LayoutDashboardIcon,
-			repuiredPermission: userPermissions.viewDashboard
+			requiredPermission: userPermissions.viewDashboard
 		},
 		{
 			title: 'Admin',
 			url: '/admin',
 			icon: WrenchIcon,
-			repuiredPermission: userPermissions.viewAdmin
+			requiredPermission: userPermissions.viewAdmin
 		},
 
 		{
 			title: 'Timetable',
 			url: '/timetable',
 			icon: CalendarDaysIcon,
-			repuiredPermission: userPermissions.viewTimeTable
+			requiredPermission: userPermissions.viewTimetable
 		}
 	];
 
@@ -60,7 +60,8 @@
 			title: 'Attendance',
 			url: 'attendance',
 			icon: UsersIcon,
-			classLevel: true
+			classLevel: true,
+			requiredPermission: userPermissions.viewAttendance
 		},
 		{
 			title: 'Discussion',
@@ -84,7 +85,8 @@
 			title: 'Analytics',
 			url: 'analytics',
 			icon: BarChart3Icon,
-			classLevel: true
+			classLevel: true,
+			requiredPermission: userPermissions.viewAnalytics
 		}
 	];
 
@@ -286,7 +288,7 @@
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					{#each items as item}
-						{#if permissions.includes(item.repuiredPermission)}
+						{#if permissions.includes(item.requiredPermission)}
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
 									side="left"
@@ -311,25 +313,27 @@
 				<Sidebar.GroupContent>
 					<Sidebar.Menu>
 						{#each subjectItems as item}
-							{#each subjects.filter((subject) => subject.classes.length > 1) as subject}
-								<Sidebar.MenuItem>
-									<Sidebar.MenuButton
-										side="left"
-										isActive={isSubjectSubItemActive(
-											subject.subjectOffering.id.toString(),
-											item.url
-										)}
-										tooltipContent={`${subject.subject.name} - ${item.title}`}
-									>
-										{#snippet child({ props })}
-											<a href={`/subjects/${subject.subjectOffering.id}/${item.url}`} {...props}>
-												<item.icon />
-												<span>{subject.subject.name} - {item.title}</span>
-											</a>
-										{/snippet}
-									</Sidebar.MenuButton>
-								</Sidebar.MenuItem>
-							{/each}
+							{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
+								{#each subjects.filter((subject) => subject.classes.length > 1) as subject}
+									<Sidebar.MenuItem>
+										<Sidebar.MenuButton
+											side="left"
+											isActive={isSubjectSubItemActive(
+												subject.subjectOffering.id.toString(),
+												item.url
+											)}
+											tooltipContent={`${subject.subject.name} - ${item.title}`}
+										>
+											{#snippet child({ props })}
+												<a href={`/subjects/${subject.subjectOffering.id}/${item.url}`} {...props}>
+													<item.icon />
+													<span>{subject.subject.name} - {item.title}</span>
+												</a>
+											{/snippet}
+										</Sidebar.MenuButton>
+									</Sidebar.MenuItem>
+								{/each}
+							{/if}
 						{/each}
 					</Sidebar.Menu>
 				</Sidebar.GroupContent>
@@ -402,32 +406,34 @@
 										<!-- Single class: show ALL nested items under the subject dropdown -->
 										{@const singleClass = subject.classes[0]}
 										{#each nestedItems as item}
-											<Sidebar.MenuSubItem>
-												<Sidebar.MenuSubButton
-													isActive={item.classLevel
-														? isClassSubItemActive(
-																subject.subjectOffering.id.toString(),
-																singleClass.id.toString(),
-																item.url
-															)
-														: isSubjectSubItemActive(
-																subject.subjectOffering.id.toString(),
-																item.url
-															)}
-												>
-													{#snippet child({ props })}
-														<a
-															href={item.classLevel
-																? `/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${item.url}`
-																: `/subjects/${subject.subjectOffering.id}/${item.url}`}
-															{...props}
-														>
-															<item.icon />
-															<span>{item.title}</span>
-														</a>
-													{/snippet}
-												</Sidebar.MenuSubButton>
-											</Sidebar.MenuSubItem>
+											{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
+												<Sidebar.MenuSubItem>
+													<Sidebar.MenuSubButton
+														isActive={item.classLevel
+															? isClassSubItemActive(
+																	subject.subjectOffering.id.toString(),
+																	singleClass.id.toString(),
+																	item.url
+																)
+															: isSubjectSubItemActive(
+																	subject.subjectOffering.id.toString(),
+																	item.url
+																)}
+													>
+														{#snippet child({ props })}
+															<a
+																href={item.classLevel
+																	? `/subjects/${subject.subjectOffering.id}/class/${singleClass.id}/${item.url}`
+																	: `/subjects/${subject.subjectOffering.id}/${item.url}`}
+																{...props}
+															>
+																<item.icon />
+																<span>{item.title}</span>
+															</a>
+														{/snippet}
+													</Sidebar.MenuSubButton>
+												</Sidebar.MenuSubItem>
+											{/if}
 										{/each}
 									{:else}
 										<!-- Multiple classes: show collapsible classes with only class-level items -->
@@ -456,25 +462,27 @@
 												<Collapsible.Content>
 													<Sidebar.MenuSub>
 														{#each classItems as item}
-															<Sidebar.MenuSubItem>
-																<Sidebar.MenuSubButton
-																	isActive={isClassSubItemActive(
-																		subject.subjectOffering.id.toString(),
-																		classItem.id.toString(),
-																		item.url
-																	)}
-																>
-																	{#snippet child({ props })}
-																		<a
-																			href={`/subjects/${subject.subjectOffering.id}/class/${classItem.id}/${item.url}`}
-																			{...props}
-																		>
-																			<item.icon />
-																			<span>{item.title}</span>
-																		</a>
-																	{/snippet}
-																</Sidebar.MenuSubButton>
-															</Sidebar.MenuSubItem>
+															{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
+																<Sidebar.MenuSubItem>
+																	<Sidebar.MenuSubButton
+																		isActive={isClassSubItemActive(
+																			subject.subjectOffering.id.toString(),
+																			classItem.id.toString(),
+																			item.url
+																		)}
+																	>
+																		{#snippet child({ props })}
+																			<a
+																				href={`/subjects/${subject.subjectOffering.id}/class/${classItem.id}/${item.url}`}
+																				{...props}
+																			>
+																				<item.icon />
+																				<span>{item.title}</span>
+																			</a>
+																		{/snippet}
+																	</Sidebar.MenuSubButton>
+																</Sidebar.MenuSubItem>
+															{/if}
 														{/each}
 													</Sidebar.MenuSub>
 												</Collapsible.Content>
