@@ -66,7 +66,7 @@
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
-			<Button href={`${page.url.pathname}/upload`} variant="outline">
+			<Button href={`${page.url.pathname}/upload`} variant="default">
 				<PlusIcon class="h-4 w-4" />
 				Upload Resource
 			</Button>
@@ -79,10 +79,6 @@
 				<FileIcon class="text-muted-foreground mx-auto h-12 w-12" />
 				<h3 class="text-foreground mt-4 text-lg font-semibold">No resources available</h3>
 				<p class="text-muted-foreground mt-2">Upload your first resource to get started.</p>
-				<Button href={`${page.url.pathname}/upload`} class="mt-4">
-					<PlusIcon class="mr-2 h-4 w-4" />
-					Upload Resource
-				</Button>
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
