@@ -45,7 +45,9 @@ Jack
 
 Raph
 
-- [ ] Class resources (14/07)
+- [x] Class resources (14/07)
+  - Improve
+- [ ] Class home page (20/07) 
 - [ ] Better whiteboard (20/07)
   - Fix mc alerts and text overflow in question and explanation
   - Expanding the whiteboard
