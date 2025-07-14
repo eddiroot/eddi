@@ -1,7 +1,7 @@
 import { pgTable, text, integer, foreignKey, boolean, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { subjectOffering } from './subjects';
-import { learningArea } from './curriculum';
+import { learningArea, learningAreaContent } from './curriculum';
 
 export const courseMapItem = pgTable(
 	'course_map_item',
@@ -92,6 +92,8 @@ export const courseMapItemLessonPlan = pgTable(
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
+		scope: text('scope'),
+		assessmentPrinciples: text('asses_prin'),
 		description: text('description'),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
@@ -108,6 +110,30 @@ export const courseMapItemLessonPlan = pgTable(
 );
 
 export type CourseMapItemLessonPlan = typeof courseMapItemLessonPlan.$inferSelect;
+
+export const courseMapAssessmentPlanLearningAreaContent = pgTable(
+	'cm_as_plan_la_content',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		courseMapItemAssessmentPlanId: integer('cm_item_as_plan_id')
+			.notNull()
+			.references(() => courseMapItemAssessmentPlan.id, { onDelete: 'cascade' }),
+		learningAreaContentId: integer('la_content_id')
+			.notNull()
+			.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
+		originalId: integer('original_id'),
+		version: integer('version').notNull().default(1),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [
+		foreignKey({
+			columns: [self.originalId],
+			foreignColumns: [self.id]
+		}).onDelete('cascade'),
+		unique().on(self.originalId, self.version)
+	]
+);
 
 export const courseMapItemResource = pgTable(
 	'course_map_item_resource',
