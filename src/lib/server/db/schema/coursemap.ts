@@ -111,8 +111,8 @@ export const courseMapItemLessonPlan = pgTable(
 
 export type CourseMapItemLessonPlan = typeof courseMapItemLessonPlan.$inferSelect;
 
-export const courseMapAssessmentPlanLearningAreaContent = pgTable(
-	'cm_as_plan_la_content',
+export const courseMapItemAssessmentPlanLearningAreaContent = pgTable(
+	'cm_item_as_plan_la_content',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		courseMapItemAssessmentPlanId: integer('cm_item_as_plan_id')
@@ -134,6 +134,9 @@ export const courseMapAssessmentPlanLearningAreaContent = pgTable(
 		unique().on(self.originalId, self.version)
 	]
 );
+
+export type CourseMapItemAssessmentPlanLearningAreaContent =
+	typeof courseMapItemAssessmentPlanLearningAreaContent.$inferSelect;
 
 export const courseMapItemResource = pgTable(
 	'course_map_item_resource',

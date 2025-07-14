@@ -217,9 +217,17 @@ export async function getCourseMapItemLearningAreas(courseMapItemId: number) {
 export async function getCoursemapItemAssessmentPlans(courseMapItemId: number) {
 	const assessmentPlans = await db
 		.select({
-			assessmentPlan: table.courseMapItemAssessmentPlan
+			assessmentPlan: table.courseMapItemAssessmentPlan,
+			laContent: table.courseMapItemAssessmentPlanLearningAreaContent
 		})
 		.from(table.courseMapItemAssessmentPlan)
+		.leftJoin(
+			table.courseMapItemAssessmentPlanLearningAreaContent,
+			eq(
+				table.courseMapItemAssessmentPlanLearningAreaContent.courseMapItemAssessmentPlanId,
+				table.courseMapItemAssessmentPlan.id
+			)
+		)
 		.where(eq(table.courseMapItemAssessmentPlan.courseMapItemId, courseMapItemId))
 		.orderBy(asc(table.courseMapItemAssessmentPlan.name));
 
