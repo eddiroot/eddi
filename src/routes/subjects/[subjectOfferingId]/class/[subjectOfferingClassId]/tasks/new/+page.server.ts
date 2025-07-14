@@ -10,7 +10,8 @@ import {
 	getTopics,
 	createCourseMapItem,
 	getLearningAreaContentWithElaborationsByIds,
-	createSubjectOfferingClassTask
+	createSubjectOfferingClassTask,
+	getCurriculumLearningAreaWithContents
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -27,12 +28,13 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 		throw new Error('Invalid subject offering ID or class ID');
 	}
 
-	const [form, taskTopics] = await Promise.all([
+	const [form, taskTopics, learningAreaWithContents] = await Promise.all([
 		superValidate(zod(formSchema)),
-		getTopics(subjectOfferingIdInt)
+		getTopics(subjectOfferingIdInt),
+		getCurriculumLearningAreaWithContents(subjectOfferingIdInt)
 	]);
 
-	return { form, taskTopics };
+	return { form, taskTopics, learningAreaWithContents };
 };
 
 // Helper function to validate and create blocks from task schema
@@ -319,7 +321,13 @@ export const actions = {
 			subjectOfferingIdInt
 		);
 
-		await createSubjectOfferingClassTask(task.id, subjectOfferingClassIdInt, user.id, courseMapItemId);
+		await createSubjectOfferingClassTask(
+			task.id,
+			subjectOfferingClassIdInt,
+			user.id,
+			courseMapItemId,
+			form.data.week
+		);
 
 		console.log('Created task:', form.data);
 

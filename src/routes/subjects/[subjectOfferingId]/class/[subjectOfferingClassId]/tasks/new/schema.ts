@@ -47,6 +47,7 @@ export const formSchema = z
 		newTopicName: z.string().min(1, 'New topic name cannot be empty').optional(),
 		type: z.enum(['lesson', 'homework', 'assessment']).default('lesson'),
 		dueDate: z.date().optional(),
+		week: z.number().optional(),
 		files: filesSchema.optional(),
 		creationMethod: z.enum(['manual', 'ai'], {
 			required_error: 'Please select a creation method'

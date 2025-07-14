@@ -303,6 +303,7 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
 		onDelete: 'cascade'
 	}),
+	week: integer('week'),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });

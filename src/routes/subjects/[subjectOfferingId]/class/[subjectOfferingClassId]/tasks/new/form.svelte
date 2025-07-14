@@ -10,7 +10,13 @@
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import LoaderIcon from '@lucide/svelte/icons/loader';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+	import  BadgeInfo  from '@lucide/svelte/icons/badge-info';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+
+	import type  { curriculumLearningAreaContent } from '$lib/server/db/service/task.js';
 
 	let creationMethod = $state<'manual' | 'ai'>('ai');
 	let aiFiles: FileList | null = $state(null);
@@ -24,6 +30,7 @@
 		data: {
 			form: SuperValidated<Infer<FormSchema>>;
 			taskTopics: Array<{ id: number; name: string }>;
+			learningAreaWithContents: curriculumLearningAreaContent[] | null;
 		};
 	} = $props();
 
@@ -76,6 +83,14 @@
 	let selectedLearningAreaContentIds = $state<number[]>([]);
 	let isLoadingLearningContent = $state(false);
 
+	// Curriculum content dropdown state
+	let showCurriculumDropdown = $state(false);
+	let showDescriptionId = $state<number | null>(null);
+
+	function toggleDescription(contentId: number) {
+		showDescriptionId = showDescriptionId === contentId ? null : contentId;
+	}
+
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
 	});
@@ -112,8 +127,7 @@
 		// Reset selected content when topic changes
 		selectedLearningAreaContentIds = [];
 	});
-
-	// Connect selected learning area content IDs to form data
+	// Connect selected curriculum content IDs to form data
 	$effect(() => {
 		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds;
 	});
@@ -181,10 +195,21 @@
 <form
 	method="POST"
 	action="?/createTask"
-	class="max-w-3xl space-y-6"
+	class="max-w-3xl space-y-4"
 	enctype="multipart/form-data"
 	use:enhance
 >
+	<!-- Header row: Title left, Task Type Tabs right -->
+	<div class="flex items-center justify-between mb-2">
+		<h1 class="text-4xl font-bold py-2">Create New Task</h1>		
+		<Tabs.Root bind:value={$formData.type} class="flex gap-2" >
+			<Tabs.List class="bg-muted rounded-lg flex gap-1">
+				<Tabs.Trigger value="lesson" class="px-4 py-2 text-sm font-medium capitalize">Lesson</Tabs.Trigger>
+				<Tabs.Trigger value="homework" class="px-4 py-2 text-sm font-medium capitalize">Homework</Tabs.Trigger>
+				<Tabs.Trigger value="assessment" class="px-4 py-2 text-sm font-medium capitalize">Assessment</Tabs.Trigger>
+			</Tabs.List>
+		</Tabs.Root>
+	</div>
 	<!-- Title and Description fields remain the same -->
 	<Form.Field {form} name="title">
 		<Form.Control>
@@ -197,25 +222,8 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Field {form} name="description">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Description</Form.Label>
-				<Textarea
-					{...props}
-					bind:value={$formData.description}
-					placeholder="Describe what students will learn in this task"
-					rows={4}
-				/>
-			{/snippet}
-		</Form.Control>
-		<Form.Description>
-			Briefly describe the task content and learning objectives (max 500 characters).
-		</Form.Description>
-		<Form.FieldErrors />
-	</Form.Field>
 
-	<!-- Updated Topic selection -->
+	<!-- Updated Topic selection and week/due date fields -->
 	<div class="grid grid-cols-6 gap-4 lg:grid-cols-12">
 		<div class="col-span-6">
 			<Form.Field {form} name="taskTopicId">
@@ -265,12 +273,6 @@
 									} else {
 										selectedTopicId = value || '';
 										$formData.taskTopicId = value ? parseInt(value, 10) : undefined;
-										console.log(
-											'Selected topic ID:',
-											selectedTopicId,
-											'Form data:',
-											$formData.taskTopicId
-										);
 									}
 								}}
 							>
@@ -301,41 +303,17 @@
 						{/if}
 					{/snippet}
 				</Form.Control>
-				<Form.Description>
-					{#if data.taskTopics.length === 0}
-						No topics available. Please create a new topic to organize your task.
-					{:else}
-						Select an existing topic or create a new one to organize your task.
-					{/if}
-				</Form.Description>
 				<Form.FieldErrors />
 			</Form.Field>
 		</div>
 
 		<!-- Week and Due Date fields remain the same -->
 		<div class="col-span-3">
-			<Form.Field {form} name="type">
+			<Form.Field {form} name="week">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Type</Form.Label>
-						<Select.Root type="single" bind:value={$formData.type} name={props.name}>
-							<Select.Trigger {...props} class="w-full">
-								<span class="capitalize">
-									{$formData.type || 'Select type'}
-								</span>
-							</Select.Trigger>
-							<Select.Content>
-								<Select.Item value="lesson" label="Lesson">
-									<span class="capitalize">Lesson</span>
-								</Select.Item>
-								<Select.Item value="homework" label="Homework">
-									<span class="capitalize">Homework</span>
-								</Select.Item>
-								<Select.Item value="assessment" label="Assessment">
-									<span class="capitalize">Assessment</span>
-								</Select.Item>
-							</Select.Content>
-						</Select.Root>
+						<Form.Label>Week (optional)</Form.Label>
+						<Input {...props} type="number" min="1" max="18" bind:value={$formData.week} />
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />
@@ -358,65 +336,137 @@
 		{/if}
 	</div>
 
-	<!-- Learning Area Content Selection -->
-	{#if (learningAreaContents.length > 0 || isLoadingLearningContent) && !isCreatingNewTopic && selectedTopicId}
-		<div class="space-y-4">
-			<div>
-				<Label class="text-base font-medium">Learning Area Content (Optional)</Label>
-				<p class="text-muted-foreground text-sm">
-					Select specific curriculum content to guide task generation. This helps ensure alignment
-					with learning objectives.
-				</p>
-			</div>
-
-			{#if isLoadingLearningContent}
-				<div class="flex items-center justify-center py-8">
-					<LoaderIcon class="h-6 w-6 animate-spin text-gray-500" />
-					<span class="ml-2 text-sm text-gray-500">Loading content...</span>
-				</div>
-			{:else if learningAreaContents.length === 0}
-				<div class="py-8 text-center">
-					<p class="text-muted-foreground text-sm">
-						No learning area content found for this topic.
-					</p>
-				</div>
-			{:else}
-				<div class="grid max-h-96 gap-3 overflow-y-auto">
-					{#each learningAreaContents as content (content.id)}
-						<div
-							class="rounded-lg border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+	<Form.Field {form} name="selectedLearningAreaContentIds">
+		<Form.Control>
+			{#snippet children({ props })}
+				<Form.Label>Curriculum Content</Form.Label>
+				{#if data.learningAreaWithContents === null}
+					<div class="p-2 text-sm text-gray-500 italic">No curriculum content available</div>
+				{:else}
+					<!-- Curriculum Content Dropdown -->
+					<div class="relative">
+						<button 
+							type="button" 
+							class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-between rounded-md border p-2 text-left text-sm"
+							onclick={() => (showCurriculumDropdown = !showCurriculumDropdown)}
 						>
-							<label class="flex cursor-pointer items-start space-x-3">
-								<input
-									type="checkbox"
-									bind:group={selectedLearningAreaContentIds}
-									value={content.id}
-									class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-								/>
-								<div class="min-w-0 flex-1">
-									<div class="text-sm font-medium">{content.name}</div>
-									{#if content.description}
-										<div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
-											{content.description}
+							<span>
+								{#if selectedLearningAreaContentIds.length === 0}
+									Select curriculum content...
+								{:else}
+									{selectedLearningAreaContentIds.length} selected
+								{/if}
+							</span>
+							<ChevronDown class="h-4 w-4" />
+						</button>
+						{#if showCurriculumDropdown}
+							<div class="absolute top-full right-0 left-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-md border bg-white shadow-lg">
+								{#if selectedTopicId && learningAreaContents.length > 0}
+									<!-- Show topic-specific content first -->
+									{#each learningAreaContents as content (content.id)}
+										<div class="flex items-center px-3 py-2 hover:bg-gray-50">
+											<Checkbox
+												checked={selectedLearningAreaContentIds.includes(content.id)}
+												onCheckedChange={() => {
+													if (selectedLearningAreaContentIds.includes(content.id)) {
+														selectedLearningAreaContentIds = selectedLearningAreaContentIds.filter(id => id !== content.id);
+													} else {
+														selectedLearningAreaContentIds = [...selectedLearningAreaContentIds, content.id];
+													}
+												}}
+												class="mr-2"
+											/>
+											<span class="flex-1 text-sm truncate">{content.name}</span>
+											<Popover.Root>
+												<Popover.Trigger
+													type="button"
+													aria-label="Show description"
+													class="text-gray-400 focus:outline-none ml-2"
+												>
+													<BadgeInfo class="h-4 w-4" />
+												</Popover.Trigger>
+												<Popover.Content class="max-w-xs p-3 bg-white text-black rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
+													{content.description}
+												</Popover.Content>
+											</Popover.Root>
 										</div>
-									{/if}
-								</div>
-							</label>
-						</div>
-					{/each}
-				</div>
-
-				{#if selectedLearningAreaContentIds.length > 0}
-					<div class="text-sm text-green-600 dark:text-green-400">
-						{selectedLearningAreaContentIds.length} content item{selectedLearningAreaContentIds.length !==
-						1
-							? 's'
-							: ''} selected for task generation
+									{/each}
+								{:else if data.learningAreaWithContents && data.learningAreaWithContents.length > 0}
+									<!-- Show all curriculum content grouped by learning area -->
+									{#each data.learningAreaWithContents as learningAreaGroup (learningAreaGroup.learningArea.id)}
+										{#if learningAreaGroup.contents.length > 0}
+											<div class="px-3 py-2 bg-gray-100 border-b text-sm font-medium text-gray-700">
+												{learningAreaGroup.learningArea.name}
+											</div>
+											{#each learningAreaGroup.contents as content (content.id)}
+												<div class="flex items-center px-6 py-2 hover:bg-gray-50">
+													<Checkbox
+														checked={selectedLearningAreaContentIds.includes(content.id)}
+														onCheckedChange={() => {
+															if (selectedLearningAreaContentIds.includes(content.id)) {
+																selectedLearningAreaContentIds = selectedLearningAreaContentIds.filter(id => id !== content.id);
+															} else {
+																selectedLearningAreaContentIds = [...selectedLearningAreaContentIds, content.id];
+															}
+														}}
+														class="mr-2"
+													/>
+													<span class="flex-1 text-sm truncate">{content.name}</span>
+													<Popover.Root>
+														<Popover.Trigger
+															type="button"
+															aria-label="Show description"
+															class="text-gray-400 focus:outline-none ml-2"
+														>
+															<BadgeInfo class="h-4 w-4" />
+														</Popover.Trigger>
+														<Popover.Content class="max-w-xs p-3 bg-white text-black rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
+															{content.description}
+														</Popover.Content>
+													</Popover.Root>
+												</div>
+												{#if showDescriptionId === content.id}
+													<div class="px-8 pb-2 text-xs text-gray-600 bg-gray-50 border-t italic">
+														{content.description}
+													</div>
+												{/if}
+											{/each}
+										{/if}
+									{/each}
+								{:else}
+									<div class="px-3 py-2 text-sm text-gray-500 italic">No curriculum content available</div>
+								{/if}
+							</div>
+						{/if}
 					</div>
 				{/if}
-			{/if}
-		</div>
-	{/if}
+			{/snippet}
+		</Form.Control>
+		<Form.Description>
+			Select specific curriculum content to align with learning objectives.
+		</Form.Description>
+		<Form.FieldErrors />
+	</Form.Field>
+
+	<Form.Field {form} name="description">
+		<Form.Control>
+			{#snippet children({ props })}
+				<Form.Label>Description (optional)</Form.Label>
+				<Textarea
+					{...props}
+					bind:value={$formData.description}
+					placeholder="Describe what students will learn in this task"
+					rows={4}
+				/>
+			{/snippet}
+		</Form.Control>
+		<Form.Description>
+			Briefly describe the task content (max 500 characters).
+		</Form.Description>
+		<Form.FieldErrors />
+	</Form.Field>
+
+	
 
 	<div>
 		{#if fileValidationErrors.length > 0}
@@ -443,7 +493,7 @@
 			<Tabs.Content value="ai" class="bg-muted rounded-b-lg p-2">
 				<div class="w-full">
 					<div class="p-1">
-						<Label>Supporting Material (Optional)</Label>
+						<Label>Supporting Material (optional)</Label>
 						<p class="text-muted-foreground mt-1 text-sm font-medium">
 							Upload materials for AI to analyse and generate task content from.
 						</p>
@@ -466,12 +516,6 @@
 
 	<input type="hidden" name="newTopicName" bind:value={$formData.newTopicName} />
 	<input type="hidden" name="creationMethod" bind:value={$formData.creationMethod} />
-	<input
-		type="hidden"
-		name="selectedLearningAreaContentIds"
-		value={JSON.stringify(selectedLearningAreaContentIds)}
-	/>
-
 	<!-- Add hidden file input -->
 	<input
 		bind:this={fileInputRef}

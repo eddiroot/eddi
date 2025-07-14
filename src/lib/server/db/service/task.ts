@@ -6,7 +6,8 @@ import { verifyUserAccessToClass } from './user';
 export async function addTasksToClass(
 	taskIds: number[],
 	subjectOfferingClassId: number,
-	userId: string
+	userId: string,
+	week: number | null = null
 ) {
 	if (taskIds.length === 0) {
 		return [];
@@ -28,7 +29,8 @@ export async function addTasksToClass(
 				taskId: taskId,
 				subjectOfferingClassId: subjectOfferingClassId,
 				authorId: userId,
-				index: nextIndex++
+				index: nextIndex++,
+				week: week
 			}))
 		)
 		.onConflictDoNothing()
@@ -179,7 +181,8 @@ export async function createSubjectOfferingClassTask(
 	taskId: number,
 	subjectOfferingClassId: number,
 	authorId: string,
-	courseMapItemId: number | null = null
+	courseMapItemId: number | null = null,
+	week: number | null = null
 ) {
 	const maxIndexResult = await db
 		.select({ maxIndex: table.subjectOfferingClassTask.index })
@@ -196,7 +199,8 @@ export async function createSubjectOfferingClassTask(
 			index: nextIndex,
 			subjectOfferingClassId,
 			authorId,
-			courseMapItemId
+			courseMapItemId,
+			week
 		})
 		.returning();
 
@@ -519,4 +523,51 @@ export async function getLearningAreaContentWithElaborationsByIds(
 	});
 
 	return contentWithElaborations;
+}
+
+export interface curriculumLearningAreaContent {
+	learningArea: table.LearningArea;
+	contents: table.LearningAreaContent[];
+}
+
+export async function getCurriculumLearningAreaWithContents(subjectOfferingId: number) {
+	const rows = await db
+		.select({
+			learningArea: table.learningArea,
+			learningAreaContent: table.learningAreaContent
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.innerJoin(table.coreSubject, eq(table.coreSubject.id, table.subject.coreSubjectId))
+		.innerJoin(
+			table.curriculumSubject,
+			eq(table.curriculumSubject.id, table.coreSubject.curriculumSubjectId)
+		)
+		.innerJoin(
+			table.learningArea,
+			eq(table.learningArea.curriculumSubjectId, table.curriculumSubject.id)
+		)
+		.innerJoin(
+			table.learningAreaContent,
+			and(
+				eq(table.learningAreaContent.learningAreaId, table.learningArea.id),
+				eq(table.learningAreaContent.yearLevel, table.subject.yearLevel)
+			)
+		)
+		.where(eq(table.subjectOffering.id, subjectOfferingId))
+		.orderBy(asc(table.learningArea.name));
+
+	// Group by learningArea.id using a Map for type safety
+	const map = new Map<number, curriculumLearningAreaContent>();
+	for (const row of rows) {
+		const laId = row.learningArea.id;
+		if (!map.has(laId)) {
+			map.set(laId, {
+				learningArea: row.learningArea,
+				contents: []
+			});
+		}
+		map.get(laId)!.contents.push(row.learningAreaContent);
+	}
+	return Array.from(map.values());
 }
