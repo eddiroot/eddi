@@ -140,6 +140,25 @@ export async function getFileStream(schoolId: string, objectName: string) {
 	}
 }
 
+export async function getFileFromStorage(schoolId: string, objectName: string) {
+	const bucketName = `schools`;
+	const fullObjectName = `${schoolId}/${objectName}`;
+
+	try {
+		const stream = await minioClient.getObject(bucketName, fullObjectName);
+
+		// Convert stream to buffer
+		const chunks: Buffer[] = [];
+		for await (const chunk of stream) {
+			chunks.push(chunk);
+		}
+		return Buffer.concat(chunks);
+	} catch (error) {
+		console.error('Error getting file from storage:', error);
+		throw error;
+	}
+}
+
 export async function getFileMetadata(schoolId: string, objectName: string) {
 	const bucketName = `schools`;
 	const fullObjectName = `${schoolId}/${objectName}`;

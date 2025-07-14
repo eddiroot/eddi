@@ -688,6 +688,28 @@ export async function getResourcesBySubjectOfferingId(subjectOfferingId: number)
 	return resources;
 }
 
+export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassId: number) {
+	const resources = await db
+		.select({
+			resource: table.subjectOfferingClassResource,
+			author: table.user
+		})
+		.from(table.subjectOfferingClassResource)
+		.innerJoin(
+			table.user,
+			eq(table.user.id, table.subjectOfferingClassResource.authorId)
+		)
+		.where(
+			and(
+				eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingClassId),
+				eq(table.subjectOfferingClassResource.isArchived, false)
+			)
+		)
+		.orderBy(table.subjectOfferingClassResource.createdAt);
+
+	return resources;
+}
+
 export async function getAssessmentsBySubjectOfferingId(subjectOfferingId: number) {
 	const assessments = await db
 		.select({
@@ -732,4 +754,19 @@ export async function upsertSubjectClassAllocationAttendance(
 		.returning();
 
 	return attendance;
+}
+
+export async function getResourceById(resourceId: number) {
+	const resource = await db
+		.select()
+		.from(table.subjectOfferingClassResource)
+		.where(
+			and(
+				eq(table.subjectOfferingClassResource.id, resourceId),
+				eq(table.subjectOfferingClassResource.isArchived, false)
+			)
+		)
+		.limit(1);
+
+	return resource[0] || null;
 }

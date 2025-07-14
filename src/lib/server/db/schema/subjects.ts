@@ -311,6 +311,9 @@ export type SubjectOfferingClassTask = typeof subjectOfferingClassTask.$inferSel
 
 export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	originalFileName: text('original_file_name').notNull(),
+	storedFileName: text('stored_file_name').notNull().unique(),
+	fileSize: integer('file_size').notNull(),
 	subjectOfferingClassId: integer('sub_off_class_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),

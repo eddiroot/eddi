@@ -82,12 +82,19 @@
 			classLevel: false
 		},
 		{
+			title: 'Resources',
+			url: 'resources',
+			icon: FileQuestionIcon,
+			classLevel: true
+		},
+		{
 			title: 'Analytics',
 			url: 'analytics',
 			icon: BarChart3Icon,
 			classLevel: true,
 			requiredPermission: userPermissions.viewAnalytics
 		}
+
 	];
 
 	const classItems = nestedItems.filter((item) => item.classLevel);
