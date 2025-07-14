@@ -324,7 +324,7 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 	return classAllocation;
 }
 
-export async function getSubjectClassAllocationAndAttendancesByClassIdForToday(
+export async function getSubjectClassAllocationAndStudentAttendancesByClassIdForToday(
 	subjectOfferingClassId: number
 ) {
 	const tableDayOfWeek = getTableDayOfWeek();
@@ -365,7 +365,8 @@ export async function getSubjectClassAllocationAndAttendancesByClassIdForToday(
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
-				eq(table.subjectClassAllocation.dayOfWeek, tableDayOfWeek)
+				eq(table.subjectClassAllocation.dayOfWeek, tableDayOfWeek),
+				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.student)
 			)
 		)
 		.orderBy(desc(table.userSubjectOfferingClass.role), table.user.lastName, table.user.firstName);
@@ -695,10 +696,7 @@ export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassI
 			author: table.user
 		})
 		.from(table.subjectOfferingClassResource)
-		.innerJoin(
-			table.user,
-			eq(table.user.id, table.subjectOfferingClassResource.authorId)
-		)
+		.innerJoin(table.user, eq(table.user.id, table.subjectOfferingClassResource.authorId))
 		.where(
 			and(
 				eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingClassId),

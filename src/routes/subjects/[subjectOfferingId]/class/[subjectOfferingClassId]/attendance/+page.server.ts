@@ -1,5 +1,5 @@
 import {
-	getSubjectClassAllocationAndAttendancesByClassIdForToday,
+	getSubjectClassAllocationAndStudentAttendancesByClassIdForToday,
 	upsertSubjectClassAllocationAttendance
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
@@ -18,7 +18,9 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 	}
 
 	const attendances =
-		await getSubjectClassAllocationAndAttendancesByClassIdForToday(subjectOfferingClassIdInt);
+		await getSubjectClassAllocationAndStudentAttendancesByClassIdForToday(
+			subjectOfferingClassIdInt
+		);
 
 	const form = await superValidate(zod(attendanceSchema));
 
