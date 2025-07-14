@@ -1,39 +1,68 @@
 <script lang="ts">
-	import {
-		type ColumnDef,
-		type ColumnFiltersState,
-		type SortingState,
-		type VisibilityState,
-		getCoreRowModel,
-		getFilteredRowModel,
-		getSortedRowModel
-	} from '@tanstack/table-core';
-	import * as Table from '$lib/components/ui/table/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import {
-		FlexRender,
-		createSvelteTable,
-		renderComponent
-	} from '$lib/components/ui/data-table/index.js';
-	import { Switch } from '$lib/components/ui/switch/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Card, CardContent, CardHeader } from '$lib/components/ui/card/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { convertToFullName } from '$lib/utils';
 	import { invalidateAll } from '$app/navigation';
+	import Check from '@lucide/svelte/icons/check';
+	import X from '@lucide/svelte/icons/x';
 
 	const { data } = $props();
 	const attendances = $derived(data.attendances || []);
 
-	async function handleAttendanceToggle(
+	let searchTerm = $state('');
+
+	const filteredAttendances = $derived(
+		attendances
+			.filter((attendance) => {
+				const fullName = convertToFullName(
+					attendance.user.firstName,
+					attendance.user.middleName,
+					attendance.user.lastName
+				);
+				return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+			})
+			.sort((a, b) => {
+				// Priority order:
+				// 1. Not yet marked (no attendance record or didAttend is null/undefined)
+				// 2. Marked as present or not present
+				// 3. Was absent (at the end)
+				
+				const aWasAbsent = a.attendance?.wasAbsent || false;
+				const bWasAbsent = b.attendance?.wasAbsent || false;
+				
+				// If one is absent and the other isn't, put absent at the end
+				if (aWasAbsent && !bWasAbsent) return 1;
+				if (!aWasAbsent && bWasAbsent) return -1;
+				
+				// If both are absent or both are not absent, check attendance status
+				const aHasAttendance = a.attendance && (a.attendance.didAttend === true || a.attendance.didAttend === false);
+				const bHasAttendance = b.attendance && (b.attendance.didAttend === true || b.attendance.didAttend === false);
+				
+				// Unmarked attendance comes first
+				if (!aHasAttendance && bHasAttendance) return -1;
+				if (aHasAttendance && !bHasAttendance) return 1;
+				
+				// If both have same attendance status, sort alphabetically by name
+				const aName = convertToFullName(a.user.firstName, a.user.middleName, a.user.lastName);
+				const bName = convertToFullName(b.user.firstName, b.user.middleName, b.user.lastName);
+				return aName.localeCompare(bName);
+			})
+	);
+
+	async function handleAttendanceUpdate(
 		subjectClassAllocationId: number,
 		userId: string,
-		currentDidAttend: boolean,
-		wasAbsent: boolean
+		didAttend: boolean | null
 	) {
-		if (wasAbsent) return;
-
 		const formData = new FormData();
 		formData.append('subjectClassAllocationId', subjectClassAllocationId.toString());
 		formData.append('userId', userId);
-		formData.append('didAttend', (!currentDidAttend).toString());
+
+		if (didAttend !== null) {
+			formData.append('didAttend', didAttend.toString());
+		}
 
 		try {
 			const response = await fetch('?/updateAttendance', {
@@ -49,175 +78,95 @@
 		}
 	}
 
-	const columns: ColumnDef<(typeof attendances)[number]>[] = [
-		{
-			accessorKey: 'user',
-			header: 'Student Name',
-			filterFn: 'includesString',
-			size: 250,
-			cell: ({ getValue }) => {
-				const user = getValue() as any;
-				return convertToFullName(user.firstName, user.middleName, user.lastName);
-			}
-		},
-		{
-			id: 'attendance',
-			header: 'Present',
-			size: 100,
-			cell: ({ row }) => {
-				const attendance = row.original.attendance;
-				const user = row.original.user;
-				const subjectClassAllocation = row.original.subjectClassAllocation;
-				const isPresent = attendance?.didAttend || false;
-				const wasAbsent = attendance?.wasAbsent || false;
-
-				return renderComponent(Switch, {
-					checked: isPresent,
-					disabled: wasAbsent,
-					onCheckedChange: () => {
-						if (!wasAbsent) {
-							handleAttendanceToggle(subjectClassAllocation.id, user.id, isPresent, wasAbsent);
-						}
-					}
-				});
-			}
-		},
-		{
-			id: 'status',
-			header: 'Status',
-			size: 120,
-			cell: ({ row }) => {
-				const attendance = row.original.attendance;
-				if (!attendance) {
-					return 'Not recorded';
-				}
-				if (attendance.wasAbsent) {
-					return 'Absent';
-				}
-				return attendance.didAttend ? 'Present' : 'Not present';
-			}
-		},
-		{
-			id: 'note',
-			header: 'Note',
-			size: 200,
-			cell: ({ row }) => {
-				const note = row.original.attendance?.note;
-				return note || 'No comments';
-			}
-		}
-	];
-
-	let sorting = $state<SortingState>([]);
-	let columnFilters = $state<ColumnFiltersState>([]);
-	let columnVisibility = $state<VisibilityState>({});
-
-	const table = createSvelteTable({
-		get data() {
-			return attendances;
-		},
-		columns,
-		getRowId: (row) => `${row.user.id}-${row.subjectClassAllocation.id}`,
-		state: {
-			get sorting() {
-				return sorting;
-			},
-			get columnVisibility() {
-				return columnVisibility;
-			},
-			get columnFilters() {
-				return columnFilters;
-			}
-		},
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		onSortingChange: (updater) => {
-			if (typeof updater === 'function') {
-				sorting = updater(sorting);
-			} else {
-				sorting = updater;
-			}
-		},
-		onColumnFiltersChange: (updater) => {
-			if (typeof updater === 'function') {
-				columnFilters = updater(columnFilters);
-			} else {
-				columnFilters = updater;
-			}
-		},
-		onColumnVisibilityChange: (updater) => {
-			if (typeof updater === 'function') {
-				columnVisibility = updater(columnVisibility);
-			} else {
-				columnVisibility = updater;
-			}
-		}
-	});
+	function getAttendanceStatus(attendance: any) {
+		if (!attendance) return { status: 'unrecorded', variant: 'secondary' as const };
+		if (attendance.wasAbsent) return { status: 'Absent', variant: 'destructive' as const };
+		if (attendance.didAttend === true) return { status: 'Present', variant: 'default' as const };
+		if (attendance.didAttend === false)
+			return { status: 'Not Present', variant: 'destructive' as const };
+		return { status: 'Not recorded', variant: 'secondary' as const };
+	}
 </script>
 
-<div class="flex h-full flex-col space-y-2 p-8">
-	<h1 class="text-3xl font-bold tracking-tight">Attendance</h1>
+<div class="flex h-full flex-col space-y-6 p-8">
+	<div class="flex flex-col space-y-4">
+		<h1 class="text-3xl font-bold tracking-tight">Attendance</h1>
 
-	{#if attendances.length === 0}
-		<p class="text-muted-foreground">No students found for the current day.</p>
-	{:else}
-		<div class="flex min-h-0 flex-1 flex-col">
-			<div class="flex items-center py-4">
-				<Input
-					placeholder="Filter students..."
-					value={(table.getColumn('user')?.getFilterValue() as string) ?? ''}
-					oninput={(e) => table.getColumn('user')?.setFilterValue(e.currentTarget.value)}
-					onchange={(e) => {
-						table.getColumn('user')?.setFilterValue(e.currentTarget.value);
-					}}
-					class="max-w-sm"
-				/>
-			</div>
-			<div class="flex flex-1 flex-col overflow-hidden rounded-md border">
-				<Table.Root class="h-full">
-					<Table.Header class="bg-background sticky top-0 z-10">
-						{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-							<Table.Row>
-								{#each headerGroup.headers as header (header.id)}
-									<Table.Head class="[&:has([role=checkbox])]:pl-3">
-										{#if !header.isPlaceholder}
-											<FlexRender
-												content={header.column.columnDef.header}
-												context={header.getContext()}
-											/>
-										{/if}
-									</Table.Head>
-								{/each}
-							</Table.Row>
-						{/each}
-					</Table.Header>
-					<Table.Body class="overflow-auto">
-						{#each table.getRowModel().rows as row (row.id)}
-							<Table.Row data-row-id={row.id}>
-								{#each row.getVisibleCells() as cell (cell.id)}
-									<Table.Cell class="[&:has([role=checkbox])]:pl-3">
-										<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-									</Table.Cell>
-								{/each}
-							</Table.Row>
-						{:else}
-							<Table.Row>
-								<Table.Cell colspan={columns.length} class="h-24 text-center"
-									>No students found.</Table.Cell
-								>
-							</Table.Row>
-						{/each}
-					</Table.Body>
-				</Table.Root>
-			</div>
-			<div class="flex items-center justify-end space-x-2 pt-4">
-				<div class="text-muted-foreground flex-1 text-sm">
-					{table.getFilteredRowModel().rows.filter((row) => row.original.attendance?.didAttend)
-						.length} of
-					{table.getFilteredRowModel().rows.length} student(s) present.
+		{#if attendances.length === 0}
+			<p class="text-muted-foreground">No students found for the current day.</p>
+		{:else}
+			<div class="flex items-center space-x-4">
+				<Input placeholder="Search students..." bind:value={searchTerm} class="max-w-sm" />
+				<div class="text-muted-foreground text-sm">
+					{filteredAttendances.filter((a) => a.attendance?.didAttend === true).length} of {filteredAttendances.length}
+					student(s) present
 				</div>
 			</div>
+		{/if}
+	</div>
+
+	{#if filteredAttendances.length > 0}
+		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+			{#each filteredAttendances as attendanceRecord (attendanceRecord.user.id + '-' + attendanceRecord.subjectClassAllocation.id)}
+				{@const user = attendanceRecord.user}
+				{@const attendance = attendanceRecord.attendance}
+				{@const subjectClassAllocation = attendanceRecord.subjectClassAllocation}
+				{@const fullName = convertToFullName(user.firstName, user.middleName, user.lastName)}
+				{@const statusInfo = getAttendanceStatus(attendance)}
+				{@const wasAbsent = attendance?.wasAbsent || false}
+				{@const isPresent = attendance?.didAttend === true}
+				{@const isNotPresent = attendance?.didAttend === false}
+
+				<Card class="transition-all hover:shadow-md">
+					<CardHeader class="pb-3">
+						<div class="flex items-start justify-between">
+							<h3 class="text-lg leading-tight font-semibold">{fullName}</h3>
+							<Badge variant={statusInfo.variant} class="text-xs">
+								{statusInfo.status}
+							</Badge>
+						</div>
+					</CardHeader>
+					<CardContent class="space-y-4">
+						{#if attendance?.note}
+							<div class="text-muted-foreground text-sm">
+								<span class="font-medium">Note:</span>
+								{attendance.note}
+							</div>
+						{/if}
+
+						{#if !wasAbsent}
+							<div class="flex gap-2">
+								<Button
+									variant={isPresent ? 'default' : 'outline'}
+									size="sm"
+									class="flex-1 gap-2"
+									onclick={() => handleAttendanceUpdate(subjectClassAllocation.id, user.id, true)}
+								>
+									<Check class="h-4 w-4" />
+									Present
+								</Button>
+								<Button
+									variant={isNotPresent ? 'destructive' : 'outline'}
+									size="sm"
+									class="flex-1 gap-2"
+									onclick={() => handleAttendanceUpdate(subjectClassAllocation.id, user.id, false)}
+								>
+									<X class="h-4 w-4" />
+									Absent
+								</Button>
+							</div>
+						{:else}
+							<div class="text-muted-foreground bg-muted rounded p-4 text-center text-sm">
+								Student is absent from school today and cannot be updated
+							</div>
+						{/if}
+					</CardContent>
+				</Card>
+			{/each}
+		</div>
+	{:else if attendances.length > 0}
+		<div class="text-muted-foreground py-8 text-center">
+			No students found matching your search.
 		</div>
 	{/if}
 </div>
