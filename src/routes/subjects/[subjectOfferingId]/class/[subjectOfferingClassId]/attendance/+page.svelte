@@ -7,6 +7,8 @@
 	import { invalidateAll } from '$app/navigation';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
+	import { flip } from 'svelte/animate';
+	import { fade, scale } from 'svelte/transition';
 
 	const { data } = $props();
 	const attendances = $derived(data.attendances || []);
@@ -14,37 +16,45 @@
 	let searchTerm = $state('');
 
 	const filteredAttendances = $derived(
-		attendances
+		attendances.filter((attendance) => {
+			const fullName = convertToFullName(
+				attendance.user.firstName,
+				attendance.user.middleName,
+				attendance.user.lastName
+			);
+			return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+		})
+	);
+
+	// Split attendances into unmarked and marked sections
+	const unmarkedAttendances = $derived(
+		filteredAttendances
 			.filter((attendance) => {
-				const fullName = convertToFullName(
-					attendance.user.firstName,
-					attendance.user.middleName,
-					attendance.user.lastName
-				);
-				return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+				// Include if no attendance record or didAttend is null/undefined, and not absent
+				const hasAttendance =
+					attendance.attendance &&
+					(attendance.attendance.didAttend === true || attendance.attendance.didAttend === false);
+				const wasAbsent = attendance.attendance?.wasAbsent || false;
+				return !hasAttendance && !wasAbsent;
 			})
 			.sort((a, b) => {
-				// Priority order:
-				// 1. Not yet marked (no attendance record or didAttend is null/undefined)
-				// 2. Marked as present or not present
-				// 3. Was absent (at the end)
-				
-				const aWasAbsent = a.attendance?.wasAbsent || false;
-				const bWasAbsent = b.attendance?.wasAbsent || false;
-				
-				// If one is absent and the other isn't, put absent at the end
-				if (aWasAbsent && !bWasAbsent) return 1;
-				if (!aWasAbsent && bWasAbsent) return -1;
-				
-				// If both are absent or both are not absent, check attendance status
-				const aHasAttendance = a.attendance && (a.attendance.didAttend === true || a.attendance.didAttend === false);
-				const bHasAttendance = b.attendance && (b.attendance.didAttend === true || b.attendance.didAttend === false);
-				
-				// Unmarked attendance comes first
-				if (!aHasAttendance && bHasAttendance) return -1;
-				if (aHasAttendance && !bHasAttendance) return 1;
-				
-				// If both have same attendance status, sort alphabetically by name
+				const aName = convertToFullName(a.user.firstName, a.user.middleName, a.user.lastName);
+				const bName = convertToFullName(b.user.firstName, b.user.middleName, b.user.lastName);
+				return aName.localeCompare(bName);
+			})
+	);
+
+	const markedAttendances = $derived(
+		filteredAttendances
+			.filter((attendance) => {
+				// Include if attendance is marked (present/absent) or student was absent
+				const hasAttendance =
+					attendance.attendance &&
+					(attendance.attendance.didAttend === true || attendance.attendance.didAttend === false);
+				const wasAbsent = attendance.attendance?.wasAbsent || false;
+				return hasAttendance || wasAbsent;
+			})
+			.sort((a, b) => {
 				const aName = convertToFullName(a.user.firstName, a.user.middleName, a.user.lastName);
 				const bName = convertToFullName(b.user.firstName, b.user.middleName, b.user.lastName);
 				return aName.localeCompare(bName);
@@ -80,7 +90,7 @@
 
 	function getAttendanceStatus(attendance: any) {
 		if (!attendance) return { status: 'unrecorded', variant: 'secondary' as const };
-		if (attendance.wasAbsent) return { status: 'Absent', variant: 'destructive' as const };
+		if (attendance.wasAbsent) return { status: 'Away today', variant: 'destructive' as const };
 		if (attendance.didAttend === true) return { status: 'Present', variant: 'default' as const };
 		if (attendance.didAttend === false)
 			return { status: 'Not Present', variant: 'destructive' as const };
@@ -98,73 +108,172 @@
 			<div class="flex items-center space-x-4">
 				<Input placeholder="Search students..." bind:value={searchTerm} class="max-w-sm" />
 				<div class="text-muted-foreground text-sm">
-					{filteredAttendances.filter((a) => a.attendance?.didAttend === true).length} of {filteredAttendances.length}
+					{markedAttendances.filter((a) => a.attendance?.didAttend === true).length} of {filteredAttendances.length}
 					student(s) present
 				</div>
 			</div>
 		{/if}
 	</div>
 
-	{#if filteredAttendances.length > 0}
-		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-			{#each filteredAttendances as attendanceRecord (attendanceRecord.user.id + '-' + attendanceRecord.subjectClassAllocation.id)}
-				{@const user = attendanceRecord.user}
-				{@const attendance = attendanceRecord.attendance}
-				{@const subjectClassAllocation = attendanceRecord.subjectClassAllocation}
-				{@const fullName = convertToFullName(user.firstName, user.middleName, user.lastName)}
-				{@const statusInfo = getAttendanceStatus(attendance)}
-				{@const wasAbsent = attendance?.wasAbsent || false}
-				{@const isPresent = attendance?.didAttend === true}
-				{@const isNotPresent = attendance?.didAttend === false}
+	<!-- Unmarked Attendance Section -->
+	{#if unmarkedAttendances.length > 0}
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<h2 class="text-foreground text-xl font-semibold">
+					Attendance Unrecorded ({unmarkedAttendances.length})
+				</h2>
+				<Badge variant="secondary" class="text-sm">
+					{unmarkedAttendances.length} remaining
+				</Badge>
+			</div>
+			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				{#each unmarkedAttendances as attendanceRecord (attendanceRecord.user.id + '-' + attendanceRecord.subjectClassAllocation.id)}
+					{@const user = attendanceRecord.user}
+					{@const attendance = attendanceRecord.attendance}
+					{@const subjectClassAllocation = attendanceRecord.subjectClassAllocation}
+					{@const fullName = convertToFullName(user.firstName, user.middleName, user.lastName)}
+					{@const statusInfo = getAttendanceStatus(attendance)}
+					{@const wasAbsent = attendance?.wasAbsent || false}
+					{@const isPresent = attendance?.didAttend === true}
+					{@const isNotPresent = attendance?.didAttend === false}
 
-				<Card class="transition-all hover:shadow-md">
-					<CardHeader class="pb-3">
-						<div class="flex items-start justify-between">
-							<h3 class="text-lg leading-tight font-semibold">{fullName}</h3>
-							<Badge variant={statusInfo.variant} class="text-xs">
-								{statusInfo.status}
-							</Badge>
-						</div>
-					</CardHeader>
-					<CardContent class="space-y-4">
-						{#if attendance?.note}
-							<div class="text-muted-foreground text-sm">
-								<span class="font-medium">Note:</span>
-								{attendance.note}
-							</div>
-						{/if}
+					<div
+						animate:flip={{ duration: 400 }}
+						in:fade={{ duration: 200 }}
+						out:scale={{ duration: 200, start: 0.95 }}
+					>
+						<Card class="transition-all hover:shadow-md">
+							<CardHeader class="pb-3">
+								<div class="flex items-start justify-between">
+									<h3 class="text-lg leading-tight font-semibold">{fullName}</h3>
+									<Badge variant="secondary" class="text-xs">Needs marking</Badge>
+								</div>
+							</CardHeader>
+							<CardContent class="space-y-4">
+								{#if attendance?.note}
+									<div class="text-muted-foreground text-sm">
+										<span class="font-medium">Note:</span>
+										{attendance.note}
+									</div>
+								{/if}
 
-						{#if !wasAbsent}
-							<div class="flex gap-2">
-								<Button
-									variant={isPresent ? 'default' : 'outline'}
-									size="sm"
-									class="flex-1 gap-2"
-									onclick={() => handleAttendanceUpdate(subjectClassAllocation.id, user.id, true)}
-								>
-									<Check class="h-4 w-4" />
-									Present
-								</Button>
-								<Button
-									variant={isNotPresent ? 'destructive' : 'outline'}
-									size="sm"
-									class="flex-1 gap-2"
-									onclick={() => handleAttendanceUpdate(subjectClassAllocation.id, user.id, false)}
-								>
-									<X class="h-4 w-4" />
-									Absent
-								</Button>
-							</div>
-						{:else}
-							<div class="text-muted-foreground bg-muted rounded p-4 text-center text-sm">
-								Student is absent from school today and cannot be updated
-							</div>
-						{/if}
-					</CardContent>
-				</Card>
-			{/each}
+								<div class="flex gap-2">
+									<Button
+										variant="default"
+										size="sm"
+										class="flex-1 gap-2"
+										onclick={() => handleAttendanceUpdate(subjectClassAllocation.id, user.id, true)}
+									>
+										<Check class="h-4 w-4" />
+										Present
+									</Button>
+									<Button
+										variant="destructive"
+										size="sm"
+										class="flex-1 gap-2"
+										onclick={() =>
+											handleAttendanceUpdate(subjectClassAllocation.id, user.id, false)}
+									>
+										<X class="h-4 w-4" />
+										Absent
+									</Button>
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+				{/each}
+			</div>
 		</div>
-	{:else if attendances.length > 0}
+	{/if}
+
+	<!-- Marked Attendance Section -->
+	{#if markedAttendances.length > 0}
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<h2 class="text-foreground text-xl font-semibold">
+					Attendance Recorded ({markedAttendances.length})
+				</h2>
+				<div class="text-muted-foreground text-sm">
+					{markedAttendances.filter((a) => a.attendance?.didAttend === true).length} present,
+					{markedAttendances.filter((a) => a.attendance?.didAttend === false).length} absent,
+					{markedAttendances.filter((a) => a.attendance?.wasAbsent).length} away today
+				</div>
+			</div>
+			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				{#each markedAttendances as attendanceRecord (attendanceRecord.user.id + '-' + attendanceRecord.subjectClassAllocation.id)}
+					{@const user = attendanceRecord.user}
+					{@const attendance = attendanceRecord.attendance}
+					{@const subjectClassAllocation = attendanceRecord.subjectClassAllocation}
+					{@const fullName = convertToFullName(user.firstName, user.middleName, user.lastName)}
+					{@const statusInfo = getAttendanceStatus(attendance)}
+					{@const wasAbsent = attendance?.wasAbsent || false}
+					{@const isPresent = attendance?.didAttend === true}
+					{@const isNotPresent = attendance?.didAttend === false}
+
+					<div
+						animate:flip={{ duration: 400 }}
+						in:fade={{ duration: 200 }}
+						out:scale={{ duration: 200, start: 0.95 }}
+					>
+						<Card class="opacity-75 transition-all hover:shadow-md">
+							<CardHeader class="pb-3">
+								<div class="flex items-start justify-between">
+									<h3 class="text-lg leading-tight font-semibold">{fullName}</h3>
+									<Badge variant={statusInfo.variant} class="text-xs">
+										{statusInfo.status}
+									</Badge>
+								</div>
+							</CardHeader>
+							<CardContent class="space-y-4">
+								{#if attendance?.note}
+									<div class="text-muted-foreground text-sm">
+										<span class="font-medium">Note:</span>
+										{attendance.note}
+									</div>
+								{/if}
+
+								{#if !wasAbsent}
+									<div class="flex gap-2">
+										<Button
+											variant={isPresent ? 'default' : 'outline'}
+											size="sm"
+											class="flex-1 gap-2"
+											onclick={() =>
+												handleAttendanceUpdate(subjectClassAllocation.id, user.id, true)}
+										>
+											<Check class="h-4 w-4" />
+											Present
+										</Button>
+										<Button
+											variant={isNotPresent ? 'destructive' : 'outline'}
+											size="sm"
+											class="flex-1 gap-2"
+											onclick={() =>
+												handleAttendanceUpdate(subjectClassAllocation.id, user.id, false)}
+										>
+											<X class="h-4 w-4" />
+											Absent
+										</Button>
+									</div>
+								{:else}
+									<div class="text-muted-foreground bg-muted rounded p-4 text-center text-sm">
+										Student is away today and cannot be updated
+									</div>
+								{/if}
+							</CardContent>
+						</Card>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	<!-- No results messages -->
+	{#if filteredAttendances.length === 0 && attendances.length > 0}
+		<div class="text-muted-foreground py-8 text-center">
+			No students found matching your search.
+		</div>
+	{:else if unmarkedAttendances.length === 0 && markedAttendances.length === 0 && attendances.length > 0}
 		<div class="text-muted-foreground py-8 text-center">
 			No students found matching your search.
 		</div>
