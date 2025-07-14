@@ -299,7 +299,6 @@ table learning_area_content {
 table school {
   id integer [pk, not null]
   name text [not null, unique]
-  email_suffix text [not null, unique]
   logo_url text
   createdAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]
   updatedAt "timestamp with time zone" [not null, default: `(now() AT TIME ZONE 'utc'::text)`]

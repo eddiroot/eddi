@@ -16,7 +16,6 @@ export const load = async ({ locals: { security } }) => {
 	const form = await superValidate(
 		{
 			name: school?.name || '',
-			emailSuffix: school?.emailSuffix || ''
 		},
 		zod(schoolFormSchema)
 	);
@@ -64,7 +63,7 @@ export const actions = {
 			}
 
 			// Update school with new details and logo URL
-			await updateSchool(user.schoolId, form.data.name, form.data.emailSuffix, logoUrl);
+			await updateSchool(user.schoolId, form.data.name, logoUrl);
 
 			return withFiles({ form });
 		} catch (error) {

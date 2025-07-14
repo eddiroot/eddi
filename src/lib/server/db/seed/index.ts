@@ -34,8 +34,7 @@ async function seed() {
 		const [schoolRecord] = await db
 			.insert(schema.school)
 			.values({
-				name: 'School of eddi',
-				emailSuffix: 'eddi.edu'
+				name: 'School of eddi'
 			})
 			.returning();
 

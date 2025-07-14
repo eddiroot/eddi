@@ -1,16 +1,18 @@
 import { fail } from '@sveltejs/kit';
-import { createAdminUser } from '$lib/server/db/service';
-import { message } from 'sveltekit-superforms';
+import { createUser } from '$lib/server/db/service/user';
+import { createSchool } from '$lib/server/db/service/schools';
+import type { userTypeEnum } from '$lib/server/db/schema/user.js';
+import { hash } from '@node-rs/argon2';
 
 export const actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request }) => {
 		const form = await request.formData();
 		const firstName = form.get('firstName')?.toString().trim();
 		const lastName = form.get('lastName')?.toString().trim();
 		const email = form.get('email')?.toString().trim().toLowerCase();
 		const password = form.get('password')?.toString();
 		const passwordConfirm = form.get('passwordConfirm')?.toString();
-		const schoolId = locals.schoolId;
+		const schoolName = form.get('schoolName');
 
 		const errors: Record<string, string> = {};
 		if (!firstName) errors.firstName = 'First name is required';
@@ -21,20 +23,26 @@ export const actions = {
 		else if (password.length < 8) errors.password = 'Password must be at least 8 characters';
 		if (!passwordConfirm) errors.passwordConfirm = 'Please confirm your password';
 		else if (password !== passwordConfirm) errors.passwordConfirm = 'Passwords do not match';
-		if (!schoolId) errors.schoolId = 'School ID is missing. Please complete school details first.';
+		if (!schoolName)
+			errors.schoolName = 'School ID is missing. Please complete school details first.';
 
 		if (Object.keys(errors).length > 0) {
 			return fail(400, { errors });
 		}
 
 		try {
-			await createAdminUser({
-				firstName: firstName as string,
-				lastName: lastName as string,
-				email: email as string,
-				password: password as string,
-				schoolId: schoolId as number
-			});
+			const school = await createSchool(schoolName as string);
+			const passwordHash = await hash(password as string);
+
+			await createUser(
+				email as string,
+				passwordHash,
+				school.id,
+				'admin' as userTypeEnum,
+				firstName as string,
+				lastName as string
+			);
+
 			return { success: true };
 		} catch (error) {
 			if (error instanceof Error && error.message.includes('already exists')) {
