@@ -115,7 +115,7 @@
 			await new Promise(resolve => setTimeout(resolve, 1000));
 			
 			// TODO: Navigate to next step on success
-			// goto('/onboarding/self-setup/next-step');
+			goto('/onboarding/inquiry-details');
 		} catch (error) {
 			console.error('Verification failed:', error);
 		} finally {
