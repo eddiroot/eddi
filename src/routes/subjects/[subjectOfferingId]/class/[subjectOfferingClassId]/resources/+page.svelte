@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import DownloadIcon from '@lucide/svelte/icons/download';
+	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import FileIcon from '@lucide/svelte/icons/file';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import UserIcon from '@lucide/svelte/icons/user';
@@ -43,6 +44,29 @@
 		const downloadUrl = `${page.url.pathname}/download/${resource.id}`;
 		window.open(downloadUrl, '_blank');
 	}
+
+	// Handle resource deletion
+	async function deleteResource(resource: any) {
+		if (!confirm(`Are you sure you want to delete "${resource.title || resource.originalFileName}"?`)) {
+			return;
+		}
+
+		try {
+			const response = await fetch(`${page.url.pathname}/delete/${resource.id}`, {
+				method: 'DELETE'
+			});
+
+			if (response.ok) {
+				// Remove the resource from the local state
+				resources = resources.filter(r => r.id !== resource.id);
+			} else {
+				alert('Failed to delete resource. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error deleting resource:', error);
+			alert('Failed to delete resource. Please try again.');
+		}
+	}
 </script>
 
 <div class="space-y-6 p-8">
@@ -77,42 +101,59 @@
 		{:else}
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{#each resources as resource}
-					<Card.Root class="transition-shadow hover:shadow-md">
+					<Card.Root class="transition-shadow hover:shadow-md flex flex-col truncate h-45">
 						<Card.Header class="pb-3">
-							<div class="flex items-start justify-between">
-								<div class="flex items-center gap-3 min-w-0 flex-1">
+							<div class="flex items-start justify-between overflow-hidden">
+								<div class="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
 									<div class="bg-muted rounded-lg p-2 flex-shrink-0">
 										<FileIcon class="h-5 w-5 text-muted-foreground" />
 									</div>
-									<div class="min-w-0 flex-1">
+									<div class="min-w-0 flex-1 overflow-hidden pr-2">
 										<Card.Title class="text-sm font-semibold leading-tight truncate">
-											{resource.originalFileName}
+											{resource.title || resource.originalFileName}
 										</Card.Title>
-										<Card.Description class="text-xs mt-1">
+										<Card.Description class="text-xs mt-1 truncate">
 											{getFileExtension(resource.originalFileName)} • {formatFileSize(resource.fileSize)}
 										</Card.Description>
 									</div>
 								</div>
-								<Button
-									variant="ghost"
-									size="sm"
-									onclick={() => downloadResource(resource)}
-									class="ml-2 flex-shrink-0 h-8 w-8 p-0"
-								>
-									<DownloadIcon class="h-4 w-4" />
-								</Button>
-							</div>
-						</Card.Header>
-						<Card.Content class="pt-0">
-							<div class="flex items-center gap-2 text-xs text-muted-foreground">
 								<div class="flex items-center gap-1">
-									<UserIcon class="h-3 w-3" />
-									<span>{convertToFullName(resource.author.firstName, resource.author.middleName, resource.author.lastName)}</span>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={() => downloadResource(resource)}
+										class="h-8 w-8 p-0"
+									>
+										<DownloadIcon class="h-4 w-4" />
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={() => deleteResource(resource)}
+										class="h-8 w-8 p-0 text-destructive hover:text-destructive"
+									>
+										<TrashIcon class="h-4 w-4" />
+									</Button>
 								</div>
 							</div>
-							<div class="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-								<CalendarIcon class="h-3 w-3" />
-								<span>Uploaded {formatDate(resource.createdAt)}</span>
+						</Card.Header>
+						<Card.Content class="pt-0 flex-1 flex flex-col">
+							<div class="flex-1">
+								{#if resource.description}
+									<p class="text-sm text-foreground mb-3 truncate">
+										{resource.description}
+									</p>
+								{/if}
+							</div>
+							<div class="flex items-center gap-2 text-xs text-muted-foreground mt-auto">
+								<div class="flex items-center gap-1">
+									<UserIcon class="h-3 w-3" />
+									<span class="truncate">{convertToFullName(resource.author.firstName, resource.author.middleName, resource.author.lastName)}</span>
+								</div>
+								<div class="flex items-center gap-1 ml-3">
+									<CalendarIcon class="h-3 w-3" />
+									<span>Uploaded {formatDate(resource.createdAt)}</span>
+								</div>
 							</div>
 						</Card.Content>
 					</Card.Root>

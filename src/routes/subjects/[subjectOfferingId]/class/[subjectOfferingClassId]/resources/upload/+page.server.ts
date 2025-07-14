@@ -9,6 +9,7 @@ import { subjectOfferingClassResource } from '$lib/server/db/schema';
 
 const uploadSchema = z.object({
     file: z.instanceof(File).refine((file) => file.size > 0, 'Please select a file to upload'),
+    title: z.string().optional(),
     description: z.string().optional()
 });
 
@@ -81,6 +82,8 @@ export const actions = {
 
             // Save resource metadata to database
             await db.insert(subjectOfferingClassResource).values({
+                title: form.data.title || null,
+                description: form.data.description || null,
                 originalFileName: file.name,
                 storedFileName: uniqueFileName,
                 fileSize: file.size,

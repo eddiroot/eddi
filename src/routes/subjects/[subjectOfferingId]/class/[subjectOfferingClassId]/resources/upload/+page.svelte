@@ -13,6 +13,7 @@
 
 	const uploadSchema = z.object({
 		file: z.instanceof(File).refine((file) => file.size > 0, 'Please select a file to upload'),
+		title: z.string().optional(),
 		description: z.string().optional()
 	});
 
@@ -49,96 +50,116 @@
 	}
 </script>
 
-<div class="space-y-6 p-8">
-	<div class="flex items-center gap-4">
-		<Button href={page.url.pathname.replace('/upload', '')} variant="ghost" size="sm">
-			<ArrowLeftIcon class="h-4 w-4" />
-			Back to Resources
-		</Button>
-		<div>
-			<h1 class="text-3xl font-bold">Upload Resource</h1>
-			{#if data.classDetails}
-				<p class="text-muted-foreground mt-1">Class: {data.classDetails.subjectOfferingClass.name}</p>
-			{/if}
+<div class="h-screen flex flex-col">
+	<!-- Header with title, class info, and back button -->
+	<div class="border-b bg-background p-6">
+		<div class="flex items-center justify-between">
+			<div class="flex-1">
+				<h1 class="text-3xl font-bold">Upload Resource</h1>
+				{#if data.classDetails}
+					<p class="text-muted-foreground mt-1">Class: {data.classDetails.subjectOfferingClass.name}</p>
+				{/if}
+			</div>
+			<Button href={page.url.pathname.replace('/upload', '')} variant="ghost" size="sm">
+				<ArrowLeftIcon class="h-4 w-4" />
+				Back to Resources
+			</Button>
 		</div>
 	</div>
 
-	<div class="max-w-2xl">
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Upload a new resource</Card.Title>
-				<Card.Description>
-					Share files, documents, and other learning materials with your class.
-				</Card.Description>
-			</Card.Header>
-			<Card.Content>
-				<form method="post" use:enhance enctype="multipart/form-data" class="space-y-6">
-					<div class="space-y-2">
-						<label for="file-input" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-							Select File
-						</label>
-						<div class="space-y-4">
-							<button
-								type="button"
-								class="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors cursor-pointer w-full"
-								onclick={() => fileInput?.click()}
-							>
-								{#if selectedFile}
-									<div class="space-y-2">
-										<UploadIcon class="mx-auto h-8 w-8 text-muted-foreground" />
-										<div>
-											<p class="text-sm font-medium">{selectedFile.name}</p>
-											<p class="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+	<!-- Main content area taking up remaining space -->
+	<div class="flex-1 p-6">
+		<div class="h-full max-w-2xl mx-auto">
+			<Card.Root class="h-full">
+				<Card.Header>
+					<Card.Title>Upload a new resource</Card.Title>
+					<Card.Description>
+						Share files, documents, and other learning materials with your class.
+					</Card.Description>
+				</Card.Header>
+				<Card.Content class="flex-1">
+					<form method="post" use:enhance enctype="multipart/form-data" class="space-y-6 h-full flex flex-col">
+						<div class="space-y-2">
+							<label for="file-input" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+								Select File
+							</label>
+							<div class="space-y-4">
+								<button
+									type="button"
+									class="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors cursor-pointer w-full"
+									onclick={() => fileInput?.click()}
+								>
+									{#if selectedFile}
+										<div class="space-y-2">
+											<UploadIcon class="mx-auto h-8 w-8 text-muted-foreground" />
+											<div>
+												<p class="text-sm font-medium">{selectedFile.name}</p>
+												<p class="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+											</div>
 										</div>
-									</div>
-								{:else}
-									<div class="space-y-2">
-										<UploadIcon class="mx-auto h-8 w-8 text-muted-foreground" />
-										<div>
-											<p class="text-sm font-medium">Click to select a file</p>
-											<p class="text-xs text-muted-foreground">or drag and drop</p>
+									{:else}
+										<div class="space-y-2">
+											<UploadIcon class="mx-auto h-8 w-8 text-muted-foreground" />
+											<div>
+												<p class="text-sm font-medium">Click to select a file</p>
+												<p class="text-xs text-muted-foreground">or drag and drop</p>
+											</div>
 										</div>
-									</div>
-								{/if}
-							</button>
+									{/if}
+								</button>
+								<input
+									bind:this={fileInput}
+									id="file-input"
+									name="file"
+									type="file"
+									class="hidden"
+									onchange={handleFileSelect}
+								/>
+							</div>
+						</div>
+
+						<div class="space-y-2">
+							<label for="title" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+								Title (Optional)
+							</label>
 							<input
-								bind:this={fileInput}
-								id="file-input"
-								name="file"
-								type="file"
-								class="hidden"
-								onchange={handleFileSelect}
+								id="title"
+								name="title"
+								type="text"
+								bind:value={$formData.title}
+								placeholder="Enter a title for this resource..."
+								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 							/>
 						</div>
-					</div>
 
-					<div class="space-y-2">
-						<label for="description" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-							Description (Optional)
-						</label>
-						<textarea
-							id="description"
-							name="description"
-							bind:value={$formData.description}
-							placeholder="Add a description for this resource..."
-							class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-						></textarea>
-					</div>
+						<div class="space-y-2 flex-1">
+							<label for="description" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+								Description (Optional)
+							</label>
+							<textarea
+								id="description"
+								name="description"
+								bind:value={$formData.description}
+								placeholder="Add a description for this resource..."
+								class="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+							></textarea>
+						</div>
 
-					<div class="flex justify-end gap-3">
-						<Button type="button" variant="outline" href={page.url.pathname.replace('/upload', '')}>
-							Cancel
-						</Button>
-						<Button type="submit" disabled={!selectedFile || $submitting}>
-							{#if $submitting}
-								Uploading...
-							{:else}
-								Upload Resource
-							{/if}
-						</Button>
-					</div>
-				</form>
-			</Card.Content>
-		</Card.Root>
+						<div class="flex justify-end gap-3 pt-4">
+							<Button type="button" variant="outline" href={page.url.pathname.replace('/upload', '')}>
+								Cancel
+							</Button>
+							<Button type="submit" disabled={!selectedFile || $submitting}>
+								{#if $submitting}
+									Uploading...
+								{:else}
+									Upload Resource
+								{/if}
+							</Button>
+						</div>
+					</form>
+				</Card.Content>
+			</Card.Root>
+		</div>
 	</div>
 </div>
