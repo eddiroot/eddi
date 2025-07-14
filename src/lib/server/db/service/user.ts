@@ -37,38 +37,3 @@ export async function verifyUserAccessToSubjectOffering(
 		.limit(1);
 	return userAccess.length > 0;
 }
-
-export async function createUser(
-	email: string,
-	passwordHash: string,
-	schoolId: number,
-	type: table.userTypeEnum,
-	firstName: string,
-	lastName: string,
-	gender?: table.userGenderEnum,
-	dateOfBirth?: Date,
-	honorific?: table.userHonorificEnum,
-	middleName?: string,
-	avatarUrl?: string,
-	isArchived?: boolean
-) {
-	const [user] = await db
-		.insert(table.user)
-		.values({
-			email,
-			passwordHash,
-			schoolId,
-			type,
-			firstName,
-			lastName,
-			gender,
-			dateOfBirth,
-			honorific,
-			middleName,
-			avatarUrl,
-			isArchived
-		})
-		.returning();
-
-	return user;
-}

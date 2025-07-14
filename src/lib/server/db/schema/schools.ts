@@ -6,6 +6,7 @@ import { subject } from './subjects';
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull().unique(),
+	emailSuffix: text('email_suffix').notNull().unique(),
 	logoUrl: text('logo_url'),
 	...timestamps
 });

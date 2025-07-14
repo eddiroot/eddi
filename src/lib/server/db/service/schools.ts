@@ -83,26 +83,17 @@ export async function getSchoolStatsById(schoolId: number) {
 	};
 }
 
-export async function createSchool(name: string){
-	const [newSchool] = await db
-		.insert(table.school)
-		.values({
-			name
-		})
-		.returning();
-
-	return newSchool;
-}
-
 export async function updateSchool(
 	schoolId: number,
 	name: string,
+	emailSuffix: string,
 	logoUrl?: string
 ) {
 	const [updatedSchool] = await db
 		.update(table.school)
 		.set({
 			name,
+			emailSuffix,
 			// drizzle ignores undefined values
 			logoUrl: logoUrl || undefined
 		})
