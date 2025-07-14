@@ -151,7 +151,7 @@
 									</p>
 								{/if}
 							</div>
-							<div class="text-muted-foreground mt-auto flex items-center gap-2 text-xs">
+							<div class="text-muted-foreground mt-auto flex items-center gap-2 text-xs truncate">
 								<div class="flex items-center gap-1">
 									<UserIcon class="h-3 w-3" />
 									<span class="truncate"
