@@ -82,7 +82,7 @@ export async function getTasksBySubjectOfferingClassId(
 	return classTasks?.length == 0 ? [] : classTasks;
 }
 
-export async function getTopics(subjectOfferingClassId: number) {
+export async function getTopics(subjectOfferingId: number) {
 	const topics = await db
 		.select({
 			id: table.courseMapItem.id,
@@ -93,11 +93,7 @@ export async function getTopics(subjectOfferingClassId: number) {
 			table.subjectOffering,
 			eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
 		)
-		.innerJoin(
-			table.subjectOfferingClass,
-			eq(table.subjectOffering.id, table.subjectOfferingClass.subOfferingId)
-		)
-		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
+		.where(eq(table.subjectOffering.id, subjectOfferingId))
 		.orderBy(asc(table.courseMapItem.startWeek));
 
 	return topics;
@@ -169,7 +165,14 @@ export async function createTask(
 		})
 		.returning();
 
-	return task;
+	// Update the task to set originalId to its own ID
+	const [updatedTask] = await db
+		.update(table.task)
+		.set({ originalId: task.id })
+		.where(eq(table.task.id, task.id))
+		.returning();
+
+	return updatedTask;
 }
 
 export async function createSubjectOfferingClassTask(

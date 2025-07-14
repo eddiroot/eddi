@@ -244,8 +244,10 @@ export const actions = {
 		security.isAuthenticated();
 
 		let subjectOfferingIdInt;
+		let subjectOfferingClassIdInt;
 		try {
 			subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
+			subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
 		} catch {
 			return fail(400, { message: 'Invalid subject offering ID' });
 		}
@@ -317,7 +319,7 @@ export const actions = {
 			subjectOfferingIdInt
 		);
 
-		await createSubjectOfferingClassTask(task.id, subjectOfferingIdInt, user.id, courseMapItemId);
+		await createSubjectOfferingClassTask(task.id, subjectOfferingClassIdInt, user.id, courseMapItemId);
 
 		console.log('Created task:', form.data);
 
@@ -467,7 +469,7 @@ export const actions = {
 
 		throw redirect(
 			303,
-			`/subjects/${subjectOfferingId}/${subjectOfferingClassId}/tasks/${task.id}`
+			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${task.id}`
 		);
 	}
 };

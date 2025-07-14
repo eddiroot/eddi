@@ -31,7 +31,7 @@
 	let isPanning = false;
 	let lastWheelTime = 0;
 
-	const { whiteboardId, taskId, subjectOfferingId } = $page.params;
+	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $page.params;
 	const whiteboardIdNum = parseInt(whiteboardId);
 
 	const sendCanvasUpdate = (data: Object) => {
@@ -177,7 +177,7 @@
 
 	const goBack = () => {
 		// Navigate back to the task
-		goto(`/subjects/${subjectOfferingId}/tasks/${taskId}`);
+		goto(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}`);
 	};
 
 	const handleKeyDown = (event: KeyboardEvent) => {
@@ -206,7 +206,7 @@
 		setSelectTool();
 
 		// Connect to WebSocket for real-time collaboration
-		socket = new WebSocket(`/subjects/${subjectOfferingId}/tasks/${taskId}/whiteboard/ws`);
+		socket = new WebSocket(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`);
 
 		socket.addEventListener('open', () => {
 			// Send whiteboard ID after connection is established
