@@ -101,17 +101,8 @@
 <div class="flex h-full flex-col space-y-6 p-8">
 	<div class="flex flex-col space-y-4">
 		<h1 class="text-3xl font-bold tracking-tight">Attendance</h1>
-
-		{#if attendances.length === 0}
-			<p class="text-muted-foreground">No students found for the current day.</p>
-		{:else}
-			<div class="flex items-center space-x-4">
-				<Input placeholder="Search students..." bind:value={searchTerm} class="max-w-sm" />
-				<div class="text-muted-foreground text-sm">
-					{markedAttendances.filter((a) => a.attendance?.didAttend === true).length} of {filteredAttendances.length}
-					student(s) present
-				</div>
-			</div>
+		{#if attendances.length >= 0}
+			<Input placeholder="Search students..." bind:value={searchTerm} class="max-w-sm" />
 		{/if}
 	</div>
 
@@ -120,7 +111,7 @@
 		<div class="space-y-4">
 			<div class="flex items-center justify-between">
 				<h2 class="text-foreground text-xl font-semibold">
-					Attendance Unrecorded ({unmarkedAttendances.length})
+					Unrecorded ({unmarkedAttendances.length})
 				</h2>
 				<Badge variant="secondary" class="text-sm">
 					{unmarkedAttendances.length} remaining
@@ -191,11 +182,13 @@
 		<div class="space-y-4">
 			<div class="flex items-center justify-between">
 				<h2 class="text-foreground text-xl font-semibold">
-					Attendance Recorded ({markedAttendances.length})
+					Recorded ({markedAttendances.length})
 				</h2>
 				<div class="text-muted-foreground text-sm">
 					{markedAttendances.filter((a) => a.attendance?.didAttend === true).length} present,
-					{markedAttendances.filter((a) => a.attendance?.didAttend === false).length} absent,
+					{markedAttendances.filter(
+						(a) => a.attendance?.didAttend === false && !a.attendance?.wasAbsent
+					).length} absent,
 					{markedAttendances.filter((a) => a.attendance?.wasAbsent).length} away today
 				</div>
 			</div>
@@ -232,34 +225,29 @@
 									</div>
 								{/if}
 
-								{#if !wasAbsent}
-									<div class="flex gap-2">
-										<Button
-											variant={isPresent ? 'default' : 'outline'}
-											size="sm"
-											class="flex-1 gap-2"
-											onclick={() =>
-												handleAttendanceUpdate(subjectClassAllocation.id, user.id, true)}
-										>
-											<Check class="h-4 w-4" />
-											Present
-										</Button>
-										<Button
-											variant={isNotPresent ? 'destructive' : 'outline'}
-											size="sm"
-											class="flex-1 gap-2"
-											onclick={() =>
-												handleAttendanceUpdate(subjectClassAllocation.id, user.id, false)}
-										>
-											<X class="h-4 w-4" />
-											Absent
-										</Button>
-									</div>
-								{:else}
-									<div class="text-muted-foreground bg-muted rounded p-4 text-center text-sm">
-										Student is away today and cannot be updated
-									</div>
-								{/if}
+								<div class="flex gap-2">
+									<Button
+										variant={isPresent ? 'default' : 'outline'}
+										size="sm"
+										class="flex-1 gap-2"
+										disabled={wasAbsent}
+										onclick={() => handleAttendanceUpdate(subjectClassAllocation.id, user.id, true)}
+									>
+										<Check class="h-4 w-4" />
+										Present
+									</Button>
+									<Button
+										variant={isNotPresent ? 'destructive' : 'outline'}
+										size="sm"
+										class="flex-1 gap-2"
+										disabled={wasAbsent}
+										onclick={() =>
+											handleAttendanceUpdate(subjectClassAllocation.id, user.id, false)}
+									>
+										<X class="h-4 w-4" />
+										Absent
+									</Button>
+								</div>
 							</CardContent>
 						</Card>
 					</div>
