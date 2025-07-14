@@ -9,7 +9,8 @@ import {
 	boolean,
 	pgEnum,
 	unique,
-	check
+	check,
+	uuid
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { campus, school, schoolLocation } from './schools';
@@ -105,7 +106,7 @@ export const userSubjectOfferingRoleEnumPg = pgEnum('user_sub_offering_role', [
 
 export const userSubjectOffering = pgTable('user_sub_offering', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	userId: text('user_id')
+	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	subOfferingId: integer('sub_offering_id')
@@ -148,7 +149,7 @@ export const userSubjectOfferingClassRoleEnumPg = pgEnum('user_sub_off_class_rol
 
 export const userSubjectOfferingClass = pgTable('user_sub_off_class', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	userId: text('user_id')
+	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	subOffClassId: integer('sub_off_class_id')
@@ -206,7 +207,7 @@ export const subjectClassAllocationAttendance = pgTable(
 		subjectClassAllocationId: integer('sub_class_allo_id')
 			.notNull()
 			.references(() => subjectClassAllocation.id, { onDelete: 'cascade' }),
-		userId: text('user_id')
+		userId: uuid('user_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
 		wasAbsent: boolean('was_absent').notNull().default(false),
@@ -240,7 +241,7 @@ export const subjectThread = pgTable('sub_thread', {
 	subjectOfferingId: integer('sub_offering_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	userId: text('user_id')
+	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	title: text('title').notNull(),
@@ -269,7 +270,7 @@ export const subjectThreadResponse = pgTable(
 		subjectThreadId: integer('sub_thread_id')
 			.notNull()
 			.references(() => subjectThread.id, { onDelete: 'cascade' }),
-		userId: text('user_id')
+		userId: uuid('user_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
 		content: text('content').notNull(),
@@ -296,7 +297,7 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	taskId: integer('task_id')
 		.notNull()
 		.references(() => task.id, { onDelete: 'cascade' }),
-	authorId: text('author_id')
+	authorId: uuid('author_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
@@ -316,7 +317,7 @@ export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
 	coursemapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
 		onDelete: 'cascade'
 	}),
-	authorId: text('author_id')
+	authorId: uuid('author_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),

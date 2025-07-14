@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, pgEnum, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, pgEnum, unique, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { user } from './user';
 import { subject } from './subjects';
@@ -28,7 +28,7 @@ export type Campus = typeof campus.$inferSelect;
 
 export const userCampus = pgTable('user_campus', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	userId: text('user_id')
+	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	campusId: integer('campus_id')

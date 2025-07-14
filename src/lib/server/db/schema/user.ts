@@ -76,7 +76,7 @@ export type User = typeof user.$inferSelect;
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
-	userId: text('user_id')
+	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id),
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull(),
