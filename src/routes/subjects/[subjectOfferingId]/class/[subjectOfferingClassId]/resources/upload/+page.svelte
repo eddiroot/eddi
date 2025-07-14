@@ -7,7 +7,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 
 	let { data } = $props();
 
@@ -19,11 +19,16 @@
 
 	const form = superForm(data.form, {
 		validators: zodClient(uploadSchema),
-		onUpdated: ({ form }) => {
+		onUpdated: async ({ form }) => {
 			if (form.valid) {
 				// Navigate back to resources page on successful upload
 				const resourcesUrl = page.url.pathname.replace('/upload', '');
+				
+				// Invalidate the resources page data to force fresh load
+				await invalidate(resourcesUrl);
+				
 				goto(resourcesUrl);
+	
 			}
 		}
 	});

@@ -7,18 +7,15 @@
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import UserIcon from '@lucide/svelte/icons/user';
 	import { page } from '$app/state';
+	import { invalidateAll } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { convertToFullName, formatTimestamp } from '$lib/utils';
 
 	let { data } = $props();
-	let resources = $state(data.resources || []);
-	let classDetails = $state(data.classDetails);
 
-	// When switching to other resource pages, we need to update the state
-	$effect(() => {
-		resources = data.resources || [];
-		classDetails = data.classDetails;
-	});
+	// Use derived state that always reflects the current data
+	let resources = $derived(data.resources || []);
+	let classDetails = $derived(data.classDetails);
 
 	// Format file size for display
 	function formatFileSize(bytes: number): string {
@@ -32,12 +29,6 @@
 	// Get file extension from filename
 	function getFileExtension(filename: string): string {
 		return filename.split('.').pop()?.toUpperCase() || 'FILE';
-	}
-
-	// Handle resource download using direct link
-	function downloadResource(resource: any) {
-		const downloadUrl = `${page.url.pathname}/download/${resource.id}`;
-		window.open(downloadUrl, '_blank');
 	}
 
 	// Handle resource deletion
@@ -54,8 +45,8 @@
 			});
 
 			if (response.ok) {
-				// Remove the resource from the local state
-				resources = resources.filter((r) => r.id !== resource.id);
+				// Invalidate all data to force fresh reload
+				await invalidateAll();
 			} else {
 				alert('Failed to delete resource. Please try again.');
 			}
@@ -104,25 +95,47 @@
 										<FileIcon class="text-muted-foreground h-5 w-5" />
 									</div>
 									<div class="min-w-0 flex-1 overflow-hidden pr-2">
-										<Card.Title class="truncate text-sm leading-tight font-semibold">
-											{resource.title || resource.originalFileName}
-										</Card.Title>
-										<Card.Description class="mt-1 truncate text-xs">
-											{getFileExtension(resource.originalFileName)} • {formatFileSize(
-												resource.fileSize
-											)}
+										{#if resource.downloadUrl}
+											<a
+												href={resource.downloadUrl}
+												download={resource.originalFileName}
+												class="block group"
+											>
+												<Card.Title class="text-sm font-semibold leading-tight truncate group-hover:text-primary transition-colors">
+													{resource.title || resource.originalFileName}
+												</Card.Title>
+											</a>
+										{:else}
+											<Card.Title class="text-sm font-semibold leading-tight truncate">
+												{resource.title || resource.originalFileName}
+											</Card.Title>
+										{/if}
+										<Card.Description class="text-xs mt-1 truncate">
+											{getFileExtension(resource.originalFileName)} • {formatFileSize(resource.fileSize)}
 										</Card.Description>
 									</div>
 								</div>
 								<div class="flex items-center gap-1">
-									<Button
-										variant="ghost"
-										size="sm"
-										onclick={() => downloadResource(resource)}
-										class="h-8 w-8 p-0"
-									>
-										<DownloadIcon class="h-4 w-4" />
-									</Button>
+									{#if resource.downloadUrl}
+										<a
+											href={resource.downloadUrl}
+											download={resource.originalFileName}
+											class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0"
+											title="Download {resource.title || resource.originalFileName}"
+										>
+											<DownloadIcon class="h-4 w-4" />
+										</a>
+									{:else}
+										<Button
+											variant="ghost"
+											size="sm"
+											disabled
+											class="h-8 w-8 p-0 opacity-50"
+											title="Download link unavailable"
+										>
+											<DownloadIcon class="h-4 w-4" />
+										</Button>
+									{/if}
 									<Button
 										variant="ghost"
 										size="sm"
