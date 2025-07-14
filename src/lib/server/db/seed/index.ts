@@ -600,11 +600,24 @@ async function seed() {
 
 		const studentIds = [student1.id, student2.id, student3.id];
 		for (const studentId of studentIds) {
-			for (const subjectOffering of year9Offerings) {
+			for (let i = 0; i < year9Offerings.length; i++) {
+				const subjectOffering = year9Offerings[i];
+
+				// Map subject index to hue values for consistent colors
+				const subjectColorHues = [
+					210, // Mathematics - Blue (210 degrees)
+					350, // English - Red (350 degrees - vibrant red)
+					120, // Science - Green (120 degrees)
+					270 // Physical Education - Purple (270 degrees)
+				];
+
+				const colorHue = subjectColorHues[i] || 200; // Default to blue if index out of range
+
 				await db.insert(schema.userSubjectOffering).values({
 					userId: studentId,
 					subOfferingId: subjectOffering.id,
-					role: userSubjectOfferingRoleEnum.student
+					role: userSubjectOfferingRoleEnum.student,
+					color: colorHue
 				});
 			}
 		}
@@ -651,41 +664,194 @@ async function seed() {
 
 		// Create basic timetable (class allocations) with actual timestamps
 		const timetableEntries = [
+			// MONDAY - Full day schedule
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
 				schoolLocationId: locations[2].id, // Mathematics Room
-				startTimestamp: createDateTime(0, 9), // Monday 9:00 AM
-				endTimestamp: createDateTime(0, 10) // Monday 10:00 AM
+				startTimestamp: createDateTime(0, 8), // Monday 8:00 AM
+				endTimestamp: createDateTime(0, 9) // Monday 9:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
 				schoolLocationId: locations[3].id, // English Room
-				startTimestamp: createDateTime(1, 10), // Tuesday 10:00 AM
-				endTimestamp: createDateTime(1, 11) // Tuesday 11:00 AM
+				startTimestamp: createDateTime(0, 9), // Monday 9:00 AM
+				endTimestamp: createDateTime(0, 10) // Monday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
 				schoolLocationId: locations[0].id, // Science Lab A
-				startTimestamp: createDateTime(2, 11), // Wednesday 11:00 AM
-				endTimestamp: createDateTime(2, 12) // Wednesday 12:00 PM
+				startTimestamp: createDateTime(0, 10, 30), // Monday 10:30 AM (after break)
+				endTimestamp: createDateTime(0, 11, 30) // Monday 11:30 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
 				schoolLocationId: locations[4].id, // Gymnasium
-				startTimestamp: createDateTime(3, 14), // Thursday 2:00 PM
-				endTimestamp: createDateTime(3, 15) // Thursday 3:00 PM
+				startTimestamp: createDateTime(0, 11, 30), // Monday 11:30 AM
+				endTimestamp: createDateTime(0, 12, 30) // Monday 12:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math (second session)
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
 				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(0, 13, 30), // Monday 1:30 PM (after lunch)
+				endTimestamp: createDateTime(0, 14, 30) // Monday 2:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
+				startTimestamp: createDateTime(0, 14, 30), // Monday 2:30 PM
+				endTimestamp: createDateTime(0, 15, 30) // Monday 3:30 PM
+			},
+
+			// TUESDAY - Full day schedule
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
+				startTimestamp: createDateTime(1, 8), // Tuesday 8:00 AM
+				endTimestamp: createDateTime(1, 9) // Tuesday 9:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
+				startTimestamp: createDateTime(1, 9), // Tuesday 9:00 AM
+				endTimestamp: createDateTime(1, 10) // Tuesday 10:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(1, 10, 30), // Tuesday 10:30 AM (after break)
+				endTimestamp: createDateTime(1, 11, 30) // Tuesday 11:30 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
+				startTimestamp: createDateTime(1, 11, 30), // Tuesday 11:30 AM
+				endTimestamp: createDateTime(1, 12, 30) // Tuesday 12:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
+				startTimestamp: createDateTime(1, 13, 30), // Tuesday 1:30 PM (after lunch)
+				endTimestamp: createDateTime(1, 14, 30) // Tuesday 2:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
+				startTimestamp: createDateTime(1, 14, 30), // Tuesday 2:30 PM
+				endTimestamp: createDateTime(1, 15, 30) // Tuesday 3:30 PM
+			},
+
+			// WEDNESDAY - Full day schedule
+			{
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
+				startTimestamp: createDateTime(2, 8), // Wednesday 8:00 AM
+				endTimestamp: createDateTime(2, 9) // Wednesday 9:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(2, 9), // Wednesday 9:00 AM
+				endTimestamp: createDateTime(2, 10) // Wednesday 10:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
+				startTimestamp: createDateTime(2, 10, 30), // Wednesday 10:30 AM (after break)
+				endTimestamp: createDateTime(2, 11, 30) // Wednesday 11:30 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
+				startTimestamp: createDateTime(2, 11, 30), // Wednesday 11:30 AM
+				endTimestamp: createDateTime(2, 12, 30) // Wednesday 12:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
+				startTimestamp: createDateTime(2, 13, 30), // Wednesday 1:30 PM (after lunch)
+				endTimestamp: createDateTime(2, 14, 30) // Wednesday 2:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(2, 14, 30), // Wednesday 2:30 PM
+				endTimestamp: createDateTime(2, 15, 30) // Wednesday 3:30 PM
+			},
+
+			// THURSDAY - Full day schedule
+			{
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
+				startTimestamp: createDateTime(3, 8), // Thursday 8:00 AM
+				endTimestamp: createDateTime(3, 9) // Thursday 9:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
+				startTimestamp: createDateTime(3, 9), // Thursday 9:00 AM
+				endTimestamp: createDateTime(3, 10) // Thursday 10:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
+				startTimestamp: createDateTime(3, 10, 30), // Thursday 10:30 AM (after break)
+				endTimestamp: createDateTime(3, 11, 30) // Thursday 11:30 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(3, 11, 30), // Thursday 11:30 AM
+				endTimestamp: createDateTime(3, 12, 30) // Thursday 12:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
+				startTimestamp: createDateTime(3, 13, 30), // Thursday 1:30 PM (after lunch)
+				endTimestamp: createDateTime(3, 14, 30) // Thursday 2:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
+				startTimestamp: createDateTime(3, 14, 30), // Thursday 2:30 PM
+				endTimestamp: createDateTime(3, 15, 30) // Thursday 3:30 PM
+			},
+
+			// FRIDAY - Full day schedule
+			{
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(4, 8), // Friday 8:00 AM
+				endTimestamp: createDateTime(4, 9) // Friday 9:00 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
 				startTimestamp: createDateTime(4, 9), // Friday 9:00 AM
 				endTimestamp: createDateTime(4, 10) // Friday 10:00 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English (second session)
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
+				startTimestamp: createDateTime(4, 10, 30), // Friday 10:30 AM (after break)
+				endTimestamp: createDateTime(4, 11, 30) // Friday 11:30 AM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
+				startTimestamp: createDateTime(4, 11, 30), // Friday 11:30 AM
+				endTimestamp: createDateTime(4, 12, 30) // Friday 12:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
+				startTimestamp: createDateTime(4, 13, 30), // Friday 1:30 PM (after lunch)
+				endTimestamp: createDateTime(4, 14, 30) // Friday 2:30 PM
+			},
+			{
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
 				schoolLocationId: locations[3].id, // English Room
-				startTimestamp: createDateTime(4, 10), // Friday 10:00 AM
-				endTimestamp: createDateTime(4, 11) // Friday 11:00 AM
+				startTimestamp: createDateTime(4, 14, 30), // Friday 2:30 PM
+				endTimestamp: createDateTime(4, 15, 30) // Friday 3:30 PM
 			}
 		];
 

@@ -17,6 +17,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Admin dashboard
 - [x] Add draggable interactive components such as matching
 - [x] Move home above discussion in sidebar if only 1 class (13/07)
+- [x] Roll call / attendance (20/07)
 
 ## Doing
 
@@ -26,7 +27,6 @@ All
 
 Lachie
 
-- [x] Roll call / attendance (20/07)
 - [ ] Teachers can see attendance (23/07)
 - [ ] Class tests / quizzes (27/07)
 - [ ] Sick/not coming to school/absence/late notifications (27/07)

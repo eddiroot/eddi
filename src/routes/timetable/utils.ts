@@ -33,7 +33,8 @@ export function getClassPosition(
 export function generateSubjectColors(hue: number) {
 	return {
 		background: `light-dark(hsl(${hue}, 40%, 93%), hsl(${hue}, 50%, 16%))`,
-		border: `light-dark(hsl(${hue}, 55%, 58%), hsl(${hue}, 50%, 55%))`,
+		borderTop: `light-dark(hsl(${hue}, 55%, 58%), hsl(${hue}, 50%, 55%))`,
+		borderAround: `light-dark(hsl(${hue}, 55%, 58%, 0.5), hsl(${hue}, 50%, 55%, 0.5))`,
 		text: `light-dark(hsl(${hue}, 65%, 28%), hsl(${hue}, 35%, 87%))`
 	};
 }

@@ -37,7 +37,7 @@
 		</div>
 
 		{#each days as day}
-			<div class="border-border relative border-r-2 last:border-r-0">
+			<div class="border-border relative border-r last:border-r-0">
 				<!-- Background timeslot lines -->
 				{#each timeslots}
 					<div class="border-border border-t" style="height: {100 / timeslots.length}%;"></div>
@@ -62,8 +62,8 @@
 						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
 						<Card.Root
-							class="h-full overflow-hidden border-0 border-t-4 px-2 pt-0 shadow-lg"
-							style="border-top-color: {colors.border}; color: {colors.text};"
+							class="h-full overflow-hidden border-2 border-t-4 px-2 pt-0 shadow-lg"
+							style="border-color: {colors.borderAround}; border-top-color: {colors.borderTop}; color: {colors.text};"
 						>
 							<Card.Header class="p-1">
 								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap">
