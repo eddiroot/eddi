@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
-	import { convertToFullName, formatDate } from '$lib/utils';
+	import { convertToFullName, formatTimestamp } from '$lib/utils';
 	import ResponseForm from './form.svelte';
 	import ResponseItem from './response-item.svelte';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
@@ -60,7 +60,7 @@
 							</Badge>
 							<div class="text-muted-foreground flex items-center gap-1 text-sm">
 								<Clock class="h-3 w-3" />
-								{formatDate(thread()!.thread.createdAt)}
+								{formatTimestamp(thread()!.thread.createdAt)}
 							</div>
 						</div>
 						<div>

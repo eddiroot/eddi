@@ -4,7 +4,6 @@ import {
 	userGenderEnum,
 	userHonorificEnum,
 	schoolLocationTypeEnum,
-	dayOfWeekEnum,
 	userSubjectOfferingRoleEnum,
 	userSubjectOfferingClassRoleEnum,
 	yearLevelEnum
@@ -639,50 +638,54 @@ async function seed() {
 			});
 		}
 
-		// Create basic timetable (class allocations)
+		const todaysIsoDate = new Date().toISOString().split('T')[0];
+		const today = new Date(todaysIsoDate);
+
+		// Helper function to create a Date object for a specific day and time
+		const createDateTime = (dayOffset: number, hour: number, minute: number = 0) => {
+			const date = new Date(today);
+			date.setDate(today.getDate() + dayOffset);
+			date.setHours(hour, minute, 0, 0);
+			return date;
+		};
+
+		// Create basic timetable (class allocations) with actual timestamps
 		const timetableEntries = [
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
 				schoolLocationId: locations[2].id, // Mathematics Room
-				dayOfWeek: dayOfWeekEnum.monday,
-				startTime: '09:00:00',
-				duration: '01:00:00'
+				startTimestamp: createDateTime(0, 9), // Monday 9:00 AM
+				endTimestamp: createDateTime(0, 10) // Monday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
 				schoolLocationId: locations[3].id, // English Room
-				dayOfWeek: dayOfWeekEnum.tuesday,
-				startTime: '10:00:00',
-				duration: '01:00:00'
+				startTimestamp: createDateTime(1, 10), // Tuesday 10:00 AM
+				endTimestamp: createDateTime(1, 11) // Tuesday 11:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
 				schoolLocationId: locations[0].id, // Science Lab A
-				dayOfWeek: dayOfWeekEnum.wednesday,
-				startTime: '11:00:00',
-				duration: '01:00:00'
+				startTimestamp: createDateTime(2, 11), // Wednesday 11:00 AM
+				endTimestamp: createDateTime(2, 12) // Wednesday 12:00 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
 				schoolLocationId: locations[4].id, // Gymnasium
-				dayOfWeek: dayOfWeekEnum.thursday,
-				startTime: '14:00:00',
-				duration: '01:00:00'
+				startTimestamp: createDateTime(3, 14), // Thursday 2:00 PM
+				endTimestamp: createDateTime(3, 15) // Thursday 3:00 PM
 			},
-			// Add some additional sessions
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math (second session)
 				schoolLocationId: locations[2].id, // Mathematics Room
-				dayOfWeek: dayOfWeekEnum.friday,
-				startTime: '09:00:00',
-				duration: '01:00:00'
+				startTimestamp: createDateTime(4, 9), // Friday 9:00 AM
+				endTimestamp: createDateTime(4, 10) // Friday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English (second session)
 				schoolLocationId: locations[3].id, // English Room
-				dayOfWeek: dayOfWeekEnum.friday,
-				startTime: '10:00:00',
-				duration: '01:00:00'
+				startTimestamp: createDateTime(4, 10), // Friday 10:00 AM
+				endTimestamp: createDateTime(4, 11) // Friday 11:00 AM
 			}
 		];
 

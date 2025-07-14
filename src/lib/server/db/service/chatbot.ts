@@ -12,7 +12,7 @@ import {
 	getSubjectOfferingById,
 	getSubjectOfferingClassDetailsById,
 	getTasksBySubjectOfferingId
-} from './subjects';
+} from './';
 
 // For simplicity, we will grab all of the coursemap topics and descriptions as well as the lesson names and descriptions to
 // provide context for the subject offering. This will be used to answer questions about the subject offering in the chatbot.

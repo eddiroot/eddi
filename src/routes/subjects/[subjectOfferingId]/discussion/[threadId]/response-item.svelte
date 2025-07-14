@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
-	import { convertToFullName, formatDate } from '$lib/utils';
+	import { convertToFullName, formatTimestamp } from '$lib/utils';
 	import ResponseForm from './form.svelte';
 	import Self from './response-item.svelte';
 	import Reply from '@lucide/svelte/icons/reply';
@@ -60,7 +60,7 @@
 							by {authorName()}
 						</span>
 						<span class="text-muted-foreground text-xs">
-							{formatDate(response.response.createdAt)}
+							{formatTimestamp(response.response.createdAt)}
 						</span>
 					</div>
 				</div>

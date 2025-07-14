@@ -14,7 +14,7 @@
 			createdAt: string;
 		};
 	};
-	import { formatDate } from '$lib/utils';
+	import { formatTimestamp } from '$lib/utils';
 	import { onMount } from 'svelte';
 
 	// Props
@@ -125,12 +125,12 @@
 			if (!chatId) {
 				throw new Error('Chat ID is required');
 			}
-			
+
 			const urlParams = new URLSearchParams({ chatId: chatId.toString() });
 			if (subjectOfferingId !== null) {
 				urlParams.append('subjectOfferingId', subjectOfferingId.toString());
 			}
-			
+
 			const chatbotMessageResponse = await fetch(`/api/chatbot/message?${urlParams}`, {
 				method: 'GET',
 				headers: {
@@ -255,7 +255,7 @@
 													{getChatTitle(chat)}
 												</div>
 												<div class="text-muted-foreground text-xs">
-													{formatDate(chat.createdAt)}
+													{formatTimestamp(chat.createdAt)}
 												</div>
 											</div>
 										</div>
@@ -304,7 +304,7 @@
 												? 'text-right'
 												: 'text-left'}"
 										>
-											{formatDate(message.createdAt)}
+											{formatTimestamp(message.createdAt)}
 										</p>
 									</div>
 

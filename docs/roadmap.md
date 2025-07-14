@@ -26,7 +26,7 @@ All
 
 Lachie
 
-- [ ] Roll call / attendance (20/07)
+- [x] Roll call / attendance (20/07)
 - [ ] Teachers can see attendance (23/07)
 - [ ] Class tests / quizzes (27/07)
 - [ ] Sick/not coming to school/absence/late notifications (27/07)
@@ -47,7 +47,7 @@ Raph
 
 - [x] Class resources (14/07)
   - Improve
-- [ ] Class home page (20/07) 
+- [ ] Class home page (20/07)
 - [ ] Better whiteboard (20/07)
   - Fix mc alerts and text overflow in question and explanation
   - Expanding the whiteboard

@@ -7,6 +7,9 @@ export * from './schools.js';
 // Subject
 export * from './subjects.js';
 
+// Class
+export * from './classes.js';
+
 // Chatbot
 export * from './chatbot.js';
 

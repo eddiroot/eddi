@@ -2,15 +2,9 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { formatTime, getDayIndex, days, addTimeAndDuration } from '$lib/utils.js';
+	import { formatTimestampAsTime, days } from '$lib/utils.js';
 
 	let { data } = $props();
-
-	const subjectInfo = {
-		name: 'Maths Methods 1/2',
-		teacher: 'Mr Smith',
-		teacherEmail: 'msmith@eddi.edu.au'
-	};
 
 	const assessments = [
 		{ name: 'Test 1 - Functions and Relations', dueDate: '2025-07-15', type: 'Test' },
@@ -33,20 +27,15 @@
 	// Create sorted array of user classes by day of week using derived rune
 	const sortedUserClasses = $derived(() => {
 		type UserClass = (typeof data.userClasses)[0];
-		const classesByDay: UserClass[][] = [[], [], [], [], []]; // Array for Mon-Fri (5 days)
+		const classesByDay: UserClass[][] = [[], [], [], [], []];
 
 		data.userClasses?.forEach((cls) => {
-			const dayIndex = getDayIndex(cls.classAllocation.dayOfWeek);
-			if (dayIndex !== -1) {
+			const dayOfWeek = cls.classAllocation.startTimestamp.getDay();
+			const dayIndex = dayOfWeek === 0 ? -1 : dayOfWeek - 1;
+
+			if (dayIndex >= 0 && dayIndex < 5) {
 				classesByDay[dayIndex].push(cls);
 			}
-		});
-
-		// Sort classes within each day by start time
-		classesByDay.forEach((dayClasses) => {
-			dayClasses.sort((a, b) =>
-				a.classAllocation.startTime.localeCompare(b.classAllocation.startTime)
-			);
 		});
 
 		return classesByDay;
@@ -119,11 +108,8 @@
 											<div class="border-border rounded-lg border p-3">
 												<div class="flex items-center justify-between">
 													<span class="text-muted-foreground text-sm"
-														>{formatTime(cls.classAllocation.startTime)} - {formatTime(
-															addTimeAndDuration(
-																cls.classAllocation.startTime,
-																cls.classAllocation.duration
-															)
+														>{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(
+															cls.classAllocation.endTimestamp
 														)}</span
 													>
 													<span class="text-muted-foreground text-sm"

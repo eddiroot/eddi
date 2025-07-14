@@ -2,15 +2,14 @@ import {
 	pgTable,
 	text,
 	integer,
-	time,
 	type AnyPgColumn,
 	foreignKey,
-	interval,
 	boolean,
 	pgEnum,
 	unique,
 	check,
-	uuid
+	uuid,
+	timestamp
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { campus, school, schoolLocation } from './schools';
@@ -162,26 +161,6 @@ export const userSubjectOfferingClass = pgTable('user_sub_off_class', {
 
 export type UserSubjectOfferingClass = typeof userSubjectOfferingClass.$inferSelect;
 
-export enum dayOfWeekEnum {
-	monday = 'monday',
-	tuesday = 'tuesday',
-	wednesday = 'wednesday',
-	thursday = 'thursday',
-	friday = 'friday',
-	saturday = 'saturday',
-	sunday = 'sunday'
-}
-
-export const dayOfWeekEnumPg = pgEnum('day_of_week', [
-	dayOfWeekEnum.monday,
-	dayOfWeekEnum.tuesday,
-	dayOfWeekEnum.wednesday,
-	dayOfWeekEnum.thursday,
-	dayOfWeekEnum.friday,
-	dayOfWeekEnum.saturday,
-	dayOfWeekEnum.sunday
-]);
-
 export const subjectClassAllocation = pgTable('sub_class_allo', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	subjectOfferingClassId: integer('sub_off_class_id')
@@ -190,10 +169,8 @@ export const subjectClassAllocation = pgTable('sub_class_allo', {
 	schoolLocationId: integer('sch_loc_id')
 		.notNull()
 		.references(() => schoolLocation.id, { onDelete: 'set null' }),
-	// These need to change to start timestamp and end timestamp
-	dayOfWeek: dayOfWeekEnumPg().notNull(),
-	startTime: time('start_time').notNull(),
-	duration: interval('duration').notNull(),
+	startTimestamp: timestamp('start_timestamp').notNull(),
+	endTimestamp: timestamp('end_timestamp').notNull(),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });

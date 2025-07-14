@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { formatTime, days, addTimeAndDuration } from '$lib/utils';
+	import { days, formatTimestampAsTime } from '$lib/utils';
 	import { generateSubjectColors, generateTimeslots, getClassPosition } from './utils.js';
 
 	let { data } = $props();
@@ -26,7 +26,7 @@
 	>
 		<!-- Time legend column -->
 		<div class="bg-background relative">
-			{#each timeslots as slot, index}
+			{#each timeslots as slot}
 				<div
 					class="text-muted-foreground flex items-start justify-end pr-4 text-xs"
 					style="height: {100 / timeslots.length}%; transform: translateY(-8px);"
@@ -44,11 +44,15 @@
 				{/each}
 
 				<!-- Classes for this day -->
-				{#each (classTimes ?? []).filter((c) => c.classAllocation.dayOfWeek === day.value) as cls}
+				{#each (classTimes ?? []).filter((c) => {
+					const dayOfWeek = c.classAllocation.startTimestamp.getDay();
+					const dayIndex = dayOfWeek === 0 ? -1 : dayOfWeek - 1;
+					return dayIndex >= 0 && dayIndex < days.length && days[dayIndex].value === day.value;
+				}) as cls}
 					{@const position = getClassPosition(
 						8,
-						cls.classAllocation.startTime,
-						cls.classAllocation.duration,
+						cls.classAllocation.startTimestamp,
+						cls.classAllocation.endTimestamp,
 						timeslots
 					)}
 					{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
@@ -66,8 +70,8 @@
 									{cls.subject.name}
 								</Card.Title>
 								<Card.Description class="overflow-hidden text-xs text-ellipsis whitespace-nowrap">
-									{formatTime(cls.classAllocation.startTime)} - {formatTime(
-										addTimeAndDuration(cls.classAllocation.startTime, cls.classAllocation.duration)
+									{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(
+										cls.classAllocation.endTimestamp
 									)}
 									{cls.schoolLocation.name}
 								</Card.Description>

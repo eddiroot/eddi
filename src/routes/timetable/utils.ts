@@ -1,5 +1,3 @@
-import { timeToMinutes } from '$lib/utils';
-
 export function generateTimeslots(dayStartHour: number, dayEndHour: number): string[] {
 	const slots: string[] = [];
 	for (let hour = dayStartHour; hour < dayEndHour; hour++) {
@@ -10,19 +8,20 @@ export function generateTimeslots(dayStartHour: number, dayEndHour: number): str
 }
 
 export function getClassPosition(
-	dayStartHour: number,
-	startTime: string,
-	duration: string,
+	dayStartHour: number = 8,
+	startTimestamp: Date,
+	endTimestamp: Date,
 	timeslots: string[]
 ) {
-	const startMinutes = timeToMinutes(startTime);
+	const startMinutes = startTimestamp.getHours() * 60 + startTimestamp.getMinutes();
 	const startOfDay = dayStartHour * 60;
 	const totalSlots = timeslots.length;
 	const slotHeight = 100 / totalSlots;
 
-	const slotIndex = (startMinutes - startOfDay) / 30; // Each slot is 30 minutes
+	const slotIndex = (startMinutes - startOfDay) / 30;
 	const topPosition = slotIndex * slotHeight;
-	const durationInSlots = timeToMinutes(duration) / 30;
+	const durationInMinutes = (endTimestamp.getTime() - startTimestamp.getTime()) / 60000;
+	const durationInSlots = durationInMinutes / 30;
 	const height = durationInSlots * slotHeight;
 
 	return {

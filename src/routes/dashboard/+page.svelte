@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
-	import { formatDate, formatTime, addTimeAndDuration } from '$lib/utils';
+	import { formatTimestamp, formatTimestampAsTime } from '$lib/utils';
 	import { generateSubjectColors } from '../timetable/utils';
 
 	let { data } = $props();
@@ -72,7 +72,7 @@
 														{announcement.subject.name}
 													</Badge>
 													<span class="text-muted-foreground text-xs">
-														{formatDate(announcement.announcement.createdAt)}
+														{formatTimestamp(announcement.announcement.createdAt)}
 													</span>
 												</div>
 												<p class="text-muted-foreground mt-2 line-clamp-3 text-sm">
@@ -199,11 +199,8 @@
 										<div class="text-muted-foreground text-sm">{cls.schoolLocation.name}</div>
 									</div>
 									<div class="text-muted-foreground text-sm font-medium">
-										{formatTime(cls.classAllocation.startTime)} - {formatTime(
-											addTimeAndDuration(
-												cls.classAllocation.startTime,
-												cls.classAllocation.duration
-											)
+										{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(
+											cls.classAllocation.endTimestamp
 										)}
 									</div>
 								</div>
