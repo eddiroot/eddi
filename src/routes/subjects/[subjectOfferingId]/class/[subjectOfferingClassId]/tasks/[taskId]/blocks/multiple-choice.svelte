@@ -39,7 +39,11 @@
 	// Edit mode states
 	let questionText = $state(content.question || '');
 	let options = $state<string[]>(content.options || []);
-	let correctAnswers = $state<Set<string>>(new Set(content.answer ? (Array.isArray(content.answer) ? content.answer : [content.answer]) : []));
+	let correctAnswers = $state<Set<string>>(
+		new Set(
+			content.answer ? (Array.isArray(content.answer) ? content.answer : [content.answer]) : []
+		)
+	);
 
 	// Functions for student interaction
 	function toggleAnswer(option: string) {
@@ -173,13 +177,13 @@
 	$effect(() => {
 		questionText = content.question || '';
 		options = content.options || [];
-		correctAnswers = new Set(content.answer ? (Array.isArray(content.answer) ? content.answer : [content.answer]) : []);
-		
+		correctAnswers = new Set(
+			content.answer ? (Array.isArray(content.answer) ? content.answer : [content.answer]) : []
+		);
+
 		hasSubmitted = false; // Reset quiz state when content changes
 		selectedAnswers = new Set();
 	});
-
-	
 </script>
 
 <div class="flex w-full flex-col gap-4">
@@ -266,7 +270,6 @@
 						Click the circle icon to mark correct answers. You can select multiple correct answers.
 					</p>
 				</div>
-
 			</Card.Content>
 		</Card.Root>
 	{:else}
@@ -275,7 +278,7 @@
 			{#if content.question && content.options?.length > 0}
 				<!-- Display the complete question -->
 				<Card.Root>
-					<Card.Content class="pt-6">
+					<Card.Content>
 						<!-- Question Text -->
 						<div class="mb-6">
 							<h3 class="mb-2 text-lg font-medium">{content.question}</h3>

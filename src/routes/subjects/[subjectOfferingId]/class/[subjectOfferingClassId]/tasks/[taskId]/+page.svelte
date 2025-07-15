@@ -170,229 +170,232 @@
 	}
 </script>
 
-<div class="flex h-full flex-col gap-4 p-4">
-	<div
-		class="grid h-full gap-4 {isEditMode ? 'grid-cols-[200px_1fr_300px]' : 'grid-cols-[200px_1fr]'}"
-	>
-		<div class="flex flex-col gap-2">
-			{#if data.user.type !== 'student'}
-				<Button
-					variant="outline"
-					onclick={() => {
-						const newEditMode = !isEditMode;
-						if (browser) {
-							localStorage.setItem('task-edit-mode', newEditMode.toString());
-						}
-						isEditMode = newEditMode;
-					}}
-					size="lg"
-					class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
-				>
-					{#if isEditMode}
-						<EyeIcon class="size-5" />
-						Switch to Preview Mode
-					{:else}
-						<EditIcon class="size-5" />
-						Switch to Edit Mode
-					{/if}
-				</Button>
-			{/if}
-			<Card.Root class="h-full">
-				<Card.Header>
-					<Card.Title class="text-center text-lg">Contents</Card.Title>
-				</Card.Header>
-				<Card.Content></Card.Content>
-			</Card.Root>
-		</div>
-		<Card.Root class="h-full gap-0">
-			<div class="flex items-center justify-between px-6 pb-4">
-				<div class="flex-1 {isEditMode ? 'ml-[38px]' : ''}">
-					<Heading
-						headingSize={1}
-						text={data.task.title}
-						{isEditMode}
-						onUpdate={async (newText: string) =>
-							await updateTaskTitle({ taskId: data.task.id, title: newText })}
-					/>
-				</div>
-			</div>
-			<Card.Content class="h-full">
-				<div class="flex h-full flex-col">
-					{#each blocks as block}
-						<div
-							class="h-4"
-							use:droppable={{
-								container: `task-${block.id}`,
-								callbacks: {
-									onDrop: handleDrop
-								}
-							}}
-						>
-							{#if dndState.targetContainer === `task-${block.id}`}
-								<Separator class="bg-accent-foreground my-2" />
-							{/if}
-						</div>
-						<div
-							class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
-							role="group"
-							onmouseover={() => (mouseOverElement = `task-${block.id}`)}
-							onfocus={() => (mouseOverElement = `task-${block.id}`)}
-						>
-							{#if isEditMode && mouseOverElement === `task-${block.id}`}
-								<div
-									use:draggable={{
-										container: 'task',
-										dragData: block
-									}}
-									class="group hover:bg-muted relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
-								>
-									<GripVerticalIcon
-										class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
-									/>
-								</div>
-							{:else if isEditMode}
-								<div></div>
-							{/if}
-							<div>
-								{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
-									<Heading
-										headingSize={parseInt(block.type[1]) + 1}
-										text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'markdown'}
-									<RichTextEditor
-										initialContent={block.content as string | undefined}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'image'}
-									<Image
-										content={block.content as Record<string, any> | undefined}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'video'}
-									<Video
-										content={block.content as Record<string, any> | undefined}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'audio'}
-									<Audio
-										content={block.content as Record<string, any> | undefined}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'whiteboard'}
-									<Whiteboard
-										content={block.content as Record<string, any> | undefined}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'multiple_choice'}
-									<MultipleChoice
-										content={block.content as any}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'fill_in_blank'}
-									<FillInBlank
-										content={block.content as any}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'matching'}
-									<Matching
-										content={block.content as any}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else if block.type === 'two_column_layout'}
-									<TwoColumnLayout
-										content={block.content as any}
-										{isEditMode}
-										onUpdate={async (content: string) => {
-											await updateBlock({ block, content });
-										}}
-										onGlobalDrop={handleDrop}
-									/>
-								{:else if block.type === 'short_answer'}
-									<ShortAnswer
-										content={block.content as any}
-										{isEditMode}
-										onUpdate={async (content: string) => await updateBlock({ block, content })}
-									/>
-								{:else}
-									<p>Content for {block.type} block.</p>
-								{/if}
-							</div>
-						</div>
-					{/each}
-					{#if isEditMode}
-						<div
-							use:droppable={{
-								container: `task-bottom`,
-								callbacks: {
-									onDrop: handleDrop
-								}
-							}}
-							class="my-4 ml-[38px] flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
-							'task-bottom'
-								? draggedOverClasses
-								: notDraggedOverClasses}"
-						>
-							<span class="text-muted-foreground text-sm">Add more blocks here</span>
-						</div>
-					{/if}
-				</div>
-			</Card.Content>
+<div
+	class="grid h-full gap-4 p-4 {isEditMode
+		? 'grid-cols-[200px_1fr_300px]'
+		: 'grid-cols-[200px_1fr]'}"
+>
+	<!-- Contents Pane -->
+	<div class="flex flex-col gap-2">
+		{#if data.user.type !== 'student'}
+			<Button
+				variant="outline"
+				onclick={() => {
+					const newEditMode = !isEditMode;
+					if (browser) {
+						localStorage.setItem('task-edit-mode', newEditMode.toString());
+					}
+					isEditMode = newEditMode;
+				}}
+				size="lg"
+				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
+			>
+				{#if isEditMode}
+					<EyeIcon class="size-5" />
+					Switch to Preview Mode
+				{:else}
+					<EditIcon class="size-5" />
+					Switch to Edit Mode
+				{/if}
+			</Button>
+		{/if}
+		<Card.Root class="h-full">
+			<Card.Header>
+				<Card.Title class="text-center text-lg">Contents</Card.Title>
+			</Card.Header>
+			<Card.Content></Card.Content>
 		</Card.Root>
+	</div>
 
-		{#if isEditMode}
-			<Card.Root>
-				<Card.Header>
-					<Card.Title class="text-lg">Blocks</Card.Title>
-					<Card.Description>
-						Drag and drop blocks from here to the task content area. If you'd like to delete a
-						block, simply drag it to the area below.
-					</Card.Description>
-				</Card.Header>
-				<Card.Content class="flex h-full flex-col gap-4">
+	<!-- Task Blocks -->
+	<Card.Root class="h-full overflow-y-auto">
+		<Card.Content class="h-full space-y-4">
+			<div class={isEditMode ? 'ml-[38px]' : ''}>
+				<Heading
+					headingSize={1}
+					text={data.task.title}
+					{isEditMode}
+					onUpdate={async (newText: string) =>
+						await updateTaskTitle({ taskId: data.task.id, title: newText })}
+				/>
+			</div>
+			<div class="flex h-full flex-col">
+				{#each blocks as block}
 					<div
-						class="grid grid-cols-2 gap-3 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
-							'task'
-						) ||
-							dndState.sourceContainer.startsWith('two-column-')) &&
-						dndState.targetContainer === 'blockPalette'
-							? 'border-destructive border border-dashed'
-							: notDraggedOverClasses}"
+						class="min-h-4"
 						use:droppable={{
-							container: `blockPalette`,
+							container: `task-${block.id}`,
 							callbacks: {
 								onDrop: handleDrop
 							}
 						}}
 					>
-						{#each blockTypes as { type, name, content, icon }}
-							{@const Icon = icon}
-							<div
-								class="flex flex-col items-center justify-center gap-1 {buttonVariants({
-									variant: 'outline'
-								})} aspect-square h-20 w-full"
-								use:draggable={{
-									container: 'blockPalette',
-									dragData: { type, content, id: 0 }
-								}}
-							>
-								<Icon class="size-8" />
-								<span class="text-center text-xs leading-tight">{name}</span>
-							</div>
-						{/each}
+						{#if dndState.targetContainer === `task-${block.id}`}
+							<Separator class="bg-accent-foreground my-2" />
+						{/if}
 					</div>
-				</Card.Content>
-			</Card.Root>
-		{/if}
-	</div>
+
+					<div
+						class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
+						role="group"
+						onmouseover={() => (mouseOverElement = `task-${block.id}`)}
+						onfocus={() => (mouseOverElement = `task-${block.id}`)}
+					>
+						{#if isEditMode && mouseOverElement === `task-${block.id}`}
+							<div
+								use:draggable={{
+									container: 'task',
+									dragData: block
+								}}
+								class="group hover:bg-muted relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
+							>
+								<GripVerticalIcon
+									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
+								/>
+							</div>
+						{:else if isEditMode}
+							<div></div>
+						{/if}
+						<div>
+							{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
+								<Heading
+									headingSize={parseInt(block.type[1]) + 1}
+									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'markdown'}
+								<RichTextEditor
+									initialContent={block.content as string | undefined}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'image'}
+								<Image
+									content={block.content as Record<string, any> | undefined}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'video'}
+								<Video
+									content={block.content as Record<string, any> | undefined}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'audio'}
+								<Audio
+									content={block.content as Record<string, any> | undefined}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'whiteboard'}
+								<Whiteboard
+									content={block.content as Record<string, any> | undefined}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'multiple_choice'}
+								<MultipleChoice
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'fill_in_blank'}
+								<FillInBlank
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'matching'}
+								<Matching
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else if block.type === 'two_column_layout'}
+								<TwoColumnLayout
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => {
+										await updateBlock({ block, content });
+									}}
+									onGlobalDrop={handleDrop}
+								/>
+							{:else if block.type === 'short_answer'}
+								<ShortAnswer
+									content={block.content as any}
+									{isEditMode}
+									onUpdate={async (content: string) => await updateBlock({ block, content })}
+								/>
+							{:else}
+								<p>Content for {block.type} block.</p>
+							{/if}
+						</div>
+					</div>
+				{/each}
+				{#if isEditMode}
+					<div
+						use:droppable={{
+							container: `task-bottom`,
+							callbacks: {
+								onDrop: handleDrop
+							}
+						}}
+						class="my-4 ml-[38px] flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
+						'task-bottom'
+							? draggedOverClasses
+							: notDraggedOverClasses}"
+					>
+						<span class="text-muted-foreground text-sm">Add more blocks here</span>
+					</div>
+				{/if}
+			</div>
+		</Card.Content>
+	</Card.Root>
+
+	<!-- Block Pane -->
+	{#if isEditMode}
+		<Card.Root>
+			<Card.Header>
+				<Card.Title class="text-lg">Blocks</Card.Title>
+				<Card.Description>
+					Drag and drop blocks from here to the task content area. If you'd like to delete a block,
+					simply drag it to the area below.
+				</Card.Description>
+			</Card.Header>
+			<Card.Content class="flex h-full flex-col gap-4">
+				<div
+					class="grid grid-cols-2 gap-3 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
+						'task'
+					) ||
+						dndState.sourceContainer.startsWith('two-column-')) &&
+					dndState.targetContainer === 'blockPalette'
+						? 'border-destructive border border-dashed'
+						: notDraggedOverClasses}"
+					use:droppable={{
+						container: `blockPalette`,
+						callbacks: {
+							onDrop: handleDrop
+						}
+					}}
+				>
+					{#each blockTypes as { type, name, content, icon }}
+						{@const Icon = icon}
+						<div
+							class="flex flex-col items-center justify-center gap-1 {buttonVariants({
+								variant: 'outline'
+							})} aspect-square h-18 w-full"
+							use:draggable={{
+								container: 'blockPalette',
+								dragData: { type, content, id: 0 }
+							}}
+						>
+							<Icon class="size-8" />
+							<span class="text-center text-xs leading-tight">{name}</span>
+						</div>
+					{/each}
+				</div>
+			</Card.Content>
+		</Card.Root>
+	{/if}
 </div>
