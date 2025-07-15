@@ -167,7 +167,7 @@
 
 <div class="bg-background flex min-h-screen items-center justify-center p-4">
 	<div class="mx-auto w-full max-w-md">
-		<Card>
+		<Card class="border-none shadow-none">
 			<CardHeader class="text-center">
 				<div
 					class="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
@@ -183,7 +183,7 @@
 				<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 					<div class="space-y-2">
 						<div class="flex justify-center gap-2">
-							{#each verificationCode as digit, index}
+							{#each verificationCode as _, index}
 								<Input
 									id="code-{index}"
 									type="text"
