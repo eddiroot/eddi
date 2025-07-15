@@ -200,6 +200,13 @@ export async function getGuardiansChildrensAttendancesByUserId(userId: string) {
 				id: table.subjectClassAllocation.id,
 				startTimestamp: table.subjectClassAllocation.startTimestamp,
 				endTimestamp: table.subjectClassAllocation.endTimestamp
+			},
+			subjectOfferingClass: {
+				id: table.subjectOfferingClass.id,
+				name: table.subjectOfferingClass.name
+			},
+			subject: {
+				name: table.subject.name
 			}
 		})
 		.from(table.userRelationship)
@@ -208,6 +215,15 @@ export async function getGuardiansChildrensAttendancesByUserId(userId: string) {
 			table.userSubjectOfferingClass,
 			eq(table.userSubjectOfferingClass.userId, table.user.id)
 		)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.innerJoin(
 			table.subjectClassAllocation,
 			eq(
@@ -225,7 +241,8 @@ export async function getGuardiansChildrensAttendancesByUserId(userId: string) {
 				eq(table.subjectClassAllocationAttendance.userId, table.user.id)
 			)
 		)
-		.where(eq(table.userRelationship.relatedUserId, userId));
+		.where(eq(table.userRelationship.relatedUserId, userId))
+		.orderBy(table.subjectClassAllocation.startTimestamp);
 
 	return attendances;
 }
