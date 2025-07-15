@@ -3,7 +3,7 @@ import { superValidate, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
-import { taskComponentSchema, taskCreationPrompts } from './constants';
+import { taskComponentSchema, taskCreationPrompts } from '$lib/server/taskSchema';
 import {
 	createTask,
 	createTaskBlock,
@@ -226,32 +226,37 @@ async function createBlockFromComponent(component: any, taskId: number) {
 
 		case 'short_answer':
 			// Validate and transform text input content structure
-			if (content && (content.question)) {
+			if (content && content.question) {
 				// Clean up the question text by removing excessive newlines and whitespace
 				let questionText = content.question || content.text || '';
-				
+
 				// Remove excessive newlines (more than 2 consecutive newlines)
 				questionText = questionText.replace(/\n{3,}/g, '\n\n');
 				// Remove excessive whitespace
 				questionText = questionText.replace(/\s{3,}/g, ' ');
 				// Trim whitespace and ensure reasonable length
 				questionText = questionText.trim();
-				
+
 				// Skip if the question is too short or appears to be malformed
 				if (questionText.length < 3) {
 					console.warn('Text input question too short, skipping:', questionText);
 					break;
 				}
 				if (questionText.length > 2000) {
-					console.warn('Text input question too long, truncating:', questionText.substring(0, 100) + '...');
+					console.warn(
+						'Text input question too long, truncating:',
+						questionText.substring(0, 100) + '...'
+					);
 					questionText = questionText.substring(0, 2000);
 				}
-				
+
 				const shortAnswerContent = {
-					question: questionText,
+					question: questionText
 				};
 				await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, shortAnswerContent);
-				console.log(`Created text input block: "${shortAnswerContent.question.substring(0, 100)}${shortAnswerContent.question.length > 100 ? '...' : ''}"`);
+				console.log(
+					`Created text input block: "${shortAnswerContent.question.substring(0, 100)}${shortAnswerContent.question.length > 100 ? '...' : ''}"`
+				);
 			} else {
 				console.warn('Invalid text input content structure:', content);
 			}
@@ -410,7 +415,10 @@ export const actions = {
 				console.log('All temp files saved:', tempFilePaths);
 
 				// Create enhanced prompt with learning area content
-				let enhancedPrompt = taskCreationPrompts[form.data.type](form.data.title, form.data.description || '');
+				let enhancedPrompt = taskCreationPrompts[form.data.type](
+					form.data.title,
+					form.data.description || ''
+				);
 				if (learningAreaContentData.length > 0) {
 					const curriculumContext = learningAreaContentData
 						.map((content) => {
@@ -440,7 +448,10 @@ export const actions = {
 			} else if (form.data.creationMethod === 'ai') {
 				// AI mode but no files
 				console.log('AI mode with no files - sending text-only prompt to Gemini');
-				let enhancedPrompt = taskCreationPrompts[form.data.type](form.data.title, form.data.description || '');
+				let enhancedPrompt = taskCreationPrompts[form.data.type](
+					form.data.title,
+					form.data.description || ''
+				);
 				if (learningAreaContentData.length > 0) {
 					const curriculumContext = learningAreaContentData
 						.map((content) => {

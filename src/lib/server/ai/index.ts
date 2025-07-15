@@ -20,7 +20,7 @@ export async function geminiCompletion(
 				text: prompt
 			}
 		];
-		console.log('Sending prompt to Gemini:', prompt);
+
 		if (mediaPath) {
 			const mediaContent = fs.readFileSync(mediaPath);
 			parts.push({
@@ -72,7 +72,7 @@ export async function geminiConversation(
 	systemInstruction?: string
 ): Promise<string> {
 	try {
-		const contents = messages.map(msg => ({
+		const contents = messages.map((msg) => ({
 			role: msg.role,
 			parts: [{ text: msg.content }]
 		}));
@@ -102,9 +102,7 @@ export async function geminiConversation(
 	}
 }
 
-export async function geminiImageGeneration(
-	prompt: string,
-) {
+export async function geminiImageGeneration(prompt: string) {
 	try {
 		const response = await ai.models.generateContent({
 			model: 'gemini-2.0-flash-preview-image-generation',
@@ -116,7 +114,7 @@ export async function geminiImageGeneration(
 			],
 			config: {
 				responseMimeType: 'image/png',
-				responseModalities: [Modality.IMAGE],
+				responseModalities: [Modality.IMAGE]
 			}
 		});
 

@@ -42,6 +42,7 @@ Jack
 - [ ] AI feedback / assisted marking
 - [ ] View students work
 - [ ] Student note writing
+- [ ] Lesson plans / teacher notes based on generated lesson
 
 Raph
 

@@ -14,8 +14,9 @@
 	import TwoColumnLayout from './blocks/two-column-layout.svelte';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import EditIcon from '@lucide/svelte/icons/edit';
-	import { type TaskBlock } from '$lib/server/db/schema';
 	import ShortAnswer from './blocks/short-answer.svelte';
+	import { type TaskBlock } from '$lib/server/db/schema';
+
 	import {
 		createBlock,
 		deleteBlock,

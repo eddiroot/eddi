@@ -98,7 +98,7 @@ export const taskBlock = pgTable('task_block', {
 	type: taskBlockTypeEnumPg().notNull(),
 	content: jsonb('content').notNull(),
 	index: integer('index').notNull().default(0),
-	criteria: jsonb('criteria'),
+	rubric: jsonb('rubric'),
 	availableMarks: integer('available_marks'),
 	...timestamps
 });

@@ -1,5 +1,8 @@
 export const taskCreationPrompts = {
-	lesson: (title: string, description: string = '') => `Create an educational lesson with the following details:
+	lesson: (
+		title: string,
+		description: string = ''
+	) => `Create an educational lesson with the following details:
 Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
@@ -14,7 +17,10 @@ Analyse the attached documents/images and create a comprehensive lesson with:
     5. A good balance of explanation and interactive practice
 Each component should be structured according to the provided schema. Ignore the short answer component type as it is not needed for lessons.`,
 
-	homework: (title: string, description: string = '') => `Create homework assignments with the following details:
+	homework: (
+		title: string,
+		description: string = ''
+	) => `Create homework assignments with the following details:
 Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
@@ -32,7 +38,10 @@ Analyse the attached documents/images and create homework that reinforces learni
     6. Clear instructions for each section
 Each component should be structured according to the provided schema. Prioritize interactive practice over explanatory content.`,
 
-	assessment: (title: string, description: string = '') => `Create a comprehensive assessment with the following details:
+	assessment: (
+		title: string,
+		description: string = ''
+	) => `Create a comprehensive assessment with the following details:
 Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
@@ -51,13 +60,10 @@ Analyse the attached documents/images and create an assessment that evaluates st
 Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`
 };
 
-// Keep the original as the default for backward compatibility
-export const taskCreationPrompt = (title: string, description: string = '') => taskCreationPrompts.lesson(title, description);
-
-// Base task component schema (reusable)
-export const taskComponentItems = [
-	// Title component
-	{
+const titleComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['title'] },
@@ -70,10 +76,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Subtitle component
-	{
+const subtitleComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['subtitle'] },
@@ -86,10 +95,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Header components (h1, h2, h3)
-	{
+const headerComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['h2', 'h3', 'h4', 'h5', 'h6'] },
@@ -102,10 +114,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Paragraph component
-	{
+const paragraphComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['paragraph'] },
@@ -118,10 +133,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Math input component
-	{
+const mathInputComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['math_input'] },
@@ -135,28 +153,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Text/Number input component
-	/*{
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['input'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					question: { type: 'STRING' },
-					input_type: { type: 'STRING', enum: ['text', 'number'] },
-					unit: { type: 'STRING', nullable: true }
-				},
-				required: ['question', 'input_type']
-			}
-		},
-		required: ['type', 'content']
-	},*/
-
-	// Multiple choice component
-	{
+const multipleChoiceComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['multiple_choice'] },
@@ -183,10 +186,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Video component
-	{
+const videoComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['video'] },
@@ -200,10 +206,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Image component
-	{
+const imageComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['image'] },
@@ -217,10 +226,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Fill in the blank component
-	{
+const fillInBlankComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['fill_in_blank'] },
@@ -234,10 +246,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Matching component
-	{
+const matchingComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['matching'] },
@@ -261,10 +276,13 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	// Drag and drop component
-	{
+const dragAndDropComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['drag_and_drop'] },
@@ -295,28 +313,44 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	}
+};
 
-	//Short Answer component
-	{
+const shortAnswerComponent = {
+	criteria: null,
+	answer: null,
+	blockSchema: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['short_answer'] },
 			content: {
 				type: 'OBJECT',
 				properties: {
-					question: { type: 'STRING' },
+					question: { type: 'STRING' }
 				},
 				required: ['question']
 			}
 		},
 		required: ['type', 'content']
 	}
+};
+
+export const taskComponentItems = [
+	titleComponent.blockSchema,
+	subtitleComponent.blockSchema,
+	headerComponent.blockSchema,
+	paragraphComponent.blockSchema,
+	mathInputComponent.blockSchema,
+	multipleChoiceComponent.blockSchema,
+	videoComponent.blockSchema,
+	imageComponent.blockSchema,
+	fillInBlankComponent.blockSchema,
+	matchingComponent.blockSchema,
+	dragAndDropComponent.blockSchema,
+	shortAnswerComponent.blockSchema
 ];
 
-// Layout components schema
 export const taskLayoutItems = [
-	// Two column layout component
 	{
 		type: 'OBJECT',
 		properties: {
@@ -347,7 +381,6 @@ export const taskLayoutItems = [
 // Combined schema for all task items (components + layouts)
 export const allTaskItems = [...taskComponentItems, ...taskLayoutItems];
 
-// Original task component schema (for backwards compatibility)
 export const taskComponentSchema = {
 	type: 'OBJECT',
 	properties: {
@@ -355,34 +388,6 @@ export const taskComponentSchema = {
 			type: 'ARRAY',
 			items: {
 				anyOf: allTaskItems
-			}
-		}
-	},
-	required: ['task']
-};
-
-// New schema specifically for layouts that can contain other components
-export const taskLayoutSchema = {
-	type: 'OBJECT',
-	properties: {
-		task: {
-			type: 'ARRAY',
-			items: {
-				anyOf: taskLayoutItems
-			}
-		}
-	},
-	required: ['task']
-};
-
-// Schema for just basic components (no layouts)
-export const basicComponentSchema = {
-	type: 'OBJECT',
-	properties: {
-		task: {
-			type: 'ARRAY',
-			items: {
-				anyOf: taskComponentItems
 			}
 		}
 	},
