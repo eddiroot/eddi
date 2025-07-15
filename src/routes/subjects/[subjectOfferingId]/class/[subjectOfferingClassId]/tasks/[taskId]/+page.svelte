@@ -28,6 +28,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { browser } from '$app/environment';
+	import { Mode } from '@google/genai';
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
@@ -197,6 +198,14 @@
 					<EditIcon class="size-5" />
 					Switch to Edit Mode
 				{/if}
+			</Button>
+			<Button
+				variant="outline"
+				href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/present`}
+				size="lg"
+				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
+			>
+				Presentation Mode
 			</Button>
 		{/if}
 		<Card.Root class="h-full">
