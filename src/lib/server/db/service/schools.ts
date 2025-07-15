@@ -25,6 +25,11 @@ export async function getUsersBySchoolId(schoolId: number, includeArchived: bool
 	return users;
 }
 
+export async function checkSchoolExistence(name: string): Promise<boolean> {
+	const schools = await db.select().from(table.school).where(eq(table.school.name, name)).limit(1);
+	return schools.length > 0;
+}
+
 export async function getSchoolById(schoolId: number) {
 	const schools = await db
 		.select()
@@ -83,7 +88,7 @@ export async function getSchoolStatsById(schoolId: number) {
 	};
 }
 
-export async function createSchool(name: string){
+export async function createSchool(name: string) {
 	const [newSchool] = await db
 		.insert(table.school)
 		.values({
@@ -94,11 +99,7 @@ export async function createSchool(name: string){
 	return newSchool;
 }
 
-export async function updateSchool(
-	schoolId: number,
-	name: string,
-	logoUrl?: string
-) {
+export async function updateSchool(schoolId: number, name: string, logoUrl?: string) {
 	const [updatedSchool] = await db
 		.update(table.school)
 		.set({

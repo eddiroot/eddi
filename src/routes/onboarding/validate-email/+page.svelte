@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Label } from '$lib/components/ui/label';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import MailIcon from '@lucide/svelte/icons/mail';
@@ -84,7 +90,7 @@
 		event.preventDefault();
 		const paste = event.clipboardData?.getData('text') || '';
 		const digits = paste.replace(/\D/g, '').slice(0, 6);
-		
+
 		if (digits.length > 0) {
 			for (let i = 0; i < digits.length && i < 6; i++) {
 				verificationCode[i] = digits[i];
@@ -106,14 +112,14 @@
 	// Handle form submission
 	async function handleSubmit() {
 		if (fullVerificationCode.length !== 6) return;
-		
+
 		isSubmitting = true;
 		try {
 			// TODO: Implement verification logic
 			console.log('Verifying code:', fullVerificationCode);
 			// Simulate API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			// TODO: Navigate to next step on success
 			goto('/onboarding/inquiry-details');
 		} catch (error) {
@@ -126,14 +132,14 @@
 	// Handle resend email
 	async function handleResend() {
 		if (countdown > 0) return;
-		
+
 		isResending = true;
 		try {
 			// TODO: Implement resend logic
 			console.log('Resending verification email');
 			// Simulate API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			// Start countdown
 			countdown = 60;
 			const timer = setInterval(() => {
@@ -159,21 +165,14 @@
 	});
 </script>
 
-<div class="min-h-screen bg-background flex items-center justify-center p-4">
-	<div class="w-full max-w-md mx-auto">
-		<!-- Back button -->
-		<button
-			on:click={() => goto('/onboarding/self-setup/school-details')}
-			class="mb-6 flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-		>
-			<ArrowLeftIcon class="w-4 h-4 mr-2" />
-			Back to school details
-		</button>
-
+<div class="bg-background flex min-h-screen items-center justify-center p-4">
+	<div class="mx-auto w-full max-w-md">
 		<Card>
 			<CardHeader class="text-center">
-				<div class="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-					<MailIcon class="w-6 h-6 text-primary" />
+				<div
+					class="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+				>
+					<MailIcon class="text-primary h-6 w-6" />
 				</div>
 				<CardTitle class="text-2xl">Verify your email</CardTitle>
 				<CardDescription>
@@ -183,13 +182,13 @@
 			<CardContent class="space-y-6">
 				<form on:submit|preventDefault={handleSubmit} class="space-y-4">
 					<div class="space-y-2">
-						<div class="flex gap-2 justify-center">
+						<div class="flex justify-center gap-2">
 							{#each verificationCode as digit, index}
 								<Input
 									id="code-{index}"
 									type="text"
 									bind:value={verificationCode[index]}
-									class="w-12 h-12 text-center text-lg font-mono tracking-widest"
+									class="h-12 w-12 text-center font-mono text-lg tracking-widest"
 									maxlength={1}
 									disabled={isSubmitting}
 									oninput={(e: any) => handleCodeInput(index, e)}
@@ -202,11 +201,11 @@
 
 					<Button
 						type="submit"
-						class="w-full h-10"
+						class="h-10 w-full"
 						disabled={fullVerificationCode.length !== 6 || isSubmitting}
 					>
 						{#if isSubmitting}
-							<RefreshCwIcon class="w-4 h-4 mr-2 animate-spin" />
+							<RefreshCwIcon class="mr-2 h-4 w-4 animate-spin" />
 							Verifying...
 						{:else}
 							Verify Email
@@ -219,14 +218,12 @@
 						<span class="w-full border-t"></span>
 					</div>
 					<div class="relative flex justify-center text-xs uppercase">
-						<span class="bg-background px-2 text-muted-foreground">Or</span>
+						<span class="bg-background text-muted-foreground px-2">Or</span>
 					</div>
 				</div>
 
-				<div class="text-center space-y-2">
-					<p class="text-sm text-muted-foreground">
-						Didn't receive the email?
-					</p>
+				<div class="space-y-2 text-center">
+					<p class="text-muted-foreground text-sm">Didn't receive the email?</p>
 					<Button
 						variant="outline"
 						size="sm"
@@ -234,12 +231,12 @@
 						disabled={isResending || countdown > 0}
 					>
 						{#if isResending}
-							<RefreshCwIcon class="w-4 h-4 mr-2 animate-spin" />
+							<RefreshCwIcon class="mr-2 h-4 w-4 animate-spin" />
 							Sending...
 						{:else if countdown > 0}
 							Resend in {countdown}s
 						{:else}
-							<MailIcon class="w-4 h-4 mr-2" />
+							<MailIcon class="mr-2 h-4 w-4" />
 							Resend verification email
 						{/if}
 					</Button>

@@ -38,20 +38,38 @@ export async function verifyUserAccessToSubjectOffering(
 	return userAccess.length > 0;
 }
 
-export async function createUser(
-	email: string,
-	passwordHash: string,
-	schoolId: number,
-	type: table.userTypeEnum,
-	firstName: string,
-	lastName: string,
-	gender?: table.userGenderEnum,
-	dateOfBirth?: Date,
-	honorific?: table.userHonorificEnum,
-	middleName?: string,
-	avatarUrl?: string,
-	isArchived?: boolean
-) {
+export async function checkUserExistence(email: string): Promise<boolean> {
+	const users = await db.select().from(table.user).where(eq(table.user.email, email)).limit(1);
+	return users.length > 0;
+}
+
+export async function createUser({
+	email,
+	passwordHash,
+	schoolId,
+	type,
+	firstName,
+	lastName,
+	gender,
+	dateOfBirth,
+	honorific,
+	middleName,
+	avatarUrl,
+	isArchived = false
+}: {
+	email: string;
+	passwordHash: string;
+	schoolId: number;
+	type: table.userTypeEnum;
+	firstName: string;
+	lastName: string;
+	gender?: table.userGenderEnum;
+	dateOfBirth?: Date;
+	honorific?: table.userHonorificEnum;
+	middleName?: string;
+	avatarUrl?: string;
+	isArchived?: boolean;
+}) {
 	const [user] = await db
 		.insert(table.user)
 		.values({
