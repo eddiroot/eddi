@@ -271,7 +271,8 @@
 						placeholder="Resource title"
 						bind:value={$formData.title}
 					/>
-				</div>			<div class="space-y-2">
+				</div>			
+			<div class="space-y-2">
 				<label for="description" class="text-sm font-medium">Description (optional)</label>
 				<Textarea
 					id="description"

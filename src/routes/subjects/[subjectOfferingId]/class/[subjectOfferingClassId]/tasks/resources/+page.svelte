@@ -146,7 +146,7 @@
 						<Card.Content class="flex flex-1 flex-col pt-0">
 							<div class="flex-1">
 								{#if resource.description}
-									<p class="text-foreground mb-3 truncate text-sm">
+									<p class="text-foreground mb-3 text-sm">
 										{resource.description}
 									</p>
 								{/if}

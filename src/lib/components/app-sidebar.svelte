@@ -82,12 +82,6 @@
 			classLevel: false
 		},
 		{
-			title: 'Resources',
-			url: 'resources',
-			icon: FileQuestionIcon,
-			classLevel: true
-		},
-		{
 			title: 'Analytics',
 			url: 'analytics',
 			icon: BarChart3Icon,
