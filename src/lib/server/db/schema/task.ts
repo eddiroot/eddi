@@ -67,7 +67,8 @@ export enum taskBlockTypeEnum {
 	multipleChoice = 'multiple_choice',
 	whiteboard = 'whiteboard',
 	matching = 'matching',
-	twoColumnLayout = 'two_column_layout'
+	twoColumnLayout = 'two_column_layout',
+	shortAnswer = 'short_answer',
 }
 
 export const taskBlockTypeEnumPg = pgEnum('task_block_type', [
@@ -85,7 +86,8 @@ export const taskBlockTypeEnumPg = pgEnum('task_block_type', [
 	taskBlockTypeEnum.multipleChoice,
 	taskBlockTypeEnum.whiteboard,
 	taskBlockTypeEnum.matching,
-	taskBlockTypeEnum.twoColumnLayout
+	taskBlockTypeEnum.twoColumnLayout,
+	taskBlockTypeEnum.shortAnswer
 ]);
 
 export const taskBlock = pgTable('task_block', {

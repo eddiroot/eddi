@@ -20,7 +20,7 @@ export async function geminiCompletion(
 				text: prompt
 			}
 		];
-
+		console.log('Sending prompt to Gemini:', prompt);
 		if (mediaPath) {
 			const mediaContent = fs.readFileSync(mediaPath);
 			parts.push({

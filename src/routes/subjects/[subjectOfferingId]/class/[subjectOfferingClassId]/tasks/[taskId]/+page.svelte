@@ -15,7 +15,7 @@
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import { type TaskBlock } from '$lib/server/db/schema';
-
+	import ShortAnswer from './blocks/short-answer.svelte';
 	import {
 		createBlock,
 		deleteBlock,
@@ -316,6 +316,12 @@
 											await updateBlock({ block, content });
 										}}
 										onGlobalDrop={handleDrop}
+									/>
+								{:else if block.type === 'short_answer'}
+									<ShortAnswer
+										content={block.content as any}
+										{isEditMode}
+										onUpdate={async (content: string) => await updateBlock({ block, content })}
 									/>
 								{:else}
 									<p>Content for {block.type} block.</p>

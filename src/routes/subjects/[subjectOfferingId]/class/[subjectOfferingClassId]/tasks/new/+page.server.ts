@@ -224,10 +224,41 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			}
 			break;
 
+		case 'short_answer':
+			// Validate and transform text input content structure
+			if (content && (content.question)) {
+				// Clean up the question text by removing excessive newlines and whitespace
+				let questionText = content.question || content.text || '';
+				
+				// Remove excessive newlines (more than 2 consecutive newlines)
+				questionText = questionText.replace(/\n{3,}/g, '\n\n');
+				// Remove excessive whitespace
+				questionText = questionText.replace(/\s{3,}/g, ' ');
+				// Trim whitespace and ensure reasonable length
+				questionText = questionText.trim();
+				
+				// Skip if the question is too short or appears to be malformed
+				if (questionText.length < 3) {
+					console.warn('Text input question too short, skipping:', questionText);
+					break;
+				}
+				if (questionText.length > 2000) {
+					console.warn('Text input question too long, truncating:', questionText.substring(0, 100) + '...');
+					questionText = questionText.substring(0, 2000);
+				}
+				
+				const shortAnswerContent = {
+					question: questionText,
+				};
+				await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, shortAnswerContent);
+				console.log(`Created text input block: "${shortAnswerContent.question.substring(0, 100)}${shortAnswerContent.question.length > 100 ? '...' : ''}"`);
+			} else {
+				console.warn('Invalid text input content structure:', content);
+			}
+			break;
+
 		case 'drag_and_drop':
 		case 'math_input':
-		case 'text_input':
-		case 'input':
 			console.log(`Ignoring unsupported block type: ${type}`);
 			break;
 

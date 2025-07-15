@@ -6,13 +6,11 @@ Using the provided schema, create a comprehensive lesson with:
     2. A number of sections matching the complexity of the content. Sections shouldn't be too long. Sections should have appropriate headers (h1, h2, h3)
     3. Explanatory content using paragraphs and markdown
     4. Interactive elements to engage students including:
-        - Multiple choice questions (both single and multiple answer) for knowledge checking (make sure answers are string of options (not a,b,c or 1,2,3))
-		- Matching activities for concept reinforcement
-		- Text input questions for open-ended responses
-        - Math input questions (if applicable)
-        - Fill in the blank questions (use the format "_____" for blanks) limit to maximum 3
+        - Multiple choice questions (both single and multiple answer), and answers are string of options (not a,b,c or 1,2,3) - component type: multiple_choice
+        - Fill in the blank questions (use the format "_____" for blanks) limit to maximum 3 - component type: fill_in_blank
+				- Math input problems (if applicable) for calculation practice - component type: math_input
     5. A good balance of explanation and interactive practice
-Each component should be structured according to the provided schema.`,
+Each component should be structured according to the provided schema. Ignore the short answer component type as it is not needed for lessons.`,
 
 	homework: `Analyse the attached documents/images and create homework assignments.
 
@@ -134,7 +132,7 @@ export const taskComponentItems = [
 	},
 
 	// Text/Number input component
-	{
+	/*{
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['input'] },
@@ -149,7 +147,7 @@ export const taskComponentItems = [
 			}
 		},
 		required: ['type', 'content']
-	},
+	},*/
 
 	// Multiple choice component
 	{
@@ -288,6 +286,22 @@ export const taskComponentItems = [
 					}
 				},
 				required: ['instructions', 'categories', 'options']
+			}
+		},
+		required: ['type', 'content']
+	},
+
+	//Short Answer component
+	{
+		type: 'OBJECT',
+		properties: {
+			type: { type: 'STRING', enum: ['short_answer'] },
+			content: {
+				type: 'OBJECT',
+				properties: {
+					question: { type: 'STRING' },
+				},
+				required: ['question']
 			}
 		},
 		required: ['type', 'content']

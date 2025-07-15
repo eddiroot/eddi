@@ -101,6 +101,14 @@ export const blockTypes: {
 			icon: PenToolIcon
 		},
 		{
+			type: 'short_answer',
+			name: 'Short Answer',
+			content: {
+				question: 'Question',
+			},
+			icon: PenToolIcon
+		},
+		{
 			type: 'matching',
 			name: 'Matching Pairs',
 			content: {
