@@ -74,6 +74,32 @@ export const user = pgTable('user', {
 
 export type User = typeof user.$inferSelect;
 
+export enum relationshipTypeEnum {
+	mother = 'mother',
+	father = 'father',
+	guardian = 'guardian'
+}
+
+export const relationshipTypeEnumPg = pgEnum('relationship_type', [
+	relationshipTypeEnum.mother,
+	relationshipTypeEnum.father,
+	relationshipTypeEnum.guardian
+]);
+
+export const userRelationship = pgTable('user_relationship', {
+	id: uuid('id').defaultRandom().primaryKey(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	relatedUserId: uuid('related_user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	relationshipType: relationshipTypeEnumPg().notNull(),
+	...timestamps
+});
+
+export type UserRelationship = typeof userRelationship.$inferSelect;
+
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
 	userId: uuid('user_id')

@@ -84,6 +84,20 @@ async function seed() {
 					type: schoolLocationTypeEnum.gymnasium,
 					capacity: 200,
 					isArchived: false
+				},
+				{
+					campusId: campusRecord.id,
+					name: 'History Room',
+					type: schoolLocationTypeEnum.classroom,
+					capacity: 30,
+					isArchived: false
+				},
+				{
+					campusId: campusRecord.id,
+					name: 'Geography Room',
+					type: schoolLocationTypeEnum.classroom,
+					capacity: 30,
+					isArchived: false
 				}
 			])
 			.returning();
@@ -114,6 +128,14 @@ async function seed() {
 				{
 					name: 'Physical Education',
 					curriculumId: curriculumRecord.id
+				},
+				{
+					name: 'History',
+					curriculumId: curriculumRecord.id
+				},
+				{
+					name: 'Geography',
+					curriculumId: curriculumRecord.id
 				}
 			])
 			.returning();
@@ -143,6 +165,18 @@ async function seed() {
 					name: 'Physical Education',
 					description: 'Core PE',
 					curriculumSubjectId: curriculumSubjects[3].id,
+					schoolId: schoolRecord.id
+				},
+				{
+					name: 'History',
+					description: 'Core History',
+					curriculumSubjectId: curriculumSubjects[4].id,
+					schoolId: schoolRecord.id
+				},
+				{
+					name: 'Geography',
+					description: 'Core Geography',
+					curriculumSubjectId: curriculumSubjects[5].id,
 					schoolId: schoolRecord.id
 				}
 			])
@@ -407,6 +441,26 @@ async function seed() {
 					'Nutrition',
 					'Injury Prevention',
 					'Game Strategy'
+				],
+				History: [
+					'Ancient Civilizations',
+					'Medieval Times',
+					'Industrial Revolution',
+					'World Wars',
+					'Modern History',
+					'Australian History',
+					'Social Movements',
+					'Historical Analysis'
+				],
+				Geography: [
+					'Physical Geography',
+					'Human Geography',
+					'Climate and Weather',
+					'Environmental Systems',
+					'Urban Geography',
+					'Global Issues',
+					'Mapping and GIS',
+					'Sustainability'
 				]
 			};
 
@@ -425,7 +479,9 @@ async function seed() {
 				Mathematics: '#3B82F6', // Blue
 				English: '#8B5CF6', // Purple
 				Science: '#10B981', // Green
-				'Physical Education': '#EF4444' // Red
+				'Physical Education': '#EF4444', // Red
+				History: '#F59E0B', // Amber/Orange
+				Geography: '#06B6D4' // Cyan
 			};
 
 			return colorMap[subjectName] || '#6B7280'; // Default gray
@@ -437,7 +493,9 @@ async function seed() {
 				Mathematics: 'Mathematics',
 				English: 'English',
 				Science: 'Science',
-				'Physical Education': 'Health and Physical Education'
+				'Physical Education': 'Health and Physical Education',
+				History: 'Humanities and Social Sciences',
+				Geography: 'Humanities and Social Sciences'
 			};
 
 			return areaMap[subjectName] || subjectName;
@@ -461,6 +519,14 @@ async function seed() {
 				{
 					name: 'A',
 					subOfferingId: year9Offerings[3].id // PE
+				},
+				{
+					name: 'A',
+					subOfferingId: year9Offerings[4].id // History
+				},
+				{
+					name: 'A',
+					subOfferingId: year9Offerings[5].id // Geography
 				}
 			])
 			.returning();
@@ -539,6 +605,97 @@ async function seed() {
 			})
 			.returning();
 
+		// Create parent users
+		const [mother1] = await db
+			.insert(schema.user)
+			.values({
+				email: 'mother001@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.guardian,
+				gender: userGenderEnum.female,
+				honorific: userHonorificEnum.mrs,
+				firstName: 'Mother',
+				lastName: 'One',
+				dateOfBirth: new Date('1985-05-12')
+			})
+			.returning();
+
+		const [father1] = await db
+			.insert(schema.user)
+			.values({
+				email: 'father001@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.guardian,
+				gender: userGenderEnum.male,
+				honorific: userHonorificEnum.mr,
+				firstName: 'Father',
+				lastName: 'One',
+				dateOfBirth: new Date('1983-09-08')
+			})
+			.returning();
+
+		const [mother2] = await db
+			.insert(schema.user)
+			.values({
+				email: 'mother002@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.guardian,
+				gender: userGenderEnum.female,
+				honorific: userHonorificEnum.ms,
+				firstName: 'Mother',
+				lastName: 'Two',
+				dateOfBirth: new Date('1987-02-20')
+			})
+			.returning();
+
+		const [father2] = await db
+			.insert(schema.user)
+			.values({
+				email: 'father002@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.guardian,
+				gender: userGenderEnum.male,
+				honorific: userHonorificEnum.mr,
+				firstName: 'Father',
+				lastName: 'Two',
+				dateOfBirth: new Date('1984-11-15')
+			})
+			.returning();
+
+		const [mother3] = await db
+			.insert(schema.user)
+			.values({
+				email: 'mother003@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.guardian,
+				gender: userGenderEnum.female,
+				honorific: userHonorificEnum.mrs,
+				firstName: 'Mother',
+				lastName: 'Three',
+				dateOfBirth: new Date('1986-08-03')
+			})
+			.returning();
+
+		const [father3] = await db
+			.insert(schema.user)
+			.values({
+				email: 'father003@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.guardian,
+				gender: userGenderEnum.male,
+				honorific: userHonorificEnum.mr,
+				firstName: 'Father',
+				lastName: 'Three',
+				dateOfBirth: new Date('1985-12-18')
+			})
+			.returning();
+
 		// Create one teacher for each subject
 		const teacherIds: string[] = [];
 		const teachers = [
@@ -561,6 +718,16 @@ async function seed() {
 				firstName: 'PE',
 				lastName: 'Teacher',
 				email: 'pe.teacher@eddi.edu'
+			},
+			{
+				firstName: 'History',
+				lastName: 'Teacher',
+				email: 'h.teacher@eddi.edu'
+			},
+			{
+				firstName: 'Geography',
+				lastName: 'Teacher',
+				email: 'g.teacher@eddi.edu'
 			}
 		];
 
@@ -589,6 +756,12 @@ async function seed() {
 			student1.id,
 			student2.id,
 			student3.id,
+			mother1.id,
+			father1.id,
+			mother2.id,
+			father2.id,
+			mother3.id,
+			father3.id,
 			...teacherIds
 		];
 		await db.insert(schema.userCampus).values(
@@ -598,17 +771,55 @@ async function seed() {
 			}))
 		);
 
+		// Create user relationships (parent-child relationships)
+		await db.insert(schema.userRelationship).values([
+			// Student 1's parents
+			{
+				userId: student1.id,
+				relatedUserId: mother1.id,
+				relationshipType: schema.relationshipTypeEnum.mother
+			},
+			{
+				userId: student1.id,
+				relatedUserId: father1.id,
+				relationshipType: schema.relationshipTypeEnum.father
+			},
+			// Student 2's parents
+			{
+				userId: student2.id,
+				relatedUserId: mother2.id,
+				relationshipType: schema.relationshipTypeEnum.mother
+			},
+			{
+				userId: student2.id,
+				relatedUserId: father2.id,
+				relationshipType: schema.relationshipTypeEnum.father
+			},
+			// Student 3's parents
+			{
+				userId: student3.id,
+				relatedUserId: mother3.id,
+				relationshipType: schema.relationshipTypeEnum.mother
+			},
+			{
+				userId: student3.id,
+				relatedUserId: father3.id,
+				relationshipType: schema.relationshipTypeEnum.father
+			}
+		]);
+
 		const studentIds = [student1.id, student2.id, student3.id];
 		for (const studentId of studentIds) {
 			for (let i = 0; i < year9Offerings.length; i++) {
 				const subjectOffering = year9Offerings[i];
 
-				// Map subject index to hue values for consistent colors
 				const subjectColorHues = [
 					210, // Mathematics - Blue (210 degrees)
 					350, // English - Red (350 degrees - vibrant red)
 					120, // Science - Green (120 degrees)
-					270 // Physical Education - Purple (270 degrees)
+					270, // Physical Education - Purple (270 degrees)
+					30, // History - Orange (30 degrees)
+					180 // Geography - Cyan (180 degrees)
 				];
 
 				const colorHue = subjectColorHues[i] || 200; // Default to blue if index out of range
@@ -663,8 +874,9 @@ async function seed() {
 		};
 
 		// Create basic timetable (class allocations) with actual timestamps
+		// Each day has one of each subject: Math, English, Science, PE, History, Geography
 		const timetableEntries = [
-			// MONDAY - Full day schedule
+			// MONDAY - Math, English, Science, PE, History, Geography
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
 				schoolLocationId: locations[2].id, // Mathematics Room
@@ -690,19 +902,19 @@ async function seed() {
 				endTimestamp: createDateTime(0, 12, 30) // Monday 12:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
+				schoolLocationId: locations[5].id, // History Room
 				startTimestamp: createDateTime(0, 13, 30), // Monday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(0, 14, 30) // Monday 2:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
+				schoolLocationId: locations[6].id, // Geography Room
 				startTimestamp: createDateTime(0, 14, 30), // Monday 2:30 PM
 				endTimestamp: createDateTime(0, 15, 30) // Monday 3:30 PM
 			},
 
-			// TUESDAY - Full day schedule
+			// TUESDAY - English, Science, Math, History, PE, Geography
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
 				schoolLocationId: locations[3].id, // English Room
@@ -722,25 +934,25 @@ async function seed() {
 				endTimestamp: createDateTime(1, 11, 30) // Tuesday 11:30 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
+				schoolLocationId: locations[5].id, // History Room
 				startTimestamp: createDateTime(1, 11, 30), // Tuesday 11:30 AM
 				endTimestamp: createDateTime(1, 12, 30) // Tuesday 12:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
 				startTimestamp: createDateTime(1, 13, 30), // Tuesday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(1, 14, 30) // Tuesday 2:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
+				schoolLocationId: locations[6].id, // Geography Room
 				startTimestamp: createDateTime(1, 14, 30), // Tuesday 2:30 PM
 				endTimestamp: createDateTime(1, 15, 30) // Tuesday 3:30 PM
 			},
 
-			// WEDNESDAY - Full day schedule
+			// WEDNESDAY - Science, Math, English, Geography, History, PE
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
 				schoolLocationId: locations[0].id, // Science Lab A
@@ -760,25 +972,25 @@ async function seed() {
 				endTimestamp: createDateTime(2, 11, 30) // Wednesday 11:30 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
+				schoolLocationId: locations[6].id, // Geography Room
 				startTimestamp: createDateTime(2, 11, 30), // Wednesday 11:30 AM
 				endTimestamp: createDateTime(2, 12, 30) // Wednesday 12:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
+				schoolLocationId: locations[5].id, // History Room
 				startTimestamp: createDateTime(2, 13, 30), // Wednesday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(2, 14, 30) // Wednesday 2:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
 				startTimestamp: createDateTime(2, 14, 30), // Wednesday 2:30 PM
 				endTimestamp: createDateTime(2, 15, 30) // Wednesday 3:30 PM
 			},
 
-			// THURSDAY - Full day schedule
+			// THURSDAY - PE, History, Geography, English, Science, Math
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
 				schoolLocationId: locations[4].id, // Gymnasium
@@ -786,70 +998,70 @@ async function seed() {
 				endTimestamp: createDateTime(3, 9) // Thursday 9:00 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
+				schoolLocationId: locations[5].id, // History Room
 				startTimestamp: createDateTime(3, 9), // Thursday 9:00 AM
 				endTimestamp: createDateTime(3, 10) // Thursday 10:00 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
+				schoolLocationId: locations[6].id, // Geography Room
 				startTimestamp: createDateTime(3, 10, 30), // Thursday 10:30 AM (after break)
 				endTimestamp: createDateTime(3, 11, 30) // Thursday 11:30 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
 				startTimestamp: createDateTime(3, 11, 30), // Thursday 11:30 AM
 				endTimestamp: createDateTime(3, 12, 30) // Thursday 12:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
 				startTimestamp: createDateTime(3, 13, 30), // Thursday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(3, 14, 30) // Thursday 2:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
 				startTimestamp: createDateTime(3, 14, 30), // Thursday 2:30 PM
 				endTimestamp: createDateTime(3, 15, 30) // Thursday 3:30 PM
 			},
 
-			// FRIDAY - Full day schedule
+			// FRIDAY - Geography, PE, History, Math, English, Science
 			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
+				schoolLocationId: locations[6].id, // Geography Room
 				startTimestamp: createDateTime(4, 8), // Friday 8:00 AM
 				endTimestamp: createDateTime(4, 9) // Friday 9:00 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
+				schoolLocationId: locations[4].id, // Gymnasium
 				startTimestamp: createDateTime(4, 9), // Friday 9:00 AM
 				endTimestamp: createDateTime(4, 10) // Friday 10:00 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
+				schoolLocationId: locations[5].id, // History Room
 				startTimestamp: createDateTime(4, 10, 30), // Friday 10:30 AM (after break)
 				endTimestamp: createDateTime(4, 11, 30) // Friday 11:30 AM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
+				schoolLocationId: locations[2].id, // Mathematics Room
 				startTimestamp: createDateTime(4, 11, 30), // Friday 11:30 AM
 				endTimestamp: createDateTime(4, 12, 30) // Friday 12:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
+				schoolLocationId: locations[3].id, // English Room
 				startTimestamp: createDateTime(4, 13, 30), // Friday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(4, 14, 30) // Friday 2:30 PM
 			},
 			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
+				schoolLocationId: locations[0].id, // Science Lab A
 				startTimestamp: createDateTime(4, 14, 30), // Friday 2:30 PM
 				endTimestamp: createDateTime(4, 15, 30) // Friday 3:30 PM
 			}
@@ -867,7 +1079,9 @@ async function seed() {
   - System Admin: 1
   - School Admin: 1  
   - Students: 3 (enrolled in Year 9 only)
-  - Teachers: 4 (assigned to Year 9 only)
+  - Teachers: 6 (assigned to Year 9 only)
+  - Parents/Guardians: 6 (3 mothers, 3 fathers)
+-- User Relationships: 6 (parent-child relationships)
 -- Core Subjects: ${coreSubjects.length}
 -- Subjects: ${subjects.length} (Foundation to Year 10 for each core subject)
 -- Subject Offerings: ${subjectOfferings.length} (F-10 year-long offerings, semester = null)
@@ -884,14 +1098,16 @@ async function seed() {
 -- System Admin: root@eddi.com.au
 -- School Admin: admin@eddi.edu
 -- Students: student001@eddi.edu, student002@eddi.edu, student003@eddi.edu
--- Teachers: m.teacher@eddi.edu, e.teacher@eddi.edu, s.teacher@eddi.edu, pe.teacher@eddi.edu
+-- Teachers: m.teacher@eddi.edu, e.teacher@eddi.edu, s.teacher@eddi.edu, pe.teacher@eddi.edu, h.teacher@eddi.edu, g.teacher@eddi.edu
+-- Parents: mother001@eddi.edu, father001@eddi.edu, mother002@eddi.edu, father002@eddi.edu, mother003@eddi.edu, father003@eddi.edu
 
 📚 Structure Created:
--- Foundation to Year 10 subjects for Mathematics, English, Science, Physical Education
+-- Foundation to Year 10 subjects for Mathematics, English, Science, Physical Education, History, Geography
 -- Full F-10 curriculum with year-long subject offerings for 2025 (semester = null)
 -- Students and teachers are only assigned to Year 9 offerings
 -- Coursemap covers all F-10 subject offerings with 36-week structure (18 weeks per semester)
 -- Course map items properly assigned to semester 1 (weeks 1-18) and semester 2 (weeks 19-36)
+-- Timetable: Each day has exactly one class of each subject (6 subjects × 5 days = 30 total classes per week)
 		`);
 	} catch (error) {
 		console.error('❌ Error seeding database:', error);
