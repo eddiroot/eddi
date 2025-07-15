@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
 	import { enhance } from '$app/forms';
-	import { handleVerificationCodeInput, handleKeydown, handlePaste } from '$lib/utils';
 	import {
 		Card,
 		CardContent,
@@ -10,40 +8,27 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import MailIcon from '@lucide/svelte/icons/mail';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 	import { page } from '$app/stores';
-	import { onMount, tick } from 'svelte';
-
-	let verificationCode = ['', '', '', '', '', ''];
+	let verificationCode = '';
 	let isResending = false;
 	let countdown = 0;
 	let isSubmitting = false;
-	let email = '';
 
 	// Get the full verification code as string
-	$: fullVerificationCode = verificationCode.join('');
+	$: fullVerificationCode = verificationCode;
 
 	// Server error from action
 	$: serverError = $page.form?.error;
 
-	onMount(() => {
-		const input = document.getElementById('code-0') as HTMLInputElement;
-		if (input) {
-			input.focus();
-			input.select();
-		}
-	});
-
 	function setCountdown(n: number) {
 		countdown = n;
 	}
-	function setIsResending(b: boolean) {
-		isResending = b;
-	}
 
 	// Handle resend form submission for UI feedback
-	async function onResendSubmit(event: Event) {
+	async function onResendSubmit() {
 		isResending = true;
 		setCountdown(60);
 		const timer = setInterval(() => {
@@ -75,22 +60,16 @@
 					{#if serverError}
 						<div class="text-red-500 text-center text-sm font-medium">{serverError}</div>
 					{/if}
-					<div class="space-y-2">
-						<div class="flex justify-center gap-2">
-							{#each verificationCode as _, index}
-								<Input
-									id="code-{index}"
-									type="text"
-									name="code-{index}"
-									bind:value={verificationCode[index]}
-									class="h-12 w-12 text-center font-mono text-lg tracking-widest"
-									maxlength={1}
-									oninput={async (e: any) => { verificationCode = await handleVerificationCodeInput(verificationCode, index, e, tick); }}
-									onkeydown={async (e: any) => { verificationCode = await handleKeydown(verificationCode, index, e, tick); }}
-									onpaste={async (e: any) => { verificationCode = await handlePaste(verificationCode, e, tick); }}
-								/>
-							{/each}
-						</div>
+					<div class="flex justify-center">
+						<InputOTP.Root bind:value={verificationCode} maxlength={6}>
+							{#snippet children({ cells })}
+								<InputOTP.Group>
+									{#each cells as cell}
+										<InputOTP.Slot {cell} />
+									{/each}
+								</InputOTP.Group>
+							{/snippet}
+						</InputOTP.Root>
 					</div>
 					<!-- Hidden input for full code -->
 					<input type="hidden" name="code" value={fullVerificationCode} />
