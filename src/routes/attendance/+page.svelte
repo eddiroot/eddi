@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { convertToFullName } from '$lib/utils';
+	import { convertToFullName, formatTimestampAsTime } from '$lib/utils';
 
 	let { data } = $props();
 	let value = $state<DateValue | undefined>(today(getLocalTimeZone()));
@@ -131,13 +131,7 @@
 											: 'text-destructive/70'}"
 									>
 										{attendance.attendance.didAttend ? 'Present' : 'Absent'}
-										- {attendance.subjectClassAllocation.startTimestamp.toLocaleTimeString(
-											'en-US',
-											{
-												hour: '2-digit',
-												minute: '2-digit'
-											}
-										)}
+										- {formatTimestampAsTime(attendance.subjectClassAllocation.startTimestamp)}
 									</div>
 								</Card.Content>
 							</Card.Root>
