@@ -16,12 +16,14 @@
 <div class="space-y-6 p-8">
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Tasks</h1>
-		<div class="flex items-center gap-2">
-			<Button href={`${page.url.pathname}/new`} variant="outline">
-				<PlusIcon class="h-4 w-4" />
-				New Task
-			</Button>
-		</div>
+		{#if data?.user?.type !== 'student'}
+			<div class="flex items-center gap-2">
+				<Button href={`${page.url.pathname}/new`} variant="outline">
+					<PlusIcon class="h-4 w-4" />
+					New Task
+				</Button>
+			</div>
+		{/if}
 	</div>
 
 	<div class="space-y-8">

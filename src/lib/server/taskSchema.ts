@@ -26,7 +26,7 @@ ${description ? `Description: ${description}` : ''}
 
 Analyse the attached documents/images and create homework that reinforces learning with:
     1. A subtitle as a h2 about the homework. Do not include a title.
-    2. Brief instructions or review sections with headers (h1, h2, h3)
+    2. Brief instructions or review sections with headers (h2, h3, h4, h5, h6)
     3. Practice problems and exercises including:
         - Multiple choice questions for self-assessment (make sure answers are string of options (not a,b,c or 1,2,3))
         - Fill in the blank exercises for key concepts (use the format "_____" for blanks) limit to maximum 3
@@ -60,48 +60,10 @@ Analyse the attached documents/images and create an assessment that evaluates st
 Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`
 };
 
-const titleComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['title'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					text: { type: 'STRING' }
-				},
-				required: ['text']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const subtitleComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['subtitle'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					text: { type: 'STRING' }
-				},
-				required: ['text']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
 const headerComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: { type: 'NULL' },
+	answer: { type: 'NULL' },
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['h2', 'h3', 'h4', 'h5', 'h6'] },
@@ -118,9 +80,9 @@ const headerComponent = {
 };
 
 const paragraphComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: { type: 'NULL' },
+	answer: { type: 'NULL' },
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['paragraph'] },
@@ -137,17 +99,30 @@ const paragraphComponent = {
 };
 
 const mathInputComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: {
+		oneOf: [
+			{
+				type: 'ARRAY',
+				items: {
+					type: 'STRING'
+				}
+			},
+			{
+				type: 'NULL'
+			}
+		]
+	},
+	answer: {
+		type: 'STRING'
+	},
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['math_input'] },
 			content: {
 				type: 'OBJECT',
 				properties: {
-					question: { type: 'STRING' },
-					answer_latex: { type: 'STRING' }
+					question: { type: 'STRING' }
 				},
 				required: ['question', 'answer_latex']
 			}
@@ -157,9 +132,15 @@ const mathInputComponent = {
 };
 
 const multipleChoiceComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: { type: 'NULL' },
+	answer: {
+		type: 'ARRAY',
+		items: { type: 'STRING' },
+		description:
+			'Array of strings that must be a subset of the options array. For single answer questions, array should contain one item. For multiple answer questions, array can contain multiple items.',
+		minItems: 1
+	},
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['multiple_choice'] },
@@ -171,15 +152,6 @@ const multipleChoiceComponent = {
 						type: 'ARRAY',
 						items: { type: 'STRING' }
 					},
-					answer: {
-						oneOf: [
-							{ type: 'STRING' },
-							{
-								type: 'ARRAY',
-								items: { type: 'STRING' }
-							}
-						]
-					},
 					multiple: { type: 'BOOLEAN' }
 				},
 				required: ['question', 'options', 'answer', 'multiple']
@@ -190,9 +162,9 @@ const multipleChoiceComponent = {
 };
 
 const videoComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: { type: 'NULL' },
+	answer: { type: 'NULL' },
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['video'] },
@@ -210,9 +182,9 @@ const videoComponent = {
 };
 
 const imageComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: { type: 'NULL' },
+	answer: { type: 'NULL' },
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['image'] },
@@ -230,19 +202,24 @@ const imageComponent = {
 };
 
 const fillInBlankComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: {
+		type: 'NULL'
+	},
+	answer: {
+		type: 'ARRAY',
+		items: { type: 'STRING' },
+		minItems: 1
+	},
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['fill_in_blank'] },
 			content: {
 				type: 'OBJECT',
 				properties: {
-					sentence: { type: 'STRING' },
-					answer: { type: 'STRING' }
+					sentence: { type: 'STRING' }
 				},
-				required: ['sentence', 'answer']
+				required: ['sentence']
 			}
 		},
 		required: ['type', 'content']
@@ -250,9 +227,22 @@ const fillInBlankComponent = {
 };
 
 const matchingComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: {
+		type: 'NULL'
+	},
+	answer: {
+		type: 'ARRAY',
+		items: {
+			type: 'OBJECT',
+			properties: {
+				left: { type: 'STRING' },
+				right: { type: 'STRING' }
+			},
+			required: ['left', 'right']
+		},
+		description: 'Array of correct pairs for the matching exercise'
+	},
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['matching'] },
@@ -279,47 +269,58 @@ const matchingComponent = {
 	}
 };
 
-const dragAndDropComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['drag_and_drop'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					instructions: { type: 'STRING' },
-					categories: {
-						type: 'ARRAY',
-						items: {
-							type: 'OBJECT',
-							properties: {
-								name: { type: 'STRING' },
-								items: {
-									type: 'ARRAY',
-									items: { type: 'STRING' }
-								}
-							},
-							required: ['name', 'items']
-						}
-					},
-					options: {
-						type: 'ARRAY',
-						items: { type: 'STRING' }
-					}
-				},
-				required: ['instructions', 'categories', 'options']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
+// const dragAndDropComponent = {
+// 	criteria: {
+// 		type: 'NULL'
+// 	},
+// 	answer: {
+// 		type: 'NULL'
+// 	},
+// 	content: {
+// 		type: 'OBJECT',
+// 		properties: {
+// 			type: { type: 'STRING', enum: ['drag_and_drop'] },
+// 			content: {
+// 				type: 'OBJECT',
+// 				properties: {
+// 					instructions: { type: 'STRING' },
+// 					categories: {
+// 						type: 'ARRAY',
+// 						items: {
+// 							type: 'OBJECT',
+// 							properties: {
+// 								name: { type: 'STRING' },
+// 								items: {
+// 									type: 'ARRAY',
+// 									items: { type: 'STRING' }
+// 								}
+// 							},
+// 							required: ['name', 'items']
+// 						}
+// 					},
+// 					options: {
+// 						type: 'ARRAY',
+// 						items: { type: 'STRING' }
+// 					}
+// 				},
+// 				required: ['instructions', 'categories', 'options']
+// 			}
+// 		},
+// 		required: ['type', 'content']
+// 	}
+// };
 
 const shortAnswerComponent = {
-	criteria: null,
-	answer: null,
-	blockSchema: {
+	criteria: {
+		type: 'ARRAY',
+		items: {
+			type: 'STRING'
+		}
+	},
+	answer: {
+		type: 'NULL'
+	},
+	content: {
 		type: 'OBJECT',
 		properties: {
 			type: { type: 'STRING', enum: ['short_answer'] },
@@ -336,18 +337,15 @@ const shortAnswerComponent = {
 };
 
 export const taskComponentItems = [
-	titleComponent.blockSchema,
-	subtitleComponent.blockSchema,
-	headerComponent.blockSchema,
-	paragraphComponent.blockSchema,
-	mathInputComponent.blockSchema,
-	multipleChoiceComponent.blockSchema,
-	videoComponent.blockSchema,
-	imageComponent.blockSchema,
-	fillInBlankComponent.blockSchema,
-	matchingComponent.blockSchema,
-	dragAndDropComponent.blockSchema,
-	shortAnswerComponent.blockSchema
+	headerComponent,
+	paragraphComponent,
+	mathInputComponent,
+	multipleChoiceComponent,
+	videoComponent,
+	imageComponent,
+	fillInBlankComponent,
+	matchingComponent,
+	shortAnswerComponent
 ];
 
 export const taskLayoutItems = [
