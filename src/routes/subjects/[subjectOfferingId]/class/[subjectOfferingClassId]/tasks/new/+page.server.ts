@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { superValidate, fail } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
@@ -12,7 +12,8 @@ import {
 	getLearningAreaContentWithElaborationsByIds,
 	createSubjectOfferingClassTask,
 	getCurriculumLearningAreaWithContents,
-	type CurriculumContentWithElaborations
+	type CurriculumContentWithElaborations,
+	getSubjectYearLevelBySubjectOfferingId
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -280,16 +281,9 @@ export const actions = {
 		locals: { security },
 		params: { subjectOfferingId, subjectOfferingClassId }
 	}) => {
-		security.isAuthenticated();
-
-		let subjectOfferingIdInt;
-		let subjectOfferingClassIdInt;
-		try {
-			subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
-			subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
-		} catch {
-			return fail(400, { message: 'Invalid subject offering ID' });
-		}
+		const user = security.isAuthenticated().getUser();
+		const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
+		const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
 
 		// Read the form data ONCE
 		const formData = await request.formData();
@@ -298,39 +292,19 @@ export const actions = {
 		// Extract selected learning area content IDs
 		const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
 
-		// Get learning area content with elaborations if any were selected
 		let learningAreaContentData: CurriculumContentWithElaborations[] = [];
 		if (selectedLearningAreaContentIds.length > 0) {
-			try {
-				learningAreaContentData = await getLearningAreaContentWithElaborationsByIds(
-					selectedLearningAreaContentIds
-				);
-				console.log(
-					`Loaded ${learningAreaContentData.length} learning area content items with elaborations`
-				);
-			} catch (error) {
-				console.error('Error loading learning area content with elaborations:', error);
-			}
+			learningAreaContentData = await getLearningAreaContentWithElaborationsByIds(
+				selectedLearningAreaContentIds
+			);
 		}
 
 		let courseMapItemId = form.data.taskTopicId;
-
 		// Create new topic if needed
 		if (form.data.newTopicName && !courseMapItemId) {
-			try {
-				const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
-				courseMapItemId = newTopic.id;
-				console.log('Created new topic:', newTopic);
-			} catch (error) {
-				console.error('Error creating new topic:', error);
-				return fail(500, { form, message: 'Error creating new topic' });
-			}
+			const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
+			courseMapItemId = newTopic.id;
 		}
-		if (!courseMapItemId) {
-			return fail(400, { form, message: 'Topic is required' });
-		}
-
-		const user = security.isAuthenticated().getUser();
 
 		const task = await createTask(
 			form.data.title,
@@ -348,160 +322,89 @@ export const actions = {
 			form.data.week
 		);
 
-		console.log('Created task:', form.data);
+		let contentElaborationPrompt = '';
+		if (learningAreaContentData.length > 0) {
+			contentElaborationPrompt = learningAreaContentData
+				.map((item) => {
+					const lac = item.learningAreaContent;
+					let contextText = `${lac.name}`;
+					if (lac.description) {
+						contextText += `\nDescription: ${lac.description}`;
+					}
+					if (item.elaborations && item.elaborations.length > 0) {
+						const elaborationsText = item.elaborations
+							.map((elab) => `- ${elab.contentElaboration}`)
+							.join('\n');
+						contextText += `\nElaborations:\n${elaborationsText}`;
+					}
+					return contextText;
+				})
+				.join('\n\n');
+			contentElaborationPrompt = `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${contentElaborationPrompt}`;
+		}
 
 		// Now get the AI files from the same formData
+		const yearLevel = await getSubjectYearLevelBySubjectOfferingId(subjectOfferingIdInt);
 		const aiFiles = form.data.files || [];
-		console.log('AI files from formData:', aiFiles.length, 'files found');
-
-		// Log each AI file
-		aiFiles.forEach((file, index) => {
-			if (file instanceof File) {
-				console.log(`AI File ${index}: name=${file.name}, size=${file.size}, type=${file.type}`);
-			} else {
-				console.log(`AI File ${index}: Not a File object -`, typeof file, file);
-			}
-		});
-
-		// Filter out empty files and ensure they're File objects
 		const validFiles = aiFiles.filter(
 			(file): file is File => file instanceof File && file.size > 0
 		);
-
-		console.log(`Valid files after filtering: ${validFiles.length} out of ${aiFiles.length}`);
-		validFiles.forEach((file, index) => {
-			console.log(`Valid File ${index}: ${file.name} (${file.size} bytes, ${file.type})`);
-		});
-
 		let tempFilePaths: string[] = [];
 		let taskSchema = '';
 
-		try {
-			if (validFiles.length > 0) {
-				console.log(`Processing ${validFiles.length} AI files...`);
+		if (validFiles.length > 0) {
+			// Save all files to temp directory
+			const savePromises = validFiles.map(async (file, index) => {
+				const timestamp = Date.now();
+				const fileName = `${timestamp}-${index}-${file.name}`;
+				const tempFilePath = join(tmpdir(), fileName);
+				const arrayBuffer = await file.arrayBuffer();
+				const buffer = Buffer.from(arrayBuffer);
+				await fsPromises.writeFile(tempFilePath, buffer);
+				return tempFilePath;
+			});
 
-				// Save all files to temp directory
-				const savePromises = validFiles.map(async (file, index) => {
-					const timestamp = Date.now();
-					const fileName = `${timestamp}-${index}-${file.name}`;
-					const tempFilePath = join(tmpdir(), fileName);
+			tempFilePaths = await Promise.all(savePromises);
 
-					const arrayBuffer = await file.arrayBuffer();
-					const buffer = Buffer.from(arrayBuffer);
-					await fsPromises.writeFile(tempFilePath, buffer);
+			let enhancedPrompt = taskCreationPrompts[form.data.type](
+				form.data.title,
+				form.data.description || ''
+			);
+			enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
 
-					console.log(`Temp file saved to ${tempFilePath} (${buffer.length} bytes)`);
-					return tempFilePath;
-				});
-
-				tempFilePaths = await Promise.all(savePromises);
-				console.log('All temp files saved:', tempFilePaths);
-
-				// Create enhanced prompt with learning area content
-				let enhancedPrompt = taskCreationPrompts[form.data.type](
-					form.data.title,
-					form.data.description || ''
-				);
-				if (learningAreaContentData.length > 0) {
-					const curriculumContext = learningAreaContentData
-						.map((item) => {
-							const lac = item.learningAreaContent;
-							let contextText = `${lac.name}`;
-							if (lac.description) {
-								contextText += `\nDescription: ${lac.description}`;
-							}
-							if (item.elaborations && item.elaborations.length > 0) {
-								const elaborationsText = item.elaborations
-									.map((elab) => `- ${elab.contentElaboration}`)
-									.join('\n');
-								contextText += `\nElaborations:\n${elaborationsText}`;
-							}
-							return contextText;
-						})
-						.join('\n\n');
-
-					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}`;
-				}
-
-				// Pass files directly to Gemini instead of combining into text
-				console.log('Sending files to Gemini:', tempFilePaths);
-				for (const tempFilePath of tempFilePaths) {
-					console.log(`Processing temp file: ${tempFilePath}`);
-					taskSchema += await geminiCompletion(enhancedPrompt, tempFilePath, taskComponentSchema);
-				}
-			} else if (form.data.creationMethod === 'ai') {
-				// AI mode but no files
-				console.log('AI mode with no files - sending text-only prompt to Gemini');
-				let enhancedPrompt = taskCreationPrompts[form.data.type](
-					form.data.title,
-					form.data.description || ''
-				);
-				if (learningAreaContentData.length > 0) {
-					const curriculumContext = learningAreaContentData
-						.map((item) => {
-							const lac = item.learningAreaContent;
-							let contextText = `${lac.name}`;
-							if (lac.description) {
-								contextText += `\nDescription: ${lac.description}`;
-							}
-							if (item.elaborations && item.elaborations.length > 0) {
-								const elaborationsText = item.elaborations
-									.map((elab) => `- ${elab.name}: ${elab.contentElaboration}`)
-									.join('\n');
-								contextText += `\nElaborations:\n${elaborationsText}`;
-							}
-							return contextText;
-						})
-						.join('\n\n');
-
-					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease create a task that aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}`;
-				}
-
-				taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);
-			} else {
-				console.log('Manual creation method selected');
+			for (const tempFilePath of tempFilePaths) {
+				taskSchema += await geminiCompletion(enhancedPrompt, tempFilePath, taskComponentSchema);
 			}
-		} catch (error) {
-			console.error('Error creating response:', error);
+		} else if (form.data.creationMethod === 'ai') {
+			// AI mode but no files
+			let enhancedPrompt = taskCreationPrompts[form.data.type](
+				form.data.title,
+				form.data.description || ''
+			);
+			enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
 
-			// Clear files from form to prevent serialization error
-			form.data.files = undefined;
-
-			return fail(500, { form, message: 'Error processing AI files' });
-		} finally {
-			// Clean up all temp files
-			if (tempFilePaths.length > 0) {
-				console.log(`Cleaning up ${tempFilePaths.length} temp files...`);
-				const cleanupPromises = tempFilePaths.map(async (tempFilePath) => {
-					try {
-						await fsPromises.unlink(tempFilePath);
-						console.log(`Temp file ${tempFilePath} deleted`);
-					} catch (error) {
-						console.error('Error deleting temp file:', error);
-					}
-				});
-				await Promise.all(cleanupPromises);
-				console.log('Cleanup completed');
-			}
+			taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);
 		}
-
-		// Clear files from form to prevent serialization error
+		// Clean up all temp files
+		if (tempFilePaths.length > 0) {
+			console.log(`Cleaning up ${tempFilePaths.length} temp files...`);
+			const cleanupPromises = tempFilePaths.map(async (tempFilePath) => {
+				await fsPromises.unlink(tempFilePath);
+				console.log(`Temp file ${tempFilePath} deleted`);
+			});
+			await Promise.all(cleanupPromises);
+			console.log('Cleanup completed');
+		}
 		form.data.files = undefined;
 
 		// Process the task schema and create blocks
 		if (taskSchema) {
-			console.log('Task schema from Gemini:', taskSchema);
 			try {
 				await createBlocksFromSchema(taskSchema, task.id);
-				console.log('Successfully created task blocks from schema');
 			} catch (error) {
-				console.error('Error creating blocks from schema:', error);
-				// Don't fail the entire request if block creation fails
+				throw new Error(`Error creating blocks from schema: ${error}`);
 			}
-		} else {
-			console.log('No task schema generated (manual mode or failed AI generation)');
 		}
-
 		throw redirect(
 			303,
 			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${task.id}`

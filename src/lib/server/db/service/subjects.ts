@@ -564,3 +564,16 @@ export async function getResourceById(resourceId: number) {
 
 	return resource[0] || null;
 }
+
+export async function getSubjectYearLevelBySubjectOfferingId(subjectOfferingId: number) {
+	const subject = await db
+		.select({
+			yearLevel: table.subject.yearLevel
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
+		.where(eq(table.subjectOffering.id, subjectOfferingId))
+		.limit(1);
+
+	return subject[0]?.yearLevel.toString() || null;
+}
