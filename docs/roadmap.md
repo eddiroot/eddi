@@ -27,12 +27,12 @@ All
 
 Lachie
 
-- [ ] Teachers can see attendance (23/07)
-- [ ] Class tests / quizzes (27/07)
+- [ ] Class tests / quizzes (23/07)
 - [ ] Sick/not coming to school/absence/late notifications (27/07)
 - [ ] Behavioural reporting (07/08)
 - [ ] Parents can see some/all of the above (15/08)
-- [ ] Admin dashboard allocations page (20/08)
+- [ ] Teachers can see past attendance (20/08)
+- [ ] Admin dashboard allocations page (28/08)
 - [ ] Home page (20/10)
 
 Jack
