@@ -11,7 +11,8 @@ import {
 	createCourseMapItem,
 	getLearningAreaContentWithElaborationsByIds,
 	createSubjectOfferingClassTask,
-	getCurriculumLearningAreaWithContents
+	getCurriculumLearningAreaWithContents,
+	type CurriculumContentWithElaborations
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -295,28 +296,10 @@ export const actions = {
 		const form = await superValidate(formData, zod(formSchema));
 
 		// Extract selected learning area content IDs
-		let selectedLearningAreaContentIds: number[] = [];
-		const learningContentData = formData.get('selectedLearningAreaContentIds');
-		if (learningContentData && typeof learningContentData === 'string') {
-			try {
-				selectedLearningAreaContentIds = JSON.parse(learningContentData);
-			} catch (error) {
-				console.error('Error parsing learning area content IDs:', error);
-			}
-		}
+		const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
 
 		// Get learning area content with elaborations if any were selected
-		let learningAreaContentData: Array<{
-			id: number;
-			name: string;
-			description: string | null;
-			elaborations: Array<{
-				id: number;
-				learningAreaContentId: number;
-				name: string;
-				contentElaboration: string;
-			}>;
-		}> = [];
+		let learningAreaContentData: CurriculumContentWithElaborations[] = [];
 		if (selectedLearningAreaContentIds.length > 0) {
 			try {
 				learningAreaContentData = await getLearningAreaContentWithElaborationsByIds(
@@ -421,14 +404,15 @@ export const actions = {
 				);
 				if (learningAreaContentData.length > 0) {
 					const curriculumContext = learningAreaContentData
-						.map((content) => {
-							let contextText = `${content.name}`;
-							if (content.description) {
-								contextText += `\nDescription: ${content.description}`;
+						.map((item) => {
+							const lac = item.learningAreaContent;
+							let contextText = `${lac.name}`;
+							if (lac.description) {
+								contextText += `\nDescription: ${lac.description}`;
 							}
-							if (content.elaborations.length > 0) {
-								const elaborationsText = content.elaborations
-									.map((elab) => `- ${elab.name}: ${elab.contentElaboration}`)
+							if (item.elaborations && item.elaborations.length > 0) {
+								const elaborationsText = item.elaborations
+									.map((elab) => `- ${elab.contentElaboration}`)
 									.join('\n');
 								contextText += `\nElaborations:\n${elaborationsText}`;
 							}
@@ -436,7 +420,7 @@ export const actions = {
 						})
 						.join('\n\n');
 
-					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}\n\nUse this curriculum context to guide the content, complexity, and focus of the task you create.`;
+					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}`;
 				}
 
 				// Pass files directly to Gemini instead of combining into text
@@ -454,13 +438,14 @@ export const actions = {
 				);
 				if (learningAreaContentData.length > 0) {
 					const curriculumContext = learningAreaContentData
-						.map((content) => {
-							let contextText = `${content.name}`;
-							if (content.description) {
-								contextText += `\nDescription: ${content.description}`;
+						.map((item) => {
+							const lac = item.learningAreaContent;
+							let contextText = `${lac.name}`;
+							if (lac.description) {
+								contextText += `\nDescription: ${lac.description}`;
 							}
-							if (content.elaborations.length > 0) {
-								const elaborationsText = content.elaborations
+							if (item.elaborations && item.elaborations.length > 0) {
+								const elaborationsText = item.elaborations
 									.map((elab) => `- ${elab.name}: ${elab.contentElaboration}`)
 									.join('\n');
 								contextText += `\nElaborations:\n${elaborationsText}`;
@@ -469,7 +454,7 @@ export const actions = {
 						})
 						.join('\n\n');
 
-					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease create a task that aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}\n\nUse this curriculum context to guide the content, complexity, and focus of the task you create. The task should be based on the title "${form.data.title}" and description "${form.data.description}".`;
+					enhancedPrompt += `\n\nCURRICULUM CONTEXT:\nPlease create a task that aligns with these specific learning outcomes and elaborations:\n\n${curriculumContext}`;
 				}
 
 				taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);

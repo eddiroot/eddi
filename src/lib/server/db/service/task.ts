@@ -512,37 +512,45 @@ export async function getContentElaborationsByLearningAreaContentIds(
 	return elaborations;
 }
 
+export interface CurriculumContentWithElaborations {
+	learningAreaContent: table.LearningAreaContent;
+	elaborations: table.ContentElaboration[];
+}
+
 export async function getLearningAreaContentWithElaborationsByIds(
 	learningAreaContentIds: number[]
-) {
+): Promise<CurriculumContentWithElaborations[]> {
 	if (learningAreaContentIds.length === 0) return [];
 
-	// Get the learning area content
-	const learningAreaContents = await db
+	// Get the learning area content and their elaborations (joined)
+	const rows = await db
 		.select({
-			learningAreaContent: table.learningAreaContent
+			learningAreaContent: table.learningAreaContent,
+			contentElaboration: table.contentElaboration
 		})
 		.from(table.learningAreaContent)
+		.leftJoin(
+			table.contentElaboration,
+			eq(table.contentElaboration.learningAreaContentId, table.learningAreaContent.id)
+		)
 		.where(inArray(table.learningAreaContent.id, learningAreaContentIds))
 		.orderBy(asc(table.learningAreaContent.id));
 
-	// Get elaborations for these content IDs
-	const elaborations = await getContentElaborationsByLearningAreaContentIds(learningAreaContentIds);
-
-	// Combine the data
-	const contentWithElaborations = learningAreaContents.map((row) => {
-		const content = row.learningAreaContent;
-		const contentElaborations = elaborations.filter(
-			(elaboration) => elaboration.learningAreaContentId === content.id
-		);
-
-		return {
-			...content,
-			elaborations: contentElaborations
-		};
-	});
-
-	return contentWithElaborations;
+	// Group by learningAreaContent.id
+	const map = new Map<number, CurriculumContentWithElaborations>();
+	for (const row of rows) {
+		const lac = row.learningAreaContent;
+		if (!map.has(lac.id)) {
+			map.set(lac.id, {
+				learningAreaContent: lac,
+				elaborations: []
+			});
+		}
+		if (row.contentElaboration && row.contentElaboration.id) {
+			map.get(lac.id)!.elaborations.push(row.contentElaboration);
+		}
+	}
+	return Array.from(map.values());
 }
 
 export interface curriculumLearningAreaContent {
