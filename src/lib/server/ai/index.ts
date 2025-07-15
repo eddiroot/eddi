@@ -5,6 +5,8 @@ import { getMimeType } from '$lib/server/ai/utils';
 import { env } from '$env/dynamic/private';
 
 if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set');
+if (!env.GEMINI_DEFAULT_MODEL) throw new Error('GEMINI_DEFAULT_MODEL is not set');
+if (!env.GEMINI_DEFAULT_IMAGE_MODEL) throw new Error('GEMINI_DEFAULT_IMAGE_MODEL is not set');
 
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
@@ -46,7 +48,7 @@ export async function geminiCompletion(
 		}
 
 		const { text } = await ai.models.generateContent({
-			model: 'gemini-2.0-flash',
+			model: env.GEMINI_DEFAULT_MODEL,
 			contents: [
 				{
 					role: 'user',
@@ -86,7 +88,7 @@ export async function geminiConversation(
 		}
 
 		const { text } = await ai.models.generateContent({
-			model: 'gemini-2.0-flash',
+			model: env.GEMINI_DEFAULT_MODEL,
 			contents,
 			config
 		});
@@ -105,7 +107,7 @@ export async function geminiConversation(
 export async function geminiImageGeneration(prompt: string) {
 	try {
 		const response = await ai.models.generateContent({
-			model: 'gemini-2.0-flash-preview-image-generation',
+			model: env.GEMINI_DEFAULT_IMAGE_MODEL,
 			contents: [
 				{
 					role: 'user',
