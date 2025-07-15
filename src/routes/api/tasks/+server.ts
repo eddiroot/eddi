@@ -35,18 +35,13 @@ export async function GET({ url, locals: { security } }) {
 	try {
 		const courseMapItemIdInt = parseInt(courseMapItemId, 10);
 
-		// Get learning area content for the course map item
-		const learningAreaContents = await getLearningAreaContentByCourseMapItemId(courseMapItemIdInt);
+		// Get grouped learning area content for the course map item
+		const learningAreaWithContents =
+			await getLearningAreaContentByCourseMapItemId(courseMapItemIdInt);
 
-		// For the frontend, we only need the basic content info (name and description)
-		const simplifiedContent = learningAreaContents.map((content) => ({
-			id: content.id,
-			name: content.name,
-			description: content.description || ''
-		}));
-
+		// For the frontend, send grouped structure: [{ learningArea, contents: [...] }]
 		return json({
-			learningAreaContents: simplifiedContent
+			learningAreaWithContents
 		});
 	} catch (error) {
 		console.error('Error loading learning content:', error);

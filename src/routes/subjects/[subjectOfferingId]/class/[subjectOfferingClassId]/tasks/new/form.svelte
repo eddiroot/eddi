@@ -14,7 +14,7 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import  BadgeInfo  from '@lucide/svelte/icons/badge-info';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import * as Popover from '$lib/components/ui/popover/index.js';
+	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 
 	import type  { curriculumLearningAreaContent } from '$lib/server/db/service/task.js';
 
@@ -23,6 +23,10 @@
 	let fileValidationErrors = $state<string[]>([]);
 	let fileInputRef: HTMLInputElement;
 	let isSubmitting = $state(false);
+
+	function stopProp(e: any) {
+		e.stopPropagation();
+	}
 
 	let {
 		data
@@ -72,64 +76,55 @@
 	let newTopicName = $state('');
 	let isCreatingNewTopic = $state(false);
 
-	// Learning area content state
-	let learningAreaContents = $state<
-		Array<{
-			id: number;
-			name: string;
-			description: string;
-		}>
-	>([]);
-	let selectedLearningAreaContentIds = $state<number[]>([]);
+// Learning area content state
+	let learningAreaContents = $state<curriculumLearningAreaContent[]>([]);
+	let selectedLearningAreaContentIds = $state<string[]>([]);
 	let isLoadingLearningContent = $state(false);
 
 	// Curriculum content dropdown state
-	let showCurriculumDropdown = $state(false);
-	let showDescriptionId = $state<number | null>(null);
+	
 
-	function toggleDescription(contentId: number) {
-		showDescriptionId = showDescriptionId === contentId ? null : contentId;
-	}
 
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
 	});
 
-	// Load learning area content when topic changes
-	$effect(() => {
-		if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
-			isLoadingLearningContent = true;
+// Load learning area content when topic changes
+$effect(() => {
+	if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
+		isLoadingLearningContent = true;
 
-			// Use a separate async function to handle the fetch
-			const loadContent = async () => {
-				try {
-					const response = await fetch(`/api/tasks?courseMapItemId=${selectedTopicId}`);
-					if (response.ok) {
-						const data = await response.json();
-						learningAreaContents = data.learningAreaContents || [];
-					} else {
-						console.error('Failed to load learning content');
-						learningAreaContents = [];
-					}
-				} catch (error) {
-					console.error('Error loading learning content:', error);
+		// Use a separate async function to handle the fetch
+		const loadContent = async () => {
+			try {
+				const response = await fetch(`/api/tasks?courseMapItemId=${selectedTopicId}`);
+				if (response.ok) {
+					const data = await response.json();
+					// API now returns grouped learningAreaWithContents
+					learningAreaContents = data.learningAreaWithContents || [];
+				} else {
+					console.error('Failed to load learning content');
 					learningAreaContents = [];
-				} finally {
-					isLoadingLearningContent = false;
 				}
-			};
+			} catch (error) {
+				console.error('Error loading learning content:', error);
+				learningAreaContents = [];
+			} finally {
+				isLoadingLearningContent = false;
+			}
+		};
 
-			loadContent();
-		} else {
-			learningAreaContents = [];
-			isLoadingLearningContent = false;
-		}
-		// Reset selected content when topic changes
-		selectedLearningAreaContentIds = [];
-	});
+		loadContent();
+	} else {
+		learningAreaContents = [];
+		isLoadingLearningContent = false;
+	}
+	// Reset selected content when topic changes
+	selectedLearningAreaContentIds = [];
+});
 	// Connect selected curriculum content IDs to form data
 	$effect(() => {
-		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds;
+		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds.map(id => parseInt(id, 10));
 	});
 
 	// Connect aiFiles to form and validate
@@ -340,106 +335,84 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Curriculum Content</Form.Label>
-				{#if data.learningAreaWithContents === null}
-					<div class="p-2 text-sm text-gray-500 italic">No curriculum content available</div>
-				{:else}
-					<!-- Curriculum Content Dropdown -->
-					<div class="relative">
-						<button 
-							type="button" 
-							class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-between rounded-md border p-2 text-left text-sm"
-							onclick={() => (showCurriculumDropdown = !showCurriculumDropdown)}
-						>
-							<span>
-								{#if selectedLearningAreaContentIds.length === 0}
-									Select curriculum content...
-								{:else}
-									{selectedLearningAreaContentIds.length} selected
-								{/if}
-							</span>
-							<ChevronDown class="h-4 w-4" />
-						</button>
-						{#if showCurriculumDropdown}
-							<div class="absolute top-full right-0 left-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-md border bg-white shadow-lg">
-								{#if selectedTopicId && learningAreaContents.length > 0}
-									<!-- Show topic-specific content first -->
-									{#each learningAreaContents as content (content.id)}
-										<div class="flex items-center px-3 py-2 hover:bg-gray-50">
-											<Checkbox
-												checked={selectedLearningAreaContentIds.includes(content.id)}
-												onCheckedChange={() => {
-													if (selectedLearningAreaContentIds.includes(content.id)) {
-														selectedLearningAreaContentIds = selectedLearningAreaContentIds.filter(id => id !== content.id);
-													} else {
-														selectedLearningAreaContentIds = [...selectedLearningAreaContentIds, content.id];
-													}
-												}}
-												class="mr-2"
-											/>
-											<span class="flex-1 text-sm truncate">{content.name}</span>
-											<Popover.Root>
-												<Popover.Trigger
-													type="button"
-													aria-label="Show description"
-													class="text-gray-400 focus:outline-none ml-2"
-												>
-													<BadgeInfo class="h-4 w-4" />
-												</Popover.Trigger>
-												<Popover.Content class="max-w-xs p-3 bg-white text-black rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
-													{content.description}
-												</Popover.Content>
-											</Popover.Root>
-										</div>
-									{/each}
-								{:else if data.learningAreaWithContents && data.learningAreaWithContents.length > 0}
-									<!-- Show all curriculum content grouped by learning area -->
-									{#each data.learningAreaWithContents as learningAreaGroup (learningAreaGroup.learningArea.id)}
-										{#if learningAreaGroup.contents.length > 0}
-											<div class="px-3 py-2 bg-gray-100 border-b text-sm font-medium text-gray-700">
-												{learningAreaGroup.learningArea.name}
-											</div>
-											{#each learningAreaGroup.contents as content (content.id)}
-												<div class="flex items-center px-6 py-2 hover:bg-gray-50">
-													<Checkbox
-														checked={selectedLearningAreaContentIds.includes(content.id)}
-														onCheckedChange={() => {
-															if (selectedLearningAreaContentIds.includes(content.id)) {
-																selectedLearningAreaContentIds = selectedLearningAreaContentIds.filter(id => id !== content.id);
-															} else {
-																selectedLearningAreaContentIds = [...selectedLearningAreaContentIds, content.id];
-															}
-														}}
-														class="mr-2"
-													/>
+				<Select.Root
+					type="multiple"
+					bind:value={selectedLearningAreaContentIds}
+					name={props.name}>
+					<Select.Trigger
+						{...props}
+						class="w-full">
+						{#if selectedLearningAreaContentIds.length > 0}
+							{selectedLearningAreaContentIds.length} selected
+						{:else}
+							Select curriculum content...
+						{/if}
+					</Select.Trigger>
+					<Select.Content class="z-50 max-h-48 overflow-y-auto rounded-md border shadow-lg">
+						{#if selectedTopicId && learningAreaContents.length > 0}
+							{#each learningAreaContents as learningAreaGroup (learningAreaGroup.learningArea.id)}
+								{#if learningAreaGroup.contents.length > 0}
+									<Select.Group>
+										<Select.GroupHeading>
+											{learningAreaGroup.learningArea.name}
+										</Select.GroupHeading>
+										{#each learningAreaGroup.contents as content (content.id)}
+											<Select.Item value={content.id.toString()} onclick={stopProp}>
+												<div class="flex items-center">
 													<span class="flex-1 text-sm truncate">{content.name}</span>
-													<Popover.Root>
-														<Popover.Trigger
+													<HoverCard.Root>
+														<HoverCard.Trigger
 															type="button"
 															aria-label="Show description"
-															class="text-gray-400 focus:outline-none ml-2"
+															class="focus:outline-none ml-auto"
 														>
 															<BadgeInfo class="h-4 w-4" />
-														</Popover.Trigger>
-														<Popover.Content class="max-w-xs p-3 bg-white text-black rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
+														</HoverCard.Trigger>
+														<HoverCard.Content class="max-w-xs p-3 rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
 															{content.description}
-														</Popover.Content>
-													</Popover.Root>
+														</HoverCard.Content>
+													</HoverCard.Root>
 												</div>
-												{#if showDescriptionId === content.id}
-													<div class="px-8 pb-2 text-xs text-gray-600 bg-gray-50 border-t italic">
-														{content.description}
-													</div>
-												{/if}
-											{/each}
-										{/if}
-									{/each}
-								{:else}
-									<div class="px-3 py-2 text-sm text-gray-500 italic">No curriculum content available</div>
+											</Select.Item>
+										{/each}
+									</Select.Group>
 								{/if}
-							</div>
+							{/each}
+						{:else if data.learningAreaWithContents && data.learningAreaWithContents.length > 0}
+							{#each data.learningAreaWithContents as learningAreaGroup (learningAreaGroup.learningArea.id)}
+								{#if learningAreaGroup.contents.length > 0}
+									<Select.Group>
+										<Select.GroupHeading>
+											{learningAreaGroup.learningArea.name}
+										</Select.GroupHeading>
+										{#each learningAreaGroup.contents as content (content.id)}
+											<Select.Item value={content.id.toString()}>
+												<div class="flex items-center">
+													<span class="flex-1 text-sm truncate">{content.name}</span>
+													<HoverCard.Root>
+														<HoverCard.Trigger
+															type="button"
+															aria-label="Show description"
+															class="focus:outline-none ml-2"
+														>
+															<BadgeInfo class="h-4 w-4" />
+														</HoverCard.Trigger>
+														<HoverCard.Content class="max-w-xs p-3 rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
+															{content.description}
+														</HoverCard.Content>
+													</HoverCard.Root>
+												</div>
+											</Select.Item>
+										{/each}
+									</Select.Group>
+								{/if}
+							{/each}
+						{:else}
+							<Select.Item value="" label="No curriculum content available" disabled />
 						{/if}
-					</div>
-				{/if}
+					</Select.Content>
+				</Select.Root>
+
 			{/snippet}
 		</Form.Control>
 		<Form.Description>
@@ -447,6 +420,7 @@
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
+
 
 	<Form.Field {form} name="description">
 		<Form.Control>

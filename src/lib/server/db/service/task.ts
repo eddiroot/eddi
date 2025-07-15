@@ -422,9 +422,12 @@ export async function updateTaskOrder(
 	});
 }
 
-export async function getLearningAreaContentByCourseMapItemId(courseMapItemId: number) {
-	const learningAreaContents = await db
+export async function getLearningAreaContentByCourseMapItemId(
+	courseMapItemId: number
+): Promise<curriculumLearningAreaContent[]> {
+	const rows = await db
 		.select({
+			learningArea: table.learningArea,
 			learningAreaContent: table.learningAreaContent
 		})
 		.from(table.learningAreaContent)
@@ -441,6 +444,10 @@ export async function getLearningAreaContentByCourseMapItemId(courseMapItemId: n
 			eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
 		)
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.learningArea,
+			eq(table.learningArea.id, table.learningAreaContent.learningAreaId)
+		)
 		.where(
 			and(
 				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),
@@ -448,7 +455,20 @@ export async function getLearningAreaContentByCourseMapItemId(courseMapItemId: n
 			)
 		)
 		.orderBy(asc(table.learningAreaContent.id));
-	return learningAreaContents.map((row) => row.learningAreaContent);
+
+	// Group by learningArea.id using a Map for type safety
+	const map = new Map<number, curriculumLearningAreaContent>();
+	for (const row of rows) {
+		const laId = row.learningArea.id;
+		if (!map.has(laId)) {
+			map.set(laId, {
+				learningArea: row.learningArea,
+				contents: []
+			});
+		}
+		map.get(laId)!.contents.push(row.learningAreaContent);
+	}
+	return Array.from(map.values());
 }
 
 export async function getLearningAreasBySubjectOfferingId(subjectOfferingId: number) {
