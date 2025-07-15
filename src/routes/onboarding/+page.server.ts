@@ -10,6 +10,7 @@ import { superValidate, fail, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
 import { formSchema } from './schema';
+import { sendEmailVerification, generateVerificationCode } from '$lib/server/db/service/email';
 
 export const load = async () => {
 	return {
@@ -18,7 +19,7 @@ export const load = async () => {
 };
 
 export const actions = {
-	default: async ({ request }) => {
+	default: async ({ request, cookies }) => {
 		const form = await superValidate(request, zod(formSchema));
 
 		if (!form.valid) {
@@ -32,7 +33,7 @@ export const actions = {
 			return setError(
 				form,
 				'email',
-				'This email is already registered on eddi. If you think this is in error, please contact us.'
+				'This email is already registered on eddi. If you think this is an error, please contact us.'
 			);
 		}
 
@@ -41,7 +42,7 @@ export const actions = {
 			return setError(
 				form,
 				'schoolName',
-				'This school already exists on eddi. If you think this is in error, please contact us.'
+				'This school already exists on eddi. If you think this is an error, please contact us.'
 			);
 		}
 
@@ -49,7 +50,7 @@ export const actions = {
 
 		const school = await createSchool(form.data.schoolName);
 
-		await createUser({
+		const user = await createUser({
 			email: form.data.email,
 			passwordHash,
 			schoolId: school.id,
@@ -57,6 +58,32 @@ export const actions = {
 			firstName: form.data.firstName,
 			lastName: form.data.lastName,
 			middleName: form.data.middleName
+		});
+
+		const code = generateVerificationCode();
+
+		await sendEmailVerification({
+			to: user.email,
+			subject: 'Your verification code',
+			text: `Your code is: ${code}`,
+			code: code
+		  });
+
+		// Set a short-lived session cookie for email verification
+		cookies.set('verify_user_id', user.id, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'lax',
+			secure: process.env.NODE_ENV === 'production',
+			maxAge: 10 * 60 // 10 minutes
+		});
+		// Set a short-lived session cookie for the verification code
+		cookies.set('verify_code', code, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'lax',
+			secure: process.env.NODE_ENV === 'production',
+			maxAge: 10 * 60 // 10 minutes
 		});
 
 		redirect(303, '/onboarding/validate-email');

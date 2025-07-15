@@ -239,3 +239,102 @@ export function parseCSVData(csvText: string): Array<Record<string, string>> {
 
 	return data;
 }
+
+// --- Verification Code Utilities ---
+
+export async function handleVerificationCodeInput(
+	verificationCode: string[],
+	index: number,
+	event: Event,
+	tick: () => Promise<void>
+): Promise<string[]> {
+	const target = event.target as HTMLInputElement;
+	let value = target.value.replace(/\D/g, '');
+	const updated = [...verificationCode];
+
+	if (value.length > 1) {
+		const chars = value.split('');
+		for (let i = 0; i < chars.length && index + i < 6; i++) {
+			updated[index + i] = chars[i];
+		}
+		await tick();
+		let nextIndex = Math.min(index + value.length, 5);
+		const nextInput = document.getElementById(`code-${nextIndex}`) as HTMLInputElement;
+		if (nextInput) {
+			nextInput.focus();
+			nextInput.select();
+		}
+	} else if (value.length === 1) {
+		updated[index] = value;
+		await tick();
+		if (index < 5) {
+			const nextInput = document.getElementById(`code-${index + 1}`) as HTMLInputElement;
+			if (nextInput) {
+				nextInput.focus();
+				nextInput.select();
+			}
+		}
+	} else {
+		updated[index] = '';
+	}
+	return updated;
+}
+
+export async function handleKeydown(
+	verificationCode: string[],
+	index: number,
+	event: KeyboardEvent,
+	tick: () => Promise<void>
+): Promise<string[]> {
+	const updated = [...verificationCode];
+	if (event.key === 'Backspace') {
+		if (!updated[index] && index > 0) {
+			event.preventDefault();
+			const prevInput = document.getElementById(`code-${index - 1}`) as HTMLInputElement;
+			if (prevInput) {
+				updated[index - 1] = '';
+				await tick();
+				prevInput.focus();
+				prevInput.select();
+			}
+		}
+	} else if (event.key === 'ArrowLeft' && index > 0) {
+		const prevInput = document.getElementById(`code-${index - 1}`) as HTMLInputElement;
+		if (prevInput) {
+			prevInput.focus();
+			prevInput.select();
+		}
+	} else if (event.key === 'ArrowRight' && index < 5) {
+		const nextInput = document.getElementById(`code-${index + 1}`) as HTMLInputElement;
+		if (nextInput) {
+			nextInput.focus();
+			nextInput.select();
+		}
+	}
+	return updated;
+}
+
+export async function handlePaste(
+	verificationCode: string[],
+	event: ClipboardEvent,
+	tick: () => Promise<void>
+): Promise<string[]> {
+	event.preventDefault();
+	const paste = event.clipboardData?.getData('text') || '';
+	const digits = paste.replace(/\D/g, '').slice(0, 6);
+	const updated = [...verificationCode];
+
+	if (digits.length > 0) {
+		for (let i = 0; i < digits.length && i < 6; i++) {
+			updated[i] = digits[i];
+		}
+		await tick();
+		const nextIndex = Math.min(digits.length, 5);
+		const nextInput = document.getElementById(`code-${nextIndex}`) as HTMLInputElement;
+		if (nextInput) {
+			nextInput.focus();
+			nextInput.select();
+		}
+	}
+	return updated;
+}
