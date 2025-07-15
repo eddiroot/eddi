@@ -27,16 +27,20 @@ All
 
 Lachie
 
-- [ ] Class tests / quizzes (23/07)
 - [ ] Sick/not coming to school/absence/late notifications (27/07)
 - [ ] Behavioural reporting (07/08)
 - [ ] Parents can see some/all of the above (15/08)
 - [ ] Teachers can see past attendance (20/08)
 - [ ] Admin dashboard allocations page (28/08)
-- [ ] Home page (20/10)
+- [ ] Home page (Late October)
+- [ ] Timetabling
+- [ ] Exam timetabling
+- [ ] Events appearing in everyone's timetables
+- [ ] Class location shifts
 
 Jack
 
+- [ ] Class tests / quizzes (23/07)
 - [ ] Coursemap flow
 - [ ] Fix lesson generation with learning areas and content
 - [ ] AI feedback / assisted marking
@@ -78,14 +82,11 @@ Bella
 - [ ] News feed
 - [ ] Fees / breakdowns
 - [ ] Complete LLM access to discussions + lessons
+- [ ] See teacher's feedback
 
 Max
 
-- [ ] Timetabling
-- [ ] Exam timetabling
-- [ ] Events appearing in everyone's timetables
-- [ ] Class location shifts
-- [ ] See teacher's feedback
+- On hold
 
 ## Future
 
