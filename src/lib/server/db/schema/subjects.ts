@@ -17,7 +17,6 @@ import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
 import { courseMapItem } from './coursemap';
 import { curriculumSubject, yearLevelEnumPg } from './curriculum';
-import { task } from './task';
 
 export const coreSubject = pgTable('core_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -264,28 +263,6 @@ export const subjectThreadResponse = pgTable(
 );
 
 export type SubjectThreadResponse = typeof subjectThreadResponse.$inferSelect;
-
-export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	index: integer('index').notNull(),
-	subjectOfferingClassId: integer('sub_off_class_id')
-		.notNull()
-		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-	taskId: integer('task_id')
-		.notNull()
-		.references(() => task.id, { onDelete: 'cascade' }),
-	authorId: uuid('author_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
-		onDelete: 'cascade'
-	}),
-	week: integer('week'),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
-
-export type SubjectOfferingClassTask = typeof subjectOfferingClassTask.$inferSelect;
 
 export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

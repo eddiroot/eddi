@@ -6,21 +6,18 @@ import {
 	jsonb,
 	pgEnum,
 	foreignKey,
-	unique
+	unique,
+	uuid
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
-import { subjectOffering } from './subjects';
+import { subjectOffering, subjectOfferingClass } from './subjects';
+import { user } from './user';
+import { courseMapItem } from './coursemap';
 
 export enum taskTypeEnum {
 	lesson = 'lesson',
 	assessment = 'assessment',
 	homework = 'homework'
-}
-
-export enum taskStatusEnum {
-	draft = 'draft',
-	published = 'published',
-	archived = 'archived'
 }
 
 export const taskTypeEnumPg = pgEnum('task_type', [
@@ -99,10 +96,67 @@ export const taskBlock = pgTable('task_block', {
 	type: taskBlockTypeEnumPg().notNull(),
 	content: jsonb('content').notNull(),
 	index: integer('index').notNull().default(0),
+	criteria: jsonb('criteria'),
+	availableMarks: integer('available_marks'),
 	...timestamps
 });
 
 export type TaskBlock = typeof taskBlock.$inferSelect;
+
+export enum taskStatusEnum {
+	draft = 'draft',
+	published = 'published',
+	locked = 'locked',
+	released = 'released'
+}
+
+export const taskStatusEnumPg = pgEnum('task_status', [
+	taskStatusEnum.draft,
+	taskStatusEnum.published,
+	taskStatusEnum.locked,
+	taskStatusEnum.released
+]);
+
+export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	index: integer('index').notNull(),
+	status: taskStatusEnumPg().notNull().default(taskStatusEnum.draft),
+	subjectOfferingClassId: integer('sub_off_class_id')
+		.notNull()
+		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
+	taskId: integer('task_id')
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	authorId: uuid('author_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	courseMapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
+		onDelete: 'cascade'
+	}),
+	week: integer('week'),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type SubjectOfferingClassTask = typeof subjectOfferingClassTask.$inferSelect;
+
+export const taskBlockResponse = pgTable('task_block_response', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskBlockId: integer('task_block_id')
+		.notNull()
+		.references(() => taskBlock.id, { onDelete: 'cascade' }),
+	authorId: uuid('author_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	classTaskId: integer('class_task_id')
+		.notNull()
+		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
+	response: jsonb('response').notNull(),
+	marks: integer('marks'),
+	...timestamps
+});
+
+export type TaskBlockResponse = typeof taskBlockResponse.$inferSelect;
 
 export const whiteboard = pgTable('whiteboard', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

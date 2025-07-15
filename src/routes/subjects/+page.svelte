@@ -20,7 +20,7 @@
 			<a href="/subjects/{subjectInfo.subject.subjectOffering.id}" class="block">
 				<Card.Root
 					class="h-full border-t-5 shadow-lg transition-opacity duration-200 hover:opacity-70"
-					style="border-top-color: {colors.border};"
+					style="border-top-color: {colors.borderTop};"
 				>
 					<Card.Header>
 						<div class="flex items-start justify-between">
