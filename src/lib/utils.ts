@@ -14,7 +14,8 @@ export enum userPermissions {
 	viewDashboard = 'view_dashboard',
 	viewAdmin = 'view_admin',
 	viewTimetable = 'view_timetable',
-	viewAttendance = 'view_attendance'
+	viewClassAttendance = 'view_class_attendance',
+	viewGuardianAttendance = 'view_guardian_attendance'
 }
 
 export function getPermissions(userType: string): string[] {
@@ -32,7 +33,15 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewAnalytics,
 				userPermissions.viewTimetable,
 				userPermissions.viewDashboard,
-				userPermissions.viewAttendance
+				userPermissions.viewClassAttendance
+			];
+		case 'guardian':
+			return [
+				userPermissions.viewChildGrades,
+				userPermissions.viewLessons,
+				userPermissions.viewTimetable,
+				userPermissions.viewDashboard,
+				userPermissions.viewGuardianAttendance
 			];
 		case 'principal':
 			return [
@@ -40,14 +49,7 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewAnalytics,
 				userPermissions.viewTimetable,
 				userPermissions.viewDashboard,
-				userPermissions.viewAttendance
-			];
-		case 'guardian':
-			return [
-				userPermissions.viewChildGrades,
-				userPermissions.viewLessons,
-				userPermissions.viewTimetable,
-				userPermissions.viewDashboard
+				userPermissions.viewClassAttendance
 			];
 		case 'schoolAdmin':
 			return [
@@ -57,7 +59,7 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewAnalytics,
 				userPermissions.manageTeachers,
 				userPermissions.viewLessons,
-				userPermissions.viewAttendance
+				userPermissions.viewClassAttendance
 			];
 		case 'systemAdmin':
 			return [
@@ -67,7 +69,7 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewAnalytics,
 				userPermissions.manageTeachers,
 				userPermissions.viewLessons,
-				userPermissions.viewAttendance
+				userPermissions.viewClassAttendance
 			];
 		default:
 			return [];

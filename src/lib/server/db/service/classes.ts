@@ -185,6 +185,51 @@ export async function getSubjectClassAllocationAndStudentAttendancesByClassIdFor
 	return attendances;
 }
 
+export async function getGuardiansChildrensAttendancesByUserId(userId: string) {
+	const attendances = await db
+		.select({
+			attendance: table.subjectClassAllocationAttendance,
+			user: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				avatarUrl: table.user.avatarUrl
+			},
+			subjectClassAllocation: {
+				id: table.subjectClassAllocation.id,
+				startTimestamp: table.subjectClassAllocation.startTimestamp,
+				endTimestamp: table.subjectClassAllocation.endTimestamp
+			}
+		})
+		.from(table.userRelationship)
+		.innerJoin(table.user, eq(table.user.id, table.userRelationship.userId))
+		.innerJoin(
+			table.userSubjectOfferingClass,
+			eq(table.userSubjectOfferingClass.userId, table.user.id)
+		)
+		.innerJoin(
+			table.subjectClassAllocation,
+			eq(
+				table.subjectClassAllocation.subjectOfferingClassId,
+				table.userSubjectOfferingClass.subOffClassId
+			)
+		)
+		.innerJoin(
+			table.subjectClassAllocationAttendance,
+			and(
+				eq(
+					table.subjectClassAllocationAttendance.subjectClassAllocationId,
+					table.subjectClassAllocation.id
+				),
+				eq(table.subjectClassAllocationAttendance.userId, table.user.id)
+			)
+		)
+		.where(eq(table.userRelationship.relatedUserId, userId));
+
+	return attendances;
+}
+
 export async function getClassesForUserInSubjectOffering(
 	userId: string,
 	subjectOfferingId: number

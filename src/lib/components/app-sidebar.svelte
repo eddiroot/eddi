@@ -40,12 +40,17 @@
 			icon: WrenchIcon,
 			requiredPermission: userPermissions.viewAdmin
 		},
-
 		{
 			title: 'Timetable',
 			url: '/timetable',
 			icon: CalendarDaysIcon,
 			requiredPermission: userPermissions.viewTimetable
+		},
+		{
+			title: 'Attendance',
+			url: '/attendance',
+			icon: UsersIcon,
+			requiredPermission: userPermissions.viewGuardianAttendance
 		}
 	];
 
@@ -61,7 +66,7 @@
 			url: 'attendance',
 			icon: UsersIcon,
 			classLevel: true,
-			requiredPermission: userPermissions.viewAttendance
+			requiredPermission: userPermissions.viewClassAttendance
 		},
 		{
 			title: 'Discussion',
@@ -88,7 +93,6 @@
 			classLevel: true,
 			requiredPermission: userPermissions.viewAnalytics
 		}
-
 	];
 
 	const classItems = nestedItems.filter((item) => item.classLevel);

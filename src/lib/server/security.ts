@@ -28,6 +28,13 @@ export class Security {
 		return this;
 	}
 
+	isGuardian() {
+		if (!this.user?.type || this.user.type !== 'guardian') {
+			error(403, 'not guardian');
+		}
+		return this;
+	}
+
 	isPrincipal() {
 		if (!this.user?.type || this.user.type !== 'principal') {
 			error(403, 'not principal');
@@ -38,6 +45,13 @@ export class Security {
 	isSchoolAdmin() {
 		if (!this.user?.type || this.user.type !== 'schoolAdmin') {
 			error(403, 'not school admin');
+		}
+		return this;
+	}
+
+	isSystemAdmin() {
+		if (!this.user?.type || this.user.type !== 'systemAdmin') {
+			error(403, 'not system admin');
 		}
 		return this;
 	}
