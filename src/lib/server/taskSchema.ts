@@ -2,7 +2,7 @@ export const taskCreationPrompts = {
 	lesson: (
 		title: string,
 		description: string = ''
-	) => `Create an educational lesson with the following details:
+	) => `Use the following as background context to help generate an educational lesson:
 Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
@@ -20,7 +20,7 @@ Each component should be structured according to the provided schema. Ignore the
 	homework: (
 		title: string,
 		description: string = ''
-	) => `Create homework assignments with the following details:
+	) => `Use the following as background context to help generate homework assignments:
 Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
@@ -41,7 +41,7 @@ Each component should be structured according to the provided schema. Prioritize
 	assessment: (
 		title: string,
 		description: string = ''
-	) => `Create a comprehensive assessment with the following details:
+	) => `Use the following as background context to help generate a comprehensive assessment:
 Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
