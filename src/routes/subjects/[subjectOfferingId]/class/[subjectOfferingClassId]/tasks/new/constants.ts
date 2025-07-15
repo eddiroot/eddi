@@ -1,7 +1,9 @@
 export const taskCreationPrompts = {
-	lesson: `Analyse the attached documents/images and create an educational lesson.
+	lesson: (title: string, description: string = '') => `Create an educational lesson with the following details:
+Title: ${title}
+${description ? `Description: ${description}` : ''}
 
-Using the provided schema, create a comprehensive lesson with:
+Analyse the attached documents/images and create a comprehensive lesson with:
     1. A subtitle as a h2. Do not include a title.
     2. A number of sections matching the complexity of the content. Sections shouldn't be too long. Sections should have appropriate headers (h1, h2, h3)
     3. Explanatory content using paragraphs and markdown
@@ -12,9 +14,11 @@ Using the provided schema, create a comprehensive lesson with:
     5. A good balance of explanation and interactive practice
 Each component should be structured according to the provided schema. Ignore the short answer component type as it is not needed for lessons.`,
 
-	homework: `Analyse the attached documents/images and create homework assignments.
+	homework: (title: string, description: string = '') => `Create homework assignments with the following details:
+Title: ${title}
+${description ? `Description: ${description}` : ''}
 
-Using the provided schema, create homework that reinforces learning with:
+Analyse the attached documents/images and create homework that reinforces learning with:
     1. A subtitle as a h2 about the homework. Do not include a title.
     2. Brief instructions or review sections with headers (h1, h2, h3)
     3. Practice problems and exercises including:
@@ -28,9 +32,11 @@ Using the provided schema, create homework that reinforces learning with:
     6. Clear instructions for each section
 Each component should be structured according to the provided schema. Prioritize interactive practice over explanatory content.`,
 
-	assessment: `Analyse the attached documents/images and create a comprehensive assessment.
+	assessment: (title: string, description: string = '') => `Create a comprehensive assessment with the following details:
+Title: ${title}
+${description ? `Description: ${description}` : ''}
 
-Using the provided schema, create an assessment that evaluates student understanding with:
+Analyse the attached documents/images and create an assessment that evaluates student understanding with:
     1. A clear assessment subtitle and brief instructions. Do not include a title.
     2. Varied question types to test different skill levels:
         - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
@@ -46,7 +52,7 @@ Each component should be structured according to the provided schema. Prioritize
 };
 
 // Keep the original as the default for backward compatibility
-export const taskCreationPrompt = taskCreationPrompts.lesson;
+export const taskCreationPrompt = (title: string, description: string = '') => taskCreationPrompts.lesson(title, description);
 
 // Base task component schema (reusable)
 export const taskComponentItems = [

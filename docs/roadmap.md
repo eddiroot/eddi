@@ -88,6 +88,7 @@ Max
 
 ## Future
 
+- [ ] Subtype for Assessments (SAC?)
 - [ ] Export all data for a given school
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal

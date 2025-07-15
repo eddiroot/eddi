@@ -410,7 +410,7 @@ export const actions = {
 				console.log('All temp files saved:', tempFilePaths);
 
 				// Create enhanced prompt with learning area content
-				let enhancedPrompt = taskCreationPrompts[form.data.type];
+				let enhancedPrompt = taskCreationPrompts[form.data.type](form.data.title, form.data.description || '');
 				if (learningAreaContentData.length > 0) {
 					const curriculumContext = learningAreaContentData
 						.map((content) => {
@@ -440,7 +440,7 @@ export const actions = {
 			} else if (form.data.creationMethod === 'ai') {
 				// AI mode but no files
 				console.log('AI mode with no files - sending text-only prompt to Gemini');
-				let enhancedPrompt = taskCreationPrompts[form.data.type];
+				let enhancedPrompt = taskCreationPrompts[form.data.type](form.data.title, form.data.description || '');
 				if (learningAreaContentData.length > 0) {
 					const curriculumContext = learningAreaContentData
 						.map((content) => {
