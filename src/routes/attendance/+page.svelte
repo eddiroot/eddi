@@ -125,24 +125,26 @@
 				</Calendar>
 			</Card.Content>
 
-			<Card.Footer class="flex min-h-0 flex-1 flex-col border-t">
-				<ScrollArea.Root class="min-h-20 w-full">
+			<Card.Footer class="flex min-h-0 flex-1 flex-col border-t p-0 [.border-t]:pt-0">
+				<ScrollArea.Root class="min-h-20 w-full px-4" type="always">
 					<div class="mb-4 flex flex-col gap-2">
-						<!-- Mark Absent Button -->
 						{#if shouldShowMarkAbsentButton(records)}
-							<Button
-								onclick={() => openAbsenceDialog(getStudentId(records))}
-								variant="destructive"
-								size="sm"
-								class="w-full"
-							>
-								<XCircleIcon class="mr-2" />
-								Mark Absent
-							</Button>
+							<div class="bg-background sticky top-0 z-10 pt-4 pb-2">
+								<Button
+									onclick={() => openAbsenceDialog(getStudentId(records))}
+									variant="destructive"
+									size="sm"
+									class="w-full"
+								>
+									<XCircleIcon class="mr-2" />
+									Mark Absent
+								</Button>
+							</div>
+						{:else}
+							<div class="bg-background sticky top-0 z-10 h-2"></div>
 						{/if}
 
 						<!-- Scrollable Records List -->
-
 						{#each getRecordsForDate(records, selectedDate) as record (record.subjectClassAllocation.id)}
 							<ClassCard {record} />
 						{/each}
