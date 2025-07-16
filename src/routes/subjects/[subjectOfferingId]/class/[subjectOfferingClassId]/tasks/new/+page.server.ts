@@ -73,7 +73,7 @@ async function createBlocksFromSchema(taskSchema: string, taskId: number) {
 // Helper function to create individual blocks from components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createBlockFromComponent(component: any, taskId: number) {
-	if (!component || !component.type) {
+	if (!component || !component.content || !component.content.type) {
 		console.warn('Invalid component structure:', component);
 		return;
 	}
@@ -112,12 +112,7 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const options = content?.options || [];
 			const multiple = content?.multiple || false;
 			const answer = component.answer || [];
-			await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, {
-				question,
-				options,
-				multiple,
-				answer
-			});
+			await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, { question, options, answer, multiple});
 			console.log(`Created multiple choice block: "${question}"`);
 			break;
 		}
@@ -151,15 +146,13 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'matching': {
 			const instructions = content?.instructions || '';
 			const pairs = content?.pairs || [];
-			const answer = component.answer || [];
-			await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs, answer });
+			await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs });
 			console.log(`Created matching block with ${pairs.length} pairs: "${instructions}"`);
 			break;
 		}
 		case 'short_answer': {
 			const question = content?.question || '';
-			const criteria = component.answer || '';
-			await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question, criteria });
+			await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question });
 			console.log(`Created short answer block: "${question}"`);
 			break;
 		}

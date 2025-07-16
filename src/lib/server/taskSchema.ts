@@ -12,7 +12,7 @@ Analyse the attached documents/images and create a comprehensive lesson with:
     3. Explanatory content using paragraphs and markdown
     4. Interactive elements to engage students including:
         - Multiple choice questions (both single and multiple answer), and answers are string of options (not a,b,c or 1,2,3) - component type: multiple_choice
-        - Fill in the blank questions (use the format "_____" for blanks) limit to maximum 3 - component type: fill_in_blank
+        - Fill in the blank questions (use the format "_____" for blanks, 5 underscores) limit to maximum 3 - component type: fill_in_blank
 				- Math input problems (if applicable) for calculation practice - component type: math_input
     5. A good balance of explanation and interactive practice
 Each component should be structured according to the provided schema. Ignore the short answer component type as it is not needed for lessons.`,
@@ -29,7 +29,7 @@ Analyse the attached documents/images and create homework that reinforces learni
     2. Brief instructions or review sections with headers (h2, h3, h4, h5, h6)
     3. Practice problems and exercises including:
         - Multiple choice questions for self-assessment (make sure answers are string of options (not a,b,c or 1,2,3))
-        - Fill in the blank exercises for key concepts (use the format "_____" for blanks) limit to maximum 3
+        - Fill in the blank exercises for key concepts (use the format "_____" for blanks, 5 underscores) limit to maximum 3
         - Math input problems (if applicable) for calculation practice
         - Text input questions for written responses
         - Matching activities to connect concepts
@@ -49,7 +49,7 @@ Analyse the attached documents/images and create an assessment that evaluates st
     1. A clear assessment subtitle and brief instructions. Do not include a title.
     2. Varied question types to test different skill levels:
         - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
-        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks) limit to maximum 3
+        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks, 5 underscores) limit to maximum 3
         - Math input questions (if applicable) for problem-solving skills
         - Text input questions for analysis and evaluation
         - Matching activities for concept connections
