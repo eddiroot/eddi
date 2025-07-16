@@ -73,7 +73,7 @@ Beej
 Blake
 
 - [ ] Auto generated summaries of discussions (21/07)
-- [ ] Disable eddi AI on lesson/task (28/07)
+- [ ] Option for teachers to disable eddi AI on a task (28/07)
 - [ ] A what to do button to generate study ideas (04/08)
 
 Bella
