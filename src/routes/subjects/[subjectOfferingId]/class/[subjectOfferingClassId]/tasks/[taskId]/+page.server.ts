@@ -1,7 +1,7 @@
 import { getTaskById, getTaskBlocksByTaskId } from '$lib/server/db/service';
 import { redirect } from '@sveltejs/kit';
 
-export const load = async ({ locals: { security }, params: { taskId, subjectOfferingId } }) => {
+export const load = async ({ locals: { security }, params: { taskId, subjectOfferingId, subjectOfferingClassId } }) => {
 	const user = security.isAuthenticated().getUser();
 
 	let taskIdInt;
@@ -16,5 +16,5 @@ export const load = async ({ locals: { security }, params: { taskId, subjectOffe
 
 	const blocks = await getTaskBlocksByTaskId(taskIdInt);
 
-	return { task, blocks, subjectOfferingId, user };
+	return { task, blocks, subjectOfferingId, subjectOfferingClassId, user };
 };
