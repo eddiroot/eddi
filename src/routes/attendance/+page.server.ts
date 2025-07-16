@@ -2,19 +2,31 @@ import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { markAbsentSchema } from './schema.js';
-import {
-	getGuardiansChildrensAttendancesByUserId,
-	getGuardiansChildrensSchedulesByUserId
-} from '$lib/server/db/service';
+import { getGuardiansChildrensScheduleWithAttendanceByUserId } from '$lib/server/db/service';
 import {
 	getSubjectClassAllocationsByUserIdForDate,
 	upsertSubjectClassAllocationAttendance
 } from '$lib/server/db/service/subjects';
+import type {
+	User,
+	Subject,
+	SubjectOfferingClass,
+	SubjectClassAllocation,
+	SubjectClassAllocationAttendance
+} from '$lib/server/db/schema';
 
-function groupRecordsByUserId<T extends { user: { id: string } }>(
-	records: T[]
-): Record<string, T[]> {
-	return records.reduce<Record<string, T[]>>((acc, record) => {
+export type ScheduleWithAttendanceRecord = {
+	user: Pick<User, 'id' | 'firstName' | 'middleName' | 'lastName' | 'avatarUrl'>;
+	subjectClassAllocation: Pick<SubjectClassAllocation, 'id' | 'startTimestamp' | 'endTimestamp'>;
+	subjectOfferingClass: Pick<SubjectOfferingClass, 'id' | 'name'>;
+	subject: Pick<Subject, 'name'>;
+	attendance: SubjectClassAllocationAttendance | null;
+};
+
+function groupRecordsByUserId(
+	records: ScheduleWithAttendanceRecord[]
+): Record<string, ScheduleWithAttendanceRecord[]> {
+	return records.reduce<Record<string, ScheduleWithAttendanceRecord[]>>((acc, record) => {
 		const userId = record.user.id;
 		if (!acc[userId]) {
 			acc[userId] = [];
@@ -57,19 +69,15 @@ async function markStudentAbsent(studentId: string, date: Date, note: string): P
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isGuardian().getUser();
 
-	const [attendances, schedules] = await Promise.all([
-		getGuardiansChildrensAttendancesByUserId(user.id),
-		getGuardiansChildrensSchedulesByUserId(user.id)
-	]);
+	const combinedData = await getGuardiansChildrensScheduleWithAttendanceByUserId(user.id);
 
-	const attendancesByUserId = groupRecordsByUserId(attendances);
-	const schedulesByUserId = groupRecordsByUserId(schedules);
+	// Group by user ID
+	const recordsByUserId = groupRecordsByUserId(combinedData);
 	const form = await superValidate(zod(markAbsentSchema));
 
 	return {
 		user,
-		attendancesByUserId,
-		schedulesByUserId,
+		recordsByUserId,
 		form
 	};
 };
