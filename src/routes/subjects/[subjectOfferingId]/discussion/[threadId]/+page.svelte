@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
 	import { convertToFullName, formatTimestamp } from '$lib/utils';
 	import ResponseForm from './form.svelte';
 	import ResponseItem from './response-item.svelte';
@@ -34,10 +35,15 @@
 			responses()?.filter((r) => r.response.type === 'comment' && !r.response.parentResponseId) ||
 			[]
 	);
+	
 </script>
 
 {#if thread()}
 	<div class="mx-auto max-w-4xl space-y-6">
+		<!-- temporary spot for button -->
+		<Button>
+			<p>Summarise</p>
+		</Button>
 		<!-- Main Thread Card -->
 		<Card.Root>
 			<Card.Header class="pb-4">
