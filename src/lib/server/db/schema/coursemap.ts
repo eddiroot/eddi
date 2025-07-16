@@ -1,7 +1,7 @@
 import { pgTable, text, integer, foreignKey, boolean, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { subjectOffering } from './subjects';
-import { learningArea, learningAreaContent } from './curriculum';
+import { learningArea, learningAreaStandard } from './curriculum';
 
 export const courseMapItem = pgTable(
 	'course_map_item',
@@ -58,7 +58,7 @@ export const courseMapItemLearningArea = pgTable(
 
 export type CourseMapItemLearningArea = typeof courseMapItemLearningArea.$inferSelect;
 
-// if we want to check across the area of study contents,
+// if we want to check across the area of study standards,
 export const courseMapItemAssessmentPlan = pgTable(
 	'cm_item_as_plan',
 	{
@@ -111,16 +111,16 @@ export const courseMapItemLessonPlan = pgTable(
 
 export type CourseMapItemLessonPlan = typeof courseMapItemLessonPlan.$inferSelect;
 
-export const courseMapItemAssessmentPlanLearningAreaContent = pgTable(
-	'cm_item_as_plan_la_content',
+export const courseMapItemAssessmentPlanLearningAreaStandard = pgTable(
+	'cm_item_as_plan_la_standard',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		courseMapItemAssessmentPlanId: integer('cm_item_as_plan_id')
 			.notNull()
 			.references(() => courseMapItemAssessmentPlan.id, { onDelete: 'cascade' }),
-		learningAreaContentId: integer('la_content_id')
+		learningAreaStandardId: integer('la_standard_id')
 			.notNull()
-			.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
+			.references(() => learningAreaStandard.id, { onDelete: 'cascade' }),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
@@ -135,8 +135,8 @@ export const courseMapItemAssessmentPlanLearningAreaContent = pgTable(
 	]
 );
 
-export type CourseMapItemAssessmentPlanLearningAreaContent =
-	typeof courseMapItemAssessmentPlanLearningAreaContent.$inferSelect;
+export type CourseMapItemAssessmentPlanLearningAreaStandard =
+	typeof courseMapItemAssessmentPlanLearningAreaStandard.$inferSelect;
 
 export const courseMapItemResource = pgTable(
 	'course_map_item_resource',

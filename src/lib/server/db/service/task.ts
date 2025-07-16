@@ -422,18 +422,18 @@ export async function updateTaskOrder(
 	});
 }
 
-export async function getLearningAreaContentByCourseMapItemId(
+export async function getLearningAreaStandardByCourseMapItemId(
 	courseMapItemId: number
-): Promise<curriculumLearningAreaContent[]> {
+): Promise<curriculumLearningAreaStandard[]> {
 	const rows = await db
 		.select({
 			learningArea: table.learningArea,
-			learningAreaContent: table.learningAreaContent
+			learningAreaStandard: table.learningAreaStandard
 		})
-		.from(table.learningAreaContent)
+		.from(table.learningAreaStandard)
 		.innerJoin(
 			table.courseMapItemLearningArea,
-			eq(table.learningAreaContent.learningAreaId, table.courseMapItemLearningArea.learningAreaId)
+			eq(table.learningAreaStandard.learningAreaId, table.courseMapItemLearningArea.learningAreaId)
 		)
 		.innerJoin(
 			table.courseMapItem,
@@ -446,18 +446,18 @@ export async function getLearningAreaContentByCourseMapItemId(
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.innerJoin(
 			table.learningArea,
-			eq(table.learningArea.id, table.learningAreaContent.learningAreaId)
+			eq(table.learningArea.id, table.learningAreaStandard.learningAreaId)
 		)
 		.where(
 			and(
 				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),
-				eq(table.learningAreaContent.yearLevel, table.subject.yearLevel)
+				eq(table.learningAreaStandard.yearLevel, table.subject.yearLevel)
 			)
 		)
-		.orderBy(asc(table.learningAreaContent.id));
+		.orderBy(asc(table.learningAreaStandard.id));
 
 	// Group by learningArea.id using a Map for type safety
-	const map = new Map<number, curriculumLearningAreaContent>();
+	const map = new Map<number, curriculumLearningAreaStandard>();
 	for (const row of rows) {
 		const laId = row.learningArea.id;
 		if (!map.has(laId)) {
@@ -466,7 +466,7 @@ export async function getLearningAreaContentByCourseMapItemId(
 				contents: []
 			});
 		}
-		map.get(laId)!.contents.push(row.learningAreaContent);
+		map.get(laId)!.contents.push(row.learningAreaStandard);
 	}
 	return Array.from(map.values());
 }
@@ -492,77 +492,77 @@ export async function getLearningAreasBySubjectOfferingId(subjectOfferingId: num
 	return learningAreas.map((row) => row.learningArea);
 }
 
-// Select the learningAreaContents and add this to the gemini service, use coursemap.ts funtion to get the learning area content
-export async function getContentElaborationsByLearningAreaContentIds(
-	learningAreaContentIds: number[]
+// Select the learningAreaStandards and add this to the gemini service, use coursemap.ts funtion to get the learning area content
+export async function getStandardElaborationsByLearningAreaStandardIds(
+	learningAreaStandardIds: number[]
 ) {
-	if (learningAreaContentIds.length === 0) return [];
+	if (learningAreaStandardIds.length === 0) return [];
 
 	const elaborations = await db
 		.select({
-			id: table.contentElaboration.id,
-			learningAreaContentId: table.contentElaboration.learningAreaContentId,
-			name: table.contentElaboration.name,
-			contentElaboration: table.contentElaboration.contentElaboration
+			id: table.standardElaboration.id,
+			learningAreaStandardId: table.standardElaboration.learningAreaStandardId,
+			name: table.standardElaboration.name,
+			standardElaboration: table.standardElaboration.standardElaboration
 		})
-		.from(table.contentElaboration)
-		.where(inArray(table.contentElaboration.learningAreaContentId, learningAreaContentIds))
-		.orderBy(asc(table.contentElaboration.id));
+		.from(table.standardElaboration)
+		.where(inArray(table.standardElaboration.learningAreaStandardId, learningAreaStandardIds))
+		.orderBy(asc(table.standardElaboration.id));
 
 	return elaborations;
 }
 
-export interface CurriculumContentWithElaborations {
-	learningAreaContent: table.LearningAreaContent;
-	elaborations: table.ContentElaboration[];
+export interface CurriculumStandardWithElaborations {
+	learningAreaStandard: table.LearningAreaStandard;
+	elaborations: table.StandardElaboration[];
 }
 
-export async function getLearningAreaContentWithElaborationsByIds(
-	learningAreaContentIds: number[]
-): Promise<CurriculumContentWithElaborations[]> {
-	if (learningAreaContentIds.length === 0) return [];
+export async function getLearningAreaStandardWithElaborationsByIds(
+	learningAreaStandardIds: number[]
+): Promise<CurriculumStandardWithElaborations[]> {
+	if (learningAreaStandardIds.length === 0) return [];
 
 	// Get the learning area content and their elaborations (joined)
 	const rows = await db
 		.select({
-			learningAreaContent: table.learningAreaContent,
-			contentElaboration: table.contentElaboration
+			learningAreaStandard: table.learningAreaStandard,
+			standardElaboration: table.standardElaboration
 		})
-		.from(table.learningAreaContent)
+		.from(table.learningAreaStandard)
 		.leftJoin(
-			table.contentElaboration,
-			eq(table.contentElaboration.learningAreaContentId, table.learningAreaContent.id)
+			table.standardElaboration,
+			eq(table.standardElaboration.learningAreaStandardId, table.learningAreaStandard.id)
 		)
-		.where(inArray(table.learningAreaContent.id, learningAreaContentIds))
-		.orderBy(asc(table.learningAreaContent.id));
+		.where(inArray(table.learningAreaStandard.id, learningAreaStandardIds))
+		.orderBy(asc(table.learningAreaStandard.id));
 
-	// Group by learningAreaContent.id
-	const map = new Map<number, CurriculumContentWithElaborations>();
+	// Group by learningAreaStandard.id
+	const map = new Map<number, CurriculumStandardWithElaborations>();
 	for (const row of rows) {
-		const lac = row.learningAreaContent;
+		const lac = row.learningAreaStandard;
 		if (!map.has(lac.id)) {
 			map.set(lac.id, {
-				learningAreaContent: lac,
+				learningAreaStandard: lac,
 				elaborations: []
 			});
 		}
-		if (row.contentElaboration && row.contentElaboration.id) {
-			map.get(lac.id)!.elaborations.push(row.contentElaboration);
+		if (row.standardElaboration && row.standardElaboration.id) {
+			map.get(lac.id)!.elaborations.push(row.standardElaboration);
 		}
 	}
 	return Array.from(map.values());
 }
 
-export interface curriculumLearningAreaContent {
+export interface curriculumLearningAreaStandard {
 	learningArea: table.LearningArea;
-	contents: table.LearningAreaContent[];
+	contents: table.LearningAreaStandard[];
 }
 
-export async function getCurriculumLearningAreaWithContents(subjectOfferingId: number) {
+export async function getCurriculumLearningAreaWithStandards(subjectOfferingId: number) {
 	const rows = await db
 		.select({
 			learningArea: table.learningArea,
-			learningAreaContent: table.learningAreaContent
+			learningAreaStandard: table.learningAreaStandard
 		})
 		.from(table.subjectOffering)
 		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
@@ -576,17 +576,17 @@ export async function getCurriculumLearningAreaWithContents(subjectOfferingId: n
 			eq(table.learningArea.curriculumSubjectId, table.curriculumSubject.id)
 		)
 		.innerJoin(
-			table.learningAreaContent,
+			table.learningAreaStandard,
 			and(
-				eq(table.learningAreaContent.learningAreaId, table.learningArea.id),
-				eq(table.learningAreaContent.yearLevel, table.subject.yearLevel)
+				eq(table.learningAreaStandard.learningAreaId, table.learningArea.id),
+				eq(table.learningAreaStandard.yearLevel, table.subject.yearLevel)
 			)
 		)
 		.where(eq(table.subjectOffering.id, subjectOfferingId))
 		.orderBy(asc(table.learningArea.name));
 
 	// Group by learningArea.id using a Map for type safety
-	const map = new Map<number, curriculumLearningAreaContent>();
+	const map = new Map<number, curriculumLearningAreaStandard>();
 	for (const row of rows) {
 		const laId = row.learningArea.id;
 		if (!map.has(laId)) {
@@ -595,7 +595,7 @@ export async function getCurriculumLearningAreaWithContents(subjectOfferingId: n
 				contents: []
 			});
 		}
-		map.get(laId)!.contents.push(row.learningAreaContent);
+		map.get(laId)!.contents.push(row.learningAreaStandard);
 	}
 	return Array.from(map.values());
 }

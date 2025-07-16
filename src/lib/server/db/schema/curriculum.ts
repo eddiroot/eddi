@@ -66,7 +66,7 @@ export const yearLevelEnumPg = pgEnum('year_level', [
 	yearLevelEnum.year10A
 ]);
 
-export const learningAreaContent = pgTable('learning_area_content', {
+export const learningAreaStandard = pgTable('learning_area_standard', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	learningAreaId: integer('learn_a_id')
 		.notNull()
@@ -78,17 +78,17 @@ export const learningAreaContent = pgTable('learning_area_content', {
 	...timestamps
 });
 
-export type LearningAreaContent = typeof learningAreaContent.$inferSelect;
+export type LearningAreaStandard = typeof learningAreaStandard.$inferSelect;
 
-export const contentElaboration = pgTable('content_elaboration', {
+export const standardElaboration = pgTable('standard_elaboration', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaContentId: integer('learn_a_con_id')
+	learningAreaStandardId: integer('learn_a_con_id')
 		.notNull()
-		.references(() => learningAreaContent.id, { onDelete: 'cascade' }),
+		.references(() => learningAreaStandard.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
-	contentElaboration: text('cont_elab').notNull(),
+	standardElaboration: text('cont_elab').notNull(),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
-export type ContentElaboration = typeof contentElaboration.$inferSelect;
+export type StandardElaboration = typeof standardElaboration.$inferSelect;

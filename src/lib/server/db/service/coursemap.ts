@@ -100,22 +100,22 @@ export async function getSubjectOfferingLearningAreas(subjectOfferingId: number)
 	}
 }
 
-export async function getLearningAreaContentByLearningAreaId(
+export async function getLearningAreaStandardByLearningAreaId(
 	learningAreaId: number,
 	yearLevel: table.yearLevelEnum
 ) {
-	const curriculumContent = await db
+	const curriculumStandard = await db
 		.select({
-			learningAreaContent: table.learningAreaContent
+			learningAreaStandard: table.learningAreaStandard
 		})
-		.from(table.learningAreaContent)
+		.from(table.learningAreaStandard)
 		.where(
 			and(
-				eq(table.learningAreaContent.learningAreaId, learningAreaId),
-				eq(table.learningAreaContent.yearLevel, yearLevel)
+				eq(table.learningAreaStandard.learningAreaId, learningAreaId),
+				eq(table.learningAreaStandard.yearLevel, yearLevel)
 			)
 		);
-	return curriculumContent;
+	return curriculumStandard;
 }
 
 export async function addAreasOfStudyToCourseMapItem(
@@ -218,13 +218,13 @@ export async function getCoursemapItemAssessmentPlans(courseMapItemId: number) {
 	const assessmentPlans = await db
 		.select({
 			assessmentPlan: table.courseMapItemAssessmentPlan,
-			laContent: table.courseMapItemAssessmentPlanLearningAreaContent
+			laStandard: table.courseMapItemAssessmentPlanLearningAreaStandard
 		})
 		.from(table.courseMapItemAssessmentPlan)
 		.leftJoin(
-			table.courseMapItemAssessmentPlanLearningAreaContent,
+			table.courseMapItemAssessmentPlanLearningAreaStandard,
 			eq(
-				table.courseMapItemAssessmentPlanLearningAreaContent.courseMapItemAssessmentPlanId,
+				table.courseMapItemAssessmentPlanLearningAreaStandard.courseMapItemAssessmentPlanId,
 				table.courseMapItemAssessmentPlan.id
 			)
 		)
