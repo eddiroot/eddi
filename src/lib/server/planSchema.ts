@@ -55,10 +55,12 @@ export const planSchema = {
  * Build a prompt for Gemini to generate a lesson plan conforming to planSchema.
  *
  * @param contextsJson - JSON-stringified array of PlanContext objects.
+ * @param userInstruction - Optional guidance or preferences for the lesson plan.
  * @returns A prompt string ready to send to Gemini.
  */
 export function buildLessonPlanPrompt(
-  contextsJson: string
+  contextsJson: string,
+  userInstruction: string = ''
 ): string {
   return `
 You are given:
@@ -74,6 +76,7 @@ You are given:
    • name
    • standardElaboration
 
+${userInstruction ? `User Request: ${userInstruction}\n\n` : ''}
 These contexts are the curriculum framework—use them as guidance to craft a creative, engaging lesson plan.
 
 Structure your output according to the following JSON-Schema as a blueprint (do not add extra properties):
