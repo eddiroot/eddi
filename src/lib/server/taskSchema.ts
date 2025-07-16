@@ -282,7 +282,6 @@ export const shortAnswerComponent = {
 			type: 'array',
 			items: { type: 'string' }
 		},
-		answer: { type: 'string' },
 		content: {
 			type: 'object',
 			properties: {

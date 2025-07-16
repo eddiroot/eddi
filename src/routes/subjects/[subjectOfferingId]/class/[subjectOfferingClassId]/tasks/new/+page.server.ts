@@ -78,7 +78,8 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		return;
 	}
 
-	const { type, content } = component;
+	const type = component.content.type;
+	const content = component.content.content;
 
 	switch (type) {
 		case 'h1':
@@ -92,182 +93,76 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			console.log(`Created ${type} block with content: "${headingText}"`);
 			break;
 		}
-
-		case 'markdown':
-		case 'paragraph':
-		case 'text': {
-			// Extract markdown content properly
-			const markdownContent = content?.markdown || content?.text || content || '';
-			await createTaskBlock(taskId, taskBlockTypeEnum.markdown, markdownContent);
-			console.log(`Created markdown block with content length: ${markdownContent.length}`);
+		case 'paragraph': {
+			// Extract paragraph content properly
+			const paragraphContent = content?.markdown || '';
+			await createTaskBlock(taskId, taskBlockTypeEnum.markdown, paragraphContent);
+			console.log(`Created paragraph block with content length: ${paragraphContent.length}`);
 			break;
 		}
-
-		case 'multiple_choice':
+		case 'math_input': {
+			// const question = content?.question || '';
+			// const answerLatex = content?.answer_latex || '';
+			// await createTaskBlock(taskId, 'math_input', { question, answer_latex: answerLatex });
+			break;
+		}
+		case 'multiple_choice': {
 			// Validate and transform multiple choice content structure
-			if (content && content.question && content.options && content.answer !== undefined) {
-				const multipleChoiceContent = {
-					question: content.question,
-					options: content.options,
-					answer: content.answer,
-					multiple: content.multiple || (Array.isArray(content.answer) ? true : false)
-				};
-				await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, multipleChoiceContent);
-				console.log(`Created multiple choice block: "${content.question}"`);
-			} else {
-				console.warn('Invalid multiple choice content structure:', content);
-			}
-			break;
-
-		case 'image':
-			// Validate and transform image content structure
-			if (content && (content.url || content.src)) {
-				const imageContent = {
-					src: content.url || content.src || '',
-					alt: content.alt || content.caption || 'Image',
-					caption: content.caption || content.alt || ''
-				};
-				await createTaskBlock(taskId, taskBlockTypeEnum.image, imageContent);
-				console.log(`Created image block: "${imageContent.caption}"`);
-			} else {
-				console.warn('Invalid image content structure:', content);
-			}
-			break;
-
-		case 'video':
-			// Validate video content structure
-			if (content && (content.url || content.src)) {
-				const videoContent = {
-					src: content.url || content.src || '',
-					title: content.title || content.caption || 'Video'
-				};
-				await createTaskBlock(taskId, taskBlockTypeEnum.video, videoContent);
-				console.log(`Created video block: "${videoContent.title}"`);
-			} else {
-				console.warn('Invalid video content structure:', content);
-			}
-			break;
-
-		case 'audio':
-			// Validate audio content structure
-			if (content && (content.url || content.src)) {
-				const audioContent = {
-					src: content.url || content.src || '',
-					title: content.title || content.caption || 'Audio'
-				};
-				await createTaskBlock(taskId, taskBlockTypeEnum.audio, audioContent);
-				console.log(`Created audio block: "${audioContent.title}"`);
-			} else {
-				console.warn('Invalid audio content structure:', content);
-			}
-			break;
-
-		// Handle title and subtitle as headings
-		case 'title': {
-			const titleText = content?.text || content || 'Title';
-			await createTaskBlock(taskId, taskBlockTypeEnum.h1, titleText);
-			console.log(`Created h1 block from title: "${titleText}"`);
+			const question = content?.question || '';
+			const options = content?.options || [];
+			const multiple = content?.multiple || false;
+			const answer = component.answer || [];
+			await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, {
+				question,
+				options,
+				multiple,
+				answer
+			});
+			console.log(`Created multiple choice block: "${question}"`);
 			break;
 		}
 
-		case 'subtitle': {
-			const subtitleText = content?.text || content || 'Subtitle';
-			await createTaskBlock(taskId, taskBlockTypeEnum.h2, subtitleText);
-			console.log(`Created h2 block from subtitle: "${subtitleText}"`);
+		case 'image': {
+			// Validate and transform image content structure
+			const url = content?.url || '';
+			const caption = content?.caption || '';
+			await createTaskBlock(taskId, taskBlockTypeEnum.image, { url, caption });
+			console.log(`Created image block: "${caption}"`);
+			break;
+		}
+
+		case 'video': {
+			const url = content?.url || '';
+			const caption = content?.caption || '';
+			await createTaskBlock(taskId, taskBlockTypeEnum.video, { url, caption });
+			console.log(`Created video block: "${caption}"`);
 			break;
 		}
 
 		// Unsupported block types that we'll ignore for now
-		case 'fill_in_blank':
-			// Validate and transform fill-in-blank content structure
-			if (content && content.sentence && content.answer) {
-				const fillInBlankContent = {
-					sentence: content.sentence,
-					answer: content.answer
-				};
-				await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, fillInBlankContent);
-				console.log(`Created fill-in-blank block: "${content.sentence}"`);
-			} else {
-				console.warn('Invalid fill-in-blank content structure:', content);
-			}
+		case 'fill_in_blank': {
+			const sentence = content?.sentence || '';
+			const answer = component.answer || [];
+			await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, { sentence, answer });
+			console.log(`Created fill-in-blank block: "${sentence}"`);
 			break;
+		}
 
-		case 'matching':
-			// Validate and transform matching content structure
-			if (content && content.instructions !== undefined && Array.isArray(content.pairs)) {
-				const matchingContent = {
-					instructions: content.instructions || '',
-					pairs: content.pairs
-						.filter(
-							(pair: { left?: unknown; right?: unknown }) =>
-								pair &&
-								typeof pair.left === 'string' &&
-								typeof pair.right === 'string' &&
-								pair.left.trim() &&
-								pair.right.trim()
-						)
-						.map((pair: { left: string; right: string }) => ({
-							left: pair.left.trim(),
-							right: pair.right.trim()
-						}))
-				};
-
-				// Only create the block if we have valid pairs
-				if (matchingContent.pairs.length > 0) {
-					await createTaskBlock(taskId, taskBlockTypeEnum.matching, matchingContent);
-					console.log(
-						`Created matching block with ${matchingContent.pairs.length} pairs: "${matchingContent.instructions}"`
-					);
-				} else {
-					console.warn('No valid matching pairs found in content:', content);
-				}
-			} else {
-				console.warn('Invalid matching content structure:', content);
-			}
+		case 'matching': {
+			const instructions = content?.instructions || '';
+			const pairs = content?.pairs || [];
+			const answer = component.answer || [];
+			await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs, answer });
+			console.log(`Created matching block with ${pairs.length} pairs: "${instructions}"`);
 			break;
-
-		case 'short_answer':
-			// Validate and transform text input content structure
-			if (content && content.question) {
-				// Clean up the question text by removing excessive newlines and whitespace
-				let questionText = content.question || content.text || '';
-
-				// Remove excessive newlines (more than 2 consecutive newlines)
-				questionText = questionText.replace(/\n{3,}/g, '\n\n');
-				// Remove excessive whitespace
-				questionText = questionText.replace(/\s{3,}/g, ' ');
-				// Trim whitespace and ensure reasonable length
-				questionText = questionText.trim();
-
-				// Skip if the question is too short or appears to be malformed
-				if (questionText.length < 3) {
-					console.warn('Text input question too short, skipping:', questionText);
-					break;
-				}
-				if (questionText.length > 2000) {
-					console.warn(
-						'Text input question too long, truncating:',
-						questionText.substring(0, 100) + '...'
-					);
-					questionText = questionText.substring(0, 2000);
-				}
-
-				const shortAnswerContent = {
-					question: questionText
-				};
-				await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, shortAnswerContent);
-				console.log(
-					`Created text input block: "${shortAnswerContent.question.substring(0, 100)}${shortAnswerContent.question.length > 100 ? '...' : ''}"`
-				);
-			} else {
-				console.warn('Invalid text input content structure:', content);
-			}
+		}
+		case 'short_answer': {
+			const question = content?.question || '';
+			const criteria = component.answer || '';
+			await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question, criteria });
+			console.log(`Created short answer block: "${question}"`);
 			break;
-
-		case 'drag_and_drop':
-		case 'math_input':
-			console.log(`Ignoring unsupported block type: ${type}`);
-			break;
+		}
 
 		default:
 			console.warn(`Unknown block type: ${type}, ignoring`);
