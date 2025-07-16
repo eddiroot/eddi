@@ -10,7 +10,7 @@
 	import * as Select from '$lib/components/ui/select'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import Plus from '@lucide/svelte/icons/plus';
-	import type { CourseMapItem, LearningArea, LearningAreaContent } from '$lib/server/db/schema';
+	import type { CourseMapItem, LearningArea, LearningAreaStandard } from '$lib/server/db/schema';
 
 	// Use Svelte 5 $props() for component props
 	let {
@@ -32,7 +32,7 @@
 		subjectOfferingId: number;
 		availableLearningAreas?: LearningArea[];
 		courseMapItemLearningAreas?: LearningArea[];
-		learningAreaContent?: Record<number, LearningAreaContent[]>;
+		learningAreaContent?: Record<number, LearningAreaStandard[]>;
 		isCreateMode?: boolean;
 		createWeek?: number | null;
 		createSemester?: number | null;

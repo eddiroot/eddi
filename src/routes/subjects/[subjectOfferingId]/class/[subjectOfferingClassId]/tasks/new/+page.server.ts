@@ -9,10 +9,10 @@ import {
 	createTaskBlock,
 	getTopics,
 	createCourseMapItem,
-	getLearningAreaContentWithElaborationsByIds,
+	getLearningAreaStandardWithElaborationsByIds,
 	createSubjectOfferingClassTask,
-	getCurriculumLearningAreaWithContents,
-	type CurriculumContentWithElaborations,
+	getCurriculumLearningAreaWithStandards,
+	type CurriculumStandardWithElaborations,
 	getSubjectYearLevelBySubjectOfferingId
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
@@ -33,7 +33,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 	const [form, taskTopics, learningAreaWithContents] = await Promise.all([
 		superValidate(zod(formSchema)),
 		getTopics(subjectOfferingIdInt),
-		getCurriculumLearningAreaWithContents(subjectOfferingIdInt)
+		getCurriculumLearningAreaWithStandards(subjectOfferingIdInt)
 	]);
 
 	return { form, taskTopics, learningAreaWithContents };
@@ -180,9 +180,9 @@ export const actions = {
 		// Extract selected learning area content IDs
 		const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
 
-		let learningAreaContentData: CurriculumContentWithElaborations[] = [];
+		let learningAreaContentData: CurriculumStandardWithElaborations[] = [];
 		if (selectedLearningAreaContentIds.length > 0) {
-			learningAreaContentData = await getLearningAreaContentWithElaborationsByIds(
+			learningAreaContentData = await getLearningAreaStandardWithElaborationsByIds(
 				selectedLearningAreaContentIds
 			);
 		}
@@ -215,14 +215,14 @@ export const actions = {
 		if (learningAreaContentData.length > 0) {
 			contentElaborationPrompt = learningAreaContentData
 				.map((item) => {
-					const lac = item.learningAreaContent;
+					const lac = item.learningAreaStandard;
 					let contextText = `${lac.name}`;
 					if (lac.description) {
 						contextText += `\nDescription: ${lac.description}`;
 					}
 					if (item.elaborations && item.elaborations.length > 0) {
 						const elaborationsText = item.elaborations
-							.map((elab) => `- ${elab.contentElaboration}`)
+							.map((elab) => `- ${elab.standardElaboration}`)
 							.join('\n');
 						contextText += `\nElaborations:\n${elaborationsText}`;
 					}

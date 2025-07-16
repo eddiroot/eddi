@@ -6,7 +6,7 @@
 	import type { 
 		CourseMapItem, 
 		LearningArea, 
-		LearningAreaContent,
+		LearningAreaStandard,
 		CourseMapItemAssessmentPlan
 	} from '$lib/server/db/schema';
 
@@ -47,7 +47,7 @@
 	let drawerOpen = $state(false);
 	let selectedCourseMapItem = $state<CourseMapItem | null>(null);
 	let courseMapItemLearningAreas = $state<LearningArea[]>([]);
-	let learningAreaContent = $state<Record<number, LearningAreaContent[]>>({});
+	let learningAreaContent = $state<Record<number, LearningAreaStandard[]>>({});
 	let assessmentPlans = $state<CourseMapItemAssessmentPlan[]>([]);
 	let isLoadingDrawerData = $state(false);
 	
@@ -86,7 +86,7 @@
 			learningAreaContent = contentResults.reduce((acc, { learningAreaId, content }) => {
 				acc[learningAreaId] = content;
 				return acc;
-			}, {} as Record<number, LearningAreaContent[]>);
+			}, {} as Record<number, LearningAreaStandard[]>);
 
 			// Load assessment plans
 			const response3 = await fetch(`/api/coursemap?action=assessment-plans&courseMapItemId=${item.id}`);
