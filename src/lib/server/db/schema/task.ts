@@ -13,6 +13,8 @@ import { timestamps } from './utils';
 import { subjectOffering, subjectOfferingClass } from './subjects';
 import { user } from './user';
 import { courseMapItem } from './coursemap';
+import { doublePrecision } from 'drizzle-orm/pg-core';
+import { learningAreaStandard } from './curriculum';
 
 export enum taskTypeEnum {
 	lesson = 'lesson',
@@ -137,10 +139,24 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	}),
 	week: integer('week'),
 	isArchived: boolean('is_archived').notNull().default(false),
+	rubricId: integer('rubric_id')
+		.references(() => rubric.id, { onDelete: 'set null' }),
 	...timestamps
 });
 
 export type SubjectOfferingClassTask = typeof subjectOfferingClassTask.$inferSelect;
+
+export const taskStandard = pgTable('task_standard', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskId: integer('task_id')
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	learningAreaStandardId: integer('la_standard_id')
+		.notNull()
+		.references(() => learningAreaStandard.id, { onDelete: 'cascade' }),
+});
+
+export type TaskStandard = typeof taskStandard.$inferSelect;
 
 export const taskBlockResponse = pgTable('task_block_response', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -197,3 +213,91 @@ export const whiteboardObject = pgTable('whiteboard_object', {
 });
 
 export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
+
+export const rubric = pgTable('rubric', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+    title: text('title').notNull(),
+    description: text('description'),
+    ...timestamps
+});
+
+export type Rubric = typeof rubric.$inferSelect;
+
+export const criteria = pgTable('criteria', {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+    rubricId: integer('rubric_id').notNull().references(() => rubric.id, { onDelete: 'cascade' }),
+    taskBlockId: integer('task_block_id').notNull().references(() => taskBlock.id, { onDelete: 'cascade' }),
+    description: text('description').notNull(),
+	marks: doublePrecision('marks').notNull(), // Marks assigned to this criteria 1 or 0.5 etc.
+	...timestamps
+});
+
+export type Criteria = typeof criteria.$inferSelect;
+
+
+export const rubricLevelEnum = pgEnum('rubric_level', [
+  'exemplary',
+  'accomplished',
+  'developing',
+  'beginning'
+]);
+
+
+export const rubricRow = pgTable('rubric_row', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 2000 }),
+  rubricId: integer('rubric_id').notNull().references(() => rubric.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),       
+  ...timestamps
+});
+
+// Record teacher checks for individual criteria on a task-block response
+export const criteriaResponse = pgTable('criteria_response', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  criteriaId: integer('criteria_id')
+    .notNull()
+    .references(() => criteria.id, { onDelete: 'cascade' }),
+  taskBlockResponseId: integer('task_block_response_id')
+    .notNull()
+    .references(() => taskBlockResponse.id, { onDelete: 'cascade' }),
+  met: boolean('met').notNull().default(false), 
+  ...timestamps
+});
+
+export type CriteriaResponse = typeof criteriaResponse.$inferSelect;
+
+export type RubricRow = typeof rubricRow.$inferSelect;
+
+export const rubricCell = pgTable('rubric_cell', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 3000 }),
+  rowId: integer('row_id').notNull().references(() => rubricRow.id, { onDelete: 'cascade' }),
+  level: rubricLevelEnum().notNull(),        
+  description: text('description').notNull(),
+  marks: doublePrecision('marks').notNull(),
+  ...timestamps
+});
+
+export type RubricCell = typeof rubricCell.$inferSelect;
+
+export const rubricResponse = pgTable('rubric_response', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  rubricId: integer('rubric_id').notNull().references(() => rubric.id, { onDelete: 'cascade' }),
+  classTaskId: integer('class_task_id')
+    .notNull()
+    .references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
+  authorId: uuid('author_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  ...timestamps
+});
+
+export const rubricCellResponse = pgTable('rubric_cell_response', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  rubricResponseId: integer('rubric_response_id')
+    .notNull()
+    .references(() => rubricResponse.id, { onDelete: 'cascade' }),
+  cellId: integer('rubric_cell_id')
+    .notNull()
+    .references(() => rubricCell.id, { onDelete: 'cascade' }),
+  selected: boolean('selected').notNull().default(true),
+  ...timestamps
+});
+
+export type RubricResponse = typeof rubricResponse.$inferSelect;

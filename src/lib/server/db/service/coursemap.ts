@@ -218,13 +218,13 @@ export async function getCoursemapItemAssessmentPlans(courseMapItemId: number) {
 	const assessmentPlans = await db
 		.select({
 			assessmentPlan: table.courseMapItemAssessmentPlan,
-			laStandard: table.courseMapItemAssessmentPlanLearningAreaStandard
+			laStandard: table.assessmentPlanLearningAreaStandard
 		})
 		.from(table.courseMapItemAssessmentPlan)
 		.leftJoin(
-			table.courseMapItemAssessmentPlanLearningAreaStandard,
+			table.assessmentPlanLearningAreaStandard,
 			eq(
-				table.courseMapItemAssessmentPlanLearningAreaStandard.courseMapItemAssessmentPlanId,
+				table.assessmentPlanLearningAreaStandard.courseMapItemAssessmentPlanId,
 				table.courseMapItemAssessmentPlan.id
 			)
 		)
