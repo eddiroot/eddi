@@ -275,7 +275,7 @@
     <Room>
       <Name>A1</Name>
       <Long_Name></Long_Name>
-      <Code>A1</Code>
+      <Code></Code>
       <Building>A</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
@@ -284,7 +284,7 @@
     <Room>
       <Name>A2</Name>
       <Long_Name></Long_Name>
-      <Code>A2</Code>
+      <Code></Code>
       <Building>A</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
@@ -293,7 +293,7 @@
     <Room>
       <Name>B1</Name>
       <Long_Name></Long_Name>
-      <Code>B1</Code>
+      <Code></Code>
       <Building>B</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
@@ -302,7 +302,7 @@
     <Room>
       <Name>B2</Name>
       <Long_Name></Long_Name>
-      <Code>B2</Code>
+      <Code></Code>
       <Building>B</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
