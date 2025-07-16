@@ -2,7 +2,7 @@
 <fet version="7.3.0">
   <Mode>Block_Planning</Mode>
   <Institution_Name>eddi Grammar</Institution_Name>
-  <Comments>Default comments</Comments>
+  <Comments>This is a timetable generated for a school working with eddi. Full credit goes to Liviu Lalescu and Volker Dirr for their work on FET (Free Timetabling Software) which we utilise to generate these outputs.</Comments>
   <Days_List>
     <Number_of_Days>5</Number_of_Days>
     <Day>
@@ -29,53 +29,53 @@
   <Hours_List>
     <Number_of_Hours>6</Number_of_Hours>
     <Hour>
-      <Name>H1</Name>
+      <Name>P1</Name>
       <Long_Name>08:30</Long_Name>
     </Hour>
     <Hour>
-      <Name>H2</Name>
+      <Name>P2</Name>
       <Long_Name>09:20</Long_Name>
     </Hour>
     <Hour>
-      <Name>H3</Name>
+      <Name>P3</Name>
       <Long_Name>10:35</Long_Name>
     </Hour>
     <Hour>
-      <Name>H4</Name>
+      <Name>P4</Name>
       <Long_Name>11:25</Long_Name>
     </Hour>
     <Hour>
-      <Name>H5</Name>
+      <Name>P5</Name>
       <Long_Name>13:00</Long_Name>
     </Hour>
     <Hour>
-      <Name>H6</Name>
+      <Name>P6</Name>
       <Long_Name>14:00</Long_Name>
     </Hour>
   </Hours_List>
   <Subjects_List>
     <Subject>
       <Name>Y9ENG</Name>
-      <Long_Name>Year 9 English</Long_Name>
-      <Code>158</Code>
+      <Long_Name></Long_Name>
+      <Code></Code>
       <Comments></Comments>
     </Subject>
     <Subject>
       <Name>Y9MAT</Name>
-      <Long_Name>Year 9 Maths</Long_Name>
-      <Code>789</Code>
+      <Long_Name></Long_Name>
+      <Code></Code>
       <Comments></Comments>
     </Subject>
     <Subject>
       <Name>Y10ENG</Name>
-      <Long_Name>Year 10 English</Long_Name>
-      <Code>456</Code>
+      <Long_Name></Long_Name>
+      <Code></Code>
       <Comments></Comments>
     </Subject>
     <Subject>
       <Name>Y10MAT</Name>
-      <Long_Name>Year 10 Maths</Long_Name>
-      <Code>123</Code>
+      <Long_Name></Long_Name>
+      <Code></Code>
       <Comments></Comments>
     </Subject>
   </Subjects_List>
@@ -83,7 +83,7 @@
   </Activity_Tags_List>
   <Teachers_List>
     <Teacher>
-      <Name>Mr A</Name>
+      <Name>Mr Hammond</Name>
       <Long_Name></Long_Name>
       <Code></Code>
       <Target_Number_of_Hours>0</Target_Number_of_Hours>
@@ -93,7 +93,7 @@
       <Comments></Comments>
     </Teacher>
     <Teacher>
-      <Name>Mr B</Name>
+      <Name>Mr Clarkson</Name>
       <Long_Name></Long_Name>
       <Code></Code>
       <Target_Number_of_Hours>0</Target_Number_of_Hours>
@@ -103,7 +103,7 @@
       <Comments></Comments>
     </Teacher>
     <Teacher>
-      <Name>Ms A</Name>
+      <Name>Mr May</Name>
       <Long_Name></Long_Name>
       <Code></Code>
       <Target_Number_of_Hours>0</Target_Number_of_Hours>
@@ -113,7 +113,7 @@
       <Comments></Comments>
     </Teacher>
     <Teacher>
-      <Name>Ms B</Name>
+      <Name>Mr Stark</Name>
       <Long_Name></Long_Name>
       <Code></Code>
       <Target_Number_of_Hours>0</Target_Number_of_Hours>
@@ -125,71 +125,61 @@
   </Teachers_List>
   <Students_List>
     <Year>
-      <Name>Year 9</Name>
+      <Name>Y9</Name>
       <Long_Name></Long_Name>
       <Code></Code>
       <Number_of_Students>60</Number_of_Students>
       <Comments></Comments>
       <!-- The information regarding categories, divisions of each category, and separator is only used in the divide year automatically by categories dialog. -->
-      <Number_of_Categories>1</Number_of_Categories>
-      <Category>
-        <Number_of_Divisions>2</Number_of_Divisions>
-        <Division>Class A</Division>
-        <Division>Class B</Division>
-      </Category>
+      <Number_of_Categories>0</Number_of_Categories>
       <First_Category_Is_Permanent>false</First_Category_Is_Permanent>
       <Separator> </Separator>
       <Group>
-        <Name>Year 9 Class A</Name>
+        <Name>Y9A</Name>
         <Long_Name></Long_Name>
         <Code></Code>
-        <Number_of_Students>0</Number_of_Students>
+        <Number_of_Students>30</Number_of_Students>
         <Comments></Comments>
       </Group>
       <Group>
-        <Name>Year 9 Class B</Name>
+        <Name>Y9B</Name>
         <Long_Name></Long_Name>
         <Code></Code>
-        <Number_of_Students>0</Number_of_Students>
+        <Number_of_Students>30</Number_of_Students>
         <Comments></Comments>
       </Group>
     </Year>
     <Year>
-      <Name>Year 10</Name>
+      <Name>Y10</Name>
       <Long_Name></Long_Name>
       <Code></Code>
       <Number_of_Students>60</Number_of_Students>
       <Comments></Comments>
       <!-- The information regarding categories, divisions of each category, and separator is only used in the divide year automatically by categories dialog. -->
-      <Number_of_Categories>1</Number_of_Categories>
-      <Category>
-        <Number_of_Divisions>2</Number_of_Divisions>
-        <Division>Class A</Division>
-        <Division>Class B</Division>
-      </Category>
+      <Number_of_Categories>0</Number_of_Categories>
       <First_Category_Is_Permanent>false</First_Category_Is_Permanent>
       <Separator> </Separator>
       <Group>
-        <Name>Year 10 Class A</Name>
+        <Name>Y10A</Name>
         <Long_Name></Long_Name>
         <Code></Code>
-        <Number_of_Students>0</Number_of_Students>
+        <Number_of_Students>30</Number_of_Students>
         <Comments></Comments>
       </Group>
       <Group>
-        <Name>Year 10 Class B</Name>
+        <Name>Y10B</Name>
         <Long_Name></Long_Name>
         <Code></Code>
-        <Number_of_Students>0</Number_of_Students>
+        <Number_of_Students>30</Number_of_Students>
         <Comments></Comments>
       </Group>
     </Year>
   </Students_List>
   <Activities_List>
     <Activity>
-      <Teacher>Mr A</Teacher>
+      <Teacher>Mr Hammond</Teacher>
       <Subject>Y9ENG</Subject>
-      <Students>Year 9 Class A</Students>
+      <Students>Y9A</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>1</Id>
@@ -198,9 +188,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Mr A</Teacher>
+      <Teacher>Mr Hammond</Teacher>
       <Subject>Y9ENG</Subject>
-      <Students>Year 9 Class B</Students>
+      <Students>Y9B</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>2</Id>
@@ -209,9 +199,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Mr B</Teacher>
+      <Teacher>Mr Clarkson</Teacher>
       <Subject>Y9MAT</Subject>
-      <Students>Year 9 Class A</Students>
+      <Students>Y9A</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>3</Id>
@@ -220,9 +210,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Mr B</Teacher>
+      <Teacher>Mr Clarkson</Teacher>
       <Subject>Y9MAT</Subject>
-      <Students>Year 9 Class B</Students>
+      <Students>Y9B</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>4</Id>
@@ -231,9 +221,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Ms A</Teacher>
+      <Teacher>Mr May</Teacher>
       <Subject>Y10ENG</Subject>
-      <Students>Year 10 Class A</Students>
+      <Students>Y10A</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>5</Id>
@@ -242,9 +232,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Ms A</Teacher>
+      <Teacher>Mr May</Teacher>
       <Subject>Y10ENG</Subject>
-      <Students>Year 10 Class B</Students>
+      <Students>Y10B</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>6</Id>
@@ -253,9 +243,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Ms B</Teacher>
+      <Teacher>Mr Stark</Teacher>
       <Subject>Y10MAT</Subject>
-      <Students>Year 10 Class A</Students>
+      <Students>Y10A</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>7</Id>
@@ -264,9 +254,9 @@
       <Comments></Comments>
     </Activity>
     <Activity>
-      <Teacher>Ms B</Teacher>
+      <Teacher>Mr Stark</Teacher>
       <Subject>Y10MAT</Subject>
-      <Students>Year 10 Class B</Students>
+      <Students>Y10B</Students>
       <Duration>1</Duration>
       <Total_Duration>1</Total_Duration>
       <Id>8</Id>
@@ -277,51 +267,51 @@
   </Activities_List>
   <Buildings_List>
     <Building>
-      <Name>BuilA</Name>
-      <Long_Name>Building A</Long_Name>
-      <Code>BB</Code>
+      <Name>A</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
       <Comments></Comments>
     </Building>
     <Building>
-      <Name>BuilB</Name>
-      <Long_Name>Building B</Long_Name>
-      <Code>BB</Code>
+      <Name>B</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
       <Comments></Comments>
     </Building>
   </Buildings_List>
   <Rooms_List>
     <Room>
-      <Name>AR1</Name>
-      <Long_Name>Building A Room 1</Long_Name>
-      <Code>roomCode</Code>
-      <Building>BuilA</Building>
+      <Name>A1</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Building>A</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
       <Comments></Comments>
     </Room>
     <Room>
-      <Name>AR2</Name>
-      <Long_Name>Building A Room 2</Long_Name>
+      <Name>A2</Name>
+      <Long_Name></Long_Name>
       <Code></Code>
-      <Building>BuilA</Building>
+      <Building>A</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
       <Comments></Comments>
     </Room>
     <Room>
-      <Name>BR1</Name>
-      <Long_Name>Building B Room 1</Long_Name>
+      <Name>B1</Name>
+      <Long_Name></Long_Name>
       <Code></Code>
-      <Building>BuilB</Building>
+      <Building>B</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
       <Comments></Comments>
     </Room>
     <Room>
-      <Name>BR2</Name>
-      <Long_Name>Building B Room 2</Long_Name>
+      <Name>B2</Name>
+      <Long_Name></Long_Name>
       <Code></Code>
-      <Building>BuilB</Building>
+      <Building>B</Building>
       <Capacity>30</Capacity>
       <Virtual>false</Virtual>
       <Comments></Comments>
@@ -336,8 +326,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>1</Activity_Id>
-      <Day>D2</Day>
-      <Hour>H2</Hour>
+      <Day>D5</Day>
+      <Hour>P2</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -345,8 +335,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>2</Activity_Id>
-      <Day>D2</Day>
-      <Hour>H6</Hour>
+      <Day>D1</Day>
+      <Hour>P5</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -354,8 +344,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>3</Activity_Id>
-      <Day>D4</Day>
-      <Hour>H3</Hour>
+      <Day>D5</Day>
+      <Hour>P6</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -363,8 +353,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>4</Activity_Id>
-      <Day>D2</Day>
-      <Hour>H4</Hour>
+      <Day>D3</Day>
+      <Hour>P3</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -372,8 +362,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>5</Activity_Id>
-      <Day>D3</Day>
-      <Hour>H4</Hour>
+      <Day>D2</Day>
+      <Hour>P2</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -381,8 +371,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>6</Activity_Id>
-      <Day>D5</Day>
-      <Hour>H6</Hour>
+      <Day>D3</Day>
+      <Hour>P3</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -390,8 +380,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>7</Activity_Id>
-      <Day>D2</Day>
-      <Hour>H5</Hour>
+      <Day>D5</Day>
+      <Hour>P3</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
@@ -399,8 +389,8 @@
     <ConstraintActivityPreferredStartingTime>
       <Weight_Percentage>100</Weight_Percentage>
       <Activity_Id>8</Activity_Id>
-      <Day>D3</Day>
-      <Hour>H1</Hour>
+      <Day>D5</Day>
+      <Hour>P5</Hour>
       <Permanently_Locked>false</Permanently_Locked>
       <Active>true</Active>
       <Comments></Comments>
