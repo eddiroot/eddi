@@ -1,0 +1,315 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Students_Timetable>
+  <Subgroup name="Year 9 Class A Automatic Subgroup">
+    <Day name="D1">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D2">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+        <Activity id="1"></Activity>
+        <Teacher name="Mr A"></Teacher>
+        <Subject name="Y9ENG"></Subject>
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D3">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D4">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+        <Activity id="3"></Activity>
+        <Teacher name="Mr B"></Teacher>
+        <Subject name="Y9MAT"></Subject>
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D5">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+  </Subgroup>
+  <Subgroup name="Year 9 Class B Automatic Subgroup">
+    <Day name="D1">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D2">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+        <Activity id="4"></Activity>
+        <Teacher name="Mr B"></Teacher>
+        <Subject name="Y9MAT"></Subject>
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+        <Activity id="2"></Activity>
+        <Teacher name="Mr A"></Teacher>
+        <Subject name="Y9ENG"></Subject>
+      </Hour>
+    </Day>
+    <Day name="D3">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D4">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D5">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+  </Subgroup>
+  <Subgroup name="Year 10 Class A Automatic Subgroup">
+    <Day name="D1">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D2">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+        <Activity id="7"></Activity>
+        <Teacher name="Ms B"></Teacher>
+        <Subject name="Y10MAT"></Subject>
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D3">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+        <Activity id="5"></Activity>
+        <Teacher name="Ms A"></Teacher>
+        <Subject name="Y10ENG"></Subject>
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D4">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D5">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+  </Subgroup>
+  <Subgroup name="Year 10 Class B Automatic Subgroup">
+    <Day name="D1">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D2">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D3">
+      <Hour name="H1">
+        <Activity id="8"></Activity>
+        <Teacher name="Ms B"></Teacher>
+        <Subject name="Y10MAT"></Subject>
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D4">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+      </Hour>
+    </Day>
+    <Day name="D5">
+      <Hour name="H1">
+      </Hour>
+      <Hour name="H2">
+      </Hour>
+      <Hour name="H3">
+      </Hour>
+      <Hour name="H4">
+      </Hour>
+      <Hour name="H5">
+      </Hour>
+      <Hour name="H6">
+        <Activity id="6"></Activity>
+        <Teacher name="Ms A"></Teacher>
+        <Subject name="Y10ENG"></Subject>
+      </Hour>
+    </Day>
+  </Subgroup>
+</Students_Timetable>

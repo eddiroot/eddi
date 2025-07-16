@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<fet version="7.3.0">
+  <Mode>Block_Planning</Mode>
+  <Institution_Name>eddi Grammar</Institution_Name>
+  <Comments>Default comments</Comments>
+  <Days_List>
+    <Number_of_Days>5</Number_of_Days>
+    <Day>
+      <Name>D1</Name>
+      <Long_Name>Monday</Long_Name>
+    </Day>
+    <Day>
+      <Name>D2</Name>
+      <Long_Name>Tuesday</Long_Name>
+    </Day>
+    <Day>
+      <Name>D3</Name>
+      <Long_Name>Wednesday</Long_Name>
+    </Day>
+    <Day>
+      <Name>D4</Name>
+      <Long_Name>Thursday</Long_Name>
+    </Day>
+    <Day>
+      <Name>D5</Name>
+      <Long_Name>Friday</Long_Name>
+    </Day>
+  </Days_List>
+  <Hours_List>
+    <Number_of_Hours>6</Number_of_Hours>
+    <Hour>
+      <Name>H1</Name>
+      <Long_Name>08:30</Long_Name>
+    </Hour>
+    <Hour>
+      <Name>H2</Name>
+      <Long_Name>09:20</Long_Name>
+    </Hour>
+    <Hour>
+      <Name>H3</Name>
+      <Long_Name>10:35</Long_Name>
+    </Hour>
+    <Hour>
+      <Name>H4</Name>
+      <Long_Name>11:25</Long_Name>
+    </Hour>
+    <Hour>
+      <Name>H5</Name>
+      <Long_Name>13:00</Long_Name>
+    </Hour>
+    <Hour>
+      <Name>H6</Name>
+      <Long_Name>14:00</Long_Name>
+    </Hour>
+  </Hours_List>
+  <Subjects_List>
+    <Subject>
+      <Name>Y9ENG</Name>
+      <Long_Name>Year 9 English</Long_Name>
+      <Code>158</Code>
+      <Comments></Comments>
+    </Subject>
+    <Subject>
+      <Name>Y9MAT</Name>
+      <Long_Name>Year 9 Maths</Long_Name>
+      <Code>789</Code>
+      <Comments></Comments>
+    </Subject>
+    <Subject>
+      <Name>Y10ENG</Name>
+      <Long_Name>Year 10 English</Long_Name>
+      <Code>456</Code>
+      <Comments></Comments>
+    </Subject>
+    <Subject>
+      <Name>Y10MAT</Name>
+      <Long_Name>Year 10 Maths</Long_Name>
+      <Code>123</Code>
+      <Comments></Comments>
+    </Subject>
+  </Subjects_List>
+  <Activity_Tags_List>
+  </Activity_Tags_List>
+  <Teachers_List>
+    <Teacher>
+      <Name>Mr A</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Target_Number_of_Hours>0</Target_Number_of_Hours>
+      <Qualified_Subjects>
+        <Qualified_Subject>Y9ENG</Qualified_Subject>
+      </Qualified_Subjects>
+      <Comments></Comments>
+    </Teacher>
+    <Teacher>
+      <Name>Mr B</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Target_Number_of_Hours>0</Target_Number_of_Hours>
+      <Qualified_Subjects>
+        <Qualified_Subject>Y9MAT</Qualified_Subject>
+      </Qualified_Subjects>
+      <Comments></Comments>
+    </Teacher>
+    <Teacher>
+      <Name>Ms A</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Target_Number_of_Hours>0</Target_Number_of_Hours>
+      <Qualified_Subjects>
+        <Qualified_Subject>Y10ENG</Qualified_Subject>
+      </Qualified_Subjects>
+      <Comments></Comments>
+    </Teacher>
+    <Teacher>
+      <Name>Ms B</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Target_Number_of_Hours>0</Target_Number_of_Hours>
+      <Qualified_Subjects>
+        <Qualified_Subject>Y10MAT</Qualified_Subject>
+      </Qualified_Subjects>
+      <Comments></Comments>
+    </Teacher>
+  </Teachers_List>
+  <Students_List>
+    <Year>
+      <Name>Year 9</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Number_of_Students>60</Number_of_Students>
+      <Comments></Comments>
+      <!-- The information regarding categories, divisions of each category, and separator is only used in the divide year automatically by categories dialog. -->
+      <Number_of_Categories>1</Number_of_Categories>
+      <Category>
+        <Number_of_Divisions>2</Number_of_Divisions>
+        <Division>Class A</Division>
+        <Division>Class B</Division>
+      </Category>
+      <First_Category_Is_Permanent>false</First_Category_Is_Permanent>
+      <Separator> </Separator>
+      <Group>
+        <Name>Year 9 Class A</Name>
+        <Long_Name></Long_Name>
+        <Code></Code>
+        <Number_of_Students>0</Number_of_Students>
+        <Comments></Comments>
+      </Group>
+      <Group>
+        <Name>Year 9 Class B</Name>
+        <Long_Name></Long_Name>
+        <Code></Code>
+        <Number_of_Students>0</Number_of_Students>
+        <Comments></Comments>
+      </Group>
+    </Year>
+    <Year>
+      <Name>Year 10</Name>
+      <Long_Name></Long_Name>
+      <Code></Code>
+      <Number_of_Students>60</Number_of_Students>
+      <Comments></Comments>
+      <!-- The information regarding categories, divisions of each category, and separator is only used in the divide year automatically by categories dialog. -->
+      <Number_of_Categories>1</Number_of_Categories>
+      <Category>
+        <Number_of_Divisions>2</Number_of_Divisions>
+        <Division>Class A</Division>
+        <Division>Class B</Division>
+      </Category>
+      <First_Category_Is_Permanent>false</First_Category_Is_Permanent>
+      <Separator> </Separator>
+      <Group>
+        <Name>Year 10 Class A</Name>
+        <Long_Name></Long_Name>
+        <Code></Code>
+        <Number_of_Students>0</Number_of_Students>
+        <Comments></Comments>
+      </Group>
+      <Group>
+        <Name>Year 10 Class B</Name>
+        <Long_Name></Long_Name>
+        <Code></Code>
+        <Number_of_Students>0</Number_of_Students>
+        <Comments></Comments>
+      </Group>
+    </Year>
+  </Students_List>
+  <Activities_List>
+    <Activity>
+      <Teacher>Mr A</Teacher>
+      <Subject>Y9ENG</Subject>
+      <Students>Year 9 Class A</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>1</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Mr A</Teacher>
+      <Subject>Y9ENG</Subject>
+      <Students>Year 9 Class B</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>2</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Mr B</Teacher>
+      <Subject>Y9MAT</Subject>
+      <Students>Year 9 Class A</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>3</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Mr B</Teacher>
+      <Subject>Y9MAT</Subject>
+      <Students>Year 9 Class B</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>4</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Ms A</Teacher>
+      <Subject>Y10ENG</Subject>
+      <Students>Year 10 Class A</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>5</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Ms A</Teacher>
+      <Subject>Y10ENG</Subject>
+      <Students>Year 10 Class B</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>6</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Ms B</Teacher>
+      <Subject>Y10MAT</Subject>
+      <Students>Year 10 Class A</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>7</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+    <Activity>
+      <Teacher>Ms B</Teacher>
+      <Subject>Y10MAT</Subject>
+      <Students>Year 10 Class B</Students>
+      <Duration>1</Duration>
+      <Total_Duration>1</Total_Duration>
+      <Id>8</Id>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments></Comments>
+    </Activity>
+  </Activities_List>
+  <Buildings_List>
+    <Building>
+      <Name>BuilA</Name>
+      <Long_Name>Building A</Long_Name>
+      <Code>BB</Code>
+      <Comments></Comments>
+    </Building>
+    <Building>
+      <Name>BuilB</Name>
+      <Long_Name>Building B</Long_Name>
+      <Code>BB</Code>
+      <Comments></Comments>
+    </Building>
+  </Buildings_List>
+  <Rooms_List>
+    <Room>
+      <Name>AR1</Name>
+      <Long_Name>Building A Room 1</Long_Name>
+      <Code>roomCode</Code>
+      <Building>BuilA</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+      <Comments></Comments>
+    </Room>
+    <Room>
+      <Name>AR2</Name>
+      <Long_Name>Building A Room 2</Long_Name>
+      <Code></Code>
+      <Building>BuilA</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+      <Comments></Comments>
+    </Room>
+    <Room>
+      <Name>BR1</Name>
+      <Long_Name>Building B Room 1</Long_Name>
+      <Code></Code>
+      <Building>BuilB</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+      <Comments></Comments>
+    </Room>
+    <Room>
+      <Name>BR2</Name>
+      <Long_Name>Building B Room 2</Long_Name>
+      <Code></Code>
+      <Building>BuilB</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+      <Comments></Comments>
+    </Room>
+  </Rooms_List>
+  <Time_Constraints_List>
+    <ConstraintBasicCompulsoryTime>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Active>true</Active>
+      <Comments></Comments>
+    </ConstraintBasicCompulsoryTime>
+  </Time_Constraints_List>
+  <Space_Constraints_List>
+    <ConstraintBasicCompulsorySpace>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Active>true</Active>
+      <Comments></Comments>
+    </ConstraintBasicCompulsorySpace>
+  </Space_Constraints_List>
+  <Timetable_Generation_Options_List>
+  </Timetable_Generation_Options_List>
+</fet>

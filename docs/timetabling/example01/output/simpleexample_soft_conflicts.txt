@@ -1,0 +1,10 @@
+﻿Soft conflicts of simpleexample.fet
+Generated with FET 7.3.0 on 7/16/25 3:49 PM
+
+Number of broken soft constraints: 0
+Total soft conflicts: 0
+
+Soft conflicts list (in decreasing order):
+
+
+End of file.
