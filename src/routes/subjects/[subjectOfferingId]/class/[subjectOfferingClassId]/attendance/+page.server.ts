@@ -1,11 +1,15 @@
 import {
 	getSubjectClassAllocationAndStudentAttendancesByClassIdForToday,
-	upsertSubjectClassAllocationAttendance
+	upsertSubjectClassAllocationAttendance,
+	getSubjectOfferingClassByAllocationId,
+	getGuardiansForStudent
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { attendanceSchema } from './schema.js';
+import { sendAbsenceEmail } from '$lib/server/email.js';
+import { convertToFullName } from '$lib/utils.js';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
 	security.isAuthenticated();
@@ -29,7 +33,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 
 export const actions = {
 	updateAttendance: async ({ request, locals: { security } }) => {
-		security.isAuthenticated();
+		const user = security.isAuthenticated().getUser();
 
 		const formData = await request.formData();
 		const form = await superValidate(formData, zod(attendanceSchema));
@@ -45,6 +49,23 @@ export const actions = {
 				form.data.didAttend,
 				form.data.note
 			);
+
+			if (!form.data.didAttend) {
+				const classDetails = await getSubjectOfferingClassByAllocationId(
+					form.data.subjectClassAllocationId
+				);
+				const guardians = await getGuardiansForStudent(form.data.userId);
+
+				if (classDetails && guardians.length > 0) {
+					const studentName = convertToFullName(user.firstName, user.middleName, user.lastName);
+					const className = `${classDetails.subject.name} - ${classDetails.subjectOfferingClass.name}`;
+					const today = new Date();
+
+					for (const guardianData of guardians) {
+						await sendAbsenceEmail(guardianData.guardian.email, studentName, className, today);
+					}
+				}
+			}
 
 			return { form, success: true };
 		} catch (err) {

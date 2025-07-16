@@ -279,3 +279,26 @@ export async function getGuardiansChildrensScheduleWithAttendanceByUserId(userId
 
 	return scheduleWithAttendance;
 }
+
+export async function getSubjectOfferingClassByAllocationId(allocationId: number) {
+	const result = await db
+		.select({
+			subjectOfferingClass: table.subjectOfferingClass,
+			subjectOffering: table.subjectOffering,
+			subject: table.subject
+		})
+		.from(table.subjectClassAllocation)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.subjectClassAllocation.id, allocationId))
+		.limit(1);
+
+	return result?.length ? result[0] : null;
+}

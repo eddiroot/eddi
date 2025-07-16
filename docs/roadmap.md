@@ -19,6 +19,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Move home above discussion in sidebar if only 1 class (13/07)
 - [x] Roll call / attendance (20/07)
 - [x] Sick/not coming to school/absence (27/07)
+- [x] Absence notifications (27/07)
 
 ## Doing
 
@@ -28,7 +29,6 @@ All
 
 Lachie
 
-- [ ] Late to school notifications (27/07)
 - [ ] Behavioural reporting (07/08)
 - [ ] Parents can see some/all of the above (15/08)
 - [ ] Teachers can see past attendance (20/08)
@@ -92,6 +92,7 @@ Max
 
 ## Future
 
+- [ ] Queue for email sending so it doesn't block requests
 - [ ] Subtype for Assessments (SAC?)
 - [ ] Export all data for a given school
 - [ ] Premade math symbols to insert in rich text editor

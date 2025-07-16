@@ -90,3 +90,27 @@ export async function createUser({
 
 	return user;
 }
+
+export async function getGuardiansForStudent(studentUserId: string) {
+	const guardians = await db
+		.select({
+			guardian: {
+				id: table.user.id,
+				email: table.user.email,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName
+			},
+			relationshipType: table.userRelationship.relationshipType
+		})
+		.from(table.userRelationship)
+		.innerJoin(table.user, eq(table.user.id, table.userRelationship.relatedUserId))
+		.where(
+			and(
+				eq(table.userRelationship.userId, studentUserId),
+				eq(table.user.type, table.userTypeEnum.guardian)
+			)
+		);
+
+	return guardians;
+}

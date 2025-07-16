@@ -122,7 +122,7 @@ export async function sendEmailVerification(to: string): Promise<string> {
 	return code;
 }
 
-export async function sendLateNotificationEmail(
+export async function sendAbsenceEmail(
 	to: string,
 	studentName: string,
 	className: string,
@@ -136,13 +136,13 @@ export async function sendLateNotificationEmail(
 
 	await sendEmail({
 		to,
-		subject: `Late Notification for ${studentName}`,
-		text: `Dear Guardian,\n\nThis is to inform you that your child, ${studentName}, was late to class ${className} on ${formattedDate}.\n\nBest regards,\nThe eddi Team`,
+		subject: `Absence Notification for ${studentName}`,
+		text: `Dear Guardian,\n\nThis is to inform you that your child, ${studentName}, was absent from class ${className} on ${formattedDate}.\n\nBest regards,\nThe eddi Team`,
 		html: `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Late Notification</title>
+    <title>Absence Notification</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -175,10 +175,10 @@ export async function sendLateNotificationEmail(
   </head>
   <body>
     <div class="container">
-      <div class="header">Late Notification for ${studentName}</div>
+      <div class="header">Absence Notification for ${studentName}</div>
       <div class="content">
         <p>Dear Guardian,</p>
-        <p>This is to inform you that your child, <strong>${studentName}</strong>, was late to class <strong>${className}</strong> on <strong>${formattedDate}</strong>.</p>
+        <p>This is to inform you that your child, <strong>${studentName}</strong>, was absent from class <strong>${className}</strong> on <strong>${formattedDate}</strong>.</p>
         <p>Best regards,<br>The eddi Team</p>
       </div>
       <div class="footer">
