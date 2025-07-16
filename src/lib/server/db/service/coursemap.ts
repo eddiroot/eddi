@@ -303,9 +303,10 @@ export async function getCoursemapItemLessonPlan(courseMapItemLessonPlanId: numb
 	return lessonPlan?.length ? lessonPlan[0].lessonPlan : null;
 }
 
-export async function upsertCoursemapItemLessonPlan(
+export async function createCourseMapItemLessonPlan(
 	courseMapItemId: number,
 	name: string,
+	scope?: string[] | null,
 	description?: string | null
 ) {
 	const [lessonPlan] = await db
@@ -313,18 +314,114 @@ export async function upsertCoursemapItemLessonPlan(
 		.values({
 			courseMapItemId,
 			name,
+			scope,
 			description
-		})
-		.onConflictDoUpdate({
-			target: table.courseMapItemLessonPlan.courseMapItemId,
-			set: {
-				name,
-				description
-			}
 		})
 		.returning();
 
 	return lessonPlan;
+}
+
+export async function updateCourseMapItemLessonPlan(
+	lessonPlanId: number,
+	name?: string,
+	scope?: string[] | null,
+	description?: string | null
+) {
+	const [lessonPlan] = await db
+		.update(table.courseMapItemLessonPlan)
+		.set({
+			name,
+			scope,
+			description
+		})
+		.where(eq(table.courseMapItemLessonPlan.id, lessonPlanId))
+		.returning();
+
+	return lessonPlan;
+}
+
+export interface PlanContext {
+	description: string | null;
+	standards:{
+		learningAreaStandard: table.LearningAreaStandard;
+		standardElaborations: table.StandardElaboration[];
+		}[]
+}
+
+export async function getCourseMapItemPlanContexts(
+  courseMapItemId: number
+): Promise<PlanContext[]> {
+  const rows = await db
+    .select({
+      description: table.courseMapItem.description,
+      learningAreaStandard: table.learningAreaStandard,
+      standardElaboration: table.standardElaboration
+    })
+    .from(table.courseMapItem)
+    .leftJoin(
+      table.courseMapItemLearningArea,
+      eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
+    )
+    .leftJoin(
+      table.learningAreaStandard,
+      eq(
+        table.learningAreaStandard.learningAreaId,
+        table.courseMapItemLearningArea.learningAreaId
+      )
+    )
+    .leftJoin(
+      table.standardElaboration,
+      eq(
+        table.standardElaboration.learningAreaStandardId,
+        table.learningAreaStandard.id
+      )
+    )
+    .where(eq(table.courseMapItem.id, courseMapItemId));
+
+  if (rows.length === 0) return [];
+
+  const description = rows[0].description;
+
+  // Use the actual row types here
+  const standardsMap = new Map<
+    number,
+    { learningAreaStandard: table.LearningAreaStandard; standardElaborations: table.StandardElaboration[] }
+  >();
+
+  for (const { learningAreaStandard, standardElaboration } of rows) {
+    if (!learningAreaStandard) continue; 
+    const id = learningAreaStandard.id;
+
+    if (!standardsMap.has(id)) {
+      standardsMap.set(id, {
+        learningAreaStandard,
+        standardElaborations: []
+      });
+    }
+    if (standardElaboration) {
+      standardsMap.get(id)!.standardElaborations.push(standardElaboration);
+    }
+  }
+
+  return [
+    {
+      description,
+      standards: Array.from(standardsMap.values())
+    }
+  ];
+}
+
+export async function createLessonPlanStandard(lessonPlanId: number, standardId: number) {
+	const [standard] = await db
+		.insert(table.lessonPlanLearningAreaStandard)
+		.values({
+			courseMapItemLessonPlanId: lessonPlanId,
+			learningAreaStandardId: standardId
+		})
+		.returning();
+
+	return standard;
 }
 
 export async function deleteCoursemapItemLessonPlan(lessonPlanId: number) {
@@ -471,3 +568,5 @@ export async function createCourseMapItem(
 
 	return courseMapItem;
 }
+
+

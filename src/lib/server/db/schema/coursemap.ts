@@ -68,7 +68,7 @@ export const courseMapItemAssessmentPlan = pgTable(
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
-		learningProfficencies: text('learning_proficiencies').array(),
+		scope: text('scope').array(),
 		description: text('description'),
 		rubricId: integer('rubric_id')
 			.references(() => rubric.id, { onDelete: 'set null' }),
@@ -109,8 +109,7 @@ export const courseMapItemLessonPlan = pgTable(
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
-		scope: text('scope'),
-		learningProfficencies: text('learning_proficiencies').array(),
+		scope: text('scope').array(),
 		description: text('description'),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
