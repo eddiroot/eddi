@@ -10,7 +10,7 @@ import { superValidate, fail, setError } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
 import { formSchema } from './schema';
-import { sendEmailVerification, generateVerificationCode } from '$lib/server/db/service/email';
+import { sendEmailVerification } from '$lib/server/email';
 
 export const load = async () => {
 	return {
@@ -60,14 +60,7 @@ export const actions = {
 			middleName: form.data.middleName
 		});
 
-		const code = generateVerificationCode();
-
-		await sendEmailVerification({
-			to: user.email,
-			subject: 'Your verification code',
-			text: `Your code is: ${code}`,
-			code: code
-		  });
+		const code = await sendEmailVerification(user.email);
 
 		// Set a short-lived session cookie for email verification
 		cookies.set('verify_user_id', user.id, {

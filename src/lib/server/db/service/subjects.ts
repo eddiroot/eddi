@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, inArray, asc } from 'drizzle-orm';
+import { desc, eq, and, gte, lt, inArray, asc } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -576,4 +576,58 @@ export async function getSubjectYearLevelBySubjectOfferingId(subjectOfferingId: 
 		.limit(1);
 
 	return subject[0]?.yearLevel.toString() || null;
+}
+
+export async function getSubjectClassAllocationsByUserIdForDate(userId: string, date: Date) {
+	const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+	const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
+	const classAllocations = await db
+		.select({
+			classAllocation: table.subjectClassAllocation,
+			schoolLocation: table.schoolLocation,
+			subjectOffering: {
+				id: table.subjectOffering.id
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			},
+			userSubjectOffering: table.userSubjectOffering
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectClassAllocation,
+			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.schoolLocation,
+			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.userSubjectOffering,
+			and(
+				eq(table.userSubjectOffering.subOfferingId, table.subjectOffering.id),
+				eq(table.userSubjectOffering.userId, userId)
+			)
+		)
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.userId, userId),
+				gte(table.subjectClassAllocation.startTimestamp, startOfDay),
+				lt(table.subjectClassAllocation.startTimestamp, endOfDay)
+			)
+		)
+		.orderBy(table.subjectClassAllocation.startTimestamp);
+
+	return classAllocations;
 }

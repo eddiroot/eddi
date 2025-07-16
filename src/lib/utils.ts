@@ -108,6 +108,14 @@ export function formatTimestamp(timestamp: Date): string {
 		.replace(/\s(?=am|pm)/g, '');
 }
 
+export function formatTimestampAsDate(timestamp: Date): string {
+	return timestamp.toLocaleDateString('en-AU', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	});
+}
+
 export function formatTimestampAsTime(timestamp: Date): string {
 	return timestamp
 		.toLocaleTimeString('en-AU', {
