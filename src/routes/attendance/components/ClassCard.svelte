@@ -13,7 +13,7 @@
 </script>
 
 <Card.Root
-	class="relative flex min-h-[80px] p-0 {hasAttendance
+	class="relative flex p-0 {hasAttendance
 		? isPresent
 			? 'bg-success/10 border-success/20'
 			: 'bg-destructive/10 border-destructive/20'
@@ -62,12 +62,5 @@
 				- {formatTimestampAsTime(record.subjectClassAllocation.startTimestamp)}
 			</div>
 		</div>
-
-		<!-- Note (if present) -->
-		{#if record.attendance?.note}
-			<div class="text-muted-foreground mt-2 border-t pt-2 text-xs">
-				{record.attendance.note}
-			</div>
-		{/if}
 	</Card.Content>
 </Card.Root>

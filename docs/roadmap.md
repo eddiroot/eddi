@@ -113,6 +113,7 @@ Max
 - [ ] Interactive map of locations in the school with directions
 - [ ] Keyboard shortcuts
 - [ ] Parent forum / teacher forum
+- [ ] Mark absence for select periods of the day rather than whole day
 
 # UI Feedback
 
