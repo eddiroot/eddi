@@ -83,7 +83,7 @@ export const load = async ({ locals: { security } }) => {
 };
 
 export const actions = {
-	markAttendance: async ({ request, locals: { security } }) => {
+	markAbsence: async ({ request, locals: { security } }) => {
 		security.isAuthenticated().isGuardian();
 
 		const form = await superValidate(request, zod(markAbsentSchema));

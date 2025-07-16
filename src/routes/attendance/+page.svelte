@@ -9,6 +9,10 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { markAbsentSchema } from './schema.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import * as Form from '$lib/components/ui/form/index.js';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { formatTimestampAsDate } from '$lib/utils';
 	import {
 		getRecordsForDate,
 		hasClassesOnDate,
@@ -19,13 +23,12 @@
 		isDateToday
 	} from './utils.js';
 	import ClassCard from './components/ClassCard.svelte';
-	import AbsenceDialog from './components/AbsenceDialog.svelte';
 
 	let { data } = $props();
 	let selectedDate = $state<DateValue>(today(getLocalTimeZone()));
 	let showAbsenceDialog = $state(false);
 
-	const { form, enhance, message, errors } = superForm(data.form, {
+	const form = superForm(data.form, {
 		validators: zodClient(markAbsentSchema),
 		onResult: ({ result }) => {
 			if (result.type === 'success') {
@@ -33,6 +36,8 @@
 			}
 		}
 	});
+
+	const { form: formData, enhance } = form;
 
 	function getStudentName(records: ScheduleWithAttendanceRecord[]): string {
 		const student = records[0]?.user;
@@ -42,9 +47,9 @@
 	}
 
 	function openAbsenceDialog(studentId: string): void {
-		$form.studentId = studentId;
-		$form.date = selectedDate.toDate(getLocalTimeZone());
-		$form.note = '';
+		$formData.studentId = studentId;
+		$formData.date = selectedDate.toDate(getLocalTimeZone());
+		$formData.note = '';
 		showAbsenceDialog = true;
 	}
 
@@ -160,11 +165,39 @@
 	{/each}
 </div>
 
-<AbsenceDialog
-	bind:open={showAbsenceDialog}
-	{selectedDate}
-	{form}
-	{enhance}
-	{errors}
-	onMarkAbsent={openAbsenceDialog}
-/>
+<Dialog.Root open={showAbsenceDialog} onOpenChange={(open) => (showAbsenceDialog = open)}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Mark Student Absent</Dialog.Title>
+			<Dialog.Description>
+				Are you sure you want to mark this student as absent for {formatTimestampAsDate(
+					selectedDate.toDate(getLocalTimeZone())
+				)}?
+			</Dialog.Description>
+		</Dialog.Header>
+		<form method="POST" action="?/markAbsence" use:enhance class="space-y-4">
+			<input type="hidden" name="studentId" bind:value={$formData.studentId} />
+			<input type="hidden" name="date" bind:value={$formData.date} />
+			<Form.Field {form} name="note">
+				<Form.Control>
+					{#snippet children({ props })}
+						<Form.Label>Note</Form.Label>
+						<Textarea
+							{...props}
+							placeholder="Reason for absence..."
+							class="min-h-[80px]"
+							bind:value={$formData.note}
+						/>
+					{/snippet}
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (showAbsenceDialog = false)}
+					>Cancel</Button
+				>
+				<Button type="submit" variant="destructive">Mark Absent</Button>
+			</Dialog.Footer>
+		</form>
+	</Dialog.Content>
+</Dialog.Root>

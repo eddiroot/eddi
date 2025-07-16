@@ -10,6 +10,7 @@
 
 	let hasAttendance = $derived(record.attendance !== null);
 	let isPresent = $derived(record.attendance?.didAttend ?? false);
+	let hasNote = $derived(record.attendance?.note && record.attendance.note.trim() !== '');
 </script>
 
 <Card.Root
@@ -54,11 +55,17 @@
 			<div
 				class="text-xs {hasAttendance
 					? isPresent
-						? 'text-success/70'
-						: 'text-destructive/70'
-					: 'text-muted-foreground'}"
+						? 'text-success-foreground/70'
+						: 'text-destructive-foreground/70'
+					: 'text-muted-foreground/70'}"
 			>
-				{hasAttendance ? (isPresent ? 'Present' : 'Absent') : 'Scheduled'}
+				{hasAttendance
+					? isPresent
+						? 'Present'
+						: hasNote
+							? 'Explained Absence'
+							: 'Unexplained Absence'
+					: 'Scheduled'}
 				- {formatTimestampAsTime(record.subjectClassAllocation.startTimestamp)}
 			</div>
 		</div>
