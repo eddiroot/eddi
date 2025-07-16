@@ -413,15 +413,36 @@ export async function getCourseMapItemPlanContexts(
 }
 
 export async function createLessonPlanStandard(lessonPlanId: number, standardId: number) {
-	const [standard] = await db
-		.insert(table.lessonPlanLearningAreaStandard)
-		.values({
-			courseMapItemLessonPlanId: lessonPlanId,
-			learningAreaStandardId: standardId
-		})
-		.returning();
+        const [standard] = await db
+                .insert(table.lessonPlanLearningAreaStandard)
+                .values({
+                        courseMapItemLessonPlanId: lessonPlanId,
+                        learningAreaStandardId: standardId
+                })
+                .returning();
 
-	return standard;
+        return standard;
+}
+
+export async function getLessonPlanLearningAreaStandards(lessonPlanId: number) {
+        const standards = await db
+                .select({ learningAreaStandard: table.learningAreaStandard })
+                .from(table.lessonPlanLearningAreaStandard)
+                .innerJoin(
+                        table.learningAreaStandard,
+                        eq(
+                                table.learningAreaStandard.id,
+                                table.lessonPlanLearningAreaStandard.learningAreaStandardId
+                        )
+                )
+                .where(
+                        eq(
+                                table.lessonPlanLearningAreaStandard.courseMapItemLessonPlanId,
+                                lessonPlanId
+                        )
+                );
+
+        return standards.map((row) => row.learningAreaStandard);
 }
 
 export async function deleteCoursemapItemLessonPlan(lessonPlanId: number) {
