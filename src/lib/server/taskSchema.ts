@@ -60,280 +60,245 @@ Analyse the attached documents/images and create an assessment that evaluates st
 Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`
 };
 
-const headerComponent = {
-	criteria: { type: 'NULL' },
-	answer: { type: 'NULL' },
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['h2', 'h3', 'h4', 'h5', 'h6'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					text: { type: 'STRING' }
-				},
-				required: ['text']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const paragraphComponent = {
-	criteria: { type: 'NULL' },
-	answer: { type: 'NULL' },
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['paragraph'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					markdown: { type: 'STRING' }
-				},
-				required: ['markdown']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const mathInputComponent = {
-	criteria: {
-		oneOf: [
-			{
-				type: 'ARRAY',
-				items: {
-					type: 'STRING'
+export const headerComponent = {
+	type: 'object',
+	properties: {
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['h2', 'h3', 'h4', 'h5', 'h6'] },
+				content: {
+					type: 'object',
+					properties: {
+						text: { type: 'string' }
+					},
+					required: ['text']
 				}
 			},
-			{
-				type: 'NULL'
-			}
-		]
-	},
-	answer: {
-		type: 'STRING'
-	},
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['math_input'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					question: { type: 'STRING' }
-				},
-				required: ['question', 'answer_latex']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const multipleChoiceComponent = {
-	criteria: { type: 'NULL' },
-	answer: {
-		type: 'ARRAY',
-		items: { type: 'STRING' },
-		description:
-			'Array of strings that must be a subset of the options array. For single answer questions, array should contain one item. For multiple answer questions, array can contain multiple items.',
-		minItems: 1
-	},
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['multiple_choice'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					question: { type: 'STRING' },
-					options: {
-						type: 'ARRAY',
-						items: { type: 'STRING' }
-					},
-					multiple: { type: 'BOOLEAN' }
-				},
-				required: ['question', 'options', 'answer', 'multiple']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const videoComponent = {
-	criteria: { type: 'NULL' },
-	answer: { type: 'NULL' },
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['video'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					url: { type: 'STRING' },
-					caption: { type: 'STRING' }
-				},
-				required: ['url', 'caption']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const imageComponent = {
-	criteria: { type: 'NULL' },
-	answer: { type: 'NULL' },
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['image'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					url: { type: 'STRING' },
-					caption: { type: 'STRING' }
-				},
-				required: ['url', 'caption']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const fillInBlankComponent = {
-	criteria: {
-		type: 'NULL'
-	},
-	answer: {
-		type: 'ARRAY',
-		items: { type: 'STRING' },
-		minItems: 1
-	},
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['fill_in_blank'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					sentence: { type: 'STRING' }
-				},
-				required: ['sentence']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-const matchingComponent = {
-	criteria: {
-		type: 'NULL'
-	},
-	answer: {
-		type: 'ARRAY',
-		items: {
-			type: 'OBJECT',
-			properties: {
-				left: { type: 'STRING' },
-				right: { type: 'STRING' }
-			},
-			required: ['left', 'right']
-		},
-		description: 'Array of correct pairs for the matching exercise'
-	},
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['matching'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					instructions: { type: 'STRING' },
-					pairs: {
-						type: 'ARRAY',
-						items: {
-							type: 'OBJECT',
-							properties: {
-								left: { type: 'STRING' },
-								right: { type: 'STRING' }
-							},
-							required: ['left', 'right']
-						}
-					}
-				},
-				required: ['instructions', 'pairs']
-			}
-		},
-		required: ['type', 'content']
-	}
-};
-
-// const dragAndDropComponent = {
-// 	criteria: {
-// 		type: 'NULL'
-// 	},
-// 	answer: {
-// 		type: 'NULL'
-// 	},
-// 	content: {
-// 		type: 'OBJECT',
-// 		properties: {
-// 			type: { type: 'STRING', enum: ['drag_and_drop'] },
-// 			content: {
-// 				type: 'OBJECT',
-// 				properties: {
-// 					instructions: { type: 'STRING' },
-// 					categories: {
-// 						type: 'ARRAY',
-// 						items: {
-// 							type: 'OBJECT',
-// 							properties: {
-// 								name: { type: 'STRING' },
-// 								items: {
-// 									type: 'ARRAY',
-// 									items: { type: 'STRING' }
-// 								}
-// 							},
-// 							required: ['name', 'items']
-// 						}
-// 					},
-// 					options: {
-// 						type: 'ARRAY',
-// 						items: { type: 'STRING' }
-// 					}
-// 				},
-// 				required: ['instructions', 'categories', 'options']
-// 			}
-// 		},
-// 		required: ['type', 'content']
-// 	}
-// };
-
-const shortAnswerComponent = {
-	criteria: {
-		type: 'ARRAY',
-		items: {
-			type: 'STRING'
+			required: ['type', 'content']
 		}
 	},
-	answer: {
-		type: 'NULL'
+	required: ['content']
+};
+
+export const paragraphComponent = {
+	type: 'object',
+	properties: {
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['paragraph'] },
+				content: {
+					type: 'object',
+					properties: {
+						markdown: { type: 'string' }
+					},
+					required: ['markdown']
+				}
+			},
+			required: ['type', 'content']
+		}
 	},
-	content: {
-		type: 'OBJECT',
-		properties: {
-			type: { type: 'STRING', enum: ['short_answer'] },
-			content: {
-				type: 'OBJECT',
-				properties: {
-					question: { type: 'STRING' }
-				},
-				required: ['question']
-			}
+	required: ['content']
+};
+
+export const mathInputComponent = {
+	type: 'object',
+	properties: {
+		criteria: {
+			oneOf: [{ type: 'array', items: { type: 'string' } }, { type: 'null' }]
 		},
-		required: ['type', 'content']
-	}
+		answer: { type: 'string' },
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['math_input'] },
+				content: {
+					type: 'object',
+					properties: {
+						question: { type: 'string' },
+						answer_latex: { type: 'string' }
+					},
+					required: ['question', 'answer_latex']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['criteria', 'answer', 'content']
+};
+
+export const multipleChoiceComponent = {
+	type: 'object',
+	properties: {
+		answer: {
+			type: 'array',
+			items: { type: 'string' },
+			description:
+				'Array of strings that must be a subset of the options array. For single answer questions, array should contain one item. For multiple answer questions, array can contain multiple items.',
+			minItems: 1
+		},
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['multiple_choice'] },
+				content: {
+					type: 'object',
+					properties: {
+						question: { type: 'string' },
+						options: {
+							type: 'array',
+							items: { type: 'string' }
+						},
+						multiple: { type: 'boolean' }
+					},
+					required: ['question', 'options', 'multiple']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['answer', 'content']
+};
+
+export const videoComponent = {
+	type: 'object',
+	properties: {
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['video'] },
+				content: {
+					type: 'object',
+					properties: {
+						url: { type: 'string' },
+						caption: { type: 'string' }
+					},
+					required: ['url', 'caption']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['content']
+};
+
+export const imageComponent = {
+	type: 'object',
+	properties: {
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['image'] },
+				content: {
+					type: 'object',
+					properties: {
+						url: { type: 'string' },
+						caption: { type: 'string' }
+					},
+					required: ['url', 'caption']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['content']
+};
+
+export const fillInBlankComponent = {
+	type: 'object',
+	properties: {
+		answer: {
+			type: 'array',
+			items: { type: 'string' },
+			minItems: 1
+		},
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['fill_in_blank'] },
+				content: {
+					type: 'object',
+					properties: {
+						sentence: { type: 'string' }
+					},
+					required: ['sentence']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['answer', 'content']
+};
+
+export const matchingComponent = {
+	type: 'object',
+	properties: {
+		answer: {
+			type: 'array',
+			items: {
+				type: 'object',
+				properties: {
+					left: { type: 'string' },
+					right: { type: 'string' }
+				},
+				required: ['left', 'right']
+			},
+			description: 'Array of correct pairs for the matching exercise'
+		},
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['matching'] },
+				content: {
+					type: 'object',
+					properties: {
+						instructions: { type: 'string' },
+						pairs: {
+							type: 'array',
+							items: {
+								type: 'object',
+								properties: {
+									left: { type: 'string' },
+									right: { type: 'string' }
+								},
+								required: ['left', 'right']
+							}
+						}
+					},
+					required: ['instructions', 'pairs']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['answer', 'content']
+};
+
+export const shortAnswerComponent = {
+	type: 'object',
+	properties: {
+		criteria: {
+			type: 'array',
+			items: { type: 'string' }
+		},
+		answer: { type: 'string' },
+		content: {
+			type: 'object',
+			properties: {
+				type: { type: 'string', enum: ['short_answer'] },
+				content: {
+					type: 'object',
+					properties: {
+						question: { type: 'string' }
+					},
+					required: ['question']
+				}
+			},
+			required: ['type', 'content']
+		}
+	},
+	required: ['criteria', 'content']
 };
 
 export const taskComponentItems = [
@@ -350,20 +315,20 @@ export const taskComponentItems = [
 
 export const taskLayoutItems = [
 	{
-		type: 'OBJECT',
+		type: 'object',
 		properties: {
-			type: { type: 'STRING', enum: ['two_column_layout'] },
+			type: { type: 'string', enum: ['two_column_layout'] },
 			content: {
-				type: 'OBJECT',
+				type: 'object',
 				properties: {
 					leftColumn: {
-						type: 'ARRAY',
+						type: 'array',
 						items: {
 							anyOf: taskComponentItems
 						}
 					},
 					rightColumn: {
-						type: 'ARRAY',
+						type: 'array',
 						items: {
 							anyOf: taskComponentItems
 						}
@@ -380,10 +345,10 @@ export const taskLayoutItems = [
 export const allTaskItems = [...taskComponentItems, ...taskLayoutItems];
 
 export const taskComponentSchema = {
-	type: 'OBJECT',
+	type: 'object',
 	properties: {
 		task: {
-			type: 'ARRAY',
+			type: 'array',
 			items: {
 				anyOf: allTaskItems
 			}
