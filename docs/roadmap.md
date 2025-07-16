@@ -29,8 +29,7 @@ All
 
 Lachie
 
-- [ ] Behavioural reporting (07/08)
-- [ ] Parents can see some/all of the above (15/08)
+- [ ] Behavioural reporting (visible to teachers and parents) (07/08)
 - [ ] Teachers can see past attendance (20/08)
 - [ ] Admin dashboard allocations page (28/08)
 - [ ] Home page (Late October)
