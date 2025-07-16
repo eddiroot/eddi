@@ -106,6 +106,8 @@
 		"mode-watcher": "^1.0.7",
 		"nodemailer": "^7.0.5",
 		"postgres": "^3.4.5",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
 		"svelte-tiptap": "^2.1.0",
 		"tippy.js": "^6.3.7",
 		"tiptap-extension-auto-joiner": "^0.1.3",
