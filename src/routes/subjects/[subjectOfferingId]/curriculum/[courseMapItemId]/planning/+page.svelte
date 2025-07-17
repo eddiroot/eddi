@@ -17,6 +17,9 @@
 	import { invalidateAll, goto } from '$app/navigation';
 	import LessonPlanCard from './components/LessonPlanCard.svelte';
 	import VcaaLearningAreaCard from '$lib/components/CurriculumLearningAreaCard.svelte';
+	import Edit from '@lucide/svelte/icons/edit';
+	import Check from '@lucide/svelte/icons/check';
+	import X from '@lucide/svelte/icons/x';
 	
 	let { data, form } = $props();
 	let lessonPlanDescription = $state('');
@@ -29,6 +32,21 @@
 	let lessonPlanDrawerOpen = $state(false);
 	let isCreatingLessonPlan = $state(false);
 	let currentInstruction = $state('');
+	
+	// Edit mode state
+	let editMode = $state(false);
+	let editedTopic = $state(data.courseMapItem.topic);
+	let editedDescription = $state(data.courseMapItem.description || '');
+	let editedStartWeek = $state(data.courseMapItem.startWeek);
+	let editedDuration = $state(data.courseMapItem.duration);
+
+	// Update edited values when data changes
+	$effect(() => {
+		editedTopic = data.courseMapItem.topic;
+		editedDescription = data.courseMapItem.description || '';
+		editedStartWeek = data.courseMapItem.startWeek;
+		editedDuration = data.courseMapItem.duration;
+	});
 
 	// Handle form response
 	$effect(() => {
@@ -69,15 +87,41 @@
 	
 	<!-- Course Map Item Details Overlay (centered) -->
 	<div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-6">
-		<h1 class="text-4xl font-bold mb-2">{data.courseMapItem.topic}</h1>
+		{#if editMode}
+			<Input 
+				bind:value={editedTopic} 
+				class="text-4xl font-bold mb-2 bg-white/10 border-white/20 text-white text-center placeholder:text-white/70"
+				placeholder="Course topic"
+			/>
+		{:else}
+			<h1 class="text-4xl font-bold mb-2">{data.courseMapItem.topic}</h1>
+		{/if}
 		<div class="flex flex-wrap items-center justify-center gap-6 text-sm">
 			<div class="flex items-center gap-1">
 				<Calendar class="w-4 h-4" />
-				Week {data.courseMapItem.startWeek}
+				{#if editMode}
+					<span>Week</span>
+					<Input 
+						bind:value={editedStartWeek} 
+						type="number"
+						class="w-16 h-6 text-xs bg-white/10 border-white/20 text-white text-center"
+					/>
+				{:else}
+					Week {data.courseMapItem.startWeek}
+				{/if}
 			</div>
 			<div class="flex items-center gap-1">
 				<Clock class="w-4 h-4" />
-				{data.courseMapItem.duration} weeks
+				{#if editMode}
+					<Input 
+						bind:value={editedDuration} 
+						type="number"
+						class="w-16 h-6 text-xs bg-white/10 border-white/20 text-white text-center"
+					/>
+					<span>weeks</span>
+				{:else}
+					{data.courseMapItem.duration} weeks
+				{/if}
 			</div>
 			<div class="flex items-center gap-1">
 				<BookTest class="w-4 h-4" />
@@ -89,14 +133,66 @@
 			</div>
 		</div>
 	</div>
+	
+	<!-- Edit Button -->
+	<div class="absolute top-4 right-4">
+		{#if editMode}
+			<div class="flex gap-2">
+				<Button 
+					size="sm" 
+					variant="secondary"
+					onclick={() => {
+						// Save changes logic will go here
+						editMode = false;
+					}}
+					class="bg-green-600 hover:bg-green-700 text-white font-medium px-4"
+				>
+					Save & View Mode
+				</Button>
+				<Button 
+					size="sm" 
+					variant="secondary"
+					onclick={() => {
+						// Reset changes
+						editedTopic = data.courseMapItem.topic;
+						editedDescription = data.courseMapItem.description || '';
+						editedStartWeek = data.courseMapItem.startWeek;
+						editedDuration = data.courseMapItem.duration;
+						editMode = false;
+					}}
+					class="bg-red-600 hover:bg-red-700 text-white font-medium px-4"
+				>
+					Cancel & View Mode
+				</Button>
+			</div>
+		{:else}
+			<Button 
+				size="default" 
+				variant="secondary"
+				onclick={() => editMode = true}
+				class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 shadow-lg"
+			>
+				<Edit class="w-4 h-4 mr-2" />
+				Edit Mode
+			</Button>
+		{/if}
+	</div>
 </div>
 
 <div class="max-w-6xl mx-auto px-6 space-y-12">
 	<!-- Description Section -->
-	{#if data.courseMapItem.description}
+	{#if data.courseMapItem.description || editMode}
 		<div class="space-y-4">
 			<h2 class="text-2xl font-semibold">Description</h2>
-			<p class="text-muted-foreground leading-relaxed">{data.courseMapItem.description}</p>
+			{#if editMode}
+				<Textarea 
+					bind:value={editedDescription}
+					placeholder="Enter course description..."
+					class="min-h-[100px] resize-y"
+				/>
+			{:else}
+				<p class="text-muted-foreground leading-relaxed">{data.courseMapItem.description}</p>
+			{/if}
 		</div>
 	{/if}
 
@@ -156,7 +252,14 @@
 			{#if data.learningAreas.length > 0}
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 					{#each data.learningAreas as la}
-						<VcaaLearningAreaCard learningAreaName={la.name} />
+						<VcaaLearningAreaCard 
+							learningAreaName={la.name} 
+							editMode={editMode}
+							onRemove={editMode ? () => {
+								// Remove learning area logic will go here
+								console.log('Remove learning area:', la.id);
+							} : undefined}
+						/>
 					{/each}
 				</div>
 			{:else}
