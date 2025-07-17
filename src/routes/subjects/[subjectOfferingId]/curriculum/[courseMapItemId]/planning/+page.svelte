@@ -26,7 +26,7 @@
 
        <div class="flex justify-between items-center">
                <h3 class="text-2xl font-semibold">Lesson Plans</h3>
-               <DialogTrigger asChild>
+               <DialogTrigger>
                        <Button>New Plan</Button>
                </DialogTrigger>
        </div>

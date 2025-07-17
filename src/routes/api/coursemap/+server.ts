@@ -5,7 +5,7 @@ import {
 	getCoursemapItemAssessmentPlans,
 	getCoursemapItemLessonPlans,
 	getTasksByCourseMapItemId,
-	getLearningAreaContentByLearningAreaId
+	getLearningAreaStandardByLearningAreaId
 } from '$lib/server/db/service/coursemap';
 import { yearLevelEnum } from '$lib/server/db/schema';
 
@@ -105,11 +105,11 @@ export const GET: RequestHandler = async ({ url }) => {
 			}
 
 			try {
-				const contentResult = await getLearningAreaContentByLearningAreaId(
+				const contentResult = await getLearningAreaStandardByLearningAreaId(
 					learningAreaId,
 					yearLevelEnum[yearLevel]
 				);
-				const content = contentResult.map((item) => item.learningAreaContent);
+				const content = contentResult.map((item) => item.learningAreaStandard);
 				return json(content);
 			} catch (error) {
 				console.error('Error fetching learning area content:', error);

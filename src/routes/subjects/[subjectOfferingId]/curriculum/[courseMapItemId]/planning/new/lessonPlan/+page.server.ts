@@ -22,8 +22,9 @@ export const actions = {
 
                 const contexts = await getCourseMapItemPlanContexts(courseMapItemId);
                 const prompt = buildLessonPlanPrompt(JSON.stringify(contexts), instruction);
+                console.log('Generated Prompt:', prompt);
                 const aiResponse = await geminiCompletion(prompt, undefined, planSchema);
-
+                console.log('AI Response:', aiResponse);
                 let plan;
                 try {
                         plan = JSON.parse(aiResponse);

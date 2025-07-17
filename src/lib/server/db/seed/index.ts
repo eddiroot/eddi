@@ -273,7 +273,7 @@ async function seed() {
 		}
 
 		// Create learning area content for each scraped item
-		const learningAreaContentMap = new Map<string, number>();
+		const learningAreaStandardMap = new Map<string, number>();
 
 		for (const item of contentItems) {
 			const learningAreaId = learningAreaMap.get(item.learningArea);
@@ -282,8 +282,8 @@ async function seed() {
 			// Check if this content already exists to avoid duplicates
 			const existingContent = await db
 				.select()
-				.from(schema.learningAreaContent)
-				.where(eq(schema.learningAreaContent.name, item.vcaaCode))
+				.from(schema.learningAreaStandard)
+				.where(eq(schema.learningAreaStandard.name, item.vcaaCode))
 				.limit(1);
 
 			if (existingContent.length === 0) {
@@ -320,8 +320,8 @@ async function seed() {
 					yearLevelValue = yearLevelEnum.foundation; // Default fallback
 				}
 
-				const [learningAreaContent] = await db
-					.insert(schema.learningAreaContent)
+				const [learningAreaStandard] = await db
+					.insert(schema.learningAreaStandard)
 					.values({
 						learningAreaId: learningAreaId,
 						name: item.vcaaCode,
@@ -330,20 +330,20 @@ async function seed() {
 					})
 					.returning();
 
-				learningAreaContentMap.set(item.vcaaCode, learningAreaContent.id);
+				learningAreaStandardMap.set(item.vcaaCode, learningAreaStandard.id);
 
 				// Create elaborations for this content item
 				for (const elaboration of item.elaborations) {
-					await db.insert(schema.contentElaboration).values({
-						learningAreaContentId: learningAreaContent.id,
+					await db.insert(schema.standardElaboration).values({
+						learningAreaStandardId: learningAreaStandard.id,
 						name: `Elaboration for ${item.vcaaCode}`,
-						contentElaboration: elaboration
+						standardElaboration: elaboration
 					});
 				}
 			}
 		}
 
-		console.log(`📝 Created ${learningAreaContentMap.size} learning area content items`);
+		console.log(`📝 Created ${learningAreaStandardMap.size} learning area content items`);
 
 		// Create 36-week coursemap items for each subject offering (18 weeks per semester)
 		const courseMapItems = [];
