@@ -96,3 +96,25 @@ Here is your input data:
 Respond now with just the JSON object.
   `.trim();
 }
+
+
+export interface LessonPlan {
+  summary: string;
+  name: string;
+  description: string;
+  scopes: { title: string; details: string }[];
+}
+
+/**
+ * Turn a lesson plan into a rich text prompt for Gemini's image model.
+ */
+export function buildLessonPlanImagePrompt(plan: LessonPlan): string {
+  let prompt = `Illustration for lesson "${plan.name}". Summary: ${plan.summary}\n\n`;
+  prompt += `Overview: ${plan.description}\n\n`;
+  prompt += `Sections:\n`;
+  plan.scopes.forEach((scope, i) => {
+    prompt += `${i + 1}. ${scope.title} — ${scope.details}\n`;
+  });
+  prompt += `\nCreate an engaging, colorful illustration that captures the essence of this plan. Do not generate text in the image, just visuals.`;
+  return prompt.trim();
+}

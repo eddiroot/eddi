@@ -3,13 +3,13 @@
 	import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Button } from '$lib/components/ui/button';
-        import Calendar from '@lucide/svelte/icons/calendar';
-        import Clock from '@lucide/svelte/icons/clock';
-        import BookTest from '@lucide/svelte/icons/book';
-        import Archive from '@lucide/svelte/icons/archive';
-        import Plus from '@lucide/svelte/icons/plus';
-        import Sparkles from '@lucide/svelte/icons/sparkles';
-        import RefreshCw from '@lucide/svelte/icons/refresh-cw';
+		import Calendar from '@lucide/svelte/icons/calendar';
+		import Clock from '@lucide/svelte/icons/clock';
+		import BookTest from '@lucide/svelte/icons/book';
+		import Archive from '@lucide/svelte/icons/archive';
+		import Plus from '@lucide/svelte/icons/plus';
+		import Sparkles from '@lucide/svelte/icons/sparkles';
+		import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { page } from '$app/state';
@@ -27,14 +27,20 @@
 	let generatedLessonPlan = $state<any>(null);
 	let generatedAssessmentPlan = $state<string | null>(null);
 	let lessonPlanDrawerOpen = $state(false);
-	
+	let isCreatingLessonPlan = $state(false);
+	let currentInstruction = $state('');
+
 	// Handle form response
 	$effect(() => {
 		if (form?.success && form?.lessonPlan) {
 			lessonPlanDrawerOpen = false;
 			lessonPlanDescription = '';
 			generatedLessonPlan = null;
+			currentInstruction = '';
 			invalidateAll();
+		} else if (form?.success && form?.planData) {
+			generatedLessonPlan = form.planData;
+			currentInstruction = (form.instruction as string) || lessonPlanDescription;
 		}
 	});
 	
@@ -117,8 +123,8 @@
 						Lesson Plan
 					</Button>
 				</SheetTrigger>
-				<SheetContent class="w-[600px] max-w-[90vw]">
-					<SheetHeader class="space-y-3">
+				<SheetContent class="w-[600px] max-w-[90vw] p-6 space-y-4">
+					<SheetHeader class="space-y-2">
 						<div class="flex items-center gap-2">
 							<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
 								<Sparkles class="w-4 h-4 text-primary" />
@@ -129,89 +135,166 @@
 							Describe what you want this lesson plan to cover and AI will generate a structured plan for you.
 						</p>
 					</SheetHeader>
+
+					{#if generatedLessonPlan}
+						<div class="space-y-3 p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+							<div class="flex items-center gap-2 mb-2">
+								<div class="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
+									<Sparkles class="w-3 h-3 text-primary" />
+								</div>
+								<h4 class="font-semibold text-sm">Generated Lesson Plan Summary</h4>
+							</div>
+							
+							<div class="space-y-3">
+								<div class="p-3 bg-white/50 rounded-lg border">
+									<h5 class="font-medium text-sm mb-2">{generatedLessonPlan.name}</h5>
+									<p class="text-sm text-muted-foreground">{generatedLessonPlan.summary}</p>
+								</div>
+								
+								<div class="text-xs text-muted-foreground">
+									This is a preview of your lesson plan. If you like it, click "Create Lesson Plan" to see the complete details and create it.
+								</div>
+								
+								<div class="flex gap-2 w-full">
+									<Button 
+										type="button" 
+										size="sm" 
+										class="flex-1"
+										disabled={isCreatingLessonPlan}
+										onclick={() => {
+											// Generate full lesson plan
+											const createForm = new FormData();
+											createForm.set('planData', JSON.stringify(generatedLessonPlan));
+											if (form?.imageBase64) {
+												createForm.set('imageBase64', form.imageBase64);
+											}
+											
+											isCreatingLessonPlan = true;
+											fetch('?/createLessonPlan', {
+												method: 'POST',
+												body: createForm
+											}).then(async (response) => {
+												const result = await response.json();
+												if (result.type === 'success') {
+													lessonPlanDrawerOpen = false;
+													lessonPlanDescription = '';
+													generatedLessonPlan = null;
+													currentInstruction = '';
+													invalidateAll();
+												}
+												isCreatingLessonPlan = false;
+											}).catch(() => {
+												isCreatingLessonPlan = false;
+											});
+										}}
+									>
+										{#if isCreatingLessonPlan}
+											<RefreshCw class="w-3 h-3 mr-1 animate-spin" />
+											Creating...
+										{:else}
+											Create Lesson Plan
+										{/if}
+									</Button>
+									<Button 
+										type="button" 
+										size="sm" 
+										variant="outline"
+										disabled={isGeneratingLesson}
+										onclick={() => {
+											// Regenerate with the same instruction
+											isGeneratingLesson = true;
+											const formData = new FormData();
+											formData.set('instruction', currentInstruction);
+											
+											fetch('?/generateLessonPlanResponse', {
+												method: 'POST',
+												body: formData
+											}).then(async (response) => {
+												const result = await response.json();
+												if (result.type === 'success' && result.data) {
+													generatedLessonPlan = result.data.planData;
+												}
+												isGeneratingLesson = false;
+											}).catch(() => {
+												isGeneratingLesson = false;
+											});
+										}}
+									>
+										{#if isGeneratingLesson}
+											<RefreshCw class="w-3 h-3 mr-1 animate-spin" />
+											Regenerating...
+										{:else}
+											Regenerate
+										{/if}
+									</Button>
+								</div>
+							</div>
+						</div>
+					{/if}
 					
-					<form method="POST" action="?/createLessonPlan" use:enhance={() => {
+					<form method="POST" action="?/generateLessonPlanResponse" use:enhance={() => {
 						isGeneratingLesson = true;
 						return async ({ result, update }) => {
 							isGeneratingLesson = false;
-							if (result.type === 'success') {
-								generatedLessonPlan = result.data?.lessonPlan;
+							if (result.type === 'success' && result.data) {
+								generatedLessonPlan = result.data.planData;
+								currentInstruction = (result.data.instruction as string) || lessonPlanDescription;
 							}
 							await update();
 						};
-					}} class="space-y-6 mt-6">
-						
-						<div class="space-y-4">
+					}} class="space-y-3">
+					
+						<div class="space-y-2">
 							<div class="space-y-2">
-								<Label for="lesson-description" class="text-sm font-medium">What should this lesson plan cover?</Label>
+								<Label for="lesson-description" class="text-sm font-medium">
+									{#if generatedLessonPlan}
+										Describe a different lesson idea:
+									{:else}
+										What should this lesson plan cover?
+									{/if}
+								</Label>
 								<Textarea 
 									id="lesson-description" 
 									name="instruction"
 									bind:value={lessonPlanDescription} 
-									placeholder="E.g., 'Introduction to photosynthesis with hands-on plant experiments for year 7 students' or 'Creative writing workshop focusing on character development using short story techniques'"
-									class="min-h-[120px] resize-none" 
+									placeholder={generatedLessonPlan 
+										? "Describe a different lesson plan..." 
+										: "E.g., 'Introduction to photosynthesis with hands-on plant experiments for year 7 students' or 'Creative writing workshop focusing on character development using short story techniques'"
+									}
+									class={generatedLessonPlan ? "min-h-[40px] resize-y" : "min-h-[120px] resize-none"}
 									required
 								/>
-								<p class="text-xs text-muted-foreground">
-									Be specific about the topic, activities, and any particular learning objectives you want to include.
-								</p>
+								{#if !generatedLessonPlan}
+									<p class="text-xs text-muted-foreground">
+										Be specific about the topic, activities, and any particular learning objectives you want to include.
+									</p>
+								{/if}
 							</div>
 						</div>
 						
-						{#if generatedLessonPlan}
-							<div class="space-y-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
-								<div class="flex items-center gap-2 mb-3">
-									<div class="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-										<Sparkles class="w-3 h-3 text-primary" />
-									</div>
-									<h4 class="font-semibold text-sm">Generated Lesson Plan</h4>
-								</div>
-								
-								<div class="space-y-3">
-									<div>
-										<h5 class="font-medium text-sm mb-1">{generatedLessonPlan.name}</h5>
-										<p class="text-sm text-muted-foreground">{generatedLessonPlan.description}</p>
-									</div>
-									
-									{#if generatedLessonPlan.scopes && generatedLessonPlan.scopes.length > 0}
-										<div class="space-y-2">
-											<h6 class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Lesson Structure</h6>
-											<div class="space-y-1">
-												{#each generatedLessonPlan.scopes as scope, i}
-													<div class="flex gap-2 text-sm">
-														<span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium">
-															{i + 1}
-														</span>
-														<div>
-															<span class="font-medium">{scope.title}:</span>
-															<span class="text-muted-foreground ml-1">{scope.details}</span>
-														</div>
-													</div>
-												{/each}
-											</div>
-										</div>
+						<div class="flex gap-3">
+							{#if generatedLessonPlan}
+								<Button 
+									type="submit"
+									disabled={isGeneratingLesson || !lessonPlanDescription.trim()}
+									class="flex-1 gap-2"
+									onclick={() => {
+										// Clear current plan to regenerate with new description
+										generatedLessonPlan = null;
+									}}
+								>
+									{#if isGeneratingLesson}
+										<RefreshCw class="w-4 h-4 animate-spin" />
+										Generating New Plan...
+									{:else}
+										<Sparkles class="w-4 h-4" />
+										Generate Different Plan
 									{/if}
-								</div>
-								
-								<div class="flex gap-2 pt-3 border-t border-primary/20">
-									<Button type="submit" size="sm" class="flex-1">
-										Create Lesson Plan
-									</Button>
-									<Button 
-										type="submit" 
-										size="sm" 
-										variant="outline"
-										onclick={() => {
-											generatedLessonPlan = null;
-										}}
-									>
-										<RefreshCw class="w-3 h-3 mr-1" />
-										Regenerate
-									</Button>
-								</div>
-							</div>
-						{:else}
-							<div class="flex gap-3">
+								</Button>
+								<Button type="button" variant="outline" onclick={() => console.log('Create manually')}>
+									Manual
+								</Button>
+							{:else}
 								<Button 
 									type="submit"
 									disabled={isGeneratingLesson || !lessonPlanDescription.trim()}
@@ -219,17 +302,17 @@
 								>
 									{#if isGeneratingLesson}
 										<RefreshCw class="w-4 h-4 animate-spin" />
-										Generating...
+										Generating Summary...
 									{:else}
 										<Sparkles class="w-4 h-4" />
-										Generate with AI
+										Generate Summary with AI
 									{/if}
 								</Button>
 								<Button type="button" variant="outline" onclick={() => console.log('Create manually')}>
 									Manual
 								</Button>
-							</div>
-						{/if}
+							{/if}
+						</div>
 						
 						{#if form?.message}
 							<div class="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -242,7 +325,7 @@
 		</div>
 		
 		{#if data.lessonPlans.length > 0}
-			<div class="grid md:grid-cols-2 gap-6">
+			<div class="flex flex-wrap gap-4 justify-start">
 				{#each data.lessonPlans as plan}
 					<LessonPlanCard 
 						lessonPlan={plan} 
@@ -271,11 +354,11 @@
 						Assessment Plan 
 					</Button>
 				</SheetTrigger>
-				<SheetContent class="w-96">
+		   <SheetContent class="w-[600px] max-w-[90vw] p-6 space-y-6">
 					<SheetHeader>
 						<SheetTitle>Create New Assessment Plan</SheetTitle>
 					</SheetHeader>
-					<div class="space-y-6 mt-6">
+					<div class="space-y-6">
 						<div class="space-y-2">
 							<Label for="assessment-title">Title</Label>
 							<Input id="assessment-title" bind:value={assessmentPlanTitle} placeholder="Enter assessment plan title" />
@@ -291,8 +374,13 @@
 						</div>
 						
 						{#if generatedAssessmentPlan}
-							<div class="space-y-4 p-4 bg-muted rounded-lg">
-								<h4 class="font-medium">Generated Assessment Plan Preview:</h4>
+							<div class="space-y-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
+										<Sparkles class="w-3 h-3 text-primary" />
+									</div>
+									<h4 class="font-semibold text-sm">Generated Assessment Plan</h4>
+								</div>
 								<p class="text-sm text-muted-foreground">{generatedAssessmentPlan}</p>
 								<div class="flex gap-2">
 									<Button size="sm" onclick={() => console.log('Create assessment plan')}>Create</Button>

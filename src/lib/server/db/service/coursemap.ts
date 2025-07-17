@@ -307,7 +307,8 @@ export async function createCourseMapItemLessonPlan(
 	courseMapItemId: number,
 	name: string,
 	scope?: string[] | null,
-	description?: string | null
+	description?: string | null,
+	imageBase64?: string | null
 ) {
 	const [lessonPlan] = await db
 		.insert(table.courseMapItemLessonPlan)
@@ -315,7 +316,8 @@ export async function createCourseMapItemLessonPlan(
 			courseMapItemId,
 			name,
 			scope,
-			description
+			description,
+			imageBase64
 		})
 		.returning();
 
@@ -345,6 +347,7 @@ export async function updateCourseMapItemLessonPlan(
 
 export interface PlanContext {
 	description: string | null;
+	yearLevel: string;
 	standards:{
 		learningAreaStandard: table.LearningAreaStandard;
 		standardElaborations: table.StandardElaboration[];
@@ -357,10 +360,19 @@ export async function getCourseMapItemPlanContexts(
   const rows = await db
     .select({
       description: table.courseMapItem.description,
+	  yearLevel: table.subject.yearLevel,
       learningAreaStandard: table.learningAreaStandard,
       standardElaboration: table.standardElaboration
     })
     .from(table.courseMapItem)
+	.innerJoin(
+	  table.subjectOffering,
+	  eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
+	)
+	.innerJoin(
+	  table.subject,
+	  eq(table.subjectOffering.subjectId, table.subject.id)
+	)
     .leftJoin(
       table.courseMapItemLearningArea,
       eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
@@ -384,7 +396,7 @@ export async function getCourseMapItemPlanContexts(
   if (rows.length === 0) return [];
 
   const description = rows[0].description;
-
+  const yearLevel = rows[0].yearLevel;
   // Use the actual row types here
   const standardsMap = new Map<
     number,
@@ -409,6 +421,7 @@ export async function getCourseMapItemPlanContexts(
   return [
     {
       description,
+	  yearLevel,
       standards: Array.from(standardsMap.values())
     }
   ];

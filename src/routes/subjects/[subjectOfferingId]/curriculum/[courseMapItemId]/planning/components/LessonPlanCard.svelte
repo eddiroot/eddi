@@ -11,66 +11,51 @@
 </script>
 
 {#if href}
-	<a {href} class="block transition-transform hover:scale-105">
-		<Card.Root class="relative overflow-hidden h-32 hover:shadow-md transition-shadow">
-			<div class="flex h-full">
-				<!-- Left side - Text content -->
-				<div class="flex-1 p-4 flex flex-col justify-center">
-					<h3 class="text-lg font-semibold mb-1">{lessonPlan.name}</h3>
+	<a {href} class="block">
+		<Card.Root class="overflow-hidden w-72 h-32 hover:bg-black/10 dark:hover:bg-white/10 transition-colors group p-0">
+			<div class="flex h-full items-stretch">
+				<!-- Text content on left -->
+				<div class="flex-1 p-4 flex flex-col justify-center min-w-0">
+					<h3 class="text-base font-bold leading-tight text-left">{lessonPlan.name}</h3>
 				</div>
 				
-				<!-- Right side - Image from the last third -->
-				<div class="w-1/2 relative">
+				<!-- Image container taking up the right third of the card -->
+				<div class="w-32 h-32 relative flex-shrink-0">
 					{#if lessonPlan.imageBase64}
 						<img 
 							src={`data:image/png;base64,${lessonPlan.imageBase64}`}
 							alt="Lesson plan preview"
-							class="absolute inset-0 w-full h-full object-cover rounded-r-lg"
+							class="absolute top-0 left-0 w-full h-32 object-cover group-hover:brightness-90 transition-all"
 						/>
-						{:else}
-						<!-- Placeholder when no image -->
-						<div class="absolute inset-0 bg-gray-100 rounded-r-lg flex items-center justify-center">
-							<div class="text-gray-400 text-center">
-								<svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-								</svg>
-							</div>
-						</div>
+					{:else}
+						<!-- Gradient background when no image -->
+						<div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/20 to-primary/10 group-hover:brightness-90 transition-all"></div>
 					{/if}
 				</div>
 			</div>
 		</Card.Root>
 	</a>
 {:else}
-	<Card.Root class="relative overflow-hidden h-32 cursor-pointer hover:shadow-md transition-shadow">
-		<div class="flex h-full">
-			<!-- Left side - Text content -->
-			<div class="flex-1 p-4 flex flex-col justify-center">
-				<h3 class="text-lg font-semibold not-visited:mb-1">{lessonPlan.name}</h3>
+	<Card.Root class="overflow-hidden w-72 h-32 cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors group p-0">
+		<div class="flex h-full items-stretch">
+			<!-- Text content on left -->
+			<div class="flex-1 p-4 flex flex-col justify-center min-w-0">
+				<h3 class="text-base font-bold leading-tight text-left">{lessonPlan.name}</h3>
 			</div>
 			
-			<!-- Right side - Image from the last third -->
-			<div class="w-1/2 relative">
+			<!-- Image container taking up the right third of the card -->
+			<div class="w-32 h-32 relative flex-shrink-0">
 				{#if lessonPlan.imageBase64}
 					<img 
 						src={`data:image/png;base64,${lessonPlan.imageBase64}`}
 						alt="Lesson plan preview"
-						class="absolute inset-0 w-full h-full object-cover rounded-r-lg"
+						class="absolute top-0 left-0 w-full h-32 object-cover group-hover:brightness-90 transition-all"
 					/>
-					<!-- Gradient overlay for better text readability if needed -->
-					<div class="absolute inset-0 bg-gradient-to-r  to-transparent rounded-r-lg"></div>
 				{:else}
-					<!-- Placeholder when no image -->
-					<div class="absolute inset-0  rounded-r-lg flex items-center justify-center">
-						<div class="text-center">
-							<svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-							</svg>
-						</div>
-					</div>
+					<!-- Gradient background when no image -->
+					<div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/20 to-primary/10 group-hover:brightness-90 transition-all"></div>
 				{/if}
 			</div>
 		</div>
 	</Card.Root>
 {/if}
-
