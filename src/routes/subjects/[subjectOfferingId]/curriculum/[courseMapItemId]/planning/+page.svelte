@@ -170,7 +170,7 @@
 				size="default" 
 				variant="secondary"
 				onclick={() => editMode = true}
-				class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 shadow-lg"
+				class="font-medium px-6 py-2 shadow-lg"
 			>
 				<Edit class="w-4 h-4 mr-2" />
 				Edit Mode
