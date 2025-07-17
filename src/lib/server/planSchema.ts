@@ -1,13 +1,17 @@
 export const planSchema = {
   type: 'object',
   properties: {
+    summary: {
+      type: 'string',
+      description: 'A brief summary (max 60 words) of the lesson plan to preview'
+    },
     name: {
       type: 'string',
       description: 'Title of the generated lesson plan'
     },
     description: {
       type: 'string',
-      description: 'A narrative overview of what the lesson will cover'
+      description: 'A narrative overview of what the lesson will cover (30-60 words)'
     },
     scopes: {
       type: 'array',
@@ -35,19 +39,12 @@ export const planSchema = {
         type: 'object',
         properties: {
           id: { type: 'integer' },
-          name: { type: 'string' },
-          description: { type: 'string' },
-          elaborations: {
-            type: 'array',
-            description: 'Which elaborations of the standard are addressed',
-            items: { type: 'string' }
-          }
         },
-        required: ['id', 'name', 'elaborations']
+        required: ['id']
       }
     }
   },
-  required: ['name', 'description', 'scopes', 'usedStandards']
+  required: ['summary','name','description','scopes','usedStandards']
 
 }
 
@@ -55,6 +52,7 @@ export const planSchema = {
  * Build a prompt for Gemini to generate a lesson plan conforming to planSchema.
  *
  * @param contextsJson - JSON-stringified array of PlanContext objects.
+ * @param yearLevel - The target year level for this lesson plan.
  * @param userInstruction - Optional guidance or preferences for the lesson plan.
  * @returns A prompt string ready to send to Gemini.
  */
@@ -65,18 +63,9 @@ export function buildLessonPlanPrompt(
   return `
 You are given:
 
-1) A CourseMapItem description (string).
-2) A list of candidate LearningAreaStandard objects:
-   • id
-   • name
-   • description
-3) A list of StandardElaboration objects:
-   • id
-   • learningAreaStandardId
-   • name
-   • standardElaboration
-
-${userInstruction ? `User Request: ${userInstruction}\n\n` : ''}
+1) A PlanContext array (JSON), representing curriculum context: description, standards, and elaborations and a year level.
+2) A target year level (string).
+${userInstruction ? `3) User Request: ${userInstruction}\n\n` : ''}
 These contexts are the curriculum framework—use them as guidance to craft a creative, engaging lesson plan.
 
 Structure your output according to the following JSON-Schema as a blueprint (do not add extra properties):
@@ -89,7 +78,7 @@ Requirements:
 - Treat the provided data as curriculum guidance, not rigid content; you may be creative.
 - Pick at most **2** standards from the provided list.
 - For each chosen standard, include its elaborations (the \`standardElaboration\` text).
-- Produce an ordered array of \`scopes\` (2-6 items), each with:
+- Produce an ordered array of \`scopes\` (2-4 items), each with:
     - \`title\`: section heading
     - \`details\`: section activities/content
 - Provide a high-level \`description\` of the lesson.
@@ -97,9 +86,11 @@ Requirements:
 - **Do not** exceed the schema's properties or introduce any additional keys.
 - **Only** return the JSON object—no explanatory text.
 
-Here is your input data (PlanContext array):
+Here is your input data:
 \`\`\`json
-${contextsJson}
+{
+  "contexts": ${contextsJson}
+}
 \`\`\`
 
 Respond now with just the JSON object.

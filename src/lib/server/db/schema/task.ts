@@ -17,6 +17,7 @@ import { courseMapItem } from './coursemap';
 import { doublePrecision } from 'drizzle-orm/pg-core';
 import { learningAreaStandard } from './curriculum';
 
+
 export enum taskTypeEnum {
 	lesson = 'lesson',
 	assessment = 'assessment',

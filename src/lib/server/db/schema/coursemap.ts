@@ -17,6 +17,7 @@ export const courseMapItem = pgTable(
 		duration: integer('duration'),
 		semester: integer('semester'),
 		color: text('color').default('#3B82F6'),
+		imageBase64: text('image_base64'),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
@@ -72,6 +73,7 @@ export const courseMapItemAssessmentPlan = pgTable(
 		description: text('description'),
 		rubricId: integer('rubric_id')
 			.references(() => rubric.id, { onDelete: 'set null' }),
+		imageBase64: text('image_base64'),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
@@ -111,6 +113,7 @@ export const courseMapItemLessonPlan = pgTable(
 		name: text('name').notNull(),
 		scope: text('scope').array(),
 		description: text('description'),
+		imageBase64: text('image_base64'),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),

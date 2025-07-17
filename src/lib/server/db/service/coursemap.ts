@@ -326,14 +326,16 @@ export async function updateCourseMapItemLessonPlan(
 	lessonPlanId: number,
 	name?: string,
 	scope?: string[] | null,
-	description?: string | null
+	description?: string | null,
+	imageBase64?: string | null
 ) {
 	const [lessonPlan] = await db
 		.update(table.courseMapItemLessonPlan)
 		.set({
 			name,
 			scope,
-			description
+			description,
+			imageBase64
 		})
 		.where(eq(table.courseMapItemLessonPlan.id, lessonPlanId))
 		.returning();
@@ -574,7 +576,8 @@ export async function createCourseMapItem(
 	topic: string,
 	semester?: number,
 	startWeek?: number,
-	description?: string | null
+	description?: string | null,
+	imageBase64?: string | null
 ) {
 	const [courseMapItem] = await db
 		.insert(table.courseMapItem)
@@ -583,7 +586,8 @@ export async function createCourseMapItem(
 			topic,
 			semester,
 			startWeek,
-			description
+			description,
+			imageBase64
 		})
 		.returning();
 

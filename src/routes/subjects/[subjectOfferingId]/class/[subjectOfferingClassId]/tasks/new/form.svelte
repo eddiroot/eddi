@@ -16,7 +16,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 
-	import type  { curriculumLearningAreaContent } from '$lib/server/db/service/task.js';
+	import type  { curriculumLearningAreaStandard } from '$lib/server/db/service/task.js';
 
 	let creationMethod = $state<'manual' | 'ai'>('ai');
 	let aiFiles: FileList | null = $state(null);
@@ -34,7 +34,7 @@
 		data: {
 			form: SuperValidated<Infer<FormSchema>>;
 			taskTopics: Array<{ id: number; name: string }>;
-			learningAreaWithContents: curriculumLearningAreaContent[] | null;
+			learningAreaWithContents: curriculumLearningAreaStandard[] | null;
 		};
 	} = $props();
 
@@ -77,7 +77,7 @@
 	let isCreatingNewTopic = $state(false);
 
 // Learning area content state
-	let learningAreaContents = $state<curriculumLearningAreaContent[]>([]);
+	let learningAreaContents = $state<curriculumLearningAreaStandard[]>([]);
 	let selectedLearningAreaContentIds = $state<string[]>([]);
 	let isLoadingLearningContent = $state(false);
 

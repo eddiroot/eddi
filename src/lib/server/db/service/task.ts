@@ -183,7 +183,7 @@ export async function createSubjectOfferingClassTask(
 	authorId: string,
 	courseMapItemId: number | null = null,
 	week: number | null = null,
-	dueDate?: Date | null
+	dueDate: Date | null = null
 ) {
 	const maxIndexResult = await db
 		.select({ maxIndex: table.subjectOfferingClassTask.index })
