@@ -1,31 +1,36 @@
 <script lang="ts">
 	import type { CourseMapItem } from '$lib/server/db/schema';
+	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	let {
 		item,
 		isStart = true,
 		weekLength = 1,
-		onCourseMapItemClick
+		onCourseMapItemClick,
+		onCourseMapItemEdit
 	}: {
 		item: CourseMapItem;
 		isStart?: boolean;
 		weekLength?: number;
 		onCourseMapItemClick: (item: CourseMapItem) => void;
+		onCourseMapItemEdit: (item: CourseMapItem) => void;
 	} = $props();
 
 	// Use Svelte 5 $derived for reactive computations
 	let itemColor = $derived(item.color || '#3B82F6');
 	let itemKey = $derived(`${item.id}-${item.color}-${item.topic}`);
 
-	let showDeleteDialog = $state(false);
-	let isDeleting = $state(false);
-
-	function handleItemClick() {
+	function handleItemClick(e: Event) {
+		// Prevent event bubbling to avoid triggering click when three-dot is clicked
+		if ((e.target as HTMLElement)?.closest('.edit-button')) {
+			return;
+		}
 		onCourseMapItemClick(item);
 	}
 
-	function handleEdit() {
-		onCourseMapItemClick(item);
+	function handleEditClick(e: Event) {
+		e.stopPropagation();
+		onCourseMapItemEdit(item);
 	}
 </script>
 
@@ -38,7 +43,7 @@
 		onclick={handleItemClick}
 		role="button"
 		tabindex="0"
-		onkeydown={(e) => e.key === 'Enter' && handleItemClick()}
+		onkeydown={(e) => e.key === 'Enter' && handleItemClick(e)}
 	>
 		<div class="relative flex h-full min-h-0 flex-col items-center justify-center p-2 text-center">
 			<!-- Title - centered and larger -->
@@ -47,6 +52,15 @@
 					{item.topic}
 				</h4>
 			</div>
+
+			<!-- Three-dot edit button - top right -->
+			<button
+				class="edit-button absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/20"
+				onclick={handleEditClick}
+				aria-label="Edit {item.topic}"
+			>
+				<MoreHorizontal class="w-3 h-3" />
+			</button>
 
 			<!-- Week range indicator - bottom right -->
 			<div class="absolute right-1 bottom-1 text-xs font-medium opacity-70">

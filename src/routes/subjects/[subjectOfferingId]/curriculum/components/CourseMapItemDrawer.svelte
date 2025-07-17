@@ -209,7 +209,8 @@
 					isArchived: false,
 					createdAt: new Date(),
 					updatedAt: new Date(),
-					originalId: null
+					originalId: null,
+					imageBase64: null
 				};
 
 				onItemCreated(tempItem);
@@ -313,7 +314,7 @@
 
 <Tooltip.Provider>
 	<Drawer bind:open onClose={handleClose} direction="right">
-		<DrawerContent class="max-h-[100vh] !max-w-[1600px] rounded-l-lg overflow-hidden flex flex-col">
+		<DrawerContent class="max-h-[100vh] !max-w-[600px] rounded-l-lg overflow-hidden flex flex-col">
 			<!-- Header -->
 			<div class="flex items-center justify-between p-6 pb-2">
 				<h2 class="text-3xl font-bold">
@@ -504,70 +505,34 @@
 									</Select.Content>
 								</Select.Root>
 							{:else}
-								<!-- View Mode: Two column layout -->
+								<!-- View Mode: Vertical list layout -->
 								{#if courseMapItemLearningAreas.length > 0}
-									<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+									<div class="space-y-4">
 										{#each courseMapItemLearningAreas as learningArea}
 											{@const contents = learningAreaContent[learningArea.id] || []}
-											{@const contentCount = contents.length}
-											{@const isMultiRow = contentCount > 3}
 											
-											<div class="p-2 border rounded-lg {isMultiRow ? 'min-h-[5.5rem]' : 'min-h-[3.5rem]'} flex">
-												<div class="flex items-center gap-2 w-full">
-													<!-- Learning Area name with colon on the left -->
-													<div class="flex items-center gap-1 min-w-0 flex-shrink-0">
-														<span class="text-sm font-semibold">{learningArea.name}</span>
-														<span class="text-sm font-semibold">:</span>
-													</div>
-													
-													<!-- Content items bundled on the right -->
-													<div class="flex-1 min-w-0 {contentCount === 1 ? 'flex items-center' : 'flex items-center justify-center'}">
-														{#if contents.length > 0}
-															{#if contentCount <= 3}
-																<!-- Single row layout for 1-3 items -->
-																<div class="grid {contentCount === 1 ? 'grid-cols-1' : contentCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 w-full">
-																	{#each contents as content}
-																		<Tooltip.Root>
-																			<Tooltip.Trigger>
-																				<div class="p-1.5 border rounded  transition-colors cursor-pointer shadow-sm">
-																					<div class="text-xs font-medium text-center leading-tight">{content.name}</div>
-																				</div>
-																			</Tooltip.Trigger>
-																			<Tooltip.Content class="max-w-xs p-3 rounded-lg shadow-lg border z-50 text-sm leading-relaxed" side="top">
-																				<div>{content.description}</div>
-																			</Tooltip.Content>
-																		</Tooltip.Root>
-																	{/each}
+											<div>
+												<!-- Learning Area name as header -->
+												<h4 class="text-lg font-semibold mb-2">{learningArea.name}</h4>
+												
+												<!-- Standards as dot points -->
+												{#if contents.length > 0}
+													<ul class="space-y-1 ml-4">
+														{#each contents as content}
+															<li class="text-sm flex items-start">
+																<span class="mr-2 mt-1">•</span>
+																<div>
+																	<span class="font-medium">{content.name}</span>
+																	{#if content.description}
+																		<span class="text-gray-600"> - {content.description}</span>
+																	{/if}
 																</div>
-															{:else}
-																<!-- Multiple rows with max 3 per row -->
-																<div class="space-y-1 w-full">
-																	{#each Array(Math.ceil(contentCount / 3)) as _, rowIndex}
-																		{@const startIndex = rowIndex * 3}
-																		{@const endIndex = Math.min(startIndex + 3, contentCount)}
-																		{@const rowContents = contents.slice(startIndex, endIndex)}
-																		<div class="grid {rowContents.length === 1 ? 'grid-cols-1' : rowContents.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1">
-																			{#each rowContents as content}
-																				<Tooltip.Root>
-																					<Tooltip.Trigger>
-																						<div class="p-1.5 border rounded transition-colors cursor-pointer shadow-sm">
-																							<div class="text-xs font-medium text-center leading-tight">{content.name}</div>
-																						</div>
-																					</Tooltip.Trigger>
-																					<Tooltip.Content class="max-w-xs p-3  rounded-lg shadow-lg border z-50 text-sm leading-relaxed" side="top">
-																						<div>{content.description}</div>
-																					</Tooltip.Content>
-																				</Tooltip.Root>
-																			{/each}
-																		</div>
-																	{/each}
-																</div>
-															{/if}
-														{:else}
-															<p class="text-xs italic">No content available</p>
-														{/if}
-													</div>
-												</div>
+															</li>
+														{/each}
+													</ul>
+												{:else}
+													<p class="text-sm text-gray-500 italic ml-4">No standards available</p>
+												{/if}
 											</div>
 										{/each}
 									</div>
@@ -577,96 +542,6 @@
 							{/if}
 						</div>
 					{/if}
-
-					<!-- Assessment Plans Section -->
-					{#if !isCreateMode}
-						<div>
-							<div class="flex items-center justify-between mb-4">
-								<h3 class="text-xl font-bold">Assessment Plans</h3>
-								<Button variant="outline" size="sm">
-									<Plus class="h-4 w-4 mr-2" />
-									Assessment Plan
-								</Button>
-							</div>
-
-							{#if isLoadingDrawerData}
-								<p class="text-sm">Loading assessment plans...</p>
-							{:else if assessmentPlans.length > 0}
-								<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-									{#each assessmentPlans as plan}
-										<div class="p-4 border rounded-lg transition-colors cursor-pointer shadow-sm">
-											<h4 class="font-medium text-sm">{plan.name || 'Assessment Plan'}</h4>
-											{#if plan.description}
-												<p class="text-xs text-gray-600 mt-1">{plan.description}</p>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							{:else}
-								<p class="text-sm  italic">No assessment plans available</p>
-							{/if}
-						</div>
-					{/if}
-
-					<!-- Lesson Plans Section -->
-					{#if !isCreateMode}
-						<div>
-							<div class="flex items-center justify-between mb-4">
-								<h3 class="text-xl font-bold">Lesson Plans</h3>
-								<Button variant="outline" size="sm">
-									<Plus class="h-4 w-4 mr-2" />
-									Lesson Plan
-								</Button>
-							</div>
-
-							{#if isLoadingDrawerData}
-								<p class="text-sm">Loading lesson plans...</p>
-							{:else if lessonPlans.length > 0}
-								<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-									{#each lessonPlans as plan}
-										<div class="p-4 border rounded-lgtransition-colors cursor-pointer shadow-sm">
-											<h4 class="font-medium text-sm">{plan.name || 'Lesson Plan'}</h4>
-											{#if plan.description}
-												<p class="text-xs mt-1">{plan.description}</p>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							{:else}
-								<p class="text-sm italic">No lesson plans available</p>
-							{/if}
-						</div>
-					{/if}
-
-					<!-- Tasks Section -->
-					<div>
-						<div class="flex items-center justify-between mb-4">
-							<h3 class="text-xl font-bold">Tasks</h3>
-							{#if !isCreateMode}
-								<Button variant="outline" size="sm">
-									<Plus class="h-4 w-4 mr-2" />
-									Task
-								</Button>
-							{/if}
-						</div>
-
-						{#if isLoadingDrawerData && !isCreateMode}
-							<p class="text-sm">Loading tasks...</p>
-						{:else if tasks.length > 0}
-							<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-								{#each tasks as task}
-									<div class="p-4 border rounded-lg transition-colors cursor-pointer shadow-sm">
-										<h4 class="font-medium text-sm">{task.name || task.title || 'Task'}</h4>
-										{#if task.description}
-											<p class="text-xs mt-1">{task.description}</p>
-										{/if}
-									</div>
-								{/each}
-							</div>
-						{:else}
-							<p class="text-sm italic">No tasks available</p>
-						{/if}
-					</div>
 				</div>
 			</div>
 

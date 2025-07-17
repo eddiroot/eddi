@@ -8,11 +8,13 @@
 		courseMapItems,
 		yearLevel,
 		onCourseMapItemClick,
+		onCourseMapItemEdit,
 		onEmptyCellClick
 	}: {
 		courseMapItems: CourseMapItem[];
 		yearLevel: string;
 		onCourseMapItemClick: (item: CourseMapItem) => void;
+		onCourseMapItemEdit: (item: CourseMapItem) => void;
 		onEmptyCellClick: (week: number, term: number) => void;
 	} = $props();
 
@@ -145,6 +147,7 @@
 															isStart={true}
 															weekLength={calculateWeekLength(item, weekNum)}
 															{onCourseMapItemClick}
+															{onCourseMapItemEdit}
 														/>
 													{/key}
 												</div>

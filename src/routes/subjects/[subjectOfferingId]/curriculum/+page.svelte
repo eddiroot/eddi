@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { invalidateAll } from '$app/navigation';
+	import { invalidateAll, goto } from '$app/navigation';
 	import CurriculumSingleYearView from './components/CurriculumSingleYearView.svelte';
 	import CourseMapItemDrawer from './components/CourseMapItemDrawer.svelte';
 	import type { 
@@ -56,13 +56,9 @@
 	let createWeek = $state<number | null>(null);
 	let createSemester = $state<number | null>(null);
 
-	async function handleCourseMapItemClick(item: CourseMapItem) {
-		selectedCourseMapItem = item;
-		isCreateMode = false;
-		createWeek = null;
-		createSemester = null;
+	// Load drawer data for a course map item
+	async function loadDrawerData(item: CourseMapItem) {
 		isLoadingDrawerData = true;
-		drawerOpen = true;
 
 		try {
 			// Load learning areas for this course map item
@@ -110,6 +106,22 @@
 		createWeek = week;
 		createSemester = semester;
 		drawerOpen = true;
+	}
+
+	// Handle course map item click - redirect to planning page
+	function handleCourseMapItemClick(item: CourseMapItem) {
+		goto(`/subjects/${data.subjectOfferingId}/curriculum/${item.id}/planning`);
+	}
+
+	// Handle course map item edit - open drawer in edit mode
+	function handleCourseMapItemEdit(item: CourseMapItem) {
+		selectedCourseMapItem = item;
+		courseMapItemLearningAreas = [];
+		learningAreaContent = {};
+		assessmentPlans = [];
+		isCreateMode = false;
+		drawerOpen = true;
+		loadDrawerData(item);
 	}
 
 	// Handle real-time color updates
@@ -165,6 +177,7 @@
 		courseMapItems={courseMapItems}
 		yearLevel={data.subjectOffering?.subject?.yearLevel || 'Year 9'}
 		onCourseMapItemClick={handleCourseMapItemClick}
+		onCourseMapItemEdit={handleCourseMapItemEdit}
 		onEmptyCellClick={handleEmptyCellClick}
 	/>
 
