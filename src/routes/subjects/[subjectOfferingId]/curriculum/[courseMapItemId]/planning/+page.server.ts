@@ -5,7 +5,9 @@ import {
         getCoursemapItemAssessmentPlans,
         createCourseMapItemLessonPlan,
         createLessonPlanStandard,
-        getCourseMapItemPlanContexts
+        getCourseMapItemPlanContexts,
+        getSubjectOfferingLearningAreas,
+        addAreasOfStudyToCourseMapItem
 } from '$lib/server/db/service/coursemap';
 import { redirect, fail } from '@sveltejs/kit';
 import { geminiCompletion, geminiImageGeneration } from '$lib/server/ai';
@@ -22,10 +24,11 @@ export const load = async ({
         const courseMapItem = await getCourseMapItemById(cmId);
         if (!courseMapItem) throw redirect(302, `/subjects/${subjectOfferingId}/curriculum`);
 
-        const [learningAreas, lessonPlans, assessmentPlans] = await Promise.all([
+        const [learningAreas, lessonPlans, assessmentPlans, availableLearningAreas] = await Promise.all([
                 getCourseMapItemLearningAreas(cmId),
                 getCoursemapItemLessonPlans(cmId),
-                getCoursemapItemAssessmentPlans(cmId)
+                getCoursemapItemAssessmentPlans(cmId),
+                getSubjectOfferingLearningAreas(parseInt(subjectOfferingId))
         ]);
 
         return {
@@ -33,7 +36,8 @@ export const load = async ({
                 courseMapItem,
                 learningAreas,
                 lessonPlans,
-                assessmentPlans
+                assessmentPlans,
+                availableLearningAreas: availableLearningAreas || []
         };
 };
 
@@ -109,6 +113,22 @@ export const actions = {
                 } catch (error) {
                         console.error('Error creating lesson plan:', error);
                         return fail(500, { message: 'Failed to create lesson plan' });
+                }
+        },
+
+        addLearningArea: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const learningAreaId = parseInt(formData.get('learningAreaId') as string);
+
+                try {
+                        await addAreasOfStudyToCourseMapItem(courseMapItemId, [learningAreaId]);
+                        return { success: true };
+                } catch (error) {
+                        console.error('Error adding learning area:', error);
+                        return fail(500, { message: 'Failed to add learning area' });
                 }
         }
 };

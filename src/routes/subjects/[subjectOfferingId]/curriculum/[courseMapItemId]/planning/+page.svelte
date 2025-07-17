@@ -91,7 +91,7 @@
 	</div>
 </div>
 
-<div class="max-w-4xl mx-auto px-6 space-y-12">
+<div class="max-w-6xl mx-auto px-6 space-y-12">
 	<!-- Description Section -->
 	{#if data.courseMapItem.description}
 		<div class="space-y-4">
@@ -101,14 +101,69 @@
 	{/if}
 
 	<!-- Curriculum Learning Areas -->
-	{#if data.learningAreas.length > 0}
+	{#if data.learningAreas.length > 0 || data.availableLearningAreas.length > 0}
 		<div class="space-y-6">
-			<h2 class="text-2xl font-semibold">Curriculum Learning Areas</h2>
-			<div class="flex flex-wrap gap-4">
-				{#each data.learningAreas as la}
-					<VcaaLearningAreaCard learningAreaName={la.name} />
-				{/each}
+			<div class="flex items-center justify-between">
+				<h2 class="text-2xl font-semibold">Curriculum Learning Areas</h2>
+				{#if data.availableLearningAreas.length > 0}
+					{@const unassignedLearningAreas = data.availableLearningAreas.filter(
+						(available) => !data.learningAreas.some((assigned) => assigned.id === available.id)
+					)}
+					{#if unassignedLearningAreas.length > 0}
+						<Sheet>
+							<SheetTrigger>
+								<Button variant="outline" size="sm" class="gap-2">
+									<Plus class="w-4 h-4" />
+									Learning Area
+								</Button>
+							</SheetTrigger>
+							<SheetContent class="w-[400px] max-w-[90vw] p-6">
+								<SheetHeader class="space-y-2 mb-6">
+									<SheetTitle>Add Learning Area</SheetTitle>
+									<p class="text-sm text-muted-foreground">
+										Select a learning area to associate with this course map item.
+									</p>
+								</SheetHeader>
+								
+								<div class="space-y-4">
+									{#each unassignedLearningAreas as learningArea}
+										<form method="POST" action="?/addLearningArea" use:enhance={() => {
+											return async ({ result, update }) => {
+												if (result.type === 'success') {
+													invalidateAll();
+												}
+												await update();
+											};
+										}}>
+											<input type="hidden" name="learningAreaId" value={learningArea.id} />
+											<div class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+												<div class="flex-1">
+													<h4 class="font-medium text-sm">{learningArea.name}</h4>
+												</div>
+												<Button type="submit" size="sm" variant="outline">
+													Add
+												</Button>
+											</div>
+										</form>
+									{/each}
+								</div>
+							</SheetContent>
+						</Sheet>
+					{/if}
+				{/if}
 			</div>
+			
+			{#if data.learningAreas.length > 0}
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+					{#each data.learningAreas as la}
+						<VcaaLearningAreaCard learningAreaName={la.name} />
+					{/each}
+				</div>
+			{:else}
+				<div class="text-center py-8">
+					<p class="text-muted-foreground">No learning areas assigned yet.</p>
+				</div>
+			{/if}
 		</div>
 	{/if}
 
