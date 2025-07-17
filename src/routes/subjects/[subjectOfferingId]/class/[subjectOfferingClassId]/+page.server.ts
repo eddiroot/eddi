@@ -1,6 +1,6 @@
 // need to change over to ussing subjectOffering class instead
 
-import { getClassById, getTeachersBySubjectOfferingClassId, getResourcesBySubjectOfferingId, getAssessmentsBySubjectOfferingId } from '$lib/server/db/service';
+import { getClassById, getTeachersBySubjectOfferingClassId, getResourcesBySubjectOfferingClassId, getAssessmentsBySubjectOfferingClassId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
 	security.isAuthenticated();
@@ -9,8 +9,8 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 	const thisSubjectOfferingTeachers = await getTeachersBySubjectOfferingClassId(
 		Number(subjectOfferingClassId)
 	);
-	const resources = await getResourcesBySubjectOfferingId(Number(subjectOfferingClassId));
-	const assessments = await getAssessmentsBySubjectOfferingId(
+	const resources = await getResourcesBySubjectOfferingClassId(Number(subjectOfferingClassId));
+	const assessments = await getAssessmentsBySubjectOfferingClassId(
 		Number(subjectOfferingClassId)
 	);
 	return { user, thisSubjectOffering, thisSubjectOfferingTeachers, resources, assessments };

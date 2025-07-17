@@ -470,21 +470,6 @@ export async function getTasksBySubjectOfferingId(subjectOfferingId: number) {
 	return offeringTasks;
 }
 
-export async function getResourcesBySubjectOfferingId(subjectOfferingId: number) {
-	const resources = await db
-		.select({
-			resource: table.subjectOfferingClassResource
-		})
-		.from(table.subjectOfferingClassResource)
-		.innerJoin(
-			table.subjectOffering,
-			eq(table.subjectOffering.id, table.subjectOfferingClassResource.subjectOfferingClassId)
-		)
-		.where(eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingId));
-
-	return resources;
-}
-
 export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassId: number) {
 	const resources = await db
 		.select({
@@ -504,7 +489,7 @@ export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassI
 	return resources;
 }
 
-export async function getAssessmentsBySubjectOfferingId(subjectOfferingId: number) {
+export async function getAssessmentsBySubjectOfferingClassId(subjectOfferingClassId: number) {
 	const assessments = await db
 		.select({
 			task: table.task
@@ -513,7 +498,7 @@ export async function getAssessmentsBySubjectOfferingId(subjectOfferingId: numbe
 		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingClassTask.taskId))
 		.where(
 			and(
-				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingId),
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
 				eq(table.task.type, table.taskTypeEnum.assessment)
 			)
 		);
