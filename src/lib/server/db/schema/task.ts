@@ -7,7 +7,8 @@ import {
 	pgEnum,
 	foreignKey,
 	unique,
-	uuid
+	uuid,
+	timestamp
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { subjectOffering, subjectOfferingClass } from './subjects';
@@ -136,6 +137,7 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 		onDelete: 'cascade'
 	}),
 	week: integer('week'),
+	dueDate: timestamp({ mode: 'date' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });

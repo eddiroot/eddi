@@ -207,7 +207,8 @@ export const actions = {
 			subjectOfferingClassIdInt,
 			user.id,
 			courseMapItemId,
-			form.data.week
+			form.data.week,
+			form.data.dueDate
 		);
 
 		let contentElaborationPrompt = '';
