@@ -82,7 +82,7 @@
 		},
 		{
 			title: 'Course Map',
-			url: 'coursemap',
+			url: 'curriculum',
 			icon: RouteIcon,
 			classLevel: false
 		},
