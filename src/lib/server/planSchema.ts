@@ -119,6 +119,35 @@ export function buildLessonPlanImagePrompt(plan: LessonPlan): string {
   return prompt.trim();
 }
 
+export type AssessmentPlan = {
+  summary: string;
+  name: string;
+  description: string;
+  scopes: Array<{ title: string; details: string }>;
+  usedStandards: Array<{ id: number; name?: string }>;
+  rubric: {
+    rows: Array<{
+      title: string;
+      cells: Array<{
+        level: 'exemplary' | 'accomplished' | 'developing' | 'beginning';
+        description: string;
+        marks: number;
+      }>;
+    }>;
+  };
+};
+
+export function buildAssessmentPlanImagePrompt(plan: AssessmentPlan): string {
+  let prompt = `Illustration for assessment "${plan.name}". Summary: ${plan.summary}\n\n`;
+  prompt += `Overview: ${plan.description}\n\n`;
+  prompt += `Assessment sections:\n`;
+  plan.scopes.forEach((scope, i) => {
+    prompt += `${i + 1}. ${scope.title} — ${scope.details}\n`;
+  });
+  prompt += `\nCreate an engaging, educational illustration that represents this assessment task. Focus on academic, evaluation, or testing themes. Do not generate text in the image, just visuals.`;
+  return prompt.trim();
+}
+
 
 export const assessmentSchema = {
   type: 'object',

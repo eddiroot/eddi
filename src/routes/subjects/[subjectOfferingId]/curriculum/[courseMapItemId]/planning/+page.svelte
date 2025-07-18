@@ -16,6 +16,7 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll, goto } from '$app/navigation';
 	import LessonPlanCard from './components/LessonPlanCard.svelte';
+	import AssessmentPlanCard from './components/AssessmentPlanCard.svelte';
 	import VcaaLearningAreaCard from '$lib/components/CurriculumLearningAreaCard.svelte';
 	import Edit from '@lucide/svelte/icons/edit';
 	import Check from '@lucide/svelte/icons/check';
@@ -23,15 +24,17 @@
 	
 	let { data, form } = $props();
 	let lessonPlanDescription = $state('');
-	let assessmentPlanTitle = $state('');
 	let assessmentPlanDescription = $state('');
 	let isGeneratingLesson = $state(false);
 	let isGeneratingAssessment = $state(false);
 	let generatedLessonPlan = $state<any>(null);
-	let generatedAssessmentPlan = $state<string | null>(null);
+	let generatedAssessmentPlan = $state<any>(null);
 	let lessonPlanDrawerOpen = $state(false);
+	let assessmentPlanDrawerOpen = $state(false);
 	let isCreatingLessonPlan = $state(false);
-	let currentInstruction = $state('');
+	let isCreatingAssessmentPlan = $state(false);
+	let currentLessonInstruction = $state('');
+	let currentAssessmentInstruction = $state('');
 	
 	// Edit mode state
 	let editMode = $state(false);
@@ -54,22 +57,19 @@
 			lessonPlanDrawerOpen = false;
 			lessonPlanDescription = '';
 			generatedLessonPlan = null;
-			currentInstruction = '';
+			currentLessonInstruction = '';
+			invalidateAll();
+		} else if (form?.success && form?.assessmentPlan) {
+			assessmentPlanDrawerOpen = false;
+			assessmentPlanDescription = '';
+			generatedAssessmentPlan = null;
+			currentAssessmentInstruction = '';
 			invalidateAll();
 		} else if (form?.success && form?.planData) {
 			generatedLessonPlan = form.planData;
-			currentInstruction = (form.instruction as string) || lessonPlanDescription;
+			currentLessonInstruction = (form.instruction as string) || lessonPlanDescription;
 		}
 	});
-	
-	async function generateAssessmentPlan() {
-		isGeneratingAssessment = true;
-		// TODO: Implement AI generation
-		setTimeout(() => {
-			generatedAssessmentPlan = `Generated assessment plan for "${assessmentPlanTitle}": ${assessmentPlanDescription}`;
-			isGeneratingAssessment = false;
-		}, 2000);
-	}
 </script>
 
 <!-- Hero Section with Course Map Item Image -->
@@ -320,6 +320,9 @@
 										class="flex-1"
 										disabled={isCreatingLessonPlan}
 										onclick={() => {
+											// Prevent multiple clicks
+											if (isCreatingLessonPlan) return;
+											
 											// Generate full lesson plan
 											const createForm = new FormData();
 											createForm.set('planData', JSON.stringify(generatedLessonPlan));
@@ -337,7 +340,7 @@
 													lessonPlanDrawerOpen = false;
 													lessonPlanDescription = '';
 													generatedLessonPlan = null;
-													currentInstruction = '';
+													currentLessonInstruction = '';
 													invalidateAll();
 												}
 												isCreatingLessonPlan = false;
@@ -359,10 +362,13 @@
 										variant="outline"
 										disabled={isGeneratingLesson}
 										onclick={() => {
+											// Prevent multiple clicks
+											if (isGeneratingLesson) return;
+											
 											// Regenerate with the same instruction
 											isGeneratingLesson = true;
 											const formData = new FormData();
-											formData.set('instruction', currentInstruction);
+											formData.set('instruction', currentLessonInstruction);
 											
 											fetch('?/generateLessonPlanResponse', {
 												method: 'POST',
@@ -396,7 +402,7 @@
 							isGeneratingLesson = false;
 							if (result.type === 'success' && result.data) {
 								generatedLessonPlan = result.data.planData;
-								currentInstruction = (result.data.instruction as string) || lessonPlanDescription;
+								currentLessonInstruction = (result.data.instruction as string) || lessonPlanDescription;
 							}
 							await update();
 						};
@@ -505,80 +511,227 @@
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<h2 class="text-2xl font-semibold">Assessment Plans</h2>
-			<Sheet>
-				<SheetTrigger >
+			<Sheet bind:open={assessmentPlanDrawerOpen}>
+				<SheetTrigger>
 					<Button variant="outline" class="gap-2">
 						<Plus class="w-4 h-4" />
-						Assessment Plan 
+						Assessment Plan
 					</Button>
 				</SheetTrigger>
-		   <SheetContent class="w-[600px] max-w-[90vw] p-6 space-y-6">
-					<SheetHeader>
-						<SheetTitle>Create New Assessment Plan</SheetTitle>
-					</SheetHeader>
-					<div class="space-y-6">
-						<div class="space-y-2">
-							<Label for="assessment-title">Title</Label>
-							<Input id="assessment-title" bind:value={assessmentPlanTitle} placeholder="Enter assessment plan title" />
+				<SheetContent class="w-[600px] max-w-[90vw] p-6 space-y-4">
+					<SheetHeader class="space-y-2">
+						<div class="flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+								<Sparkles class="w-4 h-4 text-orange-600" />
+							</div>
+							<SheetTitle>Create Assessment Plan</SheetTitle>
 						</div>
+						<p class="text-sm text-muted-foreground">
+							Describe what you want this assessment plan to cover and AI will generate a structured plan with rubric for you.
+						</p>
+					</SheetHeader>
+
+					{#if generatedAssessmentPlan}
+						<div class="space-y-3 p-4 bg-gradient-to-br from-orange-500/5 to-orange-600/10 rounded-lg border border-orange-500/20">
+							<div class="flex items-center gap-2 mb-2">
+								<div class="w-6 h-6 rounded bg-orange-500/20 flex items-center justify-center">
+									<Sparkles class="w-3 h-3 text-orange-600" />
+								</div>
+								<h4 class="font-semibold text-sm">Generated Assessment Plan Summary</h4>
+							</div>
+							
+							<div class="space-y-3">
+								<div class="p-3 bg-white/50 rounded-lg border">
+									<h5 class="font-medium text-sm mb-2">{generatedAssessmentPlan.name}</h5>
+									<p class="text-sm text-muted-foreground">{generatedAssessmentPlan.summary}</p>
+								</div>
+								
+								<div class="text-xs text-muted-foreground">
+									This is a preview of your assessment plan. If you like it, click "Create Assessment Plan" to see the complete details and create it.
+								</div>
+								
+								<div class="flex gap-2 w-full">
+									<Button 
+										type="button" 
+										size="sm" 
+										class="flex-1"
+										disabled={isCreatingAssessmentPlan}
+										onclick={() => {
+											// Prevent multiple clicks
+											if (isCreatingAssessmentPlan) return;
+											
+											// Generate full assessment plan
+											const createForm = new FormData();
+											createForm.set('planData', JSON.stringify(generatedAssessmentPlan));
+											if (form?.imageBase64) {
+												createForm.set('imageBase64', form.imageBase64);
+											}
+											
+											isCreatingAssessmentPlan = true;
+											fetch('?/createAssessmentPlan', {
+												method: 'POST',
+												body: createForm
+											}).then(async (response) => {
+												const result = await response.json();
+												if (result.type === 'success') {
+													assessmentPlanDrawerOpen = false;
+													assessmentPlanDescription = '';
+													generatedAssessmentPlan = null;
+													currentAssessmentInstruction = '';
+													invalidateAll();
+												}
+												isCreatingAssessmentPlan = false;
+											}).catch(() => {
+												isCreatingAssessmentPlan = false;
+											});
+										}}
+									>
+										{#if isCreatingAssessmentPlan}
+											<RefreshCw class="w-3 h-3 mr-1 animate-spin" />
+											Creating...
+										{:else}
+											Create Assessment Plan
+										{/if}
+									</Button>
+									<Button 
+										type="button" 
+										size="sm" 
+										variant="outline"
+										disabled={isGeneratingAssessment}
+										onclick={() => {
+											// Prevent multiple clicks
+											if (isGeneratingAssessment) return;
+											
+											// Regenerate with the same instruction
+											isGeneratingAssessment = true;
+											const formData = new FormData();
+											formData.set('instruction', currentAssessmentInstruction);
+											
+											fetch('?/generateAssessmentPlanResponse', {
+												method: 'POST',
+												body: formData
+											}).then(async (response) => {
+												const result = await response.json();
+												if (result.type === 'success' && result.data) {
+													generatedAssessmentPlan = result.data.planData;
+												}
+												isGeneratingAssessment = false;
+											}).catch(() => {
+												isGeneratingAssessment = false;
+											});
+										}}
+									>
+										{#if isGeneratingAssessment}
+											<RefreshCw class="w-3 h-3 mr-1 animate-spin" />
+											Regenerating...
+										{:else}
+											Regenerate
+										{/if}
+									</Button>
+								</div>
+							</div>
+						</div>
+					{/if}
+					
+					<form method="POST" action="?/generateAssessmentPlanResponse" use:enhance={() => {
+						isGeneratingAssessment = true;
+						return async ({ result, update }) => {
+							isGeneratingAssessment = false;
+							if (result.type === 'success' && result.data) {
+								generatedAssessmentPlan = result.data.planData;
+								currentAssessmentInstruction = (result.data.instruction as string) || assessmentPlanDescription;
+							}
+							await update();
+						};
+					}} class="space-y-3">
+					
 						<div class="space-y-2">
-							<Label for="assessment-description">What should this assessment plan cover?</Label>
-							<Textarea 
-								id="assessment-description" 
-								bind:value={assessmentPlanDescription} 
-								placeholder="Describe what you want this assessment plan to be about..."
-								class="min-h-32" 
-							/>
+							<div class="space-y-2">
+								<Label for="assessment-description" class="text-sm font-medium">
+									{#if generatedAssessmentPlan}
+										Describe a different assessment idea:
+									{:else}
+										What should this assessment plan cover?
+									{/if}
+								</Label>
+								<Textarea 
+									id="assessment-description" 
+									name="instruction"
+									bind:value={assessmentPlanDescription} 
+									placeholder={generatedAssessmentPlan 
+										? "Describe a different assessment plan..." 
+										: "E.g., 'Research project on renewable energy with practical experiment and presentation for year 8 students' or 'Creative writing portfolio with peer review and self-reflection components'"
+									}
+									class={generatedAssessmentPlan ? "min-h-[40px] resize-y" : "min-h-[120px] resize-none"}
+									required
+								/>
+								{#if !generatedAssessmentPlan}
+									<p class="text-xs text-muted-foreground">
+										Be specific about the assessment type, topic, and any particular evaluation criteria you want to include.
+									</p>
+								{/if}
+							</div>
 						</div>
 						
-						{#if generatedAssessmentPlan}
-							<div class="space-y-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
-								<div class="flex items-center gap-2 mb-3">
-									<div class="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-										<Sparkles class="w-3 h-3 text-primary" />
-									</div>
-									<h4 class="font-semibold text-sm">Generated Assessment Plan</h4>
-								</div>
-								<p class="text-sm text-muted-foreground">{generatedAssessmentPlan}</p>
-								<div class="flex gap-2">
-									<Button size="sm" onclick={() => console.log('Create assessment plan')}>Create</Button>
-									<Button size="sm" variant="outline" onclick={() => generateAssessmentPlan()}>Regenerate</Button>
-								</div>
-							</div>
-						{:else}
-							<div class="flex gap-2">
+						<div class="flex gap-3">
+							{#if generatedAssessmentPlan}
 								<Button 
-									onclick={generateAssessmentPlan} 
-									disabled={isGeneratingAssessment || !assessmentPlanTitle || !assessmentPlanDescription}
-									class="flex-1"
+									type="submit"
+									disabled={isGeneratingAssessment || !assessmentPlanDescription.trim()}
+									class="flex-1 gap-2"
+									onclick={() => {
+										// Clear current plan to regenerate with new description
+										generatedAssessmentPlan = null;
+									}}
 								>
 									{#if isGeneratingAssessment}
-										Generating...
+										<RefreshCw class="w-4 h-4 animate-spin" />
+										Generating New Plan...
 									{:else}
-										Generate with AI
+										<Sparkles class="w-4 h-4" />
+										Generate Different Plan
 									{/if}
 								</Button>
-								<Button variant="outline" onclick={() => console.log('Create manually')}>
-									Create Manually
+								<Button type="button" variant="outline" onclick={() => console.log('Create manually')}>
+									Manual
 								</Button>
+							{:else}
+								<Button 
+									type="submit"
+									disabled={isGeneratingAssessment || !assessmentPlanDescription.trim()}
+									class="flex-1 gap-2"
+								>
+									{#if isGeneratingAssessment}
+										<RefreshCw class="w-4 h-4 animate-spin" />
+										Generating Summary...
+									{:else}
+										<Sparkles class="w-4 h-4" />
+										Generate Summary with AI
+									{/if}
+								</Button>
+								<Button type="button" variant="outline" onclick={() => console.log('Create manually')}>
+									Manual
+								</Button>
+							{/if}
+						</div>
+						
+						{#if form?.message}
+							<div class="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+								<p class="text-sm text-destructive">{form.message}</p>
 							</div>
 						{/if}
-					</div>
+					</form>
 				</SheetContent>
 			</Sheet>
 		</div>
 		
 		{#if data.assessmentPlans.length > 0}
-			<div class="grid md:grid-cols-2 gap-6">
+			<div class="flex flex-wrap gap-4 justify-start">
 				{#each data.assessmentPlans as plan}
-					<Card.Root class="hover:shadow-md transition-shadow">
-						<Card.Header>
-							<Card.Title>{plan.name}</Card.Title>
-							{#if plan.description}
-								<Card.Description>{plan.description}</Card.Description>
-							{/if}
-						</Card.Header>
-					</Card.Root>
+					<AssessmentPlanCard 
+						assessmentPlan={plan} 
+						href={`${page.url.pathname}/assessment-plans/${plan.id}`} 
+					/>
 				{/each}
 			</div>
 		{:else}

@@ -5,13 +5,23 @@ import {
         getCoursemapItemAssessmentPlans,
         createCourseMapItemLessonPlan,
         createLessonPlanStandard,
+        createCourseMapItemAssessmentPlan,
+        createAssessmentPlanStandard,
         getCourseMapItemPlanContexts,
         getSubjectOfferingLearningAreas,
         addAreasOfStudyToCourseMapItem
 } from '$lib/server/db/service/coursemap';
+import { createCompleteRubric } from '$lib/server/db/service/task';
 import { redirect, fail } from '@sveltejs/kit';
 import { geminiCompletion, geminiImageGeneration } from '$lib/server/ai';
-import { planSchema, buildLessonPlanPrompt, buildLessonPlanImagePrompt } from '$lib/server/planSchema';
+import { 
+        planSchema, 
+        buildLessonPlanPrompt, 
+        buildLessonPlanImagePrompt,
+        assessmentSchema,
+        buildAssessmentPlanPrompt,
+        buildAssessmentPlanImagePrompt
+} from '$lib/server/planSchema';
 
 export const load = async ({
         locals: { security },
@@ -129,6 +139,114 @@ export const actions = {
                 } catch (error) {
                         console.error('Error adding learning area:', error);
                         return fail(500, { message: 'Failed to add learning area' });
+                }
+        },
+
+        generateAssessmentPlanResponse: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const instruction = (formData.get('instruction') as string) || '';
+
+                try {
+                        const contexts = await getCourseMapItemPlanContexts(courseMapItemId);
+                        const prompt = buildAssessmentPlanPrompt(JSON.stringify(contexts), instruction);
+                        const aiResponse = await geminiCompletion(prompt, undefined, assessmentSchema);
+                        
+                        let plan;
+                        try {
+                                plan = JSON.parse(aiResponse);
+                                console.log('Generated assessment plan:', plan);
+                        } catch (err) {
+                                console.error('Failed to parse AI response', err, aiResponse);
+                                return fail(500, { message: 'Failed to generate assessment plan summary' });
+                        }
+
+                        // Generate image for the assessment plan
+                        let imageBase64 = null;
+                        try {
+                                const imagePrompt = buildAssessmentPlanImagePrompt(plan);
+                                imageBase64 = await geminiImageGeneration(imagePrompt);
+                        } catch (err) {
+                                console.error('Failed to generate image', err);
+                                // Continue without image if generation fails
+                        }
+
+                        return { 
+                                success: true, 
+                                planData: plan,
+                                imageBase64,
+                                instruction // Store the instruction for regeneration
+                        };
+                } catch (error) {
+                        console.error('Error generating assessment plan:', error);
+                        return fail(500, { message: 'Failed to generate assessment plan' });
+                }
+        },
+
+        createAssessmentPlan: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const planDataJson = formData.get('planData') as string;
+                const imageBase64 = formData.get('imageBase64') as string;
+
+                console.log('Creating assessment plan for courseMapItemId:', courseMapItemId);
+
+                try {
+                        const plan = JSON.parse(planDataJson);
+                        console.log('Parsed assessment plan data:', { name: plan.name, rubricRowsCount: plan.rubric?.rows?.length });
+
+                        // First create the rubric
+                        const rubricData = {
+                                title: `${plan.name} - Rubric`,
+                                description: plan.description,
+                                rows: plan.rubric.rows.map((row: { title: string; cells: Array<{ level: string; description: string; marks: number }> }) => ({
+                                        title: row.title,
+                                        cells: row.cells.map((cell: { level: string; description: string; marks: number }) => ({
+                                                level: cell.level as 'exemplary' | 'accomplished' | 'developing' | 'beginning',
+                                                description: cell.description,
+                                                marks: cell.marks
+                                        }))
+                                }))
+                        };
+
+                        console.log('Creating rubric with data:', { title: rubricData.title, rowsCount: rubricData.rows.length });
+
+                        const { rubric } = await createCompleteRubric(
+                                rubricData.title,
+                                rubricData.description,
+                                rubricData.rows
+                        );
+
+                        console.log('Created rubric with ID:', rubric.id);
+
+                        // Create the assessment plan with the rubric
+                        const assessmentPlan = await createCourseMapItemAssessmentPlan(
+                                courseMapItemId,
+                                plan.name,
+                                plan.scopes.map((s: { title: string; details: string }) => `${s.title}: ${s.details}`),
+                                plan.description,
+                                imageBase64 || null,
+                                rubric.id
+                        );
+
+                        console.log('Created assessment plan with ID:', assessmentPlan.id);
+
+                        // Add used standards
+                        if (Array.isArray(plan.usedStandards)) {
+                                for (const std of plan.usedStandards) {
+                                        if (std?.id) await createAssessmentPlanStandard(assessmentPlan.id, std.id);
+                                }
+                        }
+
+                        console.log('Successfully completed assessment plan creation');
+                        return { success: true, assessmentPlan };
+                } catch (error) {
+                        console.error('Error creating assessment plan:', error);
+                        return fail(500, { message: 'Failed to create assessment plan' });
                 }
         }
 };
