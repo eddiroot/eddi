@@ -202,7 +202,6 @@ export const actions = {
                         // First create the rubric
                         const rubricData = {
                                 title: `${plan.name} - Rubric`,
-                                description: plan.description,
                                 rows: plan.rubric.rows.map((row: { title: string; cells: Array<{ level: string; description: string; marks: number }> }) => ({
                                         title: row.title,
                                         cells: row.cells.map((cell: { level: string; description: string; marks: number }) => ({
@@ -217,7 +216,6 @@ export const actions = {
 
                         const { rubric } = await createCompleteRubric(
                                 rubricData.title,
-                                rubricData.description,
                                 rubricData.rows
                         );
 

@@ -220,7 +220,6 @@ export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
 export const rubric = pgTable('rubric', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
     title: text('title').notNull(),
-    description: text('description'),
     ...timestamps
 });
 

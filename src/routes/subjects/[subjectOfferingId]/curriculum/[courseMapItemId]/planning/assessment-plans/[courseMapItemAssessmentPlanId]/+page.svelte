@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import Rubric from '$lib/components/rubric.svelte';
 	let { data } = $props();
 </script>
 
@@ -72,88 +73,7 @@
 	{#if data.rubric}
 		<div class="space-y-6">
 			<h2 class="text-2xl font-semibold">Assessment Rubric</h2>
-			
-			<div class="bg-white border-2 border-gray-200 rounded-lg overflow-hidden shadow-lg">
-				<!-- Rubric Header -->
-				<div class="p-6 bg-gradient-to-r from-orange-50 to-orange-100 border-b-2 border-orange-200">
-					<h3 class="font-bold text-xl text-orange-900">{data.rubric.rubric.title}</h3>
-					{#if data.rubric.rubric.description}
-						<p class="text-sm text-orange-700 mt-2">{data.rubric.rubric.description}</p>
-					{/if}
-				</div>
-
-				<!-- Rubric Table -->
-				<div class="overflow-x-auto">
-					<table class="w-full border-collapse">
-						<thead>
-							<tr>
-								<th class="px-4 py-4 text-left font-bold text-gray-900 border-2 border-gray-300 bg-gray-100 w-1/5">
-									Rubric Criteria
-								</th>
-								<th class="px-4 py-4 text-center font-bold text-green-800 border-2 border-gray-300 bg-green-100 w-1/5">
-									Exemplary<br>
-									<span class="text-xs font-normal">4 points</span>
-								</th>
-								<th class="px-4 py-4 text-center font-bold text-blue-800 border-2 border-gray-300 bg-blue-100 w-1/5">
-									Accomplished<br>
-									<span class="text-xs font-normal">3 points</span>
-								</th>
-								<th class="px-4 py-4 text-center font-bold text-yellow-800 border-2 border-gray-300 bg-yellow-100 w-1/5">
-									Developing<br>
-									<span class="text-xs font-normal">2 points</span>
-								</th>
-								<th class="px-4 py-4 text-center font-bold text-red-800 border-2 border-gray-300 bg-red-100 w-1/5">
-									Beginning<br>
-									<span class="text-xs font-normal">1 point</span>
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each data.rubric.rows as { row, cells }}
-								<tr class="border-b-2 border-gray-200">
-									<td class="px-4 py-4 font-bold text-gray-900 border-2 border-gray-300 bg-gray-50 align-top">
-										{row.title}
-									</td>
-									{#each ['exemplary', 'accomplished', 'developing', 'beginning'] as level}
-										{@const cell = cells.find(c => c.level === level)}
-										<td class="px-4 py-4 border-2 border-gray-300 text-sm align-top {
-											level === 'exemplary' ? 'bg-green-50' :
-											level === 'accomplished' ? 'bg-blue-50' :
-											level === 'developing' ? 'bg-yellow-50' :
-											'bg-red-50'
-										}">
-											{#if cell}
-												<div class="space-y-2">
-													<p class="text-gray-800 leading-relaxed">{cell.description}</p>
-													<div class="inline-block px-2 py-1 text-xs font-bold rounded {
-														level === 'exemplary' ? 'bg-green-200 text-green-800' :
-														level === 'accomplished' ? 'bg-blue-200 text-blue-800' :
-														level === 'developing' ? 'bg-yellow-200 text-yellow-800' :
-														'bg-red-200 text-red-800'
-													}">
-														{cell.marks} {cell.marks === 1 ? 'mark' : 'marks'}
-													</div>
-												</div>
-											{:else}
-												<div class="flex items-center justify-center h-20">
-													<span class="text-gray-400 italic text-center">Not defined</span>
-												</div>
-											{/if}
-										</td>
-									{/each}
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
-
-				<!-- Rubric Footer -->
-				<div class="p-4 bg-gray-50 border-t-2 border-gray-200">
-					<p class="text-sm text-gray-600 text-center">
-						<strong>Total Score:</strong> _____ / {data.rubric.rows.length * 4} points
-					</p>
-				</div>
-			</div>
+			<Rubric rubricData={data.rubric} />
 		</div>
 	{/if}
 </div>

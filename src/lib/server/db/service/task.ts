@@ -602,12 +602,11 @@ export async function getCurriculumLearningAreaWithStandards(subjectOfferingId: 
 	return Array.from(map.values());
 }
 
-export async function createRubric(title: string, description: string | null = null) {
+export async function createRubric(title: string) {
 	const [rubric] = await db
 		.insert(table.rubric)
 		.values({
 			title,
-			description,
 
 		})
 		.returning();
@@ -790,7 +789,6 @@ export async function deleteRubric(rubricId: number) {
 
 export async function createCompleteRubric(
 	title: string,
-	description: string | null,
 	rows: Array<{
 		title: string;
 		cells: Array<{
@@ -804,7 +802,7 @@ export async function createCompleteRubric(
 		// Create the rubric
 		const [rubric] = await tx
 			.insert(table.rubric)
-			.values({ title, description })
+			.values({ title })
 			.returning();
 
 		// Create rows and cells
@@ -855,5 +853,5 @@ export async function duplicateRubric(rubricId: number, newTitle?: string) {
 		}))
 	}));
 
-	return await createCompleteRubric(title, existingRubric.rubric.description, rows);
+	return await createCompleteRubric(title, rows);
 }
