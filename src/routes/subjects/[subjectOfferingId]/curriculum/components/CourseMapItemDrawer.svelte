@@ -158,6 +158,26 @@
 		}
 	});
 
+	// Close color picker when clicking outside
+	$effect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (showColorPicker && event.target) {
+				const target = event.target as Element;
+				const colorPickerContainer = target.closest('.color-picker-container');
+				if (!colorPickerContainer) {
+					showColorPicker = false;
+				}
+			}
+		}
+
+		if (showColorPicker) {
+			document.addEventListener('click', handleClickOutside);
+			return () => {
+				document.removeEventListener('click', handleClickOutside);
+			};
+		}
+	});
+
 	function toggleLearningArea(learningAreaId: number) {
 		const idStr = learningAreaId.toString();
 		if (selectedLearningAreaIds.includes(idStr)) {
@@ -314,9 +334,9 @@
 
 <Tooltip.Provider>
 	<Drawer bind:open onClose={handleClose} direction="right">
-		<DrawerContent class="max-h-[100vh] !max-w-[600px] rounded-l-lg overflow-hidden flex flex-col">
+		<DrawerContent class="max-h-[100vh] !max-w-[800px] rounded-l-lg overflow-hidden flex flex-col bg-background">
 			<!-- Header -->
-			<div class="flex items-center justify-between p-6 pb-2">
+			<div class="flex items-center justify-between p-6 pb-2 shrink-0 border-b border-border">
 				<h2 class="text-3xl font-bold">
 					{#if isCreateMode}
 						Create Task
@@ -342,7 +362,7 @@
 
 			<!-- Metadata Section -->
 			{#if isEditMode || isCreateMode}
-				<div class="p-6 pt-2">
+				<div class="p-6 pt-4 pb-4 shrink-0 border-b border-border">
 					<div class="grid grid-cols-12 gap-4">
 						<!-- Topic -->
 						<div class="col-span-6">
@@ -380,25 +400,25 @@
 						</div>
 
 						<!-- Color Picker -->
-						<div class="col-span-2">
+						<div class="col-span-2 relative color-picker-container">
 							<Label class="text-sm font-medium">Color</Label>
 							<div class="relative mt-2">
 								<button
 									type="button"
-									class="border-input bg-background flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm"
+									class="border-input bg-background hover:bg-accent flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors"
 									onclick={() => (showColorPicker = !showColorPicker)}
 									title="Select color"
 									aria-label="Select color"
 								>
 									<div class="flex items-center gap-2">
 										<div
-											class="h-4 w-4 rounded-full border"
+											class="h-4 w-4 rounded-full border border-border"
 											style="background-color: {editForm.color}"
 										></div>
-										<span>{getColorName(editForm.color)}</span>
+										<span class="truncate">{getColorName(editForm.color)}</span>
 									</div>
 									<svg
-										class="text-muted-foreground h-4 w-4"
+										class="text-muted-foreground h-4 w-4 shrink-0 transition-transform {showColorPicker ? 'rotate-180' : ''}"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -413,22 +433,23 @@
 								</button>
 								{#if showColorPicker}
 									<div
-										class="absolute top-full left-0 z-50 mt-1 rounded-md border p-3 shadow-lg"
+										class="absolute top-full left-0 right-0 z-[60] mt-1 bg-background border border-border rounded-md shadow-lg p-3 min-w-max"
 									>
-										<div class="grid grid-cols-4 gap-2">
+										<div class="grid grid-cols-2 gap-2">
 											{#each colorOptions as color}
 												<button
 													type="button"
-													class="h-8 w-8 rounded border-2 {editForm.color === color.value
-													} {color.class}"
+													class="h-8 w-full rounded border-2 transition-all hover:scale-105 {editForm.color === color.value
+														? 'border-foreground ring-2 ring-ring ring-offset-2'
+														: 'border-border hover:border-foreground'} {color.class}"
 													onclick={() => {
 														editForm.color = color.value;
 														showColorPicker = false;
-														// Don't auto-save color changes - only update when user clicks Save
 													}}
 													title={color.name}
 													aria-label="Select {color.name} color"
 												>
+													<span class="sr-only">{color.name}</span>
 												</button>
 											{/each}
 										</div>
@@ -546,7 +567,7 @@
 			</div>
 
 			<!-- Bottom Action Bar -->
-			<div class="sticky bottom- border-t">
+			<div class="sticky bottom-0 border-t border-border bg-background shrink-0">
 				{#if isEditMode && !isCreateMode}
 					<div class="flex gap-2 p-4">
 						<Button variant="outline" class="flex-1" onclick={handleCancel}>Cancel</Button>
