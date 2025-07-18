@@ -13,7 +13,9 @@ import {
 	createSubjectOfferingClassTask,
 	getCurriculumLearningAreaWithStandards,
 	type CurriculumStandardWithElaborations,
-	getSubjectYearLevelBySubjectOfferingId
+	getSubjectYearLevelBySubjectOfferingId,
+	createAnswer,
+	createCriteria
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -81,6 +83,8 @@ async function createBlockFromComponent(component: any, taskId: number) {
 	const type = component.content.type;
 	const content = component.content.content;
 
+	let createdBlock;
+
 	switch (type) {
 		case 'h1':
 		case 'h2':
@@ -89,14 +93,14 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'h5': {
 			// Extract text content properly
 			const headingText = content?.text || content || 'Heading';
-			await createTaskBlock(taskId, type, headingText);
+			createdBlock = await createTaskBlock(taskId, type, headingText);
 			console.log(`Created ${type} block with content: "${headingText}"`);
 			break;
 		}
 		case 'paragraph': {
 			// Extract paragraph content properly
 			const paragraphContent = content?.markdown || '';
-			await createTaskBlock(taskId, taskBlockTypeEnum.markdown, paragraphContent);
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.markdown, paragraphContent);
 			console.log(`Created paragraph block with content length: ${paragraphContent.length}`);
 			break;
 		}
@@ -112,7 +116,7 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const options = content?.options || [];
 			const multiple = content?.multiple || false;
 			const answer = component.answer || [];
-			await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, { question, options, answer, multiple});
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, { question, options, answer, multiple});
 			console.log(`Created multiple choice block: "${question}"`);
 			break;
 		}
@@ -121,7 +125,7 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			// Validate and transform image content structure
 			const url = content?.url || '';
 			const caption = content?.caption || '';
-			await createTaskBlock(taskId, taskBlockTypeEnum.image, { url, caption });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.image, { url, caption });
 			console.log(`Created image block: "${caption}"`);
 			break;
 		}
@@ -129,7 +133,7 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'video': {
 			const url = content?.url || '';
 			const caption = content?.caption || '';
-			await createTaskBlock(taskId, taskBlockTypeEnum.video, { url, caption });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.video, { url, caption });
 			console.log(`Created video block: "${caption}"`);
 			break;
 		}
@@ -138,7 +142,7 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'fill_in_blank': {
 			const sentence = content?.sentence || '';
 			const answer = component.answer || [];
-			await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, { sentence, answer });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, { sentence, answer });
 			console.log(`Created fill-in-blank block: "${sentence}"`);
 			break;
 		}
@@ -146,20 +150,77 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'matching': {
 			const instructions = content?.instructions || '';
 			const pairs = content?.pairs || [];
-			await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs });
 			console.log(`Created matching block with ${pairs.length} pairs: "${instructions}"`);
 			break;
 		}
 		case 'short_answer': {
 			const question = content?.question || '';
-			await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question });
 			console.log(`Created short answer block: "${question}"`);
 			break;
 		}
 
 		default:
 			console.warn(`Unknown block type: ${type}, ignoring`);
-			break;
+			return;
+	}
+
+	// If block was created successfully, process answers and criteria
+	if (createdBlock) {
+		await processAnswersAndCriteria(component, createdBlock.id);
+	}
+}
+
+// Helper function to process answers and criteria for a task block
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function processAnswersAndCriteria(component: any, taskBlockId: number) {
+	try {
+		// Process answers
+		if (component.answers && Array.isArray(component.answers)) {
+			for (const answerData of component.answers) {
+				const answer = answerData.answer || answerData;
+				const marks = answerData.marks || answerData.mark || undefined;
+				
+				await createAnswer(taskBlockId, answer, marks);
+				console.log(`Created answer for task block ${taskBlockId}: marks=${marks || 'none'}`);
+			}
+		} else if (component.answer !== undefined) {
+			// Handle single answer (like in multiple choice, fill in blank, etc.)
+			const marks = component.marks || component.mark || undefined;
+			await createAnswer(taskBlockId, component.answer, marks);
+			console.log(`Created answer for task block ${taskBlockId}: marks=${marks || 'none'}`);
+		}
+
+		// Process criteria
+		if (component.criteria && Array.isArray(component.criteria)) {
+			for (const criteriaData of component.criteria) {
+				const description = criteriaData.description || criteriaData.criterion || criteriaData;
+				const marks = criteriaData.marks || criteriaData.mark || 1; // Default to 1 mark if not specified
+				
+				if (typeof description === 'string' && description.trim()) {
+					await createCriteria(taskBlockId, description.trim(), marks);
+					console.log(`Created criteria for task block ${taskBlockId}: "${description}" (${marks} marks)`);
+				}
+			}
+		}
+
+		// Process marking criteria (alternative structure)
+		if (component.marking_criteria && Array.isArray(component.marking_criteria)) {
+			for (const criteriaData of component.marking_criteria) {
+				const description = criteriaData.description || criteriaData.criterion || criteriaData;
+				const marks = criteriaData.marks || criteriaData.mark || 1;
+				
+				if (typeof description === 'string' && description.trim()) {
+					await createCriteria(taskBlockId, description.trim(), marks);
+					console.log(`Created marking criteria for task block ${taskBlockId}: "${description}" (${marks} marks)`);
+				}
+			}
+		}
+
+	} catch (error) {
+		console.error(`Error processing answers/criteria for task block ${taskBlockId}:`, error);
+		// Don't throw - continue processing other blocks
 	}
 }
 

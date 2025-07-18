@@ -25,6 +25,8 @@ Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
 Analyse the attached documents/images and create homework that reinforces learning with:
+    - Focus primarily on these question components: short_answer, matching, fill_in_blank, multiple_choice, and math_input. Use headers and paragraphs only when introducing or explaining questions.
+    - Ensure you include at least one \`short_answer\` component for open-ended written responses.
     1. A subtitle as a h2 about the homework. Do not include a title.
     2. Brief instructions or review sections with headers (h2, h3, h4, h5, h6)
     3. Practice problems and exercises including:
@@ -36,6 +38,11 @@ Analyse the attached documents/images and create homework that reinforces learni
     4. Focus primarily on practice questions rather than lengthy explanations
     5. Progressive difficulty from basic recall to application
     6. Clear instructions for each section
+    - For every block that has an **answer**, also include a **marks** field (number ≥ 1).
+    - If a block includes **criteria**, provide one or more criteria objects:
+        • Each object needs { description, marks }
+        • The sum of criteria.marks must equal the block's marks.
+    - In lessons, you may leave marks blank or 0; in homework and assessments, marks are required.
 Each component should be structured according to the provided schema. Prioritize interactive practice over explanatory content.`,
 
 	assessment: (
@@ -46,6 +53,8 @@ Title: ${title}
 ${description ? `Description: ${description}` : ''}
 
 Analyse the attached documents/images and create an assessment that evaluates student understanding with:
+    - Focus primarily on these question components: short_answer, matching, fill_in_blank, multiple_choice, and math_input. Use headers and paragraphs only when introducing or explaining questions.
+    - Ensure you include at least one \`short_answer\` component for open-ended evaluation.
     1. A clear assessment subtitle and brief instructions. Do not include a title.
     2. Varied question types to test different skill levels:
         - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
@@ -57,8 +66,23 @@ Analyse the attached documents/images and create an assessment that evaluates st
     4. Clear, unambiguous question wording
     5. Comprehensive coverage of the topic material
     6. Minimal explanatory content - focus on evaluation questions
+    - For every block that has an **answer**, also include a **marks** field (number ≥ 1).
+    - If a block includes **criteria**, provide one or more criteria objects:
+        • Each object needs { description, marks }
+        • The sum of criteria.marks must equal the block's marks.
+    - In lessons, you may leave marks blank or 0; in homework and assessments, marks are required.
 Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`
 };
+
+// Shared criteria item schema for answer/criteria blocks
+const criteriaItem = {
+  type: 'object',
+  properties: {
+    description: { type: 'string' },
+    marks: { type: 'number' }
+  },
+  required: ['description', 'marks']
+} as const;
 
 export const headerComponent = {
 	type: 'object',
@@ -106,9 +130,12 @@ export const mathInputComponent = {
 	type: 'object',
 	properties: {
 		criteria: {
-			oneOf: [{ type: 'array', items: { type: 'string' } }, { type: 'null' }]
+			type: 'array',
+			items: criteriaItem,
+			minItems: 1
 		},
 		answer: { type: 'string' },
+		marks: { type: 'number' },
 		content: {
 			type: 'object',
 			properties: {
@@ -138,6 +165,7 @@ export const multipleChoiceComponent = {
 				'Array of strings that must be a subset of the options array. For single answer questions, array should contain one item. For multiple answer questions, array can contain multiple items.',
 			minItems: 1
 		},
+		marks: { type: 'number' },
 		content: {
 			type: 'object',
 			properties: {
@@ -213,6 +241,7 @@ export const fillInBlankComponent = {
 			items: { type: 'string' },
 			minItems: 1
 		},
+		marks: { type: 'number' },
 		content: {
 			type: 'object',
 			properties: {
@@ -246,6 +275,7 @@ export const matchingComponent = {
 			},
 			description: 'Array of correct pairs for the matching exercise'
 		},
+		marks: { type: 'number' },
 		content: {
 			type: 'object',
 			properties: {
@@ -280,8 +310,10 @@ export const shortAnswerComponent = {
 	properties: {
 		criteria: {
 			type: 'array',
-			items: { type: 'string' }
+			items: criteriaItem,
+			minItems: 1
 		},
+		marks: { type: 'number' },
 		content: {
 			type: 'object',
 			properties: {

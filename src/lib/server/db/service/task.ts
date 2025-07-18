@@ -855,3 +855,195 @@ export async function duplicateRubric(rubricId: number, newTitle?: string) {
 
 	return await createCompleteRubric(title, rows);
 }
+
+// Answer methods
+export async function createAnswer(
+	taskBlockId: number,
+	answer: unknown,
+	marks?: number
+) {
+	const [createdAnswer] = await db
+		.insert(table.answer)
+		.values({
+			taskBlockId,
+			answer,
+			marks
+		})
+		.returning();
+
+	return createdAnswer;
+}
+
+export async function updateAnswer(
+	answerId: number,
+	updates: {
+		answer?: unknown;
+		marks?: number;
+	}
+) {
+	const [updatedAnswer] = await db
+		.update(table.answer)
+		.set({ ...updates })
+		.where(eq(table.answer.id, answerId))
+		.returning();
+
+	return updatedAnswer;
+}
+
+export async function deleteAnswer(answerId: number) {
+	await db.delete(table.answer).where(eq(table.answer.id, answerId));
+}
+
+export async function getAnswersByTaskBlockId(taskBlockId: number) {
+	const answers = await db
+		.select()
+		.from(table.answer)
+		.where(eq(table.answer.taskBlockId, taskBlockId))
+		.orderBy(asc(table.answer.id));
+
+	return answers;
+}
+
+export async function getAnswerById(answerId: number) {
+	const answers = await db
+		.select()
+		.from(table.answer)
+		.where(eq(table.answer.id, answerId))
+		.limit(1);
+
+	return answers[0] || null;
+}
+
+// Criteria methods
+export async function createCriteria(
+	taskBlockId: number,
+	description: string,
+	marks: number
+) {
+	const [createdCriteria] = await db
+		.insert(table.criteria)
+		.values({
+			taskBlockId,
+			description,
+			marks
+		})
+		.returning();
+
+	return createdCriteria;
+}
+
+export async function updateCriteria(
+	criteriaId: number,
+	updates: {
+		description?: string;
+		marks?: number;
+	}
+) {
+	const [updatedCriteria] = await db
+		.update(table.criteria)
+		.set({ ...updates })
+		.where(eq(table.criteria.id, criteriaId))
+		.returning();
+
+	return updatedCriteria;
+}
+
+export async function deleteCriteria(criteriaId: number) {
+	await db.delete(table.criteria).where(eq(table.criteria.id, criteriaId));
+}
+
+export async function getCriteriaByTaskBlockId(taskBlockId: number) {
+	const criteria = await db
+		.select()
+		.from(table.criteria)
+		.where(eq(table.criteria.taskBlockId, taskBlockId))
+		.orderBy(asc(table.criteria.id));
+
+	return criteria;
+}
+
+export async function getCriteriaById(criteriaId: number) {
+	const criteria = await db
+		.select()
+		.from(table.criteria)
+		.where(eq(table.criteria.id, criteriaId))
+		.limit(1);
+
+	return criteria[0] || null;
+}
+
+// Combined methods for task block with answers and criteria
+export async function getTaskBlockWithAnswersAndCriteria(taskBlockId: number) {
+	const taskBlock = await db
+		.select()
+		.from(table.taskBlock)
+		.where(eq(table.taskBlock.id, taskBlockId))
+		.limit(1);
+
+	if (!taskBlock[0]) {
+		return null;
+	}
+
+	const [answers, criteria] = await Promise.all([
+		getAnswersByTaskBlockId(taskBlockId),
+		getCriteriaByTaskBlockId(taskBlockId)
+	]);
+
+	return {
+		taskBlock: taskBlock[0],
+		answers,
+		criteria
+	};
+}
+
+export async function createTaskBlockWithAnswersAndCriteria(
+	taskId: number,
+	type: table.taskBlockTypeEnum,
+	content: unknown,
+	answers?: Array<{ answer: unknown; marks?: number }>,
+	criteria?: Array<{ description: string; marks: number }>,
+	index?: number
+) {
+	return await db.transaction(async (tx) => {
+		// Create the task block
+		const taskBlock = await createTaskBlock(taskId, type, content, index);
+
+		// Create answers if provided
+		const createdAnswers = [];
+		if (answers && answers.length > 0) {
+			for (const answerData of answers) {
+				const [answer] = await tx
+					.insert(table.answer)
+					.values({
+						taskBlockId: taskBlock.id,
+						answer: answerData.answer,
+						marks: answerData.marks
+					})
+					.returning();
+				createdAnswers.push(answer);
+			}
+		}
+
+		// Create criteria if provided
+		const createdCriteria = [];
+		if (criteria && criteria.length > 0) {
+			for (const criteriaData of criteria) {
+				const [criteriaItem] = await tx
+					.insert(table.criteria)
+					.values({
+						taskBlockId: taskBlock.id,
+						description: criteriaData.description,
+						marks: criteriaData.marks
+					})
+					.returning();
+				createdCriteria.push(criteriaItem);
+			}
+		}
+
+		return {
+			taskBlock,
+			answers: createdAnswers,
+			criteria: createdCriteria
+		};
+	});
+}

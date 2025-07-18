@@ -102,7 +102,6 @@ export const taskBlock = pgTable('task_block', {
 	type: taskBlockTypeEnumPg().notNull(),
 	content: jsonb('content').notNull(),
 	index: integer('index').notNull().default(0),
-	rubric: jsonb('rubric'),
 	availableMarks: integer('available_marks'),
 	...timestamps
 });
@@ -173,7 +172,7 @@ export const taskBlockResponse = pgTable('task_block_response', {
 		.notNull()
 		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
 	response: jsonb('response').notNull(),
-	marks: integer('marks'),
+	marks: doublePrecision('marks'),
 	...timestamps
 });
 
@@ -217,6 +216,18 @@ export const whiteboardObject = pgTable('whiteboard_object', {
 
 export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
 
+export const answer = pgTable('answer', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskBlockId: integer('task_block_id')
+		.notNull()
+		.references(() => taskBlock.id, { onDelete: 'cascade' }),
+	answer: jsonb('answer').notNull(),
+	marks: doublePrecision('marks'),
+	...timestamps
+});
+
+export type Answer = typeof answer.$inferSelect;
+
 export const rubric = pgTable('rubric', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
     title: text('title').notNull(),
@@ -227,7 +238,6 @@ export type Rubric = typeof rubric.$inferSelect;
 
 export const criteria = pgTable('criteria', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-    rubricId: integer('rubric_id').notNull().references(() => rubric.id, { onDelete: 'cascade' }),
     taskBlockId: integer('task_block_id').notNull().references(() => taskBlock.id, { onDelete: 'cascade' }),
     description: text('description').notNull(),
 	marks: doublePrecision('marks').notNull(), // Marks assigned to this criteria 1 or 0.5 etc.

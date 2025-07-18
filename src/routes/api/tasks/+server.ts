@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { updateTaskTitle as updateTaskTitleService } from '$lib/server/db/service';
-import { getLearningAreaContentByCourseMapItemId } from '$lib/server/db/service/task';
+import { getLearningAreaStandardByCourseMapItemId } from '$lib/server/db/service/task';
 
 // PATCH /api/tasks - Update task title
 export async function PATCH({ request }: { request: Request }) {
@@ -37,7 +37,7 @@ export async function GET({ url, locals: { security } }) {
 
 		// Get grouped learning area content for the course map item
 		const learningAreaWithContents =
-			await getLearningAreaContentByCourseMapItemId(courseMapItemIdInt);
+			await getLearningAreaStandardByCourseMapItemId(courseMapItemIdInt);
 
 		// For the frontend, send grouped structure: [{ learningArea, contents: [...] }]
 		return json({
