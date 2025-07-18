@@ -468,6 +468,84 @@ export async function deleteCoursemapItemLessonPlan(lessonPlanId: number) {
 
 	return deleted.length > 0;
 }
+export async function createCourseMapItemAssessmentPlan(
+	courseMapItemId: number,
+	name: string,
+	scope?: string[] | null,
+	description?: string | null,
+	imageBase64?: string | null,
+	rubricId?: number | null
+) {
+	const [assessmentPlan] = await db
+		.insert(table.courseMapItemAssessmentPlan)
+		.values({
+			courseMapItemId,
+			name,
+			scope,
+			description,
+			imageBase64,
+			rubricId
+		})
+		.returning();
+
+	return assessmentPlan;
+}
+export async function updateCourseMapItemAssessmentPlan(
+	assessmentPlanId: number,
+	name?: string,
+	scope?: string[] | null,
+	description?: string | null,
+	imageBase64?: string | null,
+	rubricId?: number | null
+) {
+	const [assessmentPlan] = await db
+		.update(table.courseMapItemAssessmentPlan)
+		.set({
+			name,
+			scope,
+			description,
+			imageBase64,
+			rubricId
+		})
+		.where(eq(table.courseMapItemAssessmentPlan.id, assessmentPlanId))
+		.returning();
+
+	return assessmentPlan;
+}
+
+export async function createAssessmentPlanStandard(
+	assessmentPlanId: number,
+	standardId: number
+) {
+	const [standard] = await db
+		.insert(table.assessmentPlanLearningAreaStandard)
+		.values({
+			courseMapItemAssessmentPlanId: assessmentPlanId,
+			learningAreaStandardId: standardId
+		})
+		.returning();
+
+	return standard;
+}
+
+
+export async function getAssessmentPlanLearningAreaStandards(assessmentPlanId: number) {
+	const standards = await db
+		.select({ learningAreaStandard: table.learningAreaStandard })
+		.from(table.assessmentPlanLearningAreaStandard)
+		.innerJoin(
+			table.learningAreaStandard,
+			eq(
+				table.learningAreaStandard.id,
+				table.assessmentPlanLearningAreaStandard.learningAreaStandardId
+			)
+		)
+		.where(
+			eq(table.assessmentPlanLearningAreaStandard.courseMapItemAssessmentPlanId, assessmentPlanId)
+		);
+
+	return standards.map((row) => row.learningAreaStandard);
+}
 
 export async function getCoursemapItemResources(courseMapItemId: number) {
 	const resources = await db
@@ -606,5 +684,3 @@ export async function createCourseMapItem(
 
 	return courseMapItem;
 }
-
-

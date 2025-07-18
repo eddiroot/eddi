@@ -118,3 +118,138 @@ export function buildLessonPlanImagePrompt(plan: LessonPlan): string {
   prompt += `\nCreate an engaging, colorful illustration that captures the essence of this plan. Do not generate text in the image, just visuals.`;
   return prompt.trim();
 }
+
+
+export const assessmentSchema = {
+  type: 'object',
+  properties: {
+    summary: {
+      type: 'string',
+      description: 'Short preview (≤ 60 words) so a teacher can decide to accept/regenerate'
+    },
+    name: {
+      type: 'string',
+      description: 'Title of the assessment task'
+    },
+    description: {
+      type: 'string',
+      description: 'Detailed overview of the assessment (30-60 words)'
+    },
+    scopes: {
+      type: 'array',
+      description: 'Ordered sections or parts of the assessment',
+      items: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          details: { type: 'string' }
+        },
+        required: ['title', 'details']
+      }
+    },
+    usedStandards: {
+      type: 'array',
+      description:
+        'Learning-area standards addressed (should cover most of the area, not just one or two)',
+      items: {
+        type: 'object',
+        properties: { id: { type: 'integer' }, name: { type: 'string' } },
+        required: ['id']
+      },
+      minItems: 3                // encourage broad coverage
+    },
+    rubric: {
+      type: 'object',
+      description: 'Analytic rubric aligned to the assessment',
+      properties: {
+        rows: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              title: { type: 'string', description: 'Criterion name (e.g. "Analysis")' },
+              cells: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    level: {
+                      type: 'string',
+                      enum: ['exemplary', 'accomplished', 'developing', 'beginning']
+                    },
+                    description: { type: 'string' },
+                    marks: { type: 'number' }
+                  },
+                  required: ['level', 'description', 'marks']
+                },
+                minItems: 4,
+                maxItems: 4
+              }
+            },
+            required: ['title', 'cells']
+          }
+        }
+      },
+      required: ['rows']
+    }
+  },
+  required: [
+    'summary',
+    'name',
+    'description',
+    'scopes',
+    'usedStandards',
+    'rubric'
+  ]
+} as const;
+
+// ─────────────────────────────────────────────────────────────
+// Prompt builder
+// ─────────────────────────────────────────────────────────────
+/**
+ * Build a prompt for Gemini to generate an assessment plan that conforms to
+ * `assessmentSchema`.
+ *
+ * @param contextsJson    JSON-stringified PlanContext[] (curriculum input)
+ * @param yearLevel       Target year level (e.g. "Year 8")
+ * @param userInstruction Optional teacher guidance to influence focus/style
+ */
+export function buildAssessmentPlanPrompt(
+  contextsJson: string,
+  userInstruction = ''
+): string {
+  return `
+You are given:
+
+1) A PlanContext array (JSON) containing curriculum context (topic description, standards, elaborations, yearLevel).
+${userInstruction ? `2) Teacher Guidance: ${userInstruction}\n` : ''}
+
+Use these inputs as a framework—feel free to be creative and engaging.
+
+Return **one** JSON object that follows the schema below (no extra keys):
+
+\`\`\`json
+${JSON.stringify(assessmentSchema, null, 2)}
+\`\`\`
+
+### Key requirements
+- Treat the curriculum as guidance, not a script.
+- **Cover the majority of the learning-area standards** (≥ 3).
+- summary: max 60 words; entice the teacher to accept or regenerate.
+- description: 30-60 words; richer context for the assessment task.
+- scopes: 2-4 ordered parts of the assessment (e.g. research, practical, reflection).
+- rubric.rows: 1 row per key criterion; each must contain **exactly** four cells
+  matching the levels **exemplary, accomplished, developing, beginning**.
+- Allocate sensible marks in each cell so total marks are clear.
+- If **no context** is supplied (empty array), leave usedStandards empty.
+- **Output only the JSON object**—no commentary.
+
+### Input data
+\`\`\`json
+{
+  "contexts": ${contextsJson}
+}
+\`\`\`
+
+Respond now with the JSON object.`.trim();
+}

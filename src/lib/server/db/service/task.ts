@@ -601,3 +601,259 @@ export async function getCurriculumLearningAreaWithStandards(subjectOfferingId: 
 	}
 	return Array.from(map.values());
 }
+
+export async function createRubric(title: string, description: string | null = null) {
+	const [rubric] = await db
+		.insert(table.rubric)
+		.values({
+			title,
+			description,
+
+		})
+		.returning();
+
+		return rubric;
+	}
+
+export async function updateRubric(
+	rubricId: number,
+	updates: { title?: string;}
+) {
+	const [rubric] = await db
+		.update(table.rubric)
+		.set({ ...updates })
+		.where(eq(table.rubric.id, rubricId))
+		.returning();
+
+	return rubric;
+}
+
+export async function getAssessmenPlanRubric(assessmentPlanId: number) {
+	const rubric = await db
+		.select({
+			rubric: table.rubric
+		})
+		.from(table.courseMapItemAssessmentPlan)
+		.innerJoin(table.rubric, eq(table.courseMapItemAssessmentPlan.rubricId, table.rubric.id))
+		.where(eq(table.courseMapItemAssessmentPlan.id, assessmentPlanId))
+		.limit(1);
+
+	return rubric.length > 0 ? rubric[0].rubric : null;
+}
+
+export async function createRubricRow(rubricId: number, title: string) {
+	const [row] = await db
+		.insert(table.rubricRow)
+		.values({
+			rubricId,
+			title
+		})
+		.returning();
+
+	return row;
+}
+
+export async function updateRubricRow(
+	rowId: number,
+	updates: { title?: string; }
+) {
+	const [row] = await db
+		.update(table.rubricRow)
+		.set({ ...updates })
+		.where(eq(table.rubricRow.id, rowId))
+		.returning();
+
+	return row;
+}
+
+export async function deleteRubricRow(rowId: number) {
+	await db.delete(table.rubricRow).where(eq(table.rubricRow.id, rowId));
+}
+
+export async function createRubricCell(
+	rowId: number,
+	level: table.RubricCell['level'],
+	description: string,
+	marks: number
+) {
+	const [cell] = await db
+		.insert(table.rubricCell)
+		.values({
+			rowId,
+			level,
+			description,
+			marks
+		})
+		.returning();
+
+	return cell;
+}
+
+export async function updateRubricCell(
+	cellId: number,
+	updates: {
+		level?: table.RubricCell['level'];
+		description?: string;
+		marks?: number;
+	}
+) {
+	const [cell] = await db
+		.update(table.rubricCell)
+		.set({ ...updates })
+		.where(eq(table.rubricCell.id, cellId))
+		.returning();
+
+	return cell;
+}
+
+export async function deleteRubricCell(cellId: number) {
+	await db.delete(table.rubricCell).where(eq(table.rubricCell.id, cellId));
+}
+
+export async function getRubricById(rubricId: number) {
+	const rubrics = await db
+		.select()
+		.from(table.rubric)
+		.where(eq(table.rubric.id, rubricId))
+		.limit(1);
+
+	return rubrics[0] || null;
+}
+
+export async function getRubricWithRowsAndCells(rubricId: number) {
+	const rows = await db
+		.select({
+			rubric: table.rubric,
+			rubricRow: table.rubricRow,
+			rubricCell: table.rubricCell
+		})
+		.from(table.rubric)
+		.leftJoin(table.rubricRow, eq(table.rubric.id, table.rubricRow.rubricId))
+		.leftJoin(table.rubricCell, eq(table.rubricRow.id, table.rubricCell.rowId))
+		.where(eq(table.rubric.id, rubricId))
+		.orderBy(asc(table.rubricRow.id), asc(table.rubricCell.level));
+
+	if (rows.length === 0) {
+		return null;
+	}
+
+	const rubric = rows[0].rubric;
+	const rowsMap = new Map<number, {
+		row: table.RubricRow;
+		cells: table.RubricCell[];
+	}>();
+
+	for (const row of rows) {
+		if (row.rubricRow) {
+			if (!rowsMap.has(row.rubricRow.id)) {
+				rowsMap.set(row.rubricRow.id, {
+					row: row.rubricRow,
+					cells: []
+				});
+			}
+			if (row.rubricCell) {
+				rowsMap.get(row.rubricRow.id)!.cells.push(row.rubricCell);
+			}
+		}
+	}
+
+	return {
+		rubric,
+		rows: Array.from(rowsMap.values())
+	};
+}
+
+export async function getRubricRowsByRubricId(rubricId: number) {
+	const rows = await db
+		.select()
+		.from(table.rubricRow)
+		.where(eq(table.rubricRow.rubricId, rubricId))
+		.orderBy(asc(table.rubricRow.id));
+
+	return rows;
+}
+
+export async function getRubricCellsByRowId(rowId: number) {
+	const cells = await db
+		.select()
+		.from(table.rubricCell)
+		.where(eq(table.rubricCell.rowId, rowId))
+		.orderBy(asc(table.rubricCell.level));
+
+	return cells;
+}
+
+export async function deleteRubric(rubricId: number) {
+	// Cascade delete will handle rubricRow and rubricCell deletion
+	await db.delete(table.rubric).where(eq(table.rubric.id, rubricId));
+}
+
+export async function createCompleteRubric(
+	title: string,
+	description: string | null,
+	rows: Array<{
+		title: string;
+		cells: Array<{
+			level: table.RubricCell['level'];
+			description: string;
+			marks: number;
+		}>;
+	}>
+) {
+	return await db.transaction(async (tx) => {
+		// Create the rubric
+		const [rubric] = await tx
+			.insert(table.rubric)
+			.values({ title, description })
+			.returning();
+
+		// Create rows and cells
+		const createdRows = [];
+		for (const rowData of rows) {
+			const [row] = await tx
+				.insert(table.rubricRow)
+				.values({
+					rubricId: rubric.id,
+					title: rowData.title
+				})
+				.returning();
+
+			const cells = [];
+			for (const cellData of rowData.cells) {
+				const [cell] = await tx
+					.insert(table.rubricCell)
+					.values({
+						rowId: row.id,
+						level: cellData.level,
+						description: cellData.description,
+						marks: cellData.marks
+					})
+					.returning();
+				cells.push(cell);
+			}
+
+			createdRows.push({ row, cells });
+		}
+
+		return { rubric, rows: createdRows };
+	});
+}
+
+export async function duplicateRubric(rubricId: number, newTitle?: string) {
+	const existingRubric = await getRubricWithRowsAndCells(rubricId);
+	if (!existingRubric) {
+		throw new Error('Rubric not found');
+	}
+
+	const title = newTitle || `${existingRubric.rubric.title} (Copy)`;
+	const rows = existingRubric.rows.map(({ row, cells }) => ({
+		title: row.title,
+		cells: cells.map(cell => ({
+			level: cell.level,
+			description: cell.description,
+			marks: cell.marks
+		}))
+	}));
+
+	return await createCompleteRubric(title, existingRubric.rubric.description, rows);
+}
