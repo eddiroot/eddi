@@ -110,7 +110,7 @@
 			class="w-2 bg-border hover:bg-border/80 cursor-col-resize flex items-center justify-center relative group transition-colors"
 			role="button"
 			tabindex="0"
-			on:mousedown={handleMouseDown}
+			onmousedown={handleMouseDown}
 		>
 			<div class="w-1 h-8 bg-muted-foreground/40 rounded-full group-hover:bg-muted-foreground/60 transition-colors"></div>
 		</div>
