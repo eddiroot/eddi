@@ -69,20 +69,6 @@
 			</div>
 		</CardHeader>
 		<CardContent class="space-y-4">
-			{#if isNotPresent && attendance?.attendanceNote}
-				<div class="text-muted-foreground text-sm">
-					<span class="font-medium">Attendance Note:</span>
-					{attendance.attendanceNote}
-				</div>
-			{/if}
-
-			{#if isPresent && attendance?.behaviourNote}
-				<div class="text-muted-foreground text-sm">
-					<span class="font-medium">Behavioural Note:</span>
-					{attendance.behaviourNote}
-				</div>
-			{/if}
-
 			<!-- Quick action buttons -->
 			<div class="flex gap-2">
 				<form method="POST" action="?/updateAttendance" use:enhance>
