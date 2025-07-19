@@ -35,15 +35,63 @@
 			responses()?.filter((r) => r.response.type === 'comment' && !r.response.parentResponseId) ||
 			[]
 	);
-	
+
+	let isGeneratingSummary = $state(false);
+	let summary = $state('');
+
+	const handleGenerateSummary = async () => {
+		if (!thread()?.thread.id) return;
+
+		isGeneratingSummary = true;
+		try {
+			const response = await fetch('/api/AIsummary', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ threadId: thread()!.thread.id })
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to generate summary');
+			}
+
+			const result = await response.json();
+			summary = result.summary;
+			console.log('Summary generated:', summary);
+		} catch (error) {
+			console.error('Error generating summary:', error);
+		} finally {
+			isGeneratingSummary = false;
+		}
+	};
 </script>
 
 {#if thread()}
 	<div class="mx-auto max-w-4xl space-y-6">
-		<!-- temporary spot for button -->
-		<Button>
-			<p>Summarise</p>
+		<!-- Summary button -->
+		<Button onclick={handleGenerateSummary} disabled={isGeneratingSummary}>
+			{#if isGeneratingSummary}
+				<p>Generating Summary...</p>
+			{:else}
+				<p>Summarise</p>
+			{/if}
 		</Button>
+
+		<!-- Show summary if available -->
+		{#if summary}
+			<Card.Root>
+				<Card.Header>
+					<h3 class="text-lg font-semibold">AI Summary</h3>
+					<Card.Action>
+						<Button variant="secondary" onclick={() => (summary = '')}>Hide Summary</Button>
+					</Card.Action>
+				</Card.Header>
+				<Card.Content>
+					<div class="leading-relaxed whitespace-pre-wrap">
+						{summary}
+					</div>
+				</Card.Content>
+			</Card.Root>
+		{/if}
 		<!-- Main Thread Card -->
 		<Card.Root>
 			<Card.Header class="pb-4">
