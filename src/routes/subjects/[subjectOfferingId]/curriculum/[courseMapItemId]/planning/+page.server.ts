@@ -12,7 +12,11 @@ import {
         addAreasOfStudyToCourseMapItem,
         setCourseMapItemAreasOfStudy,
         removeAreasOfStudyFromCourseMapItem,
-        updateCourseMapItem
+        updateCourseMapItem,
+        getCoursemapItemResources,
+        removeResourceFromCourseMapItem,
+        createResource,
+        addResourceToCourseMapItem
 } from '$lib/server/db/service/coursemap';
 import { createCompleteRubric } from '$lib/server/db/service/task';
 import { redirect, fail } from '@sveltejs/kit';
@@ -25,6 +29,7 @@ import {
         buildAssessmentPlanPrompt,
         buildAssessmentPlanImagePrompt
 } from '$lib/server/planSchema';
+import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
 
 export const load = async ({
         locals: { security },
@@ -37,11 +42,12 @@ export const load = async ({
         const courseMapItem = await getCourseMapItemById(cmId);
         if (!courseMapItem) throw redirect(302, `/subjects/${subjectOfferingId}/curriculum`);
 
-        const [learningAreas, lessonPlans, assessmentPlans, availableLearningAreas] = await Promise.all([
+        const [learningAreas, lessonPlans, assessmentPlans, availableLearningAreas, resources] = await Promise.all([
                 getCourseMapItemLearningAreas(cmId),
                 getCoursemapItemLessonPlans(cmId),
                 getCoursemapItemAssessmentPlans(cmId),
-                getSubjectOfferingLearningAreas(parseInt(subjectOfferingId))
+                getSubjectOfferingLearningAreas(parseInt(subjectOfferingId)),
+                getCoursemapItemResources(cmId)
         ]);
 
         return {
@@ -50,7 +56,8 @@ export const load = async ({
                 learningAreas,
                 lessonPlans,
                 assessmentPlans,
-                availableLearningAreas: availableLearningAreas || []
+                availableLearningAreas: availableLearningAreas || [],
+                resources
         };
 };
 
@@ -302,6 +309,118 @@ export const actions = {
                 } catch (error) {
                         console.error('Error creating assessment plan:', error);
                         return fail(500, { message: 'Failed to create assessment plan' });
+                }
+        },
+
+        removeResource: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const resourceId = parseInt(formData.get('resourceId') as string);
+
+                try {
+                        await removeResourceFromCourseMapItem(courseMapItemId, resourceId);
+                        return { success: true };
+                } catch (error) {
+                        console.error('Error removing resource:', error);
+                        return fail(500, { message: 'Failed to remove resource' });
+                }
+        },
+
+        uploadResource: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const file = formData.get('file') as File;
+                
+                // Auto-infer name and type (passed from client but we could also do it here)
+                let name = formData.get('name') as string;
+                let resourceType = formData.get('resourceType') as string;
+
+                // Fallback inference if not provided
+                if (!name) {
+                        name = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+                }
+                
+                if (!resourceType) {
+                        const extension = file.name.split('.').pop()?.toLowerCase();
+                        switch (extension) {
+                                case 'jpg':
+                                case 'jpeg':
+                                case 'png':
+                                case 'gif':
+                                case 'bmp':
+                                case 'webp':
+                                case 'svg':
+                                        resourceType = 'image';
+                                        break;
+                                case 'mp4':
+                                case 'mov':
+                                case 'avi':
+                                case 'mkv':
+                                case 'webm':
+                                case 'wmv':
+                                        resourceType = 'video';
+                                        break;
+                                case 'mp3':
+                                case 'wav':
+                                case 'ogg':
+                                case 'flac':
+                                case 'm4a':
+                                        resourceType = 'audio';
+                                        break;
+                                case 'pdf':
+                                        resourceType = 'pdf';
+                                        break;
+                                case 'doc':
+                                case 'docx':
+                                case 'txt':
+                                case 'rtf':
+                                        resourceType = 'document';
+                                        break;
+                                default:
+                                        resourceType = 'file';
+                        }
+                }
+
+                if (!file) {
+                        return fail(400, { message: 'No file provided' });
+                }
+
+                try {
+                        // Generate unique file name
+                        const uniqueFileName = generateUniqueFileName(file.name);
+                        
+                        // Convert file to buffer
+                        const buffer = Buffer.from(await file.arrayBuffer());
+                        
+                        // Upload to object storage
+                        const user = security.getUser();
+                        const schoolId = user.schoolId?.toString() || 'default';
+                        const objectKey = `${schoolId}/coursemap/${courseMapItemId}/${uniqueFileName}`;
+                        await uploadBufferHelper(buffer, 'schools', objectKey, file.type);
+
+                        // Create resource in database (no description since we're auto-inferring everything)
+                        const resource = await createResource(
+                                name,
+                                file.name,
+                                objectKey,
+                                file.type,
+                                file.size,
+                                resourceType,
+                                security.getUser().id,
+                                undefined // No description
+                        );
+
+                        // Link resource to course map item
+                        await addResourceToCourseMapItem(courseMapItemId, resource.id);
+
+                        return { success: true, resource };
+                } catch (error) {
+                        console.error('Error uploading resource:', error);
+                        return fail(500, { message: 'Failed to upload resource' });
                 }
         }
 };

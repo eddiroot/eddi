@@ -180,6 +180,24 @@ export const assessmentPlanLearningAreaStandard = pgTable(
 export type AssessmentPlanLearningAreaStandard =
 	typeof assessmentPlanLearningAreaStandard.$inferSelect;
 
+export const resource = pgTable(
+	'resource',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		fileName: text('file_name').notNull(), 
+		objectKey: text('object_key').notNull(), 
+		bucketName: text('bucket_name').notNull().default('schools'),
+		contentType: text('content_type').notNull(),
+		fileSize: integer('file_size').notNull(), 
+		resourceType: text('resource_type').notNull(), 
+		uploadedBy: text('uploaded_by').notNull(),  
+		isActive: boolean('is_active').notNull().default(true),
+		...timestamps
+	}
+);
+
+export type Resource = typeof resource.$inferSelect;
+
 export const courseMapItemResource = pgTable(
 	'course_map_item_resource',
 	{
@@ -187,7 +205,9 @@ export const courseMapItemResource = pgTable(
 		courseMapItemId: integer('cm_item_id')
 			.notNull()
 			.references(() => courseMapItem.id, { onDelete: 'cascade' }),
-		resourceId: integer('resource_id').notNull(),
+		resourceId: integer('resource_id')
+			.notNull()
+			.references(() => resource.id, { onDelete: 'cascade' }),
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),

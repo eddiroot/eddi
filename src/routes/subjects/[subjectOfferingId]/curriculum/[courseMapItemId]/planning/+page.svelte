@@ -18,6 +18,8 @@
 	import LessonPlanCard from './components/LessonPlanCard.svelte';
 	import AssessmentPlanCard from './components/AssessmentPlanCard.svelte';
 	import VcaaLearningAreaCard from '$lib/components/CurriculumLearningAreaCard.svelte';
+	import ResourcesPopover from './components/ResourcesPopover.svelte';
+	import ResourceFileInput from './components/ResourceFileInput.svelte';
 	import Edit from '@lucide/svelte/icons/edit';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
@@ -35,6 +37,7 @@
 	let isCreatingAssessmentPlan = $state(false);
 	let currentLessonInstruction = $state('');
 	let currentAssessmentInstruction = $state('');
+	let resourceFileInput: any;
 	
 	// Edit mode state
 	let editMode = $state(false);
@@ -94,6 +97,59 @@
 	// Function to remove learning area locally (only affects UI until save)
 	function removeLearningAreaLocally(learningAreaId: number) {
 		editedLearningAreas = editedLearningAreas.filter(la => la.id !== learningAreaId);
+	}
+
+	// Resource management functions
+	function handleAddResource() {
+		resourceFileInput?.triggerUpload();
+	}
+
+	function handleResourceAdded() {
+		invalidateAll();
+	}
+
+	async function handleRemoveResource(resourceId: number) {
+		try {
+			const formData = new FormData();
+			formData.set('resourceId', resourceId.toString());
+
+			const response = await fetch('?/removeResource', {
+				method: 'POST',
+				body: formData
+			});
+
+			const result = await response.json();
+			if (result.type === 'success') {
+				invalidateAll();
+			} else {
+				alert('Failed to remove resource');
+			}
+		} catch (error) {
+			console.error('Error removing resource:', error);
+			alert('Failed to remove resource');
+		}
+	}
+
+	async function handleDownloadResource(resource: any) {
+		try {
+			const response = await fetch(`/api/resources?resourceId=${resource.id}&action=download`);
+			const result = await response.json();
+			
+			if (result.downloadUrl) {
+				// Create a temporary link to trigger download
+				const link = document.createElement('a');
+				link.href = result.downloadUrl;
+				link.download = result.fileName;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			} else {
+				alert('Failed to generate download link');
+			}
+		} catch (error) {
+			console.error('Error downloading resource:', error);
+			alert('Failed to download resource');
+		}
 	}
 
 	// Handle form response
@@ -180,7 +236,12 @@
 			</div>
 			<div class="flex items-center gap-1">
 				<Archive class="w-4 h-4" />
-				8 Resources
+				<ResourcesPopover 
+					resources={data.resources} 
+					onAddResource={handleAddResource}
+					onRemoveResource={handleRemoveResource}
+					onDownloadResource={handleDownloadResource}
+				/>
 			</div>
 		</div>
 	</div>
@@ -803,3 +864,10 @@
 		{/if}
 	</div>
 </div>
+
+<!-- Resource File Input -->
+<ResourceFileInput
+	bind:this={resourceFileInput}
+	courseMapItemId={data.courseMapItem.id}
+	onResourceAdded={handleResourceAdded}
+/>

@@ -542,11 +542,21 @@ export async function getAssessmentPlanLearningAreaStandards(assessmentPlanId: n
 export async function getCoursemapItemResources(courseMapItemId: number) {
 	const resources = await db
 		.select({
-			resource: table.courseMapItemResource
+			resource: table.resource,
+			relationship: table.courseMapItemResource
 		})
 		.from(table.courseMapItemResource)
-		.where(eq(table.courseMapItemResource.courseMapItemId, courseMapItemId))
-		.orderBy(asc(table.courseMapItemResource.resourceId));
+		.innerJoin(
+			table.resource,
+			eq(table.resource.id, table.courseMapItemResource.resourceId)
+		)
+		.where(
+			and(
+				eq(table.courseMapItemResource.courseMapItemId, courseMapItemId),
+				eq(table.resource.isActive, true),
+				eq(table.courseMapItemResource.isArchived, false)
+			)
+		)
 
 	return resources.map((row) => row.resource);
 }
@@ -698,4 +708,85 @@ export async function updateCourseMapItem(
 		.returning();
 
 	return courseMapItem;
+}
+
+// Resource management functions
+export async function createResource(
+	name: string,
+	fileName: string,
+	objectKey: string,
+	contentType: string,
+	fileSize: number,
+	resourceType: string,
+	uploadedBy: string,
+	description?: string,
+	bucketName: string = 'schools'
+) {
+	const [resource] = await db
+		.insert(table.resource)
+		.values({
+			fileName,
+			objectKey,
+			bucketName,
+			contentType,
+			fileSize,
+			resourceType,
+			uploadedBy
+		})
+		.returning();
+
+	return resource;
+}
+
+export async function getResourceById(resourceId: number) {
+	const [resource] = await db
+		.select()
+		.from(table.resource)
+		.where(
+			and(
+				eq(table.resource.id, resourceId),
+				eq(table.resource.isActive, true)
+			)
+		)
+		.limit(1);
+
+	return resource || null;
+}
+
+export async function deleteResource(resourceId: number) {
+	const [resource] = await db
+		.update(table.resource)
+		.set({ isActive: false })
+		.where(eq(table.resource.id, resourceId))
+		.returning();
+
+	return resource;
+}
+
+export async function addResourceToCourseMapItem(courseMapItemId: number, resourceId: number) {
+	const [relationship] = await db
+		.insert(table.courseMapItemResource)
+		.values({
+			courseMapItemId,
+			resourceId
+		})
+		.onConflictDoNothing()
+		.returning();
+
+	return relationship;
+}
+
+export async function removeResourceFromCourseMapItem(courseMapItemId: number, resourceId: number) {
+	const [relationship] = await db
+		.update(table.courseMapItemResource)
+		.set({ isArchived: true })
+		.where(
+			and(
+				eq(table.courseMapItemResource.courseMapItemId, courseMapItemId),
+				eq(table.courseMapItemResource.resourceId, resourceId)
+			)
+		)
+		.returning();
+
+	return relationship;
 }
