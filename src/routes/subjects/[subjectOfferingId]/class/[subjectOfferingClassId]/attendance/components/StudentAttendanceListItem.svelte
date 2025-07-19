@@ -1,19 +1,22 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { convertToFullName } from '$lib/utils';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
-	import { fade, scale } from 'svelte/transition';
+	import Clock from '@lucide/svelte/icons/clock';
+	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
+	import { fade } from 'svelte/transition';
 	import type { SuperForm } from 'sveltekit-superforms';
 	import type {
 		SubjectClassAllocation,
 		SubjectClassAllocationAttendance,
 		User
 	} from '$lib/server/db/schema';
+	import { PenIcon, MessageCircleWarning } from '@lucide/svelte';
 
 	type AttendanceRecord = {
 		user: Pick<User, 'id' | 'firstName' | 'middleName' | 'lastName'>;
@@ -47,39 +50,63 @@
 
 	function getAttendanceStatus(attendance: any): {
 		status: string;
-		variant: 'default' | 'secondary' | 'destructive';
+		variant: 'success' | 'destructive' | 'outline';
 	} {
-		if (!attendance) return { status: 'Unrecorded', variant: 'secondary' };
+		if (!attendance) return { status: 'Unrecorded', variant: 'outline' };
 		if (attendance.wasAbsent) return { status: 'Away', variant: 'destructive' };
-		if (attendance.didAttend === true) return { status: 'Present', variant: 'default' };
+		if (attendance.didAttend === true) return { status: 'Present', variant: 'success' };
 		return { status: 'Absent', variant: 'destructive' };
 	}
 
 	const statusInfo = $derived(getAttendanceStatus(attendance));
+
+	let dialogOpen = $state(false);
 </script>
 
-<div class="h-full" in:fade={{ duration: 200 }} out:scale={{ duration: 200, start: 0.95 }}>
-	<Card class="h-full gap-3 {type === 'marked' ? 'opacity-80 transition-all' : 'transition-all'}">
-		<CardHeader>
-			<div class="flex items-start justify-between">
-				<CardTitle>{fullName}</CardTitle>
-				<Badge variant={statusInfo.variant} class="text-xs">
-					{statusInfo.status}
-				</Badge>
+<div class="border-border border-b transition-all last:border-b-0" in:fade={{ duration: 200 }}>
+	<div class="flex items-center justify-between p-4">
+		<!-- Student info and status -->
+		<div class="flex items-center gap-2">
+			<div class="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+				<span class="text-sm font-medium">
+					{user.firstName.charAt(0)}{user.lastName.charAt(0)}
+				</span>
 			</div>
-		</CardHeader>
-		<CardContent class="space-y-4">
-			<!-- Quick action buttons -->
-			<div class="flex gap-2">
+			<div class="flex flex-col">
+				<h3 class="truncate font-medium">{fullName}</h3>
+				<div class="flex items-center gap-2">
+					<Badge variant={statusInfo.variant} class="text-xs">
+						{statusInfo.status}
+					</Badge>
+					<div class="flex items-center gap-2">
+						{#if attendance?.behaviourNote}
+							<NotebookPen class="size-4" />
+						{/if}
+
+						{#if attendance?.attendanceNote}
+							<MessageCircleWarning class="size-4" />
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Action buttons -->
+		<div class="flex items-center gap-2">
+			{#if type === 'marked' && isNotPresent && !wasAbsent}
 				<form method="POST" action="?/updateAttendance" use:enhance>
 					<input type="hidden" name="didAttend" value="true" />
 					<input type="hidden" name="userId" value={user.id} />
 					<input type="hidden" name="subjectClassAllocationId" value={subjectClassAllocation.id} />
-					<Button size="sm" type="submit" disabled={wasAbsent}>
-						<Check />
-						Present
+					<input type="hidden" name="behaviourNote" value="Amended from absent - arrived late" />
+					<Button variant="outline" size="sm" type="submit">
+						<Clock />
+						Amend as Late
 					</Button>
 				</form>
+			{/if}
+
+			{#if type === 'unmarked' || isPresent}
 				<form method="POST" action="?/updateAttendance" use:enhance>
 					<input type="hidden" name="didAttend" value="false" />
 					<input type="hidden" name="userId" value={user.id} />
@@ -89,8 +116,43 @@
 						Absent
 					</Button>
 				</form>
-			</div>
+			{/if}
 
+			{#if isPresent}
+				<Button size="sm" onclick={() => (dialogOpen = true)} disabled={type === 'unmarked'}>
+					<PenIcon />
+					Add Notes
+				</Button>
+			{/if}
+
+			{#if !attendance?.attendanceNote && (type === 'unmarked' || isNotPresent)}
+				<form method="POST" action="?/updateAttendance" use:enhance>
+					<input type="hidden" name="didAttend" value="true" />
+					<input type="hidden" name="userId" value={user.id} />
+					<input type="hidden" name="subjectClassAllocationId" value={subjectClassAllocation.id} />
+					<Button size="sm" type="submit" disabled={wasAbsent} variant="success">
+						<Check />
+						Present
+					</Button>
+				</form>
+			{/if}
+
+			{#if attendance?.attendanceNote}
+				<p class="text-muted-foreground text-sm">{attendance?.attendanceNote}</p>
+			{/if}
+		</div>
+	</div>
+</div>
+
+<!-- Modal Dialog -->
+<Dialog.Root bind:open={dialogOpen}>
+	<Dialog.Content class="max-w-md">
+		<Dialog.Header>
+			<Dialog.Title>{fullName}</Dialog.Title>
+			<Dialog.Description>View and edit behaviour notes for this student.</Dialog.Description>
+		</Dialog.Header>
+
+		<div class="space-y-4 py-4">
 			{#if type === 'marked' && isPresent && !wasAbsent}
 				<form method="POST" action="?/updateAttendance" use:enhance class="space-y-2">
 					<input type="hidden" name="didAttend" value="true" />
@@ -117,31 +179,21 @@
 				</form>
 			{/if}
 
-			{#if type === 'marked' && isNotPresent && !wasAbsent}
-				<form method="POST" action="?/updateAttendance" use:enhance class="space-y-2">
-					<input type="hidden" name="didAttend" value="false" />
-					<input type="hidden" name="userId" value={user.id} />
-					<input type="hidden" name="subjectClassAllocationId" value={subjectClassAllocation.id} />
-
-					<Form.Field {form} name="attendanceNote">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label class="text-sm font-medium">Attendance Notes</Form.Label>
-								<Textarea
-									{...props}
-									name="attendanceNote"
-									placeholder="Add attendance notes..."
-									class="min-h-20 resize-none"
-									value={attendance?.attendanceNote || ''}
-									onblur={(e) => {
-										(e.target as HTMLTextAreaElement)?.form?.requestSubmit();
-									}}
-								/>
-							{/snippet}
-						</Form.Control>
-					</Form.Field>
-				</form>
+			{#if !isPresent && !isNotPresent && !wasAbsent}
+				<div class="text-muted-foreground text-sm">
+					No attendance recorded yet. Use the buttons above to mark attendance.
+				</div>
 			{/if}
-		</CardContent>
-	</Card>
-</div>
+
+			{#if wasAbsent}
+				<div class="text-muted-foreground text-sm">This student was marked as away today.</div>
+			{/if}
+		</div>
+
+		<Dialog.Footer>
+			<Dialog.Close>
+				<Button variant="outline">Close</Button>
+			</Dialog.Close>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>

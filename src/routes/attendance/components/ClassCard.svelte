@@ -10,7 +10,9 @@
 
 	let hasAttendance = $derived(record.attendance !== null);
 	let isPresent = $derived(record.attendance?.didAttend ?? false);
-	let hasNote = $derived(record.attendance?.note && record.attendance.note.trim() !== '');
+	let hasNote = $derived(
+		record.attendance?.attendanceNote && record.attendance.attendanceNote.trim() !== ''
+	);
 </script>
 
 <Card.Root

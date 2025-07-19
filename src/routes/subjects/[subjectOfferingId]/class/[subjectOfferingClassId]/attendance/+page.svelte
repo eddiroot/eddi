@@ -6,7 +6,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { attendanceSchema } from './schema.js';
-	import StudentAttendanceCard from './components/StudentAttendanceCard.svelte';
+	import StudentAttendanceListItem from './components/StudentAttendanceListItem.svelte';
 
 	const { data } = $props();
 	const attendances = $derived(data.attendances || []);
@@ -83,10 +83,10 @@
 					{unmarkedAttendances.length} remaining
 				</Badge>
 			</div>
-			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+			<div class="bg-card border-border overflow-hidden rounded-lg border">
 				{#each unmarkedAttendances as attendanceRecord (attendanceRecord.user.id)}
 					<div animate:flip={{ duration: 400 }}>
-						<StudentAttendanceCard {attendanceRecord} {form} {enhance} type="unmarked" />
+						<StudentAttendanceListItem {attendanceRecord} {form} {enhance} type="unmarked" />
 					</div>
 				{/each}
 			</div>
@@ -108,10 +108,10 @@
 					{markedAttendances.filter((a) => a.attendance?.wasAbsent).length} away today
 				</div>
 			</div>
-			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+			<div class="bg-card border-border overflow-hidden rounded-lg border">
 				{#each markedAttendances as attendanceRecord (attendanceRecord.user.id)}
 					<div animate:flip={{ duration: 400 }}>
-						<StudentAttendanceCard {attendanceRecord} {form} {enhance} type="marked" />
+						<StudentAttendanceListItem {attendanceRecord} {form} {enhance} type="marked" />
 					</div>
 				{/each}
 			</div>
