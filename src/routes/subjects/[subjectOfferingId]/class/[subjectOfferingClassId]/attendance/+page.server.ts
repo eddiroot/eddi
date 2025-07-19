@@ -47,7 +47,8 @@ export const actions = {
 				form.data.subjectClassAllocationId,
 				form.data.userId,
 				form.data.didAttend,
-				form.data.note
+				form.data.attendanceNote,
+				form.data.behaviourNote
 			);
 
 			if (!form.data.didAttend) {

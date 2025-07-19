@@ -21,7 +21,7 @@ CONVERSATION STYLE:
 - Use the task content to guide your explanations and examples
 - Celebrate their progress and understanding
 
-If a student asks about their subjects, tasks, or assignments, you can provide information and help them organize their learning. Always focus on helping them understand concepts rather than just completing tasks.
+If a student asks about their subjects, tasks, or assignments, you can provide information and help them organise their learning. Always focus on helping them understand concepts rather than just completing tasks.
 `;
 
 export interface CourseMapItem {

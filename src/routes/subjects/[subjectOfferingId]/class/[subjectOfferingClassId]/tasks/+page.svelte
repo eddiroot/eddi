@@ -200,7 +200,7 @@
 			<Dialog.Header>
 				<Dialog.Title>Upload Resource</Dialog.Title>
 				<Dialog.Description>
-					Upload a file to share with your class. Select a topic to organize the resource.
+					Upload a file to share with your class. Select a topic to organise the resource.
 				</Dialog.Description>
 			</Dialog.Header>
 			<form method="post" action="?/upload" use:enhance enctype="multipart/form-data" class="space-y-4">

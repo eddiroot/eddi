@@ -26,13 +26,13 @@ This list is ordered by priority, with the highest priority at the top and the l
 All
 
 - [ ] Security review e.g. prompt injection (Late October)
+- [ ] Home pages and feature pages
 
 Lachie
 
 - [ ] Behavioural reporting (visible to teachers and parents) (07/08)
 - [ ] Teachers can see past attendance (20/08)
 - [ ] Admin dashboard allocations page (28/08)
-- [ ] Home page (Late October)
 - [ ] Timetabling
 - [ ] Exam timetabling
 - [ ] Events appearing in everyone's timetables

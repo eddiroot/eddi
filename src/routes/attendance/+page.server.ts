@@ -92,7 +92,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const { studentId, date, note } = form.data;
+		const { studentId, date, attendanceNote } = form.data;
 
 		const dateValidation = validateAttendanceDate(date);
 		if (!dateValidation.isValid) {
@@ -100,7 +100,11 @@ export const actions = {
 		}
 
 		try {
-			const classCount = await markStudentAbsent(studentId, dateValidation.date!, note || '');
+			const classCount = await markStudentAbsent(
+				studentId,
+				dateValidation.date!,
+				attendanceNote || ''
+			);
 
 			return {
 				form,

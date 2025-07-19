@@ -510,7 +510,8 @@ export async function upsertSubjectClassAllocationAttendance(
 	subjectClassAllocationId: number,
 	userId: string,
 	didAttend: boolean,
-	note?: string | null
+	attendanceNote?: string | null,
+	behaviourNote?: string | null
 ) {
 	const [attendance] = await db
 		.insert(table.subjectClassAllocationAttendance)
@@ -518,7 +519,8 @@ export async function upsertSubjectClassAllocationAttendance(
 			subjectClassAllocationId,
 			userId,
 			didAttend,
-			note
+			attendanceNote,
+			behaviourNote
 		})
 		.onConflictDoUpdate({
 			target: [
@@ -527,7 +529,8 @@ export async function upsertSubjectClassAllocationAttendance(
 			],
 			set: {
 				didAttend,
-				note
+				attendanceNote,
+				behaviourNote
 			}
 		})
 		.returning();

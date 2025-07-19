@@ -188,7 +188,8 @@ export const subjectClassAllocationAttendance = pgTable(
 			.references(() => user.id, { onDelete: 'cascade' }),
 		wasAbsent: boolean('was_absent').notNull().default(false),
 		didAttend: boolean('did_attend').notNull().default(false),
-		note: text('note'),
+		attendanceNote: text('attendance_note'),
+		behaviourNote: text('behaviour_note'),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},
