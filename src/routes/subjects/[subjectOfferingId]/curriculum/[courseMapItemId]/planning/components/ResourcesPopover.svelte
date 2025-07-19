@@ -122,15 +122,13 @@
 								<!-- Resource Info -->
 								<div class="flex-1 min-w-0">
 									<div class="flex items-center gap-2 mb-1">
-										<h4 class="font-medium text-sm truncate">{resource.name}</h4>
+										<h4 class="font-medium text-sm truncate">{resource.fileName}</h4>
 										<Badge variant="secondary" class={getResourceTypeColor(resource.resourceType)}>
 											{resource.resourceType}
 										</Badge>
 									</div>
 									<div class="flex items-center gap-3 text-xs text-muted-foreground">
 										<span>{formatFileSize(resource.fileSize)}</span>
-										<span>•</span>
-										<span class="truncate">{resource.fileName}</span>
 									</div>
 								</div>
 								
