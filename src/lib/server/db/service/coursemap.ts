@@ -676,3 +676,26 @@ export async function createCourseMapItem(
 
 	return courseMapItem;
 }
+
+export async function updateCourseMapItem(
+	courseMapItemId: number,
+	topic?: string,
+	description?: string | null,
+	startWeek?: number,
+	duration?: number,
+	color?: string
+) {
+	const [courseMapItem] = await db
+		.update(table.courseMapItem)
+		.set({
+			topic,
+			description,
+			startWeek,
+			duration,
+			color
+		})
+		.where(eq(table.courseMapItem.id, courseMapItemId))
+		.returning();
+
+	return courseMapItem;
+}

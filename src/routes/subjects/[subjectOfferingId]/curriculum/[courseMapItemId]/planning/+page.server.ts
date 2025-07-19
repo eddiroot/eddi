@@ -9,7 +9,10 @@ import {
         createAssessmentPlanStandard,
         getCourseMapItemPlanContexts,
         getSubjectOfferingLearningAreas,
-        addAreasOfStudyToCourseMapItem
+        addAreasOfStudyToCourseMapItem,
+        setCourseMapItemAreasOfStudy,
+        removeAreasOfStudyFromCourseMapItem,
+        updateCourseMapItem
 } from '$lib/server/db/service/coursemap';
 import { createCompleteRubric } from '$lib/server/db/service/task';
 import { redirect, fail } from '@sveltejs/kit';
@@ -139,6 +142,60 @@ export const actions = {
                 } catch (error) {
                         console.error('Error adding learning area:', error);
                         return fail(500, { message: 'Failed to add learning area' });
+                }
+        },
+
+        updateCourseMapItem: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const topic = formData.get('topic') as string;
+                const description = formData.get('description') as string;
+                const startWeek = parseInt(formData.get('startWeek') as string);
+                const duration = parseInt(formData.get('duration') as string);
+                const learningAreaIdsJson = formData.get('learningAreaIds') as string;
+
+                if (!topic) {
+                        return fail(400, { message: 'Topic is required' });
+                }
+
+                try {
+                        // Update course map item using service function
+                        const updatedItem = await updateCourseMapItem(
+                                courseMapItemId,
+                                topic,
+                                description,
+                                startWeek,
+                                duration
+                        );
+
+                        // Update learning areas
+                        if (learningAreaIdsJson) {
+                                const learningAreaIds = JSON.parse(learningAreaIdsJson);
+                                await setCourseMapItemAreasOfStudy(courseMapItemId, learningAreaIds);
+                        }
+
+                        return { success: true, courseMapItem: updatedItem };
+                } catch (error) {
+                        console.error('Error updating course map item:', error);
+                        return fail(500, { message: 'Failed to update course map item' });
+                }
+        },
+
+        removeLearningArea: async ({ request, params, locals: { security } }) => {
+                security.isAuthenticated();
+
+                const courseMapItemId = parseInt(params.courseMapItemId);
+                const formData = await request.formData();
+                const learningAreaId = parseInt(formData.get('learningAreaId') as string);
+
+                try {
+                        await removeAreasOfStudyFromCourseMapItem(courseMapItemId, [learningAreaId]);
+                        return { success: true };
+                } catch (error) {
+                        console.error('Error removing learning area:', error);
+                        return fail(500, { message: 'Failed to remove learning area' });
                 }
         },
 

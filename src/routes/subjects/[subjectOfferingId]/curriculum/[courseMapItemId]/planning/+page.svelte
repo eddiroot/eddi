@@ -40,16 +40,61 @@
 	let editMode = $state(false);
 	let editedTopic = $state(data.courseMapItem.topic);
 	let editedDescription = $state(data.courseMapItem.description || '');
-	let editedStartWeek = $state(data.courseMapItem.startWeek);
-	let editedDuration = $state(data.courseMapItem.duration);
+	let editedStartWeek = $state(data.courseMapItem.startWeek ?? 1);
+	let editedDuration = $state(data.courseMapItem.duration ?? 1);
+	let editedLearningAreas = $state([...data.learningAreas]); // Local copy for edit mode
 
 	// Update edited values when data changes
 	$effect(() => {
 		editedTopic = data.courseMapItem.topic;
 		editedDescription = data.courseMapItem.description || '';
-		editedStartWeek = data.courseMapItem.startWeek;
-		editedDuration = data.courseMapItem.duration;
+		editedStartWeek = data.courseMapItem.startWeek ?? 1;
+		editedDuration = data.courseMapItem.duration ?? 1;
+		editedLearningAreas = [...data.learningAreas];
 	});
+
+	// Function to save all changes
+	async function saveChanges() {
+		try {
+			const formData = new FormData();
+			formData.set('topic', editedTopic);
+			formData.set('description', editedDescription);
+			formData.set('startWeek', (editedStartWeek ?? 1).toString());
+			formData.set('duration', (editedDuration ?? 1).toString());
+			formData.set('learningAreaIds', JSON.stringify(editedLearningAreas.map(la => la.id)));
+
+			const response = await fetch('?/updateCourseMapItem', {
+				method: 'POST',
+				body: formData
+			});
+
+			const result = await response.json();
+			if (result.type === 'success') {
+				editMode = false;
+				invalidateAll();
+			} else {
+				alert('Failed to save changes');
+			}
+		} catch (error) {
+			console.error('Error saving changes:', error);
+			alert('Failed to save changes');
+		}
+	}
+
+	// Function to cancel changes
+	function cancelChanges() {
+		editedTopic = data.courseMapItem.topic;
+		editedDescription = data.courseMapItem.description || '';
+		editedStartWeek = data.courseMapItem.startWeek ?? 1;
+		editedDuration = data.courseMapItem.duration ?? 1;
+		editedLearningAreas = [...data.learningAreas];
+		editMode = false;
+	}
+
+	// Function to remove learning area locally (only affects UI until save)
+	function removeLearningAreaLocally(learningAreaId: number) {
+		editedLearningAreas = editedLearningAreas.filter(la => la.id !== learningAreaId);
+	}
 
 	// Handle form response
 	$effect(() => {
@@ -146,29 +191,21 @@
 			<div class="flex gap-2">
 				<Button 
 					size="sm" 
-					variant="secondary"
-					onclick={() => {
-						// Save changes logic will go here
-						editMode = false;
-					}}
+					variant="default"
+					onclick={saveChanges}
 					class="bg-green-600 hover:bg-green-700 text-white font-medium px-4"
 				>
-					Save & View Mode
+					<Check class="w-4 h-4 mr-2" />
+					Save
 				</Button>
 				<Button 
 					size="sm" 
-					variant="secondary"
-					onclick={() => {
-						// Reset changes
-						editedTopic = data.courseMapItem.topic;
-						editedDescription = data.courseMapItem.description || '';
-						editedStartWeek = data.courseMapItem.startWeek;
-						editedDuration = data.courseMapItem.duration;
-						editMode = false;
-					}}
-					class="bg-red-600 hover:bg-red-700 text-white font-medium px-4"
+					variant="outline"
+					onclick={cancelChanges}
+					class="bg-white hover:bg-gray-50 text-gray-700 font-medium px-4"
 				>
-					Cancel & View Mode
+					<X class="w-4 h-4 mr-2" />
+					Cancel
 				</Button>
 			</div>
 		{:else}
@@ -179,7 +216,7 @@
 				class="font-medium px-6 py-2 shadow-lg"
 			>
 				<Edit class="w-4 h-4 mr-2" />
-				Edit Mode
+				Edit
 			</Button>
 		{/if}
 	</div>
@@ -209,7 +246,7 @@
 				<h2 class="text-2xl font-semibold">Curriculum Learning Areas</h2>
 				{#if data.availableLearningAreas.length > 0}
 					{@const unassignedLearningAreas = data.availableLearningAreas.filter(
-						(available) => !data.learningAreas.some((assigned) => assigned.id === available.id)
+						(available) => !(editMode ? editedLearningAreas : data.learningAreas).some((assigned) => assigned.id === available.id)
 					)}
 					{#if unassignedLearningAreas.length > 0}
 						<Sheet>
@@ -229,24 +266,43 @@
 								
 								<div class="space-y-4">
 									{#each unassignedLearningAreas as learningArea}
-										<form method="POST" action="?/addLearningArea" use:enhance={() => {
-											return async ({ result, update }) => {
-												if (result.type === 'success') {
-													invalidateAll();
-												}
-												await update();
-											};
-										}}>
-											<input type="hidden" name="learningAreaId" value={learningArea.id} />
+										{#if editMode}
 											<div class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
 												<div class="flex-1">
 													<h4 class="font-medium text-sm">{learningArea.name}</h4>
 												</div>
-												<Button type="submit" size="sm" variant="outline">
+												<Button 
+													type="button" 
+													size="sm" 
+													variant="outline"
+													onclick={() => {
+														// Add to local state in edit mode
+														editedLearningAreas = [...editedLearningAreas, learningArea];
+													}}
+												>
 													Add
 												</Button>
 											</div>
-										</form>
+										{:else}
+											<form method="POST" action="?/addLearningArea" use:enhance={() => {
+												return async ({ result, update }) => {
+													if (result.type === 'success') {
+														invalidateAll();
+													}
+													await update();
+												};
+											}}>
+												<input type="hidden" name="learningAreaId" value={learningArea.id} />
+												<div class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+													<div class="flex-1">
+														<h4 class="font-medium text-sm">{learningArea.name}</h4>
+													</div>
+													<Button type="submit" size="sm" variant="outline">
+														Add
+													</Button>
+												</div>
+											</form>
+										{/if}
 									{/each}
 								</div>
 							</SheetContent>
@@ -255,16 +311,13 @@
 				{/if}
 			</div>
 			
-			{#if data.learningAreas.length > 0}
+			{#if data.learningAreas.length > 0 || editedLearningAreas.length > 0}
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-					{#each data.learningAreas as la}
+					{#each editMode ? editedLearningAreas : data.learningAreas as la}
 						<VcaaLearningAreaCard 
 							learningAreaName={la.name} 
 							editMode={editMode}
-							onRemove={editMode ? () => {
-								// Remove learning area logic will go here
-								console.log('Remove learning area:', la.id);
-							} : undefined}
+							onRemove={editMode ? () => removeLearningAreaLocally(la.id) : undefined}
 						/>
 					{/each}
 				</div>
