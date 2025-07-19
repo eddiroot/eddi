@@ -82,7 +82,13 @@
 		/>
 		<div class="absolute inset-0 bg-black/40"></div>
 	{:else}
-		<div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10"></div>
+		<!-- Use course map item color as background -->
+		<div 
+			class="absolute inset-0"
+			style="background-color: {data.courseMapItem.color || '#6B7280'}"
+		></div>
+		<!-- Add gradient overlay for better contrast -->
+		<div class="absolute inset-0 bg-gradient-to-br from-black/20 via-black/30 to-black/50"></div>
 	{/if}
 	
 	<!-- Course Map Item Details Overlay (centered) -->
