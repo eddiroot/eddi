@@ -84,7 +84,7 @@
 						{/if}
 
 						{#if attendance?.attendanceNote}
-							<MessageCircleWarning class="size-4" />
+							<MessageCircleWarning class="text-destructive size-4" />
 						{/if}
 					</div>
 				</div>
