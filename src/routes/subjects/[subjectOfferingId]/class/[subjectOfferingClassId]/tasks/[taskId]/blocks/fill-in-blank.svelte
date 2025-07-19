@@ -8,6 +8,7 @@
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
+	import { ViewMode } from '$lib/utils';
 
 	interface FillInBlankContent {
 		sentence: string;
@@ -20,7 +21,7 @@
 			sentence: '',
 			answer: ''
 		} as FillInBlankContent,
-		isEditMode = true,
+		viewMode = ViewMode.VIEW,
 		onUpdate = () => {}
 	} = $props();
 
@@ -94,7 +95,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<!-- EDIT MODE: Shows form for creating/editing the fill-in-blank question -->
 		<Card.Root>
 			<Card.Header>
@@ -147,8 +148,8 @@
 				{/if}
 			</Card.Content>
 		</Card.Root>
-	{:else}
-		<!-- PREVIEW MODE: Shows the interactive fill-in-blank question -->
+	{:else if viewMode === ViewMode.VIEW}
+		<!-- VIEW MODE: Shows the interactive fill-in-blank question -->
 		{#if content.sentence && content.answer}
 			<Card.Root>
 				<Card.Content>
@@ -236,5 +237,8 @@
 				</div>
 			</div>
 		{/if}
+	{:else}
+		<!-- PRESENTATION MODE: Placeholder for presentation-specific rendering -->
+		
 	{/if}
 </div>

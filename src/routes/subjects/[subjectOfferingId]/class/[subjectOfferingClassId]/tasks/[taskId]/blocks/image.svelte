@@ -6,8 +6,13 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UploadIcon from '@lucide/svelte/icons/upload';
+	import { ViewMode } from '$lib/utils';
 
-	let { content = { src: '', alt: 'Image', caption: '' }, isEditMode = true, onUpdate = () => {} } = $props();
+	let { 
+		content = { src: '', alt: 'Image', caption: '' }, 
+		viewMode = ViewMode.VIEW, 
+		onUpdate = () => {} 
+	} = $props();
 	let fileInput = $state<HTMLInputElement>();
 
 	// Local state for editing
@@ -17,7 +22,7 @@
 
 	// Initialize editing state when component loads or content changes
 	$effect(() => {
-		if (isEditMode) {
+		if (viewMode === ViewMode.EDIT) {
 			src = content.src || '';
 			alt = content.alt || 'Image';
 			caption = content.caption || '';
@@ -44,7 +49,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">

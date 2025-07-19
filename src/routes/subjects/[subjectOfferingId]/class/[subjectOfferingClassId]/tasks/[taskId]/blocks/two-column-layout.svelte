@@ -11,6 +11,7 @@
 	import FillInBlank from './fill-in-blank.svelte';
 	import Matching from './matching.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import { ViewMode } from '$lib/utils';
 
 	interface TwoColumnContent {
 		leftColumn: any[];
@@ -19,12 +20,12 @@
 
 	let {
 		content,
-		isEditMode,
+		viewMode = ViewMode.VIEW,
 		onUpdate,
 		onGlobalDrop
 	}: {
 		content: TwoColumnContent;
-		isEditMode: boolean;
+		viewMode: ViewMode;
 		onUpdate: (content: any) => Promise<void>;
 		onGlobalDrop?: (state: DragDropState<any>) => Promise<void>;
 	} = $props();
@@ -196,13 +197,13 @@
 			{@const block = localContent.leftColumn[0]}
 			<div class="group relative">
 				<div
-					class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
+					class="grid {viewMode == ViewMode.EDIT ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 					role="group"
 					onmouseover={() => (mouseOverElement = 'left-column')}
 					onfocus={() => (mouseOverElement = 'left-column')}
 					onmouseleave={() => (mouseOverElement = '')}
 				>
-					{#if isEditMode && mouseOverElement === 'left-column'}
+					{#if viewMode == ViewMode.EDIT && mouseOverElement === 'left-column'}
 						<div
 							use:draggable={{
 								container: 'two-column-left-drag',
@@ -217,7 +218,7 @@
 								class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
 							/>
 						</div>
-					{:else if isEditMode}
+					{:else if viewMode == ViewMode.EDIT}
 						<div></div>
 					{/if}
 
@@ -226,43 +227,43 @@
 							<Heading
 								headingSize={parseInt(block.type[1])}
 								text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'markdown'}
 							<RichTextEditor
 								initialContent={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'image'}
-							<Image content={block.content} {isEditMode} onUpdate={createUpdateHandler('left')} />
+							<Image content={block.content} {viewMode} onUpdate={createUpdateHandler('left')} />
 						{:else if block.type === 'video'}
-							<Video content={block.content} {isEditMode} onUpdate={createUpdateHandler('left')} />
+							<Video content={block.content} {viewMode} onUpdate={createUpdateHandler('left')} />
 						{:else if block.type === 'audio'}
-							<Audio content={block.content} {isEditMode} onUpdate={createUpdateHandler('left')} />
+							<Audio content={block.content} {viewMode} onUpdate={createUpdateHandler('left')} />
 						{:else if block.type === 'whiteboard'}
 							<Whiteboard
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'multiple_choice'}
 							<MultipleChoice
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'fill_in_blank'}
 							<FillInBlank
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else if block.type === 'matching'}
 							<Matching
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('left')}
 							/>
 						{:else}
@@ -300,13 +301,13 @@
 			{@const block = localContent.rightColumn[0]}
 			<div class="group relative">
 				<div
-					class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
+					class="grid {viewMode == ViewMode.EDIT ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 					role="group"
 					onmouseover={() => (mouseOverElement = 'right-column')}
 					onfocus={() => (mouseOverElement = 'right-column')}
 					onmouseleave={() => (mouseOverElement = '')}
 				>
-					{#if isEditMode && mouseOverElement === 'right-column'}
+					{#if viewMode == ViewMode.EDIT && mouseOverElement === 'right-column'}
 						<div
 							use:draggable={{
 								container: 'two-column-right-drag',
@@ -321,7 +322,7 @@
 								class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
 							/>
 						</div>
-					{:else if isEditMode}
+					{:else if viewMode == ViewMode.EDIT}
 						<div></div>
 					{/if}
 
@@ -330,43 +331,43 @@
 							<Heading
 								headingSize={parseInt(block.type[1])}
 								text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'markdown'}
 							<RichTextEditor
 								initialContent={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'image'}
-							<Image content={block.content} {isEditMode} onUpdate={createUpdateHandler('right')} />
+							<Image content={block.content} {viewMode} onUpdate={createUpdateHandler('right')} />
 						{:else if block.type === 'video'}
-							<Video content={block.content} {isEditMode} onUpdate={createUpdateHandler('right')} />
+							<Video content={block.content} {viewMode} onUpdate={createUpdateHandler('right')} />
 						{:else if block.type === 'audio'}
-							<Audio content={block.content} {isEditMode} onUpdate={createUpdateHandler('right')} />
+							<Audio content={block.content} {viewMode} onUpdate={createUpdateHandler('right')} />
 						{:else if block.type === 'whiteboard'}
 							<Whiteboard
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'multiple_choice'}
 							<MultipleChoice
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'fill_in_blank'}
 							<FillInBlank
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else if block.type === 'matching'}
 							<Matching
 								content={block.content}
-								{isEditMode}
+								{viewMode}
 								onUpdate={createUpdateHandler('right')}
 							/>
 						{:else}

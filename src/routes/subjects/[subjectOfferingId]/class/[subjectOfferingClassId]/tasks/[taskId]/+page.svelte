@@ -16,6 +16,7 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import ShortAnswer from './blocks/short-answer.svelte';
 	import { type TaskBlock } from '$lib/server/db/schema';
+	import { ViewMode } from '$lib/utils';
 
 	import {
 		createBlock,
@@ -29,17 +30,17 @@
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { browser } from '$app/environment';
 	import { Mode } from '@google/genai';
+	import { view } from 'drizzle-orm/sqlite-core';
+	import { View } from '@lucide/svelte';
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let mouseOverElement = $state<string>('');
 
-	let isEditMode = $state(
+	let viewMode = $state<ViewMode>(
 		data.user.type === 'student'
-			? false
-			: browser
-				? localStorage.getItem('task-edit-mode') !== 'false'
-				: true
+			? ViewMode.VIEW
+			: ViewMode.EDIT
 	);
 
 	const draggedOverClasses = 'border-accent-foreground';
@@ -172,7 +173,7 @@
 </script>
 
 <div
-	class="grid h-full gap-4 p-4 {isEditMode
+	class="grid h-full gap-4 p-4 {viewMode === ViewMode.EDIT
 		? 'grid-cols-[200px_1fr_300px]'
 		: 'grid-cols-[200px_1fr]'}"
 >
@@ -182,16 +183,16 @@
 			<Button
 				variant="outline"
 				onclick={() => {
-					const newEditMode = !isEditMode;
-					if (browser) {
-						localStorage.setItem('task-edit-mode', newEditMode.toString());
+					if (viewMode == ViewMode.EDIT) {
+						viewMode = ViewMode.VIEW;
+					} else {
+						viewMode = ViewMode.EDIT;
 					}
-					isEditMode = newEditMode;
 				}}
 				size="lg"
 				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
 			>
-				{#if isEditMode}
+				{#if viewMode === ViewMode.EDIT}
 					<EyeIcon class="size-5" />
 					Switch to Preview Mode
 				{:else}
@@ -219,11 +220,11 @@
 	<!-- Task Blocks -->
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
-			<div class={isEditMode ? 'ml-[38px]' : ''}>
+			<div class={viewMode === ViewMode.EDIT ? 'ml-[38px]' : ''}>
 				<Heading
 					headingSize={1}
 					text={data.task.title}
-					{isEditMode}
+					{viewMode}
 					onUpdate={async (newText: string) =>
 						await updateTaskTitle({ taskId: data.task.id, title: newText })}
 				/>
@@ -245,12 +246,12 @@
 					</div>
 
 					<div
-						class="grid {isEditMode ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
+						class="grid {viewMode === ViewMode.EDIT ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
 						role="group"
 						onmouseover={() => (mouseOverElement = `task-${block.id}`)}
 						onfocus={() => (mouseOverElement = `task-${block.id}`)}
 					>
-						{#if isEditMode && mouseOverElement === `task-${block.id}`}
+						{#if viewMode === ViewMode.EDIT && mouseOverElement === `task-${block.id}`}
 							<div
 								use:draggable={{
 									container: 'task',
@@ -262,7 +263,7 @@
 									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
 								/>
 							</div>
-						{:else if isEditMode}
+						{:else if viewMode === ViewMode.EDIT}
 							<div></div>
 						{/if}
 						<div>
@@ -270,61 +271,61 @@
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'markdown'}
 								<RichTextEditor
 									initialContent={block.content as string | undefined}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'image'}
 								<Image
 									content={block.content as Record<string, any> | undefined}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'video'}
 								<Video
 									content={block.content as Record<string, any> | undefined}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'audio'}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'whiteboard'}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'multiple_choice'}
 								<MultipleChoice
 									content={block.content as any}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
 									content={block.content as any}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'matching'}
 								<Matching
 									content={block.content as any}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else if block.type === 'two_column_layout'}
 								<TwoColumnLayout
 									content={block.content as any}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => {
 										await updateBlock({ block, content });
 									}}
@@ -333,7 +334,7 @@
 							{:else if block.type === 'short_answer'}
 								<ShortAnswer
 									content={block.content as any}
-									{isEditMode}
+									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
 							{:else}
@@ -342,7 +343,7 @@
 						</div>
 					</div>
 				{/each}
-				{#if isEditMode}
+				{#if viewMode === ViewMode.EDIT}
 					<div
 						use:droppable={{
 							container: `task-bottom`,
@@ -363,7 +364,7 @@
 	</Card.Root>
 
 	<!-- Block Pane -->
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="text-lg">Blocks</Card.Title>

@@ -5,6 +5,8 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { ViewMode } from '$lib/utils';
+	import { view } from 'drizzle-orm/sqlite-core';
 
 	interface textInputContent {
 		question: string;
@@ -19,7 +21,7 @@
 			placeholder: 'Enter your answer here...',
 			maxLength: 1000
 		} as textInputContent,
-		isEditMode = true,
+		viewMode = ViewMode.VIEW,
 		onUpdate = () => {}
 	} = $props();
 
@@ -71,7 +73,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<!-- EDIT MODE: Shows form for creating/editing the text input question -->
 		<Card.Root>
 			<Card.Header>
@@ -93,7 +95,7 @@
 				</div>
 			</Card.Content>
 		</Card.Root>
-	{:else}
+	{:else if viewMode === ViewMode.VIEW}
 		<!-- STUDENT VIEW: Shows the question with text input -->
 		{#if content.question}
 			<Card.Root>

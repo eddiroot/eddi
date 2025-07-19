@@ -11,7 +11,7 @@
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { effect as zodEffect } from 'zod';
+	import { ViewMode } from '$lib/utils';
 
 	interface MultipleChoiceContent {
 		question: string;
@@ -28,7 +28,7 @@
 			answer: '',
 			multiple: false
 		} as MultipleChoiceContent,
-		isEditMode = true,
+		viewMode = ViewMode.VIEW,
 		onUpdate = () => {}
 	} = $props();
 
@@ -187,7 +187,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<!-- EDIT MODE: Shows form for creating/editing the multiple choice question -->
 		<Card.Root>
 			<Card.Header>
@@ -272,7 +272,7 @@
 				</div>
 			</Card.Content>
 		</Card.Root>
-	{:else}
+	{:else if viewMode === ViewMode.VIEW}
 		<!-- VIEW MODE: Shows the completed multiple choice question -->
 		<div class="group relative">
 			{#if content.question && content.options?.length > 0}
@@ -430,5 +430,7 @@
 				</div>
 			{/if}
 		</div>
+	{:else}
+
 	{/if}
 </div>

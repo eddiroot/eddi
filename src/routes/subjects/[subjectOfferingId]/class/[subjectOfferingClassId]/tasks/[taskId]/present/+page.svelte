@@ -8,6 +8,7 @@
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import XIcon from '@lucide/svelte/icons/x';
 	import Maximize2Icon from '@lucide/svelte/icons/maximize-2';
+	import { ViewMode } from '$lib/utils';
 	
 	// Import all block components
 	import Heading from '../blocks/heading.svelte';
@@ -166,75 +167,75 @@
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'markdown'}
 								<RichTextEditor
 									initialContent={block.content as string | undefined}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'image'}
 								<Image
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'video'}
 								<Video
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'audio'}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'whiteboard'}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'multiple_choice'}
 								<MultipleChoice
 									content={block.content as any}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
 									content={block.content as any}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else if block.type === 'matching'}
 								<Matching
 									content={block.content as any}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							<!--{:else if block.type === 'two_column_layout'}
 								<TwoColumnLayout
 									content={block.content as any}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 									onGlobalDrop={() => {}}
 								/> -->
 							{:else if block.type === 'short_answer'}
 								<ShortAnswer
 									content={block.content as any}
-									isEditMode={false}
+									viewMode={ViewMode.PRESENT}
 									onUpdate={() => {}}
 								/>
 							{:else}

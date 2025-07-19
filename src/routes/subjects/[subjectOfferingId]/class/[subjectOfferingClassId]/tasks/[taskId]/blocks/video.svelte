@@ -6,10 +6,12 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import UploadIcon from '@lucide/svelte/icons/upload';
+	import { ViewMode } from '$lib/utils';
+	import { vi } from 'zod/v4/locales';
 
 	let {
 		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
-		isEditMode = true,
+		viewMode = ViewMode.VIEW,
 		onUpdate = () => {}
 	} = $props();
 	let fileInput = $state<HTMLInputElement>();
@@ -23,7 +25,7 @@
 
 	// Initialize editing state when component loads or content changes
 	$effect(() => {
-		if (isEditMode) {
+		if (viewMode === ViewMode.EDIT) {
 			src = content.src || '';
 			caption = content.caption || '';
 			autoplay = content.autoplay || false;
@@ -62,7 +64,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">

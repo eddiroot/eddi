@@ -10,6 +10,7 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
+	import { ViewMode } from '$lib/utils';
 
 	interface MatchingPair {
 		left: string;
@@ -27,7 +28,7 @@
 			instructions: '',
 			pairs: []
 		} as MatchingContent,
-		isEditMode = true,
+		viewMode = ViewMode.VIEW,
 		onUpdate = () => {}
 	} = $props();
 
@@ -198,7 +199,7 @@
 	}
 </script>
 
-{#if isEditMode}
+{#if viewMode = ViewMode.EDIT}
 	<Card.Root class="p-4">
 		<Card.Header>
 			<Card.Title class="text-lg font-semibold">Matching Exercise</Card.Title>
@@ -265,7 +266,7 @@
 			</div>
 		</Card.Content>
 	</Card.Root>
-{:else}
+{:else if viewMode === ViewMode.VIEW}
 	<!-- Preview Mode -->
 	<Card.Root class="p-6">
 		<Card.Header>

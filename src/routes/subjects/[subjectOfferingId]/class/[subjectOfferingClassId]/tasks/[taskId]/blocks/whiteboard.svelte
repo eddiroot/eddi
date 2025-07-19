@@ -5,11 +5,12 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import { ViewMode } from '$lib/utils';
 
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 
-	let { content = { whiteboardId: null, title: '' }, isEditMode = true, onUpdate = () => {} } = $props();
+	let { content = { whiteboardId: null, title: '' }, viewMode = ViewMode.VIEW, onUpdate = () => {} } = $props();
 
 	// Local state for editing
 	let title = $state(content.title || '');
@@ -17,7 +18,7 @@
 
 	// Initialize editing state when component loads or content changes
 	$effect(() => {
-		if (isEditMode) {
+		if (viewMode === ViewMode.EDIT) {
 			title = content.title || '';
 			whiteboardId = content.whiteboardId;
 		}
@@ -93,7 +94,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">

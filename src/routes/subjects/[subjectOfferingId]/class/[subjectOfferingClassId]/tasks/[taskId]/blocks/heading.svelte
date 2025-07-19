@@ -1,7 +1,18 @@
-<script>
+<script lang='ts'>
 	import Input from '$lib/components/ui/input/input.svelte';
+	import { ViewMode } from '$lib/utils';
 
-	let { headingSize = 1, text = 'Heading goes here', isEditMode = true, onUpdate } = $props();
+	let { 
+		headingSize = 1, 
+		text = 'Heading goes here', 
+		viewMode = ViewMode.VIEW,
+		onUpdate 
+	}: {
+		headingSize: number;
+		text: string;
+		viewMode: ViewMode;
+		onUpdate: (text: string) => void;
+	} = $props();
 	let editText = $state(text);
 
 	function saveText() {
@@ -16,7 +27,7 @@
 </script>
 
 <div class="w-full">
-	{#if isEditMode}
+	{#if viewMode === ViewMode.EDIT}
 		{#if headingSize === 1}
 			<input
 				bind:value={editText}
@@ -90,7 +101,7 @@
 				placeholder="Enter heading text..."
 			/>
 		{/if}
-	{:else}
+	{:else }
 		{#if headingSize === 1}
 			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
 		{:else if headingSize === 2}
@@ -104,5 +115,6 @@
 		{:else}
 			<h6 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h6>
 		{/if}
+		
 	{/if}
 </div>
