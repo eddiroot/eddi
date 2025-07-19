@@ -147,53 +147,45 @@
 <!-- Modal Dialog -->
 <Dialog.Root bind:open={dialogOpen}>
 	<Dialog.Content class="max-w-md">
-		<Dialog.Header>
-			<Dialog.Title>{fullName}</Dialog.Title>
-			<Dialog.Description>View and edit behaviour notes for this student.</Dialog.Description>
-		</Dialog.Header>
+		<form method="POST" action="?/updateAttendance" use:enhance>
+			<Dialog.Header>
+				<Dialog.Title>{fullName}</Dialog.Title>
+			</Dialog.Header>
+			<div class="space-y-4 py-4">
+				{#if type === 'marked' && isPresent && !wasAbsent}
+					<div class="space-y-2">
+						<input type="hidden" name="didAttend" value="true" />
+						<input type="hidden" name="userId" value={user.id} />
+						<input
+							type="hidden"
+							name="subjectClassAllocationId"
+							value={subjectClassAllocation.id}
+						/>
 
-		<div class="space-y-4 py-4">
-			{#if type === 'marked' && isPresent && !wasAbsent}
-				<form method="POST" action="?/updateAttendance" use:enhance class="space-y-2">
-					<input type="hidden" name="didAttend" value="true" />
-					<input type="hidden" name="userId" value={user.id} />
-					<input type="hidden" name="subjectClassAllocationId" value={subjectClassAllocation.id} />
+						<Form.Field {form} name="behaviourNote">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label class="text-sm font-medium">Behavioural Notes</Form.Label>
+									<Textarea
+										{...props}
+										name="behaviourNote"
+										placeholder="Add behavioural observations..."
+										class="min-h-20 resize-none"
+										value={attendance?.behaviourNote || ''}
+									/>
+								{/snippet}
+							</Form.Control>
+						</Form.Field>
+					</div>
+				{/if}
+			</div>
 
-					<Form.Field {form} name="behaviourNote">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label class="text-sm font-medium">Behavioural Notes</Form.Label>
-								<Textarea
-									{...props}
-									name="behaviourNote"
-									placeholder="Add behavioural observations..."
-									class="min-h-20 resize-none"
-									value={attendance?.behaviourNote || ''}
-									onblur={(e) => {
-										(e.target as HTMLTextAreaElement)?.form?.requestSubmit();
-									}}
-								/>
-							{/snippet}
-						</Form.Control>
-					</Form.Field>
-				</form>
-			{/if}
-
-			{#if !isPresent && !isNotPresent && !wasAbsent}
-				<div class="text-muted-foreground text-sm">
-					No attendance recorded yet. Use the buttons above to mark attendance.
-				</div>
-			{/if}
-
-			{#if wasAbsent}
-				<div class="text-muted-foreground text-sm">This student was marked as away today.</div>
-			{/if}
-		</div>
-
-		<Dialog.Footer>
-			<Dialog.Close>
-				<Button variant="outline">Close</Button>
-			</Dialog.Close>
-		</Dialog.Footer>
+			<Dialog.Footer>
+				<Dialog.Close>
+					<Button variant="outline">Close</Button>
+					<Button variant="default" type="submit">Save</Button>
+				</Dialog.Close>
+			</Dialog.Footer>
+		</form>
 	</Dialog.Content>
 </Dialog.Root>

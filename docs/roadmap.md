@@ -20,6 +20,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Roll call / attendance (20/07)
 - [x] Sick/not coming to school/absence (27/07)
 - [x] Absence notifications (27/07)
+- [x] Behavioural reporting (visible to parents) (07/08)
 
 ## Doing
 
@@ -30,7 +31,6 @@ All
 
 Lachie
 
-- [ ] Behavioural reporting (visible to teachers and parents) (07/08)
 - [ ] Teachers can see past attendance (20/08)
 - [ ] Admin dashboard allocations page (28/08)
 - [ ] Timetabling
