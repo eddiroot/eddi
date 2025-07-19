@@ -130,25 +130,20 @@
 		}
 	}
 
-	async function handleDownloadResource(resource: any) {
+	async function handleOpenResource(resource: any) {
 		try {
 			const response = await fetch(`/api/resources?resourceId=${resource.id}&action=download`);
 			const result = await response.json();
 			
 			if (result.downloadUrl) {
-				// Create a temporary link to trigger download
-				const link = document.createElement('a');
-				link.href = result.downloadUrl;
-				link.download = result.fileName;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
+				// Open resource in new tab/window
+				window.open(result.downloadUrl, '_blank');
 			} else {
-				alert('Failed to generate download link');
+				alert('Failed to generate resource link');
 			}
 		} catch (error) {
-			console.error('Error downloading resource:', error);
-			alert('Failed to download resource');
+			console.error('Error opening resource:', error);
+			alert('Failed to open resource');
 		}
 	}
 
@@ -240,7 +235,7 @@
 					resources={data.resources} 
 					onAddResource={handleAddResource}
 					onRemoveResource={handleRemoveResource}
-					onDownloadResource={handleDownloadResource}
+					onOpenResource={handleOpenResource}
 				/>
 			</div>
 		</div>

@@ -3,7 +3,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { Separator } from '$lib/components/ui/separator';
 	import type { Resource } from '$lib/server/db/schema';
 	
 	// Icons for different resource types
@@ -17,19 +16,20 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
-	import Download from '@lucide/svelte/icons/download';
 	import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '$lib/components/ui/dropdown-menu';
 
 	let {
 		resources = [],
 		onAddResource,
 		onRemoveResource,
-		onDownloadResource
+		onDownloadResource,
+		onOpenResource
 	}: {
 		resources: Resource[];
 		onAddResource?: () => void;
 		onRemoveResource?: (resourceId: number) => void;
 		onDownloadResource?: (resource: Resource) => void;
+		onOpenResource?: (resource: Resource) => void;
 	} = $props();
 
 	function getResourceIcon(resourceType: string) {
@@ -85,9 +85,9 @@
 
 <Popover>
 	<PopoverTrigger>
-		<Button variant="ghost" size="sm" class="text-white hover:text-white hover:bg-white/20 underline">
+		<button class="text-white hover:text-white/80 underline text-sm transition-colors">
 			{resources.length} Resources
-		</Button>
+		</button>
 	</PopoverTrigger>
 	<PopoverContent class="w-96 p-0" align="end">
 		<div class="p-4">
@@ -119,10 +119,13 @@
 									</div>
 								</div>
 								
-								<!-- Resource Info -->
-								<div class="flex-1 min-w-0">
+								<!-- Resource Info (clickable to open) -->
+								<button 
+									class="flex-1 min-w-0 text-left" 
+									onclick={() => onOpenResource?.(resource)}
+								>
 									<div class="flex items-center gap-2 mb-1">
-										<h4 class="font-medium text-sm truncate">{resource.fileName}</h4>
+										<h4 class="font-medium text-sm truncate hover:text-primary transition-colors">{resource.fileName}</h4>
 										<Badge variant="secondary" class={getResourceTypeColor(resource.resourceType)}>
 											{resource.resourceType}
 										</Badge>
@@ -130,7 +133,7 @@
 									<div class="flex items-center gap-3 text-xs text-muted-foreground">
 										<span>{formatFileSize(resource.fileSize)}</span>
 									</div>
-								</div>
+								</button>
 								
 								<!-- Actions Menu -->
 								<div class="flex-shrink-0">
@@ -141,12 +144,6 @@
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
-											{#if onDownloadResource}
-												<DropdownMenuItem onclick={() => onDownloadResource?.(resource)}>
-													<Download class="w-4 h-4 mr-2" />
-													Download
-												</DropdownMenuItem>
-											{/if}
 											{#if onRemoveResource}
 												<DropdownMenuItem onclick={() => onRemoveResource?.(resource.id)} class="text-red-600">
 													<Trash2 class="w-4 h-4 mr-2" />
