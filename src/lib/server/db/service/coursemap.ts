@@ -383,7 +383,8 @@ export async function getCourseMapItemPlanContexts(
         table.learningAreaStandard.id
       )
     )
-    .where(eq(table.courseMapItem.id, courseMapItemId));
+    .where(and(eq(table.courseMapItem.id, courseMapItemId),
+				eq(table.learningAreaStandard.yearLevel, table.subject.yearLevel)));
 
   if (rows.length === 0) return [];
 
@@ -429,6 +430,14 @@ export async function createLessonPlanStandard(lessonPlanId: number, standardId:
                 .returning();
 
         return standard;
+}
+
+export async function removeLessonPlanStandards(lessonPlanId: number) {
+        await db
+                .delete(table.lessonPlanLearningAreaStandard)
+                .where(
+                        eq(table.lessonPlanLearningAreaStandard.courseMapItemLessonPlanId, lessonPlanId)
+                );
 }
 
 export async function getLessonPlanLearningAreaStandards(lessonPlanId: number) {
@@ -789,4 +798,87 @@ export async function removeResourceFromCourseMapItem(courseMapItemId: number, r
 		.returning();
 
 	return relationship;
+}
+
+// Lesson Plan Resource functions
+export async function getLessonPlanResources(lessonPlanId: number) {
+	const resources = await db
+		.select({
+			resource: table.resource,
+			relationship: table.lessonPlanResource
+		})
+		.from(table.lessonPlanResource)
+		.innerJoin(
+			table.resource,
+			eq(table.resource.id, table.lessonPlanResource.resourceId)
+		)
+		.where(
+			and(
+				eq(table.lessonPlanResource.courseMapItemLessonPlanId, lessonPlanId),
+				eq(table.resource.isActive, true)
+			)
+		);
+
+	return resources.map((row) => row.resource);
+}
+
+export async function addResourceToLessonPlan(lessonPlanId: number, resourceId: number) {
+	const [relationship] = await db
+		.insert(table.lessonPlanResource)
+		.values({
+			courseMapItemLessonPlanId: lessonPlanId,
+			resourceId
+		})
+		.onConflictDoNothing()
+		.returning();
+
+	return relationship;
+}
+
+export async function removeResourceFromLessonPlan(lessonPlanId: number, resourceId: number) {
+	const [relationship] = await db
+		.delete(table.lessonPlanResource)
+		.where(
+			and(
+				eq(table.lessonPlanResource.courseMapItemLessonPlanId, lessonPlanId),
+				eq(table.lessonPlanResource.resourceId, resourceId)
+			)
+		)
+		.returning();
+
+	return relationship;
+}
+
+export async function getLearningAreaStandardsByCourseMapItemId(
+	courseMapItemId: number
+): Promise<table.LearningAreaStandard[]> {
+	const standards = await db
+		.select({
+			learningAreaStandard: table.learningAreaStandard
+		})
+		.from(table.courseMapItemLearningArea)
+		.innerJoin(
+			table.learningAreaStandard,
+			eq(table.learningAreaStandard.learningAreaId, table.courseMapItemLearningArea.learningAreaId)
+		)
+		.innerJoin(
+			table.courseMapItem,
+			eq(table.courseMapItem.id, table.courseMapItemLearningArea.courseMapItemId)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOffering.id, table.courseMapItem.subjectOfferingId)
+		)
+		.innerJoin(
+			table.subject,
+			eq(table.subject.id, table.subjectOffering.subjectId)
+		)
+		.where(
+			and(
+				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),
+				eq(table.learningAreaStandard.yearLevel, table.subject.yearLevel)
+			)
+		);
+
+	return standards.map((row) => row.learningAreaStandard);
 }

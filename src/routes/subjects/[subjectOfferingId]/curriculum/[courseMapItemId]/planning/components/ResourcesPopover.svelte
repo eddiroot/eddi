@@ -85,9 +85,9 @@
 
 <Popover>
 	<PopoverTrigger>
-		<button class="text-white hover:text-white/80 underline text-sm transition-colors">
+		<span class="text-white hover:text-white/80 underline text-sm transition-colors cursor-pointer">
 			{resources.length} Resources
-		</button>
+		</span>
 	</PopoverTrigger>
 	<PopoverContent class="w-96 p-0" align="end">
 		<div class="p-4">

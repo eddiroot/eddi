@@ -1,6 +1,6 @@
 import { pgTable, text, integer, foreignKey, boolean, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
-import { subjectOffering, subjectOfferingClassResource } from './subjects';
+import { subjectOffering } from './subjects';
 import { learningArea, learningAreaStandard } from './curriculum';
 import { rubric } from './task';
 
@@ -97,9 +97,9 @@ export const assessmentPlanResource = pgTable(
 		courseMapItemAssessmentPlanId: integer('cm_item_as_plan_id')
 			.notNull()
 			.references(() => courseMapItemAssessmentPlan.id, { onDelete: 'cascade' }),
-		subjectOfferingClassResourceId: integer('sub_off_class_res_id')
+		resourceId: integer('resource_id')
 			.notNull()
-			.references(() => subjectOfferingClassResource.id, { onDelete: 'cascade' }),
+			.references(() => resource.id, { onDelete: 'cascade' }),
 	},
 );
 
@@ -134,13 +134,13 @@ export const lessonPlanResource = pgTable(
 	'lesson_plan_resource',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		courseMapItemLessonPlanId: integer('cm_item_lesson_plan_id')
+		courseMapItemLessonPlanId: integer('cm_item_lesson_plan_id')	
 			.notNull()
 			.references(() => courseMapItemLessonPlan.id, { onDelete: 'cascade' }),
-		subjectOfferingClassResourceId: integer('sub_off_class_res_id')
+		resourceId: integer('resource_id')
 			.notNull()
-			.references(() => subjectOfferingClassResource.id, { onDelete: 'cascade' }),
-	},
+			.references(() => resource.id, { onDelete: 'cascade' }),
+	}
 );
 
 export type LessonPlanResource = typeof lessonPlanResource.$inferSelect;
