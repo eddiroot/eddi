@@ -1049,3 +1049,30 @@ export async function createTaskBlockWithAnswersAndCriteria(
 		};
 	});
 }
+
+export async function getSubjectOfferingClassTaskByTaskId(taskId: number, subjectOfferingClassId: number) {
+	const [classTask] = await db
+		.select()
+		.from(table.subjectOfferingClassTask)
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.taskId, taskId),
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId)
+			)
+		)
+		.limit(1);
+
+	return classTask || null;
+}
+
+export async function updateSubjectOfferingClassTaskStatus(taskId: number, subjectOfferingClassId: number, status: table.taskStatusEnum) {
+	await db
+		.update(table.subjectOfferingClassTask)
+		.set({ status })
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.taskId, taskId),
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId)
+			)
+		);
+}

@@ -139,6 +139,11 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId, 
 		name: string;
 	}
 
+	interface TaskWithStatus {
+		task: Task;
+		status: string; // taskStatusEnum
+	}
+
 	const topicsWithTasks = tasks.reduce(
 		(acc, task) => {
 			const topicId = task.courseMapItem.id;
@@ -152,10 +157,10 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId, 
 				topicEntry = { topic: topic, tasks: [], resources: [] };
 				acc.push(topicEntry);
 			}
-			topicEntry.tasks.push(task.task);
+			topicEntry.tasks.push({ task: task.task, status: task.subjectOfferingClassTask.status.charAt(0).toUpperCase() + task.subjectOfferingClassTask.status.slice(1)});
 			return acc;
 		},
-		[] as Array<{ topic: Topic; tasks: Array<Task>; resources: Array<ResourceWithUrl> }>
+		[] as Array<{ topic: Topic; tasks: Array<TaskWithStatus>;  resources: Array<ResourceWithUrl> }>
 	);
 
 	// Add resources to their respective topics

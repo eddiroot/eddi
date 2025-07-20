@@ -132,14 +132,14 @@
 
 					<!-- Tasks -->
 					{#each tasks as task}
-						<a href={`${page.url.pathname}/${task.id}`} class="block h-full">
+						<a href={`${page.url.pathname}/${task.task.id}`} class="block h-full">
 							<Card.Root class="h-full transition-shadow hover:shadow-md">
 								<Card.Header>
 									<Card.Title>
-										{task.title}
+										{task.task.title}
 									</Card.Title>
-									<Card.Description>
-										{task.description}
+									<Card.Description class="mt-0.5">
+										Status: {task.status}
 									</Card.Description>
 								</Card.Header>
 							</Card.Root>
@@ -155,10 +155,10 @@
 										<FileIcon class="h-4 w-4" />
 										{#if resource.downloadUrl}
 											<a href={resource.downloadUrl} target="_blank" class="hover:underline">
-												{resource.title || resource.originalFileName}
+												{resource.title }
 											</a>
 										{:else}
-											{resource.title || resource.originalFileName}
+											{resource.title}
 										{/if}
 									</Card.Title>
 									<div class="flex items-center gap-1 truncate">

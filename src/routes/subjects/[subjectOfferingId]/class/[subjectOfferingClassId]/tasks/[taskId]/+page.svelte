@@ -38,13 +38,56 @@
 	let mouseOverElement = $state<string>('');
 
 	let viewMode = $state<ViewMode>(
-		data.user.type === 'student'
+		data.user.type === 'student' || data.classTask.status === 'published'
 			? ViewMode.VIEW
 			: ViewMode.EDIT
 	);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
+
+	// Handle status changes
+	async function publishTask() {
+		try {
+			const response = await fetch(`?/publish`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				}
+			});
+
+			if (response.ok) {
+				// Reload the page to get fresh data
+				window.location.reload();
+			} else {
+				alert('Failed to publish task');
+			}
+		} catch (error) {
+			console.error('Error publishing task:', error);
+			alert('Failed to publish task');
+		}
+	}
+
+	async function setToDraft() {
+		try {
+			const response = await fetch(`?/setToDraft`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				}
+			});
+
+			if (response.ok) {
+				// Reload the page to get fresh data
+				window.location.reload();
+			} else {
+				alert('Failed to set task to draft');
+			}
+		} catch (error) {
+			console.error('Error setting task to draft:', error);
+			alert('Failed to set task to draft');
+		}
+	}
 
 	async function handleDrop(state: DragDropState<TaskBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
@@ -180,26 +223,38 @@
 	<!-- Contents Pane -->
 	<div class="flex flex-col gap-2">
 		{#if data.user.type !== 'student'}
-			<Button
-				variant="outline"
-				onclick={() => {
-					if (viewMode == ViewMode.EDIT) {
-						viewMode = ViewMode.VIEW;
-					} else {
-						viewMode = ViewMode.EDIT;
-					}
-				}}
-				size="lg"
-				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
-			>
-				{#if viewMode === ViewMode.EDIT}
-					<EyeIcon class="size-5" />
-					Switch to Preview Mode
-				{:else}
+			{#if data.classTask.status === 'published'}
+				<Button
+					variant="outline"
+					onclick={setToDraft}
+					size="lg"
+					class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
+				>
 					<EditIcon class="size-5" />
-					Switch to Edit Mode
-				{/if}
-			</Button>
+					Set to Draft
+				</Button>
+			{:else}
+				<Button
+					variant="outline"
+					onclick={() => {
+						if (viewMode == ViewMode.EDIT) {
+							viewMode = ViewMode.VIEW;
+						} else {
+							viewMode = ViewMode.EDIT;
+						}
+					}}
+					size="lg"
+					class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
+				>
+					{#if viewMode === ViewMode.EDIT}
+						<EyeIcon class="size-5" />
+						Switch to Preview Mode
+					{:else}
+						<EditIcon class="size-5" />
+						Switch to Edit Mode
+					{/if}
+				</Button>
+			{/if}
 			<Button
 				variant="outline"
 				href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/present`}
@@ -221,13 +276,18 @@
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
 			<div class={viewMode === ViewMode.EDIT ? 'ml-[38px]' : ''}>
-				<Heading
-					headingSize={1}
-					text={data.task.title}
-					{viewMode}
-					onUpdate={async (newText: string) =>
-						await updateTaskTitle({ taskId: data.task.id, title: newText })}
-				/>
+				<div class="flex items-center gap-3">
+					<Heading
+						headingSize={1}
+						text={data.task.title}
+						{viewMode}
+						onUpdate={async (newText: string) =>
+							await updateTaskTitle({ taskId: data.task.id, title: newText })}
+					/>
+					<span class="text-muted-foreground text-lg font-light">
+						({data.classTask.status.charAt(0).toUpperCase() + data.classTask.status.slice(1)})
+					</span>
+				</div>
 			</div>
 			<div class="flex h-full flex-col">
 				{#each blocks as block}
@@ -365,47 +425,60 @@
 
 	<!-- Block Pane -->
 	{#if viewMode === ViewMode.EDIT}
-		<Card.Root>
-			<Card.Header>
-				<Card.Title class="text-lg">Blocks</Card.Title>
-				<Card.Description>
-					Drag and drop blocks from here to the task content area. If you'd like to delete a block,
-					simply drag it to the area below.
-				</Card.Description>
-			</Card.Header>
-			<Card.Content class="flex h-full flex-col gap-4">
-				<div
-					class="grid grid-cols-2 gap-3 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
-						'task'
-					) ||
-						dndState.sourceContainer.startsWith('two-column-')) &&
-					dndState.targetContainer === 'blockPalette'
-						? 'border-destructive border border-dashed'
-						: notDraggedOverClasses}"
-					use:droppable={{
-						container: `blockPalette`,
-						callbacks: {
-							onDrop: handleDrop
-						}
-					}}
+		<div class="flex flex-col gap-4">
+			<Card.Root class="h-full">
+				<Card.Header>
+					<Card.Title class="text-lg">Task Blocks</Card.Title>
+					<Card.Description>
+						Drag and drop blocks from the palette to the task content area. If you'd like to delete a block,
+						simply drag it to the area below.
+					</Card.Description>
+				</Card.Header>
+				<Card.Content class="flex h-full flex-col gap-4">
+					<div
+						class="grid grid-cols-2 gap-3 rounded-lg p-2 {(dndState.sourceContainer.startsWith(
+							'task'
+						) ||
+							dndState.sourceContainer.startsWith('two-column-')) &&
+						dndState.targetContainer === 'blockPalette'
+							? 'border-destructive border border-dashed'
+							: notDraggedOverClasses}"
+						use:droppable={{
+							container: `blockPalette`,
+							callbacks: {
+								onDrop: handleDrop
+							}
+						}}
+					>
+						{#each blockTypes as { type, name, content, icon }}
+							{@const Icon = icon}
+							<div
+								class="flex flex-col items-center justify-center gap-1 {buttonVariants({
+									variant: 'outline'
+								})} aspect-square h-18 w-full"
+								use:draggable={{
+									container: 'blockPalette',
+									dragData: { type, content, id: 0 }
+								}}
+							>
+								<Icon class="size-8" />
+								<span class="text-center text-xs leading-tight">{name}</span>
+							</div>
+						{/each}
+					</div>
+				</Card.Content>
+			</Card.Root>
+
+			<!-- Publish Button -->
+			{#if data.user.type !== 'student' && data.classTask.status === 'draft'}
+				<Button
+					onclick={publishTask}
+					size="lg"
+					class="w-full"
 				>
-					{#each blockTypes as { type, name, content, icon }}
-						{@const Icon = icon}
-						<div
-							class="flex flex-col items-center justify-center gap-1 {buttonVariants({
-								variant: 'outline'
-							})} aspect-square h-18 w-full"
-							use:draggable={{
-								container: 'blockPalette',
-								dragData: { type, content, id: 0 }
-							}}
-						>
-							<Icon class="size-8" />
-							<span class="text-center text-xs leading-tight">{name}</span>
-						</div>
-					{/each}
-				</div>
-			</Card.Content>
-		</Card.Root>
+					Publish Task
+				</Button>
+			{/if}
+		</div>
 	{/if}
 </div>
