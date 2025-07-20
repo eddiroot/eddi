@@ -39,6 +39,15 @@
 	let taskStatus = $state<string>(data.classTask.status);
 	let manualViewMode = $state<ViewMode | null>(null); // Override for manual switching
 
+	// Common response props for all interactive blocks
+	const responseProps = $derived({
+		taskId: data.task.id,
+		classTaskId: data.classTask.id,
+		subjectOfferingId: data.subjectOfferingId,
+		subjectOfferingClassId: data.subjectOfferingClassId,
+		isPublished: taskStatus === 'published'
+	});
+
 	// Use a derived value for viewMode that updates reactively
 	let viewMode = $derived<ViewMode>(
 		manualViewMode !== null 
@@ -378,18 +387,24 @@
 									content={block.content as any}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									blockId={block.id}
+									{...responseProps}
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
 									content={block.content as any}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									blockId={block.id}
+									{...responseProps}
 								/>
 							{:else if block.type === 'matching'}
 								<Matching
 									content={block.content as any}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									blockId={block.id}
+									{...responseProps}
 								/>
 							{:else if block.type === 'two_column_layout'}
 								<TwoColumnLayout
@@ -399,12 +414,16 @@
 										await updateBlock({ block, content });
 									}}
 									onGlobalDrop={handleDrop}
+									blockId={block.id}
+									{...responseProps}
 								/>
 							{:else if block.type === 'short_answer'}
 								<ShortAnswer
 									content={block.content as any}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									blockId={block.id}
+									{...responseProps}
 								/>
 							{:else}
 								<p>Content for {block.type} block.</p>

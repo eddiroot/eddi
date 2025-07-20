@@ -9,6 +9,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { ViewMode } from '$lib/utils';
+	import { createDebouncedSave, saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI } from '../utils/auto-save.js';
 
 	interface FillInBlankContent {
 		sentence: string;
@@ -22,7 +23,14 @@
 			answer: ''
 		} as FillInBlankContent,
 		viewMode = ViewMode.VIEW,
-		onUpdate = () => {}
+		onUpdate = () => {},
+		// New props for response saving
+		blockId,
+		taskId,
+		classTaskId,
+		subjectOfferingId,
+		subjectOfferingClassId,
+		isPublished = false
 	} = $props();
 
 	let hasSubmitted = $state(false);
@@ -31,6 +39,17 @@
 	// Edit mode state - simple initialization like markdown
 	let sentenceText = $state(content.sentence || '');
 	let correctAnswer = $state(content.answer || '');
+
+	// Auto-save function for student responses
+	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
+		if (isPublished && classTaskId && blockId) {
+			await saveTaskBlockResponse(
+				blockId,
+				classTaskId,
+				response
+			);
+		}
+	});
 
 	// Functions for student interaction
 	function submitAnswer() {
@@ -91,7 +110,29 @@
 		// Reset quiz state
 		hasSubmitted = false;
 		userAnswer = '';
+
+		// Load existing response for published tasks in view mode
+		if (isPublished && viewMode === ViewMode.VIEW) {
+			loadExistingResponse();
+		}
 	});
+
+	// Auto-save when user types answer in published tasks
+	$effect(() => {
+		if (isPublished && viewMode === ViewMode.VIEW && userAnswer) {
+			debouncedSaveResponse(userAnswer);
+		}
+	});
+
+	// Load existing user response using centralized function
+	async function loadExistingResponse() {
+		if (!isPublished || !blockId) return;
+		
+		const existingResponse = await loadExistingResponseFromAPI(blockId, taskId, subjectOfferingClassId);
+		if (existingResponse) {
+			userAnswer = existingResponse;
+		}
+	}
 </script>
 
 <div class="flex w-full flex-col gap-4">
@@ -161,16 +202,17 @@
 					</div>
 
 					{@const parsed = parseSentence(content.sentence)}
+					{@const showFeedback = hasSubmitted && !isPublished}
 					<div class="mb-6">
 						<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
 							<span>{parsed.before}</span>
 							<div class="relative mx-2 inline-block">
 								<Input
 									bind:value={userAnswer}
-									disabled={hasSubmitted}
+									disabled={showFeedback}
 									placeholder="Your answer"
 									class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
-										hasSubmitted
+										showFeedback
 											? isAnswerCorrect()
 												? 'border-green-500 bg-green-50 text-green-800 shadow-sm dark:bg-green-900/20 dark:text-green-200'
 												: 'border-red-500 bg-red-50 text-red-800 shadow-sm dark:bg-red-900/20 dark:text-red-200'
@@ -185,7 +227,7 @@
 						</div>
 					</div>
 
-					{#if hasSubmitted}
+					{#if showFeedback}
 						<div
 							class={`mb-6 rounded-lg border p-4 ${
 								isAnswerCorrect()
@@ -213,16 +255,19 @@
 						</div>
 					{/if}
 
-					{#if !hasSubmitted}
-						<div class="mt-6">
-							<Button onclick={submitAnswer} disabled={!userAnswer.trim()} class="w-full">
-								Submit Answer
-							</Button>
-						</div>
-					{:else}
-						<div class="mt-6 flex gap-2">
-							<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
-						</div>
+					<!-- Submit/Reset Button - Only show for non-published tasks -->
+					{#if !isPublished}
+						{#if !hasSubmitted}
+							<div class="mt-6">
+								<Button onclick={submitAnswer} disabled={!userAnswer.trim()} class="w-full">
+									Submit Answer
+								</Button>
+							</div>
+						{:else}
+							<div class="mt-6 flex gap-2">
+								<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
+							</div>
+						{/if}
 					{/if}
 				</Card.Content>
 			</Card.Root>

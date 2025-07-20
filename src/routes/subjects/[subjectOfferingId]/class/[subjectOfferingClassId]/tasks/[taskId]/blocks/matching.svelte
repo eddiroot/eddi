@@ -11,6 +11,7 @@
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	import { ViewMode } from '$lib/utils';
+	import { saveTaskBlockResponse, createDebouncedSave, loadExistingResponse as loadExistingResponseFromAPI } from '../utils/auto-save.js';
 
 	interface MatchingPair {
 		left: string;
@@ -29,7 +30,14 @@
 			pairs: []
 		} as MatchingContent,
 		viewMode = ViewMode.VIEW,
-		onUpdate = () => {}
+		onUpdate = () => {},
+		// New props for response saving
+		blockId,
+		taskId,
+		classTaskId,
+		subjectOfferingId,
+		subjectOfferingClassId,
+		isPublished = false
 	} = $props();
 
 	// Normalize content to handle potential legacy formats
@@ -60,6 +68,17 @@
 	// Drag and drop state for preview mode
 	let draggedItem = $state<string | null>(null);
 
+	// Auto-save function for student responses
+	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
+		if (isPublished && blockId && classTaskId) {
+			await saveTaskBlockResponse(
+				blockId,
+				classTaskId,
+				response
+			);
+		}
+	}, 1000); // 1 second delay for matching
+
 	// Sync with prop changes
 	$effect(() => {
 		const newNormalized = normalizeContent(content);
@@ -71,6 +90,15 @@
 			// Reset right items order when content changes
 			if (newNormalized.pairs.length > 0) {
 				rightItemsOrder = [...newNormalized.pairs.map(pair => pair.right)].sort(() => Math.random() - 0.5);
+			}
+
+			// Reset user state
+			hasSubmitted = false;
+			showFeedback = false;
+
+			// Load existing response for published tasks in view mode
+			if (isPublished && viewMode === ViewMode.VIEW) {
+				loadExistingResponse();
 			}
 		}
 	});
@@ -85,6 +113,11 @@
 			// Initialize right items in random order
 			if (normalized.pairs.length > 0) {
 				rightItemsOrder = [...normalized.pairs.map(pair => pair.right)].sort(() => Math.random() - 0.5);
+			}
+
+			// Load existing response for published tasks in view mode
+			if (isPublished && viewMode === ViewMode.VIEW) {
+				loadExistingResponse();
 			}
 		}
 	});
@@ -159,6 +192,45 @@
 		
 		// Reset drag state
 		draggedItem = null;
+
+		// Auto-save response for published tasks
+		if (isPublished && viewMode === ViewMode.VIEW) {
+			const response = {
+				rightItemsOrder: [...rightItemsOrder],
+				submittedAt: new Date().toISOString()
+			};
+			debouncedSaveResponse(response);
+		}
+	}
+
+	// Save student response for published tasks
+	async function saveStudentResponse() {
+		if (!isPublished || !blockId || !classTaskId) return;
+		
+		try {
+			const response = {
+				rightItemsOrder: [...rightItemsOrder],
+				submittedAt: new Date().toISOString()
+			};
+			
+			await saveTaskBlockResponse(
+				blockId,
+				classTaskId,
+				response
+			);
+		} catch (error) {
+			console.error('Failed to save matching response:', error);
+		}
+	}
+
+	// Load existing user response using centralized function
+	async function loadExistingResponse() {
+		if (!isPublished || !blockId) return;
+		
+		const existingResponse = await loadExistingResponseFromAPI(blockId, taskId, subjectOfferingClassId);
+		if (existingResponse && existingResponse.rightItemsOrder) {
+			rightItemsOrder = [...existingResponse.rightItemsOrder];
+		}
 	}
 
 	function submitAnswers() {
@@ -341,7 +413,7 @@
 										}
 									}}
 									class="min-h-12 p-3 border rounded-lg flex items-center justify-between transition-colors
-										{hasSubmitted ? 'bg-muted/20' : 'bg-secondary hover:bg-secondary/80 cursor-grab active:cursor-grabbing'}
+										{hasSubmitted && !isPublished ? 'bg-muted/20' : 'bg-secondary hover:bg-secondary/80 cursor-grab active:cursor-grabbing'}
 										{draggedItem === rightItem ? 'opacity-50' : ''}
 										{showFeedback ? (isCorrectMatch(index) ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : ''}"
 									style="position: relative; z-index: 2;"
@@ -371,21 +443,23 @@
 					</div>
 				</div>
 
-				<!-- Action Buttons -->
-				<div class="flex gap-2 pt-4">
-					{#if !hasSubmitted}
-						<Button 
-							onclick={submitAnswers}
-							disabled={rightItemsOrder.length !== pairs.filter(pair => pair.left.trim() && pair.right.trim()).length}
-						>
-							Submit Answers
-						</Button>
-					{:else}
-						<Button variant="outline" onclick={resetAnswers}>
-							Try Again
-						</Button>
-					{/if}
-				</div>
+				<!-- Action Buttons - Only show for non-published tasks -->
+				{#if !isPublished}
+					<div class="flex gap-2 pt-4">
+						{#if !hasSubmitted}
+							<Button 
+								onclick={submitAnswers}
+								disabled={rightItemsOrder.length !== pairs.filter(pair => pair.left.trim() && pair.right.trim()).length}
+							>
+								Submit Answers
+							</Button>
+						{:else}
+							<Button variant="outline" onclick={resetAnswers}>
+								Try Again
+							</Button>
+						{/if}
+					</div>
+				{/if}
 
 				<!-- Feedback -->
 				{#if showFeedback}

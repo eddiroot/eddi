@@ -22,13 +22,35 @@
 		content,
 		viewMode = ViewMode.VIEW,
 		onUpdate,
-		onGlobalDrop
+		onGlobalDrop,
+		// Response props to pass through
+		blockId,
+		taskId,
+		classTaskId,
+		subjectOfferingId,
+		subjectOfferingClassId,
+		isPublished = false
 	}: {
 		content: TwoColumnContent;
 		viewMode: ViewMode;
 		onUpdate: (content: any) => Promise<void>;
 		onGlobalDrop?: (state: DragDropState<any>) => Promise<void>;
+		blockId?: number;
+		taskId?: number;
+		classTaskId?: number;
+		subjectOfferingId?: string;
+		subjectOfferingClassId?: string;
+		isPublished?: boolean;
 	} = $props();
+
+	// Common response props for nested interactive blocks
+	const responseProps = $derived({
+		taskId,
+		classTaskId,
+		subjectOfferingId,
+		subjectOfferingClassId,
+		isPublished
+	});
 
 	let localContent = $state<TwoColumnContent>({
 		leftColumn: content?.leftColumn || [],
@@ -253,18 +275,24 @@
 								content={block.content}
 								{viewMode}
 								onUpdate={createUpdateHandler('left')}
+								blockId={block.id || blockId}
+								{...responseProps}
 							/>
 						{:else if block.type === 'fill_in_blank'}
 							<FillInBlank
 								content={block.content}
 								{viewMode}
 								onUpdate={createUpdateHandler('left')}
+								blockId={block.id || blockId}
+								{...responseProps}
 							/>
 						{:else if block.type === 'matching'}
 							<Matching
 								content={block.content}
 								{viewMode}
 								onUpdate={createUpdateHandler('left')}
+								blockId={block.id || blockId}
+								{...responseProps}
 							/>
 						{:else}
 							<div class="bg-muted rounded p-2">
@@ -357,18 +385,24 @@
 								content={block.content}
 								{viewMode}
 								onUpdate={createUpdateHandler('right')}
+								blockId={block.id || blockId}
+								{...responseProps}
 							/>
 						{:else if block.type === 'fill_in_blank'}
 							<FillInBlank
 								content={block.content}
 								{viewMode}
 								onUpdate={createUpdateHandler('right')}
+								blockId={block.id || blockId}
+								{...responseProps}
 							/>
 						{:else if block.type === 'matching'}
 							<Matching
 								content={block.content}
 								{viewMode}
 								onUpdate={createUpdateHandler('right')}
+								blockId={block.id || blockId}
+								{...responseProps}
 							/>
 						{:else}
 							<div class="bg-muted rounded p-2">

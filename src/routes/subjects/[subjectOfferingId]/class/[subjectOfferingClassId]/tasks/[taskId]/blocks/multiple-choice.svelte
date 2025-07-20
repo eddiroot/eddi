@@ -12,6 +12,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { ViewMode } from '$lib/utils';
+	import { saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI, createDebouncedSave } from '../utils/auto-save.js';
 
 	interface MultipleChoiceContent {
 		question: string;
@@ -29,7 +30,14 @@
 			multiple: false
 		} as MultipleChoiceContent,
 		viewMode = ViewMode.VIEW,
-		onUpdate = () => {}
+		onUpdate = () => {},
+		// New props for response saving
+		blockId,
+		taskId,
+		classTaskId,
+		subjectOfferingId,
+		subjectOfferingClassId,
+		isPublished = false
 	} = $props();
 
 	// tempory state for preview
@@ -47,7 +55,7 @@
 
 	// Functions for student interaction
 	function toggleAnswer(option: string) {
-		if (hasSubmitted) return; // Prevent changes after submission
+		if (hasSubmitted && !isPublished) return; // Prevent changes after submission in non-published mode
 
 		if (!content.multiple) {
 			// Single choice - clear others and set this one
@@ -61,6 +69,15 @@
 			}
 			selectedAnswers = new Set(selectedAnswers); // Trigger reactivity
 		}
+
+		// Auto-save response for published tasks
+		if (isPublished && blockId && classTaskId) {
+			const response = {
+				selectedAnswers: Array.from(selectedAnswers),
+				submittedAt: new Date().toISOString()
+			};
+			debouncedSave(response);
+		}
 	}
 
 	function submitAnswers() {
@@ -71,6 +88,11 @@
 		hasSubmitted = false;
 		selectedAnswers = new Set();
 	}
+
+	// Auto-save student response when selections change
+	const debouncedSave = createDebouncedSave(async (response: any) => {
+		await saveTaskBlockResponse(blockId, classTaskId, response);
+	});
 
 	// Updated function with case-insensitive comparison and proper type checking
 	function isAnswerCorrect(option: string): boolean {
@@ -183,7 +205,42 @@
 
 		hasSubmitted = false; // Reset quiz state when content changes
 		selectedAnswers = new Set();
+
+		// Load existing response for published tasks in view mode
+		if (isPublished && viewMode === ViewMode.VIEW) {
+			loadExistingResponse();
+		}
 	});
+
+	// Save student response for published tasks
+	async function saveStudentResponse() {
+		if (!isPublished || !blockId || !classTaskId) return;
+		
+		try {
+			const response = {
+				selectedAnswers: Array.from(selectedAnswers),
+				submittedAt: new Date().toISOString()
+			};
+			
+			await saveTaskBlockResponse(
+				blockId,
+				classTaskId,
+				response
+			);
+		} catch (error) {
+			console.error('Failed to save multiple choice response:', error);
+		}
+	}
+
+	// Load existing user response using centralized function
+	async function loadExistingResponse() {
+		if (!isPublished || !blockId) return;
+		
+		const existingResponse = await loadExistingResponseFromAPI(blockId, taskId, subjectOfferingClassId);
+		if (existingResponse && existingResponse.selectedAnswers) {
+			selectedAnswers = new Set(existingResponse.selectedAnswers);
+		}
+	}
 </script>
 
 <div class="flex w-full flex-col gap-4">
@@ -295,22 +352,23 @@
 								{@const answerStatus = getAnswerStatus(option)}
 								{@const isSelected = selectedAnswers.has(option)}
 								{@const isCorrect = isAnswerCorrect(option)}
+								{@const showFeedback = hasSubmitted && !isPublished}
 								<button
 									class={`interactive flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200
-                                        ${!hasSubmitted ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default'}
-                                        ${isSelected && !hasSubmitted ? 'border-blue-200 bg-blue-50' : ''}
-                                        ${isSelected && isCorrect && hasSubmitted ? 'border-2 border-green-500 bg-green-50' : ''}
-                                        ${isSelected && !isCorrect && hasSubmitted ? 'border-red-200 bg-red-50' : ''}
-                                        ${!isSelected && isCorrect && hasSubmitted ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}
+                                        ${!showFeedback ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default'}
+                                        ${isSelected && !showFeedback ? 'border-blue-200 bg-blue-50' : ''}
+                                        ${isSelected && isCorrect && showFeedback ? 'border-2 border-green-500 bg-green-50' : ''}
+                                        ${isSelected && !isCorrect && showFeedback ? 'border-red-200 bg-red-50' : ''}
+                                        ${!isSelected && isCorrect && showFeedback ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}
                                     `}
 									onclick={() => toggleAnswer(option)}
-									disabled={hasSubmitted}
+									disabled={showFeedback}
 								>
 									<!-- Selection indicator -->
 									<div class="mt-1 flex-shrink-0">
 										{#if content.multiple}
 											<!-- Checkbox style for multiple choice -->
-											{#if !hasSubmitted}
+											{#if !showFeedback}
 												{#if isSelected}
 													<div
 														class="flex h-5 w-5 items-center justify-center rounded border-2 border-blue-600 bg-blue-600"
@@ -343,7 +401,7 @@
 											{/if}
 										{:else}
 											<!-- Radio button style for single choice -->
-											{#if !hasSubmitted}
+											{#if !showFeedback}
 												{#if isSelected}
 													<div
 														class="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600"
@@ -384,14 +442,14 @@
 										</span>
 										<span
 											class={`
-                                            ${isSelected && isCorrect && hasSubmitted ? 'font-semibold text-green-800' : ''}
-                                            ${isSelected && !isCorrect && hasSubmitted ? 'text-red-800' : ''}
-                                            ${!isSelected && isCorrect && hasSubmitted ? 'font-medium text-yellow-800' : ''}
+                                            ${isSelected && isCorrect && showFeedback ? 'font-semibold text-green-800' : ''}
+                                            ${isSelected && !isCorrect && showFeedback ? 'text-red-800' : ''}
+                                            ${!isSelected && isCorrect && showFeedback ? 'font-medium text-yellow-800' : ''}
                                         `}
 										>
 											{option}
 										</span>
-										{#if !isSelected && isCorrect && hasSubmitted}
+										{#if !isSelected && isCorrect && showFeedback}
 											<span class="ml-2 text-xs font-medium text-yellow-700">(Correct Answer)</span>
 										{/if}
 									</span>
@@ -399,21 +457,23 @@
 							{/each}
 						</div>
 
-						<!-- Submit/Reset Button -->
-						{#if !hasSubmitted}
-							<div class="mt-6">
-								<Button
-									onclick={submitAnswers}
-									disabled={selectedAnswers.size === 0}
-									class="w-full"
-								>
-									Submit Answer{selectedAnswers.size > 1 ? 's' : ''}
-								</Button>
-							</div>
-						{:else}
-							<div class="mt-6 flex gap-2">
-								<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
-							</div>
+						<!-- Submit/Reset Button - Only show for non-published tasks -->
+						{#if !isPublished}
+							{#if !hasSubmitted}
+								<div class="mt-6">
+									<Button
+										onclick={submitAnswers}
+										disabled={selectedAnswers.size === 0}
+										class="w-full"
+									>
+										Submit Answer{selectedAnswers.size > 1 ? 's' : ''}
+									</Button>
+								</div>
+							{:else}
+								<div class="mt-6 flex gap-2">
+									<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
+								</div>
+							{/if}
 						{/if}
 					</Card.Content>
 				</Card.Root>
@@ -431,6 +491,7 @@
 			{/if}
 		</div>
 	{:else}
-
+		<!-- No content placeholder -->
+		<div></div>
 	{/if}
 </div>

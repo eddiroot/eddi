@@ -1076,3 +1076,94 @@ export async function updateSubjectOfferingClassTaskStatus(taskId: number, subje
 			)
 		);
 }
+
+// Task Block Response functions
+export async function createOrUpdateTaskBlockResponse(
+	taskBlockId: number,
+	authorId: string,
+	classTaskId: number,
+	response: unknown
+) {
+	// First, try to find an existing response
+	const existingResponse = await db
+		.select()
+		.from(table.taskBlockResponse)
+		.where(
+			and(
+				eq(table.taskBlockResponse.taskBlockId, taskBlockId),
+				eq(table.taskBlockResponse.authorId, authorId),
+				eq(table.taskBlockResponse.classTaskId, classTaskId)
+			)
+		)
+		.limit(1);
+
+	if (existingResponse.length > 0) {
+		// Update existing response
+		const [updatedResponse] = await db
+			.update(table.taskBlockResponse)
+			.set({ 
+				response,
+				updatedAt: new Date()
+			})
+			.where(eq(table.taskBlockResponse.id, existingResponse[0].id))
+			.returning();
+		
+		return updatedResponse;
+	} else {
+		// Create new response
+		const [newResponse] = await db
+			.insert(table.taskBlockResponse)
+			.values({
+				taskBlockId,
+				authorId,
+				classTaskId,
+				response
+			})
+			.returning();
+		
+		return newResponse;
+	}
+}
+
+export async function getTaskBlockResponse(
+	taskBlockId: number,
+	authorId: string,
+	classTaskId: number
+) {
+	const response = await db
+		.select()
+		.from(table.taskBlockResponse)
+		.where(
+			and(
+				eq(table.taskBlockResponse.taskBlockId, taskBlockId),
+				eq(table.taskBlockResponse.authorId, authorId),
+				eq(table.taskBlockResponse.classTaskId, classTaskId)
+			)
+		)
+		.limit(1);
+
+	return response[0] || null;
+}
+
+export async function getUserTaskBlockResponses(
+	taskId: number,
+	authorId: string,
+	classTaskId: number
+) {
+	const responses = await db
+		.select({
+			taskBlockResponse: table.taskBlockResponse,
+			taskBlock: table.taskBlock
+		})
+		.from(table.taskBlockResponse)
+		.innerJoin(table.taskBlock, eq(table.taskBlockResponse.taskBlockId, table.taskBlock.id))
+		.where(
+			and(
+				eq(table.taskBlock.taskId, taskId),
+				eq(table.taskBlockResponse.authorId, authorId),
+				eq(table.taskBlockResponse.classTaskId, classTaskId)
+			)
+		);
+
+	return responses;
+}

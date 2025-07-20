@@ -6,10 +6,10 @@
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { ViewMode } from '$lib/utils';
-	import { view } from 'drizzle-orm/sqlite-core';
 	import EdraEditor from '$lib/components/edra/shadcn/editor.svelte';
 	import EdraToolbar from '$lib/components/edra/shadcn/toolbar.svelte';
 	import type { Content, Editor } from '@tiptap/core';
+	import { createDebouncedSave, saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI } from '../utils/auto-save.js';
 
 	interface textInputContent {
 		question: Content;
@@ -25,7 +25,13 @@
 			maxLength: 1000
 		} as textInputContent,
 		viewMode = ViewMode.VIEW,
-		onUpdate = () => {}
+		onUpdate = () => {},
+		// New props for response saving
+		blockId,
+		taskId,
+		classTaskId,
+		subjectOfferingClassId,
+		isPublished = false
 	} = $props();
 
 	let userAnswer = $state<Content>(null);
@@ -38,6 +44,17 @@
 	// Editors for rich text editing
 	let questionEditor = $state<Editor>();
 	let answerEditor = $state<Editor>();
+
+	// Auto-save function for student responses
+	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
+		if (isPublished && blockId && classTaskId) {
+			await saveTaskBlockResponse(
+				blockId,
+				classTaskId,
+				response
+			);
+		}
+	}, 2000); // 2 second delay for auto-save
 
 	function saveChanges() {
 		if (!questionEditor || questionEditor.isEmpty) {
@@ -65,8 +82,11 @@
 	function onAnswerUpdate() {
 		if (answerEditor && !answerEditor.isDestroyed) {
 			userAnswer = answerEditor.getJSON();
-			// Auto-save the answer
-			// You can add additional logic here to save to database if needed
+			
+			// Auto-save for published tasks
+			if (isPublished && viewMode === ViewMode.VIEW) {
+				debouncedSaveResponse(userAnswer);
+			}
 		}
 	}
 
@@ -75,12 +95,29 @@
 		question = content.question || null;
 		placeholder = content.placeholder || 'Enter your answer here...';
 		maxLength = content.maxLength || 1000;
-		// Reset answer state
-		userAnswer = null;
-		if (answerEditor) {
-			answerEditor.commands.clearContent();
+		
+		// Load existing response for published tasks in view mode
+		if (isPublished && viewMode === ViewMode.VIEW && blockId && classTaskId) {
+			loadExistingResponse();
+		} else {
+			// Reset answer state for edit mode
+			userAnswer = null;
+			if (answerEditor) {
+				answerEditor.commands.clearContent();
+			}
 		}
 	});
+
+	// Load existing user response using centralized function
+	async function loadExistingResponse() {
+		const existingResponse = await loadExistingResponseFromAPI(blockId, taskId, subjectOfferingClassId);
+		if (existingResponse) {
+			userAnswer = existingResponse;
+			if (answerEditor && !answerEditor.isDestroyed) {
+				answerEditor.commands.setContent(existingResponse);
+			}
+		}
+	}
 </script>
 
 <div class="flex w-full flex-col gap-4">

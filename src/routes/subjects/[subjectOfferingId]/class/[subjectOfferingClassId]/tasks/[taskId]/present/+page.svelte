@@ -200,7 +200,7 @@
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
 									/>
-								{:else if block.type === 'whiteboard'}
+								<!-- {:else if block.type === 'whiteboard'}
 									<Whiteboard
 										content={block.content as Record<string, any> | undefined}
 										viewMode={ViewMode.PRESENT}
@@ -223,7 +223,7 @@
 										content={block.content as any}
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
-									/>
+									/> -->
 									<!--{:else if block.type === 'two_column_layout'}
 								<TwoColumnLayout
 									content={block.content as any}
@@ -231,12 +231,13 @@
 									onUpdate={() => {}}
 									onGlobalDrop={() => {}}
 								/> -->
-								{:else if block.type === 'short_answer'}
+								<!-- {:else if block.type === 'short_answer'}
 									<ShortAnswer
 										content={block.content as any}
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
 									/>
+									 -->
 								{:else}
 									<div class="text-center text-gray-500">
 										<p>Content for {block.type} block.</p>
