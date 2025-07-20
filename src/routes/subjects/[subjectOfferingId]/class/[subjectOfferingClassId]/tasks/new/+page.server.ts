@@ -46,29 +46,27 @@ async function createBlocksFromSchema(taskSchema: string, taskId: number) {
 	try {
 		// Parse the JSON schema
 		const parsedSchema = JSON.parse(taskSchema);
+		
 		// Extract task components from schema
 		const taskComponents = parsedSchema?.task || [];
 
 		if (!Array.isArray(taskComponents)) {
-			console.error('Task schema does not contain a valid task array');
-			return;
+			throw new Error('Invalid task schema: task property must be an array');
 		}
 
-		console.log(`Processing ${taskComponents.length} task components`);
-
 		// Process each component and create blocks
-		for (const component of taskComponents) {
+		for (let i = 0; i < taskComponents.length; i++) {
+			const component = taskComponents[i];
 			try {
 				await createBlockFromComponent(component, taskId);
 			} catch (error) {
-				console.error('Error creating block from component:', component, error);
+				console.error(`Error creating block from component ${i + 1}:`, component, error);
 				// Continue processing other components even if one fails
 			}
 		}
-
-		console.log('Successfully processed all task components');
 	} catch (error) {
 		console.error('Error parsing or processing task schema:', error);
+		throw new Error(`Failed to process task schema: ${error instanceof Error ? error.message : 'Unknown error'}`);
 	}
 }
 
@@ -94,14 +92,12 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			// Extract text content properly
 			const headingText = content?.text || content || 'Heading';
 			createdBlock = await createTaskBlock(taskId, type, headingText);
-			console.log(`Created ${type} block with content: "${headingText}"`);
 			break;
 		}
 		case 'paragraph': {
 			// Extract paragraph content properly
 			const paragraphContent = content?.markdown || '';
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.markdown, paragraphContent);
-			console.log(`Created paragraph block with content length: ${paragraphContent.length}`);
 			break;
 		}
 		case 'math_input': {
@@ -117,7 +113,6 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const multiple = content?.multiple || false;
 			const answer = component.answer || [];
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, { question, options, answer, multiple});
-			console.log(`Created multiple choice block: "${question}"`);
 			break;
 		}
 
@@ -126,7 +121,6 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const url = content?.url || '';
 			const caption = content?.caption || '';
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.image, { url, caption });
-			console.log(`Created image block: "${caption}"`);
 			break;
 		}
 
@@ -134,7 +128,6 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const url = content?.url || '';
 			const caption = content?.caption || '';
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.video, { url, caption });
-			console.log(`Created video block: "${caption}"`);
 			break;
 		}
 
@@ -143,7 +136,6 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const sentence = content?.sentence || '';
 			const answer = component.answer || [];
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, { sentence, answer });
-			console.log(`Created fill-in-blank block: "${sentence}"`);
 			break;
 		}
 
@@ -151,13 +143,11 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const instructions = content?.instructions || '';
 			const pairs = content?.pairs || [];
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs });
-			console.log(`Created matching block with ${pairs.length} pairs: "${instructions}"`);
 			break;
 		}
 		case 'short_answer': {
 			const question = content?.question || '';
 			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question });
-			console.log(`Created short answer block: "${question}"`);
 			break;
 		}
 
@@ -183,13 +173,11 @@ async function processAnswersAndCriteria(component: any, taskBlockId: number) {
 				const marks = answerData.marks || answerData.mark || undefined;
 				
 				await createAnswer(taskBlockId, answer, marks);
-				console.log(`Created answer for task block ${taskBlockId}: marks=${marks || 'none'}`);
 			}
 		} else if (component.answer !== undefined) {
 			// Handle single answer (like in multiple choice, fill in blank, etc.)
 			const marks = component.marks || component.mark || undefined;
 			await createAnswer(taskBlockId, component.answer, marks);
-			console.log(`Created answer for task block ${taskBlockId}: marks=${marks || 'none'}`);
 		}
 
 		// Process criteria
@@ -200,7 +188,6 @@ async function processAnswersAndCriteria(component: any, taskBlockId: number) {
 				
 				if (typeof description === 'string' && description.trim()) {
 					await createCriteria(taskBlockId, description.trim(), marks);
-					console.log(`Created criteria for task block ${taskBlockId}: "${description}" (${marks} marks)`);
 				}
 			}
 		}
@@ -213,7 +200,6 @@ async function processAnswersAndCriteria(component: any, taskBlockId: number) {
 				
 				if (typeof description === 'string' && description.trim()) {
 					await createCriteria(taskBlockId, description.trim(), marks);
-					console.log(`Created marking criteria for task block ${taskBlockId}: "${description}" (${marks} marks)`);
 				}
 			}
 		}
@@ -230,135 +216,161 @@ export const actions = {
 		locals: { security },
 		params: { subjectOfferingId, subjectOfferingClassId }
 	}) => {
-		const user = security.isAuthenticated().getUser();
-		const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
-		const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
+		try {
+			const user = security.isAuthenticated().getUser();
+			const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
+			const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
 
-		// Read the form data ONCE
-		const formData = await request.formData();
-		const form = await superValidate(formData, zod(formSchema));
+			// Read the form data ONCE
+			const formData = await request.formData();
+			const form = await superValidate(formData, zod(formSchema));
+			
+			// Extract selected learning area content IDs
+			const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
 
-		// Extract selected learning area content IDs
-		const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
-
-		let learningAreaContentData: CurriculumStandardWithElaborations[] = [];
-		if (selectedLearningAreaContentIds.length > 0) {
-			learningAreaContentData = await getLearningAreaStandardWithElaborationsByIds(
-				selectedLearningAreaContentIds
-			);
-		}
-
-		let courseMapItemId = form.data.taskTopicId;
-		// Create new topic if needed
-		if (form.data.newTopicName && !courseMapItemId) {
-			const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
-			courseMapItemId = newTopic.id;
-		}
-
-		const task = await createTask(
-			form.data.title,
-			form.data.description,
-			1,
-			taskTypeEnum[form.data.type],
-			subjectOfferingIdInt,
-			form.data.aiTutorEnabled
-		);
-
-		await createSubjectOfferingClassTask(
-			task.id,
-			subjectOfferingClassIdInt,
-			user.id,
-			courseMapItemId,
-			form.data.week,
-			form.data.dueDate
-		);
-
-		let contentElaborationPrompt = '';
-		if (learningAreaContentData.length > 0) {
-			contentElaborationPrompt = learningAreaContentData
-				.map((item) => {
-					const lac = item.learningAreaStandard;
-					let contextText = `${lac.name}`;
-					if (lac.description) {
-						contextText += `\nDescription: ${lac.description}`;
-					}
-					if (item.elaborations && item.elaborations.length > 0) {
-						const elaborationsText = item.elaborations
-							.map((elab) => `- ${elab.standardElaboration}`)
-							.join('\n');
-						contextText += `\nElaborations:\n${elaborationsText}`;
-					}
-					return contextText;
-				})
-				.join('\n\n');
-			contentElaborationPrompt = `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${contentElaborationPrompt}`;
-		}
-
-		// Now get the AI files from the same formData
-		const yearLevel = await getSubjectYearLevelBySubjectOfferingId(subjectOfferingIdInt);
-		const aiFiles = form.data.files || [];
-		const validFiles = aiFiles.filter(
-			(file): file is File => file instanceof File && file.size > 0
-		);
-		let tempFilePaths: string[] = [];
-		let taskSchema = '';
-
-		if (validFiles.length > 0) {
-			// Save all files to temp directory
-			const savePromises = validFiles.map(async (file, index) => {
-				const timestamp = Date.now();
-				const fileName = `${timestamp}-${index}-${file.name}`;
-				const tempFilePath = join(tmpdir(), fileName);
-				const arrayBuffer = await file.arrayBuffer();
-				const buffer = Buffer.from(arrayBuffer);
-				await fsPromises.writeFile(tempFilePath, buffer);
-				return tempFilePath;
-			});
-
-			tempFilePaths = await Promise.all(savePromises);
-
-			let enhancedPrompt = taskCreationPrompts[form.data.type](
-				form.data.title,
-				form.data.description || ''
-			);
-			enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
-
-			for (const tempFilePath of tempFilePaths) {
-				taskSchema += await geminiCompletion(enhancedPrompt, tempFilePath, taskComponentSchema);
+			let learningAreaContentData: CurriculumStandardWithElaborations[] = [];
+			if (selectedLearningAreaContentIds.length > 0) {
+				learningAreaContentData = await getLearningAreaStandardWithElaborationsByIds(
+					selectedLearningAreaContentIds
+				);
 			}
-		} else if (form.data.creationMethod === 'ai') {
-			// AI mode but no files
-			let enhancedPrompt = taskCreationPrompts[form.data.type](
-				form.data.title,
-				form.data.description || ''
-			);
-			enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
 
-			taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);
-		}
-		// Clean up all temp files
-		if (tempFilePaths.length > 0) {
-			console.log(`Cleaning up ${tempFilePaths.length} temp files...`);
-			const cleanupPromises = tempFilePaths.map(async (tempFilePath) => {
-				await fsPromises.unlink(tempFilePath);
-				console.log(`Temp file ${tempFilePath} deleted`);
-			});
-			await Promise.all(cleanupPromises);
-			console.log('Cleanup completed');
-		}
-		form.data.files = undefined;
-
-		// Process the task schema and create blocks
-		if (taskSchema) {
-			try {
-				await createBlocksFromSchema(taskSchema, task.id);
-			} catch (error) {
-				throw new Error(`Error creating blocks from schema: ${error}`);
+			let courseMapItemId = form.data.taskTopicId;
+			// Create new topic if needed
+			if (form.data.newTopicName && !courseMapItemId) {
+				const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
+				courseMapItemId = newTopic.id;
 			}
+
+			const task = await createTask(
+				form.data.title,
+				form.data.description,
+				1,
+				taskTypeEnum[form.data.type],
+				subjectOfferingIdInt,
+				form.data.aiTutorEnabled
+			);
+
+			await createSubjectOfferingClassTask(
+				task.id,
+				subjectOfferingClassIdInt,
+				user.id,
+				courseMapItemId,
+				form.data.week,
+				form.data.dueDate
+			);
+
+			let contentElaborationPrompt = '';
+			if (learningAreaContentData.length > 0) {
+				contentElaborationPrompt = learningAreaContentData
+					.map((item) => {
+						const lac = item.learningAreaStandard;
+						let contextText = `${lac.name}`;
+						if (lac.description) {
+							contextText += `\nDescription: ${lac.description}`;
+						}
+						if (item.elaborations && item.elaborations.length > 0) {
+							const elaborationsText = item.elaborations
+								.map((elab) => `- ${elab.standardElaboration}`)
+								.join('\n');
+							contextText += `\nElaborations:\n${elaborationsText}`;
+						}
+						return contextText;
+					})
+					.join('\n\n');
+				contentElaborationPrompt = `\n\nCURRICULUM CONTEXT:\nPlease ensure the task aligns with these specific learning outcomes and elaborations:\n\n${contentElaborationPrompt}`;
+			}
+
+			// Now get the AI files from the same formData
+			const yearLevel = await getSubjectYearLevelBySubjectOfferingId(subjectOfferingIdInt);
+			const aiFiles = form.data.files || [];
+			const validFiles = aiFiles.filter(
+				(file): file is File => file instanceof File && file.size > 0
+			);
+			let tempFilePaths: string[] = [];
+			let taskSchema = '';
+
+			if (validFiles.length > 0) {
+				// Save all files to temp directory
+				const savePromises = validFiles.map(async (file, index) => {
+					const timestamp = Date.now();
+					const fileName = `${timestamp}-${index}-${file.name}`;
+					const tempFilePath = join(tmpdir(), fileName);
+					const arrayBuffer = await file.arrayBuffer();
+					const buffer = Buffer.from(arrayBuffer);
+					await fsPromises.writeFile(tempFilePath, buffer);
+					return tempFilePath;
+				});
+
+				tempFilePaths = await Promise.all(savePromises);
+
+				let enhancedPrompt = taskCreationPrompts[form.data.type](
+					form.data.title,
+					form.data.description || ''
+				);
+				enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
+
+				for (const tempFilePath of tempFilePaths) {
+					try {
+						const aiResponse = await geminiCompletion(enhancedPrompt, tempFilePath, taskComponentSchema);
+						taskSchema += aiResponse;
+					} catch (aiError) {
+						console.error(`Error processing file ${tempFilePath}:`, aiError);
+						throw new Error(`AI generation failed for uploaded file: ${aiError}`);
+					}
+				}
+			} else if (form.data.creationMethod === 'ai') {
+				// AI mode but no files
+				let enhancedPrompt = taskCreationPrompts[form.data.type](
+					form.data.title,
+					form.data.description || ''
+				);
+				enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
+
+				try {
+					taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);
+				} catch (aiError) {
+					console.error('Error in AI generation:', aiError);
+					throw new Error(`AI generation failed: ${aiError}`);
+				}
+			}
+
+			// Clean up all temp files
+			if (tempFilePaths.length > 0) {
+				try {
+					const cleanupPromises = tempFilePaths.map(async (tempFilePath) => {
+						await fsPromises.unlink(tempFilePath);
+					});
+					await Promise.all(cleanupPromises);
+				} catch (cleanupError) {
+					console.error('Error during cleanup:', cleanupError);
+					// Don't throw here, cleanup errors shouldn't prevent task creation
+				}
+			}
+			form.data.files = undefined;
+
+			// Process the task schema and create blocks
+			if (taskSchema) {
+				try {
+					await createBlocksFromSchema(taskSchema, task.id);
+				} catch (schemaError) {
+					console.error('Error creating blocks from schema:', schemaError);
+					throw new Error(`Error creating task blocks: ${schemaError}`);
+				}
+			}
+
+			// Only redirect if everything succeeded
+			throw redirect(
+				303,
+				`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${task.id}`
+			);
+		} catch (error) {
+			console.error('Task creation error:', error);
+			// Return error response instead of throwing
+			return {
+				status: 500,
+				error: error instanceof Error ? error.message : 'Unknown error occurred during task creation'
+			};
 		}
-		throw redirect(
-			303,
-			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${task.id}`
-		);
 	}
 };

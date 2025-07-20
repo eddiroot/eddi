@@ -296,6 +296,7 @@
 								: 'bg-opacity-40 hover:bg-opacity-60 bg-white'}"
 							onclick={() => goToSlide(index)}
 							title="Go to slide {index + 1}"
+							aria-label="Go to slide {index + 1}"
 						></button>
 					{/each}
 				</div>

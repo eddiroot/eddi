@@ -199,7 +199,7 @@
 	}
 </script>
 
-{#if viewMode = ViewMode.EDIT}
+{#if viewMode === ViewMode.EDIT}
 	<Card.Root class="p-4">
 		<Card.Header>
 			<Card.Title class="text-lg font-semibold">Matching Exercise</Card.Title>

@@ -138,8 +138,8 @@
 									<Card.Title>
 										{task.task.title}
 									</Card.Title>
-									<Card.Description class="mt-0.5">
-										Status: {task.status}
+									<Card.Description class="mt-0.5 space-y-1">
+										<div>Status: {task.status}</div>
 									</Card.Description>
 								</Card.Header>
 							</Card.Root>

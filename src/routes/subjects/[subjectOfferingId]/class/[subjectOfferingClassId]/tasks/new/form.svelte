@@ -44,28 +44,37 @@
 		onSubmit: ({ formData, cancel }) => {
 			// Check if it's AI creation method
 			const method = formData.get('creationMethod');
+			const taskType = formData.get('type');
+			console.log('Form submission:', { method, taskType });
+			
 			if (method === 'ai') {
 				isSubmitting = true;
+				console.log('Starting AI task generation...');
 			}
 		},
 		onResult: ({ result }) => {
 			// Reset loading state on any result
 			isSubmitting = false;
+			console.log('Form submission result:', result);
+			
+			// Handle error responses from server
+			if (result.type === 'success' && result.data?.error) {
+				console.error('Server error:', result.data.error);
+				alert(`Task creation failed: ${result.data.error}`);
+			}
 		},
-		onError: () => {
+		onError: (error) => {
 			// Reset loading state on error
 			isSubmitting = false;
+			console.error('Form submission error:', error);
+			alert('An error occurred while creating the task. Please try again.');
 		}
 	});
 
 	const { form: formData, enhance } = form;
 
-	// Set default task type and handle topic requirements
+	// Handle topic requirements
 	$effect(() => {
-		if (!$formData.type) {
-			$formData.type = 'lesson';
-		}
-
 		// If no topics are available, automatically switch to create new topic mode
 		if (data.taskTopics.length === 0 && !isCreatingNewTopic) {
 			isCreatingNewTopic = true;
@@ -212,6 +221,10 @@
 			</Tabs.List>
 		</Tabs.Root>
 	</div>
+	
+	<!-- Hidden form field to ensure type is included in form submission -->
+	<input type="hidden" name="type" bind:value={$formData.type} />
+	
 	<!-- Title and Description fields remain the same -->
 	<Form.Field {form} name="title">
 		<Form.Control>

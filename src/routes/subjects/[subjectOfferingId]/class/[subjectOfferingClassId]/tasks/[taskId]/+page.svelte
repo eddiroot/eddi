@@ -36,9 +36,14 @@
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let mouseOverElement = $state<string>('');
+	let taskStatus = $state<string>(data.classTask.status);
+	let manualViewMode = $state<ViewMode | null>(null); // Override for manual switching
 
-	let viewMode = $state<ViewMode>(
-		data.user.type === 'student' || data.classTask.status === 'published'
+	// Use a derived value for viewMode that updates reactively
+	let viewMode = $derived<ViewMode>(
+		manualViewMode !== null 
+			? manualViewMode
+			: data.user.type === 'student' || taskStatus === 'published'
 			? ViewMode.VIEW
 			: ViewMode.EDIT
 	);
@@ -57,8 +62,9 @@
 			});
 
 			if (response.ok) {
-				// Reload the page to get fresh data
-				window.location.reload();
+				// Update local state instead of reloading
+				taskStatus = 'published';
+				manualViewMode = null; // Reset manual override
 			} else {
 				alert('Failed to publish task');
 			}
@@ -78,8 +84,9 @@
 			});
 
 			if (response.ok) {
-				// Reload the page to get fresh data
-				window.location.reload();
+				// Update local state instead of reloading
+				taskStatus = 'draft';
+				manualViewMode = null; // Reset manual override
 			} else {
 				alert('Failed to set task to draft');
 			}
@@ -223,7 +230,7 @@
 	<!-- Contents Pane -->
 	<div class="flex flex-col gap-2">
 		{#if data.user.type !== 'student'}
-			{#if data.classTask.status === 'published'}
+			{#if taskStatus === 'published'}
 				<Button
 					variant="outline"
 					onclick={setToDraft}
@@ -237,10 +244,10 @@
 				<Button
 					variant="outline"
 					onclick={() => {
-						if (viewMode == ViewMode.EDIT) {
-							viewMode = ViewMode.VIEW;
+						if (viewMode === ViewMode.EDIT) {
+							manualViewMode = ViewMode.VIEW;
 						} else {
-							viewMode = ViewMode.EDIT;
+							manualViewMode = ViewMode.EDIT;
 						}
 					}}
 					size="lg"
@@ -284,9 +291,11 @@
 						onUpdate={async (newText: string) =>
 							await updateTaskTitle({ taskId: data.task.id, title: newText })}
 					/>
-					<span class="text-muted-foreground text-lg font-light">
-						({data.classTask.status.charAt(0).toUpperCase() + data.classTask.status.slice(1)})
-					</span>
+					<div class="text-muted-foreground text-lg font-light flex items-center gap-2">
+						{#if taskStatus === 'draft'}
+							<span>Draft</span>
+						{/if}
+					</div>
 				</div>
 			</div>
 			<div class="flex h-full flex-col">
@@ -470,7 +479,7 @@
 			</Card.Root>
 
 			<!-- Publish Button -->
-			{#if data.user.type !== 'student' && data.classTask.status === 'draft'}
+			{#if data.user.type !== 'student' && taskStatus === 'draft'}
 				<Button
 					onclick={publishTask}
 					size="lg"
