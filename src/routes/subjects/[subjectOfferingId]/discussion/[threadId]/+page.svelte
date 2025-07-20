@@ -72,7 +72,7 @@
 			{#if isGeneratingSummary}
 				<p>Generating Summary...</p>
 			{:else}
-				<p>Summarise</p>
+				<p>Summarise with AI</p>
 			{/if}
 		</Button>
 
