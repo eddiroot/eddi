@@ -12,11 +12,12 @@
 	import LoaderIcon from '@lucide/svelte/icons/loader';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
-	import  BadgeInfo  from '@lucide/svelte/icons/badge-info';
+	import BadgeInfo from '@lucide/svelte/icons/badge-info';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
+	import { Switch } from '$lib/components/ui/switch';
 
-	import type  { curriculumLearningAreaStandard } from '$lib/server/db/service/task.js';
+	import type { curriculumLearningAreaStandard } from '$lib/server/db/service/task.js';
 
 	let creationMethod = $state<'manual' | 'ai'>('ai');
 	let aiFiles: FileList | null = $state(null);
@@ -76,55 +77,55 @@
 	let newTopicName = $state('');
 	let isCreatingNewTopic = $state(false);
 
-// Learning area content state
+	// Learning area content state
 	let learningAreaContents = $state<curriculumLearningAreaStandard[]>([]);
 	let selectedLearningAreaContentIds = $state<string[]>([]);
 	let isLoadingLearningContent = $state(false);
 
 	// Curriculum content dropdown state
-	
-
 
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
 	});
 
-// Load learning area content when topic changes
-$effect(() => {
-	if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
-		isLoadingLearningContent = true;
+	// Load learning area content when topic changes
+	$effect(() => {
+		if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
+			isLoadingLearningContent = true;
 
-		// Use a separate async function to handle the fetch
-		const loadContent = async () => {
-			try {
-				const response = await fetch(`/api/tasks?courseMapItemId=${selectedTopicId}`);
-				if (response.ok) {
-					const data = await response.json();
-					// API now returns grouped learningAreaWithContents
-					learningAreaContents = data.learningAreaWithContents || [];
-				} else {
-					console.error('Failed to load learning content');
+			// Use a separate async function to handle the fetch
+			const loadContent = async () => {
+				try {
+					const response = await fetch(`/api/tasks?courseMapItemId=${selectedTopicId}`);
+					if (response.ok) {
+						const data = await response.json();
+						// API now returns grouped learningAreaWithContents
+						learningAreaContents = data.learningAreaWithContents || [];
+					} else {
+						console.error('Failed to load learning content');
+						learningAreaContents = [];
+					}
+				} catch (error) {
+					console.error('Error loading learning content:', error);
 					learningAreaContents = [];
+				} finally {
+					isLoadingLearningContent = false;
 				}
-			} catch (error) {
-				console.error('Error loading learning content:', error);
-				learningAreaContents = [];
-			} finally {
-				isLoadingLearningContent = false;
-			}
-		};
+			};
 
-		loadContent();
-	} else {
-		learningAreaContents = [];
-		isLoadingLearningContent = false;
-	}
-	// Reset selected content when topic changes
-	selectedLearningAreaContentIds = [];
-});
+			loadContent();
+		} else {
+			learningAreaContents = [];
+			isLoadingLearningContent = false;
+		}
+		// Reset selected content when topic changes
+		selectedLearningAreaContentIds = [];
+	});
 	// Connect selected curriculum content IDs to form data
 	$effect(() => {
-		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds.map(id => parseInt(id, 10));
+		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds.map((id) =>
+			parseInt(id, 10)
+		);
 	});
 
 	// Connect aiFiles to form and validate
@@ -195,13 +196,19 @@ $effect(() => {
 	use:enhance
 >
 	<!-- Header row: Title left, Task Type Tabs right -->
-	<div class="flex items-center justify-between mb-2">
-		<h1 class="text-4xl font-bold py-2">Create New Task</h1>		
-		<Tabs.Root bind:value={$formData.type} class="flex gap-2" >
-			<Tabs.List class="bg-muted rounded-lg flex gap-1">
-				<Tabs.Trigger value="lesson" class="px-4 py-2 text-sm font-medium capitalize">Lesson</Tabs.Trigger>
-				<Tabs.Trigger value="homework" class="px-4 py-2 text-sm font-medium capitalize">Homework</Tabs.Trigger>
-				<Tabs.Trigger value="assessment" class="px-4 py-2 text-sm font-medium capitalize">Assessment</Tabs.Trigger>
+	<div class="mb-2 flex items-center justify-between">
+		<h1 class="py-2 text-4xl font-bold">Create New Task</h1>
+		<Tabs.Root bind:value={$formData.type} class="flex gap-2">
+			<Tabs.List class="bg-muted flex gap-1 rounded-lg">
+				<Tabs.Trigger value="lesson" class="px-4 py-2 text-sm font-medium capitalize"
+					>Lesson</Tabs.Trigger
+				>
+				<Tabs.Trigger value="homework" class="px-4 py-2 text-sm font-medium capitalize"
+					>Homework</Tabs.Trigger
+				>
+				<Tabs.Trigger value="assessment" class="px-4 py-2 text-sm font-medium capitalize"
+					>Assessment</Tabs.Trigger
+				>
 			</Tabs.List>
 		</Tabs.Root>
 	</div>
@@ -216,7 +223,6 @@ $effect(() => {
 		<Form.Description>Provide a clear and descriptive title for your task.</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
-
 
 	<!-- Updated Topic selection and week/due date fields -->
 	<div class="grid grid-cols-6 gap-4 lg:grid-cols-12">
@@ -335,13 +341,8 @@ $effect(() => {
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Curriculum Content</Form.Label>
-				<Select.Root
-					type="multiple"
-					bind:value={selectedLearningAreaContentIds}
-					name={props.name}>
-					<Select.Trigger
-						{...props}
-						class="w-full">
+				<Select.Root type="multiple" bind:value={selectedLearningAreaContentIds} name={props.name}>
+					<Select.Trigger {...props} class="w-full">
 						{#if selectedLearningAreaContentIds.length > 0}
 							{selectedLearningAreaContentIds.length} selected
 						{:else}
@@ -359,16 +360,18 @@ $effect(() => {
 										{#each learningAreaGroup.contents as content (content.id)}
 											<Select.Item value={content.id.toString()} onclick={stopProp}>
 												<div class="flex items-center">
-													<span class="flex-1 text-sm truncate">{content.name}</span>
+													<span class="flex-1 truncate text-sm">{content.name}</span>
 													<HoverCard.Root>
 														<HoverCard.Trigger
 															type="button"
 															aria-label="Show description"
-															class="focus:outline-none ml-auto"
+															class="ml-auto focus:outline-none"
 														>
 															<BadgeInfo class="h-4 w-4" />
 														</HoverCard.Trigger>
-														<HoverCard.Content class="max-w-xs p-3 rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
+														<HoverCard.Content
+															class="z-50 max-w-xs rounded-lg border p-3 text-xs leading-relaxed shadow-lg"
+														>
 															{content.description}
 														</HoverCard.Content>
 													</HoverCard.Root>
@@ -388,16 +391,18 @@ $effect(() => {
 										{#each learningAreaGroup.contents as content (content.id)}
 											<Select.Item value={content.id.toString()}>
 												<div class="flex items-center">
-													<span class="flex-1 text-sm truncate">{content.name}</span>
+													<span class="flex-1 truncate text-sm">{content.name}</span>
 													<HoverCard.Root>
 														<HoverCard.Trigger
 															type="button"
 															aria-label="Show description"
-															class="focus:outline-none ml-2"
+															class="ml-2 focus:outline-none"
 														>
 															<BadgeInfo class="h-4 w-4" />
 														</HoverCard.Trigger>
-														<HoverCard.Content class="max-w-xs p-3 rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
+														<HoverCard.Content
+															class="z-50 max-w-xs rounded-lg border p-3 text-xs leading-relaxed shadow-lg"
+														>
 															{content.description}
 														</HoverCard.Content>
 													</HoverCard.Root>
@@ -412,7 +417,6 @@ $effect(() => {
 						{/if}
 					</Select.Content>
 				</Select.Root>
-
 			{/snippet}
 		</Form.Control>
 		<Form.Description>
@@ -420,8 +424,20 @@ $effect(() => {
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
-
-
+	<Form.Field {form} name="aiTutorEnabled">
+		<Form.Control>
+			{#snippet children({ props })}
+				<div class="flex items-center space-x-2">
+					<Switch {...props} bind:checked={$formData.aiTutorEnabled} id="ai-tutor-toggle" />
+					<Form.Label for="ai-tutor-toggle">Enable eddi AI Tutor</Form.Label>
+				</div>
+			{/snippet}
+		</Form.Control>
+		<Form.Description>
+			Allow students to access the AI tutor while working on this task.
+		</Form.Description>
+		<Form.FieldErrors />
+	</Form.Field>
 	<Form.Field {form} name="description">
 		<Form.Control>
 			{#snippet children({ props })}
@@ -434,13 +450,9 @@ $effect(() => {
 				/>
 			{/snippet}
 		</Form.Control>
-		<Form.Description>
-			Briefly describe the task content (max 500 characters).
-		</Form.Description>
+		<Form.Description>Briefly describe the task content (max 500 characters).</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
-
-	
 
 	<div>
 		{#if fileValidationErrors.length > 0}

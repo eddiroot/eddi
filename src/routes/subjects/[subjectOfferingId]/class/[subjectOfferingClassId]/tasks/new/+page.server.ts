@@ -260,7 +260,8 @@ export const actions = {
 			form.data.description,
 			1,
 			taskTypeEnum[form.data.type],
-			subjectOfferingIdInt
+			subjectOfferingIdInt,
+			form.data.aiTutorEnabled
 		);
 
 		await createSubjectOfferingClassTask(

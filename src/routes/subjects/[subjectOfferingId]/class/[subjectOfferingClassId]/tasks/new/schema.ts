@@ -52,7 +52,8 @@ export const formSchema = z
 		creationMethod: z.enum(['manual', 'ai'], {
 			required_error: 'Please select a creation method'
 		}),
-		selectedLearningAreaContentIds: z.array(z.number()).optional()
+		selectedLearningAreaContentIds: z.array(z.number()).optional(),
+		aiTutorEnabled: z.boolean().default(true)
 	})
 	.refine((data) => data.taskTopicId || data.newTopicName, {
 		message: 'Please select an existing topic or create a new topic',

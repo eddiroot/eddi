@@ -42,6 +42,7 @@ export const task = pgTable(
 		subjectOfferingId: integer('subject_offering_id')
 			.notNull()
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
+		aiTutorEnabled: boolean('ai_tutor_enabled').notNull().default(true),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},

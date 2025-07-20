@@ -29,6 +29,40 @@
 		return pathname.startsWith('/subjects/');
 	});
 
+	// Check if we're on a task page and get the task data
+	const currentTask = $derived(() => {
+		const pathname = page.url.pathname;
+		const taskMatch = pathname.match(/\/tasks\/(\d+)/);
+
+		console.log('pathname:', pathname);
+		console.log('taskMatch:', taskMatch);
+		console.log('page.data.task:', page.data?.task);
+		console.log('task.aiTutorEnabled:', page.data?.task?.aiTutorEnabled);
+
+		if (taskMatch && page.data?.task) {
+			return page.data.task;
+		}
+		return null;
+	});
+
+	// Check if AI tutor should be shown
+	const shouldShowAITutor = $derived(() => {
+		const task = currentTask();
+		console.log('currentTask:', task);
+		console.log('task.aiTutorEnabled:', task?.aiTutorEnabled);
+
+		// If we're on a task page, check if AI tutor is enabled for that task
+		if (task) {
+			const result = task.aiTutorEnabled !== false;
+			console.log('shouldShowAITutor result:', result);
+			return result;
+		}
+
+		// For non-task pages, show AI tutor by default
+		console.log('Not on task page, showing AI tutor');
+		return true;
+	});
+
 	const generateBreadcrumbItems = (url: string) => {
 		const segments = url.split('/').filter(Boolean);
 
@@ -132,7 +166,7 @@
 						<Button href="/auth/login">Login</Button>
 					{/if}
 					<ThemeToggle />
-					{#if user() && isOnSubjectsPage()}
+					{#if user() && isOnSubjectsPage() && shouldShowAITutor()}
 						<Sidebar.Trigger name="right" aria-label="Toggle AI Helper" />
 					{/if}
 				</div>
@@ -142,7 +176,7 @@
 			{@render children()}
 		</main>
 	</div>
-	{#if user() && isOnSubjectsPage()}
+	{#if user() && isOnSubjectsPage() && shouldShowAITutor()}
 		<AiSidebar subjectOfferingId={currentSubjectOfferingId()} />
 	{/if}
 </Sidebar.Provider>
