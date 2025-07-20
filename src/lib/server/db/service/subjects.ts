@@ -321,6 +321,7 @@ export async function getSubjectsBySchoolId(schoolId: number, includeArchived: b
 			id: table.subject.id,
 			name: table.subject.name,
 			schoolId: table.subject.schoolId,
+			yearLevel: table.subject.yearLevel,
 			createdAt: table.subject.createdAt,
 			updatedAt: table.subject.updatedAt
 		})
@@ -330,7 +331,7 @@ export async function getSubjectsBySchoolId(schoolId: number, includeArchived: b
 				? eq(table.subject.schoolId, schoolId)
 				: and(eq(table.subject.schoolId, schoolId), eq(table.subject.isArchived, false))
 		)
-		.orderBy(asc(table.subject.name));
+		.orderBy(asc(table.subject.yearLevel), asc(table.subject.name));
 
 	return subjects;
 }
@@ -493,11 +494,11 @@ export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassI
 }
 
 export async function addResourceToSubjectOfferingClass(
-	subjectOfferingClassId: number, 
-	resourceId: number, 
-	authorId: string, 
-	title?: string, 
-	description?: string, 
+	subjectOfferingClassId: number,
+	resourceId: number,
+	authorId: string,
+	title?: string,
+	description?: string,
 	coursemapItemId?: number
 ) {
 	const [resourceRelation] = await db
@@ -516,7 +517,10 @@ export async function addResourceToSubjectOfferingClass(
 	return resourceRelation;
 }
 
-export async function removeResourceFromSubjectOfferingClass(subjectOfferingClassId: number, resourceId: number) {
+export async function removeResourceFromSubjectOfferingClass(
+	subjectOfferingClassId: number,
+	resourceId: number
+) {
 	await db
 		.update(table.subjectOfferingClassResource)
 		.set({ isArchived: true })
@@ -576,7 +580,6 @@ export async function upsertSubjectClassAllocationAttendance(
 
 	return attendance;
 }
-
 
 export async function getSubjectYearLevelBySubjectOfferingId(subjectOfferingId: number) {
 	const subject = await db
