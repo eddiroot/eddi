@@ -24,3 +24,6 @@ export * from './coursemap';
 
 // Curriculum schemas
 export * from './curriculum';
+
+// Resource schemas
+export * from './resource';

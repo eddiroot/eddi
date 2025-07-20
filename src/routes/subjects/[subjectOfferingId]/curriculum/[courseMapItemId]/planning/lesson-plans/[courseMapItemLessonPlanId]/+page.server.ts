@@ -11,7 +11,7 @@ import {
         removeResourceFromLessonPlan,
         createResource,
         getLearningAreaStandardsByCourseMapItemId
-} from '$lib/server/db/service/coursemap';
+} from '$lib/server/db/service';
 import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
 import { redirect, fail } from '@sveltejs/kit';
 

@@ -17,6 +17,7 @@ import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
 import { courseMapItem } from './coursemap';
 import { curriculumSubject, yearLevelEnumPg } from './curriculum';
+import { resource } from './resource';
 
 export const coreSubject = pgTable('core_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -269,12 +270,12 @@ export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	title: text('title'),
 	description: text('description'),
-	originalFileName: text('original_file_name').notNull(),
-	storedFileName: text('stored_file_name').notNull().unique(),
-	fileSize: integer('file_size').notNull(),
 	subjectOfferingClassId: integer('sub_off_class_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
+	resourceId: integer('resource_id')
+		.notNull()
+		.references(() => resource.id, { onDelete: 'cascade' }),
 	coursemapItemId: integer('cm_item_id').references(() => courseMapItem.id, {
 		onDelete: 'cascade'
 	}),

@@ -473,20 +473,59 @@ export async function getTasksBySubjectOfferingId(subjectOfferingId: number) {
 export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassId: number) {
 	const resources = await db
 		.select({
-			resource: table.subjectOfferingClassResource,
+			resource: table.resource,
+			resourceRelation: table.subjectOfferingClassResource,
 			author: table.user
 		})
 		.from(table.subjectOfferingClassResource)
+		.innerJoin(table.resource, eq(table.resource.id, table.subjectOfferingClassResource.resourceId))
 		.innerJoin(table.user, eq(table.user.id, table.subjectOfferingClassResource.authorId))
 		.where(
 			and(
 				eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingClassId),
-				eq(table.subjectOfferingClassResource.isArchived, false)
+				eq(table.subjectOfferingClassResource.isArchived, false),
+				eq(table.resource.isActive, true)
 			)
 		)
 		.orderBy(table.subjectOfferingClassResource.createdAt);
 
 	return resources;
+}
+
+export async function addResourceToSubjectOfferingClass(
+	subjectOfferingClassId: number, 
+	resourceId: number, 
+	authorId: string, 
+	title?: string, 
+	description?: string, 
+	coursemapItemId?: number
+) {
+	const [resourceRelation] = await db
+		.insert(table.subjectOfferingClassResource)
+		.values({
+			resourceId,
+			subjectOfferingClassId,
+			authorId,
+			title: title || null,
+			description: description || null,
+			coursemapItemId: coursemapItemId || null,
+			isArchived: false
+		})
+		.returning();
+
+	return resourceRelation;
+}
+
+export async function removeResourceFromSubjectOfferingClass(subjectOfferingClassId: number, resourceId: number) {
+	await db
+		.update(table.subjectOfferingClassResource)
+		.set({ isArchived: true })
+		.where(
+			and(
+				eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingClassId),
+				eq(table.subjectOfferingClassResource.resourceId, resourceId)
+			)
+		);
 }
 
 export async function getAssessmentsBySubjectOfferingClassId(subjectOfferingClassId: number) {
@@ -538,20 +577,6 @@ export async function upsertSubjectClassAllocationAttendance(
 	return attendance;
 }
 
-export async function getResourceById(resourceId: number) {
-	const resource = await db
-		.select()
-		.from(table.subjectOfferingClassResource)
-		.where(
-			and(
-				eq(table.subjectOfferingClassResource.id, resourceId),
-				eq(table.subjectOfferingClassResource.isArchived, false)
-			)
-		)
-		.limit(1);
-
-	return resource[0] || null;
-}
 
 export async function getSubjectYearLevelBySubjectOfferingId(subjectOfferingId: number) {
 	const subject = await db

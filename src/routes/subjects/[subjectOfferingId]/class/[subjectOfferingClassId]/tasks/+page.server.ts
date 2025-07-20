@@ -1,28 +1,34 @@
 import type { Task } from '$lib/server/db/schema';
-import { getTasksBySubjectOfferingClassId, getResourcesBySubjectOfferingClassId, getTopics } from '$lib/server/db/service';
+import { 
+	getTasksBySubjectOfferingClassId, 
+	getResourcesBySubjectOfferingClassId, 
+	getTopics,
+	createResource,
+	addResourceToSubjectOfferingClass,
+	removeResourceFromSubjectOfferingClass
+} from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
 import { error, fail } from '@sveltejs/kit';
 import { superValidate, withFiles } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
-import { db } from '$lib/server/db';
-import { subjectOfferingClassResource } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
 
 interface ResourceWithUrl {
 	id: number;
 	title: string | null;
 	description: string | null;
-	originalFileName: string;
-	storedFileName: string;
+	fileName: string;
+	objectKey: string;
+	bucketName: string;
+	contentType: string;
 	fileSize: number;
-	subjectOfferingClassId: number;
-	coursemapItemId: number | null;
-	authorId: string;
-	isArchived: boolean;
+	resourceType: string;
+	uploadedBy: string;
+	isActive: boolean;
 	createdAt: Date;
 	updatedAt: Date;
+	coursemapItemId: number | null;
 	author: {
 		id: string;
 		firstName: string;
@@ -71,19 +77,55 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId, 
 			try {
 				const downloadUrl = await getPresignedUrl(
 					user.schoolId.toString(),
-					row.resource.storedFileName,
+					row.resource.objectKey,
 					7 * 24 * 60 * 60 // 7 days expiry
 				);
 				return {
-					...row.resource,
-					author: row.author,
+					id: row.resource.id,
+					title: row.resourceRelation.title,
+					description: row.resourceRelation.description,
+					fileName: row.resource.fileName,
+					objectKey: row.resource.objectKey,
+					bucketName: row.resource.bucketName,
+					contentType: row.resource.contentType,
+					fileSize: row.resource.fileSize,
+					resourceType: row.resource.resourceType,
+					uploadedBy: row.resource.uploadedBy,
+					isActive: row.resource.isActive,
+					createdAt: row.resource.createdAt,
+					updatedAt: row.resource.updatedAt,
+					coursemapItemId: row.resourceRelation.coursemapItemId,
+					author: {
+						id: row.author.id,
+						firstName: row.author.firstName,
+						lastName: row.author.lastName,
+						email: row.author.email
+					},
 					downloadUrl
 				};
 			} catch (error) {
 				console.error(`Failed to generate URL for resource ${row.resource.id}:`, error);
 				return {
-					...row.resource,
-					author: row.author,
+					id: row.resource.id,
+					title: row.resourceRelation.title,
+					description: row.resourceRelation.description,
+					fileName: row.resource.fileName,
+					objectKey: row.resource.objectKey,
+					bucketName: row.resource.bucketName,
+					contentType: row.resource.contentType,
+					fileSize: row.resource.fileSize,
+					resourceType: row.resource.resourceType,
+					uploadedBy: row.resource.uploadedBy,
+					isActive: row.resource.isActive,
+					createdAt: row.resource.createdAt,
+					updatedAt: row.resource.updatedAt,
+					coursemapItemId: row.resourceRelation.coursemapItemId,
+					author: {
+						id: row.author.id,
+						firstName: row.author.firstName,
+						lastName: row.author.lastName,
+						email: row.author.email
+					},
 					downloadUrl: null
 				};
 			}
@@ -148,26 +190,36 @@ export const actions = {
 		try {
 			const file = form.data.file;
 
-			// Convert file to buffer
-			const buffer = Buffer.from(await file.arrayBuffer());
-
 			// Generate unique filename
 			const uniqueFileName = generateUniqueFileName(file.name);
 
-			// Upload file to storage in school bucket
-			await uploadBufferHelper(buffer, 'schools', `${user.schoolId}/${uniqueFileName}`, file.type);
+			// Convert file to buffer
+			const buffer = Buffer.from(await file.arrayBuffer());
 
-			// Save resource metadata to database
-			await db.insert(subjectOfferingClassResource).values({
-				title: form.data.title || null,
-				description: form.data.description || null,
-				originalFileName: file.name,
-				storedFileName: uniqueFileName,
-				fileSize: file.size,
-				subjectOfferingClassId: classId,
-				coursemapItemId: form.data.topicId,
-				authorId: user.id
-			});
+			// Upload file to storage in school bucket
+			const objectKey = `${user.schoolId}/${uniqueFileName}`;
+			await uploadBufferHelper(buffer, 'schools', objectKey, file.type);
+
+			// Create resource in database
+			const resource = await createResource(
+				form.data.title || file.name.replace(/\.[^/.]+$/, ''), // Use title or filename without extension
+				file.name,
+				objectKey,
+				file.type,
+				file.size,
+				'general', // resource type
+				user.id
+			);
+
+			// Link resource to subject offering class
+			await addResourceToSubjectOfferingClass(
+				classId,
+				resource.id,
+				user.id,
+				form.data.title,
+				form.data.description,
+				form.data.topicId
+			);
 
 			return withFiles({ form });
 		} catch (error) {
@@ -176,41 +228,19 @@ export const actions = {
 		}
 	},
 
-	delete: async ({ request, locals: { security } }) => {
-		const user = security.isAuthenticated().getUser();
+	delete: async ({ request, locals: { security }, params: { subjectOfferingClassId } }) => {
+		security.isAuthenticated();
 
 		const formData = await request.formData();
 		const resourceId = parseInt(formData.get('resourceId') as string, 10);
+		const classId = parseInt(subjectOfferingClassId, 10);
 
-		if (isNaN(resourceId)) {
-			return fail(400, { message: 'Invalid resource ID' });
+		if (isNaN(resourceId) || isNaN(classId)) {
+			return fail(400, { message: 'Invalid resource or class ID' });
 		}
 
 		try {
-			// Check if the resource exists and get its details
-			const resource = await db
-				.select()
-				.from(subjectOfferingClassResource)
-				.where(eq(subjectOfferingClassResource.id, resourceId))
-				.limit(1);
-
-			if (resource.length === 0) {
-				return fail(404, { message: 'Resource not found' });
-			}
-
-			// Check if user is authorized to delete (must be the author)
-			if (resource[0].authorId !== user.id) {
-				return fail(403, { message: 'You are not authorized to delete this resource' });
-			}
-
-			// Delete the resource from the database
-			await db
-				.delete(subjectOfferingClassResource)
-				.where(eq(subjectOfferingClassResource.id, resourceId));
-
-			// TODO: Also delete the actual file from storage if needed
-			// await deleteFileFromStorage(resource[0].storedFileName);
-
+			await removeResourceFromSubjectOfferingClass(classId, resourceId);
 			return { success: true };
 		} catch (error) {
 			console.error('Error deleting resource:', error);

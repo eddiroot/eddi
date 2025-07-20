@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { getResourceById } from '$lib/server/db/service/coursemap';
+import { getResourceById } from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
 
 export const GET: RequestHandler = async ({ url, locals: { security } }) => {

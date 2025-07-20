@@ -18,3 +18,6 @@ export * from './coursemap.js';
 
 // User
 export * from './user.js';
+
+// Resource
+export * from './resource.js';

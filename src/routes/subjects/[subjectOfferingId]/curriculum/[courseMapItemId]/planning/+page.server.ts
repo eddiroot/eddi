@@ -17,7 +17,7 @@ import {
         removeResourceFromCourseMapItem,
         createResource,
         addResourceToCourseMapItem
-} from '$lib/server/db/service/coursemap';
+} from '$lib/server/db/service';
 import { createCompleteRubric } from '$lib/server/db/service/task';
 import { redirect, fail } from '@sveltejs/kit';
 import { geminiCompletion, geminiImageGeneration } from '$lib/server/ai';
