@@ -21,6 +21,8 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Sick/not coming to school/absence (27/07)
 - [x] Absence notifications (27/07)
 - [x] Behavioural reporting (visible to parents) (07/08)
+- [x] Auto generated summaries of discussions (21/07)
+- [x] Option for teachers to disable eddi AI on a task (28/07)
 
 ## Doing
 
@@ -31,12 +33,12 @@ All
 
 Lachie
 
-- [ ] Teachers can see past attendance (20/08)
+- [ ] Basic timetabling (28/08)
 - [ ] Admin dashboard allocations page (28/08)
-- [ ] Timetabling
+- [ ] Events appearing in everyone's timetables (07/09)
+- [ ] Class location shifts (14/09)
+- [ ] Teachers can see past attendance (21/09)
 - [ ] Exam timetabling
-- [ ] Events appearing in everyone's timetables
-- [ ] Class location shifts
 
 Jack
 
@@ -71,8 +73,6 @@ Beej
 
 Blake
 
-- [x] Auto generated summaries of discussions (21/07)
-- [x] Option for teachers to disable eddi AI on a task (28/07)
 - [ ] A what to do button to generate study ideas (04/08)
 
 Bella
