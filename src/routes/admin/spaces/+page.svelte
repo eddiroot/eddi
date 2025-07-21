@@ -92,12 +92,12 @@
 			}
 		},
 		{
-			accessorKey: 'isActive',
+			accessorKey: 'isArchived',
 			header: 'Status',
 			size: 100,
 			cell: ({ getValue }) => {
-				const isActive = getValue() as boolean;
-				return isActive ? 'Active' : 'Inactive';
+				const isArchived = getValue() as boolean;
+				return isArchived ? 'Archived' : 'Active';
 			}
 		}
 	];

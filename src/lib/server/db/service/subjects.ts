@@ -485,7 +485,7 @@ export async function getResourcesBySubjectOfferingClassId(subjectOfferingClassI
 			and(
 				eq(table.subjectOfferingClassResource.subjectOfferingClassId, subjectOfferingClassId),
 				eq(table.subjectOfferingClassResource.isArchived, false),
-				eq(table.resource.isActive, true)
+				eq(table.resource.isArchived, false)
 			)
 		)
 		.orderBy(table.subjectOfferingClassResource.createdAt);

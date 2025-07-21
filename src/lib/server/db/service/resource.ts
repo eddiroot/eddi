@@ -33,16 +33,16 @@ export async function getResourceById(resourceId: number) {
 	const [resource] = await db
 		.select()
 		.from(table.resource)
-		.where(and(eq(table.resource.id, resourceId), eq(table.resource.isActive, true)))
+		.where(and(eq(table.resource.id, resourceId), eq(table.resource.isArchived, false)))
 		.limit(1);
 
 	return resource || null;
 }
 
-export async function deleteResource(resourceId: number) {
+export async function archiveResource(resourceId: number) {
 	const [resource] = await db
 		.update(table.resource)
-		.set({ isActive: false })
+		.set({ isArchived: true })
 		.where(eq(table.resource.id, resourceId))
 		.returning();
 

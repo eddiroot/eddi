@@ -1,7 +1,7 @@
 import type { Task } from '$lib/server/db/schema';
-import { 
-	getTasksBySubjectOfferingClassId, 
-	getResourcesBySubjectOfferingClassId, 
+import {
+	getTasksBySubjectOfferingClassId,
+	getResourcesBySubjectOfferingClassId,
 	getTopics,
 	createResource,
 	addResourceToSubjectOfferingClass,
@@ -25,7 +25,7 @@ interface ResourceWithUrl {
 	fileSize: number;
 	resourceType: string;
 	uploadedBy: string;
-	isActive: boolean;
+	isArchived: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 	coursemapItemId: number | null;
@@ -45,14 +45,18 @@ const uploadSchema = z.object({
 	topicId: z.number().min(1, 'Please select a topic')
 });
 
-export const load = async ({ locals: { security }, params: { subjectOfferingId, subjectOfferingClassId }, setHeaders }) => {
+export const load = async ({
+	locals: { security },
+	params: { subjectOfferingId, subjectOfferingClassId },
+	setHeaders
+}) => {
 	const user = security.isAuthenticated().getUser();
 
 	// Disable all caching to ensure fresh data
 	setHeaders({
 		'cache-control': 'no-cache, no-store, must-revalidate',
-		'pragma': 'no-cache',
-		'expires': '0'
+		pragma: 'no-cache',
+		expires: '0'
 	});
 
 	let subjectOfferingClassIdInt;
@@ -91,7 +95,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId, 
 					fileSize: row.resource.fileSize,
 					resourceType: row.resource.resourceType,
 					uploadedBy: row.resource.uploadedBy,
-					isActive: row.resource.isActive,
+					isArchived: row.resource.isArchived,
 					createdAt: row.resource.createdAt,
 					updatedAt: row.resource.updatedAt,
 					coursemapItemId: row.resourceRelation.coursemapItemId,
@@ -116,7 +120,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId, 
 					fileSize: row.resource.fileSize,
 					resourceType: row.resource.resourceType,
 					uploadedBy: row.resource.uploadedBy,
-					isActive: row.resource.isActive,
+					isArchived: row.resource.isArchived,
 					createdAt: row.resource.createdAt,
 					updatedAt: row.resource.updatedAt,
 					coursemapItemId: row.resourceRelation.coursemapItemId,
@@ -157,16 +161,21 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId, 
 				topicEntry = { topic: topic, tasks: [], resources: [] };
 				acc.push(topicEntry);
 			}
-			topicEntry.tasks.push({ task: task.task, status: task.subjectOfferingClassTask.status.charAt(0).toUpperCase() + task.subjectOfferingClassTask.status.slice(1)});
+			topicEntry.tasks.push({
+				task: task.task,
+				status:
+					task.subjectOfferingClassTask.status.charAt(0).toUpperCase() +
+					task.subjectOfferingClassTask.status.slice(1)
+			});
 			return acc;
 		},
-		[] as Array<{ topic: Topic; tasks: Array<TaskWithStatus>;  resources: Array<ResourceWithUrl> }>
+		[] as Array<{ topic: Topic; tasks: Array<TaskWithStatus>; resources: Array<ResourceWithUrl> }>
 	);
 
 	// Add resources to their respective topics
-	resourcesWithUrls.forEach(resource => {
+	resourcesWithUrls.forEach((resource) => {
 		if (resource.coursemapItemId) {
-			const topicEntry = topicsWithTasks.find(item => item.topic.id === resource.coursemapItemId);
+			const topicEntry = topicsWithTasks.find((item) => item.topic.id === resource.coursemapItemId);
 			if (topicEntry) {
 				topicEntry.resources.push(resource);
 			}

@@ -543,7 +543,7 @@ export async function getCoursemapItemResources(courseMapItemId: number) {
 		.where(
 			and(
 				eq(table.courseMapItemResource.courseMapItemId, courseMapItemId),
-				eq(table.resource.isActive, true),
+				eq(table.resource.isArchived, false),
 				eq(table.courseMapItemResource.isArchived, false)
 			)
 		);
@@ -740,7 +740,7 @@ export async function getLessonPlanResources(lessonPlanId: number) {
 		.where(
 			and(
 				eq(table.lessonPlanResource.courseMapItemLessonPlanId, lessonPlanId),
-				eq(table.resource.isActive, true)
+				eq(table.resource.isArchived, false)
 			)
 		);
 
