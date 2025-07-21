@@ -28,10 +28,11 @@
 	const currentStep = $derived(getCurrentStepData(page.url.pathname));
 </script>
 
-<div class="space-y-8">
-	<div class="flex flex-row items-center gap-8">
+<div class="flex h-full flex-col gap-8">
+	<div class="flex flex-shrink-0 flex-row items-center gap-8">
 		<Button
 			href={currentStep.previous ? buildStepUrl(currentStep.previous) : '#'}
+			data-sveltekit-preload-data
 			variant="link"
 			size="sm"
 			class="gap-2 px-0 has-[>svg]:px-0"
@@ -66,6 +67,7 @@
 
 		<Button
 			href={currentStep.next ? buildStepUrl(currentStep.next) : '#'}
+			data-sveltekit-preload-data
 			variant="link"
 			size="sm"
 			class="gap-2 px-0 has-[>svg]:px-0"
@@ -76,5 +78,7 @@
 		</Button>
 	</div>
 
-	{@render children()}
+	<div class="min-h-0 flex-1 overflow-auto">
+		{@render children()}
+	</div>
 </div>

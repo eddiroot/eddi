@@ -127,8 +127,8 @@
 	<div class="space-y-4">
 		<h2 class="text-2xl leading-tight font-bold">Periods</h2>
 		<form method="POST" action="?/updatePeriods" class="flex flex-row gap-2">
-			<Input name="startTime" type="time" />
-			<Input name="endTime" type="time" />
+			<Input name="startTime" type="time" class="w-32" />
+			<Input name="endTime" type="time" class="w-32" />
 			<Button type="submit">Add</Button>
 		</form>
 		<ol class="space-y-2">

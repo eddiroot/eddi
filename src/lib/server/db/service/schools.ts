@@ -25,6 +25,35 @@ export async function getUsersBySchoolId(schoolId: number, includeArchived: bool
 	return users;
 }
 
+export async function getUsersBySchoolIdAndType(
+	schoolId: number,
+	type: table.userTypeEnum,
+	includeArchived: boolean = false
+) {
+	const users = await db
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			avatarUrl: table.user.avatarUrl
+		})
+		.from(table.user)
+		.where(
+			includeArchived
+				? and(eq(table.user.schoolId, schoolId), eq(table.user.type, type))
+				: and(
+						eq(table.user.schoolId, schoolId),
+						eq(table.user.type, type),
+						eq(table.user.isArchived, false)
+					)
+		)
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+
+	return users;
+}
+
 export async function checkSchoolExistence(name: string): Promise<boolean> {
 	const schools = await db.select().from(table.school).where(eq(table.school.name, name)).limit(1);
 	return schools.length > 0;

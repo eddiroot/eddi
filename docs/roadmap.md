@@ -87,7 +87,7 @@ Bella
 
 Max
 
-- On hold
+- [ ] Buildings and rooms (rather than just locations)
 
 ## Future
 
