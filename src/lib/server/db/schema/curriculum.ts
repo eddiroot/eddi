@@ -66,9 +66,9 @@ export const yearLevelEnumPg = pgEnum('year_level', [
 	yearLevelEnum.year10A
 ]);
 
-export const learningAreaStandard = pgTable('learning_area_standard', {
+export const learningAreaStandard = pgTable('lrn_a_std', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaId: integer('learn_a_id')
+	learningAreaId: integer('lrn_a_id')
 		.notNull()
 		.references(() => learningArea.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
@@ -80,9 +80,9 @@ export const learningAreaStandard = pgTable('learning_area_standard', {
 
 export type LearningAreaStandard = typeof learningAreaStandard.$inferSelect;
 
-export const standardElaboration = pgTable('standard_elaboration', {
+export const standardElaboration = pgTable('std_elab', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	learningAreaStandardId: integer('learn_a_con_id')
+	learningAreaStandardId: integer('lrn_a_std_id')
 		.notNull()
 		.references(() => learningAreaStandard.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),

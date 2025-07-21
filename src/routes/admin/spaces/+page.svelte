@@ -25,7 +25,7 @@
 
 	const { data } = $props();
 
-	const columns: ColumnDef<(typeof data.locations)[number]>[] = [
+	const columns: ColumnDef<(typeof data.spaces)[number]>[] = [
 		{
 			id: 'select',
 			header: ({ table }) =>
@@ -59,6 +59,12 @@
 				const type = getValue() as string;
 				return type.charAt(0).toUpperCase() + type.slice(1);
 			}
+		},
+		{
+			accessorKey: 'buildingName',
+			header: 'Building',
+			filterFn: 'includesString',
+			size: 150
 		},
 		{
 			accessorKey: 'campusName',
@@ -105,7 +111,7 @@
 
 	const table = createSvelteTable({
 		get data() {
-			return data.locations;
+			return data.spaces;
 		},
 		columns,
 		state: {
@@ -163,11 +169,11 @@
 </script>
 
 <div class="flex h-full flex-col space-y-2">
-	<h1 class="text-3xl font-bold tracking-tight">Locations</h1>
+	<h1 class="text-3xl font-bold tracking-tight">Spaces</h1>
 	<div class="flex min-h-0 flex-1 flex-col">
 		<div class="flex items-center py-4">
 			<Input
-				placeholder="Filter locations..."
+				placeholder="Filter spaces..."
 				value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
 				oninput={(e) => table.getColumn('name')?.setFilterValue(e.currentTarget.value)}
 				onchange={(e) => {

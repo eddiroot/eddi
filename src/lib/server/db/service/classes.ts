@@ -29,7 +29,7 @@ export async function getSubjectClassAllocationsByUserId(userId: string) {
 	const classAllocations = await db
 		.select({
 			classAllocation: table.subjectClassAllocation,
-			schoolLocation: table.schoolLocation,
+			schoolSpace: table.schoolSpace,
 			subjectOffering: {
 				id: table.subjectOffering.id
 			},
@@ -49,8 +49,8 @@ export async function getSubjectClassAllocationsByUserId(userId: string) {
 			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
 		)
 		.innerJoin(
-			table.schoolLocation,
-			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
+			table.schoolSpace,
+			eq(table.subjectClassAllocation.schoolSpaceId, table.schoolSpace.id)
 		)
 		.innerJoin(
 			table.subjectOffering,
@@ -75,7 +75,7 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 	const classAllocation = await db
 		.select({
 			classAllocation: table.subjectClassAllocation,
-			schoolLocation: table.schoolLocation,
+			schoolSpace: table.schoolSpace,
 			subjectOffering: {
 				id: table.subjectOffering.id
 			},
@@ -95,8 +95,8 @@ export async function getSubjectClassAllocationsByUserIdForToday(userId: string)
 			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
 		)
 		.innerJoin(
-			table.schoolLocation,
-			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
+			table.schoolSpace,
+			eq(table.subjectClassAllocation.schoolSpaceId, table.schoolSpace.id)
 		)
 		.innerJoin(
 			table.subjectOffering,
@@ -192,7 +192,7 @@ export async function getClassesForUserInSubjectOffering(
 	const classes = await db
 		.select({
 			classAllocation: table.subjectClassAllocation,
-			schoolLocation: table.schoolLocation
+			schoolSpace: table.schoolSpace
 		})
 		.from(table.userSubjectOfferingClass)
 		.innerJoin(
@@ -204,8 +204,8 @@ export async function getClassesForUserInSubjectOffering(
 			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
 		)
 		.innerJoin(
-			table.schoolLocation,
-			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
+			table.schoolSpace,
+			eq(table.subjectClassAllocation.schoolSpaceId, table.schoolSpace.id)
 		)
 		.where(
 			and(

@@ -3,7 +3,7 @@ import {
 	userTypeEnum,
 	userGenderEnum,
 	userHonorificEnum,
-	schoolLocationTypeEnum,
+	schoolSpaceTypeEnum,
 	userSubjectOfferingRoleEnum,
 	userSubjectOfferingClassRoleEnum,
 	yearLevelEnum
@@ -47,55 +47,65 @@ async function seed() {
 			})
 			.returning();
 
-		const locations = await db
-			.insert(schema.schoolLocation)
+		const [buildingRecord] = await db
+			.insert(schema.schoolBuilding)
+			.values({
+				campusId: campusRecord.id,
+				name: 'Main Building',
+				description: 'Main building of the campus',
+				isArchived: false
+			})
+			.returning();
+
+		const spaces = await db
+			.insert(schema.schoolSpace)
 			.values([
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'Science Lab A',
-					type: schoolLocationTypeEnum.laboratory,
+					type: schoolSpaceTypeEnum.laboratory,
 					capacity: 30,
 					isArchived: false
 				},
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'Classroom 101',
-					type: schoolLocationTypeEnum.classroom,
+					type: schoolSpaceTypeEnum.classroom,
 					capacity: 25,
 					isArchived: false
 				},
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'Mathematics Room',
-					type: schoolLocationTypeEnum.classroom,
+					type: schoolSpaceTypeEnum.classroom,
 					capacity: 30,
 					isArchived: false
 				},
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'English Room',
-					type: schoolLocationTypeEnum.classroom,
+					type: schoolSpaceTypeEnum.classroom,
 					capacity: 28,
 					isArchived: false
 				},
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'Gymnasium',
-					type: schoolLocationTypeEnum.gymnasium,
+					type: schoolSpaceTypeEnum.gymnasium,
 					capacity: 200,
 					isArchived: false
 				},
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'History Room',
-					type: schoolLocationTypeEnum.classroom,
+					type: schoolSpaceTypeEnum.classroom,
 					capacity: 30,
 					isArchived: false
 				},
 				{
-					campusId: campusRecord.id,
+					buildingId: buildingRecord.id,
 					name: 'Geography Room',
-					type: schoolLocationTypeEnum.classroom,
+					type: schoolSpaceTypeEnum.classroom,
 					capacity: 30,
 					isArchived: false
 				}
@@ -879,37 +889,37 @@ async function seed() {
 			// MONDAY - Math, English, Science, PE, History, Geography
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				schoolSpaceId: spaces[2].id, // Mathematics Room
 				startTimestamp: createDateTime(0, 8), // Monday 8:00 AM
 				endTimestamp: createDateTime(0, 9) // Monday 9:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				schoolSpaceId: spaces[3].id, // English Room
 				startTimestamp: createDateTime(0, 9), // Monday 9:00 AM
 				endTimestamp: createDateTime(0, 10) // Monday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				schoolSpaceId: spaces[0].id, // Science Lab A
 				startTimestamp: createDateTime(0, 10, 30), // Monday 10:30 AM (after break)
 				endTimestamp: createDateTime(0, 11, 30) // Monday 11:30 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				schoolSpaceId: spaces[4].id, // Gymnasium
 				startTimestamp: createDateTime(0, 11, 30), // Monday 11:30 AM
 				endTimestamp: createDateTime(0, 12, 30) // Monday 12:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolLocationId: locations[5].id, // History Room
+				schoolSpaceId: spaces[5].id, // History Room
 				startTimestamp: createDateTime(0, 13, 30), // Monday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(0, 14, 30) // Monday 2:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolLocationId: locations[6].id, // Geography Room
+				schoolSpaceId: spaces[6].id, // Geography Room
 				startTimestamp: createDateTime(0, 14, 30), // Monday 2:30 PM
 				endTimestamp: createDateTime(0, 15, 30) // Monday 3:30 PM
 			},
@@ -917,37 +927,37 @@ async function seed() {
 			// TUESDAY - English, Science, Math, History, PE, Geography
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				schoolSpaceId: spaces[3].id, // English Room
 				startTimestamp: createDateTime(1, 8), // Tuesday 8:00 AM
 				endTimestamp: createDateTime(1, 9) // Tuesday 9:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				schoolSpaceId: spaces[0].id, // Science Lab A
 				startTimestamp: createDateTime(1, 9), // Tuesday 9:00 AM
 				endTimestamp: createDateTime(1, 10) // Tuesday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				schoolSpaceId: spaces[2].id, // Mathematics Room
 				startTimestamp: createDateTime(1, 10, 30), // Tuesday 10:30 AM (after break)
 				endTimestamp: createDateTime(1, 11, 30) // Tuesday 11:30 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolLocationId: locations[5].id, // History Room
+				schoolSpaceId: spaces[5].id, // History Room
 				startTimestamp: createDateTime(1, 11, 30), // Tuesday 11:30 AM
 				endTimestamp: createDateTime(1, 12, 30) // Tuesday 12:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				schoolSpaceId: spaces[4].id, // Gymnasium
 				startTimestamp: createDateTime(1, 13, 30), // Tuesday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(1, 14, 30) // Tuesday 2:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolLocationId: locations[6].id, // Geography Room
+				schoolSpaceId: spaces[6].id, // Geography Room
 				startTimestamp: createDateTime(1, 14, 30), // Tuesday 2:30 PM
 				endTimestamp: createDateTime(1, 15, 30) // Tuesday 3:30 PM
 			},
@@ -955,37 +965,37 @@ async function seed() {
 			// WEDNESDAY - Science, Math, English, Geography, History, PE
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				schoolSpaceId: spaces[0].id, // Science Lab A
 				startTimestamp: createDateTime(2, 8), // Wednesday 8:00 AM
 				endTimestamp: createDateTime(2, 9) // Wednesday 9:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				schoolSpaceId: spaces[2].id, // Mathematics Room
 				startTimestamp: createDateTime(2, 9), // Wednesday 9:00 AM
 				endTimestamp: createDateTime(2, 10) // Wednesday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				schoolSpaceId: spaces[3].id, // English Room
 				startTimestamp: createDateTime(2, 10, 30), // Wednesday 10:30 AM (after break)
 				endTimestamp: createDateTime(2, 11, 30) // Wednesday 11:30 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolLocationId: locations[6].id, // Geography Room
+				schoolSpaceId: spaces[6].id, // Geography Room
 				startTimestamp: createDateTime(2, 11, 30), // Wednesday 11:30 AM
 				endTimestamp: createDateTime(2, 12, 30) // Wednesday 12:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolLocationId: locations[5].id, // History Room
+				schoolSpaceId: spaces[5].id, // History Room
 				startTimestamp: createDateTime(2, 13, 30), // Wednesday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(2, 14, 30) // Wednesday 2:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				schoolSpaceId: spaces[4].id, // Gymnasium
 				startTimestamp: createDateTime(2, 14, 30), // Wednesday 2:30 PM
 				endTimestamp: createDateTime(2, 15, 30) // Wednesday 3:30 PM
 			},
@@ -993,37 +1003,37 @@ async function seed() {
 			// THURSDAY - PE, History, Geography, English, Science, Math
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				schoolSpaceId: spaces[4].id, // Gymnasium
 				startTimestamp: createDateTime(3, 8), // Thursday 8:00 AM
 				endTimestamp: createDateTime(3, 9) // Thursday 9:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolLocationId: locations[5].id, // History Room
+				schoolSpaceId: spaces[5].id, // History Room
 				startTimestamp: createDateTime(3, 9), // Thursday 9:00 AM
 				endTimestamp: createDateTime(3, 10) // Thursday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolLocationId: locations[6].id, // Geography Room
+				schoolSpaceId: spaces[6].id, // Geography Room
 				startTimestamp: createDateTime(3, 10, 30), // Thursday 10:30 AM (after break)
 				endTimestamp: createDateTime(3, 11, 30) // Thursday 11:30 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				schoolSpaceId: spaces[3].id, // English Room
 				startTimestamp: createDateTime(3, 11, 30), // Thursday 11:30 AM
 				endTimestamp: createDateTime(3, 12, 30) // Thursday 12:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				schoolSpaceId: spaces[0].id, // Science Lab A
 				startTimestamp: createDateTime(3, 13, 30), // Thursday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(3, 14, 30) // Thursday 2:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				schoolSpaceId: spaces[2].id, // Mathematics Room
 				startTimestamp: createDateTime(3, 14, 30), // Thursday 2:30 PM
 				endTimestamp: createDateTime(3, 15, 30) // Thursday 3:30 PM
 			},
@@ -1031,37 +1041,37 @@ async function seed() {
 			// FRIDAY - Geography, PE, History, Math, English, Science
 			{
 				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolLocationId: locations[6].id, // Geography Room
+				schoolSpaceId: spaces[6].id, // Geography Room
 				startTimestamp: createDateTime(4, 8), // Friday 8:00 AM
 				endTimestamp: createDateTime(4, 9) // Friday 9:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolLocationId: locations[4].id, // Gymnasium
+				schoolSpaceId: spaces[4].id, // Gymnasium
 				startTimestamp: createDateTime(4, 9), // Friday 9:00 AM
 				endTimestamp: createDateTime(4, 10) // Friday 10:00 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolLocationId: locations[5].id, // History Room
+				schoolSpaceId: spaces[5].id, // History Room
 				startTimestamp: createDateTime(4, 10, 30), // Friday 10:30 AM (after break)
 				endTimestamp: createDateTime(4, 11, 30) // Friday 11:30 AM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolLocationId: locations[2].id, // Mathematics Room
+				schoolSpaceId: spaces[2].id, // Mathematics Room
 				startTimestamp: createDateTime(4, 11, 30), // Friday 11:30 AM
 				endTimestamp: createDateTime(4, 12, 30) // Friday 12:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolLocationId: locations[3].id, // English Room
+				schoolSpaceId: spaces[3].id, // English Room
 				startTimestamp: createDateTime(4, 13, 30), // Friday 1:30 PM (after lunch)
 				endTimestamp: createDateTime(4, 14, 30) // Friday 2:30 PM
 			},
 			{
 				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolLocationId: locations[0].id, // Science Lab A
+				schoolSpaceId: spaces[0].id, // Science Lab A
 				startTimestamp: createDateTime(4, 14, 30), // Friday 2:30 PM
 				endTimestamp: createDateTime(4, 15, 30) // Friday 3:30 PM
 			}
@@ -1074,7 +1084,8 @@ async function seed() {
 📊 Summary:
 -- School: ${schoolRecord.name}
 -- Campus: ${campusRecord.name}
--- Locations: ${locations.length}
+-- Building: ${buildingRecord.name}
+-- Spaces: ${spaces.length}
 -- Users: ${allUserIds.length} total
   - System Admin: 1
   - School Admin: 1  

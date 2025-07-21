@@ -601,7 +601,7 @@ export async function getSubjectClassAllocationsByUserIdForDate(userId: string, 
 	const classAllocations = await db
 		.select({
 			classAllocation: table.subjectClassAllocation,
-			schoolLocation: table.schoolLocation,
+			schoolSpace: table.schoolSpace,
 			subjectOffering: {
 				id: table.subjectOffering.id
 			},
@@ -621,8 +621,8 @@ export async function getSubjectClassAllocationsByUserIdForDate(userId: string, 
 			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
 		)
 		.innerJoin(
-			table.schoolLocation,
-			eq(table.subjectClassAllocation.schoolLocationId, table.schoolLocation.id)
+			table.schoolSpace,
+			eq(table.subjectClassAllocation.schoolSpaceId, table.schoolSpace.id)
 		)
 		.innerJoin(
 			table.subjectOffering,

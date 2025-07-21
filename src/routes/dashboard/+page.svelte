@@ -196,7 +196,7 @@
 										<div class="text-foreground font-medium" style="color: {colors.text}">
 											{cls.subject.name}
 										</div>
-										<div class="text-muted-foreground text-sm">{cls.schoolLocation.name}</div>
+										<div class="text-muted-foreground text-sm">{cls.schoolSpace.name}</div>
 									</div>
 									<div class="text-muted-foreground text-sm font-medium">
 										{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(

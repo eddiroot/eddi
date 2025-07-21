@@ -73,7 +73,7 @@
 									{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(
 										cls.classAllocation.endTimestamp
 									)}
-									{cls.schoolLocation.name}
+									{cls.schoolSpace.name}
 								</Card.Description>
 							</Card.Header>
 						</Card.Root>

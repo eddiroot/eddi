@@ -12,7 +12,7 @@ import {
 	timestamp
 } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
-import { campus, school, schoolLocation } from './schools';
+import { campus, school, schoolSpace } from './schools';
 import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
 import { courseMapItem } from './coursemap';
@@ -75,7 +75,7 @@ export const subject = pgTable(
 
 export type Subject = typeof subject.$inferSelect;
 
-export const subjectOffering = pgTable('sub_offering', {
+export const subjectOffering = pgTable('sub_off', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	subjectId: integer('sub_id')
 		.notNull()
@@ -97,18 +97,18 @@ export enum userSubjectOfferingRoleEnum {
 	moderator = 'moderator'
 }
 
-export const userSubjectOfferingRoleEnumPg = pgEnum('user_sub_offering_role', [
+export const userSubjectOfferingRoleEnumPg = pgEnum('user_sub_off_role', [
 	userSubjectOfferingRoleEnum.student,
 	userSubjectOfferingRoleEnum.teacher,
 	userSubjectOfferingRoleEnum.moderator
 ]);
 
-export const userSubjectOffering = pgTable('user_sub_offering', {
+export const userSubjectOffering = pgTable('user_sub_off', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
-	subOfferingId: integer('sub_offering_id')
+	subOfferingId: integer('sub_off_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 	role: userSubjectOfferingRoleEnumPg().notNull(),
@@ -121,11 +121,11 @@ export const userSubjectOffering = pgTable('user_sub_offering', {
 export type UserSubjectOffering = typeof userSubjectOffering.$inferSelect;
 
 export const subjectOfferingClass = pgTable(
-	'sub_offering_class',
+	'sub_off_cls',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		name: text('name').notNull(),
-		subOfferingId: integer('sub_offering_id')
+		subOfferingId: integer('sub_off_id')
 			.notNull()
 			.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 		isArchived: boolean('is_archived').notNull().default(false),
@@ -161,14 +161,14 @@ export const userSubjectOfferingClass = pgTable('user_sub_off_class', {
 
 export type UserSubjectOfferingClass = typeof userSubjectOfferingClass.$inferSelect;
 
-export const subjectClassAllocation = pgTable('sub_class_allo', {
+export const subjectClassAllocation = pgTable('sub_cls_allo', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	subjectOfferingClassId: integer('sub_off_class_id')
+	subjectOfferingClassId: integer('sub_off_cls_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-	schoolLocationId: integer('sch_loc_id')
+	schoolSpaceId: integer('sch_spa_id')
 		.notNull()
-		.references(() => schoolLocation.id, { onDelete: 'set null' }),
+		.references(() => schoolSpace.id, { onDelete: 'set null' }),
 	startTimestamp: timestamp('start_timestamp').notNull(),
 	endTimestamp: timestamp('end_timestamp').notNull(),
 	isArchived: boolean('is_archived').notNull().default(false),
@@ -216,7 +216,7 @@ export const subjectThreadTypeEnumPg = pgEnum('subject_thread_type', [
 export const subjectThread = pgTable('sub_thread', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	type: subjectThreadTypeEnumPg().notNull(),
-	subjectOfferingId: integer('sub_offering_id')
+	subjectOfferingId: integer('sub_off_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 	userId: uuid('user_id')

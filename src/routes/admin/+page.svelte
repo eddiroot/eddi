@@ -9,6 +9,7 @@
 	import ContactIcon from '@lucide/svelte/icons/contact';
 	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
 	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
+	import DoorOpenIcon from '@lucide/svelte/icons/door-open';
 
 	const { data } = $props();
 
@@ -21,15 +22,21 @@
 		},
 		{
 			title: 'Campuses',
-			description: 'Manage campus locations, contact information, and physical addresses',
-			icon: BuildingIcon,
+			description: 'Manage campuses and their associated contact information',
+			icon: MapPinIcon,
 			href: '/admin/campuses'
 		},
 		{
-			title: 'Locations',
-			description: 'Configure learning spaces, classrooms, and facilities within each campus',
-			icon: MapPinIcon,
-			href: '/admin/locations'
+			title: 'Buildings',
+			description: 'Configure the buildings on your campus',
+			icon: BuildingIcon,
+			href: '/admin/buildings'
+		},
+		{
+			title: 'Spaces',
+			description: 'Manage the learning and activity spaces within each building',
+			icon: DoorOpenIcon,
+			href: '/admin/spaces'
 		},
 		{
 			title: 'Users',

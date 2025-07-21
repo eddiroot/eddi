@@ -33,10 +33,11 @@ All
 
 Lachie
 
+- [ ] Buildings and rooms (rather than just locations)
 - [ ] Basic timetabling (28/08)
 - [ ] Admin dashboard allocations page (28/08)
 - [ ] Events appearing in everyone's timetables (07/09)
-- [ ] Class location shifts (14/09)
+- [ ] Class space shifts (14/09)
 - [ ] Teachers can see past attendance (21/09)
 - [ ] Exam timetabling
 
@@ -87,7 +88,7 @@ Bella
 
 Max
 
-- [ ] Buildings and rooms (rather than just locations)
+- On hold
 
 ## Future
 

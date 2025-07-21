@@ -97,7 +97,7 @@
 														)}</span
 													>
 													<span class="text-muted-foreground text-sm"
-														>{cls.schoolLocation.name}</span
+														>{cls.schoolSpace.name}</span
 													>
 												</div>
 											</div>

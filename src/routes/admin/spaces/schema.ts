@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const requiredColumns = ['name', 'type', 'campusName'];
+export const requiredColumns = ['name', 'type', 'buildingName'];
 export const optionalColumns: string[] = ['capacity', 'description'];
 
 export const locationsImportSchema = z.object({

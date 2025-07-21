@@ -340,125 +340,113 @@ export async function updateCourseMapItemLessonPlan(
 export interface PlanContext {
 	description: string | null;
 	yearLevel: string;
-	standards:{
+	standards: {
 		learningAreaStandard: table.LearningAreaStandard;
 		standardElaborations: table.StandardElaboration[];
-		}[]
+	}[];
 }
 
 export async function getCourseMapItemPlanContexts(
-  courseMapItemId: number
+	courseMapItemId: number
 ): Promise<PlanContext[]> {
-  const rows = await db
-    .select({
-      description: table.courseMapItem.description,
-	  yearLevel: table.subject.yearLevel,
-      learningAreaStandard: table.learningAreaStandard,
-      standardElaboration: table.standardElaboration
-    })
-    .from(table.courseMapItem)
-	.innerJoin(
-	  table.subjectOffering,
-	  eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
-	)
-	.innerJoin(
-	  table.subject,
-	  eq(table.subjectOffering.subjectId, table.subject.id)
-	)
-    .leftJoin(
-      table.courseMapItemLearningArea,
-      eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
-    )
-    .leftJoin(
-      table.learningAreaStandard,
-      eq(
-        table.learningAreaStandard.learningAreaId,
-        table.courseMapItemLearningArea.learningAreaId
-      )
-    )
-    .leftJoin(
-      table.standardElaboration,
-      eq(
-        table.standardElaboration.learningAreaStandardId,
-        table.learningAreaStandard.id
-      )
-    )
-    .where(and(eq(table.courseMapItem.id, courseMapItemId),
-				eq(table.learningAreaStandard.yearLevel, table.subject.yearLevel)));
+	const rows = await db
+		.select({
+			description: table.courseMapItem.description,
+			yearLevel: table.subject.yearLevel,
+			learningAreaStandard: table.learningAreaStandard,
+			standardElaboration: table.standardElaboration
+		})
+		.from(table.courseMapItem)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.courseMapItem.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.leftJoin(
+			table.courseMapItemLearningArea,
+			eq(table.courseMapItemLearningArea.courseMapItemId, table.courseMapItem.id)
+		)
+		.leftJoin(
+			table.learningAreaStandard,
+			eq(table.learningAreaStandard.learningAreaId, table.courseMapItemLearningArea.learningAreaId)
+		)
+		.leftJoin(
+			table.standardElaboration,
+			eq(table.standardElaboration.learningAreaStandardId, table.learningAreaStandard.id)
+		)
+		.where(
+			and(
+				eq(table.courseMapItem.id, courseMapItemId),
+				eq(table.learningAreaStandard.yearLevel, table.subject.yearLevel)
+			)
+		);
 
-  if (rows.length === 0) return [];
+	if (rows.length === 0) return [];
 
-  const description = rows[0].description;
-  const yearLevel = rows[0].yearLevel;
-  // Use the actual row types here
-  const standardsMap = new Map<
-    number,
-    { learningAreaStandard: table.LearningAreaStandard; standardElaborations: table.StandardElaboration[] }
-  >();
+	const description = rows[0].description;
+	const yearLevel = rows[0].yearLevel;
+	// Use the actual row types here
+	const standardsMap = new Map<
+		number,
+		{
+			learningAreaStandard: table.LearningAreaStandard;
+			standardElaborations: table.StandardElaboration[];
+		}
+	>();
 
-  for (const { learningAreaStandard, standardElaboration } of rows) {
-    if (!learningAreaStandard) continue; 
-    const id = learningAreaStandard.id;
+	for (const { learningAreaStandard, standardElaboration } of rows) {
+		if (!learningAreaStandard) continue;
+		const id = learningAreaStandard.id;
 
-    if (!standardsMap.has(id)) {
-      standardsMap.set(id, {
-        learningAreaStandard,
-        standardElaborations: []
-      });
-    }
-    if (standardElaboration) {
-      standardsMap.get(id)!.standardElaborations.push(standardElaboration);
-    }
-  }
+		if (!standardsMap.has(id)) {
+			standardsMap.set(id, {
+				learningAreaStandard,
+				standardElaborations: []
+			});
+		}
+		if (standardElaboration) {
+			standardsMap.get(id)!.standardElaborations.push(standardElaboration);
+		}
+	}
 
-  return [
-    {
-      description,
-	  yearLevel,
-      standards: Array.from(standardsMap.values())
-    }
-  ];
+	return [
+		{
+			description,
+			yearLevel,
+			standards: Array.from(standardsMap.values())
+		}
+	];
 }
 
 export async function createLessonPlanStandard(lessonPlanId: number, standardId: number) {
-        const [standard] = await db
-                .insert(table.lessonPlanLearningAreaStandard)
-                .values({
-                        courseMapItemLessonPlanId: lessonPlanId,
-                        learningAreaStandardId: standardId
-                })
-                .returning();
+	const [standard] = await db
+		.insert(table.lessonPlanLearningAreaStandard)
+		.values({
+			courseMapItemLessonPlanId: lessonPlanId,
+			learningAreaStandardId: standardId
+		})
+		.returning();
 
-        return standard;
+	return standard;
 }
 
 export async function removeLessonPlanStandards(lessonPlanId: number) {
-        await db
-                .delete(table.lessonPlanLearningAreaStandard)
-                .where(
-                        eq(table.lessonPlanLearningAreaStandard.courseMapItemLessonPlanId, lessonPlanId)
-                );
+	await db
+		.delete(table.lessonPlanLearningAreaStandard)
+		.where(eq(table.lessonPlanLearningAreaStandard.courseMapItemLessonPlanId, lessonPlanId));
 }
 
 export async function getLessonPlanLearningAreaStandards(lessonPlanId: number) {
-        const standards = await db
-                .select({ learningAreaStandard: table.learningAreaStandard })
-                .from(table.lessonPlanLearningAreaStandard)
-                .innerJoin(
-                        table.learningAreaStandard,
-                        eq(
-                                table.learningAreaStandard.id,
-                                table.lessonPlanLearningAreaStandard.learningAreaStandardId
-                        )
-                )
-                .where(
-                        eq(
-                                table.lessonPlanLearningAreaStandard.courseMapItemLessonPlanId,
-                                lessonPlanId
-                        )
-                );
+	const standards = await db
+		.select({ learningAreaStandard: table.learningAreaStandard })
+		.from(table.lessonPlanLearningAreaStandard)
+		.innerJoin(
+			table.learningAreaStandard,
+			eq(table.learningAreaStandard.id, table.lessonPlanLearningAreaStandard.learningAreaStandardId)
+		)
+		.where(eq(table.lessonPlanLearningAreaStandard.courseMapItemLessonPlanId, lessonPlanId));
 
-        return standards.map((row) => row.learningAreaStandard);
+	return standards.map((row) => row.learningAreaStandard);
 }
 
 export async function deleteCoursemapItemLessonPlan(lessonPlanId: number) {
@@ -514,10 +502,7 @@ export async function updateCourseMapItemAssessmentPlan(
 	return assessmentPlan;
 }
 
-export async function createAssessmentPlanStandard(
-	assessmentPlanId: number,
-	standardId: number
-) {
+export async function createAssessmentPlanStandard(assessmentPlanId: number, standardId: number) {
 	const [standard] = await db
 		.insert(table.assessmentPlanLearningAreaStandard)
 		.values({
@@ -528,7 +513,6 @@ export async function createAssessmentPlanStandard(
 
 	return standard;
 }
-
 
 export async function getAssessmentPlanLearningAreaStandards(assessmentPlanId: number) {
 	const standards = await db
@@ -555,17 +539,14 @@ export async function getCoursemapItemResources(courseMapItemId: number) {
 			relationship: table.courseMapItemResource
 		})
 		.from(table.courseMapItemResource)
-		.innerJoin(
-			table.resource,
-			eq(table.resource.id, table.courseMapItemResource.resourceId)
-		)
+		.innerJoin(table.resource, eq(table.resource.id, table.courseMapItemResource.resourceId))
 		.where(
 			and(
 				eq(table.courseMapItemResource.courseMapItemId, courseMapItemId),
 				eq(table.resource.isActive, true),
 				eq(table.courseMapItemResource.isArchived, false)
 			)
-		)
+		);
 
 	return resources.map((row) => row.resource);
 }
@@ -719,59 +700,6 @@ export async function updateCourseMapItem(
 	return courseMapItem;
 }
 
-// Resource management functions
-export async function createResource(
-	name: string,
-	fileName: string,
-	objectKey: string,
-	contentType: string,
-	fileSize: number,
-	resourceType: string,
-	uploadedBy: string,
-	description?: string,
-	bucketName: string = 'schools'
-) {
-	const [resource] = await db
-		.insert(table.resource)
-		.values({
-			fileName,
-			objectKey,
-			bucketName,
-			contentType,
-			fileSize,
-			resourceType,
-			uploadedBy
-		})
-		.returning();
-
-	return resource;
-}
-
-export async function getResourceById(resourceId: number) {
-	const [resource] = await db
-		.select()
-		.from(table.resource)
-		.where(
-			and(
-				eq(table.resource.id, resourceId),
-				eq(table.resource.isActive, true)
-			)
-		)
-		.limit(1);
-
-	return resource || null;
-}
-
-export async function deleteResource(resourceId: number) {
-	const [resource] = await db
-		.update(table.resource)
-		.set({ isActive: false })
-		.where(eq(table.resource.id, resourceId))
-		.returning();
-
-	return resource;
-}
-
 export async function addResourceToCourseMapItem(courseMapItemId: number, resourceId: number) {
 	const [relationship] = await db
 		.insert(table.courseMapItemResource)
@@ -808,10 +736,7 @@ export async function getLessonPlanResources(lessonPlanId: number) {
 			relationship: table.lessonPlanResource
 		})
 		.from(table.lessonPlanResource)
-		.innerJoin(
-			table.resource,
-			eq(table.resource.id, table.lessonPlanResource.resourceId)
-		)
+		.innerJoin(table.resource, eq(table.resource.id, table.lessonPlanResource.resourceId))
 		.where(
 			and(
 				eq(table.lessonPlanResource.courseMapItemLessonPlanId, lessonPlanId),
@@ -869,10 +794,7 @@ export async function getLearningAreaStandardsByCourseMapItemId(
 			table.subjectOffering,
 			eq(table.subjectOffering.id, table.courseMapItem.subjectOfferingId)
 		)
-		.innerJoin(
-			table.subject,
-			eq(table.subject.id, table.subjectOffering.subjectId)
-		)
+		.innerJoin(table.subject, eq(table.subject.id, table.subjectOffering.subjectId))
 		.where(
 			and(
 				eq(table.courseMapItemLearningArea.courseMapItemId, courseMapItemId),

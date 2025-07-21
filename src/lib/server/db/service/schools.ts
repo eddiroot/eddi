@@ -214,23 +214,82 @@ export async function unarchiveCampus(campusId: number) {
 	return unarchivedCampus;
 }
 
-/* Location related functions
- * These functions manage school locations, which can be classrooms, labs, etc.
- * Locations are associated with a campus and can be archived.
- */
-
-export async function createLocation(
+export async function createBuilding(
 	campusId: number,
 	name: string,
-	type: table.schoolLocationTypeEnum,
+	description?: string | null,
+	isArchived: boolean = false
+) {
+	const [building] = await db
+		.insert(table.schoolBuilding)
+		.values({
+			campusId,
+			name,
+			description: description || null,
+			isArchived
+		})
+		.returning();
+
+	return building;
+}
+
+export async function getBuildingsByCampusId(campusId: number, includeArchived: boolean = false) {
+	const buildings = await db
+		.select()
+		.from(table.schoolBuilding)
+		.where(
+			includeArchived
+				? eq(table.schoolBuilding.campusId, campusId)
+				: and(
+						eq(table.schoolBuilding.campusId, campusId),
+						eq(table.schoolBuilding.isArchived, false)
+					)
+		)
+		.orderBy(asc(table.schoolBuilding.name));
+
+	return buildings;
+}
+
+export async function getBuildingsBySchoolId(schoolId: number, includeArchived: boolean = false) {
+	const buildings = await db
+		.select({
+			building: table.schoolBuilding,
+			campus: {
+				id: table.campus.id,
+				name: table.campus.name
+			}
+		})
+		.from(table.campus)
+		.innerJoin(table.schoolBuilding, eq(table.schoolBuilding.campusId, table.campus.id))
+		.where(
+			includeArchived
+				? eq(table.campus.schoolId, schoolId)
+				: and(
+						eq(table.campus.schoolId, schoolId),
+						eq(table.schoolBuilding.isArchived, false),
+						eq(table.campus.isArchived, false)
+					)
+		)
+		.orderBy(asc(table.campus.name), asc(table.schoolBuilding.name));
+
+	return buildings.map((row) => ({
+		...row.building,
+		campusName: row.campus.name
+	}));
+}
+
+export async function createSpace(
+	buildingId: number,
+	name: string,
+	type: table.schoolSpaceTypeEnum,
 	capacity?: number | null,
 	description?: string | null,
 	isArchived: boolean = false
 ) {
-	const [location] = await db
-		.insert(table.schoolLocation)
+	const [space] = await db
+		.insert(table.schoolSpace)
 		.values({
-			campusId,
+			buildingId,
 			name,
 			type,
 			capacity: capacity || null,
@@ -239,86 +298,95 @@ export async function createLocation(
 		})
 		.returning();
 
-	return location;
+	return space;
 }
 
-export async function getLocationsByCampusId(campusId: number, includeArchived: boolean = false) {
-	const locations = await db
-		.select()
-		.from(table.schoolLocation)
+export async function getSpacesBySchoolId(schoolId: number, includeArchived: boolean = false) {
+	const spaces = await db
+		.select({
+			id: table.schoolSpace.id,
+			buildingId: table.schoolSpace.buildingId,
+			buildingName: table.schoolBuilding.name,
+			campusId: table.schoolBuilding.campusId,
+			campusName: table.campus.name,
+			name: table.schoolSpace.name,
+			type: table.schoolSpace.type,
+			capacity: table.schoolSpace.capacity,
+			description: table.schoolSpace.description,
+			isArchived: table.schoolSpace.isArchived,
+			createdAt: table.schoolSpace.createdAt,
+			updatedAt: table.schoolSpace.updatedAt
+		})
+		.from(table.campus)
+		.innerJoin(table.schoolBuilding, eq(table.schoolBuilding.campusId, table.campus.id))
+		.innerJoin(table.schoolSpace, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
 		.where(
 			includeArchived
-				? eq(table.schoolLocation.campusId, campusId)
-				: and(
-						eq(table.schoolLocation.campusId, campusId),
-						eq(table.schoolLocation.isArchived, false)
-					)
+				? eq(table.campus.schoolId, schoolId)
+				: and(eq(table.campus.schoolId, schoolId), eq(table.schoolSpace.isArchived, false))
 		)
-		.orderBy(table.schoolLocation.name);
+		.orderBy(table.schoolSpace.name);
 
-	return locations;
+	return spaces;
 }
 
-export async function getLocationById(locationId: number, includeArchived: boolean = false) {
-	const locations = await db
-		.select()
-		.from(table.schoolLocation)
+export async function getSpacesByCampusId(campusId: number, includeArchived: boolean = false) {
+	const spaces = await db
+		.select({
+			space: table.schoolSpace
+		})
+		.from(table.schoolBuilding)
+		.innerJoin(table.schoolSpace, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
 		.where(
 			includeArchived
-				? eq(table.schoolLocation.id, locationId)
-				: and(eq(table.schoolLocation.id, locationId), eq(table.schoolLocation.isArchived, false))
+				? eq(table.schoolBuilding.campusId, campusId)
+				: and(eq(table.schoolBuilding.campusId, campusId), eq(table.schoolSpace.isArchived, false))
+		)
+		.orderBy(table.schoolSpace.name);
+
+	return spaces.map((row) => row.space);
+}
+
+export async function getSpaceById(spaceId: number, includeArchived: boolean = false) {
+	const spaces = await db
+		.select()
+		.from(table.schoolSpace)
+		.where(
+			includeArchived
+				? eq(table.schoolSpace.id, spaceId)
+				: and(eq(table.schoolSpace.id, spaceId), eq(table.schoolSpace.isArchived, false))
 		)
 		.limit(1);
 
-	return locations.length > 0 ? locations[0] : null;
+	return spaces.length > 0 ? spaces[0] : null;
 }
 
-export async function updateLocation(
-	locationId: number,
+export async function updateSpace(
+	spaceId: number,
 	updates: {
 		name?: string;
-		type?: table.schoolLocationTypeEnum;
+		type?: table.schoolSpaceTypeEnum;
 		capacity?: number | null;
 		description?: string | null;
 		isArchived?: boolean;
 	}
 ) {
-	const [location] = await db
-		.update(table.schoolLocation)
+	const [space] = await db
+		.update(table.schoolSpace)
 		.set(updates)
-		.where(eq(table.schoolLocation.id, locationId))
+		.where(eq(table.schoolSpace.id, spaceId))
 		.returning();
 
-	return location;
+	return space;
 }
 
-export async function deleteLocation(locationId: number) {
+export async function deleteSpace(spaceId: number) {
 	// Soft delete by setting isArchived to true
-	const [location] = await db
-		.update(table.schoolLocation)
+	const [space] = await db
+		.update(table.schoolSpace)
 		.set({ isArchived: true })
-		.where(eq(table.schoolLocation.id, locationId))
+		.where(eq(table.schoolSpace.id, spaceId))
 		.returning();
 
-	return location;
-}
-
-export async function getLocationsBySchoolId(schoolId: number) {
-	const locations = await db
-		.select({
-			id: table.schoolLocation.id,
-			name: table.schoolLocation.name,
-			type: table.schoolLocation.type,
-			capacity: table.schoolLocation.capacity,
-			description: table.schoolLocation.description,
-			isArchived: table.schoolLocation.isArchived,
-			campusName: table.campus.name,
-			campusId: table.campus.id
-		})
-		.from(table.schoolLocation)
-		.innerJoin(table.campus, eq(table.schoolLocation.campusId, table.campus.id))
-		.where(eq(table.campus.schoolId, schoolId))
-		.orderBy(asc(table.campus.name), asc(table.schoolLocation.name));
-
-	return locations;
+	return space;
 }

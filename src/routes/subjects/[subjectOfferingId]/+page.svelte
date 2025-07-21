@@ -112,9 +112,7 @@
 															cls.classAllocation.endTimestamp
 														)}</span
 													>
-													<span class="text-muted-foreground text-sm"
-														>{cls.schoolLocation.name}</span
-													>
+													<span class="text-muted-foreground text-sm">{cls.schoolSpace.name}</span>
 												</div>
 											</div>
 										{/each}

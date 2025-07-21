@@ -1,16 +1,16 @@
-import { getLocationsBySchoolId, getCampusesBySchoolId } from '$lib/server/db/service';
+import { getSpacesBySchoolId, getBuildingsBySchoolId } from '$lib/server/db/service';
 import { superValidate, withFiles, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
-import { schoolLocation, schoolLocationTypeEnum } from '$lib/server/db/schema';
+import { schoolSpace, schoolSpaceTypeEnum } from '$lib/server/db/schema';
 import { optionalColumns, requiredColumns, locationsImportSchema } from './schema.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
-	const locations = await getLocationsBySchoolId(user.schoolId);
+	const spaces = await getSpacesBySchoolId(user.schoolId);
 	const form = await superValidate(zod(locationsImportSchema));
-	return { locations, form };
+	return { spaces, form };
 };
 
 export const actions = {
@@ -48,14 +48,13 @@ export const actions = {
 				});
 			}
 
-			// Get all campuses for this school to validate campus names
-			const campuses = await getCampusesBySchoolId(user.schoolId);
-			const campusMap = new Map(campuses.map((c) => [c.name.toLowerCase(), c.id]));
+			const buildings = await getBuildingsBySchoolId(user.schoolId);
+			const buildingMap = new Map(buildings.map((b) => [b.name.toLowerCase(), b.id]));
 
-			const locationsToInsert: Array<{
+			const spacesToInsert: Array<{
 				name: string;
-				type: (typeof schoolLocationTypeEnum)[keyof typeof schoolLocationTypeEnum];
-				campusId: number;
+				type: (typeof schoolSpaceTypeEnum)[keyof typeof schoolSpaceTypeEnum];
+				buildingId: number;
 				capacity: number | null;
 				description: string | null;
 				isArchived: boolean;
@@ -64,32 +63,30 @@ export const actions = {
 			for (const rowData of csvData) {
 				const name = rowData['name']?.trim();
 				const type = rowData['type']?.trim().toLowerCase();
-				const campusName = rowData['campusname']?.trim();
+				const buildingName = rowData['buildingname']?.trim();
 				const capacityStr = rowData['capacity']?.trim();
 				const description = rowData['description']?.trim() || null;
 
-				if (!name || !type || !campusName) {
+				if (!name || !type || !buildingName) {
 					continue;
 				}
 
-				// Validate campus exists
-				const campusId = campusMap.get(campusName.toLowerCase());
-				if (!campusId) {
+				const buildingId = buildingMap.get(buildingName.toLowerCase());
+				if (!buildingId) {
 					return fail(400, {
 						form,
-						error: `Campus "${campusName}" not found. Available campuses: ${campuses.map((c) => c.name).join(', ')}`,
+						error: `Building "${buildingName}" not found. Available buildings: ${buildings.map((b) => b.name).join(', ')}`,
 						validation: validationResult
 					});
 				}
 
-				// Validate location type
-				const validTypes = Object.values(schoolLocationTypeEnum);
-				const locationTypeValue =
-					type as (typeof schoolLocationTypeEnum)[keyof typeof schoolLocationTypeEnum];
-				if (!validTypes.includes(locationTypeValue)) {
+				const validTypes = Object.values(schoolSpaceTypeEnum);
+				const spaceTypeValue =
+					type as (typeof schoolSpaceTypeEnum)[keyof typeof schoolSpaceTypeEnum];
+				if (!validTypes.includes(spaceTypeValue)) {
 					return fail(400, {
 						form,
-						error: `Invalid location type "${type}". Valid types: ${validTypes.join(', ')}`,
+						error: `Invalid space type "${type}". Valid types: ${validTypes.join(', ')}`,
 						validation: validationResult
 					});
 				}
@@ -103,25 +100,25 @@ export const actions = {
 					}
 				}
 
-				locationsToInsert.push({
+				spacesToInsert.push({
 					name,
-					type: locationTypeValue,
-					campusId,
+					type: spaceTypeValue,
+					buildingId,
 					capacity,
 					description,
 					isArchived: false
 				});
 			}
 
-			if (locationsToInsert.length === 0) {
+			if (spacesToInsert.length === 0) {
 				return fail(400, {
 					form,
-					error: 'No valid locations found in CSV file',
+					error: 'No valid spaces found in CSV file',
 					validation: validationResult
 				});
 			}
 
-			await db.insert(schoolLocation).values(locationsToInsert);
+			await db.insert(schoolSpace).values(spacesToInsert);
 
 			return withFiles({
 				form,
