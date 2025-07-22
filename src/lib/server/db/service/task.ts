@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, inArray, asc, sql } from 'drizzle-orm';
+import { desc, eq, and, or, gte, inArray, asc, sql } from 'drizzle-orm';
 import { verifyUserAccessToClass } from './user';
 
 export async function addTasksToClass(
@@ -72,7 +72,6 @@ export async function getTasksBySubjectOfferingClassId(
 			courseMapItem: table.courseMapItem
 		})
 		.from(table.subjectOfferingClassTask)
-
 		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
 		.innerJoin(
 			table.courseMapItem,
@@ -82,6 +81,42 @@ export async function getTasksBySubjectOfferingClassId(
 		.orderBy(asc(table.task.id));
 
 	return classTasks?.length == 0 ? [] : classTasks;
+}
+
+export async function getLessonsAndHomeworkBySubjectOfferingClassId(
+	userId: string,
+	subjectOfferingClassId: number
+) {
+	const userAccess = await verifyUserAccessToClass(userId, subjectOfferingClassId);
+
+	if (!userAccess) {
+		return [];
+	}
+
+	const lessonsAndHomework = await db
+		.select({
+			task: table.task,
+			subjectOfferingClassTask: table.subjectOfferingClassTask,
+			courseMapItem: table.courseMapItem
+		})
+		.from(table.subjectOfferingClassTask)
+		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
+		.leftJoin(
+			table.courseMapItem,
+			eq(table.subjectOfferingClassTask.courseMapItemId, table.courseMapItem.id)
+		)
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
+				or(
+					eq(table.task.type, table.taskTypeEnum.lesson),
+					eq(table.task.type, table.taskTypeEnum.homework)
+				)
+			)
+		)
+		.orderBy(asc(table.task.createdAt));
+
+	return lessonsAndHomework?.length == 0 ? [] : lessonsAndHomework;
 }
 
 export async function getTopics(subjectOfferingId: number) {
@@ -613,12 +648,12 @@ export async function createRubric(title: string) {
 		})
 		.returning();
 
-		return rubric;
-	}
+	return rubric;
+}
 
 export async function updateRubric(
 	rubricId: number,
-	updates: { title?: string;}
+	updates: { title?: string; }
 ) {
 	const [rubric] = await db
 		.update(table.rubric)
@@ -1049,6 +1084,7 @@ export async function createTaskBlockWithAnswersAndCriteria(
 		};
 	});
 }
+
 
 export async function getSubjectOfferingClassTaskByTaskId(taskId: number, subjectOfferingClassId: number) {
 	const [classTask] = await db

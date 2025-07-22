@@ -75,6 +75,26 @@ export async function getSubjectBySubjectOfferingId(subjectOfferingId: number) {
 	return subject ? subject.subject : null;
 }
 
+export async function getSubjectBySubjectOfferingClassId(subjectOfferingClassId: number) {
+	const [result] = await db
+		.select({
+			subject: table.subject
+		})
+		.from(table.subjectOfferingClass)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(
+			table.subject,
+			eq(table.subjectOffering.subjectId, table.subject.id)
+		)
+		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
+		.limit(1);
+
+	return result ? result.subject : null;
+}
+
 export async function getSubjectOfferingsBySubjectId(subjectId: number) {
 	const subjectOfferings = await db
 		.select({
@@ -239,6 +259,32 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 		)
 		.innerJoin(table.user, eq(table.user.id, table.subjectThread.userId))
 		.where(eq(table.userSubjectOffering.userId, userId))
+		.orderBy(desc(table.subjectThread.createdAt));
+
+	return announcements;
+}
+
+export async function getAnnouncementsBySubjectOfferingClassId(subjectOfferingClassId: number) {
+	const announcements = await db
+		.select({
+			id: table.subjectThread.id,
+			title: table.subjectThread.title,
+			content: table.subjectThread.content,
+			createdAt: table.subjectThread.createdAt
+		})
+		.from(table.subjectOfferingClass)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(
+			table.subjectThread,
+			and(
+				eq(table.subjectThread.subjectOfferingId, table.subjectOffering.id),
+				eq(table.subjectThread.type, table.subjectThreadTypeEnum.announcement)
+			)
+		)
+		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
 		.orderBy(desc(table.subjectThread.createdAt));
 
 	return announcements;
@@ -535,16 +581,18 @@ export async function removeResourceFromSubjectOfferingClass(
 export async function getAssessmentsBySubjectOfferingClassId(subjectOfferingClassId: number) {
 	const assessments = await db
 		.select({
+			subjectOfferingClassTask: table.subjectOfferingClassTask,
 			task: table.task
 		})
 		.from(table.subjectOfferingClassTask)
-		.innerJoin(table.task, eq(table.task.id, table.subjectOfferingClassTask.taskId))
+		.innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
 		.where(
 			and(
 				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
 				eq(table.task.type, table.taskTypeEnum.assessment)
 			)
-		);
+		)
+		.orderBy(asc(table.subjectOfferingClassTask.index));
 
 	return assessments;
 }
