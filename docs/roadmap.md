@@ -70,7 +70,6 @@ Beej
 - [ ] Onboarding flow (14/07)
 - [ ] Parent/teacher interviews (21/07)
 - [ ] Teacher to parent comms (one way) (28/07)
-- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124) (04/08)
 
 Blake
 
@@ -115,3 +114,4 @@ Max
 - [ ] Keyboard shortcuts
 - [ ] Parent forum / teacher forum
 - [ ] Mark absence for select periods of the day rather than whole day
+- [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
