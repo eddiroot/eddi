@@ -42,12 +42,18 @@
 		answer: string;
 		studentId: string;
 		studentName?: string;
+		slideIndex: number;
 		timestamp: Date;
 	}>>([]);
 	
 	// Student-specific state
 	let isInPresentation = $state(false);
 	let isStudent = $derived(data.user.type === 'student');
+	
+	// Current slide answers (for teachers)
+	const currentSlideAnswers = $derived(() => {
+		return studentAnswers.filter(answer => answer.slideIndex === currentSlide);
+	});
 	
 	// Form enhancement for starting/ending presentation
 	let isLoading = $state(false);
@@ -264,6 +270,7 @@
 							answer: message.answer,
 							studentId: message.studentId,
 							studentName: message.studentName,
+							slideIndex: message.slideIndex ?? 0,
 							timestamp: new Date(message.timestamp)
 						};
 					} else {
@@ -272,11 +279,13 @@
 							answer: message.answer,
 							studentId: message.studentId,
 							studentName: message.studentName,
+							slideIndex: message.slideIndex ?? 0,
 							timestamp: new Date(message.timestamp)
-						});				}
-				studentAnswers = [...studentAnswers]; // Trigger reactivity
-			}
-			break;
+						});
+					}
+					studentAnswers = [...studentAnswers]; // Trigger reactivity
+				}
+				break;
 			
 		case 'slide_changed':
 			// Only handle this for students
@@ -357,6 +366,7 @@
 				taskId: data.task.id,
 				questionId,
 				answer,
+				slideIndex: currentSlide,
 				studentId: data.user.id,
 				studentName: `${data.user.firstName} ${data.user.lastName}`
 			}));
@@ -505,9 +515,14 @@
 										onUpdate={() => {}}
 										blockId={block.id}
 										{...responseProps}
+										role={isStudent ? 'student' : 'teacher'}
 										onPresentationAnswer={isStudent && isInPresentation 
 											? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
 											: undefined}
+										studentResponses={!isStudent 
+											? currentSlideAnswers().filter(answer => answer.questionId === `block-${block.id}`)
+											: []}
+										showResponseChart={!isStudent && isPresenting && connectedStudents.length > 0}
 									/>
 								{:else if block.type === 'fill_in_blank'}
 									<FillInBlank
@@ -567,6 +582,30 @@
 			</div>
 		{/if}
 	</div>
+
+	<!-- Student Answers Panel (Teachers Only) -->
+	{#if !isStudent && isPresenting && currentSlideAnswers().length > 0}
+		<div class="absolute top-4 right-4 w-80 max-h-96 bg-black bg-opacity-80 rounded-lg p-4 overflow-y-auto">
+			<h3 class="text-white font-semibold mb-3 flex items-center gap-2">
+				<UsersIcon class="h-4 w-4" />
+				Student Answers (Slide {currentSlide + 1})
+			</h3>
+			<div class="space-y-2">
+				{#each currentSlideAnswers() as answer}
+					<div class="bg-white bg-opacity-10 rounded p-2 text-sm">
+						<div class="font-medium text-blue-200">{answer.studentName || `Student ${answer.studentId}`}</div>
+						<div class="text-white break-words">{answer.answer}</div>
+						<div class="text-xs text-gray-300 mt-1">
+							{answer.timestamp.toLocaleTimeString()}
+						</div>
+					</div>
+				{/each}
+			</div>
+			<div class="mt-3 text-xs text-gray-300">
+				{currentSlideAnswers().length} response{currentSlideAnswers().length !== 1 ? 's' : ''}
+			</div>
+		</div>
+	{/if}
 
 	<!-- Left Navigation Arrow -->
 	{#if currentSlide > 0 && !(isStudent && isInPresentation)}

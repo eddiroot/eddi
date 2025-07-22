@@ -11,6 +11,8 @@
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
+	import EyeIcon from '@lucide/svelte/icons/eye';
+	import EyeOffIcon from '@lucide/svelte/icons/eye-off';
 	import { ViewMode } from '$lib/utils';
 	import { saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI, createDebouncedSave } from '../utils/auto-save.js';
 
@@ -39,8 +41,15 @@
 		classTaskId,
 		subjectOfferingId,
 		subjectOfferingClassId,
-		isPublished = false
+		isPublished = false,
+		// New props for student response visualization
+		studentResponses = [],
+		showResponseChart = false
 	} = $props();
+
+	// Teacher presentation state
+	let showResponses = $state(false);
+	let showCorrectAnswers = $state(false);
 
 	// tempory state for preview
 	let hasSubmitted = $state(false);
@@ -242,6 +251,44 @@
 		if (existingResponse && existingResponse.selectedAnswers) {
 			selectedAnswers = new Set(existingResponse.selectedAnswers);
 		}
+	}
+
+	// Response chart data calculation
+	const responseData = $derived(() => {
+		if (!showResponseChart || !content.options?.length || !showResponses) {
+			return [];
+		}
+
+		// Count responses for each option (show 0 if no responses yet)
+		const responseCounts = content.options.map((option, index) => {
+			const count = studentResponses.filter(response => response.answer === option).length;
+			const percentage = studentResponses.length > 0 ? (count / studentResponses.length) * 100 : 0;
+			const isCorrect = isAnswerCorrect(option);
+			
+			return {
+				letter: String.fromCharCode(65 + index), // A, B, C, D
+				option,
+				count,
+				percentage,
+				isCorrect: showCorrectAnswers ? isCorrect : false // Only show correct answers when revealed
+			};
+		});
+
+		return responseCounts;
+	});
+
+	const totalResponses = $derived(() => studentResponses.length);
+
+	// Functions to control response visibility
+	function toggleShowResponses() {
+		showResponses = !showResponses;
+		if (!showResponses) {
+			showCorrectAnswers = false; // Reset correct answers when hiding responses
+		}
+	}
+
+	function toggleShowCorrectAnswers() {
+		showCorrectAnswers = !showCorrectAnswers;
 	}
 </script>
 
@@ -562,10 +609,108 @@
             {/if}
         </div>
     {:else}
-        <!-- PRESENT MODE: For teachers or other roles, show regular view -->
-        <!-- You can add teacher presentation view here if needed -->
-        <div class="text-center p-8">
-            <p class="text-lg text-gray-600">Presentation mode - Teacher view</p>
+        <!-- PRESENT MODE: For teachers, show just the question -->
+        <div class="w-full max-w-4xl mx-auto">
+            {#if content.question}
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-6">{content.question}</h2>
+                    {#if content.multiple}
+                        <p class="text-xl text-gray-600">Multiple choice question - Select all correct answers</p>
+                    {:else}
+                        <p class="text-xl text-gray-600">Single choice question - Select one answer</p>
+                    {/if}
+                </div>
+
+                <!-- Teacher Control Buttons -->
+                {#if showResponseChart}
+                    <div class="flex justify-center gap-4 mb-8">
+                        <Button 
+                            onclick={toggleShowResponses}
+                            variant={showResponses ? "default" : "outline"}
+                            size="lg"
+                            class="text-lg px-8 py-3"
+                        >
+                            {showResponses ? 'Hide Responses' : `Show Responses (${totalResponses()})`}
+                        </Button>
+                        
+                        {#if showResponses}
+                            <Button 
+                                onclick={toggleShowCorrectAnswers}
+                                variant={showCorrectAnswers ? "default" : "outline"}
+                                size="lg"
+                                class="text-lg px-8 py-3 bg-green-600 hover:bg-green-700 text-white"
+                            >
+                                {showCorrectAnswers ? 'Hide Answers' : 'Reveal Answers'}
+                            </Button>
+                        {/if}
+                    </div>
+                {/if}
+
+                <!-- Student Response Chart -->
+                {#if showResponseChart && showResponses && responseData().length > 0}
+                    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-semibold text-gray-800">Student Responses</h3>
+                            <div class="text-lg text-gray-600">
+                                {totalResponses()} response{totalResponses() !== 1 ? 's' : ''}
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            {#each responseData() as data}
+                                <div class="flex items-center gap-4">
+                                    <!-- Option Letter -->
+                                    <div class={`w-12 h-12 rounded-lg flex items-center justify-center text-xl font-bold text-white
+                                        ${data.isCorrect ? 'bg-green-500' : 'bg-gray-400'}
+                                    `}>
+                                        {data.letter}
+                                    </div>
+
+                                    <!-- Option Text -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-lg font-medium text-gray-800 truncate">
+                                            {data.option}
+                                        </div>
+                                        {#if data.isCorrect}
+                                            <div class="text-sm text-green-600 font-medium">Correct Answer</div>
+                                        {/if}
+                                    </div>
+
+                                    <!-- Progress Bar -->
+                                    <div class="flex-1 max-w-xs">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 bg-gray-200 rounded-full h-6 relative overflow-hidden">
+                                                <div 
+                                                    class={`h-full rounded-full transition-all duration-500 
+                                                        ${data.isCorrect ? 'bg-green-500' : 'bg-blue-500'}
+                                                    `}
+                                                    style="width: {data.percentage}%"
+                                                ></div>
+                                            </div>
+                                            <div class="text-lg font-semibold text-gray-700 min-w-[4rem] text-right">
+                                                {data.count} ({data.percentage.toFixed(0)}%)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+
+                        {#if totalResponses() === 0}
+                            <div class="text-center py-8">
+                                <p class="text-gray-500 text-lg">Waiting for student responses...</p>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
+            {:else}
+                <!-- Empty state -->
+                <div class="text-center">
+                    <HelpCircleIcon class="text-gray-400 mx-auto h-24 w-24 mb-6" />
+                    <p class="text-gray-500 text-3xl font-medium">No question available</p>
+                    <p class="text-gray-400 text-xl">Question not yet configured</p>
+                </div>
+            {/if}
         </div>
 	{/if}
 </div>

@@ -9,6 +9,7 @@ const activePresentations = new Map<string, {
 		answer: string;
 		studentId: string;
 		studentName?: string;
+		slideIndex: number;
 		timestamp: Date;
 	}>;
 }>();
@@ -185,8 +186,9 @@ async function handleSubmitAnswer(peer: Peer, data: {
 	answer: string; 
 	studentId: string;
 	studentName?: string;
+	slideIndex?: number;
 }) {
-	const { taskId, questionId, answer, studentId, studentName } = data;
+	const { taskId, questionId, answer, studentId, studentName, slideIndex } = data;
 	const presentationKey = `presentation_${taskId}`;
 	
 	const presentation = activePresentations.get(presentationKey);
@@ -205,6 +207,7 @@ async function handleSubmitAnswer(peer: Peer, data: {
 		answer,
 		studentId,
 		studentName,
+		slideIndex: slideIndex ?? 0,
 		timestamp: new Date()
 	};
 	presentation.studentAnswers.set(answerKey, answerData);
