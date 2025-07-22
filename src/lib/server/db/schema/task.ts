@@ -157,6 +157,18 @@ export const taskBlockResponse = pgTable('task_block_response', {
 
 export type TaskBlockResponse = typeof taskBlockResponse.$inferSelect;
 
+export enum taskBlockResponseStatusEnum {
+	editPermission = 'edit_permission', // Student can edit their response
+	submitted = 'submitted', // Student has submitted their response
+	graded = 'graded', // Teacher has graded the response
+}
+
+export const taskBlockResponseStatusEnumPg = pgEnum('task_block_response_status', [
+	taskBlockResponseStatusEnum.editPermission,
+	taskBlockResponseStatusEnum.submitted,
+	taskBlockResponseStatusEnum.graded
+]);
+
 export const classTaskResponse = pgTable('task_response', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	classTaskId: integer('class_task_id')
@@ -165,8 +177,10 @@ export const classTaskResponse = pgTable('task_response', {
 	authorId: uuid('author_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }), // Students response to the task
+	comment: text('comment'), // Optional comment from the student about their submission
 	feedback: text('feedback'), // Teacher feedback on the task response
 	marks: doublePrecision('marks').notNull(), // Total marks awarded for the task response
+	status: taskBlockResponseStatusEnumPg().notNull().default(taskBlockResponseStatusEnum.submitted),
 	teacherId: uuid('teacher_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }), // Teacher who graded the task response

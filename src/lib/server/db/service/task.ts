@@ -1197,3 +1197,158 @@ export async function getUserTaskBlockResponses(
 
 	return responses;
 }
+
+// Helper function to get teacher from class
+export async function getClassTeacher(subjectOfferingClassId: number) {
+	const teacher = await db
+		.select({
+			userId: table.userSubjectOfferingClass.userId
+		})
+		.from(table.userSubjectOfferingClass)
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
+				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.teacher),
+				eq(table.userSubjectOfferingClass.isArchived, false)
+			)
+		)
+		.limit(1);
+
+	return teacher[0]?.userId || null;
+}
+
+// Class Task Response functions
+export async function createClassTaskResponse(
+	classTaskId: number,
+	authorId: string,
+	comment?: string,
+	marks: number = 0,
+	status: table.taskBlockResponseStatusEnum = table.taskBlockResponseStatusEnum.submitted,
+	teacherId?: string
+) {
+	// If no teacherId provided, try to get it from the class
+	let finalTeacherId = teacherId;
+	if (!finalTeacherId) {
+		// Get the class from classTaskId
+		const classTask = await db
+			.select({ subjectOfferingClassId: table.subjectOfferingClassTask.subjectOfferingClassId })
+			.from(table.subjectOfferingClassTask)
+			.where(eq(table.subjectOfferingClassTask.id, classTaskId))
+			.limit(1);
+		
+		if (classTask[0]) {
+			const teacherFromClass = await getClassTeacher(classTask[0].subjectOfferingClassId);
+			finalTeacherId = teacherFromClass || undefined;
+		}
+	}
+
+	const [response] = await db
+		.insert(table.classTaskResponse)
+		.values({
+			classTaskId,
+			authorId,
+			comment,
+			marks,
+			status,
+			teacherId: finalTeacherId || authorId // Fallback to author if no teacher found
+		})
+		.returning();
+
+	return response;
+}
+
+export async function updateClassTaskResponseStatus(
+	classTaskId: number,
+	authorId: string,
+	status: table.taskBlockResponseStatusEnum
+) {
+	const [response] = await db
+		.update(table.classTaskResponse)
+		.set({ 
+			status,
+			updatedAt: new Date()
+		})
+		.where(
+			and(
+				eq(table.classTaskResponse.classTaskId, classTaskId),
+				eq(table.classTaskResponse.authorId, authorId)
+			)
+		)
+		.returning();
+
+	return response;
+}
+
+export async function getClassTaskResponse(
+	classTaskId: number,
+	authorId: string
+) {
+	const response = await db
+		.select()
+		.from(table.classTaskResponse)
+		.where(
+			and(
+				eq(table.classTaskResponse.classTaskId, classTaskId),
+				eq(table.classTaskResponse.authorId, authorId)
+			)
+		)
+		.limit(1);
+
+	return response[0] || null;
+}
+
+export async function getClassTaskResponseResources(classTaskResponseId: number) {
+	const resources = await db
+		.select({
+			responseResource: table.classTaskResponseResource,
+			resource: table.resource
+		})
+		.from(table.classTaskResponseResource)
+		.innerJoin(table.resource, eq(table.classTaskResponseResource.resourceId, table.resource.id))
+		.where(
+			and(
+				eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId),
+				eq(table.classTaskResponseResource.isArchived, false),
+				eq(table.resource.isArchived, false)
+			)
+		);
+
+	return resources;
+}
+
+export async function addResourceToClassTaskResponse(classTaskResponseId: number, resourceId: number) {
+	const [relationship] = await db
+		.insert(table.classTaskResponseResource)
+		.values({
+			classTaskResponseId,
+			resourceId,
+			authorId: '' // This will be set by the calling function
+		})
+		.returning();
+
+	return relationship;
+}
+
+export async function addResourcesToClassTaskResponse(
+	classTaskResponseId: number, 
+	resourceIds: number[], 
+	authorId: string
+) {
+	if (resourceIds.length === 0) {
+		return [];
+	}
+
+	const newRelationships = await db
+		.insert(table.classTaskResponseResource)
+		.values(
+			resourceIds.map((resourceId) => ({
+				classTaskResponseId,
+				resourceId,
+				authorId
+			}))
+		)
+		.onConflictDoNothing()
+		.returning();
+
+	return newRelationships;
+}

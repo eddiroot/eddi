@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
@@ -17,6 +18,8 @@
 	import ShortAnswer from './blocks/short-answer.svelte';
 	import { type TaskBlock } from '$lib/server/db/schema';
 	import { ViewMode } from '$lib/utils';
+	import { Badge } from '$lib/components/ui/badge';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 
 	import {
 		createBlock,
@@ -302,6 +305,16 @@
 						{/if}
 					</div>
 				</div>
+				
+				<!-- Submission Success Message -->
+				{#if $page.url.searchParams.get('submitted') === 'true'}
+					<div class="mt-4">
+						<Badge variant="default" class="flex items-center gap-2 w-fit bg-green-100 text-green-800 border-green-300">
+							<CheckCircleIcon class="h-4 w-4" />
+							Task submitted successfully!
+						</Badge>
+					</div>
+				{/if}
 			</div>
 			<div class="flex h-full flex-col">
 				{#each blocks as block}
@@ -443,6 +456,19 @@
 							: notDraggedOverClasses}"
 					>
 						<span class="text-muted-foreground text-sm">Add more blocks here</span>
+					</div>
+				{/if}
+
+				<!-- Submit Button for Students -->
+				{#if data.user.type === 'student' && taskStatus === 'published'}
+					<div class="mt-8 ml-[38px]">
+						<Button
+							onclick={() => window.location.href = `/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/submit`}
+							size="lg"
+							class="w-full"
+						>
+							Submit Task
+						</Button>
 					</div>
 				{/if}
 			</div>

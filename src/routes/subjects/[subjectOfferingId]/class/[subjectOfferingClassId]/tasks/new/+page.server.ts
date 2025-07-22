@@ -3,7 +3,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
-import { taskComponentSchema, taskCreationPrompts } from '$lib/server/taskSchema';
+import { taskComponentSchema, taskCreationPrompts } from '$lib/server/schema/taskSchema';
 import {
 	createTask,
 	createTaskBlock,
