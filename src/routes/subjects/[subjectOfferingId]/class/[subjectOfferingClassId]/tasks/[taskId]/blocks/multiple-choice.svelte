@@ -553,11 +553,17 @@
 					{/if}
 				</div>
 
-				<!-- 2x2 Grid of Options -->
-				<div class="grid grid-cols-2 gap-6 max-w-3xl mx-auto">
-					{#each content.options.slice(0, 4) as option, index}
-						{@const isSelected = selectedAnswers.has(option)}                        <button
-                            class={`group relative flex items-center justify-center p-8 rounded-2xl border-4 transition-all duration-300 min-h-[200px] text-center
+				<!-- Dynamic Grid of Options -->
+				<div class={`grid gap-6 max-w-4xl mx-auto
+					${content.options.length <= 2 ? 'grid-cols-1 max-w-2xl' : 
+					  content.options.length <= 4 ? 'grid-cols-2 max-w-3xl' : 
+					  content.options.length <= 6 ? 'grid-cols-3' : 
+					  'grid-cols-4'}
+				`}>
+					{#each content.options as option, index}
+						{@const isSelected = selectedAnswers.has(option)}
+						<button
+                            class={`group relative flex items-center justify-center p-6 rounded-2xl border-4 transition-all duration-300 min-h-[160px] text-center
                                 ${isSelected 
                                     ? 'border-blue-500 bg-blue-50 shadow-lg scale-105' 
                                     : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md hover:scale-102'
@@ -571,8 +577,13 @@
                                 }
                             }}
                         >
+                            <!-- Option Letter Badge -->
+                            <div class="absolute top-3 left-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold text-gray-600">
+                                {String.fromCharCode(65 + index)}
+                            </div>
+
                             <!-- Option Text -->
-                            <p class={`text-xl font-medium leading-relaxed px-4 transition-colors
+                            <p class={`text-lg font-medium leading-relaxed px-4 transition-colors
                                 ${isSelected 
                                     ? 'text-blue-800' 
                                     : 'text-gray-700 group-hover:text-gray-900'
@@ -583,18 +594,11 @@
 
                             <!-- Selection Indicator -->
                             {#if isSelected}
-                                <div class="absolute top-4 right-4 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                <div class="absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                                     <CheckIcon class="w-4 h-4 text-white" />
                                 </div>
                             {/if}
                         </button>
-                    {/each}
-
-                    <!-- Fill empty slots if less than 4 options -->
-                    {#each Array(Math.max(0, 4 - content.options.length)) as _, index}
-                        <div class="flex items-center justify-center p-8 rounded-2xl border-4 border-dashed border-gray-200 min-h-[200px] bg-gray-50">
-                            <p class="text-gray-400 text-lg">Empty Option</p>
-                        </div>
                     {/each}
                 </div>
             {:else}
