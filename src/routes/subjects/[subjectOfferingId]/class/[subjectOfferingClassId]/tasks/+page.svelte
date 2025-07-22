@@ -7,6 +7,7 @@
 	import FileIcon from '@lucide/svelte/icons/file';
 	import DownloadIcon from '@lucide/svelte/icons/download';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
@@ -19,6 +20,11 @@
 	let { data } = $props();
 	let topicsWithTasks = $state(data.topicsWithTasks || []);
 	let showUploadDialog = $state(false);
+
+	// Helper function to check if a task has an active presentation
+	function hasActivePresentation(taskId: number): boolean {
+		return data.activePresentations?.some(p => p.taskId === taskId) || false;
+	}
 
 	const uploadSchema = z.object({
 		file: z.instanceof(File).refine((file) => file.size > 0, 'Please select a file to upload'),
@@ -132,14 +138,25 @@
 
 					<!-- Tasks -->
 					{#each tasks as task}
-						<a href={`${page.url.pathname}/${task.task.id}`} class="block h-full">
-							<Card.Root class="h-full transition-shadow hover:shadow-md">
+						<a href={hasActivePresentation(task.task.id) ? `${page.url.pathname}/${task.task.id}/present`: `${page.url.pathname}/${task.task.id}`} class="block h-full">
+							<Card.Root class="h-full transition-shadow hover:shadow-md {hasActivePresentation(task.task.id) ? 'ring-2 ring-green-500 bg-green-50' : ''}">
 								<Card.Header>
-									<Card.Title>
-										{task.task.title}
+									<Card.Title class="flex items-center justify-between">
+										<span>{task.task.title}</span>
+										{#if hasActivePresentation(task.task.id)}
+											<div class="flex items-center gap-1">
+												<PresentationIcon class="h-4 w-4 text-green-600" />
+												<div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+											</div>
+										{/if}
 									</Card.Title>
 									<Card.Description class="mt-0.5 space-y-1">
 										<div>Status: {task.status}</div>
+										{#if hasActivePresentation(task.task.id)}
+											<div class="text-green-700 font-medium text-sm">
+												🔴 Live Presentation
+											</div>
+										{/if}
 									</Card.Description>
 								</Card.Header>
 							</Card.Root>

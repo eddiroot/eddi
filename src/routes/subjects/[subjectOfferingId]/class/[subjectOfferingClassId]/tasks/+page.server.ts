@@ -182,7 +182,35 @@ export const load = async ({
 		}
 	});
 
-	return { user, topicsWithTasks, topics, form };
+	// Check for active presentations across all tasks in this class
+	const activePresentations = new Map<number, {
+		taskId: number;
+		taskTitle: string;
+		teacherId?: string;
+		startTime?: Date;
+	}>();
+	for (const topicWithTasks of topicsWithTasks) {
+		for (const taskWithStatus of topicWithTasks.tasks) {
+			try {
+				const presentationCheckResponse = await fetch(`${process.env.ORIGIN || 'http://localhost:5173'}/api/presentations?taskId=${taskWithStatus.task.id}`);
+				if (presentationCheckResponse.ok) {
+					const presentationStatus = await presentationCheckResponse.json();
+					if (presentationStatus.isActive) {
+						activePresentations.set(taskWithStatus.task.id, {
+							taskId: taskWithStatus.task.id,
+							taskTitle: taskWithStatus.task.title,
+							teacherId: presentationStatus.presentation?.teacherId,
+							startTime: presentationStatus.presentation?.startTime
+						});
+					}
+				}
+			} catch (error) {
+				console.error('Failed to check presentation status for task:', taskWithStatus.task.id, error);
+			}
+		}
+	}
+
+	return { user, topicsWithTasks, topics, form, activePresentations: Array.from(activePresentations.values()) };
 };
 
 export const actions = {

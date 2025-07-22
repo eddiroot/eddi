@@ -12,6 +12,7 @@
 	import PlayIcon from '@lucide/svelte/icons/play';
 	import StopCircleIcon from '@lucide/svelte/icons/stop-circle';
 	import UsersIcon from '@lucide/svelte/icons/users';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import { ViewMode } from '$lib/utils';
 
 	// Import all block components
@@ -44,8 +45,21 @@
 		timestamp: Date;
 	}>>([]);
 	
+	// Student-specific state
+	let isInPresentation = $state(false);
+	let isStudent = $derived(data.user.type === 'student');
+	
 	// Form enhancement for starting/ending presentation
 	let isLoading = $state(false);
+
+	// Common response props for all interactive blocks (needed for students)
+	const responseProps = $derived({
+		taskId: data.task.id,
+		classTaskId: data.classTask.id,
+		subjectOfferingId: data.subjectOfferingId,
+		subjectOfferingClassId: data.subjectOfferingClassId,
+		isPublished: data.classTask.status === 'published'
+	});
 
 	// Group consecutive headings into slides
 	let slides = $derived(() => {
@@ -160,47 +174,71 @@
 		switch (message.type) {
 			case 'presentation_started':
 				console.log('Presentation started');
+				if (isStudent) {
+					isInPresentation = true;
+				}
+				break;
+				
+			case 'joined_presentation':
+				if (isStudent) {
+					isInPresentation = true;
+					console.log('Successfully joined presentation');
+				}
+				break;
+				
+			case 'presentation_not_found':
+				if (isStudent) {
+					console.log('Presentation not found');
+					isInPresentation = false;
+				}
 				break;
 				
 			case 'student_joined':
-				const existingStudent = connectedStudents.find(s => s.studentId === message.studentId);
-				if (!existingStudent) {
-					connectedStudents.push({
-						studentId: message.studentId,
-						studentName: message.studentName
-					});
-					connectedStudents = [...connectedStudents]; // Trigger reactivity
+				// Only handle this for teachers
+				if (!isStudent) {
+					const existingStudent = connectedStudents.find(s => s.studentId === message.studentId);
+					if (!existingStudent) {
+						connectedStudents.push({
+							studentId: message.studentId,
+							studentName: message.studentName
+						});
+						connectedStudents = [...connectedStudents]; // Trigger reactivity
+					}
 				}
 				break;
 				
 			case 'new_answer':
-				// Update student answers
-				const answerIndex = studentAnswers.findIndex(
-					a => a.studentId === message.studentId && a.questionId === message.questionId
-				);
-				
-				if (answerIndex >= 0) {
-					studentAnswers[answerIndex] = {
-						questionId: message.questionId,
-						answer: message.answer,
-						studentId: message.studentId,
-						studentName: message.studentName,
-						timestamp: new Date(message.timestamp)
-					};
-				} else {
-					studentAnswers.push({
-						questionId: message.questionId,
-						answer: message.answer,
-						studentId: message.studentId,
-						studentName: message.studentName,
-						timestamp: new Date(message.timestamp)
-					});
+				// Only handle this for teachers
+				if (!isStudent) {
+					// Update student answers
+					const answerIndex = studentAnswers.findIndex(
+						a => a.studentId === message.studentId && a.questionId === message.questionId
+					);
+					
+					if (answerIndex >= 0) {
+						studentAnswers[answerIndex] = {
+							questionId: message.questionId,
+							answer: message.answer,
+							studentId: message.studentId,
+							studentName: message.studentName,
+							timestamp: new Date(message.timestamp)
+						};
+					} else {
+						studentAnswers.push({
+							questionId: message.questionId,
+							answer: message.answer,
+							studentId: message.studentId,
+							studentName: message.studentName,
+							timestamp: new Date(message.timestamp)
+						});
+					}
+					studentAnswers = [...studentAnswers]; // Trigger reactivity
 				}
-				studentAnswers = [...studentAnswers]; // Trigger reactivity
 				break;
 				
 			case 'presentation_ended':
 				isPresenting = false;
+				isInPresentation = false;
 				connectedStudents = [];
 				studentAnswers = [];
 				disconnectFromPresentation();
@@ -242,6 +280,39 @@
 		disconnectFromPresentation();
 	}
 
+	// Student functions
+	function joinPresentationAsStudent() {
+		if (!browser || presentationSocket) return;
+		
+		connectToPresentation();
+		
+		// Wait for connection then join presentation
+		const checkConnection = setInterval(() => {
+			if (presentationSocket?.readyState === WebSocket.OPEN) {
+				clearInterval(checkConnection);
+				presentationSocket.send(JSON.stringify({
+					type: 'join_presentation',
+					taskId: data.task.id,
+					studentId: data.user.id,
+					studentName: `${data.user.firstName} ${data.user.lastName}`
+				}));
+			}
+		}, 100);
+	}
+	
+	function submitAnswerToPresentation(questionId: string, answer: string) {
+		if (presentationSocket?.readyState === WebSocket.OPEN) {
+			presentationSocket.send(JSON.stringify({
+				type: 'submit_answer',
+				taskId: data.task.id,
+				questionId,
+				answer,
+				studentId: data.user.id,
+				studentName: `${data.user.firstName} ${data.user.lastName}`
+			}));
+		}
+	}
+
 	// Fullscreen functionality
 	function toggleFullscreen() {
 		if (!browser) return;
@@ -270,9 +341,14 @@
 			document.addEventListener('fullscreenchange', handleFullscreenChange);
 			document.addEventListener('keydown', handleKeydown);
 			
-			// If already presenting, connect to WebSocket
-			if (isPresenting) {
+			// If already presenting (teacher), connect to WebSocket
+			if (isPresenting && !isStudent) {
 				startPresentationWebSocket();
+			}
+			
+			// If student and there's an active presentation, join it
+			if (isStudent && data.isPresenting) {
+				joinPresentationAsStudent();
 			}
 			
 			return () => {
@@ -296,6 +372,44 @@
 		{#if slides().length > 0}
 			<Card.Root class="h-full rounded-none bg-white">
 				<Card.Content class="h-full p-8">
+					<!-- Presentation Status Indicator for Students -->
+					{#if isStudent}
+						<div class="mb-4">
+							{#if isInPresentation}
+								<div class="bg-green-100 border border-green-300 rounded-lg p-3">
+									<div class="flex items-center gap-2 text-green-800">
+										<PresentationIcon class="h-5 w-5" />
+										<span class="font-medium">Live Presentation Mode</span>
+										<div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+									</div>
+									<p class="text-sm text-green-700 mt-1">
+										You're connected to the teacher's presentation. Your answers will be shared live.
+									</p>
+								</div>
+							{:else if data.isPresenting}
+								<div class="bg-yellow-100 border border-yellow-300 rounded-lg p-3">
+									<div class="flex items-center gap-2 text-yellow-800">
+										<PresentationIcon class="h-5 w-5" />
+										<span class="font-medium">Connecting to Presentation...</span>
+									</div>
+									<p class="text-sm text-yellow-700 mt-1">
+										Joining the teacher's presentation...
+									</p>
+								</div>
+							{:else}
+								<div class="bg-gray-100 border border-gray-300 rounded-lg p-3">
+									<div class="flex items-center gap-2 text-gray-800">
+										<PresentationIcon class="h-5 w-5" />
+										<span class="font-medium">No Active Presentation</span>
+									</div>
+									<p class="text-sm text-gray-700 mt-1">
+										There is no active presentation for this task.
+									</p>
+								</div>
+							{/if}
+						</div>
+					{/if}
+					
 					{@const currentSlideBlocks = slides()[currentSlide]}
 
 					<!-- Title slide (first slide) -->
@@ -349,7 +463,7 @@
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
 									/>
-								<!-- {:else if block.type === 'whiteboard'}
+								{:else if block.type === 'whiteboard'}
 									<Whiteboard
 										content={block.content as Record<string, any> | undefined}
 										viewMode={ViewMode.PRESENT}
@@ -360,33 +474,54 @@
 										content={block.content as any}
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
+										blockId={block.id}
+										{...responseProps}
+										onPresentationAnswer={isStudent && isInPresentation 
+											? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+											: undefined}
 									/>
 								{:else if block.type === 'fill_in_blank'}
 									<FillInBlank
 										content={block.content as any}
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
+										blockId={block.id}
+										{...responseProps}
+										onPresentationAnswer={isStudent && isInPresentation 
+											? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+											: undefined}
 									/>
 								{:else if block.type === 'matching'}
 									<Matching
 										content={block.content as any}
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
-									/> -->
-									<!--{:else if block.type === 'two_column_layout'}
-								<TwoColumnLayout
-									content={block.content as any}
-									viewMode={ViewMode.PRESENT}
-									onUpdate={() => {}}
-									onGlobalDrop={() => {}}
-								/> -->
-								<!-- {:else if block.type === 'short_answer'}
+										blockId={block.id}
+										{...responseProps}
+										onPresentationAnswer={isStudent && isInPresentation 
+											? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+											: undefined}
+									/>
+								{:else if block.type === 'two_column_layout'}
+									<TwoColumnLayout
+										content={block.content as any}
+										viewMode={ViewMode.PRESENT}
+										onUpdate={async () => {}}
+										onGlobalDrop={async () => {}}
+										blockId={block.id}
+										{...responseProps}
+									/>
+								{:else if block.type === 'short_answer'}
 									<ShortAnswer
 										content={block.content as any}
 										viewMode={ViewMode.PRESENT}
 										onUpdate={() => {}}
+										blockId={block.id}
+										{...responseProps}
+										onPresentationAnswer={isStudent && isInPresentation 
+											? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+											: undefined}
 									/>
-									 -->
 								{:else}
 									<div class="text-center text-gray-500">
 										<p>Content for {block.type} block.</p>

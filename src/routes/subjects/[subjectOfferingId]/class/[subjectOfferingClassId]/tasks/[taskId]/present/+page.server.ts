@@ -1,8 +1,8 @@
-import { getTaskById, getTaskBlocksByTaskId } from '$lib/server/db/service';
+import { getTaskById, getTaskBlocksByTaskId, getSubjectOfferingClassTaskByTaskId } from '$lib/server/db/service';
 import { redirect, fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
-export const load = async ({ locals: { security }, params: { taskId, subjectOfferingId } }) => {
+export const load = async ({ locals: { security }, params: { taskId, subjectOfferingId, subjectOfferingClassId } }) => {
   const user = security.isAuthenticated().getUser();
 
   let taskIdInt;
@@ -12,8 +12,17 @@ export const load = async ({ locals: { security }, params: { taskId, subjectOffe
     throw redirect(302, '/dashboard');
   }
 
+  const classIdInt = parseInt(subjectOfferingClassId, 10);
+  if (isNaN(classIdInt)) {
+    throw redirect(302, '/dashboard');
+  }
+
   const task = await getTaskById(taskIdInt);
   if (!task) throw redirect(302, '/dashboard');
+
+  // Get the class task to access status (needed for students)
+  const classTask = await getSubjectOfferingClassTaskByTaskId(taskIdInt, classIdInt);
+  if (!classTask) throw redirect(302, '/dashboard');
 
   const blocks = await getTaskBlocksByTaskId(taskIdInt);
 
@@ -23,8 +32,10 @@ export const load = async ({ locals: { security }, params: { taskId, subjectOffe
 
   return { 
     task, 
+    classTask,
     blocks, 
-    subjectOfferingId, 
+    subjectOfferingId,
+    subjectOfferingClassId, 
     user,
     isPresenting: presentationStatus.isActive || false
   };
