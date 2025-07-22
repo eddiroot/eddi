@@ -53,6 +53,7 @@ export async function createUser({
 	gender,
 	dateOfBirth,
 	honorific,
+	yearLevel,
 	middleName,
 	avatarUrl,
 	isArchived = false
@@ -66,6 +67,7 @@ export async function createUser({
 	gender?: table.userGenderEnum;
 	dateOfBirth?: Date;
 	honorific?: table.userHonorificEnum;
+	yearLevel: table.yearLevelEnum;
 	middleName?: string;
 	avatarUrl?: string;
 	isArchived?: boolean;
@@ -82,6 +84,7 @@ export async function createUser({
 			gender,
 			dateOfBirth,
 			honorific,
+			yearLevel,
 			middleName,
 			avatarUrl,
 			isArchived

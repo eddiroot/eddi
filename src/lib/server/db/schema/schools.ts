@@ -1,6 +1,7 @@
 import { pgTable, text, integer, boolean, pgEnum, unique, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { user } from './user';
+import { yearLevelEnumPg } from './curriculum';
 
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -131,3 +132,15 @@ export const schoolTimetablePeriod = pgTable('school_timetable_period', {
 });
 
 export type SchoolTimetablePeriod = typeof schoolTimetablePeriod.$inferSelect;
+
+export const schoolTimetableStudentGroup = pgTable('school_timetable_student_group', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableId: integer('timetable_id')
+		.notNull()
+		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
+	yearLevel: yearLevelEnumPg().notNull(),
+	groupName: text('group_name').notNull(),
+	...timestamps
+});
+
+export type SchoolTimetableStudentGroup = typeof schoolTimetableStudentGroup.$inferSelect;

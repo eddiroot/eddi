@@ -3,16 +3,17 @@ import crypto from 'crypto';
 import { env } from '$env/dynamic/private';
 
 if (!env.EMAIL_HOST) throw new Error('EMAIL_HOST is not set');
+if (!env.EMAIL_PORT) throw new Error('EMAIL_PORT is not set');
 if (!env.EMAIL_USER) throw new Error('EMAIL_USER is not set');
 if (!env.EMAIL_PASS) throw new Error('EMAIL_PASS is not set');
 
 const transporter = nodemailer.createTransport({
-	host: process.env.EMAIL_HOST,
-	port: 587,
-	secure: false,
+	host: env.EMAIL_HOST,
+	port: parseInt(env.EMAIL_PORT),
+	secure: true,
 	auth: {
-		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_PASS
+		user: env.EMAIL_USER,
+		pass: env.EMAIL_PASS
 	}
 });
 

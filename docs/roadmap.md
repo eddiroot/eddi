@@ -23,6 +23,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Behavioural reporting (visible to parents) (07/08)
 - [x] Auto generated summaries of discussions (21/07)
 - [x] Option for teachers to disable eddi AI on a task (28/07)
+- [x] Onboarding flow (14/07)
 
 ## Doing
 
@@ -67,7 +68,6 @@ Raph
 
 Beej
 
-- [ ] Onboarding flow (14/07)
 - [ ] Parent/teacher interviews (21/07)
 - [ ] Teacher to parent comms (one way) (28/07)
 

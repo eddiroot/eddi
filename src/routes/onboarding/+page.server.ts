@@ -11,6 +11,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
 import { formSchema } from './schema';
 import { sendEmailVerification } from '$lib/server/email';
+import { yearLevelEnum } from '$lib/server/db/schema';
 
 export const load = async () => {
 	return {
@@ -55,6 +56,7 @@ export const actions = {
 			passwordHash,
 			schoolId: school.id,
 			type: userTypeEnum.schoolAdmin,
+			yearLevel: yearLevelEnum.none,
 			firstName: form.data.firstName,
 			lastName: form.data.lastName,
 			middleName: form.data.middleName
