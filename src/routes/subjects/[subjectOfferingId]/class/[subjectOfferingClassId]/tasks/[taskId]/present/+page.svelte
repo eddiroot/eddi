@@ -427,7 +427,7 @@
 	<title>{data.task.title} - Presentation</title>
 </svelte:head>
 
-<div class="presentation-container relative h-screen bg-gray-900 text-white">
+<div class="fixed h-screen top-0 left-0 z-50 w-screen bg-gray-900 text-white">
 	<!-- Small Connection Status in Top-Left Corner (Students Only) -->
 	{#if isStudent}
 		<div class="absolute top-4 left-4 z-10">
