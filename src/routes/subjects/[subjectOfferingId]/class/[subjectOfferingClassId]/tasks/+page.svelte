@@ -142,20 +142,20 @@
 							<Card.Root class="h-full transition-shadow hover:shadow-md {hasActivePresentation(task.task.id) ? 'ring-2 ring-green-500 bg-green-50' : ''}">
 								<Card.Header>
 									<Card.Title class="flex items-center justify-between">
-										<span>{task.task.title}</span>
+										<span class="truncate">{task.task.title}</span>
 										{#if hasActivePresentation(task.task.id)}
-											<div class="flex items-center gap-1">
+											<div class="flex items-center gap-1 flex-shrink-0">
 												<PresentationIcon class="h-4 w-4 text-green-600" />
 												<div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
 											</div>
 										{/if}
 									</Card.Title>
-									<Card.Description class="mt-0.5 space-y-1">
-										<div>Status: {task.status}</div>
+									<Card.Description>
+										<span class="block">Status: {task.status}</span>
 										{#if hasActivePresentation(task.task.id)}
-											<div class="text-green-700 font-medium text-sm">
+											<span class="text-green-700 font-medium text-sm block mt-1">
 												🔴 Live Presentation
-											</div>
+											</span>
 										{/if}
 									</Card.Description>
 								</Card.Header>
@@ -166,19 +166,21 @@
 					<!-- Resources -->
 					{#each resources as resource}
 						<Card.Root class="h-full flex flex-col transition-shadow hover:shadow-md">
-							<Card.Header class="flex-1 truncate">
+							<Card.Header class="flex-1">
 								<div class="flex items-center justify-between">
-									<Card.Title class="flex items-center gap-2">
-										<FileIcon class="h-4 w-4" />
-										{#if resource.downloadUrl}
-											<a href={resource.downloadUrl} target="_blank" class="hover:underline">
-												{resource.title }
-											</a>
-										{:else}
-											{resource.title}
-										{/if}
+									<Card.Title class="flex items-center gap-2 flex-1 min-w-0">
+										<FileIcon class="h-4 w-4 flex-shrink-0" />
+										<span class="truncate">
+											{#if resource.downloadUrl}
+												<a href={resource.downloadUrl} target="_blank" class="hover:underline">
+													{resource.title}
+												</a>
+											{:else}
+												{resource.title}
+											{/if}
+										</span>
 									</Card.Title>
-									<div class="flex items-center gap-1 truncate">
+									<div class="flex items-center gap-1 flex-shrink-0">
 										{#if resource.downloadUrl}
 											<Button href={resource.downloadUrl} size="sm" variant="ghost" target="_blank">
 												<DownloadIcon class="h-4 w-4" />
@@ -195,7 +197,7 @@
 								</div>
 								{#if resource.description}
 									<Card.Description>
-										{resource.description}
+										<span>{resource.description}</span>
 									</Card.Description>
 								{/if}
 							</Card.Header>

@@ -581,34 +581,10 @@
 				<p class="text-xl text-gray-500">No slides to display</p>
 			</div>
 		{/if}
-	</div>
-
-	<!-- Student Answers Panel (Teachers Only) -->
-	{#if !isStudent && isPresenting && currentSlideAnswers().length > 0}
-		<div class="absolute top-4 right-4 w-80 max-h-96 bg-black bg-opacity-80 rounded-lg p-4 overflow-y-auto">
-			<h3 class="text-white font-semibold mb-3 flex items-center gap-2">
-				<UsersIcon class="h-4 w-4" />
-				Student Answers (Slide {currentSlide + 1})
-			</h3>
-			<div class="space-y-2">
-				{#each currentSlideAnswers() as answer}
-					<div class="bg-white bg-opacity-10 rounded p-2 text-sm">
-						<div class="font-medium text-blue-200">{answer.studentName || `Student ${answer.studentId}`}</div>
-						<div class="text-white break-words">{answer.answer}</div>
-						<div class="text-xs text-gray-300 mt-1">
-							{answer.timestamp.toLocaleTimeString()}
-						</div>
-					</div>
-				{/each}
-			</div>
-			<div class="mt-3 text-xs text-gray-300">
-				{currentSlideAnswers().length} response{currentSlideAnswers().length !== 1 ? 's' : ''}
-			</div>
 		</div>
-	{/if}
 
 	<!-- Left Navigation Arrow -->
-	{#if currentSlide > 0 && !(isStudent && isInPresentation)}
+	{#if currentSlide > 0 && !isStudent}
 		<button
 			class="bg-opacity-50 hover:bg-opacity-70 absolute top-1/2 left-4 -translate-y-1/2 transform rounded-full bg-black p-3 text-white transition-all duration-200"
 			onclick={prevSlide}
@@ -618,7 +594,7 @@
 	{/if}
 
 	<!-- Right Navigation Arrow -->
-	{#if currentSlide < slides().length - 1 && !(isStudent && isInPresentation)}
+	{#if currentSlide < slides().length - 1 && !isStudent}
 		<button
 			class="bg-opacity-50 hover:bg-opacity-70 absolute top-1/2 right-4 -translate-y-1/2 transform rounded-full bg-black p-3 text-white transition-all duration-200"
 			onclick={nextSlide}
