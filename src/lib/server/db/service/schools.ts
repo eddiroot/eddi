@@ -13,6 +13,7 @@ export async function getUsersBySchoolId(schoolId: number, includeArchived: bool
 			firstName: table.user.firstName,
 			middleName: table.user.middleName,
 			lastName: table.user.lastName,
+			yearLevel: table.user.yearLevel,
 			avatarUrl: table.user.avatarUrl
 		})
 		.from(table.user)
@@ -38,6 +39,7 @@ export async function getUsersBySchoolIdAndType(
 			firstName: table.user.firstName,
 			middleName: table.user.middleName,
 			lastName: table.user.lastName,
+			yearLevel: table.user.yearLevel,
 			avatarUrl: table.user.avatarUrl
 		})
 		.from(table.user)

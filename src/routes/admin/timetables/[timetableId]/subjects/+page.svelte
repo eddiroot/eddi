@@ -15,7 +15,7 @@
 	<TableHeader>
 		<TableRow>
 			<TableHead>Subject Name</TableHead>
-			<TableHead>YearLevel</TableHead>
+			<TableHead>Year Level</TableHead>
 		</TableRow>
 	</TableHeader>
 	<TableBody>

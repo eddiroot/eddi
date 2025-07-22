@@ -37,6 +37,7 @@ export const learningArea = pgTable('learning_area', {
 export type LearningArea = typeof learningArea.$inferSelect;
 
 export enum yearLevelEnum {
+	none = 'N',
 	foundation = 'F',
 	year1 = '1',
 	year2 = '2',
@@ -48,10 +49,14 @@ export enum yearLevelEnum {
 	year8 = '8',
 	year9 = '9',
 	year10 = '10',
-	year10A = '10A'
+	year10A = '10A',
+	year11 = '11',
+	year12 = '12',
+	year13 = '13'
 }
 
 export const yearLevelEnumPg = pgEnum('year_level', [
+	yearLevelEnum.none,
 	yearLevelEnum.foundation,
 	yearLevelEnum.year1,
 	yearLevelEnum.year2,
@@ -63,7 +68,10 @@ export const yearLevelEnumPg = pgEnum('year_level', [
 	yearLevelEnum.year8,
 	yearLevelEnum.year9,
 	yearLevelEnum.year10,
-	yearLevelEnum.year10A
+	yearLevelEnum.year10A,
+	yearLevelEnum.year11,
+	yearLevelEnum.year12,
+	yearLevelEnum.year13
 ]);
 
 export const learningAreaStandard = pgTable('lrn_a_std', {

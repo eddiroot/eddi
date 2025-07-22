@@ -553,6 +553,7 @@ async function seed() {
 				type: userTypeEnum.systemAdmin,
 				gender: userGenderEnum.unspecified,
 				honorific: userHonorificEnum.mr,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'System',
 				lastName: 'Admin'
 			})
@@ -567,6 +568,7 @@ async function seed() {
 				type: userTypeEnum.schoolAdmin,
 				gender: userGenderEnum.female,
 				honorific: userHonorificEnum.ms,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'School',
 				lastName: 'Admin'
 			})
@@ -581,6 +583,7 @@ async function seed() {
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.student,
 				gender: userGenderEnum.female,
+				yearLevel: yearLevelEnum.year9,
 				firstName: 'Student',
 				lastName: 'One',
 				dateOfBirth: new Date('2009-03-15')
@@ -595,6 +598,7 @@ async function seed() {
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.student,
 				gender: userGenderEnum.male,
+				yearLevel: yearLevelEnum.year9,
 				firstName: 'Student',
 				lastName: 'Two',
 				dateOfBirth: new Date('2009-07-22')
@@ -609,6 +613,7 @@ async function seed() {
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.student,
 				gender: userGenderEnum.male,
+				yearLevel: yearLevelEnum.year9,
 				firstName: 'Student',
 				lastName: 'Three',
 				dateOfBirth: new Date('2009-11-08')
@@ -625,6 +630,7 @@ async function seed() {
 				type: userTypeEnum.guardian,
 				gender: userGenderEnum.female,
 				honorific: userHonorificEnum.mrs,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'Mother',
 				lastName: 'One',
 				dateOfBirth: new Date('1985-05-12')
@@ -640,6 +646,7 @@ async function seed() {
 				type: userTypeEnum.guardian,
 				gender: userGenderEnum.male,
 				honorific: userHonorificEnum.mr,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'Father',
 				lastName: 'One',
 				dateOfBirth: new Date('1983-09-08')
@@ -655,6 +662,7 @@ async function seed() {
 				type: userTypeEnum.guardian,
 				gender: userGenderEnum.female,
 				honorific: userHonorificEnum.ms,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'Mother',
 				lastName: 'Two',
 				dateOfBirth: new Date('1987-02-20')
@@ -670,6 +678,7 @@ async function seed() {
 				type: userTypeEnum.guardian,
 				gender: userGenderEnum.male,
 				honorific: userHonorificEnum.mr,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'Father',
 				lastName: 'Two',
 				dateOfBirth: new Date('1984-11-15')
@@ -685,6 +694,7 @@ async function seed() {
 				type: userTypeEnum.guardian,
 				gender: userGenderEnum.female,
 				honorific: userHonorificEnum.mrs,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'Mother',
 				lastName: 'Three',
 				dateOfBirth: new Date('1986-08-03')
@@ -700,6 +710,7 @@ async function seed() {
 				type: userTypeEnum.guardian,
 				gender: userGenderEnum.male,
 				honorific: userHonorificEnum.mr,
+				yearLevel: yearLevelEnum.none,
 				firstName: 'Father',
 				lastName: 'Three',
 				dateOfBirth: new Date('1985-12-18')
@@ -751,6 +762,7 @@ async function seed() {
 					type: userTypeEnum.teacher,
 					gender: userGenderEnum.unspecified,
 					honorific: userHonorificEnum.mr,
+					yearLevel: yearLevelEnum.none,
 					firstName: teacher.firstName,
 					lastName: teacher.lastName
 				})
@@ -774,6 +786,7 @@ async function seed() {
 			father3.id,
 			...teacherIds
 		];
+
 		await db.insert(schema.userCampus).values(
 			allUserIds.map((userId) => ({
 				userId,

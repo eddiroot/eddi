@@ -16,6 +16,7 @@
 	<TableHeader>
 		<TableRow>
 			<TableHead>Student Name</TableHead>
+			<TableHead>Year Level</TableHead>
 		</TableRow>
 	</TableHeader>
 	<TableBody>
@@ -23,6 +24,9 @@
 			<TableRow>
 				<TableCell>
 					{convertToFullName(student.firstName, student.middleName, student.lastName)}
+				</TableCell>
+				<TableCell>
+					{student.yearLevel}
 				</TableCell>
 			</TableRow>
 		{/each}

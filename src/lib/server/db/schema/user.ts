@@ -1,6 +1,7 @@
 import { pgTable, text, integer, timestamp, boolean, pgEnum, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { school } from './schools';
+import { yearLevelEnumPg } from './curriculum';
 
 export enum userTypeEnum {
 	student = 'student',
@@ -63,6 +64,7 @@ export const user = pgTable('user', {
 	gender: userGenderEnumPg(),
 	dateOfBirth: timestamp('date_of_birth', { withTimezone: true, mode: 'date' }),
 	honorific: userHonorificEnumPg(),
+	yearLevel: yearLevelEnumPg().notNull(),
 	firstName: text('first_name').notNull(),
 	middleName: text('middle_name'),
 	lastName: text('last_name').notNull(),

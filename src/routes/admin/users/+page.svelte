@@ -76,6 +76,12 @@
 				const type = getValue() as string;
 				return renderComponent(TypeBadge, { type });
 			}
+		},
+		{
+			accessorKey: 'yearLevel',
+			header: 'Year Level',
+			filterFn: 'includesString',
+			size: 100
 		}
 	];
 
