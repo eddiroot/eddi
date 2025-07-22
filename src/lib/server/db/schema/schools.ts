@@ -94,13 +94,13 @@ export const schoolSpace = pgTable(
 export type SchoolSpace = typeof schoolSpace.$inferSelect;
 
 export const schoolTimetable = pgTable(
-	'school_timetable',
+	'sch_tt',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		schoolId: integer('school_id')
+		schoolId: integer('sch_id')
 			.notNull()
 			.references(() => school.id, { onDelete: 'cascade' }),
-		schoolYear: integer('school_year').notNull(),
+		schoolYear: integer('sch_year').notNull(),
 		name: text('name').notNull(),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
@@ -110,9 +110,9 @@ export const schoolTimetable = pgTable(
 
 export type SchoolTimetable = typeof schoolTimetable.$inferSelect;
 
-export const schoolTimetableDay = pgTable('school_timetable_day', {
+export const schoolTimetableDay = pgTable('sch_tt_day', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableId: integer('timetable_id')
+	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
 	day: integer('day').notNull(), // numbers align with $lib/utils
@@ -121,9 +121,9 @@ export const schoolTimetableDay = pgTable('school_timetable_day', {
 
 export type SchoolTimetableDay = typeof schoolTimetableDay.$inferSelect;
 
-export const schoolTimetablePeriod = pgTable('school_timetable_period', {
+export const schoolTimetablePeriod = pgTable('sch_tt_period', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableId: integer('timetable_id')
+	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
 	startTime: text('start_time').notNull(),
@@ -133,9 +133,9 @@ export const schoolTimetablePeriod = pgTable('school_timetable_period', {
 
 export type SchoolTimetablePeriod = typeof schoolTimetablePeriod.$inferSelect;
 
-export const schoolTimetableStudentGroup = pgTable('school_timetable_student_group', {
+export const schoolTimetableStudentGroup = pgTable('sch_tt_student_group', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableId: integer('timetable_id')
+	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
 	yearLevel: yearLevelEnumPg().notNull(),

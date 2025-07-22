@@ -69,8 +69,9 @@ export const user = pgTable('user', {
 	middleName: text('middle_name'),
 	lastName: text('last_name').notNull(),
 	avatarUrl: text('avatar_url'),
-	isArchived: boolean('is_archived').notNull().default(false),
+	verificationCode: text('verification_code'),
 	emailVerified: boolean('email_verified').notNull().default(false),
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 

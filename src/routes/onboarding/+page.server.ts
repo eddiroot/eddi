@@ -5,7 +5,6 @@ import {
 	checkUserExistence
 } from '$lib/server/db/service';
 import { userTypeEnum } from '$lib/server/db/schema/user.js';
-import { hash } from '@node-rs/argon2';
 import { superValidate, fail, setError } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
@@ -47,13 +46,11 @@ export const actions = {
 			);
 		}
 
-		const passwordHash = await hash(form.data.password);
-
 		const school = await createSchool(form.data.schoolName);
 
-		const user = await createUser({
+		const { user, verificationCode } = await createUser({
 			email: form.data.email,
-			passwordHash,
+			password: form.data.password,
 			schoolId: school.id,
 			type: userTypeEnum.schoolAdmin,
 			yearLevel: yearLevelEnum.none,
@@ -62,18 +59,9 @@ export const actions = {
 			middleName: form.data.middleName
 		});
 
-		const code = await sendEmailVerification(user.email);
+		await sendEmailVerification(user.email, verificationCode);
 
-		// Set a short-lived session cookie for email verification
 		cookies.set('verify_user_id', user.id, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			secure: process.env.NODE_ENV === 'production',
-			maxAge: 10 * 60 // 10 minutes
-		});
-		// Set a short-lived session cookie for the verification code
-		cookies.set('verify_code', code, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',

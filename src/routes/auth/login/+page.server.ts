@@ -35,6 +35,14 @@ export const actions = {
 			return fail(400, { message: 'Incorrect email or password' });
 		}
 
+		if (existingUser.isArchived) {
+			return fail(400, { message: 'This account has been archived. Please contact support.' });
+		}
+
+		if (!existingUser.emailVerified) {
+			return fail(400, { message: 'Please verify your email before logging in.' });
+		}
+
 		const validPassword = await verify(existingUser.passwordHash, password);
 		if (!validPassword) {
 			return fail(400, { message: 'Incorrect email or password' });

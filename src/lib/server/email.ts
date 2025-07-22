@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer';
-import crypto from 'crypto';
 import { env } from '$env/dynamic/private';
 
 if (!env.EMAIL_HOST) throw new Error('EMAIL_HOST is not set');
@@ -34,20 +33,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailParams) {
 	});
 }
 
-function generateVerificationCode(): string {
-	const array = new Uint32Array(1);
-	if (typeof window === 'undefined') {
-		const { randomInt } = crypto;
-		return String(randomInt(100000, 1000000));
-	} else {
-		window.crypto.getRandomValues(array);
-		return String((array[0] % 900000) + 100000);
-	}
-}
-
-export async function sendEmailVerification(to: string): Promise<string> {
-	const code = generateVerificationCode();
-
+export async function sendEmailVerification(to: string, code: string): Promise<string> {
 	await transporter.sendMail({
 		from: '"eddi" <no-reply@eddi.com>',
 		to,

@@ -1,52 +1,29 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { db } from '$lib/server/db'; // Adjust import as needed
-import { eq } from 'drizzle-orm';
-import { user as userTable, session as sessionTable } from '$lib/server/db/schema/user';
-import { randomUUID } from 'crypto';
 import { sendEmailVerification } from '$lib/server/email';
+import { getUserById, setUserVerified, updateUserVerificationCode } from '$lib/server/db/service';
+import { randomInt } from 'crypto';
 
 export const actions = {
 	verify: async ({ request, cookies }) => {
 		const form = await request.formData();
 		const code = form.get('code');
 		const userId = cookies.get('verify_user_id');
-		const expectedCode = cookies.get('verify_code');
 
-		if (typeof code !== 'string' || !userId || !expectedCode) {
+		if (typeof code !== 'string' || !userId) {
 			return fail(400, { error: 'Invalid form submission.' });
 		}
 
-		if (code !== expectedCode) {
+		const user = await getUserById(userId);
+		if (!user) {
+			return fail(400, { error: 'Something went wrong..' });
+		}
+
+		if (code !== user.verificationCode) {
 			return fail(400, { error: 'Invalid verification code.' });
 		}
 
-		const [user] = await db.select().from(userTable).where(eq(userTable.id, userId));
-		if (!user) {
-			return fail(400, { error: 'User not found.' });
-		}
-
-		await db.update(userTable).set({ emailVerified: true }).where(eq(userTable.id, user.id));
-
-		const sessionId = randomUUID();
-		const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
-		await db.insert(sessionTable).values({
-			id: sessionId,
-			userId: user.id,
-			expiresAt
-		});
-
-		cookies.set('session', sessionId, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			secure: process.env.NODE_ENV === 'production',
-			expires: expiresAt
-		});
-
-		cookies.delete('verify_user_id', { path: '/' });
-		cookies.delete('verify_code', { path: '/' });
-
-		throw redirect(303, '/dashboard');
+		await setUserVerified(user.id);
+		throw redirect(303, '/auth/login');
 	},
 	resend: async ({ cookies }) => {
 		const userId = cookies.get('verify_user_id');
@@ -54,18 +31,15 @@ export const actions = {
 			return fail(400, { error: 'No user session found.' });
 		}
 
-		const [user] = await db.select().from(userTable).where(eq(userTable.id, userId));
+		const user = await getUserById(userId);
 		if (!user) {
-			return fail(400, { error: 'User not found.' });
+			return fail(400, { error: 'Something went wrong.' });
 		}
-		const code = await sendEmailVerification(user.email);
-		cookies.set('verify_code', code, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			secure: process.env.NODE_ENV === 'production',
-			maxAge: 10 * 60 // 10 minutes
-		});
+
+		const code = String(randomInt(100000, 1000000));
+		await updateUserVerificationCode(user.id, code);
+		await sendEmailVerification(user.email, code);
+
 		return { success: true };
 	}
 };
