@@ -5,29 +5,26 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import { superForm } from 'sveltekit-superforms';
+	import { enhance } from '$app/forms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { days, formatTime } from '$lib/utils.js';
-	import { updateDaysSchema, addPeriodSchema, deletePeriodSchema } from './schema.js';
+	import { updateDaysSchema, addPeriodSchema } from './schema.js';
 
 	let { data } = $props();
+
+	let updateDaysFormElement: HTMLFormElement;
 
 	const updateDaysForm = superForm(data.updateDaysForm, {
 		validators: zod4(updateDaysSchema),
 		resetForm: false
 	});
 	const { form: updateDaysData, enhance: updateDaysEnhance } = updateDaysForm;
-	let updateDaysFormElement: HTMLFormElement;
 
 	const addPeriodForm = superForm(data.addPeriodForm, {
 		validators: zod4(addPeriodSchema),
 		resetForm: true
 	});
-	const { form: addPeriodData, enhance: addPeriodEnhance, errors: addPeriodErrors } = addPeriodForm;
-
-	const deletePeriodForm = superForm(data.deletePeriodForm, {
-		validators: zod4(deletePeriodSchema)
-	});
-	const { enhance: deletePeriodEnhance } = deletePeriodForm;
+	const { form: addPeriodData, enhance: addPeriodEnhance } = addPeriodForm;
 </script>
 
 <div class="space-y-8">
@@ -78,46 +75,36 @@
 
 	<div class="space-y-4">
 		<h2 class="text-2xl leading-tight font-bold">Periods</h2>
-		<form method="POST" action="?/updatePeriods" class="space-y-4" use:addPeriodEnhance>
-			<div class="flex flex-row gap-2">
-				<Form.Field form={addPeriodForm} name="startTime">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Input
-								{...props}
-								type="time"
-								class="w-32"
-								placeholder="Start time"
-								bind:value={$addPeriodData.startTime}
-							/>
-						{/snippet}
-					</Form.Control>
-				</Form.Field>
-				<Form.Field form={addPeriodForm} name="endTime">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Input
-								{...props}
-								type="time"
-								class="w-32"
-								placeholder="End time"
-								bind:value={$addPeriodData.endTime}
-							/>
-						{/snippet}
-					</Form.Control>
-				</Form.Field>
-				<Button type="submit"><PlusIcon />Add</Button>
-			</div>
-
-			<!-- Display validation errors -->
-			<div class="space-y-1">
-				{#if $addPeriodErrors.startTime}
-					<div class="text-destructive text-sm">{$addPeriodErrors.startTime}</div>
-				{/if}
-				{#if $addPeriodErrors.endTime}
-					<div class="text-destructive text-sm">{$addPeriodErrors.endTime}</div>
-				{/if}
-			</div>
+		<form method="POST" action="?/updatePeriods" class="flex flex-row gap-2" use:addPeriodEnhance>
+			<Form.Field form={addPeriodForm} name="startTime">
+				<Form.Control>
+					{#snippet children({ props })}
+						<Input
+							{...props}
+							type="time"
+							class="w-32"
+							placeholder="Start time"
+							bind:value={$addPeriodData.startTime}
+						/>
+					{/snippet}
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+			<Form.Field form={addPeriodForm} name="endTime">
+				<Form.Control>
+					{#snippet children({ props })}
+						<Input
+							{...props}
+							type="time"
+							class="w-32"
+							placeholder="End time"
+							bind:value={$addPeriodData.endTime}
+						/>
+					{/snippet}
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+			<Button type="submit"><PlusIcon />Add</Button>
 		</form>
 
 		{#if data.periods.length === 0}
@@ -126,21 +113,16 @@
 			<ol class="space-y-2">
 				{#each data.periods as period}
 					<li
-						class="border-border bg-card hover:border-primary hover:bg-primary/5 flex min-h-10 w-full items-center justify-between rounded-lg border-2 px-4 py-3 transition-colors"
+						class="border-border bg-card flex min-h-10 w-full items-center justify-between rounded-lg border-2 px-4 py-3 transition-colors"
 					>
 						<span class="font-semibold">
 							{formatTime(period.startTime)} - {formatTime(period.endTime)}
 						</span>
 						{#if data.periods.length > 1}
-							<form method="POST" action="?/deletePeriod" use:deletePeriodEnhance class="ml-2">
+							<form method="POST" action="?/deletePeriod" use:enhance class="ml-2">
 								<input type="hidden" name="periodId" value={period.id} />
-								<Button
-									type="submit"
-									variant="ghost"
-									size="sm"
-									class="text-destructive hover:text-destructive"
-								>
-									<TrashIcon class="h-4 w-4" />
+								<Button type="submit" variant="destructive" size="icon">
+									<TrashIcon />
 								</Button>
 							</form>
 						{/if}

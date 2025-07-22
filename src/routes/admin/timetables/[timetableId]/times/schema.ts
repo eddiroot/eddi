@@ -23,10 +23,5 @@ export const addPeriodSchema = z
 		}
 	);
 
-export const deletePeriodSchema = z.object({
-	periodId: z.int().positive('Invalid period ID')
-});
-
 export type UpdateDaysSchema = typeof updateDaysSchema;
 export type AddPeriodSchema = typeof addPeriodSchema;
-export type DeletePeriodSchema = typeof deletePeriodSchema;
