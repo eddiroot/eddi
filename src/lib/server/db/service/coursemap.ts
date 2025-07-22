@@ -736,7 +736,7 @@ export async function addResourceToCourseMapItem(courseMapItemId: number, resour
 export async function removeResourceFromCourseMapItem(courseMapItemId: number, resourceId: number) {
 	const [relationship] = await db
 		.update(table.courseMapItemResource)
-		.set({ isArchived: false })
+		.set({ isArchived: true })
 		.where(
 			and(
 				eq(table.courseMapItemResource.courseMapItemId, courseMapItemId),
