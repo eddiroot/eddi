@@ -4,7 +4,7 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { schoolFormSchema, type SchoolFormSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm, fileProxy } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 
 	// If we want to add a file preview in future, refer to the on:input section
 	// of this documentation: https://superforms.rocks/concepts/files#returning-files-in-form-actions
@@ -19,7 +19,7 @@
 	} = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(schoolFormSchema),
+		validators: zod4(schoolFormSchema),
 		resetForm: false
 	});
 

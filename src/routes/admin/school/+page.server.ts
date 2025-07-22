@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { superValidate, fail, withFiles } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { schoolFormSchema } from './schema';
 import { getSchoolById, updateSchool } from '$lib/server/db/service';
 import { uploadBufferHelper, deleteFile, generateUniqueFileName } from '$lib/server/obj';
@@ -15,9 +15,9 @@ export const load = async ({ locals: { security } }) => {
 
 	const form = await superValidate(
 		{
-			name: school?.name || '',
+			name: school?.name || ''
 		},
-		zod(schoolFormSchema)
+		zod4(schoolFormSchema)
 	);
 
 	return { form, school };
@@ -28,7 +28,7 @@ export const actions = {
 		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod(schoolFormSchema));
+		const form = await superValidate(formData, zod4(schoolFormSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

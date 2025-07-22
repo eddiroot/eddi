@@ -1,6 +1,6 @@
 import { getSpacesBySchoolId, getBuildingsBySchoolId } from '$lib/server/db/service';
 import { superValidate, withFiles, fail } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
 import { schoolSpace, schoolSpaceTypeEnum } from '$lib/server/db/schema';
@@ -9,7 +9,7 @@ import { optionalColumns, requiredColumns, locationsImportSchema } from './schem
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const spaces = await getSpacesBySchoolId(user.schoolId);
-	const form = await superValidate(zod(locationsImportSchema));
+	const form = await superValidate(zod4(locationsImportSchema));
 	return { spaces, form };
 };
 
@@ -18,7 +18,7 @@ export const actions = {
 		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod(locationsImportSchema));
+		const form = await superValidate(formData, zod4(locationsImportSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

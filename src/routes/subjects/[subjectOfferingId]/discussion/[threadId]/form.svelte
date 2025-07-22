@@ -5,7 +5,7 @@
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { formSchema, type FormSchema } from './schema.js';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import CheckCircle from '@lucide/svelte/icons/check-circle';
 	import { getResponseTypeDescription } from './utils.js';
@@ -29,7 +29,7 @@
 	} = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(formSchema),
+		validators: zod4(formSchema),
 		resetForm: true,
 		onUpdated: ({ form }) => {
 			if (form.valid && isReply && onSuccess) {

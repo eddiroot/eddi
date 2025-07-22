@@ -1,6 +1,7 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq, and, asc, count } from 'drizzle-orm';
+import { days } from '$lib/utils';
 
 export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const users = await db
@@ -380,8 +381,7 @@ export async function updateSpace(
 	return space;
 }
 
-export async function deleteSpace(spaceId: number) {
-	// Soft delete by setting isArchived to true
+export async function archiveSpace(spaceId: number) {
 	const [space] = await db
 		.update(table.schoolSpace)
 		.set({ isArchived: true })
@@ -389,4 +389,128 @@ export async function deleteSpace(spaceId: number) {
 		.returning();
 
 	return space;
+}
+
+export async function getSchoolTimetablesBySchoolId(
+	schoolId: number,
+	includeArchived: boolean = false
+) {
+	const timetables = await db
+		.select()
+		.from(table.schoolTimetable)
+		.where(
+			includeArchived
+				? eq(table.schoolTimetable.schoolId, schoolId)
+				: and(
+						eq(table.schoolTimetable.schoolId, schoolId),
+						eq(table.schoolTimetable.isArchived, false)
+					)
+		)
+		.orderBy(asc(table.schoolTimetable.name));
+
+	return timetables;
+}
+
+export async function createSchoolTimetable(data: {
+	schoolId: number;
+	name: string;
+	schoolYear: number;
+}) {
+	const [timetable] = await db
+		.insert(table.schoolTimetable)
+		.values({
+			schoolId: data.schoolId,
+			name: data.name,
+			schoolYear: data.schoolYear,
+			isArchived: false
+		})
+		.returning();
+
+	await db.insert(table.schoolTimetableDay).values(
+		days.map((day) => ({
+			timetableId: timetable.id,
+			day: day.number
+		}))
+	);
+
+	await db.insert(table.schoolTimetablePeriod).values({
+		timetableId: timetable.id,
+		startTime: '08:30',
+		endTime: '09:30'
+	});
+
+	return timetable;
+}
+
+export async function getTimetableDays(timetableId: number) {
+	const days = await db
+		.select()
+		.from(table.schoolTimetableDay)
+		.where(eq(table.schoolTimetableDay.timetableId, timetableId))
+		.orderBy(asc(table.schoolTimetableDay.day));
+
+	return days;
+}
+
+export async function getTimetablePeriods(timetableId: number) {
+	const periods = await db
+		.select()
+		.from(table.schoolTimetablePeriod)
+		.where(eq(table.schoolTimetablePeriod.timetableId, timetableId))
+		.orderBy(asc(table.schoolTimetablePeriod.startTime));
+
+	return periods;
+}
+
+export async function updateTimetableDays(timetableId: number, days: number[]) {
+	if (days.length === 0) {
+		throw new Error('At least one day must be selected');
+	}
+
+	for (const day of days) {
+		if (typeof day !== 'number' || day < 1 || day > 7) {
+			throw new Error(`Invalid day: ${day}. Days must be between 1 and 7.`);
+		}
+	}
+
+	await db
+		.delete(table.schoolTimetableDay)
+		.where(eq(table.schoolTimetableDay.timetableId, timetableId));
+
+	// Insert new days
+	if (days.length > 0) {
+		await db.insert(table.schoolTimetableDay).values(
+			days.map((day) => ({
+				timetableId,
+				day
+			}))
+		);
+	}
+
+	return await getTimetableDays(timetableId);
+}
+
+export async function addTimetablePeriod(timetableId: number, startTime: string, endTime: string) {
+	const [period] = await db
+		.insert(table.schoolTimetablePeriod)
+		.values({
+			timetableId,
+			startTime,
+			endTime
+		})
+		.returning();
+
+	return period;
+}
+
+export async function deleteTimetablePeriod(periodId: number, timetableId: number) {
+	// Check if this is the last period
+	const periods = await getTimetablePeriods(timetableId);
+	if (periods.length <= 1) {
+		throw new Error('At least one period must exist');
+	}
+
+	await db.delete(table.schoolTimetablePeriod).where(eq(table.schoolTimetablePeriod.id, periodId));
+
+	return await getTimetablePeriods(timetableId);
 }

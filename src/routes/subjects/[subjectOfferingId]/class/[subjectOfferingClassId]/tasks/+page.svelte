@@ -12,8 +12,8 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { z } from 'zod';
+	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { z } from 'zod/v4';
 	import { invalidateAll } from '$app/navigation';
 
 	let { data } = $props();
@@ -28,7 +28,7 @@
 	});
 
 	const form = superForm(data.form!, {
-		validators: zodClient(uploadSchema),
+		validators: zod4(uploadSchema),
 		onUpdated: async ({ form }) => {
 			if (form.valid) {
 				showUploadDialog = false;
@@ -104,7 +104,7 @@
 		<h1 class="text-3xl font-bold">Tasks</h1>
 		{#if data?.user?.type !== 'student'}
 			<div class="flex items-center gap-2">
-				<Button onclick={() => showUploadDialog = true} variant="outline">
+				<Button onclick={() => (showUploadDialog = true)} variant="outline">
 					<UploadIcon class="h-4 w-4" />
 					Upload Resource
 				</Button>
@@ -148,14 +148,14 @@
 
 					<!-- Resources -->
 					{#each resources as resource}
-						<Card.Root class="h-full flex flex-col transition-shadow hover:shadow-md">
+						<Card.Root class="flex h-full flex-col transition-shadow hover:shadow-md">
 							<Card.Header class="flex-1 truncate">
 								<div class="flex items-center justify-between">
 									<Card.Title class="flex items-center gap-2">
 										<FileIcon class="h-4 w-4" />
 										{#if resource.downloadUrl}
 											<a href={resource.downloadUrl} target="_blank" class="hover:underline">
-												{resource.title }
+												{resource.title}
 											</a>
 										{:else}
 											{resource.title}
@@ -167,11 +167,7 @@
 												<DownloadIcon class="h-4 w-4" />
 											</Button>
 										{/if}
-										<Button 
-											size="sm" 
-											variant="ghost" 
-											onclick={() => deleteResource(resource.id)}
-										>
+										<Button size="sm" variant="ghost" onclick={() => deleteResource(resource.id)}>
 											<TrashIcon class="h-4 w-4" />
 										</Button>
 									</div>
@@ -183,7 +179,7 @@
 								{/if}
 							</Card.Header>
 							<Card.Content class="mt-auto">
-								<div class="text-sm text-muted-foreground">
+								<div class="text-muted-foreground text-sm">
 									{formatFileSize(resource.fileSize)}
 								</div>
 							</Card.Content>
@@ -203,24 +199,30 @@
 					Upload a file to share with your class. Select a topic to organise the resource.
 				</Dialog.Description>
 			</Dialog.Header>
-			<form method="post" action="?/upload" use:enhance enctype="multipart/form-data" class="space-y-4">
+			<form
+				method="post"
+				action="?/upload"
+				use:enhance
+				enctype="multipart/form-data"
+				class="space-y-4"
+			>
 				<div class="space-y-2">
 					<label for="file-input" class="text-sm font-medium">Select File</label>
 					<button
 						type="button"
-						class="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center hover:border-muted-foreground/50 transition-colors cursor-pointer w-full"
+						class="border-muted-foreground/25 hover:border-muted-foreground/50 w-full cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition-colors"
 						onclick={() => fileInput?.click()}
 					>
 						{#if selectedFile}
 							<div class="space-y-1">
-								<FileIcon class="mx-auto h-8 w-8 text-muted-foreground" />
+								<FileIcon class="text-muted-foreground mx-auto h-8 w-8" />
 								<div class="text-sm font-medium">{selectedFile.name}</div>
-								<div class="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</div>
+								<div class="text-muted-foreground text-xs">{formatFileSize(selectedFile.size)}</div>
 							</div>
 						{:else}
 							<div class="space-y-1">
-								<UploadIcon class="mx-auto h-8 w-8 text-muted-foreground" />
-								<div class="text-sm text-muted-foreground">Click to select a file</div>
+								<UploadIcon class="text-muted-foreground mx-auto h-8 w-8" />
+								<div class="text-muted-foreground text-sm">Click to select a file</div>
 							</div>
 						{/if}
 					</button>
@@ -233,35 +235,37 @@
 						onchange={handleFileSelect}
 						required
 					/>
-				</div>			<div class="space-y-2">
-				<label for="topic-select" class="text-sm font-medium">Topic</label>
-				<Select.Root
-					type="single"
-					value={selectedTopic}
-					onValueChange={(value: string | undefined) => {
-						selectedTopic = value;
-						if (value) {
-							$formData.topicId = parseInt(value);
-						}
-					}}
-				>
-					<Select.Trigger class="w-full">
-						{#if selectedTopic}
-							{data.topics?.find(t => t.id === parseInt(selectedTopic!))?.name || 'Select a topic'}
-						{:else}
-							Select a topic
-						{/if}
-					</Select.Trigger>
-					<Select.Content>
-						{#each data.topics || [] as topic}
-							<Select.Item value={topic.id.toString()} label={topic.name}>
-								{topic.name}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-				<input type="hidden" name="topicId" value={$formData.topicId} />
-			</div>
+				</div>
+				<div class="space-y-2">
+					<label for="topic-select" class="text-sm font-medium">Topic</label>
+					<Select.Root
+						type="single"
+						value={selectedTopic}
+						onValueChange={(value: string | undefined) => {
+							selectedTopic = value;
+							if (value) {
+								$formData.topicId = parseInt(value);
+							}
+						}}
+					>
+						<Select.Trigger class="w-full">
+							{#if selectedTopic}
+								{data.topics?.find((t) => t.id === parseInt(selectedTopic!))?.name ||
+									'Select a topic'}
+							{:else}
+								Select a topic
+							{/if}
+						</Select.Trigger>
+						<Select.Content>
+							{#each data.topics || [] as topic}
+								<Select.Item value={topic.id.toString()} label={topic.name}>
+									{topic.name}
+								</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+					<input type="hidden" name="topicId" value={$formData.topicId} />
+				</div>
 
 				<div class="space-y-2">
 					<label for="title" class="text-sm font-medium">Title (optional)</label>
@@ -271,19 +275,19 @@
 						placeholder="Resource title"
 						bind:value={$formData.title}
 					/>
-				</div>			
-			<div class="space-y-2">
-				<label for="description" class="text-sm font-medium">Description (optional)</label>
-				<Textarea
-					id="description"
-					name="description"
-					placeholder="Resource description"
-					bind:value={$formData.description}
-				/>
-			</div>
+				</div>
+				<div class="space-y-2">
+					<label for="description" class="text-sm font-medium">Description (optional)</label>
+					<Textarea
+						id="description"
+						name="description"
+						placeholder="Resource description"
+						bind:value={$formData.description}
+					/>
+				</div>
 
 				<div class="flex justify-end space-x-2">
-					<Button type="button" variant="outline" onclick={() => showUploadDialog = false}>
+					<Button type="button" variant="outline" onclick={() => (showUploadDialog = false)}>
 						Cancel
 					</Button>
 					<Button type="submit" disabled={$submitting || !selectedFile || !selectedTopic}>

@@ -5,12 +5,12 @@
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { formSchema, type FormSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 
 	let { data }: { data: { form: SuperValidated<Infer<FormSchema>> } } = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(formSchema)
+		validators: zod4(formSchema)
 	});
 
 	const { form: formData, enhance } = form;

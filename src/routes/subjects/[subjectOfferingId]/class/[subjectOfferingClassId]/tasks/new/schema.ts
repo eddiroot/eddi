@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const MAX_MB_COUNT = 5;
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB_COUNT;
@@ -39,19 +39,15 @@ export const filesSchema = z
 
 export const formSchema = z
 	.object({
-		title: z.string({ required_error: 'Please enter a title' }).min(1, 'Title cannot be empty'),
-		description: z
-			.string({ required_error: 'Please enter a description' })
-			.max(500, 'Description cannot exceed 500 characters'),
+		title: z.string().min(1, 'Title cannot be empty'),
+		description: z.string().max(500, 'Description cannot exceed 500 characters'),
 		taskTopicId: z.number().optional(),
 		newTopicName: z.string().min(1, 'New topic name cannot be empty').optional(),
 		type: z.enum(['lesson', 'homework', 'assessment']).default('lesson'),
 		dueDate: z.date().optional(),
 		week: z.number().optional(),
 		files: filesSchema.optional(),
-		creationMethod: z.enum(['manual', 'ai'], {
-			required_error: 'Please select a creation method'
-		}),
+		creationMethod: z.enum(['manual', 'ai']),
 		selectedLearningAreaContentIds: z.array(z.number()).optional(),
 		aiTutorEnabled: z.boolean().default(true)
 	})

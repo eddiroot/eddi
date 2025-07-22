@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { markAbsentSchema } from './schema.js';
 import { getGuardiansChildrensScheduleWithAttendanceByUserId } from '$lib/server/db/service';
 import {
@@ -73,7 +73,7 @@ export const load = async ({ locals: { security } }) => {
 
 	// Group by user ID
 	const recordsByUserId = groupRecordsByUserId(combinedData);
-	const form = await superValidate(zod(markAbsentSchema));
+	const form = await superValidate(zod4(markAbsentSchema));
 
 	return {
 		user,
@@ -86,7 +86,7 @@ export const actions = {
 	markAbsence: async ({ request, locals: { security } }) => {
 		security.isAuthenticated().isGuardian();
 
-		const form = await superValidate(request, zod(markAbsentSchema));
+		const form = await superValidate(request, zod4(markAbsentSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

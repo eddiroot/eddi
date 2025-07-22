@@ -3,12 +3,12 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Checkbox} from '$lib/components/ui/checkbox';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 	import * as HoverCard from '$lib/components/ui/hover-card';
 	import { toast } from 'svelte-sonner';
-	import * as Select from '$lib/components/ui/select'
-	import * as Tooltip from '$lib/components/ui/tooltip'
+	import * as Select from '$lib/components/ui/select';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import Plus from '@lucide/svelte/icons/plus';
 	import type { CourseMapItem, LearningArea, LearningAreaStandard } from '$lib/server/db/schema';
 
@@ -94,19 +94,25 @@
 		isLoadingDrawerData = true;
 		try {
 			// Load assessment plans
-			const assessmentResponse = await fetch(`/api/coursemap?action=assessment-plans&courseMapItemId=${courseMapItemId}`);
+			const assessmentResponse = await fetch(
+				`/api/coursemap?action=assessment-plans&courseMapItemId=${courseMapItemId}`
+			);
 			if (assessmentResponse.ok) {
 				assessmentPlans = await assessmentResponse.json();
 			}
 
 			// Load lesson plans
-			const lessonResponse = await fetch(`/api/coursemap?action=lesson-plans&courseMapItemId=${courseMapItemId}`);
+			const lessonResponse = await fetch(
+				`/api/coursemap?action=lesson-plans&courseMapItemId=${courseMapItemId}`
+			);
 			if (lessonResponse.ok) {
 				lessonPlans = await lessonResponse.json();
 			}
 
 			// Load tasks
-			const tasksResponse = await fetch(`/api/coursemap?action=tasks&courseMapItemId=${courseMapItemId}`);
+			const tasksResponse = await fetch(
+				`/api/coursemap?action=tasks&courseMapItemId=${courseMapItemId}`
+			);
 			if (tasksResponse.ok) {
 				tasks = await tasksResponse.json();
 			}
@@ -247,7 +253,10 @@
 				formData.append('description', editForm.description);
 				formData.append('startWeek', editForm.startWeek.toString());
 				formData.append('duration', editForm.duration.toString());
-				formData.append('learningAreaIds', JSON.stringify(selectedLearningAreaIds.map(id => Number(id))));
+				formData.append(
+					'learningAreaIds',
+					JSON.stringify(selectedLearningAreaIds.map((id) => Number(id)))
+				);
 				formData.append('learningAreaIds', JSON.stringify(selectedLearningAreaIds));
 				formData.append('semester', (createSemester || 1).toString());
 
@@ -334,9 +343,11 @@
 
 <Tooltip.Provider>
 	<Drawer bind:open onClose={handleClose} direction="right">
-		<DrawerContent class="max-h-[100vh] !max-w-[800px] rounded-l-lg overflow-hidden flex flex-col bg-background">
+		<DrawerContent
+			class="bg-background flex max-h-[100vh] !max-w-[800px] flex-col overflow-hidden rounded-l-lg"
+		>
 			<!-- Header -->
-			<div class="flex items-center justify-between p-6 pb-2 shrink-0 border-b border-border">
+			<div class="border-border flex shrink-0 items-center justify-between border-b p-6 pb-2">
 				<h2 class="text-3xl font-bold">
 					{#if isCreateMode}
 						Create Task
@@ -362,7 +373,7 @@
 
 			<!-- Metadata Section -->
 			{#if isEditMode || isCreateMode}
-				<div class="p-6 pt-4 pb-4 shrink-0 border-b border-border">
+				<div class="border-border shrink-0 border-b p-6 pt-4 pb-4">
 					<div class="grid grid-cols-12 gap-4">
 						<!-- Topic -->
 						<div class="col-span-6">
@@ -400,7 +411,7 @@
 						</div>
 
 						<!-- Color Picker -->
-						<div class="col-span-2 relative color-picker-container">
+						<div class="color-picker-container relative col-span-2">
 							<Label class="text-sm font-medium">Color</Label>
 							<div class="relative mt-2">
 								<button
@@ -412,13 +423,15 @@
 								>
 									<div class="flex items-center gap-2">
 										<div
-											class="h-4 w-4 rounded-full border border-border"
+											class="border-border h-4 w-4 rounded-full border"
 											style="background-color: {editForm.color}"
 										></div>
 										<span class="truncate">{getColorName(editForm.color)}</span>
 									</div>
 									<svg
-										class="text-muted-foreground h-4 w-4 shrink-0 transition-transform {showColorPicker ? 'rotate-180' : ''}"
+										class="text-muted-foreground h-4 w-4 shrink-0 transition-transform {showColorPicker
+											? 'rotate-180'
+											: ''}"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -433,14 +446,15 @@
 								</button>
 								{#if showColorPicker}
 									<div
-										class="absolute top-full left-0 right-0 z-[60] mt-1 bg-background border border-border rounded-md shadow-lg p-3 min-w-max"
+										class="bg-background border-border absolute top-full right-0 left-0 z-[60] mt-1 min-w-max rounded-md border p-3 shadow-lg"
 									>
 										<div class="grid grid-cols-2 gap-2">
 											{#each colorOptions as color}
 												<button
 													type="button"
-													class="h-8 w-full rounded border-2 transition-all hover:scale-105 {editForm.color === color.value
-														? 'border-foreground ring-2 ring-ring ring-offset-2'
+													class="h-8 w-full rounded border-2 transition-all hover:scale-105 {editForm.color ===
+													color.value
+														? 'border-foreground ring-ring ring-2 ring-offset-2'
 														: 'border-border hover:border-foreground'} {color.class}"
 													onclick={() => {
 														editForm.color = color.value;
@@ -486,14 +500,15 @@
 					<!-- Learning Areas Section -->
 					{#if availableLearningAreas.length > 0}
 						<div>
-							<h3 class="text-xl font-bold mb-4">Learning Areas</h3>
-							
+							<h3 class="mb-4 text-xl font-bold">Learning Areas</h3>
+
 							{#if isEditMode || isCreateMode}
 								<!-- Edit Mode: Multi-select dropdown using Select UI -->
 								<Select.Root
 									type="multiple"
 									bind:value={selectedLearningAreaIds}
-									name="learningAreaIds">
+									name="learningAreaIds"
+								>
 									<Select.Trigger class="w-full">
 										{#if selectedLearningAreaIds.length > 0}
 											{selectedLearningAreaIds.length} selected
@@ -505,19 +520,19 @@
 										{#each availableLearningAreas as learningArea}
 											<Select.Item value={learningArea.id.toString()}>
 												<div class="flex items-center">
-													<span class="flex-1 text-sm truncate">{learningArea.name}</span>
+													<span class="flex-1 truncate text-sm">{learningArea.name}</span>
 													{#if learningArea.description}
 														<HoverCard.Root>
-														<HoverCard.Trigger
-															type="button"
-															aria-label="Show description"
-															class="focus:outline-none ml-2"
-														>
-															
-														</HoverCard.Trigger>
-														<HoverCard.Content class="max-w-xs p-3 rounded-lg shadow-lg border z-50 text-xs leading-relaxed">
-															{learningArea.description}
-														</HoverCard.Content>
+															<HoverCard.Trigger
+																type="button"
+																aria-label="Show description"
+																class="ml-2 focus:outline-none"
+															></HoverCard.Trigger>
+															<HoverCard.Content
+																class="z-50 max-w-xs rounded-lg border p-3 text-xs leading-relaxed shadow-lg"
+															>
+																{learningArea.description}
+															</HoverCard.Content>
 														</HoverCard.Root>
 													{/if}
 												</div>
@@ -531,17 +546,17 @@
 									<div class="space-y-4">
 										{#each courseMapItemLearningAreas as learningArea}
 											{@const contents = learningAreaContent[learningArea.id] || []}
-											
+
 											<div>
 												<!-- Learning Area name as header -->
-												<h4 class="text-lg font-semibold mb-2">{learningArea.name}</h4>
-												
+												<h4 class="mb-2 text-lg font-semibold">{learningArea.name}</h4>
+
 												<!-- Standards as dot points -->
 												{#if contents.length > 0}
-													<ul class="space-y-1 ml-4">
+													<ul class="ml-4 space-y-1">
 														{#each contents as content}
-															<li class="text-sm flex items-start">
-																<span class="mr-2 mt-1">•</span>
+															<li class="flex items-start text-sm">
+																<span class="mt-1 mr-2">•</span>
 																<div>
 																	<span class="font-medium">{content.name}</span>
 																	{#if content.description}
@@ -552,7 +567,7 @@
 														{/each}
 													</ul>
 												{:else}
-													<p class="text-sm text-gray-500 italic ml-4">No standards available</p>
+													<p class="ml-4 text-sm text-gray-500 italic">No standards available</p>
 												{/if}
 											</div>
 										{/each}
@@ -567,7 +582,7 @@
 			</div>
 
 			<!-- Bottom Action Bar -->
-			<div class="sticky bottom-0 border-t border-border bg-background shrink-0">
+			<div class="border-border bg-background sticky bottom-0 shrink-0 border-t">
 				{#if isEditMode && !isCreateMode}
 					<div class="flex gap-2 p-4">
 						<Button variant="outline" class="flex-1" onclick={handleCancel}>Cancel</Button>

@@ -4,7 +4,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { convertToFullName } from '$lib/utils';
 	import { superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { attendanceSchema } from './schema.js';
 	import StudentAttendanceListItem from './components/StudentAttendanceListItem.svelte';
 
@@ -14,7 +14,7 @@
 	let searchTerm = $state('');
 
 	const form = superForm(data.form!, {
-		validators: zodClient(attendanceSchema)
+		validators: zod4(attendanceSchema)
 	});
 	const { enhance } = form;
 

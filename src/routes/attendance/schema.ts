@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const markAbsentSchema = z.object({
 	studentId: z.string().min(1, 'Student ID is required'),

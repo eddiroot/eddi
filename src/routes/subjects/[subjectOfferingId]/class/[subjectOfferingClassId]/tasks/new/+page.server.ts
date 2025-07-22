@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
 import { taskComponentSchema, taskCreationPrompts } from '$lib/server/taskSchema';
@@ -33,7 +33,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 	}
 
 	const [form, taskTopics, learningAreaWithContents] = await Promise.all([
-		superValidate(zod(formSchema)),
+		superValidate(zod4(formSchema)),
 		getTopics(subjectOfferingIdInt),
 		getCurriculumLearningAreaWithStandards(subjectOfferingIdInt)
 	]);
@@ -46,7 +46,7 @@ async function createBlocksFromSchema(taskSchema: string, taskId: number) {
 	try {
 		// Parse the JSON schema
 		const parsedSchema = JSON.parse(taskSchema);
-		
+
 		// Extract task components from schema
 		const taskComponents = parsedSchema?.task || [];
 
@@ -66,7 +66,9 @@ async function createBlocksFromSchema(taskSchema: string, taskId: number) {
 		}
 	} catch (error) {
 		console.error('Error parsing or processing task schema:', error);
-		throw new Error(`Failed to process task schema: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		throw new Error(
+			`Failed to process task schema: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
 	}
 }
 
@@ -112,7 +114,12 @@ async function createBlockFromComponent(component: any, taskId: number) {
 			const options = content?.options || [];
 			const multiple = content?.multiple || false;
 			const answer = component.answer || [];
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, { question, options, answer, multiple});
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, {
+				question,
+				options,
+				answer,
+				multiple
+			});
 			break;
 		}
 
@@ -135,14 +142,20 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'fill_in_blank': {
 			const sentence = content?.sentence || '';
 			const answer = component.answer || [];
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, { sentence, answer });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, {
+				sentence,
+				answer
+			});
 			break;
 		}
 
 		case 'matching': {
 			const instructions = content?.instructions || '';
 			const pairs = content?.pairs || [];
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.matching, { instructions, pairs });
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.matching, {
+				instructions,
+				pairs
+			});
 			break;
 		}
 		case 'short_answer': {
@@ -171,7 +184,7 @@ async function processAnswersAndCriteria(component: any, taskBlockId: number) {
 			for (const answerData of component.answers) {
 				const answer = answerData.answer || answerData;
 				const marks = answerData.marks || answerData.mark || undefined;
-				
+
 				await createAnswer(taskBlockId, answer, marks);
 			}
 		} else if (component.answer !== undefined) {
@@ -185,7 +198,7 @@ async function processAnswersAndCriteria(component: any, taskBlockId: number) {
 			for (const criteriaData of component.criteria) {
 				const description = criteriaData.description || criteriaData.criterion || criteriaData;
 				const marks = criteriaData.marks || criteriaData.mark || 1; // Default to 1 mark if not specified
-				
+
 				if (typeof description === 'string' && description.trim()) {
 					await createCriteria(taskBlockId, description.trim(), marks);
 				}
@@ -197,13 +210,12 @@ async function processAnswersAndCriteria(component: any, taskBlockId: number) {
 			for (const criteriaData of component.marking_criteria) {
 				const description = criteriaData.description || criteriaData.criterion || criteriaData;
 				const marks = criteriaData.marks || criteriaData.mark || 1;
-				
+
 				if (typeof description === 'string' && description.trim()) {
 					await createCriteria(taskBlockId, description.trim(), marks);
 				}
 			}
 		}
-
 	} catch (error) {
 		console.error(`Error processing answers/criteria for task block ${taskBlockId}:`, error);
 		// Don't throw - continue processing other blocks
@@ -223,8 +235,8 @@ export const actions = {
 
 			// Read the form data ONCE
 			const formData = await request.formData();
-			const form = await superValidate(formData, zod(formSchema));
-			
+			const form = await superValidate(formData, zod4(formSchema));
+
 			// Extract selected learning area content IDs
 			const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
 
@@ -312,7 +324,11 @@ export const actions = {
 
 				for (const tempFilePath of tempFilePaths) {
 					try {
-						const aiResponse = await geminiCompletion(enhancedPrompt, tempFilePath, taskComponentSchema);
+						const aiResponse = await geminiCompletion(
+							enhancedPrompt,
+							tempFilePath,
+							taskComponentSchema
+						);
 						taskSchema += aiResponse;
 					} catch (aiError) {
 						console.error(`Error processing file ${tempFilePath}:`, aiError);
@@ -375,7 +391,8 @@ export const actions = {
 			// Return error response for actual errors
 			return {
 				status: 500,
-				error: error instanceof Error ? error.message : 'Unknown error occurred during task creation'
+				error:
+					error instanceof Error ? error.message : 'Unknown error occurred during task creation'
 			};
 		}
 	}

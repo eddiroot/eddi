@@ -7,7 +7,7 @@
 	import XCircleIcon from '@lucide/svelte/icons/x-circle';
 	import { convertToFullName } from '$lib/utils';
 	import { superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { markAbsentSchema } from './schema.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
@@ -29,7 +29,7 @@
 	let showAbsenceDialog = $state(false);
 
 	const form = superForm(data.form, {
-		validators: zodClient(markAbsentSchema),
+		validators: zod4(markAbsentSchema),
 		onResult: ({ result }) => {
 			if (result.type === 'success') {
 				showAbsenceDialog = false;

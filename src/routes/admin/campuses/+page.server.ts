@@ -6,7 +6,7 @@ import {
 	unarchiveCampus
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const editCampusSchema = z.object({
 	campusId: z.coerce.number(),

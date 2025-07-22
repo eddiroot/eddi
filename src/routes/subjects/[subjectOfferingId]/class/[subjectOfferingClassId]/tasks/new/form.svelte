@@ -6,7 +6,7 @@
 	import { formSchema, type FormSchema } from './schema';
 	import { filesSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import LoaderIcon from '@lucide/svelte/icons/loader';
@@ -40,13 +40,13 @@
 	} = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(formSchema),
+		validators: zod4(formSchema),
 		onSubmit: ({ formData, cancel }) => {
 			// Check if it's AI creation method
 			const method = formData.get('creationMethod');
 			const taskType = formData.get('type');
 			console.log('Form submission:', { method, taskType });
-			
+
 			if (method === 'ai') {
 				isSubmitting = true;
 				console.log('Starting AI task generation...');
@@ -56,7 +56,7 @@
 			// Reset loading state on any result
 			isSubmitting = false;
 			console.log('Form submission result:', result);
-			
+
 			// Handle error responses from server
 			if (result.type === 'success' && result.data?.error) {
 				console.error('Server error:', result.data.error);
@@ -71,7 +71,7 @@
 		}
 	});
 
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance, constraints } = form;
 
 	// Handle topic requirements
 	$effect(() => {
@@ -155,7 +155,7 @@
 			if (validationResult.success) {
 				fileValidationErrors = [];
 			} else {
-				fileValidationErrors = validationResult.error.errors.map((err) => err.message);
+				fileValidationErrors = validationResult.error.issues.map((issue) => issue.message);
 			}
 		} else {
 			$formData.files = undefined;
@@ -221,16 +221,21 @@
 			</Tabs.List>
 		</Tabs.Root>
 	</div>
-	
+
 	<!-- Hidden form field to ensure type is included in form submission -->
 	<input type="hidden" name="type" bind:value={$formData.type} />
-	
+
 	<!-- Title and Description fields remain the same -->
 	<Form.Field {form} name="title">
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Title</Form.Label>
-				<Input {...props} bind:value={$formData.title} placeholder="Enter the task title" />
+				<Input
+					{...props}
+					bind:value={$formData.title}
+					placeholder="Enter the task title"
+					{...$constraints.title}
+				/>
 			{/snippet}
 		</Form.Control>
 		<Form.Description>Provide a clear and descriptive title for your task.</Form.Description>
@@ -327,7 +332,7 @@
 				<Form.Control>
 					{#snippet children({ props })}
 						<Form.Label>Week (optional)</Form.Label>
-						<Input {...props} type="number" min="1" max="18" bind:value={$formData.week} />
+						<Input {...props} type="number" bind:value={$formData.week} />
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />
@@ -341,7 +346,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>Due Date (optional)</Form.Label>
-							<Input {...props} type="date" bind:value={dueDateString} />
+							<Input {...props} type="date" bind:value={dueDateString} {...$constraints.dueDate} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />

@@ -7,20 +7,20 @@ import {
 import { userTypeEnum } from '$lib/server/db/schema/user.js';
 import { hash } from '@node-rs/argon2';
 import { superValidate, fail, setError } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
 import { formSchema } from './schema';
 import { sendEmailVerification } from '$lib/server/email';
 
 export const load = async () => {
 	return {
-		form: await superValidate(zod(formSchema))
+		form: await superValidate(zod4(formSchema))
 	};
 };
 
 export const actions = {
 	default: async ({ request, cookies }) => {
-		const form = await superValidate(request, zod(formSchema));
+		const form = await superValidate(request, zod4(formSchema));
 
 		if (!form.valid) {
 			return fail(400, {

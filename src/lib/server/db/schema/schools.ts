@@ -91,3 +91,43 @@ export const schoolSpace = pgTable(
 );
 
 export type SchoolSpace = typeof schoolSpace.$inferSelect;
+
+export const schoolTimetable = pgTable(
+	'school_timetable',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		schoolId: integer('school_id')
+			.notNull()
+			.references(() => school.id, { onDelete: 'cascade' }),
+		schoolYear: integer('school_year').notNull(),
+		name: text('name').notNull(),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.schoolId, self.name)]
+);
+
+export type SchoolTimetable = typeof schoolTimetable.$inferSelect;
+
+export const schoolTimetableDay = pgTable('school_timetable_day', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableId: integer('timetable_id')
+		.notNull()
+		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
+	day: integer('day').notNull(), // numbers align with $lib/utils
+	...timestamps
+});
+
+export type SchoolTimetableDay = typeof schoolTimetableDay.$inferSelect;
+
+export const schoolTimetablePeriod = pgTable('school_timetable_period', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableId: integer('timetable_id')
+		.notNull()
+		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
+	startTime: text('start_time').notNull(),
+	endTime: text('end_time').notNull(),
+	...timestamps
+});
+
+export type SchoolTimetablePeriod = typeof schoolTimetablePeriod.$inferSelect;

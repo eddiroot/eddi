@@ -6,7 +6,7 @@ import { rubric } from './task';
 import { resource } from './resource';
 
 export const courseMapItem = pgTable(
-	'cmap_itm',
+	'cm_itm',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		subjectOfferingId: integer('sub_off_id')
@@ -36,7 +36,7 @@ export const courseMapItem = pgTable(
 export type CourseMapItem = typeof courseMapItem.$inferSelect;
 
 export const courseMapItemLearningArea = pgTable(
-	'cmap_itm_la',
+	'cm_itm_la',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		courseMapItemId: integer('cm_itm_id')
@@ -169,7 +169,7 @@ export type AssessmentPlanLearningAreaStandard =
 	typeof assessmentPlanLearningAreaStandard.$inferSelect;
 
 export const courseMapItemResource = pgTable(
-	'cmap_itm_res',
+	'cm_itm_res',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		courseMapItemId: integer('cm_itm_id')

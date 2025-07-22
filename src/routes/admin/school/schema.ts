@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const schoolFormSchema = z.object({
 	name: z
-		.string({ required_error: 'Please enter a school name' })
+		.string()
 		.min(1, 'School name cannot be empty')
 		.max(255, 'School name cannot exceed 255 characters'),
 	logo: z

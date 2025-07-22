@@ -10,8 +10,8 @@ import {
 import { getPresignedUrl } from '$lib/server/obj';
 import { error, fail } from '@sveltejs/kit';
 import { superValidate, withFiles } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { z } from 'zod/v4';
 import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
 
 interface ResourceWithUrl {
@@ -136,7 +136,7 @@ export const load = async ({
 		})
 	);
 
-	const form = await superValidate(zod(uploadSchema));
+	const form = await superValidate(zod4(uploadSchema));
 
 	interface Topic {
 		id: number;
@@ -190,7 +190,7 @@ export const actions = {
 		const user = security.isAuthenticated().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod(uploadSchema));
+		const form = await superValidate(formData, zod4(uploadSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

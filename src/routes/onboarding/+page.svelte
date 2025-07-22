@@ -6,13 +6,13 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { formSchema, type FormSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import CardDescription from '$lib/components/ui/card/card-description.svelte';
 
 	let { data }: { data: { form: SuperValidated<Infer<FormSchema>> } } = $props();
 
 	const form = superForm(data.form, {
-		validators: zodClient(formSchema)
+		validators: zod4(formSchema)
 	});
 
 	const { form: formData, enhance } = form;

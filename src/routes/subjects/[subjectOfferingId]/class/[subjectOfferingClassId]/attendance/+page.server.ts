@@ -6,7 +6,7 @@ import {
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { attendanceSchema } from './schema.js';
 import { sendAbsenceEmail } from '$lib/server/email.js';
 import { convertToFullName } from '$lib/utils.js';
@@ -26,7 +26,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 			subjectOfferingClassIdInt
 		);
 
-	const form = await superValidate(zod(attendanceSchema));
+	const form = await superValidate(zod4(attendanceSchema));
 
 	return { attendances, form };
 };
@@ -36,7 +36,7 @@ export const actions = {
 		const user = security.isAuthenticated().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod(attendanceSchema));
+		const form = await superValidate(formData, zod4(attendanceSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type SuperValidated, type Infer, superForm, fileProxy } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { validateCSVFile, type CSVValidationResult } from '$lib/utils.js';
@@ -26,7 +26,7 @@
 	let csvValidationResult = $state<CSVValidationResult | null>(null);
 
 	const { form, errors, enhance, submitting } = superForm(data, {
-		validators: zodClient(subjectsImportSchema),
+		validators: zod4(subjectsImportSchema),
 		resetForm: false,
 		onResult: ({ result }) => {
 			if (result.type === 'success') {

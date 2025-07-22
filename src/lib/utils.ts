@@ -95,6 +95,13 @@ export function convertToFullName(
 	return parts.join(' ').trim();
 }
 
+export function formatTime(time: string): string {
+	const [hours, minutes] = time.split(':').map(Number);
+	const period = hours >= 12 ? 'pm' : 'am';
+	const displayHours = hours % 12 || 12;
+	return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`;
+}
+
 export function formatTimestamp(timestamp: Date): string {
 	return timestamp
 		.toLocaleDateString('en-AU', {
@@ -127,11 +134,11 @@ export function formatTimestampAsTime(timestamp: Date): string {
 }
 
 export const days = [
-	{ name: 'Monday', value: 'monday' },
-	{ name: 'Tuesday', value: 'tuesday' },
-	{ name: 'Wednesday', value: 'wednesday' },
-	{ name: 'Thursday', value: 'thursday' },
-	{ name: 'Friday', value: 'friday' }
+	{ name: 'Monday', value: 'monday', number: 1 },
+	{ name: 'Tuesday', value: 'tuesday', number: 2 },
+	{ name: 'Wednesday', value: 'wednesday', number: 3 },
+	{ name: 'Thursday', value: 'thursday', number: 4 },
+	{ name: 'Friday', value: 'friday', number: 5 }
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

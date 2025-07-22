@@ -4,7 +4,7 @@ import {
 	createSubjectThreadResponse
 } from '$lib/server/db/service';
 import { superValidate, fail } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema.js';
 import { getNestedResponses } from './utils.js';
 
@@ -21,7 +21,7 @@ export const load = async ({ locals: { security }, params: { threadId } }) => {
 	const thread = await getSubjectThreadById(threadIdInt);
 	const responses = await getSubjectThreadResponsesById(threadIdInt);
 	const nestedResponses = getNestedResponses(responses);
-	const form = await superValidate(zod(formSchema), {
+	const form = await superValidate(zod4(formSchema), {
 		defaults: {
 			type:
 				thread?.thread?.type === 'question' || thread?.thread?.type === 'qanda'
@@ -45,7 +45,7 @@ export const actions = {
 			return fail(400, { message: 'Invalid thread ID' });
 		}
 
-		const form = await superValidate(request, zod(formSchema));
+		const form = await superValidate(request, zod4(formSchema));
 		if (!form.valid) {
 			return fail(400, { form });
 		}
