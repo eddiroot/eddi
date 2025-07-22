@@ -1,62 +1,62 @@
 export const steps = {
-	'step-01-times': {
+	times: {
 		percentage: 10,
 		label: 'Times',
 		previous: null,
-		next: 'step-02-subjects'
+		next: 'subjects'
 	},
-	'step-02-subjects': {
+	subjects: {
 		percentage: 20,
 		label: 'Subjects',
-		previous: 'step-01-times',
-		next: 'step-03-teachers'
+		previous: 'times',
+		next: 'teachers'
 	},
-	'step-03-teachers': {
+	teachers: {
 		percentage: 30,
 		label: 'Teachers',
-		previous: 'step-02-subjects',
-		next: 'step-04-students'
+		previous: 'subjects',
+		next: 'students'
 	},
-	'step-04-students': {
+	students: {
 		percentage: 40,
 		label: 'Students',
-		previous: 'step-03-teachers',
-		next: 'step-05-activities'
+		previous: 'teachers',
+		next: 'buildings'
 	},
-	'step-05-activities': {
+	buildings: {
 		percentage: 50,
-		label: 'Activities',
-		previous: 'step-04-students',
-		next: 'step-06-buildings'
-	},
-	'step-06-buildings': {
-		percentage: 60,
 		label: 'Buildings',
-		previous: 'step-05-activities',
-		next: 'step-07-spaces'
+		previous: 'students',
+		next: 'spaces'
 	},
-	'step-07-spaces': {
-		percentage: 70,
+	spaces: {
+		percentage: 60,
 		label: 'Spaces',
-		previous: 'step-06-buildings',
-		next: 'step-08-rules'
+		previous: 'buildings',
+		next: 'activities'
 	},
-	'step-08-rules': {
+	activities: {
+		percentage: 70,
+		label: 'Activities',
+		previous: 'spaces',
+		next: 'rules'
+	},
+	rules: {
 		percentage: 80,
 		label: 'Rules',
-		previous: 'step-07-spaces',
-		next: 'step-09-confirm'
+		previous: 'spaces',
+		next: 'confirm'
 	},
-	'step-09-confirm': {
+	confirm: {
 		percentage: 90,
 		label: 'Confirm',
-		previous: 'step-08-rules',
-		next: 'step-10-result'
+		previous: 'rules',
+		next: 'result'
 	},
-	'step-10-result': {
+	result: {
 		percentage: 100,
 		label: 'Result',
-		previous: 'step-09-confirm',
+		previous: 'confirm',
 		next: null
 	}
 };
