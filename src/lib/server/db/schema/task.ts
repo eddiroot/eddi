@@ -111,15 +111,17 @@ export const taskBlock = pgTable('task_block', {
 export type TaskBlock = typeof taskBlock.$inferSelect;
 
 export enum taskStatusEnum {
-	draft = 'draft',
-	published = 'published',
-	completed = 'completed',
-	locked = 'locked',
-	released = 'released'
+	draft = 'draft', // Lesson/Assessment/Homework
+	inProgress = 'in_progress', // Lesson
+	completed = 'completed', // Lesson
+	published = 'published', //Assessment/Homework
+	locked = 'locked', // Assessment/Homework
+	released = 'released' // Assessment/Homework
 }
 
 export const taskStatusEnumPg = pgEnum('task_status', [
 	taskStatusEnum.draft,
+	taskStatusEnum.inProgress,
 	taskStatusEnum.published,
 	taskStatusEnum.completed,
 	taskStatusEnum.locked,
@@ -183,11 +185,11 @@ export const taskBlockResponse = pgTable('task_block_response', {
 
 export type TaskBlockResponse = typeof taskBlockResponse.$inferSelect;
 
-export const taskResponse = pgTable('task_response', {
+export const classTaskResponse = pgTable('task_response', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	taskId: integer('task_id')
+	classTaskId: integer('class_task_id')
 		.notNull()
-		.references(() => task.id, { onDelete: 'cascade' }),
+		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
 	authorId: uuid('author_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }), // Students response to the task
@@ -200,14 +202,14 @@ export const taskResponse = pgTable('task_response', {
 	...timestamps
 });
 
-export type TaskResponse = typeof taskResponse.$inferSelect;
+export type ClassTaskResponse = typeof classTaskResponse.$inferSelect;
 
 // Junction table for task response resources (one-to-many relationship)
-export const taskResponseResource = pgTable('task_response_resource', {
+export const classTaskResponseResource = pgTable('task_response_resource', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	taskResponseId: integer('task_response_id')
+	classTaskResponseId: integer('task_response_id')
 		.notNull()
-		.references(() => taskResponse.id, { onDelete: 'cascade' }),
+		.references(() => classTaskResponse.id, { onDelete: 'cascade' }),
 	resourceId: integer('resource_id')
 		.notNull()
 		.references(() => resource.id, { onDelete: 'cascade' }),
@@ -218,7 +220,7 @@ export const taskResponseResource = pgTable('task_response_resource', {
 	...timestamps
 });
 
-export type TaskResponseResource = typeof taskResponseResource.$inferSelect;
+export type ClassTaskResponseResource = typeof classTaskResponseResource.$inferSelect;
 
 export const whiteboard = pgTable('whiteboard', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -354,9 +356,9 @@ export type RubricCell = typeof rubricCell.$inferSelect;
 // Tracks which rubric cell (performance level) a student achieved for each rubric row
 export const rubricCellFeedback = pgTable('rubric_feedback', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 4000 }),
-	taskResponseId: integer('task_response_id')
+	classTaskResponseId: integer('class_task_response_id')
 		.notNull()
-		.references(() => taskResponse.id, { onDelete: 'cascade' }),
+		.references(() => classTaskResponse.id, { onDelete: 'cascade' }),
 	rubricRowId: integer('rubric_row_id')
 		.notNull()
 		.references(() => rubricRow.id, { onDelete: 'cascade' }),
