@@ -31,6 +31,7 @@
 		} as MultipleChoiceContent,
 		viewMode = ViewMode.VIEW,
 		onUpdate = () => {},
+		onPresentationAnswer = () => {},
 		// New props for response saving
 		blockId,
 		taskId,
@@ -490,7 +491,7 @@
 				</div>
 			{/if}
 		</div>
-	{:else}
+	{:else if viewMode === ViewMode.PRESENT}
 		<!-- No content placeholder -->
 		<div></div>
 	{/if}

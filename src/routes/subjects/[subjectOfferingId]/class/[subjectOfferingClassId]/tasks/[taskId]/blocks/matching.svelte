@@ -31,6 +31,7 @@
 		} as MatchingContent,
 		viewMode = ViewMode.VIEW,
 		onUpdate = () => {},
+		onPresentationAnswer = () => {},
 		// New props for response saving
 		blockId,
 		taskId,

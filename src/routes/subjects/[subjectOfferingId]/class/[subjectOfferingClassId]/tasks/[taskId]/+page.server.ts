@@ -31,7 +31,19 @@ export const load = async ({ locals: { security }, params: { taskId, subjectOffe
 
 	const blocks = await getTaskBlocksByTaskId(taskIdInt);
 
-	return { task, classTask, blocks, subjectOfferingId, subjectOfferingClassId, user };
+	// Check if there's an active presentation for this task
+	let activePresentation = null;
+	try {
+		const presentationCheckResponse = await fetch(`${process.env.ORIGIN || 'http://localhost:5173'}/api/presentations?taskId=${taskIdInt}`);
+		if (presentationCheckResponse.ok) {
+			const presentationStatus = await presentationCheckResponse.json();
+			activePresentation = presentationStatus.isActive ? presentationStatus.presentation : null;
+		}
+	} catch (error) {
+		console.error('Failed to check presentation status:', error);
+	}
+
+	return { task, classTask, blocks, subjectOfferingId, subjectOfferingClassId, user, activePresentation };
 };
 
 export const actions = {

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import { enhance } from '$app/forms';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { type TaskBlock } from '$lib/server/db/schema';
@@ -8,6 +9,9 @@
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import XIcon from '@lucide/svelte/icons/x';
 	import Maximize2Icon from '@lucide/svelte/icons/maximize-2';
+	import PlayIcon from '@lucide/svelte/icons/play';
+	import StopCircleIcon from '@lucide/svelte/icons/stop-circle';
+	import UsersIcon from '@lucide/svelte/icons/users';
 	import { ViewMode } from '$lib/utils';
 
 	// Import all block components
@@ -27,6 +31,21 @@
 	let blocks = $state(data.blocks as TaskBlock[]);
 	let currentSlide = $state(0);
 	let isFullscreen = $state(false);
+	
+	// Presentation state
+	let isPresenting = $state(data.isPresenting || false);
+	let presentationSocket = $state<WebSocket | null>(null);
+	let connectedStudents = $state<Array<{ studentId: string; studentName?: string }>>([]);
+	let studentAnswers = $state<Array<{
+		questionId: string;
+		answer: string;
+		studentId: string;
+		studentName?: string;
+		timestamp: Date;
+	}>>([]);
+	
+	// Form enhancement for starting/ending presentation
+	let isLoading = $state(false);
 
 	// Group consecutive headings into slides
 	let slides = $derived(() => {
@@ -102,6 +121,127 @@
 		}
 	}
 
+	// Presentation WebSocket functions
+	function connectToPresentation() {
+		if (!browser) return;
+		
+		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		const wsUrl = `${protocol}//${window.location.host}/api/presentations/ws`;
+		
+		presentationSocket = new WebSocket(wsUrl);
+		
+		presentationSocket.onopen = () => {
+			console.log('Connected to presentation WebSocket');
+		};
+		
+		presentationSocket.onmessage = (event) => {
+			const message = JSON.parse(event.data);
+			handlePresentationMessage(message);
+		};
+		
+		presentationSocket.onclose = () => {
+			console.log('Disconnected from presentation WebSocket');
+			presentationSocket = null;
+		};
+		
+		presentationSocket.onerror = (error) => {
+			console.error('Presentation WebSocket error:', error);
+		};
+	}
+	
+	function disconnectFromPresentation() {
+		if (presentationSocket) {
+			presentationSocket.close();
+			presentationSocket = null;
+		}
+	}
+	
+	function handlePresentationMessage(message: any) {
+		switch (message.type) {
+			case 'presentation_started':
+				console.log('Presentation started');
+				break;
+				
+			case 'student_joined':
+				const existingStudent = connectedStudents.find(s => s.studentId === message.studentId);
+				if (!existingStudent) {
+					connectedStudents.push({
+						studentId: message.studentId,
+						studentName: message.studentName
+					});
+					connectedStudents = [...connectedStudents]; // Trigger reactivity
+				}
+				break;
+				
+			case 'new_answer':
+				// Update student answers
+				const answerIndex = studentAnswers.findIndex(
+					a => a.studentId === message.studentId && a.questionId === message.questionId
+				);
+				
+				if (answerIndex >= 0) {
+					studentAnswers[answerIndex] = {
+						questionId: message.questionId,
+						answer: message.answer,
+						studentId: message.studentId,
+						studentName: message.studentName,
+						timestamp: new Date(message.timestamp)
+					};
+				} else {
+					studentAnswers.push({
+						questionId: message.questionId,
+						answer: message.answer,
+						studentId: message.studentId,
+						studentName: message.studentName,
+						timestamp: new Date(message.timestamp)
+					});
+				}
+				studentAnswers = [...studentAnswers]; // Trigger reactivity
+				break;
+				
+			case 'presentation_ended':
+				isPresenting = false;
+				connectedStudents = [];
+				studentAnswers = [];
+				disconnectFromPresentation();
+				break;
+				
+			case 'error':
+				console.error('Presentation error:', message.message);
+				break;
+		}
+	}
+	
+	function startPresentationWebSocket() {
+		if (presentationSocket) return;
+		
+		connectToPresentation();
+		
+		// Wait for connection then start presentation
+		const checkConnection = setInterval(() => {
+			if (presentationSocket?.readyState === WebSocket.OPEN) {
+				clearInterval(checkConnection);
+				presentationSocket.send(JSON.stringify({
+					type: 'start_presentation',
+					taskId: data.task.id,
+					teacherId: data.user.id,
+					teacherName: `${data.user.firstName} ${data.user.lastName}`
+				}));
+			}
+		}, 100);
+	}
+	
+	function endPresentationWebSocket() {
+		if (presentationSocket?.readyState === WebSocket.OPEN) {
+			presentationSocket.send(JSON.stringify({
+				type: 'end_presentation',
+				taskId: data.task.id,
+				teacherId: data.user.id
+			}));
+		}
+		disconnectFromPresentation();
+	}
+
 	// Fullscreen functionality
 	function toggleFullscreen() {
 		if (!browser) return;
@@ -129,12 +269,21 @@
 
 			document.addEventListener('fullscreenchange', handleFullscreenChange);
 			document.addEventListener('keydown', handleKeydown);
-
+			
+			// If already presenting, connect to WebSocket
+			if (isPresenting) {
+				startPresentationWebSocket();
+			}
+			
 			return () => {
 				document.removeEventListener('fullscreenchange', handleFullscreenChange);
 				document.removeEventListener('keydown', handleKeydown);
 			};
 		}
+	});
+	
+	onDestroy(() => {
+		disconnectFromPresentation();
 	});
 </script>
 
@@ -278,16 +427,77 @@
 	<!-- Bottom Navigation Overlay -->
 	<div class="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black to-transparent p-6">
 		<div class="flex items-center justify-between text-white">
-			<!-- Task Info -->
+			<!-- Task Info and Presentation Status -->
 			<div class="flex items-center gap-4">
 				<h1 class="text-lg font-semibold">{data.task.title}</h1>
 				<div class="text-sm opacity-80">
 					{currentSlide + 1} / {slides().length}
 				</div>
+				
+				<!-- Presentation Status -->
+				{#if isPresenting}
+					<div class="flex items-center gap-2 bg-green-600 bg-opacity-80 px-3 py-1 rounded-full">
+						<div class="h-2 w-2 bg-green-300 rounded-full animate-pulse"></div>
+						<span class="text-sm">Live</span>
+						{#if connectedStudents.length > 0}
+							<UsersIcon class="h-4 w-4" />
+							<span class="text-sm">{connectedStudents.length}</span>
+						{/if}
+					</div>
+				{/if}
 			</div>
 
 			<!-- Controls -->
 			<div class="flex items-center gap-2">
+				<!-- Presentation Controls -->
+				{#if !isPresenting}
+					<form method="POST" action="?/start_presentation" use:enhance={({ formData }) => {
+						isLoading = true;
+						return async ({ result }) => {
+							isLoading = false;
+							if (result.type === 'success') {
+								isPresenting = true;
+								startPresentationWebSocket();
+							}
+						};
+					}}>
+						<Button 
+							type="submit"
+							variant="default" 
+							size="sm" 
+							disabled={isLoading}
+							class="bg-blue-600 hover:bg-blue-700 text-white"
+						>
+							<PlayIcon class="h-4 w-4 mr-2" />
+							Start Presentation
+						</Button>
+					</form>
+				{:else}
+					<form method="POST" action="?/end_presentation" use:enhance={({ formData }) => {
+						isLoading = true;
+						return async ({ result }) => {
+							isLoading = false;
+							if (result.type === 'success') {
+								isPresenting = false;
+								endPresentationWebSocket();
+								connectedStudents = [];
+								studentAnswers = [];
+							}
+						};
+					}}>
+						<Button 
+							type="submit"
+							variant="destructive" 
+							size="sm" 
+							disabled={isLoading}
+							class="bg-red-600 hover:bg-red-700 text-white"
+						>
+							<StopCircleIcon class="h-4 w-4 mr-2" />
+							End Presentation
+						</Button>
+					</form>
+				{/if}
+				
 				<!-- Slide Dots -->
 				<div class="mr-4 flex items-center gap-1">
 					{#each slides() as _, index}

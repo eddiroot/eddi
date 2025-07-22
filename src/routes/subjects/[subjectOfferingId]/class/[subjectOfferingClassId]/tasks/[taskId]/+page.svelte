@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
@@ -14,6 +15,8 @@
 	import TwoColumnLayout from './blocks/two-column-layout.svelte';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import EditIcon from '@lucide/svelte/icons/edit';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
+	import UsersIcon from '@lucide/svelte/icons/users';
 	import ShortAnswer from './blocks/short-answer.svelte';
 	import { type TaskBlock } from '$lib/server/db/schema';
 	import { ViewMode } from '$lib/utils';
@@ -56,6 +59,14 @@
 			? ViewMode.VIEW
 			: ViewMode.EDIT
 	);
+
+	// Presentation state for students
+	let isInPresentation = $state(false);
+	let presentationSocket = $state<WebSocket | null>(null);
+	let presentationStatus = $state<{
+		isActive: boolean;
+		teacherId?: string;
+	}>({ isActive: false });
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -229,6 +240,106 @@
 			blocks = blocks.filter((block) => block.id !== draggedItem.id);
 		}
 	}
+
+	// Presentation functions for students
+	function connectToPresentation() {
+		if (!browser || presentationSocket) return;
+		
+		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		const wsUrl = `${protocol}//${window.location.host}/api/presentations/ws`;
+		
+		presentationSocket = new WebSocket(wsUrl);
+		
+		presentationSocket.onopen = () => {
+			console.log('Connected to presentation WebSocket');
+			// Join the presentation
+			if (presentationSocket) {
+				presentationSocket.send(JSON.stringify({
+					type: 'join_presentation',
+					taskId: data.task.id,
+					studentId: data.user.id,
+					studentName: `${data.user.firstName} ${data.user.lastName}`
+				}));
+			}
+		};
+		
+		presentationSocket.onmessage = (event) => {
+			const message = JSON.parse(event.data);
+			handlePresentationMessage(message);
+		};
+		
+		presentationSocket.onclose = () => {
+			console.log('Disconnected from presentation WebSocket');
+			presentationSocket = null;
+			isInPresentation = false;
+		};
+		
+		presentationSocket.onerror = (error) => {
+			console.error('Presentation WebSocket error:', error);
+		};
+	}
+	
+	function disconnectFromPresentation() {
+		if (presentationSocket) {
+			presentationSocket.close();
+			presentationSocket = null;
+		}
+		isInPresentation = false;
+	}
+	
+	function handlePresentationMessage(message: any) {
+		switch (message.type) {
+			case 'joined_presentation':
+				isInPresentation = true;
+				console.log('Successfully joined presentation');
+				break;
+				
+			case 'presentation_not_found':
+				console.log('Presentation not found');
+				disconnectFromPresentation();
+				break;
+				
+			case 'presentation_ended':
+				console.log('Presentation ended');
+				disconnectFromPresentation();
+				break;
+				
+			case 'presentation_started':
+				console.log('Presentation started by teacher');
+				isInPresentation = true;
+				break;
+				
+			case 'error':
+				console.error('Presentation error:', message.message);
+				break;
+		}
+	}
+	
+	function submitAnswerToPresentation(questionId: string, answer: string) {
+		if (presentationSocket?.readyState === WebSocket.OPEN) {
+			presentationSocket.send(JSON.stringify({
+				type: 'submit_answer',
+				taskId: data.task.id,
+				questionId,
+				answer,
+				studentId: data.user.id,
+				studentName: `${data.user.firstName} ${data.user.lastName}`
+			}));
+		}
+	}
+	
+	// Check for active presentation and auto-join if student
+	onMount(() => {
+		if (data.user.type === 'student' && data.activePresentation) {
+			console.log('Active presentation detected, joining...');
+			presentationStatus = { isActive: true, teacherId: data.activePresentation.teacherId };
+			connectToPresentation();
+		}
+	});
+	
+	onDestroy(() => {
+		disconnectFromPresentation();
+	});
 </script>
 
 <div
@@ -291,6 +402,20 @@
 	<!-- Task Blocks -->
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
+			<!-- Presentation Status Indicator for Students -->
+			{#if data.user.type === 'student' && isInPresentation}
+				<div class="bg-green-100 border border-green-300 rounded-lg p-3 mb-4">
+					<div class="flex items-center gap-2 text-green-800">
+						<PresentationIcon class="h-5 w-5" />
+						<span class="font-medium">Live Presentation Mode</span>
+						<div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+					</div>
+					<p class="text-sm text-green-700 mt-1">
+						You're connected to the teacher's presentation. Your answers will be shared live.
+					</p>
+				</div>
+			{/if}
+			
 			<div class={viewMode === ViewMode.EDIT ? 'ml-[38px]' : ''}>
 				<div class="flex items-center gap-3">
 					<Heading
@@ -389,6 +514,9 @@
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 									blockId={block.id}
 									{...responseProps}
+									onPresentationAnswer={isInPresentation 
+										? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+										: undefined}
 								/>
 							{:else if block.type === 'fill_in_blank'}
 								<FillInBlank
@@ -397,6 +525,9 @@
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 									blockId={block.id}
 									{...responseProps}
+									onPresentationAnswer={isInPresentation 
+										? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+										: undefined}
 								/>
 							{:else if block.type === 'matching'}
 								<Matching
@@ -405,6 +536,9 @@
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 									blockId={block.id}
 									{...responseProps}
+									onPresentationAnswer={isInPresentation 
+										? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+										: undefined}
 								/>
 							{:else if block.type === 'two_column_layout'}
 								<TwoColumnLayout
@@ -424,6 +558,9 @@
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 									blockId={block.id}
 									{...responseProps}
+									onPresentationAnswer={isInPresentation 
+										? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
+										: undefined}
 								/>
 							{:else}
 								<p>Content for {block.type} block.</p>
