@@ -365,8 +365,14 @@ export const actions = {
 				`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${task.id}`
 			);
 		} catch (error) {
+			// If it's a redirect, re-throw it so it can work properly
+			if (error && typeof error === 'object' && 'status' in error && error.status === 303) {
+				throw error;
+			}
+			
 			console.error('Task creation error:', error);
-			// Return error response instead of throwing
+			
+			// Return error response for actual errors
 			return {
 				status: 500,
 				error: error instanceof Error ? error.message : 'Unknown error occurred during task creation'
