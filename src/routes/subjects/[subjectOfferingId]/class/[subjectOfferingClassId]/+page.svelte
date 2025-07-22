@@ -7,19 +7,19 @@ let { data } = $props();
 
 const sortedAssessments = $derived(data.assessments 
 	? [...data.assessments].sort((a, b) => 
-		new Date(a.task.createdAt).getTime() - new Date(b.task.createdAt).getTime()
+		new Date(b.task.createdAt).getTime() - new Date(a.task.createdAt).getTime()
 	) 
 	: []);
 
 const sortedTasks = $derived(data.tasks 
 	? [...data.tasks].sort((a, b) => 
-		new Date(a.task.createdAt).getTime() - new Date(b.task.createdAt).getTime()
+		new Date(b.task.createdAt).getTime() - new Date(a.task.createdAt).getTime()
 	) 
 	: []);
 
 const sortedResources = $derived(data.resources 
 	? [...data.resources].sort((a, b) => 
-		new Date(a.resource.createdAt).getTime() - new Date(b.resource.createdAt).getTime()
+		new Date(b.resource.createdAt).getTime() - new Date(a.resource.createdAt).getTime()
 	) 
 	: []);
 
