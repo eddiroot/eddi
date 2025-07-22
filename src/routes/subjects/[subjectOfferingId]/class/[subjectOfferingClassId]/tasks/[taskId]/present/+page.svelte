@@ -94,25 +94,68 @@
 
 	// Navigation functions
 	function nextSlide() {
+		// Only allow navigation for teachers or when not in student presentation mode
+		if (isStudent && isInPresentation) return;
+		
 		if (currentSlide < slides().length - 1) {
 			currentSlide++;
+			// Send slide change to students if this is a teacher
+			if (!isStudent && presentationSocket?.readyState === WebSocket.OPEN) {
+				sendSlideChange(currentSlide);
+			}
 		}
 	}
 
 	function prevSlide() {
+		// Only allow navigation for teachers or when not in student presentation mode
+		if (isStudent && isInPresentation) return;
+		
 		if (currentSlide > 0) {
 			currentSlide--;
+			// Send slide change to students if this is a teacher
+			if (!isStudent && presentationSocket?.readyState === WebSocket.OPEN) {
+				sendSlideChange(currentSlide);
+			}
 		}
 	}
 
 	function goToSlide(index: number) {
+		// Only allow navigation for teachers or when not in student presentation mode
+		if (isStudent && isInPresentation) return;
+		
 		if (index >= 0 && index < slides().length) {
 			currentSlide = index;
+			// Send slide change to students if this is a teacher
+			if (!isStudent && presentationSocket?.readyState === WebSocket.OPEN) {
+				sendSlideChange(currentSlide);
+			}
+		}
+	}
+	
+	// Send slide change notification to students
+	function sendSlideChange(slideIndex: number) {
+		if (presentationSocket?.readyState === WebSocket.OPEN) {
+			presentationSocket.send(JSON.stringify({
+				type: 'slide_changed',
+				taskId: data.task.id,
+				slideIndex,
+				teacherId: data.user.id
+			}));
 		}
 	}
 
 	// Keyboard navigation
 	function handleKeydown(event: KeyboardEvent) {
+		// Disable keyboard navigation for students in presentation mode
+		if (isStudent && isInPresentation) {
+			// Only allow escape to exit fullscreen
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				exitFullscreen();
+			}
+			return;
+		}
+		
 		switch (event.key) {
 			case 'ArrowRight':
 			case ' ':
@@ -230,19 +273,26 @@
 							studentId: message.studentId,
 							studentName: message.studentName,
 							timestamp: new Date(message.timestamp)
-						});
-					}
-					studentAnswers = [...studentAnswers]; // Trigger reactivity
-				}
-				break;
-				
-			case 'presentation_ended':
-				isPresenting = false;
-				isInPresentation = false;
-				connectedStudents = [];
-				studentAnswers = [];
-				disconnectFromPresentation();
-				break;
+						});				}
+				studentAnswers = [...studentAnswers]; // Trigger reactivity
+			}
+			break;
+			
+		case 'slide_changed':
+			// Only handle this for students
+			if (isStudent && isInPresentation) {
+				console.log('Teacher changed slide to:', message.slideIndex);
+				currentSlide = message.slideIndex;
+			}
+			break;
+			
+		case 'presentation_ended':
+			isPresenting = false;
+			isInPresentation = false;
+			connectedStudents = [];
+			studentAnswers = [];
+			disconnectFromPresentation();
+			break;
 				
 			case 'error':
 				console.error('Presentation error:', message.message);
@@ -368,48 +418,27 @@
 </svelte:head>
 
 <div class="relative h-screen bg-gray-900 text-white">
+	<!-- Small Connection Status in Top-Left Corner (Students Only) -->
+	{#if isStudent}
+		<div class="absolute top-4 left-4 z-10">
+			{#if isInPresentation}
+				<div class="bg-green-500 text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm font-medium shadow-md">
+					<div class="h-2 w-2 bg-green-200 rounded-full animate-pulse"></div>
+					Connected
+				</div>
+			{:else if data.isPresenting}
+				<div class="bg-yellow-500 text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm font-medium shadow-md">
+					<div class="h-2 w-2 bg-yellow-200 rounded-full animate-pulse"></div>
+					Connecting...
+				</div>
+			{/if}
+		</div>
+	{/if}
+
 	<div class="h-full">
 		{#if slides().length > 0}
 			<Card.Root class="h-full rounded-none bg-white">
 				<Card.Content class="h-full p-8">
-					<!-- Presentation Status Indicator for Students -->
-					{#if isStudent}
-						<div class="mb-4">
-							{#if isInPresentation}
-								<div class="bg-green-100 border border-green-300 rounded-lg p-3">
-									<div class="flex items-center gap-2 text-green-800">
-										<PresentationIcon class="h-5 w-5" />
-										<span class="font-medium">Live Presentation Mode</span>
-										<div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-									</div>
-									<p class="text-sm text-green-700 mt-1">
-										You're connected to the teacher's presentation. Your answers will be shared live.
-									</p>
-								</div>
-							{:else if data.isPresenting}
-								<div class="bg-yellow-100 border border-yellow-300 rounded-lg p-3">
-									<div class="flex items-center gap-2 text-yellow-800">
-										<PresentationIcon class="h-5 w-5" />
-										<span class="font-medium">Connecting to Presentation...</span>
-									</div>
-									<p class="text-sm text-yellow-700 mt-1">
-										Joining the teacher's presentation...
-									</p>
-								</div>
-							{:else}
-								<div class="bg-gray-100 border border-gray-300 rounded-lg p-3">
-									<div class="flex items-center gap-2 text-gray-800">
-										<PresentationIcon class="h-5 w-5" />
-										<span class="font-medium">No Active Presentation</span>
-									</div>
-									<p class="text-sm text-gray-700 mt-1">
-										There is no active presentation for this task.
-									</p>
-								</div>
-							{/if}
-						</div>
-					{/if}
-					
 					{@const currentSlideBlocks = slides()[currentSlide]}
 
 					<!-- Title slide (first slide) -->
@@ -540,7 +569,7 @@
 	</div>
 
 	<!-- Left Navigation Arrow -->
-	{#if currentSlide > 0}
+	{#if currentSlide > 0 && !(isStudent && isInPresentation)}
 		<button
 			class="bg-opacity-50 hover:bg-opacity-70 absolute top-1/2 left-4 -translate-y-1/2 transform rounded-full bg-black p-3 text-white transition-all duration-200"
 			onclick={prevSlide}
@@ -550,7 +579,7 @@
 	{/if}
 
 	<!-- Right Navigation Arrow -->
-	{#if currentSlide < slides().length - 1}
+	{#if currentSlide < slides().length - 1 && !(isStudent && isInPresentation)}
 		<button
 			class="bg-opacity-50 hover:bg-opacity-70 absolute top-1/2 right-4 -translate-y-1/2 transform rounded-full bg-black p-3 text-white transition-all duration-200"
 			onclick={nextSlide}
@@ -570,7 +599,7 @@
 				</div>
 				
 				<!-- Presentation Status -->
-				{#if isPresenting}
+				{#if isPresenting && !isStudent}
 					<div class="flex items-center gap-2 bg-green-600 bg-opacity-80 px-3 py-1 rounded-full">
 						<div class="h-2 w-2 bg-green-300 rounded-full animate-pulse"></div>
 						<span class="text-sm">Live</span>
@@ -579,73 +608,82 @@
 							<span class="text-sm">{connectedStudents.length}</span>
 						{/if}
 					</div>
+				{:else if isStudent && isInPresentation}
+					<div class="flex items-center gap-2 bg-blue-600 bg-opacity-80 px-3 py-1 rounded-full">
+						<div class="h-2 w-2 bg-blue-300 rounded-full animate-pulse"></div>
+						<span class="text-sm">Following Teacher</span>
+					</div>
 				{/if}
 			</div>
 
 			<!-- Controls -->
 			<div class="flex items-center gap-2">
-				<!-- Presentation Controls -->
-				{#if !isPresenting}
-					<form method="POST" action="?/start_presentation" use:enhance={({ formData }) => {
-						isLoading = true;
-						return async ({ result }) => {
-							isLoading = false;
-							if (result.type === 'success') {
-								isPresenting = true;
-								startPresentationWebSocket();
-							}
-						};
-					}}>
-						<Button 
-							type="submit"
-							variant="default" 
-							size="sm" 
-							disabled={isLoading}
-							class="bg-blue-600 hover:bg-blue-700 text-white"
-						>
-							<PlayIcon class="h-4 w-4 mr-2" />
-							Start Presentation
-						</Button>
-					</form>
-				{:else}
-					<form method="POST" action="?/end_presentation" use:enhance={({ formData }) => {
-						isLoading = true;
-						return async ({ result }) => {
-							isLoading = false;
-							if (result.type === 'success') {
-								isPresenting = false;
-								endPresentationWebSocket();
-								connectedStudents = [];
-								studentAnswers = [];
-							}
-						};
-					}}>
-						<Button 
-							type="submit"
-							variant="destructive" 
-							size="sm" 
-							disabled={isLoading}
-							class="bg-red-600 hover:bg-red-700 text-white"
-						>
-							<StopCircleIcon class="h-4 w-4 mr-2" />
-							End Presentation
-						</Button>
-					</form>
+				<!-- Presentation Controls (Teachers Only) -->
+				{#if !isStudent}
+					{#if !isPresenting}
+						<form method="POST" action="?/start_presentation" use:enhance={({ formData }) => {
+							isLoading = true;
+							return async ({ result }) => {
+								isLoading = false;
+								if (result.type === 'success') {
+									isPresenting = true;
+									startPresentationWebSocket();
+								}
+							};
+						}}>
+							<Button 
+								type="submit"
+								variant="default" 
+								size="sm" 
+								disabled={isLoading}
+								class="bg-blue-600 hover:bg-blue-700 text-white"
+							>
+								<PlayIcon class="h-4 w-4 mr-2" />
+								Start Presentation
+							</Button>
+						</form>
+					{:else}
+						<form method="POST" action="?/end_presentation" use:enhance={({ formData }) => {
+							isLoading = true;
+							return async ({ result }) => {
+								isLoading = false;
+								if (result.type === 'success') {
+									isPresenting = false;
+									endPresentationWebSocket();
+									connectedStudents = [];
+									studentAnswers = [];
+								}
+							};
+						}}>
+							<Button 
+								type="submit"
+								variant="destructive" 
+								size="sm" 
+								disabled={isLoading}
+								class="bg-red-600 hover:bg-red-700 text-white"
+							>
+								<StopCircleIcon class="h-4 w-4 mr-2" />
+								End Presentation
+							</Button>
+						</form>
+					{/if}
 				{/if}
 				
-				<!-- Slide Dots -->
-				<div class="mr-4 flex items-center gap-1">
-					{#each slides() as _, index}
-						<button
-							class="h-2 w-2 rounded-full transition-colors {index === currentSlide
-								? 'bg-white'
-								: 'bg-opacity-40 hover:bg-opacity-60 bg-white'}"
-							onclick={() => goToSlide(index)}
-							title="Go to slide {index + 1}"
-							aria-label="Go to slide {index + 1}"
-						></button>
-					{/each}
-				</div>
+				<!-- Slide Dots (Teachers only during presentation or everyone when not presenting) -->
+				{#if !(isStudent && isInPresentation)}
+					<div class="mr-4 flex items-center gap-1">
+						{#each slides() as _, index}
+							<button
+								class="h-2 w-2 rounded-full transition-colors {index === currentSlide
+									? 'bg-white'
+									: 'bg-opacity-40 hover:bg-opacity-60 bg-white'}"
+								onclick={() => goToSlide(index)}
+								title="Go to slide {index + 1}"
+								aria-label="Go to slide {index + 1}"
+							></button>
+						{/each}
+					</div>
+				{/if}
 
 				<!-- Fullscreen toggle -->
 				<Button

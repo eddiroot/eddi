@@ -1,5 +1,4 @@
-import type { Socket } from './$types.js';
-
+import type { Socket, Peer } from './$types.js';
 // In-memory storage for active presentations and student answers
 const activePresentations = new Map<string, {
 	taskId: string;
@@ -15,7 +14,7 @@ const activePresentations = new Map<string, {
 }>();
 
 // Store peer connections with their presentation context
-const peerPresentations = new Map<any, {
+const peerPresentations = new Map<Peer, {
 	presentationKey?: string;
 	role?: 'teacher' | 'student';
 	userId?: string;
@@ -53,6 +52,10 @@ export const socket: Socket = {
 				await handleClearQuestionAnswers(peer, parsedMessage);
 				break;
 
+			case 'slide_changed':
+				await handleSlideChanged(peer, parsedMessage);
+				break;
+
 			default:
 				peer.send(JSON.stringify({
 					type: 'error',
@@ -86,7 +89,7 @@ export const socket: Socket = {
 	}
 };
 
-async function handleStartPresentation(peer: any, data: { taskId: string; teacherId: string; teacherName?: string }) {
+async function handleStartPresentation(peer: Peer, data: { taskId: string; teacherId: string; teacherName?: string }) {
 	const { taskId, teacherId, teacherName } = data;
 	const presentationKey = `presentation_${taskId}`;
 	
@@ -127,7 +130,7 @@ async function handleStartPresentation(peer: any, data: { taskId: string; teache
 	console.log(`Presentation started for task ${taskId} by teacher ${teacherId}`);
 }
 
-async function handleJoinPresentation(peer: any, data: { taskId: string; studentId: string; studentName?: string }) {
+async function handleJoinPresentation(peer: Peer, data: { taskId: string; studentId: string; studentName?: string }) {
 	const { taskId, studentId, studentName } = data;
 	const presentationKey = `presentation_${taskId}`;
 	
@@ -176,7 +179,7 @@ async function handleJoinPresentation(peer: any, data: { taskId: string; student
 	console.log(`Student ${studentId} joined presentation for task ${taskId}`);
 }
 
-async function handleSubmitAnswer(peer: any, data: { 
+async function handleSubmitAnswer(peer: Peer, data: { 
 	taskId: string; 
 	questionId: string; 
 	answer: string; 
@@ -222,7 +225,7 @@ async function handleSubmitAnswer(peer: any, data: {
 	console.log(`Answer submitted by ${studentId} for question ${questionId} in task ${taskId}`);
 }
 
-async function handleEndPresentation(peer: any, data: { taskId: string; teacherId: string }) {
+async function handleEndPresentation(peer: Peer, data: { taskId: string; teacherId: string }) {
 	const { taskId, teacherId } = data;
 	const presentationKey = `presentation_${taskId}`;
 	
@@ -247,7 +250,7 @@ async function handleEndPresentation(peer: any, data: { taskId: string; teacherI
 	console.log(`Presentation ended for task ${taskId} by teacher ${teacherId}`);
 }
 
-async function handleClearQuestionAnswers(peer: any, data: { taskId: string; questionId: string; teacherId: string }) {
+async function handleClearQuestionAnswers(peer: Peer, data: { taskId: string; questionId: string; teacherId: string }) {
 	const { taskId, questionId, teacherId } = data;
 	const presentationKey = `presentation_${taskId}`;
 	
@@ -274,6 +277,39 @@ async function handleClearQuestionAnswers(peer: any, data: { taskId: string; que
 	}));
 	
 	console.log(`Answers cleared for question ${questionId} in task ${taskId}`);
+}
+
+async function handleSlideChanged(peer: Peer, data: { taskId: string; slideIndex: number; teacherId: string }) {
+	const { taskId, slideIndex, teacherId } = data;
+	const presentationKey = `presentation_${taskId}`;
+	
+	// Verify that the presentation exists and this is the teacher
+	const presentation = activePresentations.get(presentationKey);
+	if (!presentation || presentation.teacherId !== teacherId) {
+		peer.send(JSON.stringify({
+			type: 'error',
+			message: 'Unauthorized or presentation not found'
+		}));
+		return;
+	}
+	
+	// Update peer data to indicate this is the teacher
+	const peerData = peerPresentations.get(peer);
+	if (peerData) {
+		peerData.presentationKey = presentationKey;
+		peerData.role = 'teacher';
+		peerData.userId = teacherId;
+	}
+	
+	// Broadcast slide change to all students in the presentation
+	peer.publish(`presentation-${presentationKey}`, JSON.stringify({
+		type: 'slide_changed',
+		taskId,
+		slideIndex,
+		teacherId
+	}));
+	
+	console.log(`Teacher ${teacherId} changed slide to ${slideIndex} in task ${taskId}`);
 }
 
 // Export function to check if presentation is active (for the API endpoint)
