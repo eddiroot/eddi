@@ -33,18 +33,18 @@ export const steps = {
 		percentage: 60,
 		label: 'Buildings',
 		previous: 'step-05-activities',
-		next: 'step-07-rooms'
+		next: 'step-07-spaces'
 	},
-	'step-07-rooms': {
+	'step-07-spaces': {
 		percentage: 70,
-		label: 'Rooms',
+		label: 'Spaces',
 		previous: 'step-06-buildings',
 		next: 'step-08-rules'
 	},
 	'step-08-rules': {
 		percentage: 80,
 		label: 'Rules',
-		previous: 'step-07-rooms',
+		previous: 'step-07-spaces',
 		next: 'step-09-confirm'
 	},
 	'step-09-confirm': {

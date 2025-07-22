@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	let periodsExample = $state([
 		{ startTime: '8:40am', endTime: '9:30am' },
@@ -129,7 +130,7 @@
 		<form method="POST" action="?/updatePeriods" class="flex flex-row gap-2">
 			<Input name="startTime" type="time" class="w-32" />
 			<Input name="endTime" type="time" class="w-32" />
-			<Button type="submit">Add</Button>
+			<Button type="submit"><PlusIcon />Add</Button>
 		</form>
 		<ol class="space-y-2">
 			{#each periodsExample as period}

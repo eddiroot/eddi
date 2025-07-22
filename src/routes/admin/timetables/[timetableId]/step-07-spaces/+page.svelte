@@ -14,14 +14,14 @@
 <Table>
 	<TableHeader>
 		<TableRow>
-			<TableHead>Building Name</TableHead>
+			<TableHead>Space Name</TableHead>
 		</TableRow>
 	</TableHeader>
 	<TableBody>
-		{#each data.buildings as building}
+		{#each data.spaces as space}
 			<TableRow>
 				<TableCell>
-					{building.name}
+					{space.name}
 				</TableCell>
 			</TableRow>
 		{/each}
