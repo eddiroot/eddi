@@ -113,10 +113,10 @@ export async function getSchoolStatsById(schoolId: number) {
 		.limit(1);
 
 	return {
-		totalStudents: totalStudents[0].count || 0,
-		totalTeachers: totalTeachers[0].count || 0,
-		totalAdmins: totalAdmins[0].count || 0,
-		totalSubjects: totalSubjects[0].count || 0
+		totalStudents: totalStudents[0]?.count || 0,
+		totalTeachers: totalTeachers[0]?.count || 0,
+		totalAdmins: totalAdmins[0]?.count || 0,
+		totalSubjects: totalSubjects[0]?.count || 0
 	};
 }
 

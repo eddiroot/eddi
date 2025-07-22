@@ -555,7 +555,8 @@ async function seed() {
 				honorific: userHonorificEnum.mr,
 				yearLevel: yearLevelEnum.none,
 				firstName: 'System',
-				lastName: 'Admin'
+				lastName: 'Admin',
+				emailVerified: true
 			})
 			.returning();
 
@@ -570,7 +571,8 @@ async function seed() {
 				honorific: userHonorificEnum.ms,
 				yearLevel: yearLevelEnum.none,
 				firstName: 'School',
-				lastName: 'Admin'
+				lastName: 'Admin',
+				emailVerified: true
 			})
 			.returning();
 
@@ -586,7 +588,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.year9,
 				firstName: 'Student',
 				lastName: 'One',
-				dateOfBirth: new Date('2009-03-15')
+				dateOfBirth: new Date('2009-03-15'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -601,7 +604,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.year9,
 				firstName: 'Student',
 				lastName: 'Two',
-				dateOfBirth: new Date('2009-07-22')
+				dateOfBirth: new Date('2009-07-22'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -616,7 +620,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.year9,
 				firstName: 'Student',
 				lastName: 'Three',
-				dateOfBirth: new Date('2009-11-08')
+				dateOfBirth: new Date('2009-11-08'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -633,7 +638,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'Mother',
 				lastName: 'One',
-				dateOfBirth: new Date('1985-05-12')
+				dateOfBirth: new Date('1985-05-12'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -649,7 +655,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'Father',
 				lastName: 'One',
-				dateOfBirth: new Date('1983-09-08')
+				dateOfBirth: new Date('1983-09-08'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -665,7 +672,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'Mother',
 				lastName: 'Two',
-				dateOfBirth: new Date('1987-02-20')
+				dateOfBirth: new Date('1987-02-20'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -681,7 +689,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'Father',
 				lastName: 'Two',
-				dateOfBirth: new Date('1984-11-15')
+				dateOfBirth: new Date('1984-11-15'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -697,7 +706,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'Mother',
 				lastName: 'Three',
-				dateOfBirth: new Date('1986-08-03')
+				dateOfBirth: new Date('1986-08-03'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -713,7 +723,8 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'Father',
 				lastName: 'Three',
-				dateOfBirth: new Date('1985-12-18')
+				dateOfBirth: new Date('1985-12-18'),
+				emailVerified: true
 			})
 			.returning();
 
@@ -764,7 +775,8 @@ async function seed() {
 					honorific: userHonorificEnum.mr,
 					yearLevel: yearLevelEnum.none,
 					firstName: teacher.firstName,
-					lastName: teacher.lastName
+					lastName: teacher.lastName,
+					emailVerified: true
 				})
 				.returning();
 
