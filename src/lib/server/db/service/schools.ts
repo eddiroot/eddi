@@ -662,7 +662,12 @@ export async function getStudentsWithGroupsByTimetableId(timetableId: number, sc
 				eq(table.user.isArchived, false)
 			)
 		)
-		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+		.orderBy(
+			asc(table.schoolTimetableStudentGroup.name),
+			asc(table.user.lastName),
+			asc(table.user.middleName),
+			asc(table.user.firstName)
+		);
 
 	return students;
 }
