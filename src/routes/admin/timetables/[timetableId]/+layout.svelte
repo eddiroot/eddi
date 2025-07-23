@@ -50,7 +50,7 @@
 				<Progress value={currentStep.percentage} class="h-3" />
 			</div>
 
-			<div class="grid grid-cols-10 items-center gap-2 text-xs lg:grid-cols-10">
+			<div class="invisible grid grid-cols-10 items-center gap-2 text-xs lg:visible">
 				{#each Object.entries(steps) as [_, step]}
 					<a
 						href={buildStepUrl(step.label.toLowerCase())}
