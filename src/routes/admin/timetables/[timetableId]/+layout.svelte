@@ -52,14 +52,15 @@
 
 			<div class="grid grid-cols-10 items-center gap-2 text-xs lg:grid-cols-10">
 				{#each Object.entries(steps) as [_, step]}
-					<span
-						class="text-center leading-tight font-medium transition-colors duration-300 {step.percentage <=
+					<a
+						href={buildStepUrl(step.label.toLowerCase())}
+						class="block text-center leading-tight font-medium transition-colors duration-300 {step.percentage <=
 						currentStep.percentage
 							? 'text-primary'
 							: 'text-muted-foreground'}"
 					>
 						{step.label}
-					</span>
+					</a>
 				{/each}
 			</div>
 		</div>

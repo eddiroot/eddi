@@ -44,7 +44,7 @@ export const steps = {
 	rules: {
 		percentage: 80,
 		label: 'Rules',
-		previous: 'spaces',
+		previous: 'activities',
 		next: 'confirm'
 	},
 	confirm: {
