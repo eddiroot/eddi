@@ -1,13 +1,16 @@
-import { 
-	getTaskById, 
-	getTaskBlocksByTaskId, 
+import {
+	getTaskById,
+	getTaskBlocksByTaskId,
 	getSubjectOfferingClassTaskByTaskId,
 	updateSubjectOfferingClassTaskStatus
 } from '$lib/server/db/service';
 import { redirect, fail } from '@sveltejs/kit';
-import { taskStatusEnum } from '$lib/server/db/schema';
+import { taskStatusEnum } from '$lib/enums';
 
-export const load = async ({ locals: { security }, params: { taskId, subjectOfferingId, subjectOfferingClassId } }) => {
+export const load = async ({
+	locals: { security },
+	params: { taskId, subjectOfferingId, subjectOfferingClassId }
+}) => {
 	const user = security.isAuthenticated().getUser();
 
 	let taskIdInt;

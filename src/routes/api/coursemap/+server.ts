@@ -7,7 +7,7 @@ import {
 	getTasksByCourseMapItemId,
 	getLearningAreaStandardByLearningAreaId
 } from '$lib/server/db/service/coursemap';
-import { yearLevelEnum } from '$lib/server/db/schema';
+import { yearLevelEnum } from '$lib/enums';
 
 export const GET: RequestHandler = async ({ url }) => {
 	const action = url.searchParams.get('action');

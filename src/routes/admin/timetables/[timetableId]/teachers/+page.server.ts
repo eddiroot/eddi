@@ -1,4 +1,4 @@
-import { userTypeEnum } from '$lib/server/db/schema/user.js';
+import { userTypeEnum } from '$lib/enums';
 import { getUsersBySchoolIdAndType } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security } }) => {

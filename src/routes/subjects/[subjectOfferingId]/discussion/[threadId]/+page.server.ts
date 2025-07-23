@@ -7,6 +7,7 @@ import { superValidate, fail } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema.js';
 import { getNestedResponses } from './utils.js';
+import { subjectThreadResponseTypeEnum, subjectThreadTypeEnum } from '$lib/enums.js';
 
 export const load = async ({ locals: { security }, params: { threadId } }) => {
 	security.isAuthenticated();
@@ -24,9 +25,10 @@ export const load = async ({ locals: { security }, params: { threadId } }) => {
 	const form = await superValidate(zod4(formSchema), {
 		defaults: {
 			type:
-				thread?.thread?.type === 'question' || thread?.thread?.type === 'qanda'
-					? 'answer'
-					: 'comment',
+				thread?.thread?.type == subjectThreadTypeEnum.question ||
+				thread?.thread?.type === subjectThreadTypeEnum.qanda
+					? subjectThreadResponseTypeEnum.answer
+					: subjectThreadResponseTypeEnum.comment,
 			content: ''
 		}
 	});

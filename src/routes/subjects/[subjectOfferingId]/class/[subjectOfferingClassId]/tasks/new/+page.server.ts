@@ -20,7 +20,7 @@ import {
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { taskBlockTypeEnum, taskTypeEnum } from '$lib/server/db/schema';
+import { taskBlockTypeEnum, taskTypeEnum } from '$lib/enums';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -385,9 +385,9 @@ export const actions = {
 			if (error && typeof error === 'object' && 'status' in error && error.status === 303) {
 				throw error;
 			}
-			
+
 			console.error('Task creation error:', error);
-			
+
 			// Return error response for actual errors
 			return {
 				status: 500,

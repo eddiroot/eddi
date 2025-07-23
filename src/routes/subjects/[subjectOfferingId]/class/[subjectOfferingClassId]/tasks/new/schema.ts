@@ -1,3 +1,4 @@
+import { taskTypeEnum } from '$lib/enums';
 import { z } from 'zod/v4';
 
 const MAX_MB_COUNT = 5;
@@ -43,7 +44,7 @@ export const formSchema = z
 		description: z.string().max(500, 'Description cannot exceed 500 characters'),
 		taskTopicId: z.number().optional(),
 		newTopicName: z.string().min(1, 'New topic name cannot be empty').optional(),
-		type: z.enum(['lesson', 'homework', 'assessment']).default('lesson'),
+		type: z.enum(taskTypeEnum).default(taskTypeEnum.lesson),
 		dueDate: z.date().optional(),
 		week: z.number().optional(),
 		files: filesSchema.optional(),

@@ -1,6 +1,7 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, lt } from 'drizzle-orm';
+import { userSubjectOfferingClassRoleEnum } from '$lib/enums';
 
 export async function getSubjectOfferingClassDetailsById(subjectOfferingClassId: number) {
 	const subjectOfferingClass = await db
@@ -177,7 +178,7 @@ export async function getSubjectClassAllocationAndStudentAttendancesByClassIdFor
 					table.subjectClassAllocation.startTimestamp,
 					new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
 				),
-				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.student)
+				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.student)
 			)
 		)
 		.orderBy(desc(table.userSubjectOfferingClass.role), table.user.lastName, table.user.firstName);

@@ -18,6 +18,12 @@ import { sql } from 'drizzle-orm/sql';
 import { courseMapItem } from './coursemap';
 import { curriculumSubject, yearLevelEnumPg } from './curriculum';
 import { resource } from './resource';
+import {
+	subjectThreadResponseTypeEnum,
+	subjectThreadTypeEnum,
+	userSubjectOfferingClassRoleEnum,
+	userSubjectOfferingRoleEnum
+} from '$lib/enums';
 
 export const coreSubject = pgTable('core_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -91,12 +97,6 @@ export const subjectOffering = pgTable('sub_off', {
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
 
-export enum userSubjectOfferingRoleEnum {
-	student = 'student',
-	teacher = 'teacher',
-	moderator = 'moderator'
-}
-
 export const userSubjectOfferingRoleEnumPg = pgEnum('user_sub_off_role', [
 	userSubjectOfferingRoleEnum.student,
 	userSubjectOfferingRoleEnum.teacher,
@@ -135,11 +135,6 @@ export const subjectOfferingClass = pgTable(
 );
 
 export type SubjectOfferingClass = typeof subjectOfferingClass.$inferSelect;
-
-export enum userSubjectOfferingClassRoleEnum {
-	student = 'student',
-	teacher = 'teacher'
-}
 
 export const userSubjectOfferingClassRoleEnumPg = pgEnum('user_sub_off_class_role', [
 	userSubjectOfferingClassRoleEnum.student,
@@ -199,13 +194,6 @@ export const subjectClassAllocationAttendance = pgTable(
 
 export type SubjectClassAllocationAttendance = typeof subjectClassAllocationAttendance.$inferSelect;
 
-export enum subjectThreadTypeEnum {
-	discussion = 'discussion',
-	question = 'question',
-	announcement = 'announcement',
-	qanda = 'qanda'
-}
-
 export const subjectThreadTypeEnumPg = pgEnum('subject_thread_type', [
 	subjectThreadTypeEnum.discussion,
 	subjectThreadTypeEnum.question,
@@ -229,11 +217,6 @@ export const subjectThread = pgTable('sub_thread', {
 });
 
 export type SubjectThread = typeof subjectThread.$inferSelect;
-
-export enum subjectThreadResponseTypeEnum {
-	comment = 'comment',
-	answer = 'answer'
-}
 
 export const subjectThreadResponseTypeEnumPg = pgEnum('subject_thread_response_type', [
 	subjectThreadResponseTypeEnum.comment,

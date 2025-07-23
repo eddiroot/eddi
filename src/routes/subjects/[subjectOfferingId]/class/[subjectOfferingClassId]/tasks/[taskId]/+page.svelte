@@ -28,10 +28,6 @@
 	import { blockTypes } from './constants';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
-	import { browser } from '$app/environment';
-	import { Mode } from '@google/genai';
-	import { view } from 'drizzle-orm/sqlite-core';
-	import { View } from '@lucide/svelte';
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
@@ -50,11 +46,11 @@
 
 	// Use a derived value for viewMode that updates reactively
 	let viewMode = $derived<ViewMode>(
-		manualViewMode !== null 
+		manualViewMode !== null
 			? manualViewMode
 			: data.user.type === 'student' || taskStatus === 'published'
-			? ViewMode.VIEW
-			: ViewMode.EDIT
+				? ViewMode.VIEW
+				: ViewMode.EDIT
 	);
 
 	const draggedOverClasses = 'border-accent-foreground';
@@ -66,7 +62,7 @@
 			const response = await fetch(`?/publish`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Type': 'application/x-www-form-urlencoded'
 				}
 			});
 
@@ -88,7 +84,7 @@
 			const response = await fetch(`?/setToDraft`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Type': 'application/x-www-form-urlencoded'
 				}
 			});
 
@@ -300,7 +296,7 @@
 						onUpdate={async (newText: string) =>
 							await updateTaskTitle({ taskId: data.task.id, title: newText })}
 					/>
-					<div class="text-muted-foreground text-lg font-light flex items-center gap-2">
+					<div class="text-muted-foreground flex items-center gap-2 text-lg font-light">
 						{#if taskStatus === 'draft'}
 							<span>Draft</span>
 						{/if}
@@ -324,7 +320,9 @@
 					</div>
 
 					<div
-						class="grid {viewMode === ViewMode.EDIT ? 'grid-cols-[30px_1fr]' : 'grid-cols-1'} items-center gap-2"
+						class="grid {viewMode === ViewMode.EDIT
+							? 'grid-cols-[30px_1fr]'
+							: 'grid-cols-1'} items-center gap-2"
 						role="group"
 						onmouseover={() => (mouseOverElement = `task-${block.id}`)}
 						onfocus={() => (mouseOverElement = `task-${block.id}`)}
@@ -458,8 +456,8 @@
 				<Card.Header>
 					<Card.Title class="text-lg">Task Blocks</Card.Title>
 					<Card.Description>
-						Drag and drop blocks from the palette to the task content area. If you'd like to delete a block,
-						simply drag it to the area below.
+						Drag and drop blocks from the palette to the task content area. If you'd like to delete
+						a block, simply drag it to the area below.
 					</Card.Description>
 				</Card.Header>
 				<Card.Content class="flex h-full flex-col gap-4">
@@ -499,13 +497,7 @@
 
 			<!-- Publish Button -->
 			{#if data.user.type !== 'student' && taskStatus === 'draft'}
-				<Button
-					onclick={publishTask}
-					size="lg"
-					class="w-full"
-				>
-					Publish Task
-				</Button>
+				<Button onclick={publishTask} size="lg" class="w-full">Publish Task</Button>
 			{/if}
 		</div>
 	{/if}

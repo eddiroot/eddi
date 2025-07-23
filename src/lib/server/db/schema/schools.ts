@@ -2,6 +2,7 @@ import { pgTable, text, integer, boolean, pgEnum, unique, uuid } from 'drizzle-o
 import { timestamps } from './utils';
 import { user } from './user';
 import { yearLevelEnumPg } from './curriculum';
+import { schoolSpaceTypeEnum } from '$lib/enums';
 
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -55,15 +56,6 @@ export const schoolBuilding = pgTable(
 );
 
 export type SchoolBuilding = typeof schoolBuilding.$inferSelect;
-
-export enum schoolSpaceTypeEnum {
-	classroom = 'classroom',
-	laboratory = 'laboratory',
-	gymnasium = 'gymnasium',
-	pool = 'pool',
-	library = 'library',
-	auditorium = 'auditorium'
-}
 
 export const schoolSpaceTypeEnumPg = pgEnum('school_location_type', [
 	schoolSpaceTypeEnum.classroom,
@@ -139,7 +131,7 @@ export const schoolTimetableStudentGroup = pgTable('sch_tt_student_group', {
 		.notNull()
 		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
 	yearLevel: yearLevelEnumPg().notNull(),
-	groupName: text('group_name').notNull(),
+	name: text('name').notNull(),
 	...timestamps
 });
 

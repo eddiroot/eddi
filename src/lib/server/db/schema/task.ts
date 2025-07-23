@@ -17,12 +17,12 @@ import { courseMapItem } from './coursemap';
 import { doublePrecision } from 'drizzle-orm/pg-core';
 import { learningAreaStandard } from './curriculum';
 import { resource } from './resource';
-
-export enum taskTypeEnum {
-	lesson = 'lesson',
-	assessment = 'assessment',
-	homework = 'homework'
-}
+import {
+	taskBlockTypeEnum,
+	taskStatusEnum,
+	taskTypeEnum,
+	whiteboardObjectTypeEnum
+} from '$lib/enums';
 
 export const taskTypeEnumPg = pgEnum('task_type', [
 	taskTypeEnum.lesson,
@@ -58,25 +58,6 @@ export const task = pgTable(
 
 export type Task = typeof task.$inferSelect;
 
-export enum taskBlockTypeEnum {
-	h1 = 'h1',
-	h2 = 'h2',
-	h3 = 'h3',
-	h4 = 'h4',
-	h5 = 'h5',
-	h6 = 'h6',
-	markdown = 'markdown',
-	image = 'image',
-	video = 'video',
-	audio = 'audio',
-	fillInBlank = 'fill_in_blank',
-	multipleChoice = 'multiple_choice',
-	whiteboard = 'whiteboard',
-	matching = 'matching',
-	twoColumnLayout = 'two_column_layout',
-	shortAnswer = 'short_answer'
-}
-
 export const taskBlockTypeEnumPg = pgEnum('task_block_type', [
 	taskBlockTypeEnum.h1,
 	taskBlockTypeEnum.h2,
@@ -109,15 +90,6 @@ export const taskBlock = pgTable('task_block', {
 });
 
 export type TaskBlock = typeof taskBlock.$inferSelect;
-
-export enum taskStatusEnum {
-	draft = 'draft', // Lesson/Assessment/Homework
-	inProgress = 'in_progress', // Lesson
-	completed = 'completed', // Lesson
-	published = 'published', //Assessment/Homework
-	locked = 'locked', // Assessment/Homework
-	released = 'released' // Assessment/Homework
-}
 
 export const taskStatusEnumPg = pgEnum('task_status', [
 	taskStatusEnum.draft,
@@ -232,13 +204,6 @@ export const whiteboard = pgTable('whiteboard', {
 });
 
 export type Whiteboard = typeof whiteboard.$inferSelect;
-
-export enum whiteboardObjectTypeEnum {
-	rect = 'Rect',
-	circle = 'Circle',
-	path = 'Path',
-	textbox = 'Textbox'
-}
 
 export const whiteboardObjectTypeEnumPg = pgEnum('whiteboard_object_type', [
 	whiteboardObjectTypeEnum.rect,

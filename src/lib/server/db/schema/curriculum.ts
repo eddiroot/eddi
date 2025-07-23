@@ -1,5 +1,6 @@
 import { pgTable, text, integer, boolean, pgEnum } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
+import { yearLevelEnum } from '$lib/enums';
 
 export const curriculum = pgTable('curriculum', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -35,25 +36,6 @@ export const learningArea = pgTable('learning_area', {
 });
 
 export type LearningArea = typeof learningArea.$inferSelect;
-
-export enum yearLevelEnum {
-	none = 'N',
-	foundation = 'F',
-	year1 = '1',
-	year2 = '2',
-	year3 = '3',
-	year4 = '4',
-	year5 = '5',
-	year6 = '6',
-	year7 = '7',
-	year8 = '8',
-	year9 = '9',
-	year10 = '10',
-	year10A = '10A',
-	year11 = '11',
-	year12 = '12',
-	year13 = '13'
-}
 
 export const yearLevelEnumPg = pgEnum('year_level', [
 	yearLevelEnum.none,

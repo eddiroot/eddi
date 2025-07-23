@@ -1,19 +1,20 @@
 import * as schema from '../schema';
-import {
-	userTypeEnum,
-	userGenderEnum,
-	userHonorificEnum,
-	schoolSpaceTypeEnum,
-	userSubjectOfferingRoleEnum,
-	userSubjectOfferingClassRoleEnum,
-	yearLevelEnum
-} from '../schema';
 import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { VCAAF10Scraper } from './scraper/index';
 import { eq } from 'drizzle-orm';
 import { reset } from 'drizzle-seed';
+import {
+	relationshipTypeEnum,
+	schoolSpaceTypeEnum,
+	userGenderEnum,
+	userHonorificEnum,
+	userSubjectOfferingClassRoleEnum,
+	userSubjectOfferingRoleEnum,
+	userTypeEnum,
+	yearLevelEnum
+} from '$lib/enums';
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -812,34 +813,34 @@ async function seed() {
 			{
 				userId: student1.id,
 				relatedUserId: mother1.id,
-				relationshipType: schema.relationshipTypeEnum.mother
+				relationshipType: relationshipTypeEnum.mother
 			},
 			{
 				userId: student1.id,
 				relatedUserId: father1.id,
-				relationshipType: schema.relationshipTypeEnum.father
+				relationshipType: relationshipTypeEnum.father
 			},
 			// Student 2's parents
 			{
 				userId: student2.id,
 				relatedUserId: mother2.id,
-				relationshipType: schema.relationshipTypeEnum.mother
+				relationshipType: relationshipTypeEnum.mother
 			},
 			{
 				userId: student2.id,
 				relatedUserId: father2.id,
-				relationshipType: schema.relationshipTypeEnum.father
+				relationshipType: relationshipTypeEnum.father
 			},
 			// Student 3's parents
 			{
 				userId: student3.id,
 				relatedUserId: mother3.id,
-				relationshipType: schema.relationshipTypeEnum.mother
+				relationshipType: relationshipTypeEnum.mother
 			},
 			{
 				userId: student3.id,
 				relatedUserId: father3.id,
-				relationshipType: schema.relationshipTypeEnum.father
+				relationshipType: relationshipTypeEnum.father
 			}
 		]);
 

@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { eq, and } from 'drizzle-orm';
 import { hash } from '@node-rs/argon2';
 import { randomInt } from 'crypto';
+import { userGenderEnum, userHonorificEnum, userTypeEnum, yearLevelEnum } from '$lib/enums';
 
 export async function createUser({
 	email,
@@ -22,13 +23,13 @@ export async function createUser({
 	email: string;
 	password: string;
 	schoolId: number;
-	type: table.userTypeEnum;
+	type: userTypeEnum;
 	firstName: string;
 	lastName: string;
-	gender?: table.userGenderEnum;
+	gender?: userGenderEnum;
 	dateOfBirth?: Date;
-	honorific?: table.userHonorificEnum;
-	yearLevel: table.yearLevelEnum;
+	honorific?: userHonorificEnum;
+	yearLevel: yearLevelEnum;
 	middleName?: string;
 	avatarUrl?: string;
 	isArchived?: boolean;
@@ -133,7 +134,7 @@ export async function getGuardiansForStudent(studentUserId: string) {
 		.where(
 			and(
 				eq(table.userRelationship.userId, studentUserId),
-				eq(table.user.type, table.userTypeEnum.guardian)
+				eq(table.user.type, userTypeEnum.guardian)
 			)
 		);
 

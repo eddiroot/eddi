@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { createTaskBlock, updateTaskBlock, deleteTaskBlock } from '$lib/server/db/service';
-import { taskBlockTypeEnum } from '$lib/server/db/schema';
+import { taskBlockTypeEnum } from '$lib/enums';
 
 // POST /api/tasks/blocks - Create a new block
 export async function POST({ request }: { request: Request }) {

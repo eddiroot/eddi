@@ -6,7 +6,7 @@ import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
 import { subject } from '$lib/server/db/schema';
 import { optionalColumns, requiredColumns, subjectsImportSchema } from './schema.js';
-import type { yearLevelEnum } from '$lib/server/db/schema';
+import type { yearLevelEnum } from '$lib/enums.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

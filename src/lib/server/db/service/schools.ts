@@ -2,6 +2,7 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq, and, asc, count } from 'drizzle-orm';
 import { days } from '$lib/utils';
+import { schoolSpaceTypeEnum, userTypeEnum, yearLevelEnum } from '$lib/enums';
 
 export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const users = await db
@@ -29,7 +30,7 @@ export async function getUsersBySchoolId(schoolId: number, includeArchived: bool
 
 export async function getUsersBySchoolIdAndType(
 	schoolId: number,
-	type: table.userTypeEnum,
+	type: userTypeEnum,
 	includeArchived: boolean = false
 ) {
 	const users = await db
@@ -88,21 +89,19 @@ export async function getSchoolStatsById(schoolId: number) {
 	const totalStudents = await db
 		.select({ count: count() })
 		.from(table.user)
-		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, table.userTypeEnum.student)))
+		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, userTypeEnum.student)))
 		.limit(1);
 
 	const totalTeachers = await db
 		.select({ count: count() })
 		.from(table.user)
-		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, table.userTypeEnum.teacher)))
+		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, userTypeEnum.teacher)))
 		.limit(1);
 
 	const totalAdmins = await db
 		.select({ count: count() })
 		.from(table.user)
-		.where(
-			and(eq(table.user.schoolId, schoolId), eq(table.user.type, table.userTypeEnum.schoolAdmin))
-		)
+		.where(and(eq(table.user.schoolId, schoolId), eq(table.user.type, userTypeEnum.schoolAdmin)))
 		.limit(1);
 
 	const totalSubjects = await db
@@ -284,7 +283,7 @@ export async function getBuildingsBySchoolId(schoolId: number, includeArchived: 
 export async function createSpace(
 	buildingId: number,
 	name: string,
-	type: table.schoolSpaceTypeEnum,
+	type: schoolSpaceTypeEnum,
 	capacity?: number | null,
 	description?: string | null,
 	isArchived: boolean = false
@@ -368,7 +367,7 @@ export async function updateSpace(
 	spaceId: number,
 	updates: {
 		name?: string;
-		type?: table.schoolSpaceTypeEnum;
+		type?: schoolSpaceTypeEnum;
 		capacity?: number | null;
 		description?: string | null;
 		isArchived?: boolean;
@@ -515,4 +514,31 @@ export async function deleteTimetablePeriod(periodId: number, timetableId: numbe
 	await db.delete(table.schoolTimetablePeriod).where(eq(table.schoolTimetablePeriod.id, periodId));
 
 	return await getTimetablePeriods(timetableId);
+}
+
+export async function getTimetableStudentGroupsByTimetableId(timetableId: number) {
+	const groups = await db
+		.select()
+		.from(table.schoolTimetableStudentGroup)
+		.where(eq(table.schoolTimetableStudentGroup.timetableId, timetableId))
+		.orderBy(asc(table.schoolTimetableStudentGroup.name));
+
+	return groups;
+}
+
+export async function createTimetableStudentGroup(
+	timetableId: number,
+	yearLevel: yearLevelEnum,
+	name: string
+) {
+	const [group] = await db
+		.insert(table.schoolTimetableStudentGroup)
+		.values({
+			timetableId,
+			yearLevel,
+			name
+		})
+		.returning();
+
+	return group;
 }

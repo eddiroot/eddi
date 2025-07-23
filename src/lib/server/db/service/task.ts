@@ -2,6 +2,12 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, or, gte, inArray, asc, sql } from 'drizzle-orm';
 import { verifyUserAccessToClass } from './user';
+import {
+	taskBlockTypeEnum,
+	taskStatusEnum,
+	taskTypeEnum,
+	whiteboardObjectTypeEnum
+} from '$lib/enums';
 
 export async function addTasksToClass(
 	taskIds: number[],
@@ -108,10 +114,7 @@ export async function getLessonsAndHomeworkBySubjectOfferingClassId(
 		.where(
 			and(
 				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
-				or(
-					eq(table.task.type, table.taskTypeEnum.lesson),
-					eq(table.task.type, table.taskTypeEnum.homework)
-				)
+				or(eq(table.task.type, taskTypeEnum.lesson), eq(table.task.type, taskTypeEnum.homework))
 			)
 		)
 		.orderBy(asc(table.task.createdAt));
@@ -185,7 +188,7 @@ export async function createTask(
 	title: string,
 	description: string,
 	version: number,
-	type: table.taskTypeEnum,
+	type: taskTypeEnum,
 	subjectOfferingId: number,
 	aiTutorEnabled: boolean = true,
 	isArchived: boolean = false
@@ -258,7 +261,7 @@ export async function updateTaskTitle(taskId: number, title: string) {
 
 export async function createTaskBlock(
 	taskId: number,
-	type: table.taskBlockTypeEnum,
+	type: taskBlockTypeEnum,
 	content: unknown,
 	index: number | undefined = undefined
 ) {
@@ -298,7 +301,7 @@ export async function updateTaskBlock(
 	blockId: number,
 	updates: {
 		content?: unknown;
-		type?: table.taskBlockTypeEnum;
+		type?: taskBlockTypeEnum;
 	}
 ) {
 	const [taskBlock] = await db
@@ -373,7 +376,7 @@ export async function getWhiteboardObjects(whiteboardId: number = 1) {
 
 export async function saveWhiteboardObject(data: {
 	objectId: string;
-	objectType: table.whiteboardObjectTypeEnum;
+	objectType: whiteboardObjectTypeEnum;
 	objectData: Record<string, unknown>;
 	whiteboardId?: number;
 }) {
@@ -643,18 +646,14 @@ export async function createRubric(title: string) {
 	const [rubric] = await db
 		.insert(table.rubric)
 		.values({
-			title,
-
+			title
 		})
 		.returning();
 
 	return rubric;
 }
 
-export async function updateRubric(
-	rubricId: number,
-	updates: { title?: string; }
-) {
+export async function updateRubric(rubricId: number, updates: { title?: string }) {
 	const [rubric] = await db
 		.update(table.rubric)
 		.set({ ...updates })
@@ -689,10 +688,7 @@ export async function createRubricRow(rubricId: number, title: string) {
 	return row;
 }
 
-export async function updateRubricRow(
-	rowId: number,
-	updates: { title?: string; }
-) {
+export async function updateRubricRow(rowId: number, updates: { title?: string }) {
 	const [row] = await db
 		.update(table.rubricRow)
 		.set({ ...updates })
@@ -774,10 +770,13 @@ export async function getRubricWithRowsAndCells(rubricId: number) {
 	}
 
 	const rubric = rows[0].rubric;
-	const rowsMap = new Map<number, {
-		row: table.RubricRow;
-		cells: table.RubricCell[];
-	}>();
+	const rowsMap = new Map<
+		number,
+		{
+			row: table.RubricRow;
+			cells: table.RubricCell[];
+		}
+	>();
 
 	for (const row of rows) {
 		if (row.rubricRow) {
@@ -837,10 +836,7 @@ export async function createCompleteRubric(
 ) {
 	return await db.transaction(async (tx) => {
 		// Create the rubric
-		const [rubric] = await tx
-			.insert(table.rubric)
-			.values({ title })
-			.returning();
+		const [rubric] = await tx.insert(table.rubric).values({ title }).returning();
 
 		// Create rows and cells
 		const createdRows = [];
@@ -883,7 +879,7 @@ export async function duplicateRubric(rubricId: number, newTitle?: string) {
 	const title = newTitle || `${existingRubric.rubric.title} (Copy)`;
 	const rows = existingRubric.rows.map(({ row, cells }) => ({
 		title: row.title,
-		cells: cells.map(cell => ({
+		cells: cells.map((cell) => ({
 			level: cell.level,
 			description: cell.description,
 			marks: cell.marks
@@ -894,11 +890,7 @@ export async function duplicateRubric(rubricId: number, newTitle?: string) {
 }
 
 // Answer methods
-export async function createAnswer(
-	taskBlockId: number,
-	answer: unknown,
-	marks?: number
-) {
+export async function createAnswer(taskBlockId: number, answer: unknown, marks?: number) {
 	const [createdAnswer] = await db
 		.insert(table.answer)
 		.values({
@@ -952,11 +944,7 @@ export async function getAnswerById(answerId: number) {
 }
 
 // Criteria methods
-export async function createCriteria(
-	taskBlockId: number,
-	description: string,
-	marks: number
-) {
+export async function createCriteria(taskBlockId: number, description: string, marks: number) {
 	const [createdCriteria] = await db
 		.insert(table.criteria)
 		.values({
@@ -1035,7 +1023,7 @@ export async function getTaskBlockWithAnswersAndCriteria(taskBlockId: number) {
 
 export async function createTaskBlockWithAnswersAndCriteria(
 	taskId: number,
-	type: table.taskBlockTypeEnum,
+	type: taskBlockTypeEnum,
 	content: unknown,
 	answers?: Array<{ answer: unknown; marks?: number }>,
 	criteria?: Array<{ description: string; marks: number }>,
@@ -1085,8 +1073,10 @@ export async function createTaskBlockWithAnswersAndCriteria(
 	});
 }
 
-
-export async function getSubjectOfferingClassTaskByTaskId(taskId: number, subjectOfferingClassId: number) {
+export async function getSubjectOfferingClassTaskByTaskId(
+	taskId: number,
+	subjectOfferingClassId: number
+) {
 	const [classTask] = await db
 		.select()
 		.from(table.subjectOfferingClassTask)
@@ -1101,7 +1091,11 @@ export async function getSubjectOfferingClassTaskByTaskId(taskId: number, subjec
 	return classTask || null;
 }
 
-export async function updateSubjectOfferingClassTaskStatus(taskId: number, subjectOfferingClassId: number, status: table.taskStatusEnum) {
+export async function updateSubjectOfferingClassTaskStatus(
+	taskId: number,
+	subjectOfferingClassId: number,
+	status: taskStatusEnum
+) {
 	await db
 		.update(table.subjectOfferingClassTask)
 		.set({ status })
@@ -1137,13 +1131,13 @@ export async function createOrUpdateTaskBlockResponse(
 		// Update existing response
 		const [updatedResponse] = await db
 			.update(table.taskBlockResponse)
-			.set({ 
+			.set({
 				response,
 				updatedAt: new Date()
 			})
 			.where(eq(table.taskBlockResponse.id, existingResponse[0].id))
 			.returning();
-		
+
 		return updatedResponse;
 	} else {
 		// Create new response
@@ -1156,7 +1150,7 @@ export async function createOrUpdateTaskBlockResponse(
 				response
 			})
 			.returning();
-		
+
 		return newResponse;
 	}
 }

@@ -2,15 +2,7 @@ import { pgTable, text, integer, timestamp, boolean, pgEnum, uuid } from 'drizzl
 import { timestamps } from './utils';
 import { school } from './schools';
 import { yearLevelEnumPg } from './curriculum';
-
-export enum userTypeEnum {
-	student = 'student',
-	teacher = 'teacher',
-	guardian = 'guardian',
-	principal = 'principal',
-	schoolAdmin = 'schoolAdmin',
-	systemAdmin = 'systemAdmin'
-}
+import { relationshipTypeEnum, userGenderEnum, userHonorificEnum, userTypeEnum } from '$lib/enums';
 
 export const userTypeEnumPg = pgEnum('user_type', [
 	userTypeEnum.student,
@@ -21,14 +13,6 @@ export const userTypeEnumPg = pgEnum('user_type', [
 	userTypeEnum.systemAdmin
 ]);
 
-export enum userHonorificEnum {
-	mr = 'Mr',
-	ms = 'Ms',
-	mrs = 'Mrs',
-	dr = 'Dr',
-	prof = 'Prof'
-}
-
 export const userHonorificEnumPg = pgEnum('user_honorific', [
 	userHonorificEnum.mr,
 	userHonorificEnum.ms,
@@ -36,14 +20,6 @@ export const userHonorificEnumPg = pgEnum('user_honorific', [
 	userHonorificEnum.dr,
 	userHonorificEnum.prof
 ]);
-
-export enum userGenderEnum {
-	male = 'male',
-	female = 'female',
-	nonBinary = 'non-binary',
-	other = 'other',
-	unspecified = 'unspecified'
-}
 
 export const userGenderEnumPg = pgEnum('gender', [
 	userGenderEnum.male,
@@ -76,12 +52,6 @@ export const user = pgTable('user', {
 });
 
 export type User = typeof user.$inferSelect;
-
-export enum relationshipTypeEnum {
-	mother = 'mother',
-	father = 'father',
-	guardian = 'guardian'
-}
 
 export const relationshipTypeEnumPg = pgEnum('relationship_type', [
 	relationshipTypeEnum.mother,

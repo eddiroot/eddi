@@ -3,11 +3,9 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import EditIcon from '@lucide/svelte/icons/edit';
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import UploadIcon from '@lucide/svelte/icons/upload';
 	import { ViewMode } from '$lib/utils';
-	import { vi } from 'zod/v4/locales';
 
 	let {
 		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
@@ -107,7 +105,12 @@
 
 				<div class="space-y-2">
 					<Label for="video-caption">Caption (optional)</Label>
-					<Input id="video-caption" bind:value={caption} onblur={saveChanges} placeholder="Video caption" />
+					<Input
+						id="video-caption"
+						bind:value={caption}
+						onblur={saveChanges}
+						placeholder="Video caption"
+					/>
 				</div>
 
 				<div class="space-y-2">
@@ -129,47 +132,45 @@
 				</div>
 			</Card.Content>
 		</Card.Root>
-	{:else}
-		{#if content.src}
-			<figure class="space-y-2">
-				{#if isYouTubeUrl(content.src)}
-					<div class="relative aspect-video w-full overflow-hidden rounded-lg border">
-						<iframe
-							src={getYouTubeEmbedUrl(content.src)}
-							title="YouTube video"
-							frameborder="0"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-							allowfullscreen
-							class="h-full w-full"
-						></iframe>
-					</div>
-				{:else}
-					<video
-						src={content.src}
-						controls={content.controls}
-						autoplay={content.autoplay}
-						loop={content.loop}
-						class="w-full rounded-lg border"
-						style="max-height: 400px;"
-					>
-						<track kind="captions" />
-						Your browser does not support the video tag.
-					</video>
-				{/if}
-				{#if content.caption}
-					<figcaption class="text-muted-foreground text-center text-sm">
-						{content.caption}
-					</figcaption>
-				{/if}
-			</figure>
-		{:else}
-			<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
-				<div class="text-center">
-					<FilmIcon class="text-muted-foreground mx-auto h-12 w-12" />
-					<p class="text-muted-foreground mt-2 text-sm">No video selected</p>
-					<p class="text-muted-foreground text-xs">Switch to edit mode to add a video</p>
+	{:else if content.src}
+		<figure class="space-y-2">
+			{#if isYouTubeUrl(content.src)}
+				<div class="relative aspect-video w-full overflow-hidden rounded-lg border">
+					<iframe
+						src={getYouTubeEmbedUrl(content.src)}
+						title="YouTube video"
+						frameborder="0"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						allowfullscreen
+						class="h-full w-full"
+					></iframe>
 				</div>
+			{:else}
+				<video
+					src={content.src}
+					controls={content.controls}
+					autoplay={content.autoplay}
+					loop={content.loop}
+					class="w-full rounded-lg border"
+					style="max-height: 400px;"
+				>
+					<track kind="captions" />
+					Your browser does not support the video tag.
+				</video>
+			{/if}
+			{#if content.caption}
+				<figcaption class="text-muted-foreground text-center text-sm">
+					{content.caption}
+				</figcaption>
+			{/if}
+		</figure>
+	{:else}
+		<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
+			<div class="text-center">
+				<FilmIcon class="text-muted-foreground mx-auto h-12 w-12" />
+				<p class="text-muted-foreground mt-2 text-sm">No video selected</p>
+				<p class="text-muted-foreground text-xs">Switch to edit mode to add a video</p>
 			</div>
-		{/if}
+		</div>
 	{/if}
 </div>

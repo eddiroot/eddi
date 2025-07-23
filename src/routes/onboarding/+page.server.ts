@@ -4,13 +4,12 @@ import {
 	createUser,
 	checkUserExistence
 } from '$lib/server/db/service';
-import { userTypeEnum } from '$lib/server/db/schema/user.js';
+import { userTypeEnum, yearLevelEnum } from '$lib/enums';
 import { superValidate, fail, setError } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
 import { formSchema } from './schema';
 import { sendEmailVerification } from '$lib/server/email';
-import { yearLevelEnum } from '$lib/server/db/schema';
 
 export const load = async () => {
 	return {

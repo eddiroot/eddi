@@ -1,6 +1,12 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, lt, inArray, asc } from 'drizzle-orm';
+import {
+	subjectThreadResponseTypeEnum,
+	subjectThreadTypeEnum,
+	taskTypeEnum,
+	userSubjectOfferingClassRoleEnum
+} from '$lib/enums';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -85,10 +91,7 @@ export async function getSubjectBySubjectOfferingClassId(subjectOfferingClassId:
 			table.subjectOffering,
 			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
 		)
-		.innerJoin(
-			table.subject,
-			eq(table.subjectOffering.subjectId, table.subject.id)
-		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
 		.limit(1);
 
@@ -159,7 +162,7 @@ export async function getSubjectThreadById(threadId: number) {
 }
 
 export async function createSubjectThread(
-	type: 'announcement' | 'qanda' | 'discussion' | 'question',
+	type: subjectThreadTypeEnum,
 	subjectOfferingId: number,
 	userId: string,
 	title: string,
@@ -169,7 +172,7 @@ export async function createSubjectThread(
 	const [thread] = await db
 		.insert(table.subjectThread)
 		.values({
-			type: type as table.subjectThreadTypeEnum,
+			type,
 			subjectOfferingId,
 			userId,
 			title,
@@ -201,7 +204,7 @@ export async function getSubjectThreadResponsesById(threadId: number) {
 }
 
 export async function createSubjectThreadResponse(
-	type: 'answer' | 'comment',
+	type: subjectThreadResponseTypeEnum,
 	subjectThreadId: number,
 	userId: string,
 	content: string,
@@ -211,7 +214,7 @@ export async function createSubjectThreadResponse(
 	const [response] = await db
 		.insert(table.subjectThreadResponse)
 		.values({
-			type: type as table.subjectThreadResponseTypeEnum,
+			type,
 			subjectThreadId,
 			userId,
 			content,
@@ -253,7 +256,7 @@ export async function getRecentAnnouncementsByUserId(userId: string) {
 			table.subjectThread,
 			and(
 				eq(table.subjectThread.subjectOfferingId, table.subjectOffering.id),
-				eq(table.subjectThread.type, table.subjectThreadTypeEnum.announcement),
+				eq(table.subjectThread.type, subjectThreadTypeEnum.announcement),
 				gte(table.subjectThread.createdAt, oneWeekAgo)
 			)
 		)
@@ -281,7 +284,7 @@ export async function getAnnouncementsBySubjectOfferingClassId(subjectOfferingCl
 			table.subjectThread,
 			and(
 				eq(table.subjectThread.subjectOfferingId, table.subjectOffering.id),
-				eq(table.subjectThread.type, table.subjectThreadTypeEnum.announcement)
+				eq(table.subjectThread.type, subjectThreadTypeEnum.announcement)
 			)
 		)
 		.where(eq(table.subjectOfferingClass.id, subjectOfferingClassId))
@@ -304,7 +307,7 @@ export async function getTeachersForSubjectOfferingId(subjectOfferingId: number)
 		.where(
 			and(
 				eq(table.subjectOfferingClass.subOfferingId, subjectOfferingId),
-				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.teacher)
+				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher)
 			)
 		)
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
@@ -353,7 +356,7 @@ export async function getTeacherBySubjectOfferingIdForUserInClass(
 		.where(
 			and(
 				inArray(table.userSubjectOfferingClass.subOffClassId, subjectClassIds),
-				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.teacher),
+				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher),
 				eq(table.userSubjectOfferingClass.isArchived, false) // Only consider non-archived records
 			)
 		);
@@ -492,7 +495,7 @@ export async function getTeachersBySubjectOfferingClassId(subjectOfferingClassId
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
-				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.teacher)
+				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher)
 			)
 		);
 
@@ -589,7 +592,7 @@ export async function getAssessmentsBySubjectOfferingClassId(subjectOfferingClas
 		.where(
 			and(
 				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
-				eq(table.task.type, table.taskTypeEnum.assessment)
+				eq(table.task.type, taskTypeEnum.assessment)
 			)
 		)
 		.orderBy(asc(table.subjectOfferingClassTask.index));
