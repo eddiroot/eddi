@@ -398,16 +398,13 @@ export async function getSchoolTimetablesBySchoolId(
 ) {
 	const timetables = await db
 		.select()
-		.from(table.schoolTimetable)
+		.from(table.timetable)
 		.where(
 			includeArchived
-				? eq(table.schoolTimetable.schoolId, schoolId)
-				: and(
-						eq(table.schoolTimetable.schoolId, schoolId),
-						eq(table.schoolTimetable.isArchived, false)
-					)
+				? eq(table.timetable.schoolId, schoolId)
+				: and(eq(table.timetable.schoolId, schoolId), eq(table.timetable.isArchived, false))
 		)
-		.orderBy(asc(table.schoolTimetable.name));
+		.orderBy(asc(table.timetable.name));
 
 	return timetables;
 }
@@ -418,7 +415,7 @@ export async function createSchoolTimetable(data: {
 	schoolYear: number;
 }) {
 	const [timetable] = await db
-		.insert(table.schoolTimetable)
+		.insert(table.timetable)
 		.values({
 			schoolId: data.schoolId,
 			name: data.name,
@@ -427,14 +424,14 @@ export async function createSchoolTimetable(data: {
 		})
 		.returning();
 
-	await db.insert(table.schoolTimetableDay).values(
+	await db.insert(table.timetableDay).values(
 		days.map((day) => ({
 			timetableId: timetable.id,
 			day: day.number
 		}))
 	);
 
-	await db.insert(table.schoolTimetablePeriod).values({
+	await db.insert(table.timetablePeriod).values({
 		timetableId: timetable.id,
 		startTime: '08:30',
 		endTime: '09:30'
@@ -446,9 +443,9 @@ export async function createSchoolTimetable(data: {
 export async function getTimetableDays(timetableId: number) {
 	const days = await db
 		.select()
-		.from(table.schoolTimetableDay)
-		.where(eq(table.schoolTimetableDay.timetableId, timetableId))
-		.orderBy(asc(table.schoolTimetableDay.day));
+		.from(table.timetableDay)
+		.where(eq(table.timetableDay.timetableId, timetableId))
+		.orderBy(asc(table.timetableDay.day));
 
 	return days;
 }
@@ -456,9 +453,9 @@ export async function getTimetableDays(timetableId: number) {
 export async function getTimetablePeriods(timetableId: number) {
 	const periods = await db
 		.select()
-		.from(table.schoolTimetablePeriod)
-		.where(eq(table.schoolTimetablePeriod.timetableId, timetableId))
-		.orderBy(asc(table.schoolTimetablePeriod.startTime));
+		.from(table.timetablePeriod)
+		.where(eq(table.timetablePeriod.timetableId, timetableId))
+		.orderBy(asc(table.timetablePeriod.startTime));
 
 	return periods;
 }
@@ -474,13 +471,11 @@ export async function updateTimetableDays(timetableId: number, days: number[]) {
 		}
 	}
 
-	await db
-		.delete(table.schoolTimetableDay)
-		.where(eq(table.schoolTimetableDay.timetableId, timetableId));
+	await db.delete(table.timetableDay).where(eq(table.timetableDay.timetableId, timetableId));
 
 	// Insert new days
 	if (days.length > 0) {
-		await db.insert(table.schoolTimetableDay).values(
+		await db.insert(table.timetableDay).values(
 			days.map((day) => ({
 				timetableId,
 				day
@@ -493,7 +488,7 @@ export async function updateTimetableDays(timetableId: number, days: number[]) {
 
 export async function addTimetablePeriod(timetableId: number, startTime: string, endTime: string) {
 	const [period] = await db
-		.insert(table.schoolTimetablePeriod)
+		.insert(table.timetablePeriod)
 		.values({
 			timetableId,
 			startTime,
@@ -511,7 +506,7 @@ export async function deleteTimetablePeriod(periodId: number, timetableId: numbe
 		throw new Error('At least one period must exist');
 	}
 
-	await db.delete(table.schoolTimetablePeriod).where(eq(table.schoolTimetablePeriod.id, periodId));
+	await db.delete(table.timetablePeriod).where(eq(table.timetablePeriod.id, periodId));
 
 	return await getTimetablePeriods(timetableId);
 }
@@ -519,9 +514,9 @@ export async function deleteTimetablePeriod(periodId: number, timetableId: numbe
 export async function getTimetableStudentGroupsByTimetableId(timetableId: number) {
 	const groups = await db
 		.select()
-		.from(table.schoolTimetableStudentGroup)
-		.where(eq(table.schoolTimetableStudentGroup.timetableId, timetableId))
-		.orderBy(asc(table.schoolTimetableStudentGroup.name));
+		.from(table.timetableGroup)
+		.where(eq(table.timetableGroup.timetableId, timetableId))
+		.orderBy(asc(table.timetableGroup.name));
 
 	return groups;
 }
@@ -532,7 +527,7 @@ export async function createTimetableStudentGroup(
 	name: string
 ) {
 	const [group] = await db
-		.insert(table.schoolTimetableStudentGroup)
+		.insert(table.timetableGroup)
 		.values({
 			timetableId,
 			yearLevel,
@@ -566,11 +561,11 @@ export async function assignStudentsToGroupsRandomly(
 	// Get all groups for this year level and timetable
 	const groups = await db
 		.select()
-		.from(table.schoolTimetableStudentGroup)
+		.from(table.timetableGroup)
 		.where(
 			and(
-				eq(table.schoolTimetableStudentGroup.timetableId, timetableId),
-				eq(table.schoolTimetableStudentGroup.yearLevel, yearLevel)
+				eq(table.timetableGroup.timetableId, timetableId),
+				eq(table.timetableGroup.yearLevel, yearLevel)
 			)
 		);
 
@@ -582,16 +577,16 @@ export async function assignStudentsToGroupsRandomly(
 	const studentIds = students.map((s) => s.id);
 	if (studentIds.length > 0) {
 		const existingGroupIds = await db
-			.select({ id: table.schoolTimetableStudentGroup.id })
-			.from(table.schoolTimetableStudentGroup)
-			.where(eq(table.schoolTimetableStudentGroup.timetableId, timetableId));
+			.select({ id: table.timetableGroup.id })
+			.from(table.timetableGroup)
+			.where(eq(table.timetableGroup.timetableId, timetableId));
 
 		if (existingGroupIds.length > 0) {
-			await db.delete(table.timetableStudentGroupMembership).where(
+			await db.delete(table.timetableGroupMember).where(
 				and(
-					inArray(table.timetableStudentGroupMembership.userId, studentIds),
+					inArray(table.timetableGroupMember.userId, studentIds),
 					inArray(
-						table.timetableStudentGroupMembership.groupId,
+						table.timetableGroupMember.groupId,
 						existingGroupIds.map((g) => g.id)
 					)
 				)
@@ -610,7 +605,7 @@ export async function assignStudentsToGroupsRandomly(
 
 	// Insert new assignments
 	if (assignments.length > 0) {
-		await db.insert(table.timetableStudentGroupMembership).values(assignments);
+		await db.insert(table.timetableGroupMember).values(assignments);
 	}
 
 	return assignments.length;
@@ -619,10 +614,8 @@ export async function assignStudentsToGroupsRandomly(
 export async function getStudentsWithGroupsByTimetableId(timetableId: number, schoolId: number) {
 	const timetable = await db
 		.select()
-		.from(table.schoolTimetable)
-		.where(
-			and(eq(table.schoolTimetable.id, timetableId), eq(table.schoolTimetable.schoolId, schoolId))
-		)
+		.from(table.timetable)
+		.where(and(eq(table.timetable.id, timetableId), eq(table.timetable.schoolId, schoolId)))
 		.limit(1);
 
 	if (timetable.length === 0) {
@@ -640,19 +633,16 @@ export async function getStudentsWithGroupsByTimetableId(timetableId: number, sc
 			lastName: table.user.lastName,
 			avatarUrl: table.user.avatarUrl,
 			yearLevel: table.user.yearLevel,
-			groupId: table.schoolTimetableStudentGroup.id,
-			groupName: table.schoolTimetableStudentGroup.name
+			groupId: table.timetableGroup.id,
+			groupName: table.timetableGroup.name
 		})
 		.from(table.user)
+		.leftJoin(table.timetableGroupMember, eq(table.user.id, table.timetableGroupMember.userId))
 		.leftJoin(
-			table.timetableStudentGroupMembership,
-			eq(table.user.id, table.timetableStudentGroupMembership.userId)
-		)
-		.leftJoin(
-			table.schoolTimetableStudentGroup,
+			table.timetableGroup,
 			and(
-				eq(table.timetableStudentGroupMembership.groupId, table.schoolTimetableStudentGroup.id),
-				eq(table.schoolTimetableStudentGroup.timetableId, timetableId)
+				eq(table.timetableGroupMember.groupId, table.timetableGroup.id),
+				eq(table.timetableGroup.timetableId, timetableId)
 			)
 		)
 		.where(
@@ -663,11 +653,93 @@ export async function getStudentsWithGroupsByTimetableId(timetableId: number, sc
 			)
 		)
 		.orderBy(
-			asc(table.schoolTimetableStudentGroup.name),
+			asc(table.timetableGroup.name),
 			asc(table.user.lastName),
 			asc(table.user.middleName),
 			asc(table.user.firstName)
 		);
 
 	return students;
+}
+
+// Timetable Activity Functions
+
+export async function getTimetableActivitiesByTimetableId(timetableId: number) {
+	const activities = await db
+		.select({
+			activity: table.timetableActivity,
+			subject: table.subject,
+			teacher: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName
+			},
+			studentGroup: table.timetableGroup
+		})
+		.from(table.timetableActivity)
+		.innerJoin(table.subject, eq(table.timetableActivity.subjectId, table.subject.id))
+		.innerJoin(table.user, eq(table.timetableActivity.teacherId, table.user.id))
+		.innerJoin(table.timetableGroup, eq(table.timetableActivity.groupId, table.timetableGroup.id))
+		.where(eq(table.timetableActivity.timetableId, timetableId))
+		.orderBy(
+			asc(table.timetableGroup.yearLevel),
+			asc(table.subject.name),
+			asc(table.timetableGroup.name)
+		);
+
+	return activities;
+}
+
+export async function createTimetableActivity(data: {
+	timetableId: number;
+	subjectId: number;
+	teacherId: string;
+	groupId: number;
+	periodsPerInstance: number;
+	totalPeriods: number;
+}) {
+	const [activity] = await db.insert(table.timetableActivity).values(data).returning();
+
+	return activity;
+}
+
+export async function updateTimetableActivity(
+	activityId: number,
+	data: {
+		periodsPerInstance?: number;
+		totalPeriods?: number;
+		teacherId?: string;
+	}
+) {
+	const [activity] = await db
+		.update(table.timetableActivity)
+		.set(data)
+		.where(eq(table.timetableActivity.id, activityId))
+		.returning();
+
+	return activity;
+}
+
+export async function deleteTimetableActivity(activityId: number) {
+	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.id, activityId));
+}
+
+export async function getSubjectsBySchoolIdAndYearLevel(
+	schoolId: number,
+	yearLevel: yearLevelEnum
+) {
+	const subjects = await db
+		.select()
+		.from(table.subject)
+		.where(
+			and(
+				eq(table.subject.schoolId, schoolId),
+				eq(table.subject.yearLevel, yearLevel),
+				eq(table.subject.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.subject.name));
+
+	return subjects;
 }
