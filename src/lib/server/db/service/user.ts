@@ -3,7 +3,7 @@ import { db } from '$lib/server/db';
 import { eq, and } from 'drizzle-orm';
 import { hash } from '@node-rs/argon2';
 import { randomInt } from 'crypto';
-import { userGenderEnum, userHonorificEnum, userTypeEnum, yearLevelEnum } from '$lib/enums';
+import { userGenderEnum, userHonorificEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 
 export async function createUser({
 	email,

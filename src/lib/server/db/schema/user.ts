@@ -2,7 +2,12 @@ import { pgTable, text, integer, timestamp, boolean, pgEnum, uuid } from 'drizzl
 import { timestamps } from './utils';
 import { school } from './schools';
 import { yearLevelEnumPg } from './curriculum';
-import { relationshipTypeEnum, userGenderEnum, userHonorificEnum, userTypeEnum } from '$lib/enums';
+import {
+	relationshipTypeEnum,
+	userGenderEnum,
+	userHonorificEnum,
+	userTypeEnum
+} from '../../../enums';
 
 export const userTypeEnumPg = pgEnum('user_type', [
 	userTypeEnum.student,

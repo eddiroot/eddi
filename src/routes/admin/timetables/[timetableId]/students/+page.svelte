@@ -13,25 +13,42 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { convertToFullName } from '$lib/utils.js';
+	import { convertToFullName, yearLevelToLabel } from '$lib/utils';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { UsersIcon } from '@lucide/svelte';
+	import { ShuffleIcon, UsersIcon } from '@lucide/svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { createGroupSchema } from './schema.js';
+	import { createGroupSchema, randomlyAssignSchema } from './schema';
 	import { invalidateAll } from '$app/navigation';
-	import { yearLevelEnum } from '$lib/enums.js';
+	import { yearLevelEnum } from '$lib/enums';
 
 	let { data } = $props();
 
 	let yearLevels = $derived(() => {
 		return data.students
 			.map((student) => student.yearLevel)
-			.filter((value, index, self) => self.indexOf(value) === index);
+			.filter((value, index, self) => self.indexOf(value) === index)
+			.sort();
 	});
 
-	let yearLevel = $state('');
+	let yearLevel = $state(data.defaultYearLevel);
 	let createDialogOpen = $state(false);
+	let randomAssignDialogOpen = $state(false);
+
+	let filteredGroups = $derived(() => {
+		if (!yearLevel) return [];
+		return data.groups.filter((group) => group.yearLevel === yearLevel);
+	});
+
+	let filteredStudents = $derived(() => {
+		if (!yearLevel) return [];
+		return data.students.filter((student) => student.yearLevel === yearLevel);
+	});
+
+	let unassignedStudents = $derived(() => {
+		if (!yearLevel) return [];
+		return data.students.filter((student) => student.yearLevel === yearLevel && !student.groupName);
+	});
 
 	const form = superForm(data.createGroupForm, {
 		validators: zod4(createGroupSchema),
@@ -45,12 +62,32 @@
 
 	const { form: formData, enhance } = form;
 
+	const randomAssignForm = superForm(data.randomlyAssignForm, {
+		validators: zod4(randomlyAssignSchema),
+		onResult: ({ result }) => {
+			if (result.type === 'success') {
+				randomAssignDialogOpen = false;
+				invalidateAll();
+			}
+		}
+	});
+
+	const { form: randomAssignFormData, enhance: randomAssignEnhance } = randomAssignForm;
+
 	// Set the year level when opening the dialog
 	function openCreateDialog() {
 		if (yearLevel) {
 			$formData.yearLevel = yearLevel as yearLevelEnum;
 		}
 		createDialogOpen = true;
+	}
+
+	// Set the year level when opening the random assign dialog
+	function openRandomAssignDialog() {
+		if (yearLevel) {
+			$randomAssignFormData.yearLevel = yearLevel as yearLevelEnum;
+		}
+		randomAssignDialogOpen = true;
 	}
 </script>
 
@@ -60,48 +97,42 @@
 		<div class="flex gap-2">
 			<Select.Root type="single" name="yearLevel" bind:value={yearLevel}>
 				<Select.Trigger class="w-[180px]">
-					{yearLevel ? `Year ${yearLevel}` : 'Select a year level'}
+					{yearLevel ? yearLevelToLabel(yearLevel) : 'Select a year level'}
 				</Select.Trigger>
 				<Select.Content>
-					{#each yearLevels() as yearLevel}
-						<Select.Item value={yearLevel} label={`Year ${yearLevel}`}>
-							{`Year ${yearLevel}`}
+					{#each yearLevels() as yearLevelValue}
+						<Select.Item value={yearLevelValue} label={yearLevelToLabel(yearLevelValue)}>
+							{yearLevelToLabel(yearLevelValue)}
 						</Select.Item>
 					{/each}
 				</Select.Content>
 			</Select.Root>
+			<Button type="button" onclick={openCreateDialog} disabled={!yearLevel}>
+				<PlusIcon />
+				Create Group
+			</Button>
 			<Button
 				type="button"
-				onclick={openCreateDialog}
-				class="flex items-center gap-2"
-				disabled={!yearLevel}
+				onclick={openRandomAssignDialog}
+				disabled={!yearLevel || filteredGroups().length === 0 || unassignedStudents().length === 0}
 			>
-				<PlusIcon class="h-4 w-4" />
-				Create Group
+				<ShuffleIcon />
+				Randomly Assign
 			</Button>
 		</div>
 		{#if yearLevel}
-			{#if data.groups.length > 0}
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Group Name</TableHead>
-							<TableHead>Year Level</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{#each data.groups as group}
-							<TableRow>
-								<TableCell>
-									{group.name}
-								</TableCell>
-								<TableCell>
-									{group.yearLevel}
-								</TableCell>
-							</TableRow>
-						{/each}
-					</TableBody>
-				</Table>
+			{#if filteredGroups().length > 0}
+				<ol class="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+					{#each filteredGroups() as group}
+						<li
+							class="border-border bg-card flex min-h-10 w-full items-center justify-between rounded-lg border-2 px-4 py-3 transition-colors"
+						>
+							<span class="font-semibold">
+								{group.name}
+							</span>
+						</li>
+					{/each}
+				</ol>
 			{:else}
 				<Card.Root>
 					<Card.Content class="text-center">
@@ -119,7 +150,7 @@
 					<UsersIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
 					<Card.Title class="mb-2 text-lg">Select a year level</Card.Title>
 					<Card.Description class="mb-4">
-						Please select a year level to get started with groups.
+						Please select a year level to see its groups.
 					</Card.Description>
 				</Card.Content>
 			</Card.Root>
@@ -127,26 +158,50 @@
 	</div>
 	<div class="space-y-4">
 		<h2 class="text-2xl leading-tight font-bold">Students</h2>
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead>Student Name</TableHead>
-					<TableHead>Year Level</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{#each data.students as student}
-					<TableRow>
-						<TableCell>
-							{convertToFullName(student.firstName, student.middleName, student.lastName)}
-						</TableCell>
-						<TableCell>
-							{student.yearLevel}
-						</TableCell>
-					</TableRow>
-				{/each}
-			</TableBody>
-		</Table>
+		{#if yearLevel}
+			{#if filteredStudents().length > 0}
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>Name</TableHead>
+							<TableHead>Group</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{#each filteredStudents() as student}
+							<TableRow>
+								<TableCell>
+									{convertToFullName(student.firstName, student.middleName, student.lastName)}
+								</TableCell>
+								<TableCell>
+									{student.groupName || 'No group assigned'}
+								</TableCell>
+							</TableRow>
+						{/each}
+					</TableBody>
+				</Table>
+			{:else}
+				<Card.Root>
+					<Card.Content class="text-center">
+						<UsersIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+						<Card.Title class="mb-2 text-lg">No students found</Card.Title>
+						<Card.Description class="mb-4">
+							There are no students in this year level.
+						</Card.Description>
+					</Card.Content>
+				</Card.Root>
+			{/if}
+		{:else}
+			<Card.Root>
+				<Card.Content class="text-center">
+					<UsersIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+					<Card.Title class="mb-2 text-lg">Select a year level</Card.Title>
+					<Card.Description class="mb-4">
+						Please select a year level to see students.
+					</Card.Description>
+				</Card.Content>
+			</Card.Root>
+		{/if}
 	</div>
 </div>
 
@@ -177,6 +232,38 @@
 					Cancel
 				</Button>
 				<Button type="submit">Create Group</Button>
+			</Dialog.Footer>
+		</form>
+	</Dialog.Content>
+</Dialog.Root>
+
+<!-- Random Assignment Dialog -->
+<Dialog.Root bind:open={randomAssignDialogOpen}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Randomly Assign Students</Dialog.Title>
+			<Dialog.Description>
+				This will randomly assign all unassigned students in {yearLevelToLabel(yearLevel)} to the existing
+				groups as evenly as possible.
+			</Dialog.Description>
+		</Dialog.Header>
+		<form method="POST" action="?/randomlyAssign" use:randomAssignEnhance>
+			<div class="grid gap-4 py-4">
+				<div class="text-muted-foreground text-sm">
+					<p>
+						<strong>{unassignedStudents().length}</strong> unassigned students will be distributed
+						across <strong>{filteredGroups().length}</strong> groups.
+					</p>
+				</div>
+
+				<!-- Hidden field for year level -->
+				<input type="hidden" name="yearLevel" bind:value={$randomAssignFormData.yearLevel} />
+			</div>
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (randomAssignDialogOpen = false)}>
+					Cancel
+				</Button>
+				<Button type="submit">Randomly Assign</Button>
 			</Dialog.Footer>
 		</form>
 	</Dialog.Content>

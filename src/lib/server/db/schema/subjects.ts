@@ -23,7 +23,7 @@ import {
 	subjectThreadTypeEnum,
 	userSubjectOfferingClassRoleEnum,
 	userSubjectOfferingRoleEnum
-} from '$lib/enums';
+} from '../../../enums';
 
 export const coreSubject = pgTable('core_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

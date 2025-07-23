@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { yearLevelEnum } from './enums';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -93,6 +94,45 @@ export function convertToFullName(
 	}
 
 	return parts.join(' ').trim();
+}
+
+export function yearLevelToLabel(yearLevel: string): string {
+	switch (yearLevel) {
+		case yearLevelEnum.foundation:
+			return 'Foundation';
+		case yearLevelEnum.year1:
+			return 'Year 1';
+		case yearLevelEnum.year2:
+			return 'Year 2';
+		case yearLevelEnum.year3:
+			return 'Year 3';
+		case yearLevelEnum.year4:
+			return 'Year 4';
+		case yearLevelEnum.year5:
+			return 'Year 5';
+		case yearLevelEnum.year6:
+			return 'Year 6';
+		case yearLevelEnum.year7:
+			return 'Year 7';
+		case yearLevelEnum.year8:
+			return 'Year 8';
+		case yearLevelEnum.year9:
+			return 'Year 9';
+		case yearLevelEnum.year10:
+			return 'Year 10';
+		case yearLevelEnum.year10A:
+			return 'Year 10A';
+		case yearLevelEnum.year11:
+			return 'Year 11';
+		case yearLevelEnum.year12:
+			return 'Year 12';
+		case yearLevelEnum.year13:
+			return 'Year 13';
+		case yearLevelEnum.none:
+			return 'No Year Level';
+		default:
+			return yearLevel;
+	}
 }
 
 export function formatTime(time: string): string {

@@ -7,7 +7,7 @@ import {
 	taskStatusEnum,
 	taskTypeEnum,
 	whiteboardObjectTypeEnum
-} from '$lib/enums';
+} from '$lib/enums.js';
 
 export async function addTasksToClass(
 	taskIds: number[],

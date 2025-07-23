@@ -22,7 +22,7 @@ import {
 	taskStatusEnum,
 	taskTypeEnum,
 	whiteboardObjectTypeEnum
-} from '$lib/enums';
+} from '../../../enums';
 
 export const taskTypeEnumPg = pgEnum('task_type', [
 	taskTypeEnum.lesson,

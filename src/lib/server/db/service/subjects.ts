@@ -6,7 +6,7 @@ import {
 	subjectThreadTypeEnum,
 	taskTypeEnum,
 	userSubjectOfferingClassRoleEnum
-} from '$lib/enums';
+} from '$lib/enums.js';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db

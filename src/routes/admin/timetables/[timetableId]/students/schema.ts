@@ -8,4 +8,11 @@ export const createGroupSchema = z.object({
 	})
 });
 
+export const randomlyAssignSchema = z.object({
+	yearLevel: z.enum(yearLevelEnum, {
+		message: 'Year level is required'
+	})
+});
+
 export type CreateGroupSchema = typeof createGroupSchema;
+export type RandomlyAssignSchema = typeof randomlyAssignSchema;

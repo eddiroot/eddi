@@ -1,8 +1,8 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { eq, and, asc, count } from 'drizzle-orm';
+import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { days } from '$lib/utils';
-import { schoolSpaceTypeEnum, userTypeEnum, yearLevelEnum } from '$lib/enums';
+import { schoolSpaceTypeEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 
 export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const users = await db
@@ -541,4 +541,128 @@ export async function createTimetableStudentGroup(
 		.returning();
 
 	return group;
+}
+
+export async function assignStudentsToGroupsRandomly(
+	timetableId: number,
+	yearLevel: yearLevelEnum,
+	schoolId: number
+) {
+	// Get all students for this year level
+	const students = await db
+		.select({
+			id: table.user.id
+		})
+		.from(table.user)
+		.where(
+			and(
+				eq(table.user.schoolId, schoolId),
+				eq(table.user.type, userTypeEnum.student),
+				eq(table.user.yearLevel, yearLevel),
+				eq(table.user.isArchived, false)
+			)
+		);
+
+	// Get all groups for this year level and timetable
+	const groups = await db
+		.select()
+		.from(table.schoolTimetableStudentGroup)
+		.where(
+			and(
+				eq(table.schoolTimetableStudentGroup.timetableId, timetableId),
+				eq(table.schoolTimetableStudentGroup.yearLevel, yearLevel)
+			)
+		);
+
+	if (groups.length === 0) {
+		throw new Error('No groups found for this year level');
+	}
+
+	// Remove existing assignments for these students
+	const studentIds = students.map((s) => s.id);
+	if (studentIds.length > 0) {
+		const existingGroupIds = await db
+			.select({ id: table.schoolTimetableStudentGroup.id })
+			.from(table.schoolTimetableStudentGroup)
+			.where(eq(table.schoolTimetableStudentGroup.timetableId, timetableId));
+
+		if (existingGroupIds.length > 0) {
+			await db.delete(table.timetableStudentGroupMembership).where(
+				and(
+					inArray(table.timetableStudentGroupMembership.userId, studentIds),
+					inArray(
+						table.timetableStudentGroupMembership.groupId,
+						existingGroupIds.map((g) => g.id)
+					)
+				)
+			);
+		}
+	}
+
+	// Shuffle students array
+	const shuffledStudents = [...students].sort(() => Math.random() - 0.5);
+
+	// Assign students to groups in round-robin fashion
+	const assignments = shuffledStudents.map((student, index) => ({
+		userId: student.id,
+		groupId: groups[index % groups.length].id
+	}));
+
+	// Insert new assignments
+	if (assignments.length > 0) {
+		await db.insert(table.timetableStudentGroupMembership).values(assignments);
+	}
+
+	return assignments.length;
+}
+
+export async function getStudentsWithGroupsByTimetableId(timetableId: number, schoolId: number) {
+	const timetable = await db
+		.select()
+		.from(table.schoolTimetable)
+		.where(
+			and(eq(table.schoolTimetable.id, timetableId), eq(table.schoolTimetable.schoolId, schoolId))
+		)
+		.limit(1);
+
+	if (timetable.length === 0) {
+		throw new Error(
+			`Timetable with ID ${timetableId} does not belong to school with ID ${schoolId}`
+		);
+	}
+
+	const students = await db
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			avatarUrl: table.user.avatarUrl,
+			yearLevel: table.user.yearLevel,
+			groupId: table.schoolTimetableStudentGroup.id,
+			groupName: table.schoolTimetableStudentGroup.name
+		})
+		.from(table.user)
+		.leftJoin(
+			table.timetableStudentGroupMembership,
+			eq(table.user.id, table.timetableStudentGroupMembership.userId)
+		)
+		.leftJoin(
+			table.schoolTimetableStudentGroup,
+			and(
+				eq(table.timetableStudentGroupMembership.groupId, table.schoolTimetableStudentGroup.id),
+				eq(table.schoolTimetableStudentGroup.timetableId, timetableId)
+			)
+		)
+		.where(
+			and(
+				eq(table.user.schoolId, schoolId),
+				eq(table.user.type, userTypeEnum.student),
+				eq(table.user.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+
+	return students;
 }

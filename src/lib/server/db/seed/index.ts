@@ -14,7 +14,7 @@ import {
 	userSubjectOfferingRoleEnum,
 	userTypeEnum,
 	yearLevelEnum
-} from '$lib/enums';
+} from '$lib/enums.js';
 
 const databaseUrl = process.env.DATABASE_URL;
 

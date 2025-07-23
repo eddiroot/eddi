@@ -2,7 +2,7 @@ import { pgTable, text, integer, boolean, pgEnum, unique, uuid } from 'drizzle-o
 import { timestamps } from './utils';
 import { user } from './user';
 import { yearLevelEnumPg } from './curriculum';
-import { schoolSpaceTypeEnum } from '$lib/enums';
+import { schoolSpaceTypeEnum } from '../../../enums';
 
 export const school = pgTable('school', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -136,3 +136,20 @@ export const schoolTimetableStudentGroup = pgTable('sch_tt_student_group', {
 });
 
 export type SchoolTimetableStudentGroup = typeof schoolTimetableStudentGroup.$inferSelect;
+
+export const timetableStudentGroupMembership = pgTable(
+	'tt_student_group_membership',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		groupId: integer('group_id')
+			.notNull()
+			.references(() => schoolTimetableStudentGroup.id, { onDelete: 'cascade' }),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		...timestamps
+	},
+	(self) => [unique().on(self.groupId, self.userId)]
+);
+
+export type TimetableStudentGroupMembership = typeof timetableStudentGroupMembership.$inferSelect;
