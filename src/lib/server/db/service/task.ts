@@ -3,9 +3,11 @@ import { db } from '$lib/server/db';
 import { desc, eq, and, or, gte, inArray, asc, sql } from 'drizzle-orm';
 import { verifyUserAccessToClass } from './user';
 import {
+	taskBlockResponseStatusEnum,
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
+	userSubjectOfferingClassRoleEnum,
 	whiteboardObjectTypeEnum
 } from '$lib/enums.js';
 
@@ -1208,7 +1210,7 @@ export async function getClassTeacher(subjectOfferingClassId: number) {
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
-				eq(table.userSubjectOfferingClass.role, table.userSubjectOfferingClassRoleEnum.teacher),
+				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher),
 				eq(table.userSubjectOfferingClass.isArchived, false)
 			)
 		)
@@ -1223,7 +1225,7 @@ export async function createClassTaskResponse(
 	authorId: string,
 	comment?: string,
 	marks: number = 0,
-	status: table.taskBlockResponseStatusEnum = table.taskBlockResponseStatusEnum.submitted,
+	status: taskBlockResponseStatusEnum = taskBlockResponseStatusEnum.submitted,
 	teacherId?: string
 ) {
 	// If no teacherId provided, try to get it from the class
@@ -1235,7 +1237,7 @@ export async function createClassTaskResponse(
 			.from(table.subjectOfferingClassTask)
 			.where(eq(table.subjectOfferingClassTask.id, classTaskId))
 			.limit(1);
-		
+
 		if (classTask[0]) {
 			const teacherFromClass = await getClassTeacher(classTask[0].subjectOfferingClassId);
 			finalTeacherId = teacherFromClass || undefined;
@@ -1260,11 +1262,11 @@ export async function createClassTaskResponse(
 export async function updateClassTaskResponseStatus(
 	classTaskId: number,
 	authorId: string,
-	status: table.taskBlockResponseStatusEnum
+	status: taskBlockResponseStatusEnum
 ) {
 	const [response] = await db
 		.update(table.classTaskResponse)
-		.set({ 
+		.set({
 			status,
 			updatedAt: new Date()
 		})
@@ -1279,10 +1281,7 @@ export async function updateClassTaskResponseStatus(
 	return response;
 }
 
-export async function getClassTaskResponse(
-	classTaskId: number,
-	authorId: string
-) {
+export async function getClassTaskResponse(classTaskId: number, authorId: string) {
 	const response = await db
 		.select()
 		.from(table.classTaskResponse)
@@ -1322,7 +1321,7 @@ export async function updateClassTaskResponseComment(
 ) {
 	const [response] = await db
 		.update(table.classTaskResponse)
-		.set({ 
+		.set({
 			comment,
 			updatedAt: new Date()
 		})
@@ -1332,21 +1331,17 @@ export async function updateClassTaskResponseComment(
 	return response;
 }
 
-export async function removeAllResourcesFromClassTaskResponse(
-	classTaskResponseId: number
-) {
+export async function removeAllResourcesFromClassTaskResponse(classTaskResponseId: number) {
 	await db
 		.update(table.classTaskResponseResource)
-		.set({ 
+		.set({
 			isArchived: true,
 			updatedAt: new Date()
 		})
 		.where(eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId));
 }
 
-export async function deleteResourcesFromClassTaskResponse(
-	classTaskResponseId: number
-) {
+export async function deleteResourcesFromClassTaskResponse(classTaskResponseId: number) {
 	// First get all the resources to delete from S3
 	const resources = await db
 		.select({
@@ -1368,7 +1363,7 @@ export async function deleteResourcesFromClassTaskResponse(
 		.where(eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId));
 
 	// Return the resource info for S3 deletion
-	return resources.map(r => r.resource);
+	return resources.map((r) => r.resource);
 }
 
 export async function deleteResourceFromClassTaskResponse(
@@ -1384,7 +1379,10 @@ export async function deleteResourceFromClassTaskResponse(
 		})
 		.from(table.classTaskResponseResource)
 		.innerJoin(table.resource, eq(table.classTaskResponseResource.resourceId, table.resource.id))
-		.innerJoin(table.classTaskResponse, eq(table.classTaskResponseResource.classTaskResponseId, table.classTaskResponse.id))
+		.innerJoin(
+			table.classTaskResponse,
+			eq(table.classTaskResponseResource.classTaskResponseId, table.classTaskResponse.id)
+		)
 		.where(
 			and(
 				eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId),
@@ -1413,7 +1411,10 @@ export async function deleteResourceFromClassTaskResponse(
 	return resourceData.resource;
 }
 
-export async function addResourceToClassTaskResponse(classTaskResponseId: number, resourceId: number) {
+export async function addResourceToClassTaskResponse(
+	classTaskResponseId: number,
+	resourceId: number
+) {
 	const [relationship] = await db
 		.insert(table.classTaskResponseResource)
 		.values({
@@ -1427,8 +1428,8 @@ export async function addResourceToClassTaskResponse(classTaskResponseId: number
 }
 
 export async function addResourcesToClassTaskResponse(
-	classTaskResponseId: number, 
-	resourceIds: number[], 
+	classTaskResponseId: number,
+	resourceIds: number[],
 	authorId: string
 ) {
 	if (resourceIds.length === 0) {

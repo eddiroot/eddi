@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, pgEnum, unique, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, pgEnum, unique, uuid, time } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { user } from './user';
 import { yearLevelEnumPg } from './curriculum';
@@ -118,8 +118,8 @@ export const schoolTimetablePeriod = pgTable('sch_tt_period', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => schoolTimetable.id, { onDelete: 'cascade' }),
-	startTime: text('start_time').notNull(),
-	endTime: text('end_time').notNull(),
+	startTime: time('start_time').notNull(),
+	endTime: time('end_time').notNull(),
 	...timestamps
 });
 
