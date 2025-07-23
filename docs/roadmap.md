@@ -24,6 +24,8 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Auto generated summaries of discussions (21/07)
 - [x] Option for teachers to disable eddi AI on a task (28/07)
 - [x] Onboarding flow (14/07)
+- [x] Switch locations to buildings and rooms (22/07)
+- [x] Basic timetabling (Frontend/Backend) (23/07)
 
 ## Doing
 
@@ -34,13 +36,11 @@ All
 
 Lachie
 
-- [ ] Buildings and rooms (rather than just locations)
-- [ ] Basic timetabling (28/08)
-- [ ] Admin dashboard allocations page (28/08)
-- [ ] Events appearing in everyone's timetables (07/09)
-- [ ] Class space shifts (14/09)
-- [ ] Teachers can see past attendance (21/09)
-- [ ] Exam timetabling
+- [ ] Basic timetabling (Generation) (28/07)
+- [ ] Admin dashboard allocations page (07/08)
+- [ ] Events appearing in everyone's timetables (14/08)
+- [ ] Class space shifts (21/08)
+- [ ] Teachers can see past attendance (28/08)
 
 Jack
 
@@ -91,6 +91,7 @@ Max
 
 ## Future
 
+- [ ] Exam timetabling
 - [ ] Queue for email sending so it doesn't block requests
 - [ ] Subtype for Assessments (SAC?)
 - [ ] Export all data for a given school
