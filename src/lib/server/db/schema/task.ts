@@ -18,6 +18,7 @@ import { doublePrecision } from 'drizzle-orm/pg-core';
 import { learningAreaStandard } from './curriculum';
 import { resource } from './resource';
 import {
+	taskBlockResponseStatusEnum,
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
@@ -156,12 +157,6 @@ export const taskBlockResponse = pgTable('task_block_response', {
 });
 
 export type TaskBlockResponse = typeof taskBlockResponse.$inferSelect;
-
-export enum taskBlockResponseStatusEnum {
-	editPermission = 'edit_permission', // Student can edit their response
-	submitted = 'submitted', // Student has submitted their response
-	graded = 'graded', // Teacher has graded the response
-}
 
 export const taskBlockResponseStatusEnumPg = pgEnum('task_block_response_status', [
 	taskBlockResponseStatusEnum.editPermission,
