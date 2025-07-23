@@ -200,7 +200,6 @@
                                         resources={data.resources} 
                                         onAddResource={handleAddResource}
                                         onRemoveResource={handleRemoveResource}
-                                        onOpenResource={handleOpenResource}
                                 />
                         </div>
                 </div>

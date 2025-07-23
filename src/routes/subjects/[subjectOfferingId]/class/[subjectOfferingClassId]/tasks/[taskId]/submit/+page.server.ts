@@ -5,6 +5,8 @@ import {
     getRubricWithRowsAndCells,
     createClassTaskResponse,
     getClassTaskResponse,
+    updateClassTaskResponseComment,
+    deleteResourceFromClassTaskResponse,
     createResource,
     addResourcesToClassTaskResponse,
     getClassTaskResponseResources
@@ -15,7 +17,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { taskStatusEnum } from '$lib/server/db/schema';
 import { inferResourceTypeFromFileName } from '$lib/server/schema/resourceSchema';
-import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
+import { uploadBufferHelper, generateUniqueFileName, deleteFile } from '$lib/server/obj';
 
 // Simplified schema for the task submission
 const submitSchema = z.object({
@@ -88,9 +90,30 @@ export const load = async ({ locals: { security }, params: { taskId, subjectOffe
 
 export const actions = {
     submit: async ({ request, params, locals }) => {
-        const form = await superValidate(request, zod(submitSchema));
+        // Get files from the FormData first before superValidate consumes it
+        const formData = await request.formData();
+        const uploadedFiles = formData.getAll('files') as File[];
+        const comment = formData.get('comment') as string;
+        
+        console.log('Server received files:', uploadedFiles.length);
+        console.log('Server received comment:', comment);
+        console.log('Raw comment value:', formData.get('comment'));
+        console.log('All form keys:', Array.from(formData.keys()));
+        
+        // Create a new FormData with just the comment for validation
+        const validationData = new FormData();
+        validationData.set('comment', comment || '');
+        
+        // Create a new Request for validation
+        const validationRequest = new Request(request.url, {
+            method: 'POST',
+            body: validationData
+        });
+
+        const form = await superValidate(validationRequest, zod(submitSchema));
         
         if (!form.valid) {
+            console.log('Form validation failed:', form.errors);
             return fail(400, { form });
         }
 
@@ -112,18 +135,29 @@ export const actions = {
                 return fail(404, { form });
             }
 
-            // Create the class task response
-            const response = await createClassTaskResponse(
-                subjectOfferingClassTask.id,
-                userId,
-                form.data.comment as string | undefined
-            );
+            // Check if user already has a submission
+            let response = await getClassTaskResponse(subjectOfferingClassTask.id, userId);
+            
+            if (response) {
+                // Update existing submission - only update comment, don't delete existing files
+                console.log('Updating existing submission:', response.id);
+                
+                // Update the comment on the existing response
+                await updateClassTaskResponseComment(response.id, comment || null);
+                
+                console.log('Updated existing response with new comment');
+            } else {
+                // Create new class task response
+                console.log('Creating new submission');
+                response = await createClassTaskResponse(
+                    subjectOfferingClassTask.id,
+                    userId,
+                    comment || undefined
+                );
+            }
 
             // Handle file uploads if any
-            const files = form.data.files || [];
-            const validFiles = Array.isArray(files) ? files.filter(
-                (file: unknown): file is File => file instanceof File && file.size > 0
-            ) : [];
+            const validFiles = uploadedFiles.filter(file => file instanceof File && file.size > 0);
 
             if (validFiles.length > 0) {
                 const resourceIds: number[] = [];
@@ -155,10 +189,62 @@ export const actions = {
             }
 
             // Redirect to a success page or task list
-            redirect(303, `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks`);
+            throw redirect(303, `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks`);
         } catch (error) {
+            // Check if it's a redirect (which is expected)
+            if (error && typeof error === 'object' && 'status' in error && error.status === 303) {
+                throw error; // Re-throw redirects
+            }
             console.error('Error submitting task:', error);
             return fail(500, { form });
+        }
+    },
+    
+    removeFile: async ({ request, params, locals }) => {
+        const formData = await request.formData();
+        const resourceId = parseInt(formData.get('resourceId') as string);
+        
+        const { subjectOfferingClassId, taskId } = params;
+        const userId = locals.user?.id;
+
+        if (!userId || !resourceId) {
+            return fail(400, { error: 'Missing required data' });
+        }
+
+        try {
+            // Check if task exists and is available for the class
+            const subjectOfferingClassTask = await getSubjectOfferingClassTaskByTaskId(
+                parseInt(taskId),
+                parseInt(subjectOfferingClassId)
+            );
+
+            if (!subjectOfferingClassTask) {
+                return fail(404, { error: 'Task not found' });
+            }
+
+            // Get the user's response
+            const response = await getClassTaskResponse(subjectOfferingClassTask.id, userId);
+            
+            if (!response) {
+                return fail(404, { error: 'Submission not found' });
+            }
+
+            // Remove the specific resource
+            const deletedResource = await deleteResourceFromClassTaskResponse(response.id, resourceId, userId);
+            
+            // Delete file from S3
+            try {
+                await deleteFile(deletedResource.bucketName, deletedResource.objectKey);
+                console.log('Deleted file from S3:', deletedResource.fileName);
+            } catch (error) {
+                console.error('Error deleting file from S3:', deletedResource.fileName, error);
+                // Continue even if S3 deletion fails
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Error removing file:', error);
+            return fail(500, { error: 'Failed to remove file' });
         }
     }
 };

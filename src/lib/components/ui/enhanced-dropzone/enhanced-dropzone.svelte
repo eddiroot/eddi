@@ -4,10 +4,34 @@
 	import Button from '../button/button.svelte';
 	import { ResourceCard } from '$lib/components/ui/resource-card';
 
+	interface ExistingFile {
+		id: number;
+		name: string;
+		fileName: string;
+		size: number;
+		resourceType: string;
+	}
+
 	let dragover = $state(false);
 	let fileInput: HTMLInputElement;
 
-	let { files = $bindable(), accept = '', multiple = false, className = '', id = '' } = $props();
+	let { 
+		files = $bindable(), 
+		existingFiles = [], 
+		onRemoveExisting,
+		accept = '', 
+		multiple = false, 
+		className = '', 
+		id = '' 
+	}: {
+		files?: FileList | null;
+		existingFiles?: ExistingFile[];
+		onRemoveExisting?: (id: number, fileName: string) => void;
+		accept?: string;
+		multiple?: boolean;
+		className?: string;
+		id?: string;
+	} = $props();
 
 	function handleChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -38,7 +62,7 @@
 
 			// Add existing files
 			if (files) {
-				Array.from(files as FileList).forEach((file) => dt.items.add(file as File));
+				Array.from(files).forEach((file) => dt.items.add(file));
 			}
 
 			// Add new files
@@ -52,7 +76,7 @@
 		if (!files) return;
 
 		const dt = new DataTransfer();
-		Array.from(files as FileList).forEach((file, i) => {
+		Array.from(files).forEach((file, i) => {
 			if (i !== index) {
 				dt.items.add(file);
 			}
@@ -61,7 +85,7 @@
 	}
 
 	function handleClick() {
-		fileInput.click();
+		fileInput?.click();
 	}
 
 	function handleDragOver(event: DragEvent) {
@@ -76,7 +100,7 @@
 	// Map File to ResourceInfo for the ResourceCard
 	function mapFileToResourceInfo(file: File, index?: number): {
 		id?: number;
-		name?: string;
+		name: string;
 		fileName: string;
 		fileSize: number;
 		resourceType: string;
@@ -84,9 +108,27 @@
 		const type = getResourceTypeFromMimeType(file.type);
 		return {
 			id: index, // Use index as temporary id for new files
+			name: file.name,
 			fileName: file.name,
 			fileSize: file.size,
 			resourceType: type
+		};
+	}
+
+	// Map ExistingFile to ResourceInfo for the ResourceCard  
+	function mapExistingFileToResourceInfo(file: ExistingFile): {
+		id?: number;
+		name: string;
+		fileName: string;
+		fileSize: number;
+		resourceType: string;
+	} {
+		return {
+			id: file.id,
+			name: file.name,
+			fileName: file.fileName,
+			fileSize: file.size,
+			resourceType: file.resourceType
 		};
 	}
 
@@ -98,6 +140,9 @@
 		if (mimeType.includes('document')) return 'document';
 		return 'document';
 	}
+
+	// Calculate total file count
+	const totalFiles = $derived((existingFiles?.length || 0) + (files?.length || 0));
 </script>
 
 <div class="space-y-4">
@@ -131,9 +176,9 @@
 					? `${accept.replace(/\./g, '').replace(/,/g, ', ').toUpperCase()}`
 					: 'PNG, JPG, JPEG or PDF'} (max. 10MB each)
 			</p>
-			{#if files && files.length > 0}
+			{#if totalFiles > 0}
 				<p class="text-primary mt-2 text-xs">
-					{files.length} file{files.length !== 1 ? 's' : ''} selected
+					{totalFiles} file{totalFiles !== 1 ? 's' : ''} selected
 				</p>
 			{/if}
 		</div>
@@ -150,13 +195,25 @@
 	</div>
 
 	<!-- Selected Files List -->
-	{#if files && files.length > 0}
+	{#if totalFiles > 0}
 		<div class="-mt-2 space-y-1">
 			<p class="text-muted-foreground text-xs font-medium">
-				Selected Files ({files.length})
+				Selected Files ({totalFiles})
 			</p>
-			<div class="max-h-32 space-y-2 overflow-y-auto">
-				{#each Array.from(files as File[]) as file, index}
+			<div class="max-h-48 space-y-2 overflow-y-auto">
+				<!-- Existing Files -->
+				{#each existingFiles || [] as file}
+					<ResourceCard
+						resource={mapExistingFileToResourceInfo(file)}
+						variant="existing"
+						onRemove={(id) => onRemoveExisting?.(file.id, file.fileName)}
+						showRemoveButton={true}
+						className=""
+					/>
+				{/each}
+
+				<!-- New Files -->
+				{#each Array.from(files || []) as file, index}
 					<ResourceCard
 						resource={mapFileToResourceInfo(file, index)}
 						variant="new"

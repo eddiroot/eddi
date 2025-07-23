@@ -1316,6 +1316,103 @@ export async function getClassTaskResponseResources(classTaskResponseId: number)
 	return resources;
 }
 
+export async function updateClassTaskResponseComment(
+	classTaskResponseId: number,
+	comment: string | null
+) {
+	const [response] = await db
+		.update(table.classTaskResponse)
+		.set({ 
+			comment,
+			updatedAt: new Date()
+		})
+		.where(eq(table.classTaskResponse.id, classTaskResponseId))
+		.returning();
+
+	return response;
+}
+
+export async function removeAllResourcesFromClassTaskResponse(
+	classTaskResponseId: number
+) {
+	await db
+		.update(table.classTaskResponseResource)
+		.set({ 
+			isArchived: true,
+			updatedAt: new Date()
+		})
+		.where(eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId));
+}
+
+export async function deleteResourcesFromClassTaskResponse(
+	classTaskResponseId: number
+) {
+	// First get all the resources to delete from S3
+	const resources = await db
+		.select({
+			resource: table.resource
+		})
+		.from(table.classTaskResponseResource)
+		.innerJoin(table.resource, eq(table.classTaskResponseResource.resourceId, table.resource.id))
+		.where(
+			and(
+				eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId),
+				eq(table.classTaskResponseResource.isArchived, false),
+				eq(table.resource.isArchived, false)
+			)
+		);
+
+	// Delete the relationship records
+	await db
+		.delete(table.classTaskResponseResource)
+		.where(eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId));
+
+	// Return the resource info for S3 deletion
+	return resources.map(r => r.resource);
+}
+
+export async function deleteResourceFromClassTaskResponse(
+	classTaskResponseId: number,
+	resourceId: number,
+	userId: string
+) {
+	// First get the resource to delete from S3 and verify it belongs to the user's response
+	const [resourceData] = await db
+		.select({
+			resource: table.resource,
+			response: table.classTaskResponse
+		})
+		.from(table.classTaskResponseResource)
+		.innerJoin(table.resource, eq(table.classTaskResponseResource.resourceId, table.resource.id))
+		.innerJoin(table.classTaskResponse, eq(table.classTaskResponseResource.classTaskResponseId, table.classTaskResponse.id))
+		.where(
+			and(
+				eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId),
+				eq(table.classTaskResponseResource.resourceId, resourceId),
+				eq(table.classTaskResponse.authorId, userId),
+				eq(table.classTaskResponseResource.isArchived, false),
+				eq(table.resource.isArchived, false)
+			)
+		);
+
+	if (!resourceData) {
+		throw new Error('Resource not found or access denied');
+	}
+
+	// Delete the relationship record
+	await db
+		.delete(table.classTaskResponseResource)
+		.where(
+			and(
+				eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId),
+				eq(table.classTaskResponseResource.resourceId, resourceId)
+			)
+		);
+
+	// Return the resource info for S3 deletion
+	return resourceData.resource;
+}
+
 export async function addResourceToClassTaskResponse(classTaskResponseId: number, resourceId: number) {
 	const [relationship] = await db
 		.insert(table.classTaskResponseResource)

@@ -28,7 +28,7 @@ import {
         assessmentSchema,
         buildAssessmentPlanPrompt,
         buildAssessmentPlanImagePrompt
-} from '$lib/server/planSchema';
+} from '$lib/server/schema/planSchema';
 import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
 
 export const load = async ({
