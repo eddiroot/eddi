@@ -1315,6 +1315,34 @@ export async function getClassTaskResponseResources(classTaskResponseId: number)
 	return resources;
 }
 
+export async function getClassTaskResponsesWithStudents(classTaskId: number) {
+	const responses = await db
+		.select({
+			classTaskResponse: table.classTaskResponse,
+			student: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				lastName: table.user.lastName,
+				email: table.user.email
+			}
+		})
+		.from(table.classTaskResponse)
+		.innerJoin(table.user, eq(table.classTaskResponse.authorId, table.user.id))
+		.where(
+			and(
+				eq(table.classTaskResponse.classTaskId, classTaskId),
+				eq(table.classTaskResponse.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+
+	// Transform the response to match our expected format
+	return responses.map(response => ({
+		...response.classTaskResponse,
+		student: response.student
+	}));
+}
+
 export async function updateClassTaskResponseComment(
 	classTaskResponseId: number,
 	comment: string | null

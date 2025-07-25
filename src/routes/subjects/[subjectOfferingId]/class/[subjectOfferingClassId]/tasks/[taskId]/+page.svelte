@@ -278,6 +278,15 @@
 			>
 				Presentation Mode
 			</Button>
+			<Button
+				variant="outline"
+				href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/assess`}
+				size="lg"
+				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
+			>
+				<CheckCircleIcon class="size-5" />
+				Assess Submissions
+			</Button>
 		{/if}
 		<Card.Root class="h-full">
 			<Card.Header>

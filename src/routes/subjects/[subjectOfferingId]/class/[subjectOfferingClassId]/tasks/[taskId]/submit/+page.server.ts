@@ -125,8 +125,9 @@ export const actions = {
 
 		const { subjectOfferingId, subjectOfferingClassId, taskId } = params;
 		const userId = locals.user?.id;
+		const userSchoolId = locals.user?.schoolId;
 
-		if (!userId) {
+		if (!userId || !userSchoolId) {
 			return fail(401, { form });
 		}
 
@@ -170,7 +171,8 @@ export const actions = {
 
 				for (const file of validFiles) {
 					// Generate unique filename and upload to S3
-					const objectKey = generateUniqueFileName(file.name);
+					const uniqueFileName = generateUniqueFileName(file.name);
+					const objectKey = `${userSchoolId}/tasks/${subjectOfferingClassTask.id}/${uniqueFileName}`;
 					const buffer = Buffer.from(await file.arrayBuffer());
 					await uploadBufferHelper(buffer, 'schools', objectKey, file.type);
 
