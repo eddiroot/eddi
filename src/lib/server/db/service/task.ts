@@ -10,6 +10,7 @@ import {
 	userSubjectOfferingClassRoleEnum,
 	whiteboardObjectTypeEnum
 } from '$lib/enums.js';
+import { feedbackLevelEnum } from '$lib/server/db/schema/task';
 
 export async function addTasksToClass(
 	taskIds: number[],
@@ -1023,57 +1024,6 @@ export async function getTaskBlockWithAnswersAndCriteria(taskBlockId: number) {
 	};
 }
 
-export async function createTaskBlockWithAnswersAndCriteria(
-	taskId: number,
-	type: taskBlockTypeEnum,
-	content: unknown,
-	answers?: Array<{ answer: unknown; marks?: number }>,
-	criteria?: Array<{ description: string; marks: number }>,
-	index?: number
-) {
-	return await db.transaction(async (tx) => {
-		// Create the task block
-		const taskBlock = await createTaskBlock(taskId, type, content, index);
-
-		// Create answers if provided
-		const createdAnswers = [];
-		if (answers && answers.length > 0) {
-			for (const answerData of answers) {
-				const [answer] = await tx
-					.insert(table.answer)
-					.values({
-						taskBlockId: taskBlock.id,
-						answer: answerData.answer,
-						marks: answerData.marks
-					})
-					.returning();
-				createdAnswers.push(answer);
-			}
-		}
-
-		// Create criteria if provided
-		const createdCriteria = [];
-		if (criteria && criteria.length > 0) {
-			for (const criteriaData of criteria) {
-				const [criteriaItem] = await tx
-					.insert(table.criteria)
-					.values({
-						taskBlockId: taskBlock.id,
-						description: criteriaData.description,
-						marks: criteriaData.marks
-					})
-					.returning();
-				createdCriteria.push(criteriaItem);
-			}
-		}
-
-		return {
-			taskBlock,
-			answers: createdAnswers,
-			criteria: createdCriteria
-		};
-	});
-}
 
 export async function getSubjectOfferingClassTaskByTaskId(
 	taskId: number,
@@ -1195,9 +1145,233 @@ export async function getUserTaskBlockResponses(
 				eq(table.taskBlockResponse.authorId, authorId),
 				eq(table.taskBlockResponse.classTaskId, classTaskId)
 			)
+		)
+		.orderBy(asc(table.taskBlock.index));
+
+	// Map the responses to associate each task block with its response
+	return responses.map(row => ({
+		taskBlock: row.taskBlock,
+		response: row.taskBlockResponse
+	}));
+}
+
+export async function getUserCriteriaAndAnswerFeedback(taskBlockId: number, authorId: string, classTaskId: number) {
+	const feedback = await db
+		.select({
+			criteria: table.criteria,
+			criteriaFeedback: table.criteriaFeedback,
+			answer: table.answer,
+			answerFeedback: table.answerFeedback,
+		})
+		.from(table.taskBlockResponse)
+		.innerJoin(
+			table.criteria,
+			eq(table.taskBlockResponse.taskBlockId, table.criteria.taskBlockId)
+		)
+		.leftJoin(
+			table.criteriaFeedback,
+			and(
+				eq(table.criteriaFeedback.criteriaId, table.criteria.id),
+				eq(table.criteriaFeedback.taskBlockResponseId, table.taskBlockResponse.id)
+			)
+		)
+		.innerJoin(
+			table.answer,
+			eq(table.taskBlockResponse.taskBlockId, table.answer.taskBlockId)
+		)
+		.leftJoin(
+			table.answerFeedback,
+			and(
+				eq(table.answerFeedback.answerId, table.answer.id),
+				eq(table.answerFeedback.taskBlockResponseId, table.taskBlockResponse.id)
+			)
+		)
+		.where(
+			and(
+				eq(table.taskBlockResponse.authorId, authorId),
+				eq(table.taskBlockResponse.taskBlockId, taskBlockId),
+				eq(table.taskBlockResponse.classTaskId, classTaskId)
+			)
 		);
 
-	return responses;
+	// Group the results to avoid duplicates and structure the data properly
+	const criteriaMap = new Map();
+	const answersMap = new Map();
+
+	for (const row of feedback) {
+		// Process criteria
+		if (row.criteria && !criteriaMap.has(row.criteria.id)) {
+			criteriaMap.set(row.criteria.id, {
+				criteria: row.criteria,
+				feedback: row.criteriaFeedback
+			});
+		}
+
+		// Process answers
+		if (row.answer && !answersMap.has(row.answer.id)) {
+			answersMap.set(row.answer.id, {
+				answer: row.answer,
+				feedback: row.answerFeedback
+			});
+		}
+	}
+
+	return {
+		criteria: Array.from(criteriaMap.values()),
+		answers: Array.from(answersMap.values()),
+	};
+}
+
+// Criteria Feedback methods
+export async function createCriteriaFeedback(
+	criteriaId: number,
+	taskBlockResponseId: number,
+	feedbackLevel: feedbackLevelEnum,
+	marks: number
+) {
+	const [feedback] = await db
+		.insert(table.criteriaFeedback)
+		.values({
+			criteriaId,
+			taskBlockResponseId,
+			feedbackLevel,
+			marks
+		})
+		.returning();
+
+	return feedback;
+}
+
+export async function updateCriteriaFeedback(
+	criteriaFeedbackId: number,
+	updates: {
+		feedbackLevel?: feedbackLevelEnum;
+		marks?: number;
+	}
+) {
+	const [feedback] = await db
+		.update(table.criteriaFeedback)
+		.set({ ...updates })
+		.where(eq(table.criteriaFeedback.id, criteriaFeedbackId))
+		.returning();
+
+	return feedback;
+}
+
+export async function createOrUpdateCriteriaFeedback(
+	criteriaId: number,
+	taskBlockResponseId: number,
+	feedbackLevel: feedbackLevelEnum,
+	marks: number
+) {
+	// First, try to find an existing feedback
+	const existingFeedback = await db
+		.select()
+		.from(table.criteriaFeedback)
+		.where(
+			and(
+				eq(table.criteriaFeedback.criteriaId, criteriaId),
+				eq(table.criteriaFeedback.taskBlockResponseId, taskBlockResponseId)
+			)
+		)
+		.limit(1);
+
+	if (existingFeedback.length > 0) {
+		// Update existing feedback
+		const [updatedFeedback] = await db
+			.update(table.criteriaFeedback)
+			.set({
+				feedbackLevel,
+				marks,
+				updatedAt: new Date()
+			})
+			.where(eq(table.criteriaFeedback.id, existingFeedback[0].id))
+			.returning();
+
+		return updatedFeedback;
+	} else {
+		// Create new feedback
+		return await createCriteriaFeedback(criteriaId, taskBlockResponseId, feedbackLevel, marks);
+	}
+}
+
+export async function deleteCriteriaFeedback(criteriaFeedbackId: number) {
+	await db.delete(table.criteriaFeedback).where(eq(table.criteriaFeedback.id, criteriaFeedbackId));
+}
+
+// Answer Feedback methods
+export async function createAnswerFeedback(
+	answerId: number,
+	taskBlockResponseId: number,
+	feedbackLevel: feedbackLevelEnum,
+	marks: number
+) {
+	const [feedback] = await db
+		.insert(table.answerFeedback)
+		.values({
+			answerId,
+			taskBlockResponseId,
+			feedbackLevel,
+			marks
+		})
+		.returning();
+
+	return feedback;
+}
+
+export async function updateAnswerFeedback(
+	answerFeedbackId: number,
+	updates: {
+		feedbackLevel?: feedbackLevelEnum;
+		marks?: number;
+	}
+) {
+	const [feedback] = await db
+		.update(table.answerFeedback)
+		.set({ ...updates })
+		.where(eq(table.answerFeedback.id, answerFeedbackId))
+		.returning();
+
+	return feedback;
+}
+
+export async function createOrUpdateAnswerFeedback(
+	answerId: number,
+	taskBlockResponseId: number,
+	feedbackLevel: feedbackLevelEnum,
+	marks: number
+) {
+	// First, try to find an existing feedback
+	const existingFeedback = await db
+		.select()
+		.from(table.answerFeedback)
+		.where(
+			and(
+				eq(table.answerFeedback.answerId, answerId),
+				eq(table.answerFeedback.taskBlockResponseId, taskBlockResponseId)
+			)
+		)
+		.limit(1);
+
+	if (existingFeedback.length > 0) {
+		// Update existing feedback
+		const [updatedFeedback] = await db
+			.update(table.answerFeedback)
+			.set({
+				feedbackLevel,
+				marks,
+				updatedAt: new Date()
+			})
+			.where(eq(table.answerFeedback.id, existingFeedback[0].id))
+			.returning();
+
+		return updatedFeedback;
+	} else {
+		// Create new feedback
+		return await createAnswerFeedback(answerId, taskBlockResponseId, feedbackLevel, marks);
+	}
+}export async function deleteAnswerFeedback(answerFeedbackId: number) {
+	await db.delete(table.answerFeedback).where(eq(table.answerFeedback.id, answerFeedbackId));
 }
 
 // Helper function to get teacher from class

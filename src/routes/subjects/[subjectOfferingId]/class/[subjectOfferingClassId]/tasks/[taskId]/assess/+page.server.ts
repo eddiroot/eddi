@@ -5,7 +5,7 @@ import {
 	getClassTaskResponseResources,
 	getClassTaskResponsesWithStudents,
 	updateClassTaskResponseComment,
-	getRubricWithRowsAndCells
+	getUserTaskBlockResponses
 } from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
 import { redirect, fail } from '@sveltejs/kit';
@@ -52,13 +52,6 @@ export const load = async ({
 	const classTask = await getSubjectOfferingClassTaskByTaskId(taskIdInt, classIdInt);
 	if (!classTask) throw redirect(302, '/dashboard');
 
-	// Get rubric if it exists
-	let rubric = null;
-	if (task.rubricId || classTask.rubricId) {
-		const rubricId = classTask.rubricId || task.rubricId;
-		rubric = await getRubricWithRowsAndCells(rubricId!);
-	}
-
 	// Get all student submissions for this task
 	const submissions = await getClassTaskResponsesWithStudents(classTask.id);
 
@@ -73,12 +66,14 @@ export const load = async ({
 		resourceType: string;
 		fileSize: number;
 	}> = [];
+	let selectedStudentBlockResponses: Awaited<ReturnType<typeof getUserTaskBlockResponses>> = [];
 
 	if (selectedStudentId && submissions.find(s => s.authorId === selectedStudentId)) {
 		selectedSubmission = submissions.find(s => s.authorId === selectedStudentId) || null;
 		if (selectedSubmission) {
+			// Get resources with presigned URLs for PDF viewing
 			const resources = await getClassTaskResponseResources(selectedSubmission.id);
-			// Generate presigned URLs for resources
+			
 			selectedResources = await Promise.all(
 				resources.map(async (resourceData) => {
 					const resource = resourceData.resource as Resource;
@@ -104,7 +99,6 @@ export const load = async ({
 						};
 					} catch (error) {
 						console.error(`Failed to generate URL for resource ${resource.id}:`, error);
-						console.error(`Resource objectKey: ${resource.objectKey}`);
 						return {
 							id: resource.id,
 							fileName: resource.fileName,
@@ -115,16 +109,19 @@ export const load = async ({
 					}
 				})
 			);
+
+			// Get student's task block responses for ResponseViewer
+			selectedStudentBlockResponses = await getUserTaskBlockResponses(taskIdInt, selectedStudentId, classTask.id);
 		}
 	}
 
 	return {
 		task,
 		classTask,
-		rubric,
 		submissions,
 		selectedSubmission,
 		selectedResources,
+		selectedStudentBlockResponses,
 		selectedStudentId,
 		subjectOfferingId,
 		subjectOfferingClassId,

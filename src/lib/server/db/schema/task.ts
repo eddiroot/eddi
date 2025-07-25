@@ -246,6 +246,19 @@ export const answer = pgTable('answer', {
 
 export type Answer = typeof answer.$inferSelect;
 
+
+export enum feedbackLevelEnum {
+	met = 'met',
+	no = 'no',
+	partial = 'partial'
+}
+
+export const feedbackLevelEnumPg = pgEnum('feedback_level', [
+	feedbackLevelEnum.met,
+	feedbackLevelEnum.no,
+	feedbackLevelEnum.partial
+]);
+
 export const answerFeedback = pgTable('ans_feed', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	answerId: integer('ans_id')
@@ -255,6 +268,7 @@ export const answerFeedback = pgTable('ans_feed', {
 		.notNull()
 		.references(() => taskBlockResponse.id, { onDelete: 'cascade' }),
 	marks: doublePrecision('marks').notNull(), // Marks awarded for this answer response
+	feedbackLevel: feedbackLevelEnumPg(), // nothing 
 	...timestamps
 });
 
@@ -272,6 +286,7 @@ export const criteria = pgTable('criteria', {
 
 export type Criteria = typeof criteria.$inferSelect;
 
+
 // Record teacher checks for individual criteria on a task-block response
 // can award full marks, half marks, or no marks. etc.
 export const criteriaFeedback = pgTable('crit_fdbck', {
@@ -282,6 +297,7 @@ export const criteriaFeedback = pgTable('crit_fdbck', {
 	taskBlockResponseId: integer('task_block_response_id')
 		.notNull()
 		.references(() => taskBlockResponse.id, { onDelete: 'cascade' }),
+	feedbackLevel: feedbackLevelEnumPg(), // no | partial | met
 	marks: doublePrecision('marks').notNull(), // Marks awarded for this criteria response // can be 1, 0.5, or 0 etc.
 	...timestamps
 });
