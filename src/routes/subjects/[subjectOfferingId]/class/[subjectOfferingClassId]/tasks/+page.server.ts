@@ -79,9 +79,15 @@ export const load = async ({
 	const resourcesWithUrls = await Promise.all(
 		resources.map(async (row) => {
 			try {
+				const schoolId = user.schoolId.toString();
+				// Strip schoolId prefix if it exists to avoid double-prefixing
+				const objectName = row.resource.objectKey.startsWith(schoolId)
+					? row.resource.objectKey.substring(schoolId.length + 1)
+					: row.resource.objectKey;
+
 				const downloadUrl = await getPresignedUrl(
-					user.schoolId.toString(),
-					row.resource.objectKey,
+					schoolId,
+					objectName,
 					7 * 24 * 60 * 60 // 7 days expiry
 				);
 				return {
