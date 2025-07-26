@@ -16,6 +16,8 @@
 	import Rubric from '$lib/components/rubric.svelte';
 	import PdfViewer from './components/PdfViewer.svelte';
 	import ResponseViewer from './components/ResponseViewer.svelte';
+	import CriteriaCard from './components/CriteriaCard.svelte';
+	import AnswerCard from './components/AnswerCard.svelte';
 
 	let { data } = $props();
 
@@ -82,7 +84,7 @@
 	}
 </script>
 
-<div class="h-screen flex flex-col">
+<div class="h-full flex flex-col">
 	<!-- Top Navigation Bar -->
 	<div class="border-b bg-background p-4">
 		<div class="flex items-center justify-between">
@@ -208,7 +210,7 @@
 			</div>
 
 			<!-- Right Column - Assessment & Controls -->
-			<div class="bg-background flex flex-col" style="width: calc(50% - 50px);">
+			<div class="bg-background flex flex-col w-[1000px]">
 				<!-- Right Column Header -->
 				<div class="p-4 border-b">
 					<div class="flex items-center justify-between">
@@ -280,21 +282,34 @@
 						<!-- Assessment Interface -->
 						{#if selectedBlock}
 							<div class="p-4 space-y-6">
-								<!-- Placeholder for CriteriaCard and AnswerCard components -->
-								<div class="space-y-4">
-									<div class="p-4 border rounded-lg">
-										<h4 class="font-medium mb-2">Criteria Assessment</h4>
-										<p class="text-sm text-muted-foreground">
-											CriteriaCard component for Task Block #{selectedBlock.taskBlock.id}
-										</p>
-									</div>
+								<!-- CriteriaCard and AnswerCard components without surrounding cards -->
+								<div class="space-y-6">
+									<CriteriaCard 
+										criteria={{
+											id: selectedBlock.taskBlock.id,
+											description: `Assessment criteria for ${selectedBlock.taskBlock.type} block`,
+											marks: 10
+										}}
+										feedback={null}
+										onFeedbackChange={(feedback) => {
+											console.log('Criteria feedback changed:', feedback);
+										}}
+										isReadOnly={false}
+									/>
 									
-									<div class="p-4 border rounded-lg">
-										<h4 class="font-medium mb-2">Answer Assessment</h4>
-										<p class="text-sm text-muted-foreground">
-											AnswerCard component for Task Block #{selectedBlock.taskBlock.id}
-										</p>
-									</div>
+									<AnswerCard 
+										answer={{
+											id: selectedBlock.taskBlock.id,
+											answer: selectedBlock.response?.response || 'No response provided',
+											marks: selectedBlock.response?.marks || 0
+										}}
+										feedback={null}
+										onFeedbackChange={(feedback) => {
+											console.log('Answer feedback changed:', feedback);
+										}}
+										isReadOnly={false}
+										maxMarks={10}
+									/>
 								</div>
 
 								<Separator />

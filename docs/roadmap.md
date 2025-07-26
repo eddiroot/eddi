@@ -45,8 +45,8 @@ Lachie
 Jack
 
 - [ ] Class tests / quizzes (23/07)
-- [ ] Coursemap flow
-- [ ] Fix lesson generation with learning areas and content
+- [x] Coursemap flow
+- [x] Fix lesson generation with learning areas and content
 - [ ] AI feedback / assisted marking
 - [ ] View students work
 - [ ] Student note writing

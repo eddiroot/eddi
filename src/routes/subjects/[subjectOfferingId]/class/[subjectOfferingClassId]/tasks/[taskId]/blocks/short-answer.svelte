@@ -9,7 +9,7 @@
 	import EdraEditor from '$lib/components/edra/shadcn/editor.svelte';
 	import EdraToolbar from '$lib/components/edra/shadcn/toolbar.svelte';
 	import type { Content, Editor } from '@tiptap/core';
-	import { createDebouncedSave, saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI } from '../utils/auto-save.js';
+	import { saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI } from '../utils/auto-save.js';
 
 	interface textInputContent {
 		question: Content;
@@ -17,7 +17,6 @@
 		maxLength?: number;
 	}
 
-	// Component props using Svelte 5 syntax
 	let {
 		content = {
 			question: null,
@@ -45,16 +44,30 @@
 	let questionEditor = $state<Editor>();
 	let answerEditor = $state<Editor>();
 
-	// Auto-save function for student responses
-	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
-		if (isPublished && blockId && classTaskId) {
-			await saveTaskBlockResponse(
-				blockId,
-				classTaskId,
-				response
-			);
+	// Set up blur event handler when answer editor is created
+	$effect(() => {
+		if (answerEditor && !answerEditor.isDestroyed) {
+			// Add blur event listener to the editor
+			answerEditor.on('blur', () => {
+				onAnswerBlur();
+			});
 		}
-	}, 2000); // 2 second delay for auto-save
+	});
+
+	// Auto-save function for student responses
+	async function saveResponse(response: unknown) {
+		if (isPublished && blockId && classTaskId) {
+			try {
+				await saveTaskBlockResponse(
+					blockId,
+					classTaskId,
+					response
+				);
+			} catch (error) {
+				console.error('Failed to save response:', error);
+			}
+		}
+	}
 
 	function saveChanges() {
 		if (!questionEditor || questionEditor.isEmpty) {
@@ -82,10 +95,16 @@
 	function onAnswerUpdate() {
 		if (answerEditor && !answerEditor.isDestroyed) {
 			userAnswer = answerEditor.getJSON();
+		}
+	}
+
+	function onAnswerBlur() {
+		if (answerEditor && !answerEditor.isDestroyed) {
+			userAnswer = answerEditor.getJSON();
 			
-			// Auto-save for published tasks
+			// Save on blur for published tasks
 			if (isPublished && viewMode === ViewMode.VIEW) {
-				debouncedSaveResponse(userAnswer);
+				saveResponse(userAnswer);
 			}
 		}
 	}
