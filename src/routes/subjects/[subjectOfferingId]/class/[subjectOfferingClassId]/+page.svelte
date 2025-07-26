@@ -2,6 +2,7 @@
 
 import * as Card from '$lib/components/ui/card';
 import { ScrollArea } from '$lib/components/ui/scroll-area';
+import { page } from '$app/stores';
 
 let { data } = $props();
 
@@ -51,13 +52,15 @@ const sortedResources = $derived(data.resources
 			<ScrollArea class="h-64">
 				<div class="space-y-2 pr-4">
 					{#if data.announcements && data.announcements.length > 0}
-						<div class="border-border rounded-lg border p-3">
-							<div class="flex flex-col">
-								<span class="text-foreground text-base font-semibold">{data.announcements[0].title}</span>
-								<span class="text-muted-foreground text-sm leading-relaxed">{data.announcements[0].content}</span>
-								<span class="text-xs text-muted-foreground mt-1">{new Date(data.announcements[0].createdAt).toLocaleString()}</span>
+						<a href={`/subjects/${$page.params.subjectOfferingId}/discussion/${data.announcements[0].id}`} class="block">
+							<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+								<div class="flex flex-col">
+									<span class="text-foreground text-base font-semibold">{data.announcements[0].title}</span>
+									<span class="text-muted-foreground text-sm leading-relaxed">{data.announcements[0].content}</span>
+									<span class="text-xs text-muted-foreground mt-1">{new Date(data.announcements[0].createdAt).toLocaleString()}</span>
+								</div>
 							</div>
-						</div>
+						</a>
 					{:else}
 						<div class="text-muted-foreground text-sm">No announcements yet.</div>
 					{/if}
@@ -99,22 +102,24 @@ const sortedResources = $derived(data.resources
 				<div class="space-y-2 pr-4">
 					{#if sortedAssessments.length > 0}
 						{#each sortedAssessments as assessment}
-							<div class="border-border rounded-lg border p-3">
-								<div class="flex items-start justify-between">
-									<div class="flex-1">
-										<h4 class="text-foreground text-sm font-medium">{assessment.task.title}</h4>
-										{#if assessment.task.description}
-											<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{assessment.task.description}</p>
-										{/if}
-										<div class="flex items-center gap-2 mt-1">
-											{#if assessment.subjectOfferingClassTask.dueDate}
-												<span class="text-xs text-muted-foreground">Due: {new Date(assessment.subjectOfferingClassTask.dueDate).toLocaleDateString()}</span>
+							<a href={`/subjects/${$page.params.subjectOfferingId}/class/${$page.params.subjectOfferingClassId}/tasks/${assessment.task.id}`} class="block">
+								<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+									<div class="flex items-start justify-between">
+										<div class="flex-1">
+											<h4 class="text-foreground text-sm font-medium">{assessment.task.title}</h4>
+											{#if assessment.task.description}
+												<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{assessment.task.description}</p>
 											{/if}
-											<span class="text-xs text-muted-foreground">Created: {new Date(assessment.task.createdAt).toLocaleDateString()}</span>
+											<div class="flex items-center gap-2 mt-1">
+												{#if assessment.subjectOfferingClassTask.dueDate}
+													<span class="text-xs text-muted-foreground">Due: {new Date(assessment.subjectOfferingClassTask.dueDate).toLocaleDateString()}</span>
+												{/if}
+												<span class="text-xs text-muted-foreground">Created: {new Date(assessment.task.createdAt).toLocaleDateString()}</span>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
+							</a>
 						{/each}
 					{:else}
 						<div class="text-muted-foreground text-sm">No assessments found.</div>
@@ -134,23 +139,25 @@ const sortedResources = $derived(data.resources
 				<div class="space-y-2 pr-4">
 					{#if sortedTasks.length > 0}
 						{#each sortedTasks as task}
-							<div class="border-border rounded-lg border p-3">
-								<div class="flex flex-col">
-									<span class="text-foreground text-base font-semibold">{task.task.title}</span>
-									{#if task.task.description}
-										<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{task.task.description}</p>
-									{/if}
-									<div class="flex items-center gap-2 mt-1">
-										{#if task.task.type}
-											<span class="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">{task.task.type}</span>
+							<a href={`/subjects/${$page.params.subjectOfferingId}/class/${$page.params.subjectOfferingClassId}/tasks/${task.task.id}`} class="block">
+								<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+									<div class="flex flex-col">
+										<span class="text-foreground text-base font-semibold">{task.task.title}</span>
+										{#if task.task.description}
+											<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{task.task.description}</p>
 										{/if}
-										{#if task.subjectOfferingClassTask.dueDate}
-											<span class="text-xs text-muted-foreground">Due: {new Date(task.subjectOfferingClassTask.dueDate).toLocaleDateString()}</span>
-										{/if}
-										<span class="text-xs text-muted-foreground">Created: {new Date(task.task.createdAt).toLocaleDateString()}</span>
+										<div class="flex items-center gap-2 mt-1">
+											{#if task.task.type}
+												<span class="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">{task.task.type}</span>
+											{/if}
+											{#if task.subjectOfferingClassTask.dueDate}
+												<span class="text-xs text-muted-foreground">Due: {new Date(task.subjectOfferingClassTask.dueDate).toLocaleDateString()}</span>
+											{/if}
+											<span class="text-xs text-muted-foreground">Created: {new Date(task.task.createdAt).toLocaleDateString()}</span>
+										</div>
 									</div>
 								</div>
-							</div>
+							</a>
 						{/each}
 					{:else}
 						<div class="text-muted-foreground text-sm">No tasks found.</div>
@@ -170,26 +177,40 @@ const sortedResources = $derived(data.resources
 				<div class="space-y-2 pr-4">
 					{#if sortedResources.length > 0}
 						{#each sortedResources as resource}
-							<div class="border-border rounded-lg border p-3">
-								<div class="flex flex-col">
-									{#if resource.downloadUrl}
-										<a href={resource.downloadUrl} target="_blank" class="text-foreground text-base font-semibold hover:underline">
-											{resource.resourceRelation.title || resource.resource.fileName}
-										</a>
-									{:else}
+							{#if resource.downloadUrl}
+								<a href={resource.downloadUrl} target="_blank" class="block">
+									<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+										<div class="flex flex-col">
+											<span class="text-foreground text-base font-semibold">{resource.resourceRelation.title || resource.resource.fileName}</span>
+											{#if resource.resourceRelation.description}
+												<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{resource.resourceRelation.description}</p>
+											{/if}
+											<div class="flex items-center gap-2 mt-1">
+												<span class="text-xs text-muted-foreground">Created: {new Date(resource.resource.createdAt).toLocaleDateString()}</span>
+												{#if resource.author}
+													<span class="text-xs text-muted-foreground">by {resource.author.firstName} {resource.author.lastName}</span>
+												{/if}
+											</div>
+										</div>
+									</div>
+								</a>
+							{:else}
+								<div class="border-border rounded-lg border p-3 opacity-50">
+									<div class="flex flex-col">
 										<span class="text-foreground text-base font-semibold">{resource.resourceRelation.title || resource.resource.fileName}</span>
-									{/if}
-									{#if resource.resourceRelation.description}
-										<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{resource.resourceRelation.description}</p>
-									{/if}
-									<div class="flex items-center gap-2 mt-1">
-										<span class="text-xs text-muted-foreground">Created: {new Date(resource.resource.createdAt).toLocaleDateString()}</span>
-										{#if resource.author}
-											<span class="text-xs text-muted-foreground">by {resource.author.firstName} {resource.author.lastName}</span>
+										{#if resource.resourceRelation.description}
+											<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{resource.resourceRelation.description}</p>
 										{/if}
+										<div class="flex items-center gap-2 mt-1">
+											<span class="text-xs text-muted-foreground">Created: {new Date(resource.resource.createdAt).toLocaleDateString()}</span>
+											{#if resource.author}
+												<span class="text-xs text-muted-foreground">by {resource.author.firstName} {resource.author.lastName}</span>
+											{/if}
+											<span class="text-xs text-red-500">Download unavailable</span>
+										</div>
 									</div>
 								</div>
-							</div>
+							{/if}
 						{/each}
 					{:else}
 						<div class="text-muted-foreground text-sm">No resources found.</div>
