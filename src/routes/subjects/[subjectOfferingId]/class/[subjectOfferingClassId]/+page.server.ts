@@ -9,6 +9,7 @@ import {
 	getAnnouncementsBySubjectOfferingClassId,
 	getLessonsAndHomeworkBySubjectOfferingClassId
 } from '$lib/server/db/service';
+import { getPresignedUrl } from '$lib/server/obj';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
 	security.isAuthenticated();
@@ -32,5 +33,34 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 		Number(subjectOfferingClassId)
 	);
 
-	return { user, thisSubjectOffering, thisSubjectOfferingClass, thisSubjectOfferingTeachers, assessments, tasks, resources, announcements };
+	// Generate presigned URLs for each resource
+	const resourcesWithUrls = await Promise.all(
+		resources.map(async (row) => {
+			try {
+				const schoolId = user.schoolId.toString();
+				// Strip schoolId prefix if it exists to avoid double-prefixing
+				const objectName = row.resource.objectKey.startsWith(schoolId)
+					? row.resource.objectKey.substring(schoolId.length + 1)
+					: row.resource.objectKey;
+
+				const downloadUrl = await getPresignedUrl(
+					schoolId,
+					objectName,
+					7 * 24 * 60 * 60 // 7 days expiry
+				);
+				return {
+					...row,
+					downloadUrl
+				};
+			} catch (error) {
+				console.error(`Failed to generate URL for resource ${row.resource.id}:`, error);
+				return {
+					...row,
+					downloadUrl: null
+				};
+			}
+		})
+	);
+
+	return { user, thisSubjectOffering, thisSubjectOfferingClass, thisSubjectOfferingTeachers, assessments, tasks, resources: resourcesWithUrls, announcements };
 };

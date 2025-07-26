@@ -172,7 +172,13 @@ const sortedResources = $derived(data.resources
 						{#each sortedResources as resource}
 							<div class="border-border rounded-lg border p-3">
 								<div class="flex flex-col">
-									<span class="text-foreground text-base font-semibold">{resource.resourceRelation.title}</span>
+									{#if resource.downloadUrl}
+										<a href={resource.downloadUrl} target="_blank" class="text-foreground text-base font-semibold hover:underline">
+											{resource.resourceRelation.title || resource.resource.fileName}
+										</a>
+									{:else}
+										<span class="text-foreground text-base font-semibold">{resource.resourceRelation.title || resource.resource.fileName}</span>
+									{/if}
 									{#if resource.resourceRelation.description}
 										<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{resource.resourceRelation.description}</p>
 									{/if}
