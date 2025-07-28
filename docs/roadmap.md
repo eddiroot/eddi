@@ -26,6 +26,8 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Onboarding flow (14/07)
 - [x] Switch locations to buildings and rooms (22/07)
 - [x] Basic timetabling (Frontend/Backend) (23/07)
+- [x] Coursemap flow
+- [x] Fix lesson generation with learning areas and content
 
 ## Doing
 
@@ -45,8 +47,6 @@ Lachie
 Jack
 
 - [ ] Class tests / quizzes (23/07)
-- [x] Coursemap flow
-- [x] Fix lesson generation with learning areas and content
 - [ ] AI feedback / assisted marking
 - [ ] View students work
 - [ ] Student note writing
