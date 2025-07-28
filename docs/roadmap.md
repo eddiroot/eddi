@@ -46,7 +46,6 @@ Jack
 - [ ] Class tests / quizzes (23/07)
 - [ ] AI feedback / assisted marking
 - [ ] View students work
-- [ ] Student note writing
 - [ ] Lesson plans / teacher notes based on generated lesson
 
 Raph
@@ -86,6 +85,7 @@ Max
 
 - [ ] Events appearing in everyone's timetables (14/08)
 - [ ] Class space shifts (21/08)
+- [ ] Student note writing (30/08)
 
 ## Future
 
