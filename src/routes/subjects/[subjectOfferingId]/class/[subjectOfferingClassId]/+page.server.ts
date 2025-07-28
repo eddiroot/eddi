@@ -11,7 +11,7 @@ import {
 } from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
 
-export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
+export const load = async ({ locals: { security }, params: { subjectOfferingId, subjectOfferingClassId } }) => {
 	security.isAuthenticated();
 	const user = security.isAuthenticated().getUser();
 	const thisSubjectOffering = await getSubjectBySubjectOfferingClassId(Number(subjectOfferingClassId));
@@ -62,5 +62,16 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 		})
 	);
 
-	return { user, thisSubjectOffering, thisSubjectOfferingClass, thisSubjectOfferingTeachers, assessments, tasks, resources: resourcesWithUrls, announcements };
+	return {
+		user,
+		thisSubjectOffering,
+		thisSubjectOfferingClass,
+		thisSubjectOfferingTeachers,
+		assessments,
+		tasks,
+		resources: resourcesWithUrls,
+		announcements,
+		subjectOfferingId: Number(subjectOfferingId),
+		subjectOfferingClassId: Number(subjectOfferingClassId)
+	};
 };

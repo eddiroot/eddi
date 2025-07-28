@@ -53,7 +53,8 @@ Raph
 - [x] Class resources (14/07)
   - Improve (remove upload route?)
   - Title and description truncation issue
-- [ ] Class home page (20/07)
+- [x] Class home page (20/07)
+  - Improve look and functionality
 - [ ] Better whiteboard (20/07)
   - Fix mc alerts and text overflow in question and explanation
   - Expanding the whiteboard

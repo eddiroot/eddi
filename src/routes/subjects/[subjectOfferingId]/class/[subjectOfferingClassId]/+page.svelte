@@ -2,7 +2,7 @@
 
 import * as Card from '$lib/components/ui/card';
 import { ScrollArea } from '$lib/components/ui/scroll-area';
-import { page } from '$app/stores';
+import ResourceCard from '$lib/components/ui/resource-card/resource-card.svelte';
 
 let { data } = $props();
 
@@ -52,7 +52,7 @@ const sortedResources = $derived(data.resources
 			<ScrollArea class="h-64">
 				<div class="space-y-2 pr-4">
 					{#if data.announcements && data.announcements.length > 0}
-						<a href={`/subjects/${$page.params.subjectOfferingId}/discussion/${data.announcements[0].id}`} class="block">
+						<a href={`/subjects/${data.subjectOfferingId}/discussion/${data.announcements[0].id}`} class="block">
 							<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
 								<div class="flex flex-col">
 									<span class="text-foreground text-base font-semibold">{data.announcements[0].title}</span>
@@ -102,7 +102,7 @@ const sortedResources = $derived(data.resources
 				<div class="space-y-2 pr-4">
 					{#if sortedAssessments.length > 0}
 						{#each sortedAssessments as assessment}
-							<a href={`/subjects/${$page.params.subjectOfferingId}/class/${$page.params.subjectOfferingClassId}/tasks/${assessment.task.id}`} class="block">
+							<a href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${assessment.task.id}`} class="block">
 								<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
 									<div class="flex items-start justify-between">
 										<div class="flex-1">
@@ -139,7 +139,7 @@ const sortedResources = $derived(data.resources
 				<div class="space-y-2 pr-4">
 					{#if sortedTasks.length > 0}
 						{#each sortedTasks as task}
-							<a href={`/subjects/${$page.params.subjectOfferingId}/class/${$page.params.subjectOfferingClassId}/tasks/${task.task.id}`} class="block">
+							<a href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${task.task.id}`} class="block">
 								<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
 									<div class="flex flex-col">
 										<span class="text-foreground text-base font-semibold">{task.task.title}</span>
@@ -177,40 +177,23 @@ const sortedResources = $derived(data.resources
 				<div class="space-y-2 pr-4">
 					{#if sortedResources.length > 0}
 						{#each sortedResources as resource}
-							{#if resource.downloadUrl}
-								<a href={resource.downloadUrl} target="_blank" class="block">
-									<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
-										<div class="flex flex-col">
-											<span class="text-foreground text-base font-semibold">{resource.resourceRelation.title || resource.resource.fileName}</span>
-											{#if resource.resourceRelation.description}
-												<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{resource.resourceRelation.description}</p>
-											{/if}
-											<div class="flex items-center gap-2 mt-1">
-												<span class="text-xs text-muted-foreground">Created: {new Date(resource.resource.createdAt).toLocaleDateString()}</span>
-												{#if resource.author}
-													<span class="text-xs text-muted-foreground">by {resource.author.firstName} {resource.author.lastName}</span>
-												{/if}
-											</div>
-										</div>
-									</div>
-								</a>
-							{:else}
-								<div class="border-border rounded-lg border p-3 opacity-50">
-									<div class="flex flex-col">
-										<span class="text-foreground text-base font-semibold">{resource.resourceRelation.title || resource.resource.fileName}</span>
-										{#if resource.resourceRelation.description}
-											<p class="text-muted-foreground text-sm mt-1 leading-relaxed">{resource.resourceRelation.description}</p>
-										{/if}
-										<div class="flex items-center gap-2 mt-1">
-											<span class="text-xs text-muted-foreground">Created: {new Date(resource.resource.createdAt).toLocaleDateString()}</span>
-											{#if resource.author}
-												<span class="text-xs text-muted-foreground">by {resource.author.firstName} {resource.author.lastName}</span>
-											{/if}
-											<span class="text-xs text-red-500">Download unavailable</span>
-										</div>
-									</div>
-								</div>
-							{/if}
+							<ResourceCard 
+								resource={{
+									id: resource.resource.id,
+									fileName: resource.resourceRelation.title || resource.resource.fileName,
+									fileSize: resource.resource.fileSize || 0,
+									resourceType: resource.resource.resourceType || 'file'
+								}}
+								variant="default"
+								showRemoveButton={false}
+								onOpen={() => {
+									if (resource.downloadUrl) {
+										window.open(resource.downloadUrl, '_blank');
+									} else {
+										alert('Download unavailable');
+									}
+								}}
+							/>
 						{/each}
 					{:else}
 						<div class="text-muted-foreground text-sm">No resources found.</div>
