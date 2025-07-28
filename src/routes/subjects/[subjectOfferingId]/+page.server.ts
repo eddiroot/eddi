@@ -1,22 +1,26 @@
-// need to change over to ussing subjectOffering class instead
-
-import {
-	getClassesForUserInSubjectOffering,
-	getSubjectBySubjectOfferingId,
-	getTeachersForSubjectOfferingId,
-	getTeacherBySubjectOfferingIdForUserInClass
-} from '$lib/server/db/service';
+import { redirect } from '@sveltejs/kit';
+import { getSubjectsWithClassesByUserId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
-	// const userClasses = await getSubjectClassTimesAndLocationsByUserIdForToday(user.id);
 	const user = security.isAuthenticated().getUser();
-	const userClasses = await getClassesForUserInSubjectOffering(user.id, Number(subjectOfferingId));
-	const subject = await getSubjectBySubjectOfferingId(Number(subjectOfferingId));
-	const allTeachers = await getTeachersForSubjectOfferingId(Number(subjectOfferingId));
-	const mainTeacher = await getTeacherBySubjectOfferingIdForUserInClass(
-		user.id,
-		Number(subjectOfferingId)
+
+	// Get all subjects with classes for the user
+	const subjectsWithClasses = await getSubjectsWithClassesByUserId(user.id);
+
+	// Find the subject offering that matches our parameter
+	const subjectOfferingIdInt = Number(subjectOfferingId);
+	const targetSubject = subjectsWithClasses.find(
+		subject => subject.subjectOffering.id === subjectOfferingIdInt
 	);
-	return { user, userClasses, subject, mainTeacher: mainTeacher, teachers: allTeachers };
+
+	// If subject not found or no classes, redirect to dashboard
+	if (!targetSubject || targetSubject.classes.length === 0) {
+		throw redirect(302, '/dashboard');
+	}
+
+	// Redirect to the first class the user is enrolled in for this subject offering
+	// Note: Usually there should only be one class per student per subject offering
+	const userClass = targetSubject.classes[0];
+	throw redirect(302, `/subjects/${subjectOfferingId}/class/${userClass.id}`);
 };
