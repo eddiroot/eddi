@@ -37,7 +37,7 @@ All
 
 Lachie
 
-- [x] Basic timetabling (Process & Import) (28/07)
+- [ ] Basic timetabling (Process & Import) (07/08)
 - [ ] Admin dashboard allocations page (07/08)
 - [ ] Teachers can see past attendance (28/08)
 
