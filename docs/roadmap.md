@@ -37,16 +37,38 @@ All
 
 Lachie
 
+---- URGENT ----
+
+- [ ] Interactive map of locations in the school with directions (URGENT) !!!!!
+
 - [ ] Basic timetabling (Process & Import) (07/08)
 - [ ] Admin dashboard allocations page (07/08)
 - [ ] Teachers can see past attendance (28/08)
+- [ ] Google/Okta Auth
+
+Jack and Bella (31/08)
+
+- [ ] eddi-study (for 3/4 subjects)
+  - [ ] Skills (teach me) (lessons)
+    - [ ] task blocks
+  - [ ] Train me
+    - [ ] Cue card generation
+    - [ ] Feedback
+    - [ ] Sample questions
+  - [ ] Test me
+    - [ ] Improvement assessment generation
+    - [ ] Marking/grading/feedback
+  - [ ] Improved chatbot
+  - [ ] tiers for potential cashola
+    - [ ] Free tiers for the free models
+    - [ ] pay for better models
 
 Jack
 
 - [ ] Class tests / quizzes (23/07)
 - [ ] AI feedback / assisted marking
 - [ ] View students work
-- [ ] Lesson plans / teacher notes based on generated lesson
+<!-- - [ ] Lesson plans / teacher notes based on generated lesson -->
 
 Raph
 
@@ -60,13 +82,15 @@ Raph
   - Expanding the whiteboard
   - Fix whiteboard vertical panning
 - [ ] Student reports live throughout semester (10/08)
-- [ ] Student/lesson analytics (20/08)
+  - [ ] creating a profile page for the students
+- [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
 - [ ] Associate chatbot chats with the lesson/subject they were created in (31/08)
 
 Beej
 
 - [ ] Parent/teacher interviews (21/07)
 - [ ] Teacher to parent comms (one way) (28/07)
+- [ ] security research and compliance documentation (😄)
 
 Blake
 
@@ -74,43 +98,48 @@ Blake
 - [ ] A what to do button to generate study ideas (04/08)
 - [ ] Create school news
 - [ ] News feed
+- [ ] Queue for email sending so it doesn't block requests
+- [ ] Subject selection (see example lessons, choose your subjects as a student)
+- [ ] Fleshed out behavioural reporting (see toddle)
 
 Bella
 
 - [ ] Add/refine current task components (new question and answer type component)
 - [ ] Fees / breakdowns
-- [ ] Complete LLM access to discussions + lessons
+<!-- - [ ] Complete LLM access to discussions + lessons  -->
 - [ ] See teacher's feedback
 
 Max
 
 - [ ] Events appearing in everyone's timetables (14/08)
+  - [ ] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
-- [ ] Student note writing (30/08)
+  - [ ] changing spaces and handling of this
+  <!-- - [ ] Student note writing (30/08)x -->
+- [ ] Excursions (permission forms)
+  - [ ] potential AI generation of form
+  - [ ] maybe change color of event in calendar once form is signed
 
 ## Future
 
 - [ ] Exam timetabling
-- [ ] Queue for email sending so it doesn't block requests
 - [ ] Subtype for Assessments (SAC?)
 - [ ] Export all data for a given school
 - [ ] Premade math symbols to insert in rich text editor
   - Option in RTE toolbar brings up a modal
   - Clicking on a formula in the modal inserts it into the editor
-- [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Check-in check-out software (compass does this)
 - [ ] Workspaces (like VMs but for coding)
 - [ ] App-wide search
 - [ ] Club pages / discussions
-- [ ] Excursions (permission forms)
 - [ ] Whole school metrics
 - [ ] Class chat
+- [ ] Video meetings
 - [ ] AI presentations
 - [ ] Notifications for high interaction with discussion (eg 10 upvotes)
 - [ ] Plagiarism detection
 - [ ] Lesson / class plan marketplace
 - [ ] Contractors signing in with working with childrens checks (eg school photographers)
-- [ ] Interactive map of locations in the school with directions
 - [ ] Keyboard shortcuts
 - [ ] Parent forum / teacher forum
 - [ ] Mark absence for select periods of the day rather than whole day
