@@ -100,6 +100,7 @@
 		"@tiptap/suggestion": "^2.24.2",
 		"drizzle-orm": "^0.44.2",
 		"fabric": "^6.7.0",
+		"fast-xml-parser": "^5.2.5",
 		"katex": "^0.16.22",
 		"lowlight": "^3.3.0",
 		"minio": "^8.0.5",

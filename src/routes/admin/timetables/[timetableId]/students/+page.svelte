@@ -45,11 +45,6 @@
 		return data.students.filter((student) => student.yearLevel === yearLevel);
 	});
 
-	let unassignedStudents = $derived(() => {
-		if (!yearLevel) return [];
-		return data.students.filter((student) => student.yearLevel === yearLevel && !student.groupName);
-	});
-
 	const form = superForm(data.createGroupForm, {
 		validators: zod4(createGroupSchema),
 		onResult: ({ result }) => {
@@ -111,14 +106,6 @@
 				<PlusIcon />
 				Create Group
 			</Button>
-			<Button
-				type="button"
-				onclick={openRandomAssignDialog}
-				disabled={!yearLevel || filteredGroups().length === 0 || unassignedStudents().length === 0}
-			>
-				<ShuffleIcon />
-				Randomly Assign
-			</Button>
 		</div>
 		{#if yearLevel}
 			{#if filteredGroups().length > 0}
@@ -157,7 +144,21 @@
 		{/if}
 	</div>
 	<div class="space-y-4">
-		<h2 class="text-2xl leading-tight font-bold">Students</h2>
+		<div class="flex justify-between">
+			<h2 class="text-2xl leading-tight font-bold">Students</h2>
+			{#if yearLevel}
+				{#if filteredStudents().length > 0}
+					<Button
+						type="button"
+						onclick={openRandomAssignDialog}
+						disabled={!yearLevel || filteredGroups().length === 0}
+					>
+						<ShuffleIcon />
+						Assign Groups
+					</Button>
+				{/if}
+			{/if}
+		</div>
 		{#if yearLevel}
 			{#if filteredStudents().length > 0}
 				<Table>
@@ -243,22 +244,13 @@
 		<Dialog.Header>
 			<Dialog.Title>Randomly Assign Students</Dialog.Title>
 			<Dialog.Description>
-				This will randomly assign all unassigned students in {yearLevelToLabel(yearLevel)} to the existing
-				groups as evenly as possible.
+				This will randomly assign the {data.students.length} students in {yearLevelToLabel(
+					yearLevel
+				)} to the {filteredGroups().length} groups as evenly as possible.
 			</Dialog.Description>
 		</Dialog.Header>
 		<form method="POST" action="?/randomlyAssign" use:randomAssignEnhance>
-			<div class="grid gap-4 py-4">
-				<div class="text-muted-foreground text-sm">
-					<p>
-						<strong>{unassignedStudents().length}</strong> unassigned students will be distributed
-						across <strong>{filteredGroups().length}</strong> groups.
-					</p>
-				</div>
-
-				<!-- Hidden field for year level -->
-				<input type="hidden" name="yearLevel" bind:value={$randomAssignFormData.yearLevel} />
-			</div>
+			<input type="hidden" name="yearLevel" bind:value={$randomAssignFormData.yearLevel} />
 			<Dialog.Footer>
 				<Button type="button" variant="outline" onclick={() => (randomAssignDialogOpen = false)}>
 					Cancel

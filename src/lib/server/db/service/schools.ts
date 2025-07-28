@@ -521,6 +521,25 @@ export async function getTimetableStudentGroupsByTimetableId(timetableId: number
 	return groups;
 }
 
+export async function getTimetableStudentGroupsWithCountsByTimetableId(timetableId: number) {
+	const groups = await db
+		.select({
+			id: table.timetableGroup.id,
+			name: table.timetableGroup.name,
+			yearLevel: table.timetableGroup.yearLevel,
+			count: count(table.timetableGroupMember.userId)
+		})
+		.from(table.timetableGroup)
+		.leftJoin(
+			table.timetableGroupMember,
+			eq(table.timetableGroup.id, table.timetableGroupMember.groupId)
+		)
+		.where(eq(table.timetableGroup.timetableId, timetableId))
+		.groupBy(table.timetableGroup.id, table.timetableGroup.name, table.timetableGroup.yearLevel)
+		.orderBy(asc(table.timetableGroup.yearLevel), asc(table.timetableGroup.name));
+	return groups;
+}
+
 export async function createTimetableStudentGroup(
 	timetableId: number,
 	yearLevel: yearLevelEnum,

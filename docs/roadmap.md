@@ -1,7 +1,5 @@
 # Roadmap
 
-This list is ordered by priority, with the highest priority at the top and the lowest priority at the bottom.
-
 ## Done
 
 - [x] Create lessons with drag'n'drop blocks
@@ -26,6 +24,7 @@ This list is ordered by priority, with the highest priority at the top and the l
 - [x] Onboarding flow (14/07)
 - [x] Switch locations to buildings and rooms (22/07)
 - [x] Basic timetabling (Frontend/Backend) (23/07)
+- [x] Basic timetabling (Generation) (28/07)
 - [x] Coursemap flow
 - [x] Fix lesson generation with learning areas and content
 
@@ -38,10 +37,8 @@ All
 
 Lachie
 
-- [ ] Basic timetabling (Generation) (28/07)
+- [x] Basic timetabling (Process & Import) (28/07)
 - [ ] Admin dashboard allocations page (07/08)
-- [ ] Events appearing in everyone's timetables (14/08)
-- [ ] Class space shifts (21/08)
 - [ ] Teachers can see past attendance (28/08)
 
 Jack
@@ -73,21 +70,22 @@ Beej
 
 Blake
 
+- [ ] Handling of multiple campuses
 - [ ] A what to do button to generate study ideas (04/08)
+- [ ] Create school news
+- [ ] News feed
 
 Bella
 
 - [ ] Add/refine current task components (new question and answer type component)
-- [ ] Handling of multiple campuses
-- [ ] Create school news
-- [ ] News feed
 - [ ] Fees / breakdowns
 - [ ] Complete LLM access to discussions + lessons
 - [ ] See teacher's feedback
 
 Max
 
-- On hold
+- [ ] Events appearing in everyone's timetables (14/08)
+- [ ] Class space shifts (21/08)
 
 ## Future
 
