@@ -154,29 +154,29 @@ export const load = async ({
 		status: string; // taskStatusEnum
 	}
 
-	const topicsWithTasks = tasks.reduce(
-		(acc, task) => {
-			const topicId = task.courseMapItem.id;
-			let topicEntry = acc.find((item) => item.topic.id === topicId);
-			if (!topicEntry) {
-				// Create a simple topic object with id and name (topic)
-				const topic: Topic = {
-					id: task.courseMapItem.id,
-					name: task.courseMapItem.topic
-				};
-				topicEntry = { topic: topic, tasks: [], resources: [] };
-				acc.push(topicEntry);
-			}
+	// Start with all available topics, ensuring every topic appears even if it has no tasks or resources
+	const topicsWithTasks = topics.map((topic) => ({
+		topic: {
+			id: topic.id,
+			name: topic.name
+		} as Topic,
+		tasks: [] as Array<TaskWithStatus>,
+		resources: [] as Array<ResourceWithUrl>
+	}));
+
+	// Add tasks to their respective topics
+	tasks.forEach((task) => {
+		const topicId = task.courseMapItem.id;
+		const topicEntry = topicsWithTasks.find((item) => item.topic.id === topicId);
+		if (topicEntry) {
 			topicEntry.tasks.push({
 				task: task.task,
 				status:
 					task.subjectOfferingClassTask.status.charAt(0).toUpperCase() +
 					task.subjectOfferingClassTask.status.slice(1)
 			});
-			return acc;
-		},
-		[] as Array<{ topic: Topic; tasks: Array<TaskWithStatus>; resources: Array<ResourceWithUrl> }>
-	);
+		}
+	});
 
 	// Add resources to their respective topics
 	resourcesWithUrls.forEach((resource) => {
@@ -188,7 +188,12 @@ export const load = async ({
 		}
 	});
 
-	return { user, topicsWithTasks, topics, form };
+	// Filter to only show topics that have either tasks or resources
+	const filteredTopicsWithTasks = topicsWithTasks.filter(
+		(topic) => topic.tasks.length > 0 || topic.resources.length > 0
+	);
+
+	return { user, topicsWithTasks: filteredTopicsWithTasks, topics, form };
 };
 
 export const actions = {
