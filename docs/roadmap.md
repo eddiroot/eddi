@@ -77,6 +77,7 @@ Raph
   - Title and description truncation issue
 - [x] Class home page (20/07)
   - Improve look and functionality
+  - Fix ordering and resource tag
 - [ ] Better whiteboard (20/07)
   - Fix mc alerts and text overflow in question and explanation
   - Expanding the whiteboard

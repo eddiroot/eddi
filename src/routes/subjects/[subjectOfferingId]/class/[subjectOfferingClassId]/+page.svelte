@@ -46,21 +46,23 @@ const sortedResources = $derived(data.resources
 	<!-- Announcements -->
 	<Card.Root class="shadow-none xl:col-span-2">
 		<Card.Header>
-			<Card.Title class="text-lg">Latest Announcement</Card.Title>
+			<Card.Title class="text-lg">Announcements</Card.Title>
 		</Card.Header>
 		<Card.Content>
 			<ScrollArea class="h-64">
 				<div class="space-y-2 pr-4">
 					{#if data.announcements && data.announcements.length > 0}
-						<a href={`/subjects/${data.subjectOfferingId}/discussion/${data.announcements[0].id}`} class="block">
-							<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
-								<div class="flex flex-col">
-									<span class="text-foreground text-base font-semibold">{data.announcements[0].title}</span>
-									<span class="text-muted-foreground text-sm leading-relaxed">{data.announcements[0].content}</span>
-									<span class="text-xs text-muted-foreground mt-1">{new Date(data.announcements[0].createdAt).toLocaleString()}</span>
+						{#each data.announcements as announcement}
+							<a href={`/subjects/${data.subjectOfferingId}/discussion/${announcement.id}`} class="block">
+								<div class="border-border rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+									<div class="flex flex-col">
+										<span class="text-foreground text-base font-semibold">{announcement.title}</span>
+										<span class="text-muted-foreground text-sm leading-relaxed">{announcement.content}</span>
+										<span class="text-xs text-muted-foreground mt-1">{new Date(announcement.createdAt).toLocaleString()}</span>
+									</div>
 								</div>
-							</div>
-						</a>
+							</a>
+						{/each}
 					{:else}
 						<div class="text-muted-foreground text-sm">No announcements yet.</div>
 					{/if}
