@@ -17,6 +17,8 @@
 	import EraseIcon from '@lucide/svelte/icons/eraser';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
+	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
 
 	let { data } = $props();
 
@@ -32,6 +34,7 @@
 	let lastWheelTime = 0;
 	let isPanMode = false;
 	let panStartPos = { x: 0, y: 0 };
+	let currentZoom = $state(1);
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId));
@@ -187,6 +190,26 @@
 		}
 	};
 
+	const zoomIn = () => {
+		if (!canvas) return;
+		const newZoom = Math.min(canvas.getZoom() * 1.2, 20);
+		canvas.setZoom(newZoom);
+		currentZoom = newZoom;
+	};
+
+	const zoomOut = () => {
+		if (!canvas) return;
+		const newZoom = Math.max(canvas.getZoom() / 1.2, 0.1);
+		canvas.setZoom(newZoom);
+		currentZoom = newZoom;
+	};
+
+	const resetZoom = () => {
+		if (!canvas) return;
+		canvas.setZoom(1);
+		currentZoom = 1;
+	};
+
 	const goBack = () => {
 		// Navigate back to the task
 		goto(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}`);
@@ -212,7 +235,26 @@
 		document.body.style.overflow = 'hidden';
 
 		canvas = new fabric.Canvas(whiteboardCanvas);
-		canvas.setDimensions({ width: 1200, height: 800 });
+		
+		// Set canvas to fill the available space
+		const resizeCanvas = () => {
+			if (!whiteboardCanvas || !canvas) return;
+			const container = whiteboardCanvas.parentElement;
+			if (container) {
+				const rect = container.getBoundingClientRect();
+				canvas.setDimensions({ 
+					width: rect.width - 4, // Subtract border width
+					height: rect.height - 4 
+				});
+				canvas.renderAll();
+			}
+		};
+
+		// Initial resize
+		resizeCanvas();
+
+		// Resize on window resize
+		window.addEventListener('resize', resizeCanvas);
 
 		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
 		canvas.freeDrawingBrush.width = 2;
@@ -350,6 +392,7 @@
 			
 			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
 			canvas.zoomToPoint(point, zoom);
+			currentZoom = zoom; // Update zoom state
 			opt.e.preventDefault();
 			opt.e.stopPropagation();
 		});
@@ -465,6 +508,7 @@
 					const rect = whiteboardCanvas.getBoundingClientRect();
 					const point = new fabric.Point(centerX - rect.left, centerY - rect.top);
 					canvas.zoomToPoint(point, constrainedZoom);
+					currentZoom = constrainedZoom; // Update zoom state
 				}
 				
 				e.preventDefault();
@@ -479,6 +523,7 @@
 
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('resize', resizeCanvas);
 		};
 	});
 
@@ -628,9 +673,41 @@
 	</div>
 
 	<!-- Whiteboard Canvas -->
-	<main class="flex flex-1 items-center justify-center overflow-hidden p-4">
-		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700">
-			<canvas bind:this={whiteboardCanvas}></canvas>
+	<main class="flex flex-1 items-center justify-center overflow-hidden p-4 relative">
+		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700 w-full h-full flex">
+			<canvas bind:this={whiteboardCanvas} class="w-full h-full"></canvas>
+		</div>
+		
+		<!-- Zoom Controls -->
+		<div class="absolute bottom-8 left-8">
+			<div class="bg-background flex items-center gap-1 rounded-md border px-2 py-1 shadow-sm">
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button variant="ghost" size="icon" onclick={zoomOut} class="h-8 w-8">
+							<ZoomOutIcon class="h-4 w-4" />
+						</Button>
+					</Tooltip.Trigger>
+					<Tooltip.Content>Zoom Out</Tooltip.Content>
+				</Tooltip.Root>
+				
+				<Button 
+					variant="ghost" 
+					size="sm" 
+					onclick={resetZoom} 
+					class="h-8 px-2 text-xs font-mono"
+				>
+					{Math.round(currentZoom * 100)}%
+				</Button>
+				
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button variant="ghost" size="icon" onclick={zoomIn} class="h-8 w-8">
+							<ZoomInIcon class="h-4 w-4" />
+						</Button>
+					</Tooltip.Trigger>
+					<Tooltip.Content>Zoom In</Tooltip.Content>
+				</Tooltip.Root>
+			</div>
 		</div>
 	</main>
 </div>
