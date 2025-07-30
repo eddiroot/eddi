@@ -84,7 +84,7 @@
 	<div class="mb-8">
 		<h1 class="text-3xl font-bold tracking-tight">Allocations</h1>
 		<p class="text-muted-foreground">
-			Manage which students are allocated to which classes and their roles.
+			Manage which users are allocated to which classes and their roles within them.
 		</p>
 	</div>
 
