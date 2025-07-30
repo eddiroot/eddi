@@ -9,6 +9,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import MousePointerIcon from '@lucide/svelte/icons/mouse-pointer';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+	import HandIcon from '@lucide/svelte/icons/hand';
 	import CircleIcon from '@lucide/svelte/icons/circle';
 	import SquareIcon from '@lucide/svelte/icons/square';
 	import TriangleIcon from '@lucide/svelte/icons/triangle';
@@ -29,6 +30,8 @@
 	let currentMousePos = $state({ x: 0, y: 0 });
 	let isPanning = false;
 	let lastWheelTime = 0;
+	let isPanMode = false;
+	let panStartPos = { x: 0, y: 0 };
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId));
@@ -46,6 +49,16 @@
 		canvas.selection = true;
 		canvas.defaultCursor = 'default';
 		canvas.hoverCursor = 'move';
+	};
+
+	const setPanTool = () => {
+		selectedTool = 'pan';
+		if (!canvas) return;
+		canvas.isDrawingMode = false;
+		canvas.selection = false;
+		canvas.discardActiveObject(); 
+		canvas.defaultCursor = 'grab';
+		canvas.hoverCursor = 'grab';
 	};
 
 	const setDrawTool = () => {
@@ -329,42 +342,46 @@
 
 		canvas.on('mouse:wheel', (opt) => {
 			const delta = opt.e.deltaY;
-			const deltaX = opt.e.deltaX;
-			const now = Date.now();
 			
-			// Detect trackpad pan gesture (deltaX with small deltaY, and frequent events)
-			if (Math.abs(deltaX) > Math.abs(delta) && Math.abs(delta) < 10 && (now - lastWheelTime) < 50) {
-				// This is likely a trackpad pan gesture
-				canvas.relativePan(new fabric.Point(-deltaX * 2, -delta * 2));
-				opt.e.preventDefault();
-				opt.e.stopPropagation();
-				lastWheelTime = now;
-				return;
-			}
-			
-			// Regular zoom behavior
 			let zoom = canvas.getZoom();
-			zoom *= 0.99 ** delta;
-			if (zoom > 10) zoom = 10;
+			zoom *= 0.990 ** delta;
+			if (zoom > 20) zoom = 20;
 			if (zoom < 0.1) zoom = 0.1;
 			
 			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
 			canvas.zoomToPoint(point, zoom);
 			opt.e.preventDefault();
 			opt.e.stopPropagation();
-			lastWheelTime = now;
 		});
 
 		canvas.on('mouse:down', (opt) => {
 			const evt = opt.e;
-			if (evt.altKey === true) {
-				isDragging = true;
+			
+			if (selectedTool === 'pan') {
+				isPanMode = true;
 				canvas.selection = false;
-				canvas.setCursor('grab');
-				// Handle both mouse and touch events
+				canvas.discardActiveObject();
+				canvas.setCursor('grabbing');
+				
 				const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
 				const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
-				lastPos = { x: clientX, y: clientY };
+				panStartPos = { x: clientX, y: clientY };
+				
+				opt.e.preventDefault();
+				opt.e.stopPropagation();
+			} else if (selectedTool === 'select') {
+				// Select tool - only pan if clicking on empty space
+				if (!canvas.getActiveObject() && !canvas.findTarget(evt)) {
+					isPanMode = true;
+					canvas.selection = false;
+					canvas.setCursor('grab');
+					
+					const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
+					const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
+					panStartPos = { x: clientX, y: clientY };
+					
+					opt.e.preventDefault();
+				}
 			}
 		});
 
@@ -373,65 +390,90 @@
 			const pointer = canvas.getScenePoint(opt.e);
 			currentMousePos = { x: pointer.x, y: pointer.y };
 			
-			if (isDragging) {
+			if (isPanMode) {
 				const e = opt.e;
 				// Handle both mouse and touch events
 				const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || 0;
 				const clientY = 'clientY' in e ? e.clientY : e.touches?.[0]?.clientY || 0;
 				
-				const deltaX = clientX - lastPos.x;
-				const deltaY = clientY - lastPos.y;
+				const deltaX = clientX - panStartPos.x;
+				const deltaY = clientY - panStartPos.y;
 				
 				canvas.relativePan(new fabric.Point(deltaX, deltaY));
-				lastPos = { x: clientX, y: clientY };
+				panStartPos = { x: clientX, y: clientY };
+				
+				canvas.setCursor('grabbing');
 			}
 		});
 
 		canvas.on('mouse:up', (opt) => {
-			if (isDragging) {
-				isDragging = false;
-				canvas.selection = true;
-				canvas.setCursor('default');
+			if (isPanMode) {
+				isPanMode = false;
+				canvas.selection = selectedTool === 'select';
+				
+				// Set cursor based on current tool
+				if (selectedTool === 'pan') {
+					canvas.setCursor('grab');
+				} else if (selectedTool === 'select') {
+					canvas.setCursor('default');
+				} else if (selectedTool === 'draw') {
+					canvas.setCursor('crosshair');
+				}
 			}
 		});
 
 		window.addEventListener('keydown', handleKeyDown);
 
-		// Add trackpad gesture support
+		// Add pinch-to-zoom for touch devices
+		let initialPinchDistance = 0;
+		let initialZoom = 1;
+		
 		whiteboardCanvas.addEventListener('touchstart', (e) => {
 			if (e.touches.length === 2) {
-				isPanning = true;
+				// Two finger touch - setup for pinch zoom
 				const touch1 = e.touches[0];
 				const touch2 = e.touches[1];
-				lastPos = {
-					x: (touch1.clientX + touch2.clientX) / 2,
-					y: (touch1.clientY + touch2.clientY) / 2
-				};
+				
+				const dx = touch1.clientX - touch2.clientX;
+				const dy = touch1.clientY - touch2.clientY;
+				initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+				initialZoom = canvas.getZoom();
+				
 				e.preventDefault();
 			}
 		});
 
 		whiteboardCanvas.addEventListener('touchmove', (e) => {
-			if (isPanning && e.touches.length === 2) {
+			if (e.touches.length === 2 && initialPinchDistance > 0) {
+				// Two finger move - pinch to zoom
 				const touch1 = e.touches[0];
 				const touch2 = e.touches[1];
-				const currentPos = {
-					x: (touch1.clientX + touch2.clientX) / 2,
-					y: (touch1.clientY + touch2.clientY) / 2
-				};
 				
-				const deltaX = currentPos.x - lastPos.x;
-				const deltaY = currentPos.y - lastPos.y;
+				const dx = touch1.clientX - touch2.clientX;
+				const dy = touch1.clientY - touch2.clientY;
+				const currentDistance = Math.sqrt(dx * dx + dy * dy);
 				
-				canvas.relativePan(new fabric.Point(deltaX, deltaY));
-				lastPos = currentPos;
+				const scale = currentDistance / initialPinchDistance;
+				const newZoom = initialZoom * scale;
+				const constrainedZoom = Math.max(0.1, Math.min(20, newZoom));
+				
+				// Zoom at center of pinch gesture
+				const centerX = (touch1.clientX + touch2.clientX) / 2;
+				const centerY = (touch1.clientY + touch2.clientY) / 2;
+				
+				if (whiteboardCanvas) {
+					const rect = whiteboardCanvas.getBoundingClientRect();
+					const point = new fabric.Point(centerX - rect.left, centerY - rect.top);
+					canvas.zoomToPoint(point, constrainedZoom);
+				}
+				
 				e.preventDefault();
 			}
 		});
 
 		whiteboardCanvas.addEventListener('touchend', (e) => {
 			if (e.touches.length < 2) {
-				isPanning = false;
+				initialPinchDistance = 0;
 			}
 		});
 
@@ -493,6 +535,23 @@
 					<Tooltip.Content>Select</Tooltip.Content>
 				</Tooltip.Root>
 
+				<!-- Pan Tool -->
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button
+							variant={selectedTool === 'pan' ? 'default' : 'ghost'}
+							size="icon"
+							onclick={setPanTool}
+							class="h-9 w-9"
+						>
+							<HandIcon class="h-4 w-4" />
+						</Button>
+					</Tooltip.Trigger>
+					<Tooltip.Content>Pan</Tooltip.Content>
+				</Tooltip.Root>
+
+				<div class="bg-border mx-1 h-6 w-px"></div>
+
 				<!-- Draw Tool -->
 				<Tooltip.Root>
 					<Tooltip.Trigger>
@@ -507,8 +566,6 @@
 					</Tooltip.Trigger>
 					<Tooltip.Content>Draw</Tooltip.Content>
 				</Tooltip.Root>
-
-				<div class="bg-border mx-1 h-6 w-px"></div>
 
 				<!-- Shapes Dropdown -->
 				<DropdownMenu.Root>
