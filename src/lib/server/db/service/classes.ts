@@ -1,7 +1,7 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { desc, eq, and, gte, lt, asc } from 'drizzle-orm';
-import { userSubjectOfferingClassRoleEnum } from '$lib/enums.js';
+import { userTypeEnum } from '$lib/enums';
 
 export async function getSubjectOfferingClassDetailsById(subjectOfferingClassId: number) {
 	const subjectOfferingClass = await db
@@ -178,10 +178,10 @@ export async function getSubjectClassAllocationAndStudentAttendancesByClassIdFor
 					table.subjectClassAllocation.startTimestamp,
 					new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
 				),
-				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.student)
+				eq(table.user.type, userTypeEnum.student)
 			)
 		)
-		.orderBy(desc(table.userSubjectOfferingClass.role), table.user.lastName, table.user.firstName);
+		.orderBy(table.user.lastName, table.user.firstName);
 
 	return attendances;
 }
@@ -342,7 +342,8 @@ export async function getAllocationsBySchoolId(schoolId: number) {
 				firstName: table.user.firstName,
 				middleName: table.user.middleName,
 				lastName: table.user.lastName,
-				email: table.user.email
+				email: table.user.email,
+				type: table.user.type
 			},
 			userSubjectOfferingClass: table.userSubjectOfferingClass,
 			subjectOfferingClass: table.subjectOfferingClass,
@@ -386,30 +387,15 @@ export async function getAllocationsBySchoolId(schoolId: number) {
 
 export async function createUserSubjectOfferingClass(
 	userId: string,
-	subjectOfferingClassId: number,
-	role: userSubjectOfferingClassRoleEnum
+	subjectOfferingClassId: number
 ) {
 	const [allocation] = await db
 		.insert(table.userSubjectOfferingClass)
 		.values({
 			userId,
 			subOffClassId: subjectOfferingClassId,
-			role,
 			isArchived: false
 		})
-		.returning();
-
-	return allocation;
-}
-
-export async function updateUserSubjectOfferingClass(
-	allocationId: number,
-	role: userSubjectOfferingClassRoleEnum
-) {
-	const [allocation] = await db
-		.update(table.userSubjectOfferingClass)
-		.set({ role })
-		.where(eq(table.userSubjectOfferingClass.id, allocationId))
 		.returning();
 
 	return allocation;

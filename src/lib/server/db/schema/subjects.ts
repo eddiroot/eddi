@@ -18,12 +18,7 @@ import { sql } from 'drizzle-orm/sql';
 import { courseMapItem } from './coursemap';
 import { curriculumSubject, yearLevelEnumPg } from './curriculum';
 import { resource } from './resource';
-import {
-	subjectThreadResponseTypeEnum,
-	subjectThreadTypeEnum,
-	userSubjectOfferingClassRoleEnum,
-	userSubjectOfferingRoleEnum
-} from '../../../enums';
+import { subjectThreadResponseTypeEnum, subjectThreadTypeEnum } from '../../../enums';
 
 export const coreSubject = pgTable('core_subject', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -97,12 +92,6 @@ export const subjectOffering = pgTable('sub_off', {
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
 
-export const userSubjectOfferingRoleEnumPg = pgEnum('user_sub_off_role', [
-	userSubjectOfferingRoleEnum.student,
-	userSubjectOfferingRoleEnum.teacher,
-	userSubjectOfferingRoleEnum.moderator
-]);
-
 export const userSubjectOffering = pgTable('user_sub_off', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	userId: uuid('user_id')
@@ -111,7 +100,6 @@ export const userSubjectOffering = pgTable('user_sub_off', {
 	subOfferingId: integer('sub_off_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	role: userSubjectOfferingRoleEnumPg().notNull(),
 	isComplete: integer('is_complete').default(0).notNull(),
 	isArchived: integer('is_archived').default(0).notNull(),
 	color: integer('color').default(100).notNull(),
@@ -136,11 +124,6 @@ export const subjectOfferingClass = pgTable(
 
 export type SubjectOfferingClass = typeof subjectOfferingClass.$inferSelect;
 
-export const userSubjectOfferingClassRoleEnumPg = pgEnum('user_sub_off_class_role', [
-	userSubjectOfferingClassRoleEnum.student,
-	userSubjectOfferingClassRoleEnum.teacher
-]);
-
 export const userSubjectOfferingClass = pgTable(
 	'user_sub_off_class',
 	{
@@ -151,7 +134,6 @@ export const userSubjectOfferingClass = pgTable(
 		subOffClassId: integer('sub_off_class_id')
 			.notNull()
 			.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-		role: userSubjectOfferingClassRoleEnumPg().notNull(),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
 	},

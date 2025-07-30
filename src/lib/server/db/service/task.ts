@@ -7,7 +7,7 @@ import {
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
-	userSubjectOfferingClassRoleEnum,
+	userTypeEnum,
 	whiteboardObjectTypeEnum
 } from '$lib/enums.js';
 import { feedbackLevelEnum } from '$lib/server/db/schema/task';
@@ -1024,7 +1024,6 @@ export async function getTaskBlockWithAnswersAndCriteria(taskBlockId: number) {
 	};
 }
 
-
 export async function getSubjectOfferingClassTaskByTaskId(
 	taskId: number,
 	subjectOfferingClassId: number
@@ -1149,25 +1148,26 @@ export async function getUserTaskBlockResponses(
 		.orderBy(asc(table.taskBlock.index));
 
 	// Map the responses to associate each task block with its response
-	return responses.map(row => ({
+	return responses.map((row) => ({
 		taskBlock: row.taskBlock,
 		response: row.taskBlockResponse
 	}));
 }
 
-export async function getUserCriteriaAndAnswerFeedback(taskBlockId: number, authorId: string, classTaskId: number) {
+export async function getUserCriteriaAndAnswerFeedback(
+	taskBlockId: number,
+	authorId: string,
+	classTaskId: number
+) {
 	const feedback = await db
 		.select({
 			criteria: table.criteria,
 			criteriaFeedback: table.criteriaFeedback,
 			answer: table.answer,
-			answerFeedback: table.answerFeedback,
+			answerFeedback: table.answerFeedback
 		})
 		.from(table.taskBlockResponse)
-		.innerJoin(
-			table.criteria,
-			eq(table.taskBlockResponse.taskBlockId, table.criteria.taskBlockId)
-		)
+		.innerJoin(table.criteria, eq(table.taskBlockResponse.taskBlockId, table.criteria.taskBlockId))
 		.leftJoin(
 			table.criteriaFeedback,
 			and(
@@ -1175,10 +1175,7 @@ export async function getUserCriteriaAndAnswerFeedback(taskBlockId: number, auth
 				eq(table.criteriaFeedback.taskBlockResponseId, table.taskBlockResponse.id)
 			)
 		)
-		.innerJoin(
-			table.answer,
-			eq(table.taskBlockResponse.taskBlockId, table.answer.taskBlockId)
-		)
+		.innerJoin(table.answer, eq(table.taskBlockResponse.taskBlockId, table.answer.taskBlockId))
 		.leftJoin(
 			table.answerFeedback,
 			and(
@@ -1218,7 +1215,7 @@ export async function getUserCriteriaAndAnswerFeedback(taskBlockId: number, auth
 
 	return {
 		criteria: Array.from(criteriaMap.values()),
-		answers: Array.from(answersMap.values()),
+		answers: Array.from(answersMap.values())
 	};
 }
 
@@ -1370,7 +1367,8 @@ export async function createOrUpdateAnswerFeedback(
 		// Create new feedback
 		return await createAnswerFeedback(answerId, taskBlockResponseId, feedbackLevel, marks);
 	}
-}export async function deleteAnswerFeedback(answerFeedbackId: number) {
+}
+export async function deleteAnswerFeedback(answerFeedbackId: number) {
 	await db.delete(table.answerFeedback).where(eq(table.answerFeedback.id, answerFeedbackId));
 }
 
@@ -1381,10 +1379,11 @@ export async function getClassTeacher(subjectOfferingClassId: number) {
 			userId: table.userSubjectOfferingClass.userId
 		})
 		.from(table.userSubjectOfferingClass)
+		.innerJoin(table.user, eq(table.userSubjectOfferingClass.userId, table.user.id))
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
-				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher),
+				eq(table.user.type, userTypeEnum.teacher),
 				eq(table.userSubjectOfferingClass.isArchived, false)
 			)
 		)
@@ -1511,7 +1510,7 @@ export async function getClassTaskResponsesWithStudents(classTaskId: number) {
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
 
 	// Transform the response to match our expected format
-	return responses.map(response => ({
+	return responses.map((response) => ({
 		...response.classTaskResponse,
 		student: response.student
 	}));

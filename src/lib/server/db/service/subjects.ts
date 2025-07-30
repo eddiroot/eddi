@@ -5,7 +5,7 @@ import {
 	subjectThreadResponseTypeEnum,
 	subjectThreadTypeEnum,
 	taskTypeEnum,
-	userSubjectOfferingClassRoleEnum
+	userTypeEnum
 } from '$lib/enums.js';
 
 export async function getSubjectsByUserId(userId: string) {
@@ -307,7 +307,7 @@ export async function getTeachersForSubjectOfferingId(subjectOfferingId: number)
 		.where(
 			and(
 				eq(table.subjectOfferingClass.subOfferingId, subjectOfferingId),
-				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher)
+				eq(table.user.type, userTypeEnum.teacher)
 			)
 		)
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
@@ -356,7 +356,7 @@ export async function getTeacherBySubjectOfferingIdForUserInClass(
 		.where(
 			and(
 				inArray(table.userSubjectOfferingClass.subOffClassId, subjectClassIds),
-				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher),
+				eq(table.user.type, userTypeEnum.teacher),
 				eq(table.userSubjectOfferingClass.isArchived, false) // Only consider non-archived records
 			)
 		);
@@ -495,7 +495,7 @@ export async function getTeachersBySubjectOfferingClassId(subjectOfferingClassId
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
-				eq(table.userSubjectOfferingClass.role, userSubjectOfferingClassRoleEnum.teacher)
+				eq(table.user.type, userTypeEnum.teacher)
 			)
 		);
 

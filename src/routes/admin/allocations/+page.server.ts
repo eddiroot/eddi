@@ -4,12 +4,11 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import {
 	getAllocationsBySchoolId,
 	createUserSubjectOfferingClass,
-	updateUserSubjectOfferingClass,
 	deleteUserSubjectOfferingClass,
 	getUsersBySchoolIdAndTypes,
 	getSubjectOfferingClassesBySchoolId
 } from '$lib/server/db/service';
-import { createAllocationSchema, updateAllocationSchema } from './schema.js';
+import { createAllocationSchema } from './schema.js';
 import { userTypeEnum } from '$lib/enums.js';
 
 export const load = async ({ locals }) => {
@@ -22,14 +21,12 @@ export const load = async ({ locals }) => {
 	]);
 
 	const createForm = await superValidate(zod4(createAllocationSchema));
-	const updateForm = await superValidate(zod4(updateAllocationSchema));
 
 	return {
 		allocations,
 		users,
 		subjectOfferingClasses,
-		createForm,
-		updateForm
+		createForm
 	};
 };
 
@@ -47,34 +44,13 @@ export const actions = {
 		try {
 			await createUserSubjectOfferingClass(
 				form.data.userId,
-				parseInt(form.data.subjectOfferingClassId),
-				form.data.role
+				parseInt(form.data.subjectOfferingClassId)
 			);
 
 			return { form, success: true };
 		} catch (error) {
 			console.error('Error creating allocation:', error);
 			return fail(500, { form, error: 'Failed to create allocation' });
-		}
-	},
-
-	update: async ({ request, locals }) => {
-		locals.security.isAuthenticated().isSchoolAdmin();
-
-		const formData = await request.formData();
-		const form = await superValidate(formData, zod4(updateAllocationSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		try {
-			await updateUserSubjectOfferingClass(form.data.id, form.data.role);
-
-			return { form, success: true };
-		} catch (error) {
-			console.error('Error updating allocation:', error);
-			return fail(500, { form, error: 'Failed to update allocation' });
 		}
 	},
 

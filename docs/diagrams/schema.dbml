@@ -1,3 +1,9 @@
+enum feedback_level {
+  met
+  no
+  partial
+}
+
 enum relationship_type {
   mother
   father
@@ -32,6 +38,12 @@ enum subject_thread_type {
   qanda
 }
 
+enum task_block_response_status {
+  edit_permission
+  submitted
+  graded
+}
+
 enum task_block_type {
   h1
   h2
@@ -53,6 +65,7 @@ enum task_block_type {
 
 enum task_status {
   draft
+  in_progress
   published
   completed
   locked
@@ -63,6 +76,13 @@ enum task_type {
   lesson
   assessment
   homework
+}
+
+enum tt_queue_status {
+  queued
+  in_progress
+  completed
+  failed
 }
 
 enum gender {
@@ -79,17 +99,6 @@ enum user_honorific {
   Mrs
   Dr
   Prof
-}
-
-enum user_sub_off_class_role {
-  student
-  teacher
-}
-
-enum user_sub_off_role {
-  student
-  teacher
-  moderator
 }
 
 enum user_type {
@@ -109,6 +118,7 @@ enum whiteboard_object_type {
 }
 
 enum year_level {
+  N
   F
   "1"
   "2"
@@ -121,6 +131,9 @@ enum year_level {
   "9"
   "10"
   "10A"
+  "11"
+  "12"
+  "13"
 }
 
 table answer {
@@ -137,6 +150,7 @@ table ans_feed {
   ans_id integer [not null]
   task_block_response_id integer [not null]
   marks "double precision" [not null]
+  feedbackLevel feedback_level
   createdAt timestamp [not null, default: `now()`]
   updatedAt timestamp [not null, default: `now()`]
 }
@@ -183,6 +197,30 @@ table chatbot_message {
   updatedAt timestamp [not null, default: `now()`]
 }
 
+table task_response {
+  id integer [pk, not null]
+  class_task_id integer [not null]
+  author_id uuid [not null]
+  comment text
+  feedback text
+  marks "double precision" [not null]
+  status task_block_response_status [not null, default: 'submitted']
+  teacher_id uuid [not null]
+  is_archived boolean [not null, default: false]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
+table task_response_resource {
+  id integer [pk, not null]
+  task_response_id integer [not null]
+  resource_id integer [not null]
+  author_id uuid [not null]
+  is_archived boolean [not null, default: false]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
 table core_subject {
   id integer [pk, not null]
   name text [not null]
@@ -194,7 +232,7 @@ table core_subject {
   updatedAt timestamp [not null, default: `now()`]
 }
 
-table cmap_itm {
+table cm_itm {
   id integer [pk, not null]
   sub_off_id integer [not null]
   topic text [not null]
@@ -212,7 +250,7 @@ table cmap_itm {
 
   indexes {
     
-    (original_id, version) [name: 'cmap_itm_original_id_version_unique', unique]
+    (original_id, version) [name: 'cm_itm_original_id_version_unique', unique]
   }
 }
 
@@ -236,7 +274,7 @@ table cm_itm_ass_pln {
   }
 }
 
-table cmap_itm_la {
+table cm_itm_la {
   id integer [pk, not null]
   cm_itm_id integer [not null]
   lrn_a_id integer [not null]
@@ -248,7 +286,7 @@ table cmap_itm_la {
 
   indexes {
     
-    (original_id, version) [name: 'cmap_itm_la_original_id_version_unique', unique]
+    (original_id, version) [name: 'cm_itm_la_original_id_version_unique', unique]
   }
 }
 
@@ -271,7 +309,7 @@ table cm_itm_les_pln {
   }
 }
 
-table cmap_itm_res {
+table cm_itm_res {
   id integer [pk, not null]
   cm_itm_id integer [not null]
   resource_id integer [not null]
@@ -283,7 +321,7 @@ table cmap_itm_res {
 
   indexes {
     
-    (original_id, version) [name: 'cmap_itm_res_original_id_version_unique', unique]
+    (original_id, version) [name: 'cm_itm_res_original_id_version_unique', unique]
   }
 }
 
@@ -300,6 +338,7 @@ table crit_fdbck {
   id integer [pk, not null]
   crit_id integer [not null]
   task_block_response_id integer [not null]
+  feedbackLevel feedback_level
   marks "double precision" [not null]
   createdAt timestamp [not null, default: `now()`]
   updatedAt timestamp [not null, default: `now()`]
@@ -402,7 +441,7 @@ table rubric_cell {
 
 table rubric_feedback {
   id integer [pk, not null]
-  task_response_id integer [not null]
+  class_task_response_id integer [not null]
   rubric_row_id integer [not null]
   rubric_cell_id integer [not null]
   feedback text
@@ -639,32 +678,84 @@ table task_block_response {
   updatedAt timestamp [not null, default: `now()`]
 }
 
-table task_response {
-  id integer [pk, not null]
-  task_id integer [not null]
-  author_id uuid [not null]
-  feedback text
-  marks "double precision" [not null]
-  teacher_id uuid [not null]
-  is_archived boolean [not null, default: false]
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
-}
-
-table task_response_resource {
-  id integer [pk, not null]
-  task_response_id integer [not null]
-  resource_id integer [not null]
-  author_id uuid [not null]
-  is_archived boolean [not null, default: false]
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
-}
-
 table task_standard {
   id integer [pk, not null]
   class_task_id integer [not null]
   la_standard_id integer [not null]
+}
+
+table tt {
+  id integer [pk, not null]
+  sch_id integer [not null]
+  sch_year integer [not null]
+  name text [not null]
+  is_archived boolean [not null, default: false]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (sch_id, name) [name: 'tt_sch_id_name_unique', unique]
+  }
+}
+
+table tt_activity {
+  id integer [pk, not null]
+  tt_id integer [not null]
+  subject_id integer [not null]
+  teacher_id uuid [not null]
+  tt_group_id integer [not null]
+  periods_per_instance integer [not null, default: 1]
+  total_periods integer [not null]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
+table tt_day {
+  id integer [pk, not null]
+  tt_id integer [not null]
+  day integer [not null]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
+table tt_group {
+  id integer [pk, not null]
+  tt_id integer [not null]
+  yearLevel year_level [not null]
+  name text [not null]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
+table tt_group_member {
+  id integer [pk, not null]
+  tt_group_id integer [not null]
+  user_id uuid [not null]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (tt_group_id, user_id) [name: 'tt_group_member_tt_group_id_user_id_unique', unique]
+  }
+}
+
+table tt_period {
+  id integer [pk, not null]
+  tt_id integer [not null]
+  start_time time [not null]
+  end_time time [not null]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
+table tt_queue {
+  id integer [pk, not null]
+  tt_id integer [not null]
+  user_id uuid [not null]
+  file_name text [not null]
+  status tt_queue_status [not null, default: 'queued']
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
 }
 
 table user {
@@ -676,12 +767,14 @@ table user {
   gender gender
   date_of_birth "timestamp with time zone"
   honorific user_honorific
+  yearLevel year_level [not null]
   first_name text [not null]
   middle_name text
   last_name text [not null]
   avatar_url text
-  is_archived boolean [not null, default: false]
+  verification_code text
   email_verified boolean [not null, default: false]
+  is_archived boolean [not null, default: false]
   createdAt timestamp [not null, default: `now()`]
   updatedAt timestamp [not null, default: `now()`]
 }
@@ -707,7 +800,6 @@ table user_sub_off {
   id integer [pk, not null]
   user_id uuid [not null]
   sub_off_id integer [not null]
-  role user_sub_off_role [not null]
   is_complete integer [not null, default: 0]
   is_archived integer [not null, default: 0]
   color integer [not null, default: 100]
@@ -719,10 +811,13 @@ table user_sub_off_class {
   id integer [pk, not null]
   user_id uuid [not null]
   sub_off_class_id integer [not null]
-  role user_sub_off_class_role [not null]
   is_archived boolean [not null, default: false]
   createdAt timestamp [not null, default: `now()`]
   updatedAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (user_id, sub_off_class_id) [name: 'user_sub_off_class_user_id_sub_off_class_id_unique', unique]
+  }
 }
 
 table whiteboard {

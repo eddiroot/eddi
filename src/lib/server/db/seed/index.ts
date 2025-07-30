@@ -10,8 +10,6 @@ import {
 	schoolSpaceTypeEnum,
 	userGenderEnum,
 	userHonorificEnum,
-	userSubjectOfferingClassRoleEnum,
-	userSubjectOfferingRoleEnum,
 	userTypeEnum,
 	yearLevelEnum
 } from '$lib/enums.js';
@@ -863,7 +861,6 @@ async function seed() {
 				await db.insert(schema.userSubjectOffering).values({
 					userId: studentId,
 					subOfferingId: subjectOffering.id,
-					role: userSubjectOfferingRoleEnum.student,
 					color: colorHue
 				});
 			}
@@ -873,8 +870,7 @@ async function seed() {
 		for (let i = 0; i < teacherIds.length && i < year9Offerings.length; i++) {
 			await db.insert(schema.userSubjectOffering).values({
 				userId: teacherIds[i],
-				subOfferingId: year9Offerings[i].id,
-				role: userSubjectOfferingRoleEnum.teacher
+				subOfferingId: year9Offerings[i].id
 			});
 		}
 
@@ -883,8 +879,7 @@ async function seed() {
 			for (const subjectOfferingClass of subjectOfferingClasses) {
 				await db.insert(schema.userSubjectOfferingClass).values({
 					userId: studentId,
-					subOffClassId: subjectOfferingClass.id,
-					role: userSubjectOfferingClassRoleEnum.student
+					subOffClassId: subjectOfferingClass.id
 				});
 			}
 		}
@@ -893,8 +888,7 @@ async function seed() {
 		for (let i = 0; i < teacherIds.length && i < subjectOfferingClasses.length; i++) {
 			await db.insert(schema.userSubjectOfferingClass).values({
 				userId: teacherIds[i],
-				subOffClassId: subjectOfferingClasses[i].id,
-				role: userSubjectOfferingClassRoleEnum.teacher
+				subOffClassId: subjectOfferingClasses[i].id
 			});
 		}
 

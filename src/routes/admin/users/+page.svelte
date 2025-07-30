@@ -20,7 +20,7 @@
 		renderComponent
 	} from '$lib/components/ui/data-table/index.js';
 	import DataTableCheckbox from '$lib/components/ui/data-table/data-table-checkbox.svelte';
-	import TypeBadge from './TypeBadge.svelte';
+	import TypeBadge from '../../../lib/components/type-badge.svelte';
 
 	const { data } = $props();
 
