@@ -26,17 +26,6 @@ export enum schoolSpaceTypeEnum {
 	auditorium = 'auditorium'
 }
 
-export enum userSubjectOfferingRoleEnum {
-	student = 'student',
-	teacher = 'teacher',
-	moderator = 'moderator'
-}
-
-export enum userSubjectOfferingClassRoleEnum {
-	student = 'student',
-	teacher = 'teacher'
-}
-
 export enum subjectThreadTypeEnum {
 	discussion = 'discussion',
 	question = 'question',
