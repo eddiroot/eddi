@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { v4 as uuidv4 } from 'uuid';
 	import { onMount, onDestroy } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as fabric from 'fabric';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-
 	import MousePointerIcon from '@lucide/svelte/icons/mouse-pointer';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CircleIcon from '@lucide/svelte/icons/circle';
@@ -31,8 +30,8 @@
 	let isPanning = false;
 	let lastWheelTime = 0;
 
-	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $page.params;
-	const whiteboardIdNum = parseInt(whiteboardId);
+	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
+	const whiteboardIdNum = $derived(parseInt(whiteboardId));
 
 	const sendCanvasUpdate = (data: Object) => {
 		if (socket && socket.readyState === WebSocket.OPEN) {
@@ -195,6 +194,9 @@
 
 	onMount(() => {
 		if (!whiteboardCanvas) return;
+
+		// Prevent body scrolling while on whiteboard
+		document.body.style.overflow = 'hidden';
 
 		canvas = new fabric.Canvas(whiteboardCanvas);
 		canvas.setDimensions({ width: 1200, height: 800 });
@@ -439,6 +441,9 @@
 	});
 
 	onDestroy(() => {
+		// Restore body scrolling when leaving whiteboard
+		document.body.style.overflow = '';
+		
 		if (socket) {
 			socket.close();
 		}
@@ -572,9 +577,3 @@
 		</div>
 	</main>
 </div>
-
-<style>
-	:global(body) {
-		overflow: hidden;
-	}
-</style>

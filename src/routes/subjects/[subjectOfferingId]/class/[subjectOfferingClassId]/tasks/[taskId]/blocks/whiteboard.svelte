@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { ViewMode } from '$lib/utils';
-
-	import EditIcon from '@lucide/svelte/icons/edit';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 
 	let { content = { whiteboardId: null, title: '' }, viewMode = ViewMode.VIEW, onUpdate = () => {} } = $props();
@@ -24,7 +22,7 @@
 		}
 	});
 
-	const { lessonId, subjectOfferingId } = $page.params;
+	const { taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 
 	const createWhiteboard = async () => {
 		try {
@@ -34,7 +32,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					lessonId: parseInt(lessonId),
+					taskId: parseInt(taskId),
 					title: title || null
 				})
 			});
@@ -84,7 +82,7 @@
 		}
 
 		if (currentWhiteboardId) {
-			const url = `/subjects/${subjectOfferingId}/lessons/${lessonId}/whiteboard/${currentWhiteboardId}`;
+			const url = `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/${currentWhiteboardId}`;
 			console.log('Navigating to:', url);
 			goto(url);
 		} else {
