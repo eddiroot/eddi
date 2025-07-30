@@ -1,6 +1,8 @@
 # Roadmap
 
-## Done
+## eddi
+
+### Done
 
 - [x] Create lessons with drag'n'drop blocks
 - [x] Create lessons based on textbooks, slides, PDFs, images, etc
@@ -28,7 +30,7 @@
 - [x] Coursemap flow
 - [x] Fix lesson generation with learning areas and content
 
-## Doing
+### Doing
 
 All
 
@@ -37,31 +39,11 @@ All
 
 Lachie
 
----- URGENT ----
-
-- [ ] Interactive map of locations in the school with directions (URGENT) !!!!!
-
 - [ ] Basic timetabling (Process & Import) (07/08)
-- [ ] Admin dashboard allocations page (07/08)
-- [ ] Teachers can see past attendance (28/08)
-- [ ] Google/Okta Auth
-
-Jack and Bella (31/08)
-
-- [ ] eddi-study (for 3/4 subjects)
-  - [ ] Skills (teach me) (lessons)
-    - [ ] task blocks
-  - [ ] Train me
-    - [ ] Cue card generation
-    - [ ] Feedback
-    - [ ] Sample questions
-  - [ ] Test me
-    - [ ] Improvement assessment generation
-    - [ ] Marking/grading/feedback
-  - [ ] Improved chatbot
-  - [ ] tiers for potential cashola
-    - [ ] Free tiers for the free models
-    - [ ] pay for better models
+- [ ] Admin dashboard allocations page (14/08)
+- [ ] Teachers can see past attendance (21/08)
+- [ ] Google/Okta Auth (28/08)
+- [ ] Interactive map of locations in the school with directions
 
 Jack
 
@@ -91,7 +73,7 @@ Beej
 
 - [ ] Parent/teacher interviews (21/07)
 - [ ] Teacher to parent comms (one way) (28/07)
-- [ ] security research and compliance documentation (😄)
+- [ ] Security research and compliance documentation (28/08)
 
 Blake
 
@@ -121,7 +103,7 @@ Max
   - [ ] potential AI generation of form
   - [ ] maybe change color of event in calendar once form is signed
 
-## Future
+### Future
 
 - [ ] Exam timetabling
 - [ ] Subtype for Assessments (SAC?)
@@ -145,3 +127,27 @@ Max
 - [ ] Parent forum / teacher forum
 - [ ] Mark absence for select periods of the day rather than whole day
 - [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
+
+## eddi study
+
+### Done
+
+### Doing
+
+Shippable by 31/08!
+
+Jack and Bella
+
+- [ ] Teach me (skills/lessons)
+  - [ ] task blocks
+- [ ] Train me
+  - [ ] Cue card generation
+  - [ ] Feedback
+  - [ ] Sample questions
+- [ ] Test me
+  - [ ] Improvement assessment generation
+  - [ ] Marking/grading/feedback
+- [ ] Improved chatbot
+- [ ] Tiers
+  - [ ] Free tiers for the free models
+  - [ ] Pay for the better models
