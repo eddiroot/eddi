@@ -10,6 +10,9 @@ export * from './task';
 // School schemas
 export * from './schools';
 
+// Timetable schemas
+export * from './timetables';
+
 // Subject schemas
 export * from './subjects';
 

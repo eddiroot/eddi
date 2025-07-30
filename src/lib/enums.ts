@@ -126,3 +126,10 @@ export enum relationshipTypeEnum {
 	father = 'father',
 	guardian = 'guardian'
 }
+
+export enum queueStatusEnum {
+	queued = 'queued',
+	inProgress = 'in_progress',
+	completed = 'completed',
+	failed = 'failed'
+}

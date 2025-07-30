@@ -4,6 +4,9 @@ export * from './task.js';
 // School
 export * from './schools.js';
 
+// Timetable
+export * from './timetables.js';
+
 // Subject
 export * from './subjects.js';
 

@@ -9,11 +9,13 @@ import {
 	getSpacesBySchoolId,
 	getUsersBySchoolIdAndType,
 	getSubjectsBySchoolId,
-	getSchoolById
+	getSchoolById,
+	createTimetableQueueEntry
 } from '$lib/server/db/service';
 import { userTypeEnum } from '$lib/enums';
 import { buildFETXML } from './utils.js';
 import type { Actions } from './$types.js';
+import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 
 export const actions: Actions = {
 	generateTimetable: async ({ params, locals: { security } }) => {
@@ -70,7 +72,17 @@ export const actions: Actions = {
 			const builder = new XMLBuilder(xmlBuilderOptions);
 			const xmlContent = builder.build(xmlData);
 
-			console.log('Generated XML content:', xmlContent);
+			const uniqueFileName = generateUniqueFileName(`${timetableId}.xml`);
+			const objectKey = `${user.schoolId}/${uniqueFileName}`;
+
+			await uploadBufferHelper(
+				Buffer.from(xmlContent, 'utf-8'),
+				'schools',
+				objectKey,
+				'application/xml'
+			);
+
+			await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
 
 			return { success: true, message: 'Timetable data queued for processing' };
 		} catch (error) {

@@ -88,10 +88,8 @@ export const actions = {
 		try {
 			// Get student groups for the selected year level
 			const groups = await getTimetableStudentGroupsByTimetableId(timetableId);
-			console.log('Groups:', groups);
-			console.log(form.data.yearLevel);
 			const yearLevelGroups = groups.filter((group) => group.yearLevel === form.data.yearLevel);
-			console.log('Year Level Groups:', yearLevelGroups);
+
 			if (yearLevelGroups.length === 0) {
 				return message(
 					form,
