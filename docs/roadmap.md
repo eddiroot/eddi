@@ -16,31 +16,32 @@
 - [x] Setup object storage
 - [x] Admin dashboard
 - [x] Add draggable interactive components such as matching
-- [x] Move home above discussion in sidebar if only 1 class (13/07)
-- [x] Roll call / attendance (20/07)
-- [x] Sick/not coming to school/absence (27/07)
-- [x] Absence notifications (27/07)
-- [x] Behavioural reporting (visible to parents) (07/08)
-- [x] Auto generated summaries of discussions (21/07)
-- [x] Option for teachers to disable eddi AI on a task (28/07)
+- [x] Move home above discussion in sidebar if only 1 class
+- [x] Roll call / attendance
+- [x] Sick/not coming to school/absence
+- [x] Absence notifications
+- [x] Behavioural reporting (visible to parents)
+- [x] Auto generated summaries of discussions
+- [x] Option for teachers to disable eddi AI on a task
 - [x] Onboarding flow (14/07)
-- [x] Switch locations to buildings and rooms (22/07)
-- [x] Basic timetabling (Frontend/Backend) (23/07)
-- [x] Basic timetabling (Generation) (28/07)
+- [x] Switch locations to buildings and rooms
+- [x] Basic timetabling (Frontend/Backend)
+- [x] Basic timetabling (Generation)
 - [x] Coursemap flow
 - [x] Fix lesson generation with learning areas and content
+- [x] Admin dashboard allocations page
 
 ### Doing
 
 All
 
 - [ ] Security review e.g. prompt injection (Late October)
+- [ ] Check uniqueness rules on tables (Late October)
 - [ ] Home pages and feature pages
 
 Lachie
 
 - [ ] Basic timetabling (Process & Import) (07/08)
-- [ ] Admin dashboard allocations page (14/08)
 - [ ] Teachers can see past attendance (21/08)
 - [ ] Google/Okta Auth (28/08)
 - [ ] Interactive map of locations in the school with directions

@@ -141,18 +141,22 @@ export const userSubjectOfferingClassRoleEnumPg = pgEnum('user_sub_off_class_rol
 	userSubjectOfferingClassRoleEnum.teacher
 ]);
 
-export const userSubjectOfferingClass = pgTable('user_sub_off_class', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	userId: uuid('user_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	subOffClassId: integer('sub_off_class_id')
-		.notNull()
-		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-	role: userSubjectOfferingClassRoleEnumPg().notNull(),
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
+export const userSubjectOfferingClass = pgTable(
+	'user_sub_off_class',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		subOffClassId: integer('sub_off_class_id')
+			.notNull()
+			.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
+		role: userSubjectOfferingClassRoleEnumPg().notNull(),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.userId, self.subOffClassId)]
+);
 
 export type UserSubjectOfferingClass = typeof userSubjectOfferingClass.$inferSelect;
 

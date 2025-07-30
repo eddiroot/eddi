@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -33,12 +33,10 @@
 		<p class="text-muted-foreground mt-1">Manage your school timetables</p>
 	</div>
 	<Dialog.Root bind:open={dialogOpen}>
-		<Dialog.Trigger>
-			<Button class="gap-2">
-				<PlusIcon class="h-4 w-4" />
-				Create New
-			</Button>
-		</Dialog.Trigger>
+		<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>
+			<PlusIcon />
+			Create New</Dialog.Trigger
+		>
 		<Dialog.Content class="sm:max-w-[425px]">
 			<Dialog.Header>
 				<Dialog.Title>Create New Timetable</Dialog.Title>

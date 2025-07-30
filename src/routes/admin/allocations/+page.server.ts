@@ -1,0 +1,99 @@
+import { fail } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import {
+	getAllocationsBySchoolId,
+	createUserSubjectOfferingClass,
+	updateUserSubjectOfferingClass,
+	deleteUserSubjectOfferingClass,
+	getUsersBySchoolIdAndTypes,
+	getSubjectOfferingClassesBySchoolId
+} from '$lib/server/db/service';
+import { createAllocationSchema, updateAllocationSchema } from './schema.js';
+import { userTypeEnum } from '$lib/enums.js';
+
+export const load = async ({ locals }) => {
+	const user = locals.security.isAuthenticated().isSchoolAdmin().getUser();
+
+	const [allocations, users, subjectOfferingClasses] = await Promise.all([
+		getAllocationsBySchoolId(user.schoolId),
+		getUsersBySchoolIdAndTypes(user.schoolId, [userTypeEnum.student, userTypeEnum.teacher]),
+		getSubjectOfferingClassesBySchoolId(user.schoolId)
+	]);
+
+	const createForm = await superValidate(zod4(createAllocationSchema));
+	const updateForm = await superValidate(zod4(updateAllocationSchema));
+
+	return {
+		allocations,
+		users,
+		subjectOfferingClasses,
+		createForm,
+		updateForm
+	};
+};
+
+export const actions = {
+	create: async ({ request, locals }) => {
+		locals.security.isAuthenticated().isSchoolAdmin();
+
+		const formData = await request.formData();
+		const form = await superValidate(formData, zod4(createAllocationSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		try {
+			await createUserSubjectOfferingClass(
+				form.data.userId,
+				parseInt(form.data.subjectOfferingClassId),
+				form.data.role
+			);
+
+			return { form, success: true };
+		} catch (error) {
+			console.error('Error creating allocation:', error);
+			return fail(500, { form, error: 'Failed to create allocation' });
+		}
+	},
+
+	update: async ({ request, locals }) => {
+		locals.security.isAuthenticated().isSchoolAdmin();
+
+		const formData = await request.formData();
+		const form = await superValidate(formData, zod4(updateAllocationSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		try {
+			await updateUserSubjectOfferingClass(form.data.id, form.data.role);
+
+			return { form, success: true };
+		} catch (error) {
+			console.error('Error updating allocation:', error);
+			return fail(500, { form, error: 'Failed to update allocation' });
+		}
+	},
+
+	delete: async ({ request, locals }) => {
+		locals.security.isAuthenticated().isSchoolAdmin();
+
+		const formData = await request.formData();
+		const allocationId = parseInt(formData.get('id') as string);
+
+		if (!allocationId) {
+			return fail(400, { error: 'Invalid allocation ID' });
+		}
+
+		try {
+			await deleteUserSubjectOfferingClass(allocationId);
+			return { success: true };
+		} catch (error) {
+			console.error('Error deleting allocation:', error);
+			return fail(500, { error: 'Failed to delete allocation' });
+		}
+	}
+};

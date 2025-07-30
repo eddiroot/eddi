@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { eq, and, asc, count } from 'drizzle-orm';
+import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { schoolSpaceTypeEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 
 export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
@@ -21,6 +21,37 @@ export async function getUsersBySchoolId(schoolId: number, includeArchived: bool
 			includeArchived
 				? eq(table.user.schoolId, schoolId)
 				: and(eq(table.user.schoolId, schoolId), eq(table.user.isArchived, false))
+		)
+		.orderBy(asc(table.user.type), asc(table.user.lastName), asc(table.user.firstName));
+
+	return users;
+}
+
+export async function getUsersBySchoolIdAndTypes(
+	schoolId: number,
+	types: userTypeEnum[],
+	includeArchived: boolean = false
+) {
+	const users = await db
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			type: table.user.type,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			yearLevel: table.user.yearLevel,
+			avatarUrl: table.user.avatarUrl
+		})
+		.from(table.user)
+		.where(
+			includeArchived
+				? and(eq(table.user.schoolId, schoolId), inArray(table.user.type, types))
+				: and(
+						eq(table.user.schoolId, schoolId),
+						inArray(table.user.type, types),
+						eq(table.user.isArchived, false)
+					)
 		)
 		.orderBy(asc(table.user.type), asc(table.user.lastName), asc(table.user.firstName));
 

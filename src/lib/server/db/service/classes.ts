@@ -1,6 +1,6 @@
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { desc, eq, and, gte, lt } from 'drizzle-orm';
+import { desc, eq, and, gte, lt, asc } from 'drizzle-orm';
 import { userSubjectOfferingClassRoleEnum } from '$lib/enums.js';
 
 export async function getSubjectOfferingClassDetailsById(subjectOfferingClassId: number) {
@@ -302,4 +302,122 @@ export async function getSubjectOfferingClassByAllocationId(allocationId: number
 		.limit(1);
 
 	return result?.length ? result[0] : null;
+}
+
+export async function getSubjectOfferingClassesBySchoolId(schoolId: number) {
+	const classes = await db
+		.select({
+			id: table.subjectOfferingClass.id,
+			name: table.subjectOfferingClass.name,
+			subjectName: table.subject.name
+		})
+		.from(table.subjectOfferingClass)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(
+			and(
+				eq(table.subject.schoolId, schoolId),
+				eq(table.subjectOfferingClass.isArchived, false),
+				eq(table.subjectOffering.isArchived, false)
+			)
+		)
+		.orderBy(
+			asc(table.subject.name),
+			asc(table.subjectOfferingClass.name),
+			asc(table.subjectOffering.year),
+			asc(table.subjectOffering.semester)
+		);
+
+	return classes;
+}
+
+export async function getAllocationsBySchoolId(schoolId: number) {
+	const allocations = await db
+		.select({
+			user: {
+				id: table.user.id,
+				firstName: table.user.firstName,
+				middleName: table.user.middleName,
+				lastName: table.user.lastName,
+				email: table.user.email
+			},
+			userSubjectOfferingClass: table.userSubjectOfferingClass,
+			subjectOfferingClass: table.subjectOfferingClass,
+			subjectOffering: {
+				id: table.subjectOffering.id,
+				year: table.subjectOffering.year,
+				semester: table.subjectOffering.semester
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name,
+				yearLevel: table.subject.yearLevel
+			}
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(table.user, eq(table.user.id, table.userSubjectOfferingClass.userId))
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.isArchived, false),
+				eq(table.subject.schoolId, schoolId)
+			)
+		)
+		.orderBy(
+			asc(table.subject.name),
+			asc(table.subjectOfferingClass.name),
+			asc(table.user.lastName),
+			asc(table.user.firstName)
+		);
+
+	return allocations;
+}
+
+export async function createUserSubjectOfferingClass(
+	userId: string,
+	subjectOfferingClassId: number,
+	role: userSubjectOfferingClassRoleEnum
+) {
+	const [allocation] = await db
+		.insert(table.userSubjectOfferingClass)
+		.values({
+			userId,
+			subOffClassId: subjectOfferingClassId,
+			role,
+			isArchived: false
+		})
+		.returning();
+
+	return allocation;
+}
+
+export async function updateUserSubjectOfferingClass(
+	allocationId: number,
+	role: userSubjectOfferingClassRoleEnum
+) {
+	const [allocation] = await db
+		.update(table.userSubjectOfferingClass)
+		.set({ role })
+		.where(eq(table.userSubjectOfferingClass.id, allocationId))
+		.returning();
+
+	return allocation;
+}
+
+export async function deleteUserSubjectOfferingClass(allocationId: number) {
+	await db
+		.update(table.userSubjectOfferingClass)
+		.set({ isArchived: true })
+		.where(eq(table.userSubjectOfferingClass.id, allocationId));
 }
