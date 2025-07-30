@@ -44,7 +44,6 @@ Lachie
 - [ ] Basic timetabling (Process & Import) (07/08)
 - [ ] Teachers can see past attendance (21/08)
 - [ ] Google/Okta Auth (28/08)
-- [ ] Interactive map of locations in the school with directions
 
 Jack
 
@@ -107,6 +106,7 @@ Max
 
 ### Future
 
+- [ ] Interactive map of locations in the school with directions
 - [ ] Exam timetabling
 - [ ] Subtype for Assessments (SAC?)
 - [ ] Export all data for a given school
@@ -138,7 +138,7 @@ Max
 
 Shippable by 31/08!
 
-Jack and Bella
+Jack and Bella and Lachie
 
 - [ ] Teach me (skills/lessons)
   - [ ] task blocks
