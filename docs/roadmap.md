@@ -142,6 +142,19 @@ Jack and Bella and Lachie
 
 - [ ] Teach me (skills/lessons)
   - [ ] task blocks
+    - Maths
+      - [ ] Graph/plot
+      - [ ] table
+      - [ ] arithmotic/formula (handling maths in a friendly way)
+    - Science
+      - [ ] image 
+      - [ ] diagram? (with movable or input box)
+    - Written/English
+      - [ ] highlight what is wrong
+      - [ ] text, highlight the quotes that match themes 
+      - [ ] fill in the sentance (middle of the paragraph)
+      - [ ] integrate correct quote 
+      - ... open to more.
 - [ ] Train me
   - [ ] Cue card generation
   - [ ] Feedback
