@@ -50,7 +50,6 @@ Jack
 - [ ] Class tests / quizzes (23/07)
 - [ ] AI feedback / assisted marking
 - [ ] View students work
-<!-- - [ ] Lesson plans / teacher notes based on generated lesson -->
 
 Raph
 
@@ -90,7 +89,6 @@ Bella
 - [ ] Move websocket code for presentations closer to where it's needed in file structure
 - [ ] Add/refine current task components (new question and answer type component)
 - [ ] Fees / breakdowns
-<!-- - [ ] Complete LLM access to discussions + lessons  -->
 - [ ] See teacher's feedback
 
 Max
@@ -99,10 +97,15 @@ Max
   - [ ] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
   - [ ] changing spaces and handling of this
-  <!-- - [ ] Student note writing (30/08)x -->
 - [ ] Excursions (permission forms)
   - [ ] potential AI generation of form
   - [ ] maybe change color of event in calendar once form is signed
+
+Pending eddi study completion
+
+- [ ] Student note writing (30/08)
+- [ ] Complete LLM access to discussions + lessons
+- [ ] Lesson plans / teacher notes based on generated lesson
 
 ### Future
 
