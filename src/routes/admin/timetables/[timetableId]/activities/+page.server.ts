@@ -3,7 +3,8 @@ import {
 	getUsersBySchoolIdAndType,
 	getTimetableStudentGroupsByTimetableId,
 	getTimetableActivitiesByTimetableId,
-	createTimetableActivity
+	createTimetableActivity,
+	deleteTimetableActivitiesByGroupId
 } from '$lib/server/db/service';
 import { activityFormSchema } from './schema.js';
 import { superValidate, message } from 'sveltekit-superforms';
@@ -96,6 +97,11 @@ export const actions = {
 					'No student groups found for the selected year level. Please create student groups first.',
 					{ status: 400 }
 				);
+			}
+
+			for (const group of yearLevelGroups) {
+				// Delete existing activities for the group
+				await deleteTimetableActivitiesByGroupId(group.id);
 			}
 
 			let totalActivitiesCreated = 0;

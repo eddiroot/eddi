@@ -330,9 +330,11 @@ export async function createTimetableActivity(data: {
 	periodsPerInstance: number;
 	totalPeriods: number;
 }) {
-	const [activity] = await db.insert(table.timetableActivity).values(data).returning();
+	await db.insert(table.timetableActivity).values(data).returning();
+}
 
-	return activity;
+export async function deleteTimetableActivitiesByGroupId(groupId: number) {
+	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.groupId, groupId));
 }
 
 export async function updateTimetableActivity(

@@ -100,24 +100,22 @@ export function buildFETXML({
 		}))
 	}));
 
-	const activitiesList = activities.map((activity, index) => {
-		const teacherName = convertToFullName(
-			activity.teacher.firstName,
-			activity.teacher.middleName,
-			activity.teacher.lastName
-		);
-
-		return {
-			Teacher: teacherName,
-			Subject: activity.subject.name,
-			Students: activity.studentGroup.name,
-			Duration: activity.activity.periodsPerInstance,
-			Total_Duration: activity.activity.totalPeriods,
-			Id: index + 1,
-			Activity_Group_Id: 0,
-			Active: true,
-			Comments: ''
-		};
+	const activitiesList = activities.flatMap((activity) => {
+		const activities = [];
+		for (let i = 0; i < activity.activity.totalPeriods; i++) {
+			activities.push({
+				Teacher: activity.teacher.id,
+				Subject: activity.subject.name,
+				Students: activity.studentGroup.name,
+				Duration: activity.activity.periodsPerInstance,
+				Total_Duration: activity.activity.totalPeriods,
+				Id: `${activity.activity.id}${i}`,
+				Activity_Group_Id: 0,
+				Active: true,
+				Comments: ''
+			});
+		}
+		return activities;
 	});
 
 	const buildingsList = buildings.map((building) => ({
@@ -168,7 +166,6 @@ export function buildFETXML({
 		},
 		fet: {
 			'@_version': '7.3.0',
-			Mode: 'Block_Planning',
 			Institution_Name: school?.name || 'eddi Grammar',
 			Comments:
 				'This is a timetable generated for a school working with eddi. Full credit goes to Liviu Lalescu and Volker Dirr for their work on FET (Free Timetabling Software) which we utilise to generate the output.',
