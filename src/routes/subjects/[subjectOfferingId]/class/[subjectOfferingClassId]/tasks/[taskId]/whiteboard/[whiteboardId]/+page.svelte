@@ -26,12 +26,7 @@
 	let canvas: fabric.Canvas;
 	let selectedTool = $state('select');
 	let whiteboardCanvas = $state<HTMLCanvasElement>();
-	
-	let isDragging = false;
-	let lastPos = { x: 0, y: 0 };
 	let currentMousePos = $state({ x: 0, y: 0 });
-	let isPanning = false;
-	let lastWheelTime = 0;
 	let isPanMode = false;
 	let panStartPos = { x: 0, y: 0 };
 	let currentZoom = $state(1);
@@ -59,7 +54,7 @@
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
-		canvas.discardActiveObject(); 
+		canvas.discardActiveObject();
 		canvas.defaultCursor = 'grab';
 		canvas.hoverCursor = 'grab';
 	};
@@ -211,7 +206,6 @@
 	};
 
 	const goBack = () => {
-		// Navigate back to the task
 		goto(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}`);
 	};
 
@@ -231,29 +225,30 @@
 	onMount(() => {
 		if (!whiteboardCanvas) return;
 
-		// Prevent body scrolling while on whiteboard
 		document.body.style.overflow = 'hidden';
 
 		canvas = new fabric.Canvas(whiteboardCanvas);
-		
-		// Set canvas to fill the available space
+
 		const resizeCanvas = () => {
 			if (!whiteboardCanvas || !canvas) return;
-			const container = whiteboardCanvas.parentElement;
-			if (container) {
-				const rect = container.getBoundingClientRect();
+			const whiteContainer = whiteboardCanvas.closest('.rounded-lg.border-2.bg-white');
+			if (whiteContainer) {
+				const rect = whiteContainer.getBoundingClientRect();
+				const width = rect.width - 4;
+				const height = rect.height - 4;
+				
+				whiteboardCanvas.width = width;
+				whiteboardCanvas.height = height;
+				
 				canvas.setDimensions({ 
-					width: rect.width - 4, // Subtract border width
-					height: rect.height - 4 
+					width: width,
+					height: height 
 				});
 				canvas.renderAll();
 			}
 		};
 
-		// Initial resize
 		resizeCanvas();
-
-		// Resize on window resize
 		window.addEventListener('resize', resizeCanvas);
 
 		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
@@ -262,11 +257,9 @@
 
 		setSelectTool();
 
-		// Connect to WebSocket for real-time collaboration
 		socket = new WebSocket(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`);
 
 		socket.addEventListener('open', () => {
-			// Send whiteboard ID after connection is established
 			if (socket && socket.readyState === WebSocket.OPEN) {
 				socket.send(
 					JSON.stringify({
@@ -280,7 +273,7 @@
 		socket.addEventListener('message', async (event) => {
 			try {
 				const messageData = JSON.parse(event.data);
-				if (messageData.whiteboardId !== whiteboardIdNum) return; // Ignore messages for other whiteboards
+				if (messageData.whiteboardId !== whiteboardIdNum) return;
 
 				if (messageData.type === 'load') {
 					if (messageData.whiteboard.objects.length > 0) {
@@ -329,7 +322,6 @@
 			}
 		});
 
-		// Canvas event listeners
 		canvas.on('object:moving', ({ target }) => {
 			const objData = target.toObject();
 			// @ts-expect-error
@@ -392,7 +384,7 @@
 			
 			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
 			canvas.zoomToPoint(point, zoom);
-			currentZoom = zoom; // Update zoom state
+			currentZoom = zoom;
 			opt.e.preventDefault();
 			opt.e.stopPropagation();
 		});
@@ -413,7 +405,6 @@
 				opt.e.preventDefault();
 				opt.e.stopPropagation();
 			} else if (selectedTool === 'select') {
-				// Select tool - only pan if clicking on empty space
 				if (!canvas.getActiveObject() && !canvas.findTarget(evt)) {
 					isPanMode = true;
 					canvas.selection = false;
@@ -429,13 +420,11 @@
 		});
 
 		canvas.on('mouse:move', (opt) => {
-			// Update current mouse position for real-time tracking
 			const pointer = canvas.getScenePoint(opt.e);
 			currentMousePos = { x: pointer.x, y: pointer.y };
 			
 			if (isPanMode) {
 				const e = opt.e;
-				// Handle both mouse and touch events
 				const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || 0;
 				const clientY = 'clientY' in e ? e.clientY : e.touches?.[0]?.clientY || 0;
 				
@@ -540,7 +529,7 @@
 	});
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="bg-background flex h-full w-full flex-col">
 	<!-- Header with back button and title -->
 	<header
 		class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur"
@@ -561,119 +550,119 @@
 		</div>
 	</header>
 
-	<!-- Toolbar -->
-	<div class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
-		<div class="flex justify-center py-3">
-			<div class="bg-background flex items-center gap-1 rounded-md border px-4 py-2 shadow-sm">
-				<!-- Selection Tool -->
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button
-							variant={selectedTool === 'select' ? 'default' : 'ghost'}
-							size="icon"
-							onclick={setSelectTool}
-							class="h-9 w-9"
-						>
-							<MousePointerIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Select</Tooltip.Content>
-				</Tooltip.Root>
-
-				<!-- Pan Tool -->
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button
-							variant={selectedTool === 'pan' ? 'default' : 'ghost'}
-							size="icon"
-							onclick={setPanTool}
-							class="h-9 w-9"
-						>
-							<HandIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Pan</Tooltip.Content>
-				</Tooltip.Root>
-
-				<div class="bg-border mx-1 h-6 w-px"></div>
-
-				<!-- Draw Tool -->
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button
-							variant={selectedTool === 'draw' ? 'default' : 'ghost'}
-							size="icon"
-							onclick={setDrawTool}
-							class="h-9 w-9"
-						>
-							<PenToolIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Draw</Tooltip.Content>
-				</Tooltip.Root>
-
-				<!-- Shapes Dropdown -->
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
-								<SquareIcon class="h-4 w-4" />
-							</Button>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content>
-						<DropdownMenu.Item onclick={() => addShape('rectangle')}>
-							<SquareIcon class="h-4 w-4" />
-							Rectangle
-						</DropdownMenu.Item>
-						<DropdownMenu.Item onclick={() => addShape('circle')}>
-							<CircleIcon class="h-4 w-4" />
-							Circle
-						</DropdownMenu.Item>
-						<DropdownMenu.Item onclick={() => addShape('triangle')}>
-							<TriangleIcon class="h-4 w-4" />
-							Triangle
-						</DropdownMenu.Item>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-
-				<!-- Text Tool -->
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
-							<TypeIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Add Text</Tooltip.Content>
-				</Tooltip.Root>
-
-				<div class="bg-border mx-1 h-6 w-px"></div>
-
-				<!-- Delete Selected -->
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button variant="ghost" size="icon" onclick={deleteSelected} class="h-9 w-9">
-							<TrashIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Delete Selected</Tooltip.Content>
-				</Tooltip.Root>
-
-				<!-- Clear Canvas -->
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
-							<EraseIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Clear All</Tooltip.Content>
-				</Tooltip.Root>
-			</div>
-		</div>
-	</div>
-
 	<!-- Whiteboard Canvas -->
 	<main class="flex flex-1 items-center justify-center overflow-hidden p-4 relative">
+		<!-- Floating Toolbar -->
+		<div class="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
+			<div class="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur border rounded-md shadow-sm">
+				<div class="flex items-center gap-1 px-4 py-2">
+					<!-- Selection Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button
+								variant={selectedTool === 'select' ? 'default' : 'ghost'}
+								size="icon"
+								onclick={setSelectTool}
+								class="h-9 w-9"
+							>
+								<MousePointerIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Select</Tooltip.Content>
+					</Tooltip.Root>
+
+					<!-- Pan Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button
+								variant={selectedTool === 'pan' ? 'default' : 'ghost'}
+								size="icon"
+								onclick={setPanTool}
+								class="h-9 w-9"
+							>
+								<HandIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Pan</Tooltip.Content>
+					</Tooltip.Root>
+
+					<div class="bg-border mx-1 h-6 w-px"></div>
+
+					<!-- Draw Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button
+								variant={selectedTool === 'draw' ? 'default' : 'ghost'}
+								size="icon"
+								onclick={setDrawTool}
+								class="h-9 w-9"
+							>
+								<PenToolIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Draw</Tooltip.Content>
+					</Tooltip.Root>
+
+					<!-- Shapes Dropdown -->
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
+									<SquareIcon class="h-4 w-4" />
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content>
+							<DropdownMenu.Item onclick={() => addShape('rectangle')}>
+								<SquareIcon class="h-4 w-4" />
+								Rectangle
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => addShape('circle')}>
+								<CircleIcon class="h-4 w-4" />
+								Circle
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => addShape('triangle')}>
+								<TriangleIcon class="h-4 w-4" />
+								Triangle
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+
+					<!-- Text Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
+								<TypeIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Add Text</Tooltip.Content>
+					</Tooltip.Root>
+
+					<div class="bg-border mx-1 h-6 w-px"></div>
+
+					<!-- Delete Selected -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button variant="ghost" size="icon" onclick={deleteSelected} class="h-9 w-9">
+								<TrashIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Delete Selected</Tooltip.Content>
+					</Tooltip.Root>
+
+					<!-- Clear Canvas -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
+								<EraseIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Clear All</Tooltip.Content>
+					</Tooltip.Root>
+				</div>
+			</div>
+		</div>
+
 		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700 w-full h-full flex">
 			<canvas bind:this={whiteboardCanvas} class="w-full h-full"></canvas>
 		</div>
