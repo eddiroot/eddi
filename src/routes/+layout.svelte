@@ -106,6 +106,11 @@
 				const whiteboard =
 					pageData?.whiteboard || pageData?.whiteboards?.find((w: any) => w.id === whiteboardId);
 				label = whiteboard?.title || `Whiteboard ${segment}`;
+			} else if (segments[i - 1] === 'student' && !isNaN(Number(segment))) {
+				const studentId = Number(segment);
+				const pageData = page.data as any;
+				const student = pageData?.student || pageData?.students?.find((s: any) => s.id === studentId);
+				label = student ? `${student.firstName} ${student.lastName}` : `Student ${segment}`;
 			} else {
 				label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
 			}

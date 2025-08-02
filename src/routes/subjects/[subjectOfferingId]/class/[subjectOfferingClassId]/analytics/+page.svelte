@@ -9,6 +9,7 @@
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+	import { Button } from '$lib/components/ui/button';
 
 	let { data } = $props();
 
@@ -36,8 +37,10 @@
 			],
 			students: [
 				{
-					name: 'Sam Smith',
-					avatar: '/avatars/sam.jpg',
+					id: '1',
+					firstName: 'Sam',
+					lastName: 'Smith',
+					avatarUrl: '/avatars/sam.jpg',
 					assignmentsCompleted: 75, // percentage
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 3,
@@ -51,8 +54,10 @@
 					grade: 85
 				},
 				{
-					name: 'Emma Johnson',
-					avatar: '/avatars/emma.jpg',
+					id: '2',
+					firstName: 'Emma',
+					lastName: 'Johnson',
+					avatarUrl: '/avatars/emma.jpg',
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -66,8 +71,10 @@
 					grade: 92
 				},
 				{
-					name: 'Michael Chen',
-					avatar: '/avatars/michael.jpg',
+					id: '3',
+					firstName: 'Michael',
+					lastName: 'Chen',
+					avatarUrl: '/avatars/michael.jpg',
 					assignmentsCompleted: 50,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 2,
@@ -81,8 +88,10 @@
 					grade: 68
 				},
 				{
-					name: 'Sarah Davis',
-					avatar: '/avatars/sarah.jpg',
+					id: '4',
+					firstName: 'Sarah',
+					lastName: 'Davis',
+					avatarUrl: '/avatars/sarah.jpg',
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -96,8 +105,10 @@
 					grade: 88
 				},
 				{
-					name: 'David Wilson',
-					avatar: '/avatars/david.jpg',
+					id: '5',
+					firstName: 'David',
+					lastName: 'Wilson',
+					avatarUrl: '/avatars/david.jpg',
 					assignmentsCompleted: 25,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 1,
@@ -111,8 +122,10 @@
 					grade: 45
 				},
 				{
-					name: 'Lisa Martinez',
-					avatar: '/avatars/lisa.jpg',
+					id: '6',
+					firstName: 'Lisa',
+					lastName: 'Martinez',
+					avatarUrl: '/avatars/lisa.jpg',
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -126,8 +139,10 @@
 					grade: 95
 				},
 				{
-					name: 'James Brown',
-					avatar: '/avatars/james.jpg',
+					id: '7',
+					firstName: 'James',
+					lastName: 'Brown',
+					avatarUrl: '/avatars/james.jpg',
 					assignmentsCompleted: 75,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 3,
@@ -141,8 +156,10 @@
 					grade: 73
 				},
 				{
-					name: 'Ashley Taylor',
-					avatar: '/avatars/ashley.jpg',
+					id: '8',
+					firstName: 'Ashley',
+					lastName: 'Taylor',
+					avatarUrl: '/avatars/ashley.jpg',
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -282,64 +299,80 @@
 			],
 			students: [
 				{
-					name: 'Sam Smith',
-					avatar: '/avatars/sam.jpg',
+					id: '1',
+					firstName: 'Sam',
+					lastName: 'Smith',
+					avatarUrl: '/avatars/sam.jpg',
 					questionsPosted: 7,
 					questionsAnswered: 15,
 					totalContributions: 22,
 					lastActive: '< 1 day'
 				},
 				{
-					name: 'Emma Johnson',
-					avatar: '/avatars/emma.jpg',
+					id: '2',
+					firstName: 'Emma',
+					lastName: 'Johnson',
+					avatarUrl: '/avatars/emma.jpg',
 					questionsPosted: 12,
 					questionsAnswered: 23,
 					totalContributions: 35,
 					lastActive: '2 hours ago'
 				},
 				{
-					name: 'Michael Chen',
-					avatar: '/avatars/michael.jpg',
+					id: '3',
+					firstName: 'Michael',
+					lastName: 'Chen',
+					avatarUrl: '/avatars/michael.jpg',
 					questionsPosted: 3,
 					questionsAnswered: 8,
 					totalContributions: 11,
 					lastActive: '3 days ago'
 				},
 				{
-					name: 'Sarah Davis',
-					avatar: '/avatars/sarah.jpg',
+					id: '4',
+					firstName: 'Sarah',
+					lastName: 'Davis',
+					avatarUrl: '/avatars/sarah.jpg',
 					questionsPosted: 9,
 					questionsAnswered: 18,
 					totalContributions: 27,
 					lastActive: '1 day ago'
 				},
 				{
-					name: 'David Wilson',
-					avatar: '/avatars/david.jpg',
+					id: '5',
+					firstName: 'David',
+					lastName: 'Wilson',
+					avatarUrl: '/avatars/david.jpg',
 					questionsPosted: 1,
 					questionsAnswered: 2,
 					totalContributions: 3,
 					lastActive: '1 week ago'
 				},
 				{
-					name: 'Lisa Martinez',
-					avatar: '/avatars/lisa.jpg',
+					id: '6',
+					firstName: 'Lisa',
+					lastName: 'Martinez',
+					avatarUrl: '/avatars/lisa.jpg',
 					questionsPosted: 15,
 					questionsAnswered: 28,
 					totalContributions: 43,
 					lastActive: '3 hours ago'
 				},
 				{
-					name: 'James Brown',
-					avatar: '/avatars/james.jpg',
+					id: '7',
+					firstName: 'James',
+					lastName: 'Brown',
+					avatarUrl: '/avatars/james.jpg',
 					questionsPosted: 5,
 					questionsAnswered: 12,
 					totalContributions: 17,
 					lastActive: '2 days ago'
 				},
 				{
-					name: 'Ashley Taylor',
-					avatar: '/avatars/ashley.jpg',
+					id: '8',
+					firstName: 'Ashley',
+					lastName: 'Taylor',
+					avatarUrl: '/avatars/ashley.jpg',
 					questionsPosted: 8,
 					questionsAnswered: 20,
 					totalContributions: 28,
@@ -459,11 +492,14 @@
 						<Table.Body>
 							{#each mockData.studentPerformance.students as student}
 								<Table.Row>
-									<Table.Cell class="flex items-center gap-2">
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
-											<UsersIcon class="h-4 w-4" />
-										</div>
-										<span class="text-primary font-medium">{student.name}</span>
+									<Table.Cell>
+										<Button
+											variant="link"
+											href={`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics/student/${student.id}`}
+											class="p-0 h-auto font-medium text-primary hover:underline"
+										>
+											{student.firstName} {student.lastName}
+										</Button>
 									</Table.Cell>
 									<Table.Cell>
 										<div class="flex items-center gap-2">
@@ -701,11 +737,14 @@
 						<Table.Body>
 							{#each mockData.discussionAnalytics.students as student}
 								<Table.Row>
-									<Table.Cell class="flex items-center gap-2">
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
-											<UsersIcon class="h-4 w-4" />
-										</div>
-										<span class="text-primary font-medium">{student.name}</span>
+									<Table.Cell>
+										<Button
+											variant="link"
+											href={`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics/student/${student.id}`}
+											class="p-0 h-auto font-medium text-primary hover:underline"
+										>
+											{student.firstName} {student.lastName}
+										</Button>
 									</Table.Cell>
 									<Table.Cell>{student.questionsPosted}</Table.Cell>
 									<Table.Cell>{student.questionsAnswered}</Table.Cell>

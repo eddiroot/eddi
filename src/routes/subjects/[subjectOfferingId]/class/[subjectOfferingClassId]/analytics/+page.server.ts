@@ -20,6 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 
 	return {
-		subject: subjectData
+		subject: subjectData,
+		subjectOfferingClassId: parseInt(params.subjectOfferingClassId)
 	};
 };

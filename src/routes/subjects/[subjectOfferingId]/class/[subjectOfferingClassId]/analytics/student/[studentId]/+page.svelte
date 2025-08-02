@@ -1,0 +1,331 @@
+<script lang="ts">
+	import * as Card from '$lib/components/ui/card';
+	import * as Table from '$lib/components/ui/table';
+	import * as Chart from '$lib/components/ui/chart';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Progress } from '$lib/components/ui/progress';
+	import { Button } from '$lib/components/ui/button';
+	import { BarChart } from 'layerchart';
+	import UsersIcon from '@lucide/svelte/icons/users';
+	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+	import MailIcon from '@lucide/svelte/icons/mail';
+	import PhoneIcon from '@lucide/svelte/icons/phone';
+	import { goto } from '$app/navigation';
+
+	let { data } = $props();
+
+	// Use student data from server for breadcrumb, with additional mock data for display
+	const studentData = {
+		name: `${data.student.firstName} ${data.student.lastName}`,
+		avatar: data.student.avatarUrl,
+		grade: 85,
+		assignmentsCompleted: 75,
+		assignmentsTotal: 4,
+		assignmentsCompletedCount: 3,
+		lessonsCompleted: 100,
+		lessonsTotal: 6,
+		lessonsCompletedCount: 6,
+		homeworkCompleted: 75,
+		homeworkTotal: 4,
+		homeworkCompletedCount: 3,
+		lastActive: '< 1 day',
+		questionsPosted: 7,
+		questionsAnswered: 15,
+		totalContributions: 22,
+		assignmentHistory: [
+			{ name: 'Assignment 1', score: 85, dueDate: '1 week ago', status: 'completed' },
+			{ name: 'Assignment 2', score: 78, dueDate: '3 days ago', status: 'completed' },
+			{ name: 'Assignment 3', score: 92, dueDate: 'In 2 days', status: 'submitted' },
+			{ name: 'Assignment 4', score: null, dueDate: 'In 1 week', status: 'pending' }
+		],
+		lessonProgress: [
+			{ name: 'Lesson 1', score: 88, dueDate: '2 weeks ago', status: 'completed' },
+			{ name: 'Lesson 2', score: 92, dueDate: '1 week ago', status: 'completed' },
+			{ name: 'Lesson 3', score: 85, dueDate: '3 days ago', status: 'completed' },
+			{ name: 'Lesson 4', score: 90, dueDate: '1 day ago', status: 'completed' },
+			{ name: 'Lesson 5', score: 87, dueDate: 'In 2 days', status: 'submitted' },
+			{ name: 'Lesson 6', score: null, dueDate: 'In 1 week', status: 'pending' }
+		],
+		activityTimeline: [
+			{ activity: 'Submitted Assignment 2', time: '2 hours ago', type: 'assignment' },
+			{ activity: 'Completed Lesson 6', time: '1 day ago', type: 'lesson' },
+			{ activity: 'Posted question in discussion', time: '2 days ago', type: 'discussion' },
+			{ activity: 'Submitted Assignment 1', time: '1 week ago', type: 'assignment' }
+		],
+		parentContact: {
+			guardianName: 'Sarah Smith',
+			relationship: 'Mother',
+			email: 'sarah.smith@email.com',
+			phone: '+1 (555) 123-4567',
+			preferredContact: 'email'
+		}
+	};
+
+	const assignmentHistoryConfig = {
+		score: { label: 'Score', color: 'hsl(var(--chart-1))' }
+	} satisfies Chart.ChartConfig;
+
+	function goBack() {
+		goto(`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics`);
+	}
+</script>
+
+<div class="space-y-6 p-8">
+	<!-- Header with back button -->
+	<div class="flex items-center gap-4">
+		<button
+			onclick={goBack}
+			class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+		>
+			<ArrowLeftIcon class="h-4 w-4" />
+			Back to Class Analytics
+		</button>
+	</div>
+
+	<h1 class="text-3xl font-bold tracking-tight">Student Analytics: {studentData.name}</h1>
+
+	<!-- Student Overview Cards -->
+	<div class="grid gap-6 md:grid-cols-4">
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Current Grade</Card.Title>
+			</Card.Header>
+			<Card.Content class="flex items-center justify-center">
+				<div class="text-4xl font-bold">{studentData.grade}%</div>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Assignments</Card.Title>
+			</Card.Header>
+			<Card.Content class="flex items-center justify-center">
+				<div class="text-4xl font-bold">
+					{studentData.assignmentsCompletedCount}/{studentData.assignmentsTotal}
+				</div>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Lessons</Card.Title>
+			</Card.Header>
+			<Card.Content class="flex items-center justify-center">
+				<div class="text-4xl font-bold">
+					{studentData.lessonsCompletedCount}/{studentData.lessonsTotal}
+				</div>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Discussion Posts</Card.Title>
+			</Card.Header>
+			<Card.Content class="flex items-center justify-center">
+				<div class="text-4xl font-bold">{studentData.totalContributions}</div>
+			</Card.Content>
+		</Card.Root>
+	</div>
+
+	<!-- Progress Overview -->
+	<div class="grid gap-6 md:grid-cols-3">
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Assignment Progress</Card.Title>
+			</Card.Header>
+			<Card.Content class="space-y-4">
+				<div class="flex items-center justify-between">
+					<span class="text-sm">Completed</span>
+					<span class="text-sm font-medium">{studentData.assignmentsCompleted}%</span>
+				</div>
+				<Progress value={studentData.assignmentsCompleted} class="w-full" />
+				<div class="text-xs text-muted-foreground">
+					{studentData.assignmentsCompletedCount} of {studentData.assignmentsTotal} assignments
+				</div>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Lesson Progress</Card.Title>
+			</Card.Header>
+			<Card.Content class="space-y-4">
+				<div class="flex items-center justify-between">
+					<span class="text-sm">Completed</span>
+					<span class="text-sm font-medium">{studentData.lessonsCompleted}%</span>
+				</div>
+				<Progress value={studentData.lessonsCompleted} class="w-full" />
+				<div class="text-xs text-muted-foreground">
+					{studentData.lessonsCompletedCount} of {studentData.lessonsTotal} lessons
+				</div>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root class="shadow-none">
+			<Card.Header>
+				<Card.Title class="text-lg">Homework Progress</Card.Title>
+			</Card.Header>
+			<Card.Content class="space-y-4">
+				<div class="flex items-center justify-between">
+					<span class="text-sm">Completed</span>
+					<span class="text-sm font-medium">{studentData.homeworkCompleted}%</span>
+				</div>
+				<Progress value={studentData.homeworkCompleted} class="w-full" />
+				<div class="text-xs text-muted-foreground">
+					{studentData.homeworkCompletedCount} of {studentData.homeworkTotal} homework assignments
+				</div>
+			</Card.Content>
+		</Card.Root>
+	</div>
+
+	<!-- Assignment History -->
+	<Card.Root class="shadow-none">
+		<Card.Header>
+			<Card.Title class="text-lg">Assignment History</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-1/3">Assignment</Table.Head>
+						<Table.Head class="w-1/6">Score</Table.Head>
+						<Table.Head class="w-1/4">Due Date</Table.Head>
+						<Table.Head class="w-1/4">Status</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each studentData.assignmentHistory as assignment}
+						<Table.Row>
+							<Table.Cell>
+								<span class="text-primary font-medium">{assignment.name}</span>
+							</Table.Cell>
+							<Table.Cell>
+								{#if assignment.score !== null}
+									<Badge variant="secondary">{assignment.score}%</Badge>
+								{:else}
+									<span class="text-muted-foreground">-</span>
+								{/if}
+							</Table.Cell>
+							<Table.Cell>{assignment.dueDate}</Table.Cell>
+							<Table.Cell>
+								<Badge
+									variant={assignment.status === 'completed' ? 'default' : assignment.status === 'submitted' ? 'secondary' : 'outline'}
+								>
+									{assignment.status}
+								</Badge>
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</Card.Content>
+	</Card.Root>
+
+	<!-- Lesson Progress -->
+	<Card.Root class="shadow-none">
+		<Card.Header>
+			<Card.Title class="text-lg">Lesson History</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-1/3">Lesson</Table.Head>
+						<Table.Head class="w-1/6">Score</Table.Head>
+						<Table.Head class="w-1/4">Due Date</Table.Head>
+						<Table.Head class="w-1/4">Status</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each studentData.lessonProgress as lesson}
+						<Table.Row>
+							<Table.Cell>
+								<span class="text-primary font-medium">{lesson.name}</span>
+							</Table.Cell>
+							<Table.Cell>
+								{#if typeof lesson.score === 'number' && lesson.score !== null}
+									<Badge variant="secondary">{lesson.score}%</Badge>
+								{:else}
+									<span class="text-muted-foreground">-</span>
+								{/if}
+							</Table.Cell>
+							<Table.Cell>{lesson.dueDate}</Table.Cell>
+							<Table.Cell>
+								<Badge
+									variant={lesson.status === 'completed' ? 'default' : lesson.status === 'submitted' ? 'secondary' : 'outline'}
+								>
+									{lesson.status}
+								</Badge>
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</Card.Content>
+	</Card.Root>
+
+	<!-- Recent Activity -->
+	<Card.Root class="shadow-none">
+		<Card.Header>
+			<Card.Title class="text-lg">Recent Activity</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<div class="space-y-4">
+				{#each studentData.activityTimeline as activity}
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
+							<UsersIcon class="h-4 w-4" />
+						</div>
+						<div class="flex-1">
+							<p class="text-sm font-medium">{activity.activity}</p>
+							<p class="text-xs text-muted-foreground">{activity.time}</p>
+						</div>
+						<Badge variant="outline">{activity.type}</Badge>
+					</div>
+				{/each}
+			</div>
+		</Card.Content>
+	</Card.Root>
+
+    <!-- Contact Parent Section -->
+    <Card.Root class="shadow-none">
+        <Card.Header>
+            <Card.Title class="text-lg">Contact Parent/Guardian</Card.Title>
+            <Card.Description>
+                Get in touch with {studentData.parentContact.guardianName} ({studentData.parentContact.relationship})
+            </Card.Description>
+        </Card.Header>
+        <Card.Content>
+            <div class="flex items-center gap-4">
+                <div class="flex-1 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <MailIcon class="h-4 w-4 text-muted-foreground" />
+                        <span class="text-sm">{studentData.parentContact.email}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <PhoneIcon class="h-4 w-4 text-muted-foreground" />
+                        <span class="text-sm">{studentData.parentContact.phone}</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        href={`mailto:${studentData.parentContact.email}?subject=Regarding ${studentData.name}'s Progress`}
+                    >
+                        <MailIcon class="h-4 w-4 mr-2" />
+                        Send Email
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        href={`tel:${studentData.parentContact.phone}`}
+                    >
+                        <PhoneIcon class="h-4 w-4 mr-2" />
+                        Call
+                    </Button>
+                </div>
+            </div>
+        </Card.Content>
+    </Card.Root>
+</div>
