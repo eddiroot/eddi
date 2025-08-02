@@ -9,7 +9,6 @@ import {
 	getSubjectsBySchoolId,
 	getSchoolById
 } from '$lib/server/db/service';
-import { convertToFullName } from '$lib/utils';
 
 export type TimetableData = {
 	timetableDays: Awaited<ReturnType<typeof getTimetableDays>>;
@@ -35,20 +34,15 @@ export function buildFETXML({
 	school
 }: TimetableData) {
 	const daysList = timetableDays.map((day) => ({
-		Name: day.id,
-		Long_Name: `${day.timetableId}-${day.id}-${day.day}`
+		Name: day.id
 	}));
 
 	const hoursList = timetablePeriods.map((period) => ({
-		Name: period.id,
-		Long_Name: `${period.timetableId}-${period.id}-${period.startTime}-${period.endTime}`
+		Name: period.id
 	}));
 
 	const subjectsList = subjects.map((subject) => ({
-		Name: subject.name,
-		Long_Name: '',
-		Code: '',
-		Comments: ''
+		Name: subject.name
 	}));
 
 	const teachersList = teachers.map((teacher) => {
@@ -57,20 +51,15 @@ export function buildFETXML({
 			...new Set(teacherActivities.map((activity) => activity.subject.name))
 		];
 
-		const teacherName = convertToFullName(teacher.firstName, teacher.middleName, teacher.lastName);
-
 		return {
 			Name: teacher.id,
-			Long_Name: teacherName,
-			Code: '',
 			Target_Number_of_Hours: '',
 			Qualified_Subjects:
 				qualifiedSubjects.length > 0
 					? {
 							Qualified_Subject: qualifiedSubjects
 						}
-					: undefined,
-			Comments: ''
+					: undefined
 		};
 	});
 
@@ -87,16 +76,10 @@ export function buildFETXML({
 
 	const studentsList = Object.entries(groupsByYearLevel).map(([yearLevel, groups]) => ({
 		Name: yearLevel,
-		Long_Name: '',
-		Code: '',
 		Number_of_Students: groups.reduce((sum, group) => sum + group.count, 0),
-		Comments: '',
 		Group: groups.map((group) => ({
 			Name: group.name,
-			Long_Name: '',
-			Code: '',
-			Number_of_Students: group.count,
-			Comments: ''
+			Number_of_Students: group.count
 		}))
 	}));
 
@@ -123,10 +106,7 @@ export function buildFETXML({
 	}));
 
 	const buildingsList = buildings.map((building) => ({
-		Name: building.name,
-		Long_Name: '',
-		Code: '',
-		Comments: ''
+		Name: building.name
 	}));
 
 	const roomsList = spaces.map((space) => {
@@ -136,8 +116,7 @@ export function buildFETXML({
 			Name: space.name,
 			Building: building?.name || '',
 			Capacity: space.capacity || 30,
-			Virtual: false,
-			Comments: ''
+			Virtual: false
 		};
 	});
 
@@ -145,8 +124,7 @@ export function buildFETXML({
 		{
 			ConstraintBasicCompulsoryTime: {
 				Weight_Percentage: 100,
-				Active: true,
-				Comments: ''
+				Active: true
 			}
 		}
 	];
@@ -154,16 +132,14 @@ export function buildFETXML({
 	const spaceConstraints = {
 		ConstraintBasicCompulsorySpace: {
 			Weight_Percentage: 100,
-			Active: true,
-			Comments: ''
+			Active: true
 		},
 		ConstraintSubjectPreferredRooms: subjects.map((subject) => ({
 			Weight_Percentage: 100,
 			Subject: subject.name,
 			Number_of_Preferred_Rooms: roomsList.length,
 			Preferred_Room: roomsList.map((room) => room.Name),
-			Active: true,
-			Comments: ''
+			Active: true
 		}))
 	};
 
