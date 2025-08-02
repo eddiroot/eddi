@@ -100,7 +100,7 @@ export function buildFETXML({
 		}))
 	}));
 
-	const activitiesList = activities.flatMap((activity) => {
+	const activitiesListWithoutIds = activities.flatMap((activity) => {
 		const activities = [];
 		for (let i = 0; i < activity.activity.totalPeriods; i++) {
 			activities.push({
@@ -109,7 +109,6 @@ export function buildFETXML({
 				Students: activity.studentGroup.name,
 				Duration: activity.activity.periodsPerInstance,
 				Total_Duration: activity.activity.totalPeriods,
-				Id: `${activity.activity.id}${i}`,
 				Activity_Group_Id: 0,
 				Active: true,
 				Comments: ''
@@ -117,6 +116,11 @@ export function buildFETXML({
 		}
 		return activities;
 	});
+
+	const activitiesList = activitiesListWithoutIds.map((activity, index) => ({
+		...activity,
+		Id: index
+	}));
 
 	const buildingsList = buildings.map((building) => ({
 		Name: building.name,
