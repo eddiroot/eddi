@@ -39,11 +39,31 @@ All
 - [ ] Check uniqueness rules on tables (Late October)
 - [ ] Home pages and feature pages
 
+Lachie & Max
+
+- [x] Basic timetabling (Processing)
+  - [ ] Learn how to use fet-cl to automate it
+- [ ] Basic timetabling (Import) (07/08)
+  - [ ] Convert the data-and-timetable file to an activities object with all required fields
+  - [ ] Generate page shows loading state while generating
+  - [ ] Result screen blocked until a timetable is generated
+  - [ ] Result screen shows you a preview
+- [ ] Timetable constraint handling (e.g. preferred lab space for science subject) (14/08)
+
 Lachie
 
-- [ ] Basic timetabling (Process & Import) (07/08)
 - [ ] Teachers can see past attendance (21/08)
 - [ ] Google/Okta Auth (28/08)
+
+Max
+
+- [ ] Events appearing in everyone's timetables (14/08)
+  - [ ] enable week by week viewing of the timetable
+- [ ] Class space shifts (21/08)
+  - [ ] changing spaces and handling of this
+- [ ] Excursions (permission forms)
+  - [ ] potential AI generation of form
+  - [ ] maybe change color of event in calendar once form is signed
 
 Jack
 
@@ -90,16 +110,6 @@ Bella
 - [ ] Add/refine current task components (new question and answer type component)
 - [ ] Fees / breakdowns
 - [ ] See teacher's feedback
-
-Max
-
-- [ ] Events appearing in everyone's timetables (14/08)
-  - [ ] enable week by week viewing of the timetable
-- [ ] Class space shifts (21/08)
-  - [ ] changing spaces and handling of this
-- [ ] Excursions (permission forms)
-  - [ ] potential AI generation of form
-  - [ ] maybe change color of event in calendar once form is signed
 
 Pending eddi study completion
 
@@ -150,13 +160,13 @@ Jack and Bella and Lachie
       - [ ] table
       - [ ] arithmotic/formula (handling maths in a friendly way)
     - Science
-      - [ ] image 
+      - [ ] image
       - [ ] diagram? (with movable or input box)
     - Written/English
       - [ ] highlight what is wrong
-      - [ ] text, highlight the quotes that match themes 
+      - [ ] text, highlight the quotes that match themes
       - [ ] fill in the sentance (middle of the paragraph)
-      - [ ] integrate correct quote 
+      - [ ] integrate correct quote
       - ... open to more.
 - [ ] Train me
   - [ ] Cue card generation
