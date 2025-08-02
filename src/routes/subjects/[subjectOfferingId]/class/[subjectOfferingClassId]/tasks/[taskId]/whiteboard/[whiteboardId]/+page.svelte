@@ -1,4 +1,17 @@
 <script lang="ts">
+	// Suppress verbose fabric.js object logging in development
+	if (typeof window !== 'undefined') {
+		const originalLog = console.log;
+		console.log = (...args) => {
+			const message = args.join(' ');
+			// Filter out fabric.js object data logs
+			if (message.includes('originY') && message.includes('left') && message.includes('top') && message.includes('fill')) {
+				return; // Don't log fabric.js object data
+			}
+			originalLog.apply(console, args);
+		};
+	}
+
 	import { v4 as uuidv4 } from 'uuid';
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/state';
@@ -96,6 +109,7 @@
 					fill: 'transparent',
 					stroke: '#000000',
 					strokeWidth: 2,
+					opacity: 1,
 					left: centerX - 50,
 					top: centerY - 50
 				});
@@ -108,6 +122,7 @@
 					fill: 'transparent',
 					stroke: '#000000',
 					strokeWidth: 2,
+					opacity: 1,
 					left: centerX - 50,
 					top: centerY - 30
 				});
@@ -120,6 +135,7 @@
 					fill: 'transparent',
 					stroke: '#000000',
 					strokeWidth: 2,
+					opacity: 1,
 					left: centerX - 40,
 					top: centerY - 40
 				});
@@ -154,7 +170,8 @@
 			width: 150,
 			fontSize: 16,
 			fontFamily: 'Arial',
-			fill: '#000000'
+			fill: '#000000',
+			opacity: 1
 		});
 		canvas.add(text);
 		canvas.setActiveObject(text);
@@ -243,7 +260,8 @@
 				fontFamily: options.fontFamily,
 				fontWeight: options.fontWeight,
 				fill: options.color,
-				textAlign: options.textAlign
+				textAlign: options.textAlign,
+				opacity: options.opacity
 			});
 			canvas.renderAll();
 			const objData = activeObject.toObject();
@@ -263,7 +281,8 @@
 			activeObject.set({
 				strokeWidth: options.strokeWidth,
 				stroke: options.strokeColor,
-				fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor
+				fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor,
+				opacity: options.opacity
 			});
 			canvas.renderAll();
 			const objData = activeObject.toObject();
@@ -280,7 +299,20 @@
 		if (!canvas) return;
 		if (canvas.freeDrawingBrush) {
 			canvas.freeDrawingBrush.width = options.brushSize;
-			canvas.freeDrawingBrush.color = options.brushColor;
+			
+			// Apply opacity to the color by converting to rgba format
+			const color = options.brushColor;
+			const opacity = options.opacity;
+			
+			// Convert hex color to rgba with opacity
+			const hexToRgba = (hex: string, alpha: number) => {
+				const r = parseInt(hex.slice(1, 3), 16);
+				const g = parseInt(hex.slice(3, 5), 16);
+				const b = parseInt(hex.slice(5, 7), 16);
+				return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+			};
+			
+			canvas.freeDrawingBrush.color = hexToRgba(color, opacity);
 			
 			// Update brush type if needed
 			if (options.brushType === 'circle') {
@@ -291,7 +323,7 @@
 				canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
 			}
 			canvas.freeDrawingBrush.width = options.brushSize;
-			canvas.freeDrawingBrush.color = options.brushColor;
+			canvas.freeDrawingBrush.color = hexToRgba(color, opacity);
 		}
 	};
 

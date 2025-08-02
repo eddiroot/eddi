@@ -23,6 +23,7 @@
 		fontWeight: string;
 		color: string;
 		textAlign: string;
+		opacity: number;
 	}
 
 	interface ShapeOptions {
@@ -30,12 +31,14 @@
 		strokeColor: string;
 		fillColor: string;
 		cornerRadius?: number;
+		opacity: number;
 	}
 
 	interface DrawOptions {
 		brushSize: number;
 		brushColor: string;
 		brushType: string;
+		opacity: number;
 	}
 
 	let { 
@@ -52,25 +55,31 @@
 		fontFamily: 'Arial',
 		fontWeight: 'normal',
 		color: '#000000',
-		textAlign: 'left'
+		textAlign: 'left',
+		opacity: 1
 	});
 
 	let shapeOptions = $state<ShapeOptions>({
 		strokeWidth: 2,
 		strokeColor: '#000000',
 		fillColor: 'transparent',
-		cornerRadius: 0
+		cornerRadius: 0,
+		opacity: 1
 	});
 
 	let drawOptions = $state<DrawOptions>({
 		brushSize: 2,
 		brushColor: '#000000',
-		brushType: 'pencil'
+		brushType: 'pencil',
+		opacity: 1
 	});
 
 	let fontSizeValue = $state(16);
 	let strokeWidthValue = $state(2);
 	let brushSizeValue = $state(2);
+	let textOpacityValue = $state(1);
+	let shapeOpacityValue = $state(1);
+	let drawOpacityValue = $state(1);
 
 	// Keep options in sync with slider values
 	$effect(() => {
@@ -83,6 +92,18 @@
 
 	$effect(() => {
 		drawOptions.brushSize = brushSizeValue;
+	});
+
+	$effect(() => {
+		textOptions.opacity = textOpacityValue;
+	});
+
+	$effect(() => {
+		shapeOptions.opacity = shapeOpacityValue;
+	});
+
+	$effect(() => {
+		drawOptions.opacity = drawOpacityValue;
 	});
 
 	// Keep slider values in sync when options change externally
@@ -101,6 +122,24 @@
 	$effect(() => {
 		if (brushSizeValue !== drawOptions.brushSize) {
 			brushSizeValue = drawOptions.brushSize;
+		}
+	});
+
+	$effect(() => {
+		if (textOpacityValue !== textOptions.opacity) {
+			textOpacityValue = textOptions.opacity;
+		}
+	});
+
+	$effect(() => {
+		if (shapeOpacityValue !== shapeOptions.opacity) {
+			shapeOpacityValue = shapeOptions.opacity;
+		}
+	});
+
+	$effect(() => {
+		if (drawOpacityValue !== drawOptions.opacity) {
+			drawOpacityValue = drawOptions.opacity;
 		}
 	});
 
@@ -129,9 +168,7 @@
 	];
 
 	const brushTypes = [
-		{ value: 'pencil', label: 'Pencil' },
-		{ value: 'circle', label: 'Circle' },
-		{ value: 'spray', label: 'Spray' }
+		{ value: 'pencil', label: 'Pencil' }
 	];
 
 	// Common colors
@@ -224,6 +261,24 @@
 
 					<Separator />
 
+					<!-- Opacity -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Opacity</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={textOpacityValue}
+								min={0.1}
+								max={1}
+								step={0.1}
+								class="flex-1"
+							/>
+							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(textOpacityValue * 100)}%</span>
+						</div>
+					</div>
+
+					<Separator />
+
 					<!-- Text Color -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Text Color</Label>
@@ -287,6 +342,24 @@
 							bind:value={shapeOptions.strokeColor}
 							class="w-full h-8 rounded border bg-background"
 						/>
+					</div>
+
+					<Separator />
+
+					<!-- Opacity -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Opacity</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={shapeOpacityValue}
+								min={0.1}
+								max={1}
+								step={0.1}
+								class="flex-1"
+							/>
+							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(shapeOpacityValue * 100)}%</span>
+						</div>
 					</div>
 
 					<Separator />
@@ -366,21 +439,20 @@
 						/>
 					</div>
 
-					<Separator />
-
-					<!-- Brush Type -->
+					<!-- Opacity -->
 					<div class="space-y-2">
-						<Label class="text-xs font-medium">Brush Type</Label>
-						<Select.Root type="single" bind:value={drawOptions.brushType}>
-							<Select.Trigger class="h-8">
-								{brushTypes.find(b => b.value === drawOptions.brushType)?.label || 'Pencil'}
-							</Select.Trigger>
-							<Select.Content>
-								{#each brushTypes as brush}
-									<Select.Item value={brush.value} label={brush.label} />
-								{/each}
-							</Select.Content>
-						</Select.Root>
+						<Label class="text-xs font-medium">Opacity</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={drawOpacityValue}
+								min={0.1}
+								max={1}
+								step={0.1}
+								class="flex-1"
+							/>
+							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(drawOpacityValue * 100)}%</span>
+						</div>
 					</div>
 				</Card.Content>
 			{/if}
