@@ -20,6 +20,7 @@
 	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
 	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
 	import HomeIcon from '@lucide/svelte/icons/home';
+	import WhiteboardFloatingMenu from '$lib/components/whiteboard-floating-menu.svelte';
 
 	let { data } = $props();
 
@@ -31,6 +32,7 @@
 	let isPanMode = false;
 	let panStartPos = { x: 0, y: 0 };
 	let currentZoom = $state(1);
+	let showFloatingMenu = $state(false);
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId));
@@ -43,6 +45,7 @@
 
 	const setSelectTool = () => {
 		selectedTool = 'select';
+		showFloatingMenu = false;
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = true;
@@ -52,6 +55,7 @@
 
 	const setPanTool = () => {
 		selectedTool = 'pan';
+		showFloatingMenu = false;
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -62,6 +66,7 @@
 
 	const setDrawTool = () => {
 		selectedTool = 'draw';
+		showFloatingMenu = true;
 		if (!canvas) return;
 		canvas.isDrawingMode = true;
 		canvas.selection = false;
@@ -76,6 +81,9 @@
 		if (!canvas) return;
 
 		setSelectTool();
+		selectedTool = 'shapes';
+		showFloatingMenu = true;
+		console.log('addShape - selectedTool:', selectedTool, 'showFloatingMenu:', showFloatingMenu);
 		let shape: fabric.Object;
 		const centerX = canvas.width! / 2;
 		const centerY = canvas.height! / 2;
@@ -134,6 +142,10 @@
 
 	const addText = () => {
 		if (!canvas) return;
+
+		selectedTool = 'text';
+		showFloatingMenu = true;
+		console.log('addText - selectedTool:', selectedTool, 'showFloatingMenu:', showFloatingMenu);
 
 		const text = new fabric.Textbox('Click to edit text', {
 			id: uuidv4(),
@@ -219,6 +231,68 @@
 
 	const goBack = () => {
 		goto(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}`);
+	};
+
+	// Handle floating menu option changes
+	const handleTextOptionsChange = (options: any) => {
+		if (!canvas) return;
+		const activeObject = canvas.getActiveObject();
+		if (activeObject && activeObject.type === 'textbox') {
+			activeObject.set({
+				fontSize: options.fontSize,
+				fontFamily: options.fontFamily,
+				fontWeight: options.fontWeight,
+				fill: options.color,
+				textAlign: options.textAlign
+			});
+			canvas.renderAll();
+			const objData = activeObject.toObject();
+			// @ts-expect-error
+			objData.id = activeObject.id;
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objData
+			});
+		}
+	};
+
+	const handleShapeOptionsChange = (options: any) => {
+		if (!canvas) return;
+		const activeObject = canvas.getActiveObject();
+		if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'circle' || activeObject.type === 'triangle')) {
+			activeObject.set({
+				strokeWidth: options.strokeWidth,
+				stroke: options.strokeColor,
+				fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor
+			});
+			canvas.renderAll();
+			const objData = activeObject.toObject();
+			// @ts-expect-error
+			objData.id = activeObject.id;
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objData
+			});
+		}
+	};
+
+	const handleDrawOptionsChange = (options: any) => {
+		if (!canvas) return;
+		if (canvas.freeDrawingBrush) {
+			canvas.freeDrawingBrush.width = options.brushSize;
+			canvas.freeDrawingBrush.color = options.brushColor;
+			
+			// Update brush type if needed
+			if (options.brushType === 'circle') {
+				canvas.freeDrawingBrush = new fabric.CircleBrush(canvas);
+			} else if (options.brushType === 'spray') {
+				canvas.freeDrawingBrush = new fabric.SprayBrush(canvas);
+			} else {
+				canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+			}
+			canvas.freeDrawingBrush.width = options.brushSize;
+			canvas.freeDrawingBrush.color = options.brushColor;
+		}
 	};
 
 	const handleKeyDown = (event: KeyboardEvent) => {
@@ -681,6 +755,15 @@
 		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700 w-full h-full flex">
 			<canvas bind:this={whiteboardCanvas} class="w-full h-full"></canvas>
 		</div>
+		
+		<!-- Floating Menu -->
+		<WhiteboardFloatingMenu
+			{selectedTool}
+			visible={showFloatingMenu}
+			onTextOptionsChange={handleTextOptionsChange}
+			onShapeOptionsChange={handleShapeOptionsChange}
+			onDrawOptionsChange={handleDrawOptionsChange}
+		/>
 		
 		<!-- Zoom Controls -->
 		<div class="absolute bottom-8 left-8">
