@@ -93,8 +93,7 @@ export function buildFETXML({
 				Duration: activity.activity.periodsPerInstance,
 				Total_Duration: activity.activity.totalPeriods,
 				Activity_Group_Id: 0,
-				Active: true,
-				Comments: ''
+				Active: true
 			});
 		}
 		return activities;
