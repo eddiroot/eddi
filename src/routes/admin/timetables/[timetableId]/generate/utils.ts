@@ -94,13 +94,12 @@ export function buildFETInput({
 			Total_Duration: activity.activity.totalPeriods,
 			Activity_Group_Id: 0,
 			Active: true,
-			Id: 0 // Placeholder for later assignment
+			Id: 0
 		};
 
 		return Array.from({ length: activity.activity.totalPeriods }, () => ({ ...activityTemplate }));
 	});
 
-	// For loop over the nested array structure to add IDs to each activity
 	for (let i = 0; i < activitiesList.length; i++) {
 		for (let j = 0; j < activitiesList[i].length; j++) {
 			activitiesList[i][j].Id = i * activitiesList[i].length + j;
