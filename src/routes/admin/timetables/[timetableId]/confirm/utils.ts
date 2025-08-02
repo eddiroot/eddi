@@ -134,8 +134,6 @@ export function buildFETXML({
 
 		return {
 			Name: space.name,
-			Long_Name: '',
-			Code: '',
 			Building: building?.name || '',
 			Capacity: space.capacity || 30,
 			Virtual: false,
@@ -153,15 +151,21 @@ export function buildFETXML({
 		}
 	];
 
-	const spaceConstraints = [
-		{
-			ConstraintBasicCompulsorySpace: {
-				Weight_Percentage: 100,
-				Active: true,
-				Comments: ''
-			}
-		}
-	];
+	const spaceConstraints = {
+		ConstraintBasicCompulsorySpace: {
+			Weight_Percentage: 100,
+			Active: true,
+			Comments: ''
+		},
+		ConstraintSubjectPreferredRooms: subjects.map((subject) => ({
+			Weight_Percentage: 100,
+			Subject: subject.name,
+			Number_of_Preferred_Rooms: roomsList.length,
+			Preferred_Room: roomsList.map((room) => room.Name),
+			Active: true,
+			Comments: ''
+		}))
+	};
 
 	return {
 		'?xml': {

@@ -72,7 +72,7 @@ export const actions: Actions = {
 			const builder = new XMLBuilder(xmlBuilderOptions);
 			const xmlContent = builder.build(xmlData);
 
-			const uniqueFileName = generateUniqueFileName(`${timetableId}.xml`);
+			const uniqueFileName = generateUniqueFileName(`${timetableId}.fet`);
 			const objectKey = `${user.schoolId}/${uniqueFileName}`;
 
 			await uploadBufferHelper(
