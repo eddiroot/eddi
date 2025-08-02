@@ -85,7 +85,7 @@ export function buildFETInput({
 		}))
 	}));
 
-	const activitiesListWithoutIds = activities.flatMap((activity) => {
+	const activitiesList = activities.map((activity) => {
 		const activityTemplate = {
 			Teacher: activity.teacher.id,
 			Subject: activity.subject.id,
@@ -93,15 +93,27 @@ export function buildFETInput({
 			Duration: activity.activity.periodsPerInstance,
 			Total_Duration: activity.activity.totalPeriods,
 			Activity_Group_Id: 0,
-			Active: true
+			Active: true,
+			Id: 0 // Placeholder for later assignment
 		};
 
 		return Array.from({ length: activity.activity.totalPeriods }, () => ({ ...activityTemplate }));
 	});
 
-	const activitiesList = activitiesListWithoutIds.map((activity, index) => ({
-		...activity,
-		Id: index
+	// For loop over the nested array structure to add IDs to each activity
+	for (let i = 0; i < activitiesList.length; i++) {
+		for (let j = 0; j < activitiesList[i].length; j++) {
+			activitiesList[i][j].Id = i * activitiesList[i].length + j;
+		}
+	}
+
+	const constraintMinDaysBetweenActivities = activitiesList.map((activities) => ({
+		Weight_Percentage: 100,
+		Consecutive_If_Same_Day: true,
+		Number_of_Activities: activities.length,
+		Activity_Id: activities.map((activity) => activity.Id),
+		MinDays: 1,
+		Active: true
 	}));
 
 	const buildingsList = buildings.map((building) => ({
@@ -119,14 +131,13 @@ export function buildFETInput({
 		};
 	});
 
-	const timeConstraints = [
-		{
-			ConstraintBasicCompulsoryTime: {
-				Weight_Percentage: 100,
-				Active: true
-			}
-		}
-	];
+	const timeConstraints = {
+		ConstraintBasicCompulsoryTime: {
+			Weight_Percentage: 100,
+			Active: true
+		},
+		ConstraintMinDaysBetweenActivities: constraintMinDaysBetweenActivities
+	};
 
 	const spaceConstraints = {
 		ConstraintBasicCompulsorySpace: {
