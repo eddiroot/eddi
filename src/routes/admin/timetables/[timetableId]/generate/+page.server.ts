@@ -1,5 +1,4 @@
 import { fail } from '@sveltejs/kit';
-import { XMLBuilder } from 'fast-xml-parser';
 import {
 	getTimetableDays,
 	getTimetablePeriods,
@@ -13,11 +12,10 @@ import {
 	createTimetableQueueEntry
 } from '$lib/server/db/service';
 import { userTypeEnum } from '$lib/enums';
-import { buildFETXML } from './utils.js';
-import type { Actions } from './$types.js';
+import { buildFETInput, processFETOutput } from './utils.js';
 import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 
-export const actions: Actions = {
+export const actions = {
 	generateTimetable: async ({ params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 		const user = security.getUser();
@@ -50,7 +48,7 @@ export const actions: Actions = {
 				getSchoolById(user.schoolId)
 			]);
 
-			const xmlData = buildFETXML({
+			const xmlContent = buildFETInput({
 				timetableDays,
 				timetablePeriods,
 				studentGroups,
@@ -61,16 +59,6 @@ export const actions: Actions = {
 				subjects,
 				school
 			});
-
-			const xmlBuilderOptions = {
-				ignoreAttributes: false,
-				format: true,
-				suppressEmptyNode: true,
-				attributeNamePrefix: '@_'
-			};
-
-			const builder = new XMLBuilder(xmlBuilderOptions);
-			const xmlContent = builder.build(xmlData);
 
 			const uniqueFileName = generateUniqueFileName(`${timetableId}.fet`);
 			const objectKey = `${user.schoolId}/${uniqueFileName}`;

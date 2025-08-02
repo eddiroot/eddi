@@ -1,3 +1,5 @@
+import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+
 import {
 	getTimetableDays,
 	getTimetablePeriods,
@@ -22,7 +24,7 @@ export type TimetableData = {
 	school: Awaited<ReturnType<typeof getSchoolById>>;
 };
 
-export function buildFETXML({
+export function buildFETInput({
 	timetableDays,
 	timetablePeriods,
 	studentGroups,
@@ -42,7 +44,7 @@ export function buildFETXML({
 	}));
 
 	const subjectsList = subjects.map((subject) => ({
-		Name: subject.name
+		Name: subject.id
 	}));
 
 	const teachersList = teachers.map((teacher) => {
@@ -78,7 +80,7 @@ export function buildFETXML({
 		Name: yearLevel,
 		Number_of_Students: groups.reduce((sum, group) => sum + group.count, 0),
 		Group: groups.map((group) => ({
-			Name: group.name,
+			Name: group.id,
 			Number_of_Students: group.count
 		}))
 	}));
@@ -88,8 +90,8 @@ export function buildFETXML({
 		for (let i = 0; i < activity.activity.totalPeriods; i++) {
 			activities.push({
 				Teacher: activity.teacher.id,
-				Subject: activity.subject.name,
-				Students: activity.studentGroup.name,
+				Subject: activity.subject.id,
+				Students: activity.studentGroup.id,
 				Duration: activity.activity.periodsPerInstance,
 				Total_Duration: activity.activity.totalPeriods,
 				Activity_Group_Id: 0,
@@ -105,15 +107,15 @@ export function buildFETXML({
 	}));
 
 	const buildingsList = buildings.map((building) => ({
-		Name: building.name
+		Name: building.id
 	}));
 
 	const roomsList = spaces.map((space) => {
 		const building = buildings.find((b) => b.id === space.buildingId);
 
 		return {
-			Name: space.name,
-			Building: building?.name || '',
+			Name: space.id,
+			Building: building?.id || '',
 			Capacity: space.capacity || 30,
 			Virtual: false
 		};
@@ -142,14 +144,14 @@ export function buildFETXML({
 		}))
 	};
 
-	return {
+	const xmlData = {
 		'?xml': {
 			'@_version': '1.0',
 			'@_encoding': 'UTF-8'
 		},
 		fet: {
 			'@_version': '7.3.0',
-			Institution_Name: school?.name || 'eddi Grammar',
+			Institution_Name: school?.id || 'Unknown School',
 			Comments:
 				'This is a timetable generated for a school working with eddi. Full credit goes to Liviu Lalescu and Volker Dirr for their work on FET (Free Timetabling Software) which we utilise to generate the output.',
 			Days_List: {
@@ -184,4 +186,93 @@ export function buildFETXML({
 			Timetable_Generation_Options_List: {}
 		}
 	};
+
+	const xmlBuilderOptions = {
+		ignoreAttributes: false,
+		format: true,
+		suppressEmptyNode: true,
+		attributeNamePrefix: '@_'
+	};
+
+	const builder = new XMLBuilder(xmlBuilderOptions);
+	return builder.build(xmlData);
+}
+
+type FETOutput = {
+	'?xml': string;
+	fet: {
+		Activities_List: {
+			Activity: {
+				Id: number;
+				Teacher: string;
+				Subject: string;
+				Students: string;
+				Duration: number;
+				Total_Duration: number;
+			}[];
+		};
+		Time_Constraints_List: {
+			ConstraintActivityPreferredStartingTime: {
+				Activity_Id: number;
+				Day: number;
+				Hour: number;
+			}[];
+		};
+		Space_Constraints_List: {
+			ConstraintActivityPreferredRoom: {
+				Activity_Id: number;
+				Room: string;
+			}[];
+		};
+	};
+};
+
+type Activity = {
+	Teacher: string;
+	Subject: string;
+	Group: string;
+	Room: string;
+	Day: string;
+	Period: string;
+	Duration: number;
+};
+
+export function processFETOutput(fetOutput: string): Activity[] {
+	const parser = new XMLParser();
+	const fetObj = parser.parse(fetOutput) as FETOutput;
+
+	const activities = fetObj.fet.Activities_List.Activity;
+	const timeConstraints =
+		fetObj.fet.Time_Constraints_List.ConstraintActivityPreferredStartingTime || [];
+	const spaceConstraints = fetObj.fet.Space_Constraints_List.ConstraintActivityPreferredRoom || [];
+
+	const activityMap = new Map<number, Activity>();
+	activities.forEach((activity) => {
+		activityMap.set(activity.Id, {
+			Teacher: activity.Teacher,
+			Subject: activity.Subject,
+			Group: activity.Students,
+			Room: '',
+			Day: '',
+			Period: '',
+			Duration: activity.Duration
+		});
+	});
+
+	timeConstraints.forEach((constraint) => {
+		const activity = activityMap.get(constraint.Activity_Id);
+		if (activity) {
+			activity.Day = constraint.Day.toString();
+			activity.Period = constraint.Hour.toString();
+		}
+	});
+
+	spaceConstraints.forEach((constraint) => {
+		const activity = activityMap.get(constraint.Activity_Id);
+		if (activity) {
+			activity.Room = constraint.Room;
+		}
+	});
+
+	return Array.from(activityMap.values());
 }
