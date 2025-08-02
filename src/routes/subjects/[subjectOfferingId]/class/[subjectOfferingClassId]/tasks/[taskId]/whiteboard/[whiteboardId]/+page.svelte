@@ -188,15 +188,17 @@
 
 	const zoomIn = () => {
 		if (!canvas) return;
-		const newZoom = Math.min(canvas.getZoom() * 1.2, 20);
-		canvas.setZoom(newZoom);
+		const newZoom = Math.min(canvas.getZoom() * 1.2, 10);
+		const center = new fabric.Point(canvas.width! / 2, canvas.height! / 2);
+		canvas.zoomToPoint(center, newZoom);
 		currentZoom = newZoom;
 	};
 
 	const zoomOut = () => {
 		if (!canvas) return;
 		const newZoom = Math.max(canvas.getZoom() / 1.2, 0.1);
-		canvas.setZoom(newZoom);
+		const center = new fabric.Point(canvas.width! / 2, canvas.height! / 2);
+		canvas.zoomToPoint(center, newZoom);
 		currentZoom = newZoom;
 	};
 
@@ -389,7 +391,7 @@
 			
 			let zoom = canvas.getZoom();
 			zoom *= 0.990 ** delta;
-			if (zoom > 20) zoom = 20;
+			if (zoom > 10) zoom = 10;
 			if (zoom < 0.1) zoom = 0.1;
 			
 			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
@@ -497,7 +499,7 @@
 				
 				const scale = currentDistance / initialPinchDistance;
 				const newZoom = initialZoom * scale;
-				const constrainedZoom = Math.max(0.1, Math.min(20, newZoom));
+				const constrainedZoom = Math.max(0.1, Math.min(10, newZoom));
 				
 				// Zoom at center of pinch gesture
 				const centerX = (touch1.clientX + touch2.clientX) / 2;
@@ -614,15 +616,17 @@
 					</Tooltip.Root>
 
 					<!-- Shapes Dropdown -->
-					<DropdownMenu.Root>
-						<DropdownMenu.Trigger>
-							{#snippet child({ props })}
-								<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
-									<SquareIcon class="h-4 w-4" />
-								</Button>
-							{/snippet}
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Content>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props })}
+										<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
+											<SquareIcon class="h-4 w-4" />
+										</Button>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content>
 							<DropdownMenu.Item onclick={() => addShape('rectangle')}>
 								<SquareIcon class="h-4 w-4" />
 								Rectangle
@@ -634,11 +638,12 @@
 							<DropdownMenu.Item onclick={() => addShape('triangle')}>
 								<TriangleIcon class="h-4 w-4" />
 								Triangle
-							</DropdownMenu.Item>
-						</DropdownMenu.Content>
-					</DropdownMenu.Root>
-
-					<!-- Text Tool -->
+								</DropdownMenu.Item>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Add Shapes</Tooltip.Content>
+					</Tooltip.Root>					<!-- Text Tool -->
 					<Tooltip.Root>
 						<Tooltip.Trigger>
 							<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
