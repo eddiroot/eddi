@@ -45,18 +45,18 @@ export const steps = {
 		percentage: 80,
 		label: 'Rules',
 		previous: 'activities',
-		next: 'confirm'
+		next: 'generate'
 	},
-	confirm: {
+	generate: {
 		percentage: 90,
-		label: 'Confirm',
+		label: 'Generate',
 		previous: 'rules',
 		next: 'result'
 	},
 	result: {
 		percentage: 100,
 		label: 'Result',
-		previous: 'confirm',
+		previous: 'generate',
 		next: null
 	}
 };
