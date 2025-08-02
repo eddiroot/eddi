@@ -1,0 +1,2219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fet version="7.3.0">
+  <Institution_Name>School of eddi</Institution_Name>
+  <Comments>This is a timetable generated for a school working with eddi. Full credit goes to Liviu Lalescu and Volker Dirr for their work on FET (Free Timetabling Software) which we utilise to generate the output.</Comments>
+  <Days_List>
+    <Number_of_Days>5</Number_of_Days>
+    <Day>
+      <Name>1000</Name>
+    </Day>
+    <Day>
+      <Name>1001</Name>
+    </Day>
+    <Day>
+      <Name>1002</Name>
+    </Day>
+    <Day>
+      <Name>1003</Name>
+    </Day>
+    <Day>
+      <Name>1004</Name>
+    </Day>
+  </Days_List>
+  <Hours_List>
+    <Number_of_Hours>6</Number_of_Hours>
+    <Hour>
+      <Name>1000</Name>
+    </Hour>
+    <Hour>
+      <Name>1001</Name>
+    </Hour>
+    <Hour>
+      <Name>1002</Name>
+    </Hour>
+    <Hour>
+      <Name>1003</Name>
+    </Hour>
+    <Hour>
+      <Name>1004</Name>
+    </Hour>
+    <Hour>
+      <Name>1005</Name>
+    </Hour>
+  </Hours_List>
+  <Subjects_List>
+    <Subject>
+      <Name>Foundation English</Name>
+    </Subject>
+    <Subject>
+      <Name>Foundation Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Foundation History</Name>
+    </Subject>
+    <Subject>
+      <Name>Foundation Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Foundation Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Foundation Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 1 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 1 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 1 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 1 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 1 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 1 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 2 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 2 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 2 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 2 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 2 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 2 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 3 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 3 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 3 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 3 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 3 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 3 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 4 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 4 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 4 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 4 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 4 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 4 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 5 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 5 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 5 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 5 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 5 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 5 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 6 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 6 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 6 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 6 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 6 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 6 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 7 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 7 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 7 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 7 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 7 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 7 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 8 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 8 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 8 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 8 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 8 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 8 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 9 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 9 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 9 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 9 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 9 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 9 Science</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 10 English</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 10 Geography</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 10 History</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 10 Mathematics</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 10 Physical Education</Name>
+    </Subject>
+    <Subject>
+      <Name>Year 10 Science</Name>
+    </Subject>
+  </Subjects_List>
+  <Activity_Tags_List/>
+  <Teachers_List>
+    <Teacher>
+      <Name>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Name>
+      <Target_Number_of_Hours/>
+      <Qualified_Subjects>
+        <Qualified_Subject>Year 9 English</Qualified_Subject>
+      </Qualified_Subjects>
+    </Teacher>
+    <Teacher>
+      <Name>9876f627-c925-4319-95e7-0748e1899833</Name>
+      <Target_Number_of_Hours/>
+      <Qualified_Subjects>
+        <Qualified_Subject>Year 9 Geography</Qualified_Subject>
+      </Qualified_Subjects>
+    </Teacher>
+    <Teacher>
+      <Name>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Name>
+      <Target_Number_of_Hours/>
+      <Qualified_Subjects>
+        <Qualified_Subject>Year 9 History</Qualified_Subject>
+      </Qualified_Subjects>
+    </Teacher>
+    <Teacher>
+      <Name>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Name>
+      <Target_Number_of_Hours/>
+      <Qualified_Subjects>
+        <Qualified_Subject>Year 9 Mathematics</Qualified_Subject>
+      </Qualified_Subjects>
+    </Teacher>
+    <Teacher>
+      <Name>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Name>
+      <Target_Number_of_Hours/>
+      <Qualified_Subjects>
+        <Qualified_Subject>Year 9 Physical Education</Qualified_Subject>
+      </Qualified_Subjects>
+    </Teacher>
+    <Teacher>
+      <Name>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Name>
+      <Target_Number_of_Hours/>
+      <Qualified_Subjects>
+        <Qualified_Subject>Year 9 Science</Qualified_Subject>
+      </Qualified_Subjects>
+    </Teacher>
+  </Teachers_List>
+  <Students_List>
+    <Year>
+      <Name>9</Name>
+      <Number_of_Students>3</Number_of_Students>
+      <Group>
+        <Name>Class 1</Name>
+        <Number_of_Students>1</Number_of_Students>
+      </Group>
+      <Group>
+        <Name>Class 2</Name>
+        <Number_of_Students>1</Number_of_Students>
+      </Group>
+      <Group>
+        <Name>Class 3</Name>
+        <Number_of_Students>1</Number_of_Students>
+      </Group>
+    </Year>
+  </Students_List>
+  <Activities_List>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>0</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>1</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>2</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>3</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>4</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>5</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>6</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>7</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>8</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>9</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>10</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>11</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>12</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>13</Id>
+    </Activity>
+    <Activity>
+      <Teacher>11c71d77-a8d6-415c-b14c-fdd562ad82b9</Teacher>
+      <Subject>Year 9 English</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>14</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>15</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>16</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>17</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>18</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>19</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>20</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>21</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>22</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>23</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>24</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>25</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>26</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>27</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>28</Id>
+    </Activity>
+    <Activity>
+      <Teacher>9876f627-c925-4319-95e7-0748e1899833</Teacher>
+      <Subject>Year 9 Geography</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>29</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>30</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>31</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>32</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>33</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>34</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>35</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>36</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>37</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>38</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>39</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>40</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>41</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>42</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>43</Id>
+    </Activity>
+    <Activity>
+      <Teacher>0738a2eb-42f9-4a68-85e5-680cb599dfd3</Teacher>
+      <Subject>Year 9 History</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>44</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>45</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>46</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>47</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>48</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>49</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>50</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>51</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>52</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>53</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>54</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>55</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>56</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>57</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>58</Id>
+    </Activity>
+    <Activity>
+      <Teacher>bf5f54d1-bc1b-4750-8108-d04b982a2fc0</Teacher>
+      <Subject>Year 9 Mathematics</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>59</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>60</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>61</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>62</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>63</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>64</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>65</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>66</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>67</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>68</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>69</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>70</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>71</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>72</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>73</Id>
+    </Activity>
+    <Activity>
+      <Teacher>8b98c6c6-ad4e-4f19-a9f8-94c0017b1eb7</Teacher>
+      <Subject>Year 9 Physical Education</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>74</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>75</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>76</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>77</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>78</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 1</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>79</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>80</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>81</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>82</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>83</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 2</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>84</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>85</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>86</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>87</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>88</Id>
+    </Activity>
+    <Activity>
+      <Teacher>a77b2a6d-2f53-4977-b5a8-e55767d6e3e8</Teacher>
+      <Subject>Year 9 Science</Subject>
+      <Students>Class 3</Students>
+      <Duration>1</Duration>
+      <Total_Duration>5</Total_Duration>
+      <Activity_Group_Id>0</Activity_Group_Id>
+      <Active>true</Active>
+      <Comments/>
+      <Id>89</Id>
+    </Activity>
+  </Activities_List>
+  <Buildings_List>
+    <Building>
+      <Name>Main Building</Name>
+    </Building>
+  </Buildings_List>
+  <Rooms_List>
+    <Room>
+      <Name>Classroom 101</Name>
+      <Building>Main Building</Building>
+      <Capacity>25</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+    <Room>
+      <Name>English Room</Name>
+      <Building>Main Building</Building>
+      <Capacity>28</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+    <Room>
+      <Name>Geography Room</Name>
+      <Building>Main Building</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+    <Room>
+      <Name>Gymnasium</Name>
+      <Building>Main Building</Building>
+      <Capacity>200</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+    <Room>
+      <Name>History Room</Name>
+      <Building>Main Building</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+    <Room>
+      <Name>Mathematics Room</Name>
+      <Building>Main Building</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+    <Room>
+      <Name>Science Lab A</Name>
+      <Building>Main Building</Building>
+      <Capacity>30</Capacity>
+      <Virtual>false</Virtual>
+    </Room>
+  </Rooms_List>
+  <Time_Constraints_List>
+    <ConstraintBasicCompulsoryTime>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Active>true</Active>
+    </ConstraintBasicCompulsoryTime>
+  </Time_Constraints_List>
+  <Space_Constraints_List>
+    <ConstraintBasicCompulsorySpace>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Active>true</Active>
+    </ConstraintBasicCompulsorySpace>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Foundation English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Foundation Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Foundation History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Foundation Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Foundation Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Foundation Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 1 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 1 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 1 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 1 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 1 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 1 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 2 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 2 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 2 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 2 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 2 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 2 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 3 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 3 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 3 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 3 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 3 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 3 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 4 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 4 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 4 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 4 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 4 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 4 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 5 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 5 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 5 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 5 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 5 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 5 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 6 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 6 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 6 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 6 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 6 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 6 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 7 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 7 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 7 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 7 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 7 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 7 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 8 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 8 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 8 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 8 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 8 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 8 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 9 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 9 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 9 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 9 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 9 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 9 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 10 English</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 10 Geography</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 10 History</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 10 Mathematics</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 10 Physical Education</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+    <ConstraintSubjectPreferredRooms>
+      <Weight_Percentage>100</Weight_Percentage>
+      <Subject>Year 10 Science</Subject>
+      <Number_of_Preferred_Rooms>7</Number_of_Preferred_Rooms>
+      <Preferred_Room>Classroom 101</Preferred_Room>
+      <Preferred_Room>English Room</Preferred_Room>
+      <Preferred_Room>Geography Room</Preferred_Room>
+      <Preferred_Room>Gymnasium</Preferred_Room>
+      <Preferred_Room>History Room</Preferred_Room>
+      <Preferred_Room>Mathematics Room</Preferred_Room>
+      <Preferred_Room>Science Lab A</Preferred_Room>
+      <Active>true</Active>
+    </ConstraintSubjectPreferredRooms>
+  </Space_Constraints_List>
+  <Timetable_Generation_Options_List/>
+</fet>
