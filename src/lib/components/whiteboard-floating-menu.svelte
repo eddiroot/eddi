@@ -166,8 +166,8 @@
 </script>
 
 {#if shouldShowMenu}
-	<div class="fixed left-8 top-1/2 transform -translate-y-1/2 z-20">
-		<Card.Root class="min-w-64 max-w-80">
+	<div class="absolute top-1/2 transform -translate-y-1/2 z-20 left-8">
+		<Card.Root class="min-w-64 max-w-80 bg-background/20 backdrop-blur-sm border-border/50">
 			{#if selectedTool === 'text'}
 				<Card.Header class="pb-3">
 					<Card.Title class="text-sm flex items-center gap-2">
