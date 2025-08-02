@@ -12,7 +12,7 @@ import {
 	createTimetableQueueEntry
 } from '$lib/server/db/service';
 import { userTypeEnum } from '$lib/enums';
-import { buildFETInput, processFETOutput } from './utils.js';
+import { buildFETInput } from './utils.js';
 import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 
 export const actions = {
