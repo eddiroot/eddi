@@ -43,12 +43,20 @@ Lachie & Max
 
 - [x] Basic timetabling (Processing)
   - [ ] Learn how to use fet-cl to automate it
+  - [x] add a constraint to disable multiple activities of same subject on same day
 - [ ] Basic timetabling (Import) (07/08)
   - [ ] Convert the data-and-timetable file to an activities object with all required fields
   - [ ] Generate page shows loading state while generating
   - [ ] Result screen blocked until a timetable is generated
   - [ ] Result screen shows you a preview
 - [ ] Timetable constraint handling (e.g. preferred lab space for science subject) (14/08)
+- [x] Decide whether to use the html stat files or create our own (creating our own)
+  - [ ] Build function to present stats based on the generated timetable
+    - [ ] see html files for the specific fields to include
+
+NOTE:
+
+- [ ] when transitioning from grouped by classes to grouped by preferrences, we need to de
 
 Lachie
 
