@@ -50,7 +50,7 @@ export function buildFETInput({
 	const teachersList = teachers.map((teacher) => {
 		const teacherActivities = activities.filter((activity) => activity.teacher.id === teacher.id);
 		const qualifiedSubjects = [
-			...new Set(teacherActivities.map((activity) => activity.subject.name))
+			...new Set(teacherActivities.map((activity) => activity.subject.id))
 		];
 
 		return {
@@ -86,19 +86,17 @@ export function buildFETInput({
 	}));
 
 	const activitiesListWithoutIds = activities.flatMap((activity) => {
-		const activities = [];
-		for (let i = 0; i < activity.activity.totalPeriods; i++) {
-			activities.push({
-				Teacher: activity.teacher.id,
-				Subject: activity.subject.id,
-				Students: activity.studentGroup.id,
-				Duration: activity.activity.periodsPerInstance,
-				Total_Duration: activity.activity.totalPeriods,
-				Activity_Group_Id: 0,
-				Active: true
-			});
-		}
-		return activities;
+		const activityTemplate = {
+			Teacher: activity.teacher.id,
+			Subject: activity.subject.id,
+			Students: activity.studentGroup.id,
+			Duration: activity.activity.periodsPerInstance,
+			Total_Duration: activity.activity.totalPeriods,
+			Activity_Group_Id: 0,
+			Active: true
+		};
+
+		return Array.from({ length: activity.activity.totalPeriods }, () => ({ ...activityTemplate }));
 	});
 
 	const activitiesList = activitiesListWithoutIds.map((activity, index) => ({
@@ -137,7 +135,7 @@ export function buildFETInput({
 		},
 		ConstraintSubjectPreferredRooms: subjects.map((subject) => ({
 			Weight_Percentage: 100,
-			Subject: subject.name,
+			Subject: subject.id,
 			Number_of_Preferred_Rooms: roomsList.length,
 			Preferred_Room: roomsList.map((room) => room.Name),
 			Active: true
