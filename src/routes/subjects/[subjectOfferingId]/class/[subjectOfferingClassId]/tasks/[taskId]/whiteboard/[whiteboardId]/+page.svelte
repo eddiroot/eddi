@@ -19,6 +19,7 @@
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
 	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
+	import HomeIcon from '@lucide/svelte/icons/home';
 
 	let { data } = $props();
 
@@ -203,6 +204,15 @@
 		if (!canvas) return;
 		canvas.setZoom(1);
 		currentZoom = 1;
+	};
+
+	const recenterView = () => {
+		if (!canvas) return;
+		// Reset the viewport transform to center the view
+		canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+		// Update the zoom state to match the reset zoom level
+		currentZoom = 1;
+		canvas.renderAll();
 	};
 
 	const goBack = () => {
@@ -695,6 +705,17 @@
 						</Button>
 					</Tooltip.Trigger>
 					<Tooltip.Content>Zoom In</Tooltip.Content>
+				</Tooltip.Root>
+
+				<div class="bg-border mx-1 h-6 w-px"></div>
+
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button variant="ghost" size="icon" onclick={recenterView} class="h-8 w-8">
+							<HomeIcon class="h-4 w-4" />
+						</Button>
+					</Tooltip.Trigger>
+					<Tooltip.Content>Recenter View</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
 		</div>
