@@ -360,8 +360,16 @@
 	}
 	
 	function submitAnswerToPresentation(questionId: string, answer: string) {
+		console.log('submitAnswerToPresentation called:', {
+			questionId,
+			answer,
+			socketState: presentationSocket?.readyState,
+			isOpen: presentationSocket?.readyState === WebSocket.OPEN,
+			currentSlide
+		});
+		
 		if (presentationSocket?.readyState === WebSocket.OPEN) {
-			presentationSocket.send(JSON.stringify({
+			const message = {
 				type: 'submit_answer',
 				taskId: data.task.id,
 				questionId,
@@ -369,7 +377,11 @@
 				slideIndex: currentSlide,
 				studentId: data.user.id,
 				studentName: `${data.user.firstName} ${data.user.lastName}`
-			}));
+			};
+			console.log('Sending answer message:', message);
+			presentationSocket.send(JSON.stringify(message));
+		} else {
+			console.log('WebSocket not open, cannot submit answer');
 		}
 	}
 
@@ -531,9 +543,14 @@
 										onUpdate={() => {}}
 										blockId={block.id}
 										{...responseProps}
+										role={isStudent ? 'student' : 'teacher'}
 										onPresentationAnswer={isStudent && isInPresentation 
 											? (answer: string) => submitAnswerToPresentation(`block-${block.id}`, answer)
 											: undefined}
+										studentResponses={!isStudent 
+											? currentSlideAnswers().filter(answer => answer.questionId === `block-${block.id}`)
+											: []}
+										showResponseChart={!isStudent && isPresenting && connectedStudents.length > 0}
 									/>
 								{:else if block.type === 'matching'}
 									<Matching

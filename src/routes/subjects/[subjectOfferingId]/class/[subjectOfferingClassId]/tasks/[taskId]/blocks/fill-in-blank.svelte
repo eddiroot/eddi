@@ -25,17 +25,25 @@
 		viewMode = ViewMode.VIEW,
 		onUpdate = () => {},
 		onPresentationAnswer = () => {},
+		role = 'student',
 		// New props for response saving
 		blockId,
 		taskId,
 		classTaskId,
 		subjectOfferingId,
 		subjectOfferingClassId,
-		isPublished = false
+		isPublished = false,
+		// New props for student response visualization
+		studentResponses = [],
+		showResponseChart = false
 	} = $props();
 
 	let hasSubmitted = $state(false);
 	let userAnswer = $state('');
+
+	// Teacher presentation state
+	let showResponses = $state(false);
+	let showCorrectAnswer = $state(false);
 
 	// Edit mode state - simple initialization like markdown
 	let sentenceText = $state(content.sentence || '');
@@ -133,6 +141,47 @@
 		if (existingResponse) {
 			userAnswer = existingResponse;
 		}
+	}
+
+	// Response analysis for teachers
+	const responseAnalysis = $derived(() => {
+		console.log('Fill-in-blank responseAnalysis called:', {
+			showResponseChart,
+			contentAnswer: content.answer,
+			showResponses,
+			studentResponsesCount: studentResponses.length,
+			studentResponses
+		});
+
+		if (!showResponseChart || !content.answer || !showResponses) {
+			console.log('Returning empty response analysis - missing conditions');
+			return { correct: [], incorrect: [], total: 0 };
+		}
+		
+		console.log('Fill-in-blank response analysis result:');
+		return studentResponses;
+	});
+
+	// Functions to control response visibility
+	function toggleShowResponses() {
+		console.log('toggleShowResponses called:', {
+			currentShowResponses: showResponses,
+			showResponseChart,
+			studentResponsesCount: studentResponses.length
+		});
+		showResponses = !showResponses;
+		if (!showResponses) {
+			showCorrectAnswer = false; // Reset correct answer when hiding responses
+		}
+		console.log('After toggle - showResponses:', showResponses);
+	}
+
+	function toggleShowCorrectAnswer() {
+		console.log('toggleShowCorrectAnswer called:', {
+			currentShowCorrectAnswer: showCorrectAnswer
+		});
+		showCorrectAnswer = !showCorrectAnswer;
+		console.log('After toggle - showCorrectAnswer:', showCorrectAnswer);
 	}
 </script>
 
@@ -283,8 +332,230 @@
 				</div>
 			</div>
 		{/if}
+	{:else if viewMode === ViewMode.PRESENT && role === 'student'}
+		<!-- PRESENTATION MODE: Large input for student answers -->
+		<div class="w-full max-w-4xl mx-auto">
+			{#if content.sentence && content.answer}
+				{@const parsed = parseSentence(content.sentence)}
+				<!-- Question Display -->
+				<div class="mb-12 text-center">
+					<h2 class="text-4xl font-bold text-gray-800 mb-8">Fill in the Blank</h2>
+					
+					<!-- Sentence with blank -->
+					<div class="text-2xl leading-relaxed text-gray-700 mb-8 max-w-3xl mx-auto">
+						<div class="flex flex-wrap items-center justify-center gap-3">
+							<span>{parsed.before}</span>
+							<div class="inline-block min-w-[200px] border-b-4 border-dashed border-gray-400">
+								<span class="invisible">placeholder</span>
+							</div>
+							{#if parsed.after}
+								<span>{parsed.after}</span>
+							{/if}
+						</div>
+					</div>
+				</div>
+
+				<!-- Large Answer Input -->
+				<div class="max-w-2xl mx-auto">
+					<div class="relative">
+						<Input
+							bind:value={userAnswer}
+							placeholder="Type your answer here..."
+							class="w-full text-3xl p-8 text-center border-4 border-gray-300 rounded-2xl shadow-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300"
+							style="min-height: 120px; font-size: 2rem; line-height: 1.2;"
+							onkeydown={(e) => {
+								if (e.key === 'Enter' && userAnswer.trim()) {
+									console.log('Fill-in-blank Enter pressed:', {
+										userAnswer: userAnswer.trim(),
+										hasHandler: !!onPresentationAnswer
+									});
+									// Submit to presentation if handler exists
+									if (onPresentationAnswer) {
+										onPresentationAnswer(userAnswer.trim());
+									}
+								}
+							}}
+						/>
+					</div>
+				
+					<!-- Submit Button -->
+					<div class="mt-12 text-center">
+						<Button
+							onclick={() => {
+								console.log('Fill-in-blank submit clicked:', {
+									userAnswer: userAnswer.trim(),
+									hasHandler: !!onPresentationAnswer
+								});
+								if (userAnswer.trim() && onPresentationAnswer) {
+									onPresentationAnswer(userAnswer.trim());
+								}
+							}}
+							disabled={!userAnswer.trim()}
+							size="lg"
+							class="text-xl px-12 py-6 rounded-xl"
+						>
+							Submit Answer
+						</Button>
+					</div>
+				</div>
+
+				<!-- Instruction text -->
+				<div class="text-center mt-8">
+					<p class="text-lg text-gray-600">
+						Enter your answer and press Submit or hit Enter
+					</p>
+				</div>
+			{:else}
+				<!-- Empty state -->
+				<div class="flex h-96 w-full items-center justify-center rounded-2xl border-4 border-dashed border-gray-200">
+					<div class="text-center">
+						<PenToolIcon class="text-gray-400 mx-auto h-16 w-16 mb-4" />
+						<p class="text-gray-500 text-xl font-medium">No question available</p>
+						<p class="text-gray-400 text-lg">Waiting for teacher to set up the question</p>
+					</div>
+				</div>
+			{/if}
+		</div>
 	{:else}
-		<!-- PRESENTATION MODE: Placeholder for presentation-specific rendering -->
-		
+		<!-- PRESENTATION MODE: Teacher view with student responses -->
+		<div class="w-full max-w-4xl mx-auto">
+			{#if content.sentence && content.answer}
+				{@const parsed = parseSentence(content.sentence)}
+				<!-- Question Display -->
+				<div class="text-center mb-8">
+					<h2 class="text-4xl font-bold text-gray-800 mb-6">Fill in the Blank</h2>
+					
+					<!-- Sentence with blank -->
+					<div class="text-2xl leading-relaxed text-gray-700 mb-8 max-w-3xl mx-auto">
+						<div class="flex flex-wrap items-center justify-center gap-3">
+							<span>{parsed.before}</span>
+							<div class="inline-block min-w-[200px] border-b-4 border-dashed border-gray-400 text-center py-2">
+								{#if showCorrectAnswer}
+									<span class="text-green-600 font-bold">{content.answer}</span>
+								{:else}
+									<span class="invisible">placeholder</span>
+								{/if}
+							</div>
+							{#if parsed.after}
+								<span>{parsed.after}</span>
+							{/if}
+						</div>
+					</div>
+				</div>
+
+				<!-- Teacher Control Buttons -->
+				{#if showResponseChart}
+					<div class="flex justify-center gap-4 mb-8">
+						<Button 
+							onclick={toggleShowResponses}
+							variant={showResponses ? "default" : "outline"}
+							size="lg"
+							class="text-lg px-8 py-3"
+						>
+							{showResponses ? 'Hide Responses' : `Show Responses (${studentResponses.length})`}
+						</Button>
+						
+						{#if showResponses}
+							<Button 
+								onclick={toggleShowCorrectAnswer}
+								variant={showCorrectAnswer ? "default" : "outline"}
+								size="lg"
+								class="text-lg px-8 py-3 bg-green-600 hover:bg-green-700 text-white"
+							>
+								{showCorrectAnswer ? 'Hide Answer' : 'Reveal Answer'}
+							</Button>
+						{/if}
+					</div>
+				{/if}
+
+				<!-- Simple Student Response List -->
+				{#if showResponseChart && showResponses}
+					<div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+						<div class="flex items-center justify-between mb-6">
+							<h3 class="text-2xl font-semibold text-gray-800">Student Responses</h3>
+							<div class="text-lg text-gray-600">
+								{studentResponses.length} response{studentResponses.length !== 1 ? 's' : ''}
+							</div>
+						</div>
+
+						{#if studentResponses.length > 0}
+							{@const responseGroups = studentResponses.reduce((groups: Record<string, any[]>, response) => {
+								const answer = response.answer || 'No answer';
+								if (!groups[answer]) {
+									groups[answer] = [];
+								}
+								groups[answer].push(response);
+								return groups;
+							}, {})}
+							{@const maxCount = Math.max(...Object.values(responseGroups).map((group: any[]) => group.length))}
+							
+							<div class="space-y-4">
+								{#each Object.entries(responseGroups).sort(([,a], [,b]) => (b as any[]).length - (a as any[]).length) as [answer, responses]}
+									{@const count = (responses as any[]).length}
+									{@const isCorrect = answer.trim() === content.answer}
+									{@const fontSize = Math.min(1 + (count / maxCount) * 1.5, 2.5)}
+									{@const studentNames = (responses as any[]).map((r: any) => r.studentName).filter(Boolean).join(', ')}
+									
+									<div class="p-6 rounded-lg border transition-all duration-200 {isCorrect ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}">
+										<div class="flex items-start justify-between">
+											<div class="flex items-start gap-4 flex-1">
+												{#if isCorrect}
+													<CheckIcon class="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
+												{:else}
+													<XIcon class="h-6 w-6 text-red-600 mt-1 flex-shrink-0" />
+												{/if}
+												<div class="flex-1">
+													<div 
+														class="font-bold text-gray-900 leading-tight"
+														style="font-size: {fontSize}rem;"
+													>
+														"{answer}"
+													</div>
+													{#if studentNames}
+														<div class="text-sm text-gray-600 mt-2">
+															{studentNames}
+														</div>
+													{/if}
+												</div>
+											</div>
+											<div class="flex flex-col items-end gap-1 ml-4">
+												<div class="text-lg font-bold {isCorrect ? 'text-green-700' : 'text-gray-700'}">
+													{count}
+												</div>
+												<div class="text-xs text-gray-500">
+													{count === 1 ? 'student' : 'students'}
+												</div>
+												<div class="text-xs {isCorrect ? 'text-green-600' : 'text-red-600'} font-medium">
+													{isCorrect ? 'Correct' : 'Incorrect'}
+												</div>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+
+							{#if showCorrectAnswer}
+								<div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+									<div class="text-lg font-semibold text-blue-800">
+										Correct Answer: "{content.answer}"
+									</div>
+								</div>
+							{/if}
+						{:else}
+							<div class="text-center py-8">
+								<p class="text-gray-500 text-lg">Waiting for student responses...</p>
+							</div>
+						{/if}
+					</div>
+				{/if}
+			{:else}
+				<!-- Empty state -->
+				<div class="text-center">
+					<PenToolIcon class="text-gray-400 mx-auto h-24 w-24 mb-6" />
+					<p class="text-gray-500 text-3xl font-medium">No question available</p>
+					<p class="text-gray-400 text-xl">Question not yet configured</p>
+				</div>
+			{/if}
+		</div>
 	{/if}
 </div>
