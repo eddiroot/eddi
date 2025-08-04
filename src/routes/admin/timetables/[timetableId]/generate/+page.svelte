@@ -1,7 +1,21 @@
-<script>
+<script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { CheckCircleIcon, CalendarIcon, LockIcon } from '@lucide/svelte';
+	import { CheckCircleIcon, CalendarIcon, LockIcon, LoaderIcon } from '@lucide/svelte';
+
+	let isGenerating = false;
+
+	function handleGenerate(event: SubmitEvent) {
+		event.preventDefault();
+		isGenerating = true;
+
+		// Simulate loading for 3 seconds
+		setTimeout(() => {
+			isGenerating = false;
+			// After loading, submit the form
+			(event.target as HTMLFormElement).submit();
+		}, 3000);
+	}
 </script>
 
 <div class="flex h-full justify-center px-4 pt-6 md:pt-10 xl:pt-14">
@@ -43,9 +57,40 @@
 				</div>
 			</div>
 
-			<form method="POST" action="?/generateTimetable" class="flex justify-center">
-				<Button type="submit" size="lg" class="px-8 py-3">Generate Timetable</Button>
+			<form
+				method="POST"
+				action="?/generateTimetable"
+				class="flex justify-center"
+				on:submit={handleGenerate}
+			>
+				<Button type="submit" size="lg" class="px-8 py-3" disabled={isGenerating}>
+					{#if isGenerating}
+						<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+						Generating...
+					{:else}
+						Generate Timetable
+					{/if}
+				</Button>
 			</form>
 		</Card.Content>
 	</Card.Root>
 </div>
+
+<!-- Loading Overlay -->
+{#if isGenerating}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+		<div class="mx-4 w-full max-w-sm rounded-lg bg-white p-8 shadow-xl">
+			<div class="space-y-4 text-center">
+				<div class="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+					<LoaderIcon class="text-primary h-8 w-8 animate-spin" />
+				</div>
+				<div class="space-y-2">
+					<h3 class="text-lg font-semibold">Generating Timetable</h3>
+					<p class="text-muted-foreground text-sm">
+						Please wait while we create your optimized timetable...
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
