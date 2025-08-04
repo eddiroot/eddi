@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { days } from '$lib/utils';
 import { queueStatusEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
+import type { FETActivity } from '$lib/server/schema/fetSchema';
 
 export async function getSchoolTimetablesBySchoolId(
 	schoolId: number,
@@ -424,4 +425,22 @@ export async function updateTimetableQueueStatus(
 		.returning();
 
 	return entry;
+}
+
+export async function createTimetableFETActivitiesFromFETExport(
+	timetableId: number,
+	fetActivities: FETActivity[]
+) {
+	const activities = fetActivities.map((activity) => ({
+		timetableId,
+		subjectId: activity.Subject,
+		teacherId: activity.Teacher,
+		groupId: activity.Students,
+		spaceId: activity.Room,
+		day: activity.Day,
+		period: activity.Period,
+		duration: activity.Duration
+	}));
+
+	await db.insert(table.fetActivity).values(activities);
 }

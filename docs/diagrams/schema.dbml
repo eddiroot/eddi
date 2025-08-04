@@ -372,6 +372,18 @@ table elective_subject {
   updatedAt timestamp [not null, default: `now()`]
 }
 
+table fet_activity {
+  id integer [pk, not null]
+  tt_id integer [not null]
+  teacher_id text [not null]
+  subject_id integer [not null]
+  tt_group_id integer [not null]
+  space_id integer [not null]
+  tt_day_id integer [not null]
+  tt_period_id integer [not null]
+  duration integer [not null]
+}
+
 table learning_area {
   id integer [pk, not null]
   cur_sub_id integer [not null]

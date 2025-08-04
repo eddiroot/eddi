@@ -117,3 +117,19 @@ export const timetableActivity = pgTable('tt_activity', {
 });
 
 export type TimetableActivity = typeof timetableActivity.$inferSelect;
+
+export const fetActivity = pgTable('fet_activity', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableId: integer('tt_id')
+		.notNull()
+		.references(() => timetable.id, { onDelete: 'cascade' }),
+	teacherId: text('teacher_id').notNull(),
+	subjectId: integer('subject_id').notNull(),
+	groupId: integer('tt_group_id').notNull(),
+	spaceId: integer('space_id').notNull(),
+	day: integer('tt_day_id').notNull(),
+	period: integer('tt_period_id').notNull(),
+	duration: integer('duration').notNull()
+});
+
+export type FETDBActivity = typeof fetActivity.$inferSelect;

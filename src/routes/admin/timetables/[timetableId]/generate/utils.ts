@@ -11,6 +11,7 @@ import {
 	getSubjectsBySchoolId,
 	getSchoolById
 } from '$lib/server/db/service';
+import type { FETActivity, FETOutput } from '$lib/server/schema/fetSchema';
 
 export type TimetableData = {
 	timetableDays: Awaited<ReturnType<typeof getTimetableDays>>;
@@ -207,46 +208,7 @@ export function buildFETInput({
 	return builder.build(xmlData);
 }
 
-type FETOutput = {
-	'?xml': string;
-	fet: {
-		Activities_List: {
-			Activity: {
-				Id: number;
-				Teacher: string;
-				Subject: string;
-				Students: string;
-				Duration: number;
-				Total_Duration: number;
-			}[];
-		};
-		Time_Constraints_List: {
-			ConstraintActivityPreferredStartingTime: {
-				Activity_Id: number;
-				Day: number;
-				Hour: number;
-			}[];
-		};
-		Space_Constraints_List: {
-			ConstraintActivityPreferredRoom: {
-				Activity_Id: number;
-				Room: string;
-			}[];
-		};
-	};
-};
-
-type Activity = {
-	Teacher: string;
-	Subject: string;
-	Group: string;
-	Room: string;
-	Day: string;
-	Period: string;
-	Duration: number;
-};
-
-export function processFETOutput(fetOutput: string): Activity[] {
+export function processFETOutput(fetOutput: string): FETActivity[] {
 	const parser = new XMLParser();
 	const fetObj = parser.parse(fetOutput) as FETOutput;
 
@@ -255,15 +217,15 @@ export function processFETOutput(fetOutput: string): Activity[] {
 		fetObj.fet.Time_Constraints_List.ConstraintActivityPreferredStartingTime || [];
 	const spaceConstraints = fetObj.fet.Space_Constraints_List.ConstraintActivityPreferredRoom || [];
 
-	const activityMap = new Map<number, Activity>();
+	const activityMap = new Map<number, FETActivity>();
 	activities.forEach((activity) => {
 		activityMap.set(activity.Id, {
 			Teacher: activity.Teacher,
 			Subject: activity.Subject,
-			Group: activity.Students,
-			Room: '',
-			Day: '',
-			Period: '',
+			Students: activity.Students,
+			Room: 0,
+			Day: 0,
+			Period: 0,
 			Duration: activity.Duration
 		});
 	});
@@ -271,8 +233,8 @@ export function processFETOutput(fetOutput: string): Activity[] {
 	timeConstraints.forEach((constraint) => {
 		const activity = activityMap.get(constraint.Activity_Id);
 		if (activity) {
-			activity.Day = constraint.Day.toString();
-			activity.Period = constraint.Hour.toString();
+			activity.Day = constraint.Day;
+			activity.Period = constraint.Hour;
 		}
 	});
 
