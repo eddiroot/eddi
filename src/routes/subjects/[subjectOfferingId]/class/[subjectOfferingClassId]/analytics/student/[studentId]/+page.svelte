@@ -1,20 +1,18 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
-	import * as Chart from '$lib/components/ui/chart';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Progress } from '$lib/components/ui/progress';
 	import { Button } from '$lib/components/ui/button';
-	import { BarChart } from 'layerchart';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import MailIcon from '@lucide/svelte/icons/mail';
 	import PhoneIcon from '@lucide/svelte/icons/phone';
-	import { goto } from '$app/navigation';
 
 	let { data } = $props();
 
 	// Use student data from server for breadcrumb, with additional mock data for display
+    // TODO: get this data from the server
 	const studentData = {
 		name: `${data.student.firstName} ${data.student.lastName}`,
 		avatar: data.student.avatarUrl,
@@ -60,26 +58,18 @@
 			preferredContact: 'email'
 		}
 	};
-
-	const assignmentHistoryConfig = {
-		score: { label: 'Score', color: 'hsl(var(--chart-1))' }
-	} satisfies Chart.ChartConfig;
-
-	function goBack() {
-		goto(`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics`);
-	}
 </script>
 
 <div class="space-y-6 p-8">
 	<!-- Header with back button -->
 	<div class="flex items-center gap-4">
-		<button
-			onclick={goBack}
+		<a
+			href={`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics`}
 			class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
 		>
 			<ArrowLeftIcon class="h-4 w-4" />
 			Back to Class Analytics
-		</button>
+		</a>
 	</div>
 
 	<h1 class="text-3xl font-bold tracking-tight">Student Analytics: {studentData.name}</h1>
@@ -308,6 +298,7 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <!-- mailto link needs a default email client set?? fix to discuss with team -->
                     <Button
                         variant="outline"
                         size="sm"
