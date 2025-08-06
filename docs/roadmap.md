@@ -27,6 +27,9 @@
 - [x] Switch locations to buildings and rooms
 - [x] Basic timetabling (Frontend/Backend)
 - [x] Basic timetabling (Generation)
+- [x] Basic timetabling (Processing)
+  - [x] Learn how to use fet-cl to automate it [see arch package here](https://aur.archlinux.org/packages/fet-timetabling)
+  - [x] Add a constraint to disable multiple activities of same subject on same day
 - [x] Coursemap flow
 - [x] Fix lesson generation with learning areas and content
 - [x] Admin dashboard allocations page
@@ -41,22 +44,19 @@ All
 
 Lachie & Max
 
-- [x] Basic timetabling (Processing)
-  - [ ] Learn how to use fet-cl to automate it
-  - [x] add a constraint to disable multiple activities of same subject on same day
 - [ ] Basic timetabling (Import) (07/08)
-  - [ ] Convert the data-and-timetable file to an activities object with all required fields
+  - [x] Convert the data-and-timetable file to an activities object with all required fields
   - [ ] Generate page shows loading state while generating
   - [ ] Result screen blocked until a timetable is generated
-  - [ ] Result screen shows you a preview
+  - [x] Result screen shows you a preview
 - [ ] Timetable constraint handling (e.g. preferred lab space for science subject) (14/08)
 - [x] Decide whether to use the html stat files or create our own (creating our own)
   - [ ] Build function to present stats based on the generated timetable
-    - [ ] see html files for the specific fields to include
+    - [ ] See html files for the specific fields to include
 
 NOTE:
 
-- [ ] when transitioning from grouped by classes to grouped by preferrences, we need to de
+- [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
 
 Lachie
 
