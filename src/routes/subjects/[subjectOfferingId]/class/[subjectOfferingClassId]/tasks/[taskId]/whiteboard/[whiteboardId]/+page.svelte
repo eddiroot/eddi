@@ -109,6 +109,7 @@
 					fill: 'transparent',
 					stroke: '#000000',
 					strokeWidth: 2,
+					strokeDashArray: [],
 					opacity: 1,
 					left: centerX - 50,
 					top: centerY - 50
@@ -122,6 +123,7 @@
 					fill: 'transparent',
 					stroke: '#000000',
 					strokeWidth: 2,
+					strokeDashArray: [],
 					opacity: 1,
 					left: centerX - 50,
 					top: centerY - 30
@@ -135,6 +137,7 @@
 					fill: 'transparent',
 					stroke: '#000000',
 					strokeWidth: 2,
+					strokeDashArray: [],
 					opacity: 1,
 					left: centerX - 40,
 					top: centerY - 40
@@ -282,6 +285,7 @@
 				strokeWidth: options.strokeWidth,
 				stroke: options.strokeColor,
 				fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor,
+				strokeDashArray: options.strokeDashArray,
 				opacity: options.opacity
 			});
 			canvas.renderAll();

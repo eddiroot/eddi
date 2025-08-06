@@ -78,7 +78,9 @@ Raph
   - Improve look and functionality
   - Fix ordering and resource tag
 - [ ] Better whiteboard (20/07)
-  - Fix colour options/view + tooltip
+  - Fix colour options/view + tooltip, colour options popout instead of in menu?
+  - shape boarder width change issues
+  - add shape roundness option
 - [ ] Student reports live throughout semester (10/08)
   - [ ] creating a profile page for the students
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
