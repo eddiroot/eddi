@@ -21,7 +21,7 @@
 		AlertTriangleIcon,
 		ClockIcon
 	} from '@lucide/svelte';
-	import type { TeacherStatistics, TimetableMetadata } from './timetable';
+	import type { TeacherStatistics, TimetableMetadata, StudentStatisticsReport } from './timetable';
 	import type { PageData } from './$types';
 
 	// Receive data from the server
@@ -31,17 +31,17 @@
 	const timetableData: TimetableMetadata = data.teacherStatisticsReport.metadata;
 	const teacherStatistics: TeacherStatistics = data.teacherStatisticsReport.teachers;
 
-	const studentStatistics = {
-		totalStudents: 450,
-		yearLevels: [
-			{ yearLevel: 'Year 7', count: 75, groups: 3 },
-			{ yearLevel: 'Year 8', count: 72, groups: 3 },
-			{ yearLevel: 'Year 9', count: 68, groups: 3 },
-			{ yearLevel: 'Year 10', count: 70, groups: 3 },
-			{ yearLevel: 'Year 11', count: 82, groups: 4 },
-			{ yearLevel: 'Year 12', count: 83, groups: 4 }
-		]
-	};
+	// Parse student statistics from server data (if available)
+	const studentStatisticsReport: StudentStatisticsReport | undefined = data.studentStatisticsReport;
+	const parsedStudentStatistics = studentStatisticsReport
+		? {
+				metadata: studentStatisticsReport.metadata,
+				overall: studentStatisticsReport.overall,
+				yearLevels: studentStatisticsReport.yearLevels,
+				groups: studentStatisticsReport.groups,
+				subgroups: studentStatisticsReport.subgroups
+			}
+		: null;
 
 	const brokenConstraints = [
 		{
@@ -192,75 +192,269 @@
 					</div>
 				</div>
 			{:else if selectedView === 'student-statistics'}
-				<div class="space-y-6">
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-						<Card.Root>
-							<Card.Content class="flex items-center gap-4 p-6">
-								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-									<UsersIcon class="h-6 w-6 text-blue-600" />
-								</div>
-								<div>
-									<p class="text-2xl font-bold">{studentStatistics.totalStudents}</p>
-									<p class="text-muted-foreground text-sm">Total Students</p>
-								</div>
-							</Card.Content>
-						</Card.Root>
+				{#if parsedStudentStatistics}
+					<div class="space-y-6">
+						<!-- Overview Cards -->
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+							<Card.Root>
+								<Card.Content class="flex items-center gap-4 p-6">
+									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+										<UsersIcon class="h-6 w-6 text-blue-600" />
+									</div>
+									<div>
+										<p class="text-2xl font-bold">{parsedStudentStatistics.yearLevels.length}</p>
+										<p class="text-muted-foreground text-sm">Year Levels</p>
+									</div>
+								</Card.Content>
+							</Card.Root>
 
-						<Card.Root>
-							<Card.Content class="flex items-center gap-4 p-6">
-								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-									<GraduationCapIcon class="h-6 w-6 text-green-600" />
-								</div>
-								<div>
-									<p class="text-2xl font-bold">{studentStatistics.yearLevels.length}</p>
-									<p class="text-muted-foreground text-sm">Year Levels</p>
-								</div>
-							</Card.Content>
-						</Card.Root>
+							<Card.Root>
+								<Card.Content class="flex items-center gap-4 p-6">
+									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+										<GraduationCapIcon class="h-6 w-6 text-green-600" />
+									</div>
+									<div>
+										<p class="text-2xl font-bold">{parsedStudentStatistics.groups.length}</p>
+										<p class="text-muted-foreground text-sm">Groups</p>
+									</div>
+								</Card.Content>
+							</Card.Root>
 
-						<Card.Root>
-							<Card.Content class="flex items-center gap-4 p-6">
-								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-									<UsersIcon class="h-6 w-6 text-purple-600" />
-								</div>
-								<div>
-									<p class="text-2xl font-bold">
-										{studentStatistics.yearLevels.reduce((sum, yl) => sum + yl.groups, 0)}
-									</p>
-									<p class="text-muted-foreground text-sm">Total Groups</p>
-								</div>
-							</Card.Content>
-						</Card.Root>
-					</div>
+							<Card.Root>
+								<Card.Content class="flex items-center gap-4 p-6">
+									<div
+										class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100"
+									>
+										<UsersIcon class="h-6 w-6 text-purple-600" />
+									</div>
+									<div>
+										<p class="text-2xl font-bold">{parsedStudentStatistics.subgroups.length}</p>
+										<p class="text-muted-foreground text-sm">Subgroups</p>
+									</div>
+								</Card.Content>
+							</Card.Root>
 
-					<div class="space-y-4">
-						<h3 class="text-lg font-semibold">Year Level Breakdown</h3>
-						<div class="rounded-lg border">
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>Year Level</TableHead>
-										<TableHead class="text-center">Students</TableHead>
-										<TableHead class="text-center">Groups</TableHead>
-										<TableHead class="text-center">Avg. Group Size</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{#each studentStatistics.yearLevels as yearLevel}
-										<TableRow>
-											<TableCell class="font-medium">{yearLevel.yearLevel}</TableCell>
-											<TableCell class="text-center">{yearLevel.count}</TableCell>
-											<TableCell class="text-center">{yearLevel.groups}</TableCell>
-											<TableCell class="text-center"
-												>{Math.round(yearLevel.count / yearLevel.groups)}</TableCell
-											>
-										</TableRow>
-									{/each}
-								</TableBody>
-							</Table>
+							<Card.Root>
+								<Card.Content class="flex items-center gap-4 p-6">
+									<div
+										class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100"
+									>
+										<CalendarIcon class="h-6 w-6 text-orange-600" />
+									</div>
+									<div>
+										<p class="text-2xl font-bold">
+											{parsedStudentStatistics.overall.sum.hoursPerWeek}
+										</p>
+										<p class="text-muted-foreground text-sm">Total Hours/Week</p>
+									</div>
+								</Card.Content>
+							</Card.Root>
 						</div>
+
+						<!-- Overall Statistics -->
+						<div class="space-y-4">
+							<h3 class="text-lg font-semibold">Overall Statistics</h3>
+							<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+								<Card.Root>
+									<Card.Header class="pb-2">
+										<Card.Title class="text-sm font-medium">Average Per Student</Card.Title>
+									</Card.Header>
+									<Card.Content class="space-y-2">
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Hours/Week:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.average.hoursPerWeek.toFixed(1)}</span
+											>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Free Days:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.average.freeDays.toFixed(1)}</span
+											>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Gaps:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.average.gaps.toFixed(1)}</span
+											>
+										</div>
+									</Card.Content>
+								</Card.Root>
+
+								<Card.Root>
+									<Card.Header class="pb-2">
+										<Card.Title class="text-sm font-medium">Minimum Values</Card.Title>
+									</Card.Header>
+									<Card.Content class="space-y-2">
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Hours/Week:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.min.hoursPerWeek}</span
+											>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Hours/Day:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.min.hoursPerDay}</span
+											>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Gaps/Day:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.min.gapsPerDay}</span
+											>
+										</div>
+									</Card.Content>
+								</Card.Root>
+
+								<Card.Root>
+									<Card.Header class="pb-2">
+										<Card.Title class="text-sm font-medium">Maximum Values</Card.Title>
+									</Card.Header>
+									<Card.Content class="space-y-2">
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Hours/Week:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.max.hoursPerWeek}</span
+											>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Hours/Day:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.max.hoursPerDay}</span
+											>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-muted-foreground text-sm">Gaps/Day:</span>
+											<span class="font-medium"
+												>{parsedStudentStatistics.overall.max.gapsPerDay}</span
+											>
+										</div>
+									</Card.Content>
+								</Card.Root>
+							</div>
+						</div>
+
+						<!-- Year Level Statistics -->
+						<div class="space-y-4">
+							<h3 class="text-lg font-semibold">Year Level Statistics</h3>
+							<div class="rounded-lg border">
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>Year Level</TableHead>
+											<TableHead class="text-center">Min Hours/Week</TableHead>
+											<TableHead class="text-center">Max Hours/Week</TableHead>
+											<TableHead class="text-center">Min Free Days</TableHead>
+											<TableHead class="text-center">Max Free Days</TableHead>
+											<TableHead class="text-center">Min Hours/Day</TableHead>
+											<TableHead class="text-center">Max Hours/Day</TableHead>
+											<TableHead class="text-center">Max Gaps/Day</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{#each parsedStudentStatistics.yearLevels as yearLevel}
+											<TableRow>
+												<TableCell class="font-medium">{yearLevel.year}</TableCell>
+												<TableCell class="text-center">{yearLevel.minHoursPerWeek}</TableCell>
+												<TableCell class="text-center">{yearLevel.maxHoursPerWeek}</TableCell>
+												<TableCell class="text-center">{yearLevel.minFreeDays}</TableCell>
+												<TableCell class="text-center">{yearLevel.maxFreeDays}</TableCell>
+												<TableCell class="text-center">{yearLevel.minHoursPerDay}</TableCell>
+												<TableCell class="text-center">{yearLevel.maxHoursPerDay}</TableCell>
+												<TableCell class="text-center">{yearLevel.maxGapsPerDay}</TableCell>
+											</TableRow>
+										{/each}
+									</TableBody>
+								</Table>
+							</div>
+						</div>
+
+						<!-- Groups Section -->
+						{#if parsedStudentStatistics.groups.length > 0}
+							<div class="space-y-4">
+								<h3 class="text-lg font-semibold">
+									Group Statistics ({parsedStudentStatistics.groups.length} groups)
+								</h3>
+								<div class="max-h-96 overflow-y-auto rounded-lg border">
+									<Table>
+										<TableHeader class="bg-background sticky top-0">
+											<TableRow>
+												<TableHead>Group</TableHead>
+												<TableHead class="text-center">Hours/Week Range</TableHead>
+												<TableHead class="text-center">Free Days Range</TableHead>
+												<TableHead class="text-center">Hours/Day Range</TableHead>
+												<TableHead class="text-center">Max Gaps/Day</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{#each parsedStudentStatistics.groups as group}
+												<TableRow>
+													<TableCell class="font-medium">{group.group}</TableCell>
+													<TableCell class="text-center"
+														>{group.minHoursPerWeek} - {group.maxHoursPerWeek}</TableCell
+													>
+													<TableCell class="text-center"
+														>{group.minFreeDays} - {group.maxFreeDays}</TableCell
+													>
+													<TableCell class="text-center"
+														>{group.minHoursPerDay} - {group.maxHoursPerDay}</TableCell
+													>
+													<TableCell class="text-center">{group.maxGapsPerDay}</TableCell>
+												</TableRow>
+											{/each}
+										</TableBody>
+									</Table>
+								</div>
+							</div>
+						{/if}
+
+						<!-- Subgroups Section -->
+						{#if parsedStudentStatistics.subgroups.length > 0}
+							<div class="space-y-4">
+								<h3 class="text-lg font-semibold">
+									Subgroup Statistics ({parsedStudentStatistics.subgroups.length} subgroups)
+								</h3>
+								<div class="max-h-96 overflow-y-auto rounded-lg border">
+									<Table>
+										<TableHeader class="bg-background sticky top-0">
+											<TableRow>
+												<TableHead>Subgroup</TableHead>
+												<TableHead class="text-center">Hours/Week</TableHead>
+												<TableHead class="text-center">Free Days</TableHead>
+												<TableHead class="text-center">Total Gaps</TableHead>
+												<TableHead class="text-center">Min Hours/Day</TableHead>
+												<TableHead class="text-center">Max Hours/Day</TableHead>
+												<TableHead class="text-center">Max Gaps/Day</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{#each parsedStudentStatistics.subgroups as subgroup}
+												<TableRow>
+													<TableCell class="font-medium">{subgroup.subgroup}</TableCell>
+													<TableCell class="text-center">{subgroup.hoursPerWeek}</TableCell>
+													<TableCell class="text-center">{subgroup.freeDays}</TableCell>
+													<TableCell class="text-center">{subgroup.totalGaps}</TableCell>
+													<TableCell class="text-center">{subgroup.minHoursPerDay}</TableCell>
+													<TableCell class="text-center">{subgroup.maxHoursPerDay}</TableCell>
+													<TableCell class="text-center">{subgroup.maxGapsPerDay}</TableCell>
+												</TableRow>
+											{/each}
+										</TableBody>
+									</Table>
+								</div>
+							</div>
+						{/if}
 					</div>
-				</div>
+				{:else}
+					<div class="py-8 text-center">
+						<GraduationCapIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+						<h3 class="text-lg font-semibold">No Student Statistics Available</h3>
+						<p class="text-muted-foreground">
+							Student statistics data could not be loaded or parsed.
+						</p>
+					</div>
+				{/if}
 			{:else if selectedView === 'broken-constraints'}
 				<div class="space-y-4">
 					{#if brokenConstraints.length === 0}

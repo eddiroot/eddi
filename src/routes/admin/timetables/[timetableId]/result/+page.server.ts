@@ -1,34 +1,38 @@
 import { error } from '@sveltejs/kit';
 import { readFile } from 'fs/promises';
 import { TimetableHtmlParser } from './timetable';
+import { StudentStatisticsParser } from './utils';
 import type { PageServerLoad } from './$types';
-import type { TeacherStatisticsReport } from './timetable';
+import type { TeacherStatisticsReport, StudentStatisticsReport } from './timetable';
 
 export const load: PageServerLoad = async ({ params }) => {
 	try {
-		// Path to the HTML file relative to the project root
-		const htmlFilePath =
+		// Paths to the HTML files
+		const teacherStatsFilePath =
 			'/Users/maxfergie/Documents/projects/eddi/docs/timetabling/example/teachers_statistics.html';
+		const studentStatsFilePath =
+			'/Users/maxfergie/Documents/projects/eddi/docs/timetabling/example/period_students_statistics.html';
 
-		// Read the HTML file
-		const htmlContent = await readFile(htmlFilePath, 'utf-8');
+		// Read both HTML files
+		const teacherHtmlContent = await readFile(teacherStatsFilePath, 'utf-8');
+		const studentHtmlContent = await readFile(studentStatsFilePath, 'utf-8');
 
-		// Parse the HTML content using our parser
+		// Parse both HTML files using their respective parsers
 		const teacherStatisticsReport: TeacherStatisticsReport =
-			await TimetableHtmlParser.parseTeacherStatisticsReport(htmlContent);
+			await TimetableHtmlParser.parseTeacherStatisticsReport(teacherHtmlContent);
+
+		const studentStatisticsReport: StudentStatisticsReport =
+			await StudentStatisticsParser.parseStudentStatisticsReport(studentHtmlContent);
 
 		return {
 			timetableId: params.timetableId,
-			teacherStatisticsReport
-			// You could also return individual parts if needed:
-			// metadata: teacherStatisticsReport.metadata,
-			// teacherStatistics: teacherStatisticsReport.teachers,
-			// overallStatistics: teacherStatisticsReport.overall
+			teacherStatisticsReport,
+			studentStatisticsReport
 		};
 	} catch (err) {
-		console.error('Failed to load teacher statistics:', err);
+		console.error('Failed to load statistics:', err);
 		throw error(500, {
-			message: 'Failed to load teacher statistics file'
+			message: 'Failed to load statistics files'
 		});
 	}
 };
