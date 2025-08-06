@@ -81,6 +81,7 @@ Raph
   - Fix colour options/view + tooltip, colour options popout instead of in menu?
   - shape boarder width change issues
   - add shape roundness option
+  - layering options?
 - [ ] Student reports live throughout semester (10/08)
   - [ ] creating a profile page for the students
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)

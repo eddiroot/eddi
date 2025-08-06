@@ -651,26 +651,27 @@
 	});
 </script>
 
-<div class="bg-background flex h-full w-full flex-col">
-	<!-- Header with back button and title -->
-	<header
-		class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur"
-	>
-		<div class="flex h-14 items-center px-4">
-			<Button variant="ghost" size="sm" onclick={goBack} class="mr-4">
-				<ArrowLeftIcon class="mr-2 h-4 w-4" />
-				Back to Task
-			</Button>
-			<div class="flex-1">
-				<h1 class="text-lg font-semibold">
-					{data.whiteboard.title || 'Interactive Whiteboard'}
-				</h1>
-				<p class="text-muted-foreground text-sm">
-					{data.task.title}
-				</p>
+<Tooltip.Provider delayDuration={300}>
+	<div class="bg-background flex h-full w-full flex-col">
+		<!-- Header with back button and title -->
+		<header
+			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur"
+		>
+			<div class="flex h-14 items-center px-4">
+				<Button variant="ghost" size="sm" onclick={goBack} class="mr-4">
+					<ArrowLeftIcon class="mr-2 h-4 w-4" />
+					Back to Task
+				</Button>
+				<div class="flex-1">
+					<h1 class="text-lg font-semibold">
+						{data.whiteboard.title || 'Interactive Whiteboard'}
+					</h1>
+					<p class="text-muted-foreground text-sm">
+						{data.task.title}
+					</p>
+				</div>
 			</div>
-		</div>
-	</header>
+		</header>
 
 	<!-- Whiteboard Canvas -->
 	<main class="flex flex-1 items-center justify-center overflow-hidden p-4 relative">
@@ -844,4 +845,5 @@
 			</div>
 		</div>
 	</main>
-</div>
+	</div>
+</Tooltip.Provider>

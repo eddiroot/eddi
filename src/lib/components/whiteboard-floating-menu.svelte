@@ -9,6 +9,10 @@
 	import PaletteIcon from '@lucide/svelte/icons/palette';
 	import SlidersIcon from '@lucide/svelte/icons/sliders';
 	import MinusIcon from '@lucide/svelte/icons/minus';
+	import Heading1Icon from '@lucide/svelte/icons/heading-1';
+	import Heading2Icon from '@lucide/svelte/icons/heading-2';
+	import Heading3Icon from '@lucide/svelte/icons/heading-3';
+	import Heading4Icon from '@lucide/svelte/icons/heading-4';
 
 	interface Props {
 		selectedTool: string;
@@ -159,8 +163,7 @@
 	const fontWeights = [
 		{ value: 'normal', label: 'Normal' },
 		{ value: 'bold', label: 'Bold' },
-		{ value: '300', label: 'Light' },
-		{ value: '600', label: 'Semi Bold' }
+		{ value: '300', label: 'Light' }
 	];
 
 	// Common colors
@@ -238,16 +241,39 @@
 					<!-- Font Size -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Font Size</Label>
-						<div class="flex items-center gap-3">
-							<Slider
-								type="single"
-								bind:value={fontSizeValue}
-								min={8}
-								max={72}
-								step={1}
-								class="flex-1"
-							/>
-							<span class="text-xs text-muted-foreground w-12 text-right">{fontSizeValue}px</span>
+						<div class="flex gap-2">
+							<Button
+								variant={fontSizeValue === 32 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => fontSizeValue = 32}
+								class="flex-1 h-8 flex items-center justify-center"
+							>
+								<Heading1Icon class="h-4 w-4" />
+							</Button>
+							<Button
+								variant={fontSizeValue === 24 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => fontSizeValue = 24}
+								class="flex-1 h-8 flex items-center justify-center"
+							>
+								<Heading2Icon class="h-4 w-4" />
+							</Button>
+							<Button
+								variant={fontSizeValue === 16 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => fontSizeValue = 16}
+								class="flex-1 h-8 flex items-center justify-center"
+							>
+								<Heading3Icon class="h-4 w-4" />
+							</Button>
+							<Button
+								variant={fontSizeValue === 12 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => fontSizeValue = 12}
+								class="flex-1 h-8 flex items-center justify-center"
+							>
+								<Heading4Icon class="h-4 w-4" />
+							</Button>
 						</div>
 					</div>
 
@@ -279,24 +305,6 @@
 								{/each}
 							</Select.Content>
 						</Select.Root>
-					</div>
-
-					<Separator />
-
-					<!-- Opacity -->
-					<div class="space-y-2">
-						<Label class="text-xs font-medium">Opacity</Label>
-						<div class="flex items-center gap-3">
-							<Slider
-								type="single"
-								bind:value={textOpacityValue}
-								min={0.1}
-								max={1}
-								step={0.1}
-								class="flex-1"
-							/>
-							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(textOpacityValue * 100)}%</span>
-						</div>
 					</div>
 
 					<Separator />
@@ -376,6 +384,24 @@
 								</div>
 							</div>
 						{/if}
+					</div>
+
+					<Separator />
+
+					<!-- Opacity -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Opacity</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={textOpacityValue}
+								min={0.1}
+								max={1}
+								step={0.1}
+								class="flex-1"
+							/>
+							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(textOpacityValue * 100)}%</span>
+						</div>
 					</div>
 				</Card.Content>
 
