@@ -78,9 +78,7 @@ Raph
   - Improve look and functionality
   - Fix ordering and resource tag
 - [ ] Better whiteboard (20/07)
-  - Fix mc alerts and text overflow in question and explanation
-  - Expanding the whiteboard
-  - Fix whiteboard vertical panning
+  - Fix colour options/view + tooltip
 - [ ] Student reports live throughout semester (10/08)
   - [ ] creating a profile page for the students
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
