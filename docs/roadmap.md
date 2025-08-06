@@ -42,22 +42,6 @@ All
 - [ ] Check uniqueness rules on tables (Late October)
 - [ ] Home pages and feature pages
 
-Lachie & Max
-
-- [ ] Basic timetabling (Import) (07/08)
-  - [x] Convert the data-and-timetable file to an activities object with all required fields
-  - [ ] Generate page shows loading state while generating
-  - [ ] Result screen blocked until a timetable is generated
-  - [x] Result screen shows you a preview
-- [ ] Timetable constraint handling (e.g. preferred lab space for science subject) (14/08)
-- [x] Decide whether to use the html stat files or create our own (creating our own)
-  - [ ] Build function to present stats based on the generated timetable
-    - [ ] See html files for the specific fields to include
-
-NOTE:
-
-- [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
-
 Lachie
 
 - [ ] Teachers can see past attendance (21/08)
@@ -65,6 +49,12 @@ Lachie
 
 Max
 
+- [ ] Basic timetabling (Import) (07/08)
+  - [x] Convert the data-and-timetable file to an activities object with all required fields
+  - [ ] Generate page shows loading state while generating
+  - [ ] Result screen blocked until a timetable is generated
+  - [x] Result screen shows you stats and a preview of the generated timetable
+    - [ ] See html files for the specific fields to include
 - [ ] Events appearing in everyone's timetables (14/08)
   - [ ] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
@@ -124,6 +114,9 @@ Pending eddi study completion
 - [ ] Student note writing (30/08)
 - [ ] Complete LLM access to discussions + lessons
 - [ ] Lesson plans / teacher notes based on generated lesson
+- [ ] Advanced timetabling (30/08)
+  - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
+  - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
 
 ### Future
 
