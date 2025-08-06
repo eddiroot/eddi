@@ -21,247 +21,15 @@
 		AlertTriangleIcon,
 		ClockIcon
 	} from '@lucide/svelte';
+	import type { TeacherStatistics, TimetableMetadata } from './timetable';
+	import type { PageData } from './$types';
 
-	// Mock data for different sections
-	const timetableData = {
-		name: 'SAMPLE-SCHOOL-COMPLETE',
-		status: 'completed',
-		generatedAt: new Date().toLocaleDateString()
-	};
+	// Receive data from the server
+	let { data }: { data: PageData } = $props();
 
-	const teacherStatistics = [
-		{
-			id: 'T001',
-			name: 'Teacher 001',
-			hoursPerWeek: 24,
-			freeDays: 0,
-			totalGaps: 1,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 1,
-			minHoursPerDay: 1,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T002',
-			name: 'Teacher 002',
-			hoursPerWeek: 24,
-			freeDays: 0,
-			totalGaps: 6,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T003',
-			name: 'Teacher 003',
-			hoursPerWeek: 13,
-			freeDays: 1,
-			totalGaps: 3,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 2,
-			minHoursPerDay: 1,
-			maxHoursPerDay: 4
-		},
-		{
-			id: 'T004',
-			name: 'Teacher 004',
-			hoursPerWeek: 31,
-			freeDays: 0,
-			totalGaps: 7,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 4,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T005',
-			name: 'Teacher 005',
-			hoursPerWeek: 27,
-			freeDays: 0,
-			totalGaps: 13,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 4,
-			minHoursPerDay: 3,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T006',
-			name: 'Teacher 006',
-			hoursPerWeek: 26,
-			freeDays: 0,
-			totalGaps: 12,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 5,
-			minHoursPerDay: 3,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T007',
-			name: 'Teacher 007',
-			hoursPerWeek: 24,
-			freeDays: 0,
-			totalGaps: 17,
-			minGapsPerDay: 1,
-			maxGapsPerDay: 4,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 5
-		},
-		{
-			id: 'T008',
-			name: 'Teacher 008',
-			hoursPerWeek: 20,
-			freeDays: 0,
-			totalGaps: 7,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 5,
-			minHoursPerDay: 1,
-			maxHoursPerDay: 5
-		},
-		{
-			id: 'T009',
-			name: 'Teacher 009',
-			hoursPerWeek: 25,
-			freeDays: 0,
-			totalGaps: 12,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 4,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T010',
-			name: 'Teacher 010',
-			hoursPerWeek: 24,
-			freeDays: 1,
-			totalGaps: 1,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 1,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T011',
-			name: 'Teacher 011',
-			hoursPerWeek: 24,
-			freeDays: 0,
-			totalGaps: 11,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 4,
-			minHoursPerDay: 1,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T012',
-			name: 'Teacher 012',
-			hoursPerWeek: 26,
-			freeDays: 0,
-			totalGaps: 10,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 3,
-			maxHoursPerDay: 5
-		},
-		{
-			id: 'T013',
-			name: 'Teacher 013',
-			hoursPerWeek: 25,
-			freeDays: 0,
-			totalGaps: 11,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 4,
-			minHoursPerDay: 3,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T014',
-			name: 'Teacher 014',
-			hoursPerWeek: 25,
-			freeDays: 0,
-			totalGaps: 11,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 5
-		},
-		{
-			id: 'T015',
-			name: 'Teacher 015',
-			hoursPerWeek: 20,
-			freeDays: 0,
-			totalGaps: 5,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 1,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T016',
-			name: 'Teacher 016',
-			hoursPerWeek: 30,
-			freeDays: 0,
-			totalGaps: 6,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 4,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T017',
-			name: 'Teacher 017',
-			hoursPerWeek: 27,
-			freeDays: 0,
-			totalGaps: 9,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 3,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T018',
-			name: 'Teacher 018',
-			hoursPerWeek: 28,
-			freeDays: 0,
-			totalGaps: 10,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 4,
-			minHoursPerDay: 3,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T019',
-			name: 'Teacher 019',
-			hoursPerWeek: 22,
-			freeDays: 0,
-			totalGaps: 12,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 3,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 6
-		},
-		{
-			id: 'T020',
-			name: 'Teacher 020',
-			hoursPerWeek: 23,
-			freeDays: 0,
-			totalGaps: 14,
-			minGapsPerDay: 1,
-			maxGapsPerDay: 5,
-			minHoursPerDay: 2,
-			maxHoursPerDay: 5
-		},
-		{
-			id: 'T021',
-			name: 'Teacher 021',
-			hoursPerWeek: 12,
-			freeDays: 1,
-			totalGaps: 0,
-			minGapsPerDay: 0,
-			maxGapsPerDay: 0,
-			minHoursPerDay: 1,
-			maxHoursPerDay: 4
-		}
-	];
+	// Extract data from server response
+	const timetableData: TimetableMetadata = data.teacherStatisticsReport.metadata;
+	const teacherStatistics: TeacherStatistics = data.teacherStatisticsReport.teachers;
 
 	const studentStatistics = {
 		totalStudents: 450,
@@ -329,7 +97,7 @@
 				<div>
 					<h1 class="text-3xl font-bold">Timetable Generation Complete!</h1>
 					<p class="text-muted-foreground">
-						{timetableData.name} • Generated on {timetableData.generatedAt}
+						{timetableData.institutionName} • Generated on {timetableData.generatedAt}
 					</p>
 				</div>
 			</div>
@@ -349,7 +117,7 @@
 					: ''}"
 				onclick={() => (selectedView = option.id)}
 			>
-				<Card.Content class="flex flex-col items-center gap-3 p-6 text-center">
+				<Card.Content class="flex flex-col items-center gap-3 p-0 text-center">
 					<div class="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
 						{@render iconComponent(option.icon)}
 					</div>
@@ -389,7 +157,7 @@
 						<p class="text-muted-foreground">
 							Statistics for {teacherStatistics.length} teachers
 						</p>
-						<Badge variant="secondary">{timetableData.name}</Badge>
+						<Badge variant="secondary">{timetableData.institutionName}</Badge>
 					</div>
 
 					<div class="rounded-lg border">
