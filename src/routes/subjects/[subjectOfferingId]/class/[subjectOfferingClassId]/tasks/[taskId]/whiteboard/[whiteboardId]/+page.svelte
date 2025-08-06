@@ -33,6 +33,7 @@
 	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
 	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
 	import HomeIcon from '@lucide/svelte/icons/home';
+	import ImageIcon from '@lucide/svelte/icons/image';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard-floating-menu.svelte';
 
 	let { data } = $props();
@@ -46,6 +47,7 @@
 	let panStartPos = { x: 0, y: 0 };
 	let currentZoom = $state(1);
 	let showFloatingMenu = $state(false);
+	let imageInput = $state<HTMLInputElement>();
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId));
@@ -188,6 +190,71 @@
 		});
 	};
 
+	const addImage = () => {
+		if (!imageInput) return;
+		imageInput.click();
+	};
+
+	const handleImageUpload = (event: Event) => {
+		const target = event.target as HTMLInputElement;
+		const file = target.files?.[0];
+		
+		if (!file || !canvas) return;
+
+		// Check if file is an image
+		if (!file.type.startsWith('image/')) {
+			alert('Please select an image file.');
+			return;
+		}
+
+		// Create a FileReader to read the image
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			const imgSrc = e.target?.result as string;
+			
+			// Create fabric image from the uploaded file
+			fabric.FabricImage.fromURL(imgSrc).then((img) => {
+				// @ts-expect-error
+				img.id = uuidv4();
+				
+				// Scale image to reasonable size
+				const maxWidth = 300;
+				const maxHeight = 300;
+				const scaleX = img.width! > maxWidth ? maxWidth / img.width! : 1;
+				const scaleY = img.height! > maxHeight ? maxHeight / img.height! : 1;
+				const scale = Math.min(scaleX, scaleY);
+				
+				img.scale(scale);
+				
+				// Center the image
+				img.set({
+					left: canvas.width! / 2 - (img.width! * scale) / 2,
+					top: canvas.height! / 2 - (img.height! * scale) / 2
+				});
+				
+				canvas.add(img);
+				canvas.setActiveObject(img);
+				canvas.renderAll();
+				
+				const objData = img.toObject();
+				// @ts-expect-error
+				objData.id = img.id;
+				sendCanvasUpdate({
+					type: 'add',
+					object: objData
+				});
+			}).catch((error) => {
+				console.error('Error loading image:', error);
+				alert('Error loading image. Please try a different file.');
+			});
+		};
+		
+		reader.readAsDataURL(file);
+		
+		// Reset the input value so the same file can be selected again
+		target.value = '';
+	};
+
 	const clearCanvas = () => {
 		if (!canvas) return;
 
@@ -280,14 +347,21 @@
 	const handleShapeOptionsChange = (options: any) => {
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
-		if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'circle' || activeObject.type === 'triangle')) {
-			activeObject.set({
-				strokeWidth: options.strokeWidth,
-				stroke: options.strokeColor,
-				fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor,
-				strokeDashArray: options.strokeDashArray,
-				opacity: options.opacity
-			});
+		if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'circle' || activeObject.type === 'triangle' || activeObject.type === 'image')) {
+			// For images, only apply opacity (other properties don't make sense for images)
+			if (activeObject.type === 'image') {
+				activeObject.set({
+					opacity: options.opacity
+				});
+			} else {
+				activeObject.set({
+					strokeWidth: options.strokeWidth,
+					stroke: options.strokeColor,
+					fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor,
+					strokeDashArray: options.strokeDashArray,
+					opacity: options.opacity
+				});
+			}
 			canvas.renderAll();
 			const objData = activeObject.toObject();
 			// @ts-expect-error
@@ -402,6 +476,12 @@
 						const objects = await fabric.util.enlivenObjects(messageData.whiteboard.objects);
 						canvas.clear();
 						objects.forEach((obj: any) => {
+							// Preserve the custom id property
+							if (messageData.whiteboard.objects.find((o: any) => o.id && o.left === obj.left && o.top === obj.top)) {
+								const originalObj = messageData.whiteboard.objects.find((o: any) => o.id && o.left === obj.left && o.top === obj.top);
+								obj.id = originalObj.id;
+							}
+							
 							if (obj && typeof obj.addTo === 'function') {
 								obj.addTo(canvas);
 							} else {
@@ -414,6 +494,9 @@
 					const objects = await fabric.util.enlivenObjects([messageData.object]);
 					if (objects.length > 0) {
 						const obj = objects[0];
+						// Preserve the custom id property
+						// @ts-expect-error
+						obj.id = messageData.object.id;
 						canvas.add(obj as fabric.FabricObject);
 						canvas.renderAll();
 					}
@@ -465,6 +548,17 @@
 		});
 
 		canvas.on('object:rotating', ({ target }) => {
+			const objData = target.toObject();
+			// @ts-expect-error
+			objData.id = target.id;
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objData
+			});
+		});
+
+		canvas.on('object:modified', ({ target }) => {
+			// This handles general modifications including images
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
@@ -764,6 +858,16 @@
 						<Tooltip.Content>Add Text</Tooltip.Content>
 					</Tooltip.Root>
 
+					<!-- Image Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button variant="ghost" size="icon" onclick={addImage} class="h-9 w-9">
+								<ImageIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Upload Image</Tooltip.Content>
+					</Tooltip.Root>
+
 					<div class="bg-border mx-1 h-6 w-px"></div>
 
 					<!-- Delete Selected -->
@@ -792,6 +896,15 @@
 		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700 w-full h-full flex">
 			<canvas bind:this={whiteboardCanvas} class="w-full h-full"></canvas>
 		</div>
+		
+		<!-- Hidden file input for image uploads -->
+		<input
+			bind:this={imageInput}
+			type="file"
+			accept="image/*"
+			onchange={handleImageUpload}
+			class="hidden"
+		/>
 		
 		<!-- Floating Menu -->
 		<WhiteboardFloatingMenu

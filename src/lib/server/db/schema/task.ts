@@ -218,7 +218,8 @@ export const whiteboardObjectTypeEnumPg = pgEnum('whiteboard_object_type', [
 	whiteboardObjectTypeEnum.rect,
 	whiteboardObjectTypeEnum.circle,
 	whiteboardObjectTypeEnum.path,
-	whiteboardObjectTypeEnum.textbox
+	whiteboardObjectTypeEnum.textbox,
+	whiteboardObjectTypeEnum.image
 ]);
 
 export const whiteboardObject = pgTable('whiteboard_object', {

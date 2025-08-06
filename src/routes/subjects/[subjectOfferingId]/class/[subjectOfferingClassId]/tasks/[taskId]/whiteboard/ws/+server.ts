@@ -7,6 +7,26 @@ import {
 	deleteWhiteboardObjects,
 	clearWhiteboard
 } from '$lib/server/db/service';
+import { whiteboardObjectTypeEnum } from '$lib/enums.js';
+
+// Map Fabric.js object types to our enum values
+function mapFabricTypeToEnum(fabricType: string): whiteboardObjectTypeEnum {
+	switch (fabricType.toLowerCase()) {
+		case 'rect':
+			return whiteboardObjectTypeEnum.rect;
+		case 'circle':
+			return whiteboardObjectTypeEnum.circle;
+		case 'path':
+			return whiteboardObjectTypeEnum.path;
+		case 'textbox':
+			return whiteboardObjectTypeEnum.textbox;
+		case 'image':
+			return whiteboardObjectTypeEnum.image;
+		default:
+			console.warn(`Unknown fabric type: ${fabricType}, defaulting to path`);
+			return whiteboardObjectTypeEnum.path;
+	}
+}
 
 // Store peer subscriptions with their whiteboardId
 const peerWhiteboards = new Map<object, number>();
@@ -130,7 +150,7 @@ export const socket: Socket = {
 
 				await saveWhiteboardObject({
 					objectId: newObject.id,
-					objectType: newObject.type || 'unknown',
+					objectType: mapFabricTypeToEnum(newObject.type || 'path'),
 					objectData: newObject,
 					whiteboardId
 				});

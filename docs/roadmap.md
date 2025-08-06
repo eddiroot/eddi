@@ -78,6 +78,7 @@ Raph
   - Improve look and functionality
   - Fix ordering and resource tag
 - [ ] Better whiteboard (20/07)
+  - undo/redo
   - Fix colour options/view + tooltip, colour options popout instead of in menu?
   - shape boarder width change issues
   - add shape roundness option

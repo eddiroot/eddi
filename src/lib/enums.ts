@@ -82,7 +82,8 @@ export enum whiteboardObjectTypeEnum {
 	rect = 'Rect',
 	circle = 'Circle',
 	path = 'Path',
-	textbox = 'Textbox'
+	textbox = 'Textbox',
+	image = 'Image'
 }
 
 export enum userTypeEnum {
