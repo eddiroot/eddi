@@ -99,6 +99,7 @@ Beej
 Blake
 
 - [ ] Handling of multiple campuses
+- [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
 - [ ] Create school news
 - [ ] News feed
