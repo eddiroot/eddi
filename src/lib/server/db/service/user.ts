@@ -60,13 +60,53 @@ export async function createUser({
 	return { user, verificationCode };
 }
 
+export async function createGoogleUser({
+	email,
+	googleId,
+	schoolId,
+	firstName,
+	lastName,
+	avatarUrl
+}: {
+	email: string;
+	googleId: string;
+	schoolId: number;
+	firstName: string;
+	lastName: string;
+	avatarUrl: string;
+}) {
+	const [user] = await db
+		.insert(table.user)
+		.values({
+			email,
+			googleId,
+			schoolId,
+			firstName,
+			lastName,
+			avatarUrl,
+			yearLevel: yearLevelEnum.none
+		})
+		.returning();
+
+	return user;
+}
+
 export async function updateUserVerificationCode(userId: string, verificationCode: string) {
 	await db.update(table.user).set({ verificationCode }).where(eq(table.user.id, userId));
 }
 
 export async function getUserById(userId: string) {
-	const [user] = await db.select().from(table.user).where(eq(table.user.id, userId));
-	return user;
+	const users = await db.select().from(table.user).where(eq(table.user.id, userId)).limit(1);
+	return users.length > 0 ? users[0] : null;
+}
+
+export async function getUserByGoogleId(googleId: string) {
+	const users = await db
+		.select()
+		.from(table.user)
+		.where(eq(table.user.googleId, googleId))
+		.limit(1);
+	return users.length > 0 ? users[0] : null;
 }
 
 export async function setUserVerified(userId: string) {

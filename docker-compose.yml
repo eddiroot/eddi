@@ -2,19 +2,19 @@ name: eddi
 services:
   db:
     image: postgres
-    restart: always
+    restart: unless-stopped
     ports:
       - 5432:5432
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: postgres123
       POSTGRES_DB: eddi
     volumes:
       - dbdata:/var/lib/postgresql/data
 
   obj:
     image: minio/minio
-    restart: always
+    restart: unless-stopped
     ports:
       - 9000:9000
       - 9001:9001
@@ -31,7 +31,7 @@ services:
     image: minio/mc
     depends_on:
       - obj
-    restart: on-failure
+    restart: unless-stopped
     entrypoint: >
       /bin/sh -c "
       sleep 10;

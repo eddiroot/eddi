@@ -10,6 +10,7 @@ import {
 } from '../../../enums';
 
 export const userTypeEnumPg = pgEnum('user_type', [
+	userTypeEnum.none,
 	userTypeEnum.student,
 	userTypeEnum.teacher,
 	userTypeEnum.guardian,
@@ -37,12 +38,14 @@ export const userGenderEnumPg = pgEnum('gender', [
 export const user = pgTable('user', {
 	id: uuid('id').defaultRandom().primaryKey(),
 	email: text('email').notNull().unique(),
-	passwordHash: text('password_hash').notNull(),
+	passwordHash: text('password_hash'),
+	googleId: text('google_id').unique(),
+	microsoftId: text('microsoft_id').unique(),
 	schoolId: integer('school_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
-	type: userTypeEnumPg().notNull(),
-	gender: userGenderEnumPg(),
+	type: userTypeEnumPg().notNull().default(userTypeEnum.none),
+	gender: userGenderEnumPg().notNull().default(userGenderEnum.unspecified),
 	dateOfBirth: timestamp('date_of_birth', { withTimezone: true, mode: 'date' }),
 	honorific: userHonorificEnumPg(),
 	yearLevel: yearLevelEnumPg().notNull(),

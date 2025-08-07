@@ -23,7 +23,7 @@ export const actions = {
 		}
 
 		await setUserVerified(user.id);
-		throw redirect(303, '/auth/login');
+		throw redirect(303, '/login');
 	},
 	resend: async ({ cookies }) => {
 		const userId = cookies.get('verify_user_id');

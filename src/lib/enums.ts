@@ -87,6 +87,7 @@ export enum whiteboardObjectTypeEnum {
 }
 
 export enum userTypeEnum {
+	none = 'N',
 	student = 'student',
 	teacher = 'teacher',
 	guardian = 'guardian',

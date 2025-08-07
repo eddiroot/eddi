@@ -9,6 +9,6 @@ export const actions = {
 		await auth.deleteSession(event.locals.session.id);
 		auth.deleteSessionTokenCookie(event);
 
-		return redirect(302, '/auth/login');
+		return redirect(302, '/login');
 	}
 };

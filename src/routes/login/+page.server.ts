@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { validateEmail, validatePassword } from '../utils';
+import { validateEmail, validatePassword } from './utils';
 
 export const load = async (event) => {
 	if (event.locals.user) {
@@ -41,6 +41,13 @@ export const actions = {
 
 		if (!existingUser.emailVerified) {
 			return fail(400, { message: 'Please verify your email before logging in.' });
+		}
+
+		if (existingUser.googleId || existingUser.microsoftId || !existingUser.passwordHash) {
+			return fail(400, {
+				message:
+					'This account is linked to a Google or Microsoft account. Please use the respective login method.'
+			});
 		}
 
 		const validPassword = await verify(existingUser.passwordHash, password);

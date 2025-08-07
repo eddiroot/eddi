@@ -167,8 +167,8 @@
 					</Breadcrumb.Root>
 				</div>
 				<div class="flex items-center space-x-4">
-					{#if !user() && page.url.pathname !== '/auth/login'}
-						<Button href="/auth/login">Login</Button>
+					{#if !user() && page.url.pathname !== '/login'}
+						<Button href="/login">Login</Button>
 					{/if}
 					<ThemeToggle />
 					{#if user() && isOnSubjectsPage() && shouldShowAITutor()}
