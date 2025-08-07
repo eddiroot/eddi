@@ -46,7 +46,7 @@ All
 Lachie
 
 - [ ] Teachers can see past attendance (21/08)
-- [ ] Google/Okta Auth (28/08)
+- [ ] Google/Microsoft/Okta Auth (28/08)
 - [ ] Shift away from static school id (search TODO)
 
 Max
