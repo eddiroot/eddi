@@ -1,34 +1,114 @@
 import { type RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-import { sha256 } from '@oslojs/crypto/sha2';
-import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 
-const DAY_IN_MS = 1000 * 60 * 60 * 24;
+export const sessionCookieName = 'session_token';
+const inactivityTimeoutSeconds = 60 * 60 * 24 * 1; // 1 day
+const activityCheckIntervalSeconds = 60 * 60 * 1; // 1 hour
 
-export const sessionCookieName = 'auth-session';
+function generateSecureRandomString(): string {
+	const alphabet = 'abcdefghijkmnpqrstuvwxyz23456789';
 
-export function generateSessionToken() {
-	const bytes = crypto.getRandomValues(new Uint8Array(18));
-	const token = encodeBase64url(bytes);
-	return token;
+	const bytes = new Uint8Array(24);
+	crypto.getRandomValues(bytes);
+
+	let id = '';
+	for (let i = 0; i < bytes.length; i++) {
+		id += alphabet[bytes[i] % alphabet.length];
+	}
+
+	return id;
 }
 
-export async function createSession(token: string, userId: string) {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+async function hashSecret(secret: string): Promise<Uint8Array> {
+	const secretBytes = new TextEncoder().encode(secret);
+	const secretHashBuffer = await crypto.subtle.digest('SHA-256', secretBytes);
+	return new Uint8Array(secretHashBuffer);
+}
+
+function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
+	if (a.byteLength !== b.byteLength) {
+		return false;
+	}
+	let c = 0;
+	for (let i = 0; i < a.byteLength; i++) {
+		c |= a[i] ^ b[i];
+	}
+	return c === 0;
+}
+
+export async function createSession(userId: string) {
+	const now = new Date();
+
+	const id = generateSecureRandomString();
+	const secret = generateSecureRandomString();
+	const secretHashBytes = await hashSecret(secret);
+	const secretHash = Buffer.from(secretHashBytes).toString('hex');
+
+	const token = id + '.' + secret;
+
 	const session = {
-		id: sessionId,
+		id,
+		secretHash,
 		userId,
-		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
+		token,
+		createdAt: now,
+		lastVerifiedAt: now
 	};
-	await db.insert(table.session).values(session);
+
+	await db.insert(table.session).values({
+		id: session.id,
+		secretHash: session.secretHash,
+		userId: session.userId,
+		createdAt: session.createdAt,
+		lastVerifiedAt: session.lastVerifiedAt
+	});
+
 	return session;
 }
 
 export async function validateSessionToken(token: string) {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [result] = await db
+	const now = new Date();
+
+	const tokenParts = token.split('.');
+	if (tokenParts.length !== 2) {
+		return { session: null, user: null };
+	}
+	const sessionId = tokenParts[0];
+	const sessionSecret = tokenParts[1];
+
+	const result = await getSessionAndUser(sessionId);
+	if (!result) {
+		return { session: null, user: null };
+	}
+
+	const { session, user } = result;
+
+	const tokenSecretHash = await hashSecret(sessionSecret);
+	const sessionSecretHash = Buffer.from(session.secretHash, 'hex');
+	const validSecret = constantTimeEqual(tokenSecretHash, sessionSecretHash);
+	if (!validSecret) {
+		return { session: null, user: null };
+	}
+
+	if (now.getTime() - session.lastVerifiedAt.getTime() >= activityCheckIntervalSeconds * 1000) {
+		session.lastVerifiedAt = now;
+		await db
+			.update(table.session)
+			.set({ lastVerifiedAt: now })
+			.where(eq(table.session.id, sessionId));
+	}
+
+	return { session, user };
+}
+
+export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
+
+export async function getSessionAndUser(sessionId: string) {
+	const now = new Date();
+
+	const results = await db
 		.select({
 			// Adjust user table here to tweak returned data
 			user: {
@@ -46,39 +126,31 @@ export async function validateSessionToken(token: string) {
 		.innerJoin(table.user, eq(table.session.userId, table.user.id))
 		.where(eq(table.session.id, sessionId));
 
-	if (!result) {
-		return { session: null, user: null };
-	}
-	const { session, user } = result;
-
-	const sessionExpired = Date.now() >= session.expiresAt.getTime();
-	if (sessionExpired) {
-		await db.delete(table.session).where(eq(table.session.id, session.id));
-		return { session: null, user: null };
+	if (results.length !== 1) {
+		return null;
 	}
 
-	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
-	if (renewSession) {
-		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(table.session)
-			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.session.id, session.id));
+	const session = results[0].session;
+	const user = results[0].user;
+
+	if (now.getTime() - session.lastVerifiedAt.getTime() >= inactivityTimeoutSeconds * 1000) {
+		await deleteSession(sessionId);
+		return null;
 	}
 
 	return { session, user };
 }
 
-export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
-
-export async function invalidateSession(sessionId: string) {
+export async function deleteSession(sessionId: string) {
 	await db.delete(table.session).where(eq(table.session.id, sessionId));
 }
 
-export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
+export function setSessionTokenCookie(event: RequestEvent, token: string) {
 	event.cookies.set(sessionCookieName, token, {
-		expires: expiresAt,
-		path: '/'
+		path: '/',
+		httpOnly: true,
+		secure: true,
+		sameSite: 'lax'
 	});
 }
 

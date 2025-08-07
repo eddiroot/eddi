@@ -39,6 +39,7 @@
 All
 
 - [ ] Security review e.g. prompt injection (Late October)
+- [ ] Content security policy in `svelte.config.js`
 - [ ] Check uniqueness rules on tables (Late October)
 - [ ] Home pages and feature pages
 

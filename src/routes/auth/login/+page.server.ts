@@ -48,9 +48,8 @@ export const actions = {
 			return fail(400, { message: 'Incorrect email or password' });
 		}
 
-		const sessionToken = auth.generateSessionToken();
-		const session = await auth.createSession(sessionToken, existingUser.id);
-		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
+		const session = await auth.createSession(existingUser.id);
+		auth.setSessionTokenCookie(event, session.token);
 
 		return redirect(302, '/dashboard');
 	}

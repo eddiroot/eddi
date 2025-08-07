@@ -80,11 +80,12 @@ export type UserRelationship = typeof userRelationship.$inferSelect;
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
+	secretHash: text('secret_hash').notNull(),
 	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id),
-	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull(),
-	...timestamps
+	lastVerifiedAt: timestamp({ mode: 'date' }).notNull(),
+	createdAt: timestamp({ mode: 'date' }).notNull()
 });
 
 export type Session = typeof session.$inferSelect;
