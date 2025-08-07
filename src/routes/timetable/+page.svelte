@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import { days, formatTimestampAsTime } from '$lib/utils';
-	import { generateSubjectColors, generateTimeslots, getClassPosition } from './utils.js';
+	import TimetableCard from '$lib/components/timetable-card.svelte';
+	import { days } from '$lib/utils';
+	import { generateTimeslots, getClassPosition } from './utils.js';
 
 	let { data } = $props();
 	let { classAllocation: classTimes } = data;
@@ -55,29 +55,11 @@
 						cls.classAllocation.endTimestamp,
 						timeslots
 					)}
-					{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
-					<a
-						href="/subjects/{cls.subjectOffering.id}"
-						class="transition-opacity duration-200 hover:opacity-75"
+					<div
 						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
 					>
-						<Card.Root
-							class="h-full overflow-hidden border-2 border-t-4 px-2 pt-0 shadow-lg"
-							style="border-color: {colors.borderAround}; border-top-color: {colors.borderTop}; color: {colors.text};"
-						>
-							<Card.Header class="p-1">
-								<Card.Title class="overflow-hidden text-base text-ellipsis whitespace-nowrap">
-									{cls.subject.name}
-								</Card.Title>
-								<Card.Description class="overflow-hidden text-xs text-ellipsis whitespace-nowrap">
-									{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(
-										cls.classAllocation.endTimestamp
-									)}
-									{cls.schoolSpace.name}
-								</Card.Description>
-							</Card.Header>
-						</Card.Root>
-					</a>
+						<TimetableCard {cls} href="/subjects/{cls.subjectOffering.id}" />
+					</div>
 				{/each}
 			</div>
 		{/each}

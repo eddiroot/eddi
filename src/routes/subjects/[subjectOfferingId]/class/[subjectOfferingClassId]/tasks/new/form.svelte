@@ -447,12 +447,12 @@
 			{#snippet children({ props })}
 				<div class="flex items-center space-x-2">
 					<Switch {...props} bind:checked={$formData.aiTutorEnabled} id="ai-tutor-toggle" />
-					<Form.Label for="ai-tutor-toggle">Enable eddi AI Tutor</Form.Label>
+					<Form.Label for="ai-tutor-toggle">Enable Tutoring</Form.Label>
 				</div>
 			{/snippet}
 		</Form.Control>
 		<Form.Description>
-			Allow students to access the AI tutor while working on this task.
+			Allow students to access the eddi tutor while working on this task.
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>

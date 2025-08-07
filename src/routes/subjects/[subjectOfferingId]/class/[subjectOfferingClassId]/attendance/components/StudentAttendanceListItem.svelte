@@ -121,7 +121,7 @@
 			{#if isPresent}
 				<Button size="sm" onclick={() => (dialogOpen = true)} disabled={type === 'unmarked'}>
 					<PenIcon />
-					Add Notes
+					Notes
 				</Button>
 			{/if}
 
@@ -165,7 +165,7 @@
 						<Form.Field {form} name="behaviourNote">
 							<Form.Control>
 								{#snippet children({ props })}
-									<Form.Label class="text-sm font-medium">Behavioural Notes</Form.Label>
+									<Form.Label class="text-sm font-medium">Behaviour</Form.Label>
 									<Textarea
 										{...props}
 										name="behaviourNote"

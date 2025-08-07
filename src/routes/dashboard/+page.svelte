@@ -1,9 +1,9 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+	import TimetableCard from '$lib/components/timetable-card.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
-	import { formatTimestamp, formatTimestampAsTime } from '$lib/utils';
-	import { generateSubjectColors } from '../timetable/utils';
+	import { formatTimestamp } from '$lib/utils';
 
 	let { data } = $props();
 
@@ -47,7 +47,7 @@
 <div class="grid h-full grid-cols-1 gap-6 overflow-y-auto p-8 xl:grid-cols-[2fr_1fr]">
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:grid-rows-[0.5fr_0.5fr]">
 		<!-- Recent Forum Announcements -->
-		<Card.Root class="h-full overflow-hidden border-2 shadow-none">
+		<Card.Root class="h-full overflow-hidden shadow-none">
 			<Card.Header>
 				<Card.Title class="text-xl">Recent Forum Announcements</Card.Title>
 			</Card.Header>
@@ -92,7 +92,7 @@
 		</Card.Root>
 
 		<!-- School News -->
-		<Card.Root class="h-full overflow-hidden border-2 shadow-none">
+		<Card.Root class="h-full overflow-hidden shadow-none">
 			<Card.Header>
 				<Card.Title class="text-xl">School News</Card.Title>
 			</Card.Header>
@@ -122,7 +122,7 @@
 		</Card.Root>
 
 		<!-- Quick Actions -->
-		<Card.Root class="h-full overflow-hidden border-2 shadow-none">
+		<Card.Root class="h-full overflow-hidden shadow-none">
 			<Card.Header>
 				<Card.Title class="text-xl">Quick Actions</Card.Title>
 			</Card.Header>
@@ -146,7 +146,7 @@
 		</Card.Root>
 
 		<!-- Upcoming Assessments -->
-		<Card.Root class="h-full overflow-hidden border-2 shadow-none">
+		<Card.Root class="h-full overflow-hidden shadow-none">
 			<Card.Header>
 				<Card.Title class="text-xl">Upcoming Assessments</Card.Title>
 			</Card.Header>
@@ -177,7 +177,7 @@
 	</div>
 
 	<!-- Right Sidebar - Today's Timetable -->
-	<Card.Root class="h-full overflow-hidden border-2 shadow-none">
+	<Card.Root class="h-full overflow-hidden shadow-none">
 		<Card.Header>
 			<Card.Title class="text-xl">Today's Timetable</Card.Title>
 		</Card.Header>
@@ -186,25 +186,12 @@
 				<ScrollArea class="h-full">
 					<div class="space-y-3 pr-4">
 						{#each data.userClasses as cls}
-							{@const colors = generateSubjectColors(cls.userSubjectOffering.color)}
-							<a href="/subjects/{cls.subjectOffering.id}" class="block">
-								<div
-									class="border-border flex items-center justify-between rounded-lg border-2 border-t-3 p-3 shadow-lg transition-opacity duration-200 hover:opacity-75"
-									style="border-top-color: {colors.borderTop};"
-								>
-									<div class="flex-1">
-										<div class="text-foreground font-medium" style="color: {colors.text}">
-											{cls.subject.name}
-										</div>
-										<div class="text-muted-foreground text-sm">{cls.schoolSpace.name}</div>
-									</div>
-									<div class="text-muted-foreground text-sm font-medium">
-										{formatTimestampAsTime(cls.classAllocation.startTimestamp)} - {formatTimestampAsTime(
-											cls.classAllocation.endTimestamp
-										)}
-									</div>
-								</div>
-							</a>
+							<TimetableCard
+								{cls}
+								href="/subjects/{cls.subjectOffering.id}"
+								showTime={true}
+								showRoom={true}
+							/>
 						{/each}
 					</div>
 				</ScrollArea>
