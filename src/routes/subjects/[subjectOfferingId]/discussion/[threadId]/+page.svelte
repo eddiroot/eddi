@@ -11,8 +11,9 @@
 	import User from '@lucide/svelte/icons/user';
 	import Clock from '@lucide/svelte/icons/clock';
 	import { getThreadTypeDisplay } from './utils';
+	import { enhance } from '$app/forms';
 
-	let { data } = $props();
+	let { data, form } = $props();
 	const thread = $derived(() => data.thread);
 	const responses = $derived(() => data.nestedResponses);
 
@@ -37,59 +38,25 @@
 	);
 
 	let isGeneratingSummary = $state(false);
-	let summary = $state('');
-
-	const handleGenerateSummary = async () => {
-		if (!thread()?.thread.id) return;
-
-		isGeneratingSummary = true;
-		try {
-			const response = await fetch('/api/AIsummary', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ threadId: thread()!.thread.id })
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to generate summary');
-			}
-
-			const result = await response.json();
-			summary = result.summary;
-			console.log('Summary generated:', summary);
-		} catch (error) {
-			console.error('Error generating summary:', error);
-		} finally {
-			isGeneratingSummary = false;
-		}
-	};
+	let isHidingSummary = $state(false);
 </script>
 
 {#if thread()}
 	<div class="mx-auto max-w-4xl space-y-6">
-		<!-- Summary button -->
-		<Button onclick={handleGenerateSummary} disabled={isGeneratingSummary}>
-			{#if isGeneratingSummary}
-				<p>Generating Summary...</p>
-			{:else}
-				<p>Summarise with AI</p>
-			{/if}
-		</Button>
-
 		<!-- Show summary if available -->
-		{#if summary}
+		{#if form?.summary}
 			<Card.Root>
-				<Card.Header>
-					<h3 class="text-lg font-semibold">AI Summary</h3>
-					<Card.Action>
-						<Button variant="secondary" onclick={() => (summary = '')}>Hide Summary</Button>
-					</Card.Action>
+				<Card.Header class="flex items-center justify-between">
+					<Card.Title class="text-xl font-bold">Post Summary</Card.Title>
+					<Button variant="secondary" onclick={() => (isHidingSummary = !isHidingSummary)}>
+						{isHidingSummary ? 'Show Summary' : 'Hide Summary'}
+					</Button>
 				</Card.Header>
-				<Card.Content>
-					<div class="leading-relaxed whitespace-pre-wrap">
-						{summary}
-					</div>
-				</Card.Content>
+				{#if !isHidingSummary}
+					<Card.Content class="leading-relaxed whitespace-pre-wrap">
+						{form.summary}
+					</Card.Content>
+				{/if}
 			</Card.Root>
 		{/if}
 		<!-- Main Thread Card -->
@@ -128,6 +95,32 @@
 						</div>
 					</div>
 				</div>
+				<Card.Action>
+					<form
+						method="POST"
+						action="?/generateSummary"
+						use:enhance={() => {
+							isGeneratingSummary = true;
+
+							return async ({ update }) => {
+								await update();
+								isGeneratingSummary = false;
+							};
+						}}
+					>
+						<Button
+							variant="default"
+							type="submit"
+							disabled={isGeneratingSummary || !!form?.summary}
+						>
+							{#if isGeneratingSummary}
+								Summarising...
+							{:else}
+								Summarise Post
+							{/if}
+						</Button>
+					</form>
+				</Card.Action>
 			</Card.Header>
 			<Card.Content>
 				<div class="leading-relaxed whitespace-pre-wrap">

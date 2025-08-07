@@ -1,9 +1,7 @@
 import { GoogleGenAI, type Part } from '@google/genai';
 import fs from 'fs';
-
 import { getMimeType } from '$lib/server/ai/utils';
 import { env } from '$env/dynamic/private';
-import type { SubjectThread, SubjectThreadResponse } from '$lib/server/db/schema/subjects';
 
 if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set');
 if (!env.GEMINI_DEFAULT_MODEL) throw new Error('GEMINI_DEFAULT_MODEL is not set');
@@ -132,61 +130,4 @@ export async function geminiImageGeneration(prompt: string) {
 		console.error('Error generating image with Gemini:', error);
 		throw error;
 	}
-}
-
-export async function generateThreadSummary(
-	threadData: {
-		thread: SubjectThread;
-		user: {
-			firstName: string | null;
-			middleName: string | null;
-			lastName: string | null;
-			avatarUrl: string | null;
-		};
-	},
-	answers: Array<{
-		response: SubjectThreadResponse;
-		user: {
-			firstName: string | null;
-			middleName: string | null;
-			lastName: string | null;
-			avatarUrl: string | null;
-		};
-	}>,
-	comments: Array<{
-		response: SubjectThreadResponse;
-		user: {
-			firstName: string | null;
-			middleName: string | null;
-			lastName: string | null;
-			avatarUrl: string | null;
-		};
-	}>
-): Promise<string> {
-	const prompt = `
-Please provide a concise summary of this discussion thread:
-
-ORIGINAL POST:
-Title: ${threadData.thread.title}
-Type: ${threadData.thread.type}
-Content: ${threadData.thread.content}
-Author: ${threadData.user.firstName} ${threadData.user.lastName}
-
-MAIN ANSWERS:
-${answers.map(a => `- ${a.response.content} (by ${a.user.firstName} ${a.user.lastName})`).join('\n')}
-
-MAIN COMMENTS:
-${comments.map(c => `- ${c.response.content} (by ${c.user.firstName} ${c.user.lastName})`).join('\n')}
-
-Please summarise the thread, touching on all the key points and ensuring that it is easily understandable for school students.
-`;
-
-	const systemInstruction = "You are a helpful assistant that creates concise, well-structured summaries of academic discussions  and Q&A threads for school students who are looking to get all the necessary information. The summaries should be in plain text format (not markdown).";
-
-	return await geminiCompletion(
-		prompt,
-		undefined,
-		undefined,
-		systemInstruction
-	);
 }
