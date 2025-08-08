@@ -51,9 +51,9 @@ Lachie
 
 Max
 
-- [ ] Basic timetabling (Import) (07/08)
-  - [ ] Generate page shows loading state while generating
-  - [ ] Result screen blocked until a timetable is generated
+- [x] Basic timetabling (Import) (07/08)
+  - [x] Generate page shows loading state while generating
+  - [x] Result screen blocked until a timetable is generated
 - [ ] Events appearing in everyone's timetables (14/08)
   - [ ] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
