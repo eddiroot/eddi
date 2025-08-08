@@ -55,7 +55,7 @@ Max
   - [x] Generate page shows loading state while generating
   - [x] Result screen blocked until a timetable is generated
 - [ ] Events appearing in everyone's timetables (14/08)
-  - [ ] enable week by week viewing of the timetable
+  - [x] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
   - [ ] changing spaces and handling of this
 - [ ] Excursions (permission forms)
