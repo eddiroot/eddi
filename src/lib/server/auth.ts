@@ -3,15 +3,6 @@ import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 
-import { Google } from 'arctic';
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
-
-export const google = new Google(
-	GOOGLE_CLIENT_ID,
-	GOOGLE_CLIENT_SECRET,
-	'http://localhost:5173/login/google/callback'
-);
-
 export const sessionCookieName = 'session_token';
 const inactivityTimeoutSeconds = 60 * 60 * 24 * 1; // 1 day
 const activityCheckIntervalSeconds = 60 * 60 * 1; // 1 hour

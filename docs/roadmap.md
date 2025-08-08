@@ -33,6 +33,7 @@
 - [x] Coursemap flow
 - [x] Fix lesson generation with learning areas and content
 - [x] Admin dashboard allocations page
+- [x] Google/Microsoft Auth (28/08)
 
 ### Doing
 
@@ -42,21 +43,17 @@ All
 - [ ] Content security policy in `svelte.config.js`
 - [ ] Check uniqueness rules on tables (Late October)
 - [ ] Home pages and feature pages
+- [ ] Shift away from static school id for OAuth (search TODO)
 
 Lachie
 
 - [ ] Teachers can see past attendance (21/08)
-- [ ] Google/Microsoft/Okta Auth (28/08)
-- [ ] Shift away from static school id (search TODO)
 
 Max
 
 - [ ] Basic timetabling (Import) (07/08)
-  - [x] Convert the data-and-timetable file to an activities object with all required fields
   - [ ] Generate page shows loading state while generating
   - [ ] Result screen blocked until a timetable is generated
-  - [x] Result screen shows you stats and a preview of the generated timetable
-    - [ ] See html files for the specific fields to include
 - [ ] Events appearing in everyone's timetables (14/08)
   - [ ] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
@@ -125,6 +122,7 @@ Pending eddi study completion
 
 ### Future
 
+- [ ] Consider using Google/Microsoft/OAuth provider sessions rather than managing our own
 - [ ] Interactive map of locations in the school with directions
 - [ ] Exam timetabling
 - [ ] Subtype for Assessments (SAC?)

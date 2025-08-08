@@ -91,6 +91,34 @@ export async function createGoogleUser({
 	return user;
 }
 
+export async function createMicrosoftUser({
+	email,
+	microsoftId,
+	schoolId,
+	firstName,
+	lastName
+}: {
+	email: string;
+	microsoftId: string;
+	schoolId: number;
+	firstName: string;
+	lastName: string;
+}) {
+	const [user] = await db
+		.insert(table.user)
+		.values({
+			email,
+			microsoftId,
+			schoolId,
+			firstName,
+			lastName,
+			yearLevel: yearLevelEnum.none
+		})
+		.returning();
+
+	return user;
+}
+
 export async function updateUserVerificationCode(userId: string, verificationCode: string) {
 	await db.update(table.user).set({ verificationCode }).where(eq(table.user.id, userId));
 }
@@ -105,6 +133,15 @@ export async function getUserByGoogleId(googleId: string) {
 		.select()
 		.from(table.user)
 		.where(eq(table.user.googleId, googleId))
+		.limit(1);
+	return users.length > 0 ? users[0] : null;
+}
+
+export async function getUserByMicrosoftId(microsoftId: string) {
+	const users = await db
+		.select()
+		.from(table.user)
+		.where(eq(table.user.microsoftId, microsoftId))
 		.limit(1);
 	return users.length > 0 ? users[0] : null;
 }
