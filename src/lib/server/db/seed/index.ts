@@ -892,210 +892,148 @@ async function seed() {
 			});
 		}
 
-		const todaysIsoDate = new Date().toISOString().split('T')[0];
-		const today = new Date(todaysIsoDate);
+		// Calculate the most recent Monday
+		const today = new Date();
+		const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+		const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days; otherwise go back to Monday
+		const mostRecentMonday = new Date(today);
+		mostRecentMonday.setDate(today.getDate() - daysToSubtract);
+		mostRecentMonday.setHours(0, 0, 0, 0); // Set to start of day
+
+		const baseDate = mostRecentMonday;
+		console.log(
+			`📅 Seeding timetable data starting from: ${baseDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
+		);
 
 		// Helper function to create a Date object for a specific day and time
-		const createDateTime = (dayOffset: number, hour: number, minute: number = 0) => {
-			const date = new Date(today);
-			date.setDate(today.getDate() + dayOffset);
+		const createDateTime = (
+			weekOffset: number,
+			dayOffset: number,
+			hour: number,
+			minute: number = 0
+		) => {
+			const date = new Date(baseDate);
+			date.setDate(baseDate.getDate() + weekOffset * 7 + dayOffset);
 			date.setHours(hour, minute, 0, 0);
 			return date;
 		};
 
-		// Create basic timetable (class allocations) with actual timestamps
-		// Each day has one of each subject: Math, English, Science, PE, History, Geography
-		const timetableEntries = [
-			// MONDAY - Math, English, Science, PE, History, Geography
-			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolSpaceId: spaces[2].id, // Mathematics Room
-				startTimestamp: createDateTime(0, 8), // Monday 8:00 AM
-				endTimestamp: createDateTime(0, 9) // Monday 9:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolSpaceId: spaces[3].id, // English Room
-				startTimestamp: createDateTime(0, 9), // Monday 9:00 AM
-				endTimestamp: createDateTime(0, 10) // Monday 10:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolSpaceId: spaces[0].id, // Science Lab A
-				startTimestamp: createDateTime(0, 10, 30), // Monday 10:30 AM (after break)
-				endTimestamp: createDateTime(0, 11, 30) // Monday 11:30 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolSpaceId: spaces[4].id, // Gymnasium
-				startTimestamp: createDateTime(0, 11, 30), // Monday 11:30 AM
-				endTimestamp: createDateTime(0, 12, 30) // Monday 12:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolSpaceId: spaces[5].id, // History Room
-				startTimestamp: createDateTime(0, 13, 30), // Monday 1:30 PM (after lunch)
-				endTimestamp: createDateTime(0, 14, 30) // Monday 2:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolSpaceId: spaces[6].id, // Geography Room
-				startTimestamp: createDateTime(0, 14, 30), // Monday 2:30 PM
-				endTimestamp: createDateTime(0, 15, 30) // Monday 3:30 PM
-			},
+		// Create timetable for multiple weeks with varying patterns
+		const timetableEntries = [];
 
-			// TUESDAY - English, Science, Math, History, PE, Geography
-			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolSpaceId: spaces[3].id, // English Room
-				startTimestamp: createDateTime(1, 8), // Tuesday 8:00 AM
-				endTimestamp: createDateTime(1, 9) // Tuesday 9:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolSpaceId: spaces[0].id, // Science Lab A
-				startTimestamp: createDateTime(1, 9), // Tuesday 9:00 AM
-				endTimestamp: createDateTime(1, 10) // Tuesday 10:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolSpaceId: spaces[2].id, // Mathematics Room
-				startTimestamp: createDateTime(1, 10, 30), // Tuesday 10:30 AM (after break)
-				endTimestamp: createDateTime(1, 11, 30) // Tuesday 11:30 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolSpaceId: spaces[5].id, // History Room
-				startTimestamp: createDateTime(1, 11, 30), // Tuesday 11:30 AM
-				endTimestamp: createDateTime(1, 12, 30) // Tuesday 12:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolSpaceId: spaces[4].id, // Gymnasium
-				startTimestamp: createDateTime(1, 13, 30), // Tuesday 1:30 PM (after lunch)
-				endTimestamp: createDateTime(1, 14, 30) // Tuesday 2:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolSpaceId: spaces[6].id, // Geography Room
-				startTimestamp: createDateTime(1, 14, 30), // Tuesday 2:30 PM
-				endTimestamp: createDateTime(1, 15, 30) // Tuesday 3:30 PM
-			},
-
-			// WEDNESDAY - Science, Math, English, Geography, History, PE
-			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolSpaceId: spaces[0].id, // Science Lab A
-				startTimestamp: createDateTime(2, 8), // Wednesday 8:00 AM
-				endTimestamp: createDateTime(2, 9) // Wednesday 9:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolSpaceId: spaces[2].id, // Mathematics Room
-				startTimestamp: createDateTime(2, 9), // Wednesday 9:00 AM
-				endTimestamp: createDateTime(2, 10) // Wednesday 10:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolSpaceId: spaces[3].id, // English Room
-				startTimestamp: createDateTime(2, 10, 30), // Wednesday 10:30 AM (after break)
-				endTimestamp: createDateTime(2, 11, 30) // Wednesday 11:30 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolSpaceId: spaces[6].id, // Geography Room
-				startTimestamp: createDateTime(2, 11, 30), // Wednesday 11:30 AM
-				endTimestamp: createDateTime(2, 12, 30) // Wednesday 12:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolSpaceId: spaces[5].id, // History Room
-				startTimestamp: createDateTime(2, 13, 30), // Wednesday 1:30 PM (after lunch)
-				endTimestamp: createDateTime(2, 14, 30) // Wednesday 2:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolSpaceId: spaces[4].id, // Gymnasium
-				startTimestamp: createDateTime(2, 14, 30), // Wednesday 2:30 PM
-				endTimestamp: createDateTime(2, 15, 30) // Wednesday 3:30 PM
-			},
-
-			// THURSDAY - PE, History, Geography, English, Science, Math
-			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolSpaceId: spaces[4].id, // Gymnasium
-				startTimestamp: createDateTime(3, 8), // Thursday 8:00 AM
-				endTimestamp: createDateTime(3, 9) // Thursday 9:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolSpaceId: spaces[5].id, // History Room
-				startTimestamp: createDateTime(3, 9), // Thursday 9:00 AM
-				endTimestamp: createDateTime(3, 10) // Thursday 10:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolSpaceId: spaces[6].id, // Geography Room
-				startTimestamp: createDateTime(3, 10, 30), // Thursday 10:30 AM (after break)
-				endTimestamp: createDateTime(3, 11, 30) // Thursday 11:30 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolSpaceId: spaces[3].id, // English Room
-				startTimestamp: createDateTime(3, 11, 30), // Thursday 11:30 AM
-				endTimestamp: createDateTime(3, 12, 30) // Thursday 12:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolSpaceId: spaces[0].id, // Science Lab A
-				startTimestamp: createDateTime(3, 13, 30), // Thursday 1:30 PM (after lunch)
-				endTimestamp: createDateTime(3, 14, 30) // Thursday 2:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolSpaceId: spaces[2].id, // Mathematics Room
-				startTimestamp: createDateTime(3, 14, 30), // Thursday 2:30 PM
-				endTimestamp: createDateTime(3, 15, 30) // Thursday 3:30 PM
-			},
-
-			// FRIDAY - Geography, PE, History, Math, English, Science
-			{
-				subjectOfferingClassId: subjectOfferingClasses[5].id, // Geography
-				schoolSpaceId: spaces[6].id, // Geography Room
-				startTimestamp: createDateTime(4, 8), // Friday 8:00 AM
-				endTimestamp: createDateTime(4, 9) // Friday 9:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[3].id, // PE
-				schoolSpaceId: spaces[4].id, // Gymnasium
-				startTimestamp: createDateTime(4, 9), // Friday 9:00 AM
-				endTimestamp: createDateTime(4, 10) // Friday 10:00 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[4].id, // History
-				schoolSpaceId: spaces[5].id, // History Room
-				startTimestamp: createDateTime(4, 10, 30), // Friday 10:30 AM (after break)
-				endTimestamp: createDateTime(4, 11, 30) // Friday 11:30 AM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[0].id, // Math
-				schoolSpaceId: spaces[2].id, // Mathematics Room
-				startTimestamp: createDateTime(4, 11, 30), // Friday 11:30 AM
-				endTimestamp: createDateTime(4, 12, 30) // Friday 12:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[1].id, // English
-				schoolSpaceId: spaces[3].id, // English Room
-				startTimestamp: createDateTime(4, 13, 30), // Friday 1:30 PM (after lunch)
-				endTimestamp: createDateTime(4, 14, 30) // Friday 2:30 PM
-			},
-			{
-				subjectOfferingClassId: subjectOfferingClasses[2].id, // Science
-				schoolSpaceId: spaces[0].id, // Science Lab A
-				startTimestamp: createDateTime(4, 14, 30), // Friday 2:30 PM
-				endTimestamp: createDateTime(4, 15, 30) // Friday 3:30 PM
-			}
+		// Define different weekly patterns to add variety
+		const weeklyPatterns = [
+			// Week 1 Pattern - Standard Schedule
+			[
+				// MONDAY - Math, English, Science, PE, History, Geography
+				[0, 1, 2, 3, 4, 5], // [Math, English, Science, PE, History, Geography]
+				// TUESDAY - English, Science, Math, History, PE, Geography
+				[1, 2, 0, 4, 3, 5],
+				// WEDNESDAY - Science, Math, English, Geography, History, PE
+				[2, 0, 1, 5, 4, 3],
+				// THURSDAY - PE, History, Geography, English, Science, Math
+				[3, 4, 5, 1, 2, 0],
+				// FRIDAY - Geography, PE, History, Math, English, Science
+				[5, 3, 4, 0, 1, 2]
+			],
+			// Week 2 Pattern - Math Heavy Start
+			[
+				// MONDAY - Math, Math, English, Science, PE, History
+				[0, 0, 1, 2, 3, 4],
+				// TUESDAY - Science, English, Geography, Math, PE, History
+				[2, 1, 5, 0, 3, 4],
+				// WEDNESDAY - PE, Science, Math, English, History, Geography
+				[3, 2, 0, 1, 4, 5],
+				// THURSDAY - History, Geography, PE, Science, Math, English
+				[4, 5, 3, 2, 0, 1],
+				// FRIDAY - English, Math, History, Geography, Science, PE
+				[1, 0, 4, 5, 2, 3]
+			],
+			// Week 3 Pattern - Science Focus
+			[
+				// MONDAY - Science, Science, Math, English, PE, Geography
+				[2, 2, 0, 1, 3, 5],
+				// TUESDAY - Math, English, PE, Science, History, Geography
+				[0, 1, 3, 2, 4, 5],
+				// WEDNESDAY - English, PE, Science, Math, Geography, History
+				[1, 3, 2, 0, 5, 4],
+				// THURSDAY - Geography, Math, English, PE, Science, History
+				[5, 0, 1, 3, 2, 4],
+				// FRIDAY - PE, History, Geography, Science, English, Math
+				[3, 4, 5, 2, 1, 0]
+			],
+			// Week 4 Pattern - Balanced Mix
+			[
+				// MONDAY - English, PE, Math, Science, Geography, History
+				[1, 3, 0, 2, 5, 4],
+				// TUESDAY - Geography, Math, Science, English, History, PE
+				[5, 0, 2, 1, 4, 3],
+				// WEDNESDAY - History, English, PE, Geography, Math, Science
+				[4, 1, 3, 5, 0, 2],
+				// THURSDAY - Math, Science, Geography, History, English, PE
+				[0, 2, 5, 4, 1, 3],
+				// FRIDAY - Science, History, English, PE, Math, Geography
+				[2, 4, 1, 3, 0, 5]
+			]
 		];
+
+		// Create 4 weeks of timetable data with different patterns
+		for (let week = 0; week < 4; week++) {
+			const pattern = weeklyPatterns[week];
+
+			// Create entries for each day of the week
+			for (let day = 0; day < 5; day++) {
+				// Monday to Friday
+				const dayPattern = pattern[day];
+
+				// Create 6 classes per day with the specified pattern
+				for (let period = 0; period < 6; period++) {
+					const subjectIndex = dayPattern[period];
+					let hour: number, minute: number;
+
+					// Define time slots for each period
+					switch (period) {
+						case 0:
+							hour = 8;
+							minute = 0;
+							break; // 8:00-9:00 AM
+						case 1:
+							hour = 9;
+							minute = 0;
+							break; // 9:00-10:00 AM
+						case 2:
+							hour = 10;
+							minute = 30;
+							break; // 10:30-11:30 AM (after break)
+						case 3:
+							hour = 11;
+							minute = 30;
+							break; // 11:30 AM-12:30 PM
+						case 4:
+							hour = 13;
+							minute = 30;
+							break; // 1:30-2:30 PM (after lunch)
+						case 5:
+							hour = 14;
+							minute = 30;
+							break; // 2:30-3:30 PM
+						default:
+							hour = 8;
+							minute = 0;
+							break; // fallback
+					}
+
+					const timetableEntry = {
+						subjectOfferingClassId: subjectOfferingClasses[subjectIndex].id,
+						schoolSpaceId: spaces[subjectIndex].id, // Use appropriate space for subject
+						startTimestamp: createDateTime(week, day, hour, minute),
+						endTimestamp: createDateTime(week, day, hour + 1, minute) // 1 hour duration
+					};
+
+					timetableEntries.push(timetableEntry);
+				}
+			}
+		}
 
 		await db.insert(schema.subjectClassAllocation).values(timetableEntries);
 
@@ -1118,7 +1056,7 @@ async function seed() {
 -- Subject Offerings: ${subjectOfferings.length} (F-10 year-long offerings, semester = null)
 -- Year 9 Offerings: ${year9Offerings.length} (used for student/teacher assignments)
 -- Subject Classes: ${subjectOfferingClasses.length} (Year 9 only)
--- Timetable Entries: ${timetableEntries.length}
+-- Timetable Entries: ${timetableEntries.length} (4 weeks of data for testing week navigation)
 -- VCAA Content Items: ${contentItems.length}
 -- Learning Areas: ${learningAreaMap.size}
 -- Coursemap Items: ${courseMapItems.length} (36 weeks total, spanning both semesters)
@@ -1138,7 +1076,7 @@ async function seed() {
 -- Students and teachers are only assigned to Year 9 offerings
 -- Coursemap covers all F-10 subject offerings with 36-week structure (18 weeks per semester)
 -- Course map items properly assigned to semester 1 (weeks 1-18) and semester 2 (weeks 19-36)
--- Timetable: Each day has exactly one class of each subject (6 subjects × 5 days = 30 total classes per week)
+-- Timetable: Each day has exactly one class of each subject (6 subjects × 5 days × 4 weeks = ${timetableEntries.length} total classes)
 		`);
 	} catch (error) {
 		console.error('❌ Error seeding database:', error);

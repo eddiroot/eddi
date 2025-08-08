@@ -698,3 +698,65 @@ export async function getSubjectClassAllocationsByUserIdForDate(userId: string, 
 
 	return classAllocations;
 }
+
+export async function getSubjectClassAllocationsByUserIdForWeek(userId: string, weekStartDate: Date) {
+	// Calculate start and end of the week (Monday to Sunday)
+	const weekStart = new Date(weekStartDate);
+	const dayOfWeek = weekStart.getDay();
+	const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // If Sunday (0), go back 6 days; otherwise go to previous Monday
+	weekStart.setDate(weekStart.getDate() + mondayOffset);
+	weekStart.setHours(0, 0, 0, 0);
+
+	const weekEnd = new Date(weekStart);
+	weekEnd.setDate(weekStart.getDate() + 7); // Next Monday
+	weekEnd.setHours(0, 0, 0, 0);
+
+	const classAllocations = await db
+		.select({
+			classAllocation: table.subjectClassAllocation,
+			schoolSpace: table.schoolSpace,
+			subjectOffering: {
+				id: table.subjectOffering.id
+			},
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			},
+			userSubjectOffering: table.userSubjectOffering
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectClassAllocation,
+			eq(table.subjectClassAllocation.subjectOfferingClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.schoolSpace,
+			eq(table.subjectClassAllocation.schoolSpaceId, table.schoolSpace.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.userSubjectOffering,
+			and(
+				eq(table.userSubjectOffering.subOfferingId, table.subjectOffering.id),
+				eq(table.userSubjectOffering.userId, userId)
+			)
+		)
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.userId, userId),
+				gte(table.subjectClassAllocation.startTimestamp, weekStart),
+				lt(table.subjectClassAllocation.startTimestamp, weekEnd)
+			)
+		)
+		.orderBy(table.subjectClassAllocation.startTimestamp);
+
+	return classAllocations;
+}
