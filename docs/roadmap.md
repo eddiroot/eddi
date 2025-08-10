@@ -54,7 +54,6 @@ Lachie
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
-- [ ] Move websocket code for presentations closer to where it's needed in file structure
 - [ ] Add/refine current task components (new question and answer type component)
 - [ ] Fees / breakdowns
 - [ ] Student reports live throughout semester (10/08)
