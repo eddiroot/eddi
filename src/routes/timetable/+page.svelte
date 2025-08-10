@@ -4,10 +4,13 @@
 	import { generateTimeslots, getClassPosition } from './utils.js';
 	import * as Button from '$lib/components/ui/button';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
-	import { page } from '$app/state';
+	import { enhance } from '$app/forms';
 
-	let { data } = $props();
-	let { classAllocation: classTimes, currentWeekStart } = data;
+	let { data, form } = $props();
+
+	// Use form data if available (from form action), otherwise use initial data
+	let classAllocation = $state(form?.classAllocation || data.classAllocation);
+	let currentWeekStart = $state(form?.currentWeekStart || data.currentWeekStart);
 
 	let timeslots = generateTimeslots(8, 17);
 
@@ -36,34 +39,74 @@
 		monday.setDate(date.getDate() + mondayOffset);
 		return monday;
 	}
-
-	function navigateWeek(direction: 'previous' | 'next') {
-		const currentWeek = new Date(currentWeekStart);
-		const offset = direction === 'next' ? 7 : -7;
-		currentWeek.setDate(currentWeek.getDate() + offset);
-
-		const newWeekStart = getMondayOfWeek(currentWeek);
-		const weekParam = newWeekStart.toISOString().split('T')[0];
-
-		// Force a full page reload by using window.location instead of SvelteKit navigation
-		window.location.href = `${page.url.pathname}?week=${weekParam}`;
-	}
 </script>
 
 <div class="h-full space-y-4 p-8">
 	<!-- Week Navigation -->
 	<div class="flex items-center justify-between">
-		<Button.Root variant="outline" size="sm" onclick={() => navigateWeek('previous')}>
-			<ChevronLeft class="h-4 w-4" />
-			Previous Week
-		</Button.Root>
+		<form
+			method="POST"
+			action="?/changeWeek"
+			use:enhance={({ formData, submitter }) => {
+				const currentWeek = new Date(currentWeekStart);
+				currentWeek.setDate(currentWeek.getDate() - 7);
+				const newWeekStart = getMondayOfWeek(currentWeek);
+				const weekParam = newWeekStart.toISOString().split('T')[0];
+				formData.set('week', weekParam);
+
+				return async ({ result }) => {
+					if (
+						result.type === 'success' &&
+						result.data &&
+						typeof result.data === 'object' &&
+						'classAllocation' in result.data &&
+						'currentWeekStart' in result.data
+					) {
+						classAllocation = result.data.classAllocation as typeof classAllocation;
+						currentWeekStart = result.data.currentWeekStart as string;
+					}
+				};
+			}}
+		>
+			<Button.Root variant="outline" size="sm" type="submit">
+				<ChevronLeft class="h-4 w-4" />
+				Previous Week
+			</Button.Root>
+		</form>
+
 		<div class="text-center text-lg font-semibold">
 			Week of {formatWeekDisplay(currentWeekStart)}
 		</div>
-		<Button.Root variant="outline" size="sm" onclick={() => navigateWeek('next')}>
-			Next Week
-			<ChevronRight class="h-4 w-4" />
-		</Button.Root>
+
+		<form
+			method="POST"
+			action="?/changeWeek"
+			use:enhance={({ formData, submitter }) => {
+				const currentWeek = new Date(currentWeekStart);
+				currentWeek.setDate(currentWeek.getDate() + 7);
+				const newWeekStart = getMondayOfWeek(currentWeek);
+				const weekParam = newWeekStart.toISOString().split('T')[0];
+				formData.set('week', weekParam);
+
+				return async ({ result }) => {
+					if (
+						result.type === 'success' &&
+						result.data &&
+						typeof result.data === 'object' &&
+						'classAllocation' in result.data &&
+						'currentWeekStart' in result.data
+					) {
+						classAllocation = result.data.classAllocation as typeof classAllocation;
+						currentWeekStart = result.data.currentWeekStart as string;
+					}
+				};
+			}}
+		>
+			<Button.Root variant="outline" size="sm" type="submit">
+				Next Week
+				<ChevronRight class="h-4 w-4" />
+			</Button.Root>
+		</form>
 	</div>
 
 	<!-- Day titles -->
@@ -100,7 +143,7 @@
 				{/each}
 
 				<!-- Classes for this day -->
-				{#each (classTimes ?? []).filter((c) => {
+				{#each (classAllocation ?? []).filter((c) => {
 					const dayOfWeek = c.classAllocation.startTimestamp.getDay();
 					const dayIndex = dayOfWeek === 0 ? -1 : dayOfWeek - 1;
 					return dayIndex >= 0 && dayIndex < days.length && days[dayIndex].value === day.value;

@@ -30,3 +30,19 @@ export const load = async ({ locals: { security }, url }) => {
 		currentWeekStart: weekStartDate.toISOString().split('T')[0]
 	};
 };
+
+export const actions = {
+	changeWeek: async ({ locals: { security }, request }) => {
+		const user = security.isAuthenticated().getUser();
+		const formData = await request.formData();
+		const weekStartDate = new Date(formData.get('week') as string);
+
+		const classAllocation = await getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate);
+
+		return {
+			success: true,
+			classAllocation: classAllocation || [],
+			currentWeekStart: weekStartDate.toISOString().split('T')[0]
+		};
+	}
+};
