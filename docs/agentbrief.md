@@ -231,3 +231,19 @@ npm run check            # TypeScript checking
 - **AI Assistant**: Context-aware educational support
 - **File Storage**: Object storage for media
 - **Real-time Features**: WebSocket integration
+
+### 11. Additional Instructions
+
+You should use Svelte 5 for all of your code, and reference existing examples in the repository where possible. Prefer using native forms over creating API routes, and make sure to use superforms and zod 4 for form schema validation.
+
+Make sure to use shadcn-svelte components for all of your UI designs. If a component does not exist in shadcn-svelte, please ask for next steps.
+
+Where possible, use TypeScript Pick or Omit types rather than redefining types that already exist in the schema to ensure a single-source-of-truth for types.
+
+Never pop database calls in +page.server.ts files. Instead, preference using or adding to the database services.
+
+When including @lucide/svelte icons, you do not need to apply h-4 w-4 as that is the default size.
+
+#fetch https://shadcn-svelte.com/docs/components
+
+#fetch https://svelte.dev/llms-full.txt
