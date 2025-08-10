@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
@@ -314,11 +314,14 @@
 						{/if}
 					</div>
 				</div>
-				
+
 				<!-- Submission Success Message -->
-				{#if $page.url.searchParams.get('submitted') === 'true'}
+				{#if page.url.searchParams.get('submitted') === 'true'}
 					<div class="mt-4">
-						<Badge variant="default" class="flex items-center gap-2 w-fit bg-green-100 text-green-800 border-green-300">
+						<Badge
+							variant="default"
+							class="flex w-fit items-center gap-2 border-green-300 bg-green-100 text-green-800"
+						>
 							<CheckCircleIcon class="h-4 w-4" />
 							Task submitted successfully!
 						</Badge>
@@ -472,7 +475,8 @@
 				{#if data.user.type === 'student' && taskStatus === 'published'}
 					<div class="mt-8 ml-[38px]">
 						<Button
-							onclick={() => window.location.href = `/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/submit`}
+							onclick={() =>
+								(window.location.href = `/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/submit`)}
 							size="lg"
 							class="w-full"
 						>

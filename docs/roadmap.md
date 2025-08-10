@@ -34,6 +34,10 @@
 - [x] Fix lesson generation with learning areas and content
 - [x] Admin dashboard allocations page
 - [x] Google/Microsoft Auth (28/08)
+- [x] Basic timetabling (Import) (07/08)
+  - [x] Generate page shows loading state while generating
+  - [x] Result screen blocked until a timetable is generated
+- [x] Teachers can see past attendance (21/08)
 
 ### Doing
 
@@ -47,20 +51,24 @@ All
 
 Lachie
 
-- [ ] Teachers can see past attendance (21/08)
+- [ ] Excursions (permission forms)
+  - [ ] Potential AI generation of form
+  - [ ] Change colour of event in calendar once form is signed
+- [ ] Move websocket code for presentations closer to where it's needed in file structure
+- [ ] Add/refine current task components (new question and answer type component)
+- [ ] Fees / breakdowns
+- [ ] Student reports live throughout semester (10/08)
+  - [ ] Creating a profile page for the students
 
 Max
 
-- [x] Basic timetabling (Import) (07/08)
-  - [x] Generate page shows loading state while generating
-  - [x] Result screen blocked until a timetable is generated
+- [ ] Advanced timetabling (30/08)
+  - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
+  - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
 - [ ] Events appearing in everyone's timetables (14/08)
   - [x] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
-  - [ ] changing spaces and handling of this
-- [ ] Excursions (permission forms)
-  - [ ] potential AI generation of form
-  - [ ] maybe change color of event in calendar once form is signed
+  - [ ] Changing spaces and handling of this
 
 Jack
 
@@ -82,8 +90,6 @@ Raph
   - shape boarder width change issues
   - add shape roundness option
   - layering options?
-- [ ] Student reports live throughout semester (10/08)
-  - [ ] creating a profile page for the students
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
 - [ ] Associate chatbot chats with the lesson/subject they were created in (31/08)
 
@@ -104,20 +110,11 @@ Blake
 - [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Fleshed out behavioural reporting (see toddle)
 
-Bella
-
-- [ ] Move websocket code for presentations closer to where it's needed in file structure
-- [ ] Add/refine current task components (new question and answer type component)
-- [ ] Fees / breakdowns
-
 Pending eddi study completion
 
 - [ ] Student note writing (30/08)
 - [ ] Complete LLM access to discussions + lessons
 - [ ] Lesson plans / teacher notes based on generated lesson
-- [ ] Advanced timetabling (30/08)
-  - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
-  - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
 - [ ] See teacher's feedback
 
 ### Future

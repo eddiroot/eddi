@@ -9,14 +9,16 @@
 	import X from '@lucide/svelte/icons/x';
 	import Clock from '@lucide/svelte/icons/clock';
 	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
+	import History from '@lucide/svelte/icons/history';
 	import { fade } from 'svelte/transition';
 	import type { SuperForm } from 'sveltekit-superforms';
-	import type {
-		SubjectClassAllocation,
-		SubjectClassAllocationAttendance,
-		User
+	import {
+		type SubjectClassAllocation,
+		type SubjectClassAllocationAttendance,
+		type User
 	} from '$lib/server/db/schema';
 	import { PenIcon, MessageCircleWarning } from '@lucide/svelte';
+	import { page } from '$app/state';
 
 	type AttendanceRecord = {
 		user: Pick<User, 'id' | 'firstName' | 'middleName' | 'lastName'>;
@@ -93,13 +95,18 @@
 
 		<!-- Action buttons -->
 		<div class="flex items-center gap-2">
+			<Button variant="outline" size="sm" href={`${page.url.pathname}/${user.id}`}>
+				<History />
+				View History
+			</Button>
+
 			{#if type === 'marked' && isNotPresent && !wasAbsent}
 				<form method="POST" action="?/updateAttendance" use:enhance>
 					<input type="hidden" name="didAttend" value="true" />
 					<input type="hidden" name="userId" value={user.id} />
 					<input type="hidden" name="subjectClassAllocationId" value={subjectClassAllocation.id} />
 					<input type="hidden" name="behaviourNote" value="Amended from absent - arrived late" />
-					<Button variant="outline" size="sm" type="submit">
+					<Button variant="destructive" size="sm" type="submit">
 						<Clock />
 						Amend as Late
 					</Button>

@@ -407,3 +407,49 @@ export async function deleteUserSubjectOfferingClass(allocationId: number) {
 		.set({ isArchived: true })
 		.where(eq(table.userSubjectOfferingClass.id, allocationId));
 }
+
+export async function getStudentAttendanceHistoryForClass(
+	studentId: string,
+	subjectOfferingClassId: number
+) {
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	tomorrow.setHours(0, 0, 0, 0);
+
+	const attendanceHistory = await db
+		.select({
+			attendance: table.subjectClassAllocationAttendance,
+			subjectClassAllocation: {
+				id: table.subjectClassAllocation.id,
+				startTimestamp: table.subjectClassAllocation.startTimestamp,
+				endTimestamp: table.subjectClassAllocation.endTimestamp
+			},
+			schoolSpace: {
+				name: table.schoolSpace.name
+			}
+		})
+		.from(table.subjectClassAllocation)
+		.leftJoin(
+			table.subjectClassAllocationAttendance,
+			and(
+				eq(
+					table.subjectClassAllocationAttendance.subjectClassAllocationId,
+					table.subjectClassAllocation.id
+				),
+				eq(table.subjectClassAllocationAttendance.userId, studentId)
+			)
+		)
+		.leftJoin(
+			table.schoolSpace,
+			eq(table.subjectClassAllocation.schoolSpaceId, table.schoolSpace.id)
+		)
+		.where(
+			and(
+				eq(table.subjectClassAllocation.subjectOfferingClassId, subjectOfferingClassId),
+				lt(table.subjectClassAllocation.startTimestamp, tomorrow)
+			)
+		)
+		.orderBy(desc(table.subjectClassAllocation.startTimestamp));
+
+	return attendanceHistory;
+}

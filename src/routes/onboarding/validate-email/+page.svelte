@@ -11,7 +11,7 @@
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import MailIcon from '@lucide/svelte/icons/mail';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	let verificationCode = '';
 	let isResending = false;
 	let countdown = 0;
@@ -21,7 +21,7 @@
 	$: fullVerificationCode = verificationCode;
 
 	// Server error from action
-	$: serverError = $page.form?.error;
+	$: serverError = page.form?.error;
 
 	function setCountdown(n: number) {
 		countdown = n;
@@ -58,7 +58,7 @@
 			<CardContent class="space-y-6">
 				<form method="POST" action="?/verify" use:enhance class="space-y-4">
 					{#if serverError}
-						<div class="text-red-500 text-center text-sm font-medium">{serverError}</div>
+						<div class="text-center text-sm font-medium text-red-500">{serverError}</div>
 					{/if}
 					<div class="flex justify-center">
 						<InputOTP.Root bind:value={verificationCode} maxlength={6}>

@@ -4,7 +4,7 @@
 	import { generateTimeslots, getClassPosition } from './utils.js';
 	import * as Button from '$lib/components/ui/button';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	let { data } = $props();
 	let { classAllocation: classTimes, currentWeekStart } = data;
@@ -46,7 +46,7 @@
 		const weekParam = newWeekStart.toISOString().split('T')[0];
 
 		// Force a full page reload by using window.location instead of SvelteKit navigation
-		window.location.href = `${$page.url.pathname}?week=${weekParam}`;
+		window.location.href = `${page.url.pathname}?week=${weekParam}`;
 	}
 </script>
 
@@ -67,7 +67,7 @@
 	</div>
 
 	<!-- Day titles -->
-	<div class="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr]">
+	<div class="grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr]">
 		<div class="text-center text-base font-semibold text-transparent">Time</div>
 		{#each days as day}
 			<div class="border-primary/20 text-foreground text-center text-base font-semibold">
@@ -78,13 +78,13 @@
 
 	<!-- Timetable grid -->
 	<div
-		class="overflow-hidden-3 relative grid h-[calc(100%-60px)] grid-cols-[80px_1fr_1fr_1fr_1fr_1fr] pt-3"
+		class="overflow-hidden-3 relative grid h-[calc(100%-60px)] grid-cols-[50px_1fr_1fr_1fr_1fr_1fr] pt-3"
 	>
 		<!-- Time legend column -->
 		<div class="bg-background relative">
 			{#each timeslots as slot}
 				<div
-					class="text-muted-foreground flex items-start justify-end pr-4 text-xs"
+					class="text-muted-foreground flex items-start justify-start pr-4 text-xs"
 					style="height: {100 / timeslots.length}%; transform: translateY(-8px);"
 				>
 					{slot}
