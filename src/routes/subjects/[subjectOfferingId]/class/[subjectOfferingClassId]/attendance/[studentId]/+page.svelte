@@ -158,10 +158,7 @@
 
 	<!-- Attendance History Table -->
 	<div class="flex min-h-0 flex-1 flex-col">
-		<div class="mb-4">
-			<h2 class="text-xl font-semibold">Attendance History</h2>
-			<p class="text-muted-foreground">Complete attendance record for this class</p>
-		</div>
+		<h2 class="mb-4 text-xl font-semibold">Attendance History</h2>
 		<div class="flex flex-1 flex-col overflow-hidden rounded-md border">
 			<Table.Root class="h-full">
 				<Table.Header class="bg-background sticky top-0 z-10">
