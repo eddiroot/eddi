@@ -119,6 +119,7 @@ Pending eddi study completion
 
 ### Future
 
+- [ ] Review breadcrumbs on all pages (e.g. attendance history)
 - [ ] News posts have a percentage of the students in the school who've seen/read it
 - [ ] Consider using Google/Microsoft/OAuth provider sessions rather than managing our own
 - [ ] Interactive map of locations in the school with directions
