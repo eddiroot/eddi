@@ -2,7 +2,7 @@ import { pgTable, text, integer, boolean, pgEnum } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { yearLevelEnum } from '../../../enums';
 
-export const curriculum = pgTable('curriculum', {
+export const curriculum = pgTable('crclm', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull(),
 	version: text('version').notNull(),
@@ -12,7 +12,7 @@ export const curriculum = pgTable('curriculum', {
 
 export type Curriculum = typeof curriculum.$inferSelect;
 
-export const curriculumSubject = pgTable('curriculum_subject', {
+export const curriculumSubject = pgTable('crclm_sub', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull(),
 	curriculumId: integer('cur_id')
@@ -24,7 +24,7 @@ export const curriculumSubject = pgTable('curriculum_subject', {
 
 export type CurriculumSubject = typeof curriculumSubject.$inferSelect;
 
-export const learningArea = pgTable('learning_area', {
+export const learningArea = pgTable('crclm_sub_la', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	curriculumSubjectId: integer('cur_sub_id')
 		.notNull()
@@ -37,7 +37,7 @@ export const learningArea = pgTable('learning_area', {
 
 export type LearningArea = typeof learningArea.$inferSelect;
 
-export const yearLevelEnumPg = pgEnum('year_level', [
+export const yearLevelEnumPg = pgEnum('enum_year_level', [
 	yearLevelEnum.none,
 	yearLevelEnum.foundation,
 	yearLevelEnum.year1,
@@ -70,13 +70,13 @@ export const learningAreaStandard = pgTable('lrn_a_std', {
 
 export type LearningAreaStandard = typeof learningAreaStandard.$inferSelect;
 
-export const standardElaboration = pgTable('std_elab', {
+export const standardElaboration = pgTable('lrn_a_std_elab', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	learningAreaStandardId: integer('lrn_a_std_id')
 		.notNull()
 		.references(() => learningAreaStandard.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
-	standardElaboration: text('cont_elab').notNull(),
+	standardElaboration: text('std_elab').notNull(),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });

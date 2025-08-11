@@ -23,7 +23,7 @@ export const timetable = pgTable(
 
 export type Timetable = typeof timetable.$inferSelect;
 
-export const timetableQueueStatusEnumPg = pgEnum('tt_queue_status', [
+export const timetableQueueStatusEnumPg = pgEnum('enum_tt_queue_status', [
 	queueStatusEnum.queued,
 	queueStatusEnum.inProgress,
 	queueStatusEnum.completed,

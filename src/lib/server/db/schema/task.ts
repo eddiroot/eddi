@@ -25,7 +25,7 @@ import {
 	whiteboardObjectTypeEnum
 } from '../../../enums';
 
-export const taskTypeEnumPg = pgEnum('task_type', [
+export const taskTypeEnumPg = pgEnum('enum_task_type', [
 	taskTypeEnum.lesson,
 	taskTypeEnum.assessment,
 	taskTypeEnum.homework
@@ -59,7 +59,7 @@ export const task = pgTable(
 
 export type Task = typeof task.$inferSelect;
 
-export const taskBlockTypeEnumPg = pgEnum('task_block_type', [
+export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
 	taskBlockTypeEnum.h1,
 	taskBlockTypeEnum.h2,
 	taskBlockTypeEnum.h3,
@@ -92,7 +92,7 @@ export const taskBlock = pgTable('task_block', {
 
 export type TaskBlock = typeof taskBlock.$inferSelect;
 
-export const taskStatusEnumPg = pgEnum('task_status', [
+export const taskStatusEnumPg = pgEnum('enum_task_status', [
 	taskStatusEnum.draft,
 	taskStatusEnum.inProgress,
 	taskStatusEnum.published,
@@ -158,7 +158,7 @@ export const taskBlockResponse = pgTable('task_block_response', {
 
 export type TaskBlockResponse = typeof taskBlockResponse.$inferSelect;
 
-export const taskBlockResponseStatusEnumPg = pgEnum('task_block_response_status', [
+export const taskBlockResponseStatusEnumPg = pgEnum('enum_task_block_response_status', [
 	taskBlockResponseStatusEnum.editPermission,
 	taskBlockResponseStatusEnum.submitted,
 	taskBlockResponseStatusEnum.graded
@@ -214,7 +214,7 @@ export const whiteboard = pgTable('whiteboard', {
 
 export type Whiteboard = typeof whiteboard.$inferSelect;
 
-export const whiteboardObjectTypeEnumPg = pgEnum('whiteboard_object_type', [
+export const whiteboardObjectTypeEnumPg = pgEnum('enum_whiteboard_object_type', [
 	whiteboardObjectTypeEnum.rect,
 	whiteboardObjectTypeEnum.circle,
 	whiteboardObjectTypeEnum.path,
@@ -247,14 +247,13 @@ export const answer = pgTable('answer', {
 
 export type Answer = typeof answer.$inferSelect;
 
-
 export enum feedbackLevelEnum {
 	met = 'met',
 	no = 'no',
 	partial = 'partial'
 }
 
-export const feedbackLevelEnumPg = pgEnum('feedback_level', [
+export const feedbackLevelEnumPg = pgEnum('enum_feedback_level', [
 	feedbackLevelEnum.met,
 	feedbackLevelEnum.no,
 	feedbackLevelEnum.partial
@@ -269,7 +268,7 @@ export const answerFeedback = pgTable('ans_feed', {
 		.notNull()
 		.references(() => taskBlockResponse.id, { onDelete: 'cascade' }),
 	marks: doublePrecision('marks').notNull(), // Marks awarded for this answer response
-	feedbackLevel: feedbackLevelEnumPg(), // nothing 
+	feedbackLevel: feedbackLevelEnumPg(), // nothing
 	...timestamps
 });
 
@@ -286,7 +285,6 @@ export const criteria = pgTable('criteria', {
 });
 
 export type Criteria = typeof criteria.$inferSelect;
-
 
 // Record teacher checks for individual criteria on a task-block response
 // can award full marks, half marks, or no marks. etc.
@@ -313,7 +311,7 @@ export const rubric = pgTable('rubric', {
 
 export type Rubric = typeof rubric.$inferSelect;
 
-export const rubricLevelEnum = pgEnum('rubric_level', [
+export const rubricLevelEnum = pgEnum('enum_rubric_level', [
 	'exemplary',
 	'accomplished',
 	'developing',

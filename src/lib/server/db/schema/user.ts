@@ -1,6 +1,15 @@
-import { pgTable, text, integer, timestamp, boolean, pgEnum, uuid } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	timestamp,
+	boolean,
+	pgEnum,
+	uuid,
+	unique
+} from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
-import { school } from './schools';
+import { campus, school } from './schools';
 import { yearLevelEnumPg } from './curriculum';
 import {
 	relationshipTypeEnum,
@@ -8,8 +17,9 @@ import {
 	userHonorificEnum,
 	userTypeEnum
 } from '../../../enums';
+import { subjectOffering, subjectOfferingClass } from './subjects';
 
-export const userTypeEnumPg = pgEnum('user_type', [
+export const userTypeEnumPg = pgEnum('enum_user_type', [
 	userTypeEnum.none,
 	userTypeEnum.student,
 	userTypeEnum.teacher,
@@ -19,7 +29,7 @@ export const userTypeEnumPg = pgEnum('user_type', [
 	userTypeEnum.systemAdmin
 ]);
 
-export const userHonorificEnumPg = pgEnum('user_honorific', [
+export const userHonorificEnumPg = pgEnum('enum_user_honorific', [
 	userHonorificEnum.mr,
 	userHonorificEnum.ms,
 	userHonorificEnum.mrs,
@@ -27,7 +37,7 @@ export const userHonorificEnumPg = pgEnum('user_honorific', [
 	userHonorificEnum.prof
 ]);
 
-export const userGenderEnumPg = pgEnum('gender', [
+export const userGenderEnumPg = pgEnum('enum_gender', [
 	userGenderEnum.male,
 	userGenderEnum.female,
 	userGenderEnum.nonBinary,
@@ -61,7 +71,54 @@ export const user = pgTable('user', {
 
 export type User = typeof user.$inferSelect;
 
-export const relationshipTypeEnumPg = pgEnum('relationship_type', [
+export const userCampus = pgTable('user_cmps', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	campusId: integer('cmps_id')
+		.notNull()
+		.references(() => campus.id, { onDelete: 'cascade' }),
+	...timestamps
+});
+
+export type UserCampus = typeof userCampus.$inferSelect;
+
+export const userSubjectOffering = pgTable('user_sub_off', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	subOfferingId: integer('sub_off_id')
+		.notNull()
+		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
+	isComplete: integer('is_complete').default(0).notNull(),
+	isArchived: integer('is_archived').default(0).notNull(),
+	color: integer('color').default(100).notNull(),
+	...timestamps
+});
+
+export type UserSubjectOffering = typeof userSubjectOffering.$inferSelect;
+
+export const userSubjectOfferingClass = pgTable(
+	'sub_off_cls_user',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		subOffClassId: integer('sub_off_class_id')
+			.notNull()
+			.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.userId, self.subOffClassId)]
+);
+
+export type UserSubjectOfferingClass = typeof userSubjectOfferingClass.$inferSelect;
+
+export const relationshipTypeEnumPg = pgEnum('enum_relationship_type', [
 	relationshipTypeEnum.mother,
 	relationshipTypeEnum.father,
 	relationshipTypeEnum.guardian

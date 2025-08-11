@@ -1,9 +1,8 @@
-import { pgTable, text, integer, boolean, pgEnum, unique, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, pgEnum, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
-import { user } from './user';
 import { schoolSpaceTypeEnum } from '../../../enums';
 
-export const school = pgTable('school', {
+export const school = pgTable('sch', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull().unique(),
 	logoUrl: text('logo_url'),
@@ -12,9 +11,9 @@ export const school = pgTable('school', {
 
 export type School = typeof school.$inferSelect;
 
-export const campus = pgTable('campus', {
+export const campus = pgTable('cmps', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	schoolId: integer('school_id')
+	schoolId: integer('sch_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
@@ -26,24 +25,11 @@ export const campus = pgTable('campus', {
 
 export type Campus = typeof campus.$inferSelect;
 
-export const userCampus = pgTable('user_campus', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	userId: uuid('user_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	campusId: integer('campus_id')
-		.notNull()
-		.references(() => campus.id, { onDelete: 'cascade' }),
-	...timestamps
-});
-
-export type UserCampus = typeof userCampus.$inferSelect;
-
 export const schoolBuilding = pgTable(
-	'school_building',
+	'sch_bldng',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		campusId: integer('campus_id')
+		campusId: integer('cmps_id')
 			.notNull()
 			.references(() => campus.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
@@ -56,7 +42,7 @@ export const schoolBuilding = pgTable(
 
 export type SchoolBuilding = typeof schoolBuilding.$inferSelect;
 
-export const schoolSpaceTypeEnumPg = pgEnum('school_location_type', [
+export const schoolSpaceTypeEnumPg = pgEnum('enum_sch_space_type', [
 	schoolSpaceTypeEnum.classroom,
 	schoolSpaceTypeEnum.laboratory,
 	schoolSpaceTypeEnum.gymnasium,
@@ -66,10 +52,10 @@ export const schoolSpaceTypeEnumPg = pgEnum('school_location_type', [
 ]);
 
 export const schoolSpace = pgTable(
-	'school_space',
+	'sch_space',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		buildingId: integer('building_id')
+		buildingId: integer('sch_bldng_id')
 			.notNull()
 			.references(() => schoolBuilding.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),

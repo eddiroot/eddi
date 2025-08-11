@@ -20,14 +20,14 @@ import { curriculumSubject, yearLevelEnumPg } from './curriculum';
 import { resource } from './resource';
 import { subjectThreadResponseTypeEnum, subjectThreadTypeEnum } from '../../../enums';
 
-export const coreSubject = pgTable('core_subject', {
+export const coreSubject = pgTable('sub_core', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull(),
 	description: text('description'),
 	curriculumSubjectId: integer('cur_sub_id')
 		.notNull()
 		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
-	schoolId: integer('school_id')
+	schoolId: integer('sch_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
@@ -36,11 +36,11 @@ export const coreSubject = pgTable('core_subject', {
 
 export type CoreSubject = typeof coreSubject.$inferSelect;
 
-export const electiveSubject = pgTable('elective_subject', {
+export const electiveSubject = pgTable('sub_elec', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull(),
 	description: text('description'),
-	schoolId: integer('school_id')
+	schoolId: integer('sch_id')
 		.notNull()
 		.references(() => school.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
@@ -48,17 +48,17 @@ export const electiveSubject = pgTable('elective_subject', {
 });
 
 export const subject = pgTable(
-	'subject',
+	'sub',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		name: text('name').notNull(),
-		schoolId: integer('school_id')
+		schoolId: integer('sch_id')
 			.notNull()
 			.references(() => school.id, { onDelete: 'cascade' }),
-		coreSubjectId: integer('core_sub_id').references(() => coreSubject.id, {
+		coreSubjectId: integer('sub_core_id').references(() => coreSubject.id, {
 			onDelete: 'set null'
 		}),
-		electiveSubjectId: integer('elective_sub_id').references(() => electiveSubject.id, {
+		electiveSubjectId: integer('sub_elec_id').references(() => electiveSubject.id, {
 			onDelete: 'set null'
 		}),
 		yearLevel: yearLevelEnumPg().notNull(),
@@ -69,7 +69,7 @@ export const subject = pgTable(
 		unique().on(subject.schoolId, subject.name),
 		check(
 			'either_core_or_elective',
-			sql`(core_sub_id IS NOT NULL AND elective_sub_id IS NULL) OR (core_sub_id IS NULL AND elective_sub_id IS NOT NULL)`
+			sql`(sub_core_id IS NOT NULL AND sub_elec_id IS NULL) OR (sub_core_id IS NULL AND sub_elec_id IS NOT NULL)`
 		)
 	]
 );
@@ -92,22 +92,6 @@ export const subjectOffering = pgTable('sub_off', {
 
 export type SubjectOffering = typeof subjectOffering.$inferSelect;
 
-export const userSubjectOffering = pgTable('user_sub_off', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	userId: uuid('user_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	subOfferingId: integer('sub_off_id')
-		.notNull()
-		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
-	isComplete: integer('is_complete').default(0).notNull(),
-	isArchived: integer('is_archived').default(0).notNull(),
-	color: integer('color').default(100).notNull(),
-	...timestamps
-});
-
-export type UserSubjectOffering = typeof userSubjectOffering.$inferSelect;
-
 export const subjectOfferingClass = pgTable(
 	'sub_off_cls',
 	{
@@ -124,25 +108,7 @@ export const subjectOfferingClass = pgTable(
 
 export type SubjectOfferingClass = typeof subjectOfferingClass.$inferSelect;
 
-export const userSubjectOfferingClass = pgTable(
-	'user_sub_off_class',
-	{
-		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		userId: uuid('user_id')
-			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
-		subOffClassId: integer('sub_off_class_id')
-			.notNull()
-			.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
-	},
-	(self) => [unique().on(self.userId, self.subOffClassId)]
-);
-
-export type UserSubjectOfferingClass = typeof userSubjectOfferingClass.$inferSelect;
-
-export const subjectClassAllocation = pgTable('sub_cls_allo', {
+export const subjectClassAllocation = pgTable('sub_off_cls_allo', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	subjectOfferingClassId: integer('sub_off_cls_id')
 		.notNull()
@@ -150,8 +116,8 @@ export const subjectClassAllocation = pgTable('sub_cls_allo', {
 	schoolSpaceId: integer('sch_spa_id')
 		.notNull()
 		.references(() => schoolSpace.id, { onDelete: 'set null' }),
-	startTimestamp: timestamp('start_timestamp').notNull(),
-	endTimestamp: timestamp('end_timestamp').notNull(),
+	startTimestamp: timestamp('start_ts').notNull(),
+	endTimestamp: timestamp('end_ts').notNull(),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
@@ -159,7 +125,7 @@ export const subjectClassAllocation = pgTable('sub_cls_allo', {
 export type SubjectClassAllocation = typeof subjectClassAllocation.$inferSelect;
 
 export const subjectClassAllocationAttendance = pgTable(
-	'sub_class_allo_attendance',
+	'sub_off_cls_allo_att',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		subjectClassAllocationId: integer('sub_class_allo_id')
@@ -180,7 +146,7 @@ export const subjectClassAllocationAttendance = pgTable(
 
 export type SubjectClassAllocationAttendance = typeof subjectClassAllocationAttendance.$inferSelect;
 
-export const subjectThreadTypeEnumPg = pgEnum('subject_thread_type', [
+export const subjectThreadTypeEnumPg = pgEnum('enum_sub_thread_type', [
 	subjectThreadTypeEnum.discussion,
 	subjectThreadTypeEnum.question,
 	subjectThreadTypeEnum.announcement,
@@ -204,13 +170,13 @@ export const subjectThread = pgTable('sub_thread', {
 
 export type SubjectThread = typeof subjectThread.$inferSelect;
 
-export const subjectThreadResponseTypeEnumPg = pgEnum('subject_thread_response_type', [
+export const subjectThreadResponseTypeEnumPg = pgEnum('enum_sub_thread_res_type', [
 	subjectThreadResponseTypeEnum.comment,
 	subjectThreadResponseTypeEnum.answer
 ]);
 
 export const subjectThreadResponse = pgTable(
-	'sub_thread_response',
+	'sub_thread_resp',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 		type: subjectThreadResponseTypeEnumPg().notNull(),
@@ -235,14 +201,14 @@ export const subjectThreadResponse = pgTable(
 
 export type SubjectThreadResponse = typeof subjectThreadResponse.$inferSelect;
 
-export const subjectOfferingClassResource = pgTable('sub_off_class_resource', {
+export const subjectOfferingClassResource = pgTable('sub_off_cls_res', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	title: text('title'),
 	description: text('description'),
-	subjectOfferingClassId: integer('sub_off_class_id')
+	subjectOfferingClassId: integer('sub_off_cls_id')
 		.notNull()
 		.references(() => subjectOfferingClass.id, { onDelete: 'cascade' }),
-	resourceId: integer('resource_id')
+	resourceId: integer('res_id')
 		.notNull()
 		.references(() => resource.id, { onDelete: 'cascade' }),
 	coursemapItemId: integer('cm_item_id').references(() => courseMapItem.id, {

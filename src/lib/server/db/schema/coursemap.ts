@@ -90,7 +90,7 @@ export const courseMapItemAssessmentPlan = pgTable(
 
 export type CourseMapItemAssessmentPlan = typeof courseMapItemAssessmentPlan.$inferSelect;
 
-export const assessmentPlanResource = pgTable('ass_pln_res', {
+export const assessmentPlanResource = pgTable('cm_ass_pln_res', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	courseMapItemAssessmentPlanId: integer('cm_itm_ass_pln_id')
 		.notNull()
@@ -127,7 +127,7 @@ export const courseMapItemLessonPlan = pgTable(
 
 export type CourseMapItemLessonPlan = typeof courseMapItemLessonPlan.$inferSelect;
 
-export const lessonPlanResource = pgTable('les_pln_res', {
+export const lessonPlanResource = pgTable('cm_les_pln_res', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	courseMapItemLessonPlanId: integer('cm_itm_les_pln_id')
 		.notNull()
@@ -139,7 +139,7 @@ export const lessonPlanResource = pgTable('les_pln_res', {
 
 export type LessonPlanResource = typeof lessonPlanResource.$inferSelect;
 
-export const lessonPlanLearningAreaStandard = pgTable('les_pln_la_std', {
+export const lessonPlanLearningAreaStandard = pgTable('cm_les_pln_la_std', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	courseMapItemLessonPlanId: integer('cm_itm_les_pln_id')
 		.notNull()
@@ -153,7 +153,7 @@ export const lessonPlanLearningAreaStandard = pgTable('les_pln_la_std', {
 });
 export type LessonPlanLearningAreaStandard = typeof lessonPlanLearningAreaStandard.$inferSelect;
 
-export const assessmentPlanLearningAreaStandard = pgTable('ass_pln_la_std', {
+export const assessmentPlanLearningAreaStandard = pgTable('cm_ass_pln_la_std', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	courseMapItemAssessmentPlanId: integer('cm_itm_ass_pln_id')
 		.notNull()
