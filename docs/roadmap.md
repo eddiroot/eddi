@@ -86,7 +86,7 @@ Raph
 - [ ] Better whiteboard (20/07)
   - undo/redo
   - Fix colour options/view + tooltip, colour options popout instead of in menu?
-  - shape boarder width change issues
+  - shape border width change issues
   - add shape roundness option
   - layering options?
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)

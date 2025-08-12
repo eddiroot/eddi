@@ -194,9 +194,14 @@ export const socket: Socket = {
 				}
 			} else if (parsedMessage.type === 'update' || parsedMessage.type === 'modify') {
 				const updatedObject = parsedMessage.object;
+				const isLiveUpdate = parsedMessage.live || false; // Flag for live vs final updates
 
-				await updateWhiteboardObject(updatedObject.id, updatedObject, whiteboardId);
+				// For live updates, skip database writes to improve performance
+				if (!isLiveUpdate) {
+					await updateWhiteboardObject(updatedObject.id, updatedObject, whiteboardId);
+				}
 
+				// Always broadcast the update to other connected clients
 				peer.publish(
 					`whiteboard-${whiteboardId}`,
 					JSON.stringify({

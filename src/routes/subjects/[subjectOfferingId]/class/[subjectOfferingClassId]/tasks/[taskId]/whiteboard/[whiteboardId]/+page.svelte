@@ -52,13 +52,63 @@
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId));
 
+	// Throttling mechanism for image updates only
+	let imageUpdateQueue = new Map<string, any>();
+	let imageThrottleTimeout: ReturnType<typeof setTimeout> | null = null;
+	let isMovingImage = false;
+
 	const sendCanvasUpdate = (data: Object) => {
 		if (socket && socket.readyState === WebSocket.OPEN) {
 			socket.send(JSON.stringify({ ...data, whiteboardId: whiteboardIdNum }));
 		}
 	};
 
-	const setSelectTool = () => {
+	// Throttled update function specifically for image movements
+	const sendImageUpdate = (objectId: string, objectData: any, immediate = false) => {
+		// Store the latest state for this image
+		imageUpdateQueue.set(objectId, objectData);
+
+		if (immediate) {
+			// Send immediately for final positions (persist to database)
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objectData,
+				live: false
+			});
+			imageUpdateQueue.delete(objectId);
+			return;
+		}
+
+		// Throttle live image updates to reduce network traffic
+		if (imageThrottleTimeout !== null) {
+			clearTimeout(imageThrottleTimeout);
+		}
+
+		imageThrottleTimeout = setTimeout(() => {
+			// Send all queued image updates as live updates (no database persistence)
+			imageUpdateQueue.forEach((objData, objId) => {
+				// For live image updates, send only essential positioning data
+				const updateData = {
+					id: objData.id,
+					type: objData.type,
+					left: objData.left,
+					top: objData.top,
+					scaleX: objData.scaleX,
+					scaleY: objData.scaleY,
+					angle: objData.angle,
+					opacity: objData.opacity
+				};
+				
+				sendCanvasUpdate({
+					type: 'modify',
+					object: updateData,
+					live: true
+				});
+			});
+			imageUpdateQueue.clear();
+			imageThrottleTimeout = null;
+		}, 100); // 100ms throttle for images
+	};	const setSelectTool = () => {
 		selectedTool = 'select';
 		showFloatingMenu = false;
 		if (!canvas) return;
@@ -505,7 +555,22 @@
 					// @ts-expect-error
 					const obj = objects.find((o) => o.id === messageData.object.id);
 					if (obj) {
-						obj.set(messageData.object);
+						// For live image updates, only update the essential properties to reduce lag
+						const isLiveUpdate = messageData.live || false;
+						if (isLiveUpdate && messageData.object.type === 'image') {
+							// Only update positioning and transformation properties for live image updates
+							obj.set({
+								left: messageData.object.left,
+								top: messageData.object.top,
+								scaleX: messageData.object.scaleX,
+								scaleY: messageData.object.scaleY,
+								angle: messageData.object.angle,
+								opacity: messageData.object.opacity
+							});
+						} else {
+							// Full update for final modifications or non-image objects
+							obj.set(messageData.object);
+						}
 						canvas.renderAll();
 					}
 				} else if (messageData.type === 'delete' || messageData.type === 'remove') {
@@ -531,41 +596,106 @@
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			sendCanvasUpdate({
-				type: 'modify',
-				object: objData
-			});
+			
+			// Only throttle image movements, send immediate updates for other objects
+			if (target.type === 'image') {
+				isMovingImage = true;
+				// @ts-expect-error
+				sendImageUpdate(target.id, objData, false);
+			} else {
+				// Immediate updates for non-image objects
+				sendCanvasUpdate({
+					type: 'modify',
+					object: objData
+				});
+			}
 		});
 
 		canvas.on('object:scaling', ({ target }) => {
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			sendCanvasUpdate({
-				type: 'modify',
-				object: objData
-			});
+			
+			// Only throttle image scaling, send immediate updates for other objects
+			if (target.type === 'image') {
+				isMovingImage = true;
+				// @ts-expect-error
+				sendImageUpdate(target.id, objData, false);
+			} else {
+				// Immediate updates for non-image objects
+				sendCanvasUpdate({
+					type: 'modify',
+					object: objData
+				});
+			}
 		});
 
 		canvas.on('object:rotating', ({ target }) => {
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			sendCanvasUpdate({
-				type: 'modify',
-				object: objData
-			});
+			
+			// Only throttle image rotation, send immediate updates for other objects
+			if (target.type === 'image') {
+				isMovingImage = true;
+				// @ts-expect-error
+				sendImageUpdate(target.id, objData, false);
+			} else {
+				// Immediate updates for non-image objects
+				sendCanvasUpdate({
+					type: 'modify',
+					object: objData
+				});
+			}
 		});
 
 		canvas.on('object:modified', ({ target }) => {
-			// This handles general modifications including images
+			// This handles final modifications - always send immediately for persistence
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			sendCanvasUpdate({
-				type: 'modify',
-				object: objData
-			});
+			
+			if (target.type === 'image') {
+				// @ts-expect-error
+				sendImageUpdate(target.id, objData, true);
+				isMovingImage = false;
+			} else {
+				// Immediate updates for non-image objects
+				sendCanvasUpdate({
+					type: 'modify',
+					object: objData
+				});
+			}
+		});
+
+		// Add mouse up event to ensure final position is saved for images
+		canvas.on('mouse:up', (opt) => {
+			if (isPanMode) {
+				isPanMode = false;
+				canvas.selection = selectedTool === 'select';
+				
+				// Set cursor based on current tool
+				if (selectedTool === 'pan') {
+					canvas.setCursor('grab');
+				} else if (selectedTool === 'select') {
+					canvas.setCursor('default');
+				} else if (selectedTool === 'draw') {
+					canvas.setCursor('crosshair');
+				}
+			}
+
+			// If we were moving an image, ensure final position is sent
+			if (isMovingImage) {
+				const activeObject = canvas.getActiveObject();
+				if (activeObject && activeObject.type === 'image') {
+					const objData = activeObject.toObject();
+					// @ts-expect-error
+					objData.id = activeObject.id;
+					// @ts-expect-error
+					sendImageUpdate(activeObject.id, objData, true);
+				}
+				isMovingImage = false;
+			}
 		});
 
 		canvas.on('path:created', ({ path }) => {
@@ -654,22 +784,6 @@
 			}
 		});
 
-		canvas.on('mouse:up', (opt) => {
-			if (isPanMode) {
-				isPanMode = false;
-				canvas.selection = selectedTool === 'select';
-				
-				// Set cursor based on current tool
-				if (selectedTool === 'pan') {
-					canvas.setCursor('grab');
-				} else if (selectedTool === 'select') {
-					canvas.setCursor('default');
-				} else if (selectedTool === 'draw') {
-					canvas.setCursor('crosshair');
-				}
-			}
-		});
-
 		window.addEventListener('keydown', handleKeyDown);
 
 		// Add pinch-to-zoom for touch devices
@@ -735,6 +849,11 @@
 	onDestroy(() => {
 		// Restore body scrolling when leaving whiteboard
 		document.body.style.overflow = '';
+		
+		// Clear any pending image throttle timeouts
+		if (imageThrottleTimeout !== null) {
+			clearTimeout(imageThrottleTimeout);
+		}
 		
 		if (socket) {
 			socket.close();
