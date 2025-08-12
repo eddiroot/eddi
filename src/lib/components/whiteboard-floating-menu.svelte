@@ -863,33 +863,109 @@
 					<!-- Stroke Width -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Stroke Width</Label>
-						<div class="flex items-center gap-3">
-							<Slider
-								type="single"
-								bind:value={lineArrowStrokeWidthValue}
-								min={1}
-								max={10}
-								step={1}
-								class="flex-1"
-							/>
-							<span class="text-xs text-muted-foreground w-8 text-right">{lineArrowStrokeWidthValue}px</span>
+						<div class="flex gap-2">
+							<Button
+								variant={lineArrowStrokeWidthValue === 1 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => lineArrowStrokeWidthValue = 1}
+								class="w-10 h-10 flex items-center justify-center"
+							>
+								<MinusIcon class="h-3 w-3" strokeWidth={1} />
+							</Button>
+							<Button
+								variant={lineArrowStrokeWidthValue === 3 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => lineArrowStrokeWidthValue = 3}
+								class="w-10 h-10 flex items-center justify-center"
+							>
+								<MinusIcon class="h-4 w-4" strokeWidth={3} />
+							</Button>
+							<Button
+								variant={lineArrowStrokeWidthValue === 6 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => lineArrowStrokeWidthValue = 6}
+								class="w-10 h-10 flex items-center justify-center"
+							>
+								<MinusIcon class="h-5 w-5" strokeWidth={6} />
+							</Button>
 						</div>
 					</div>
 
 					<!-- Stroke Colour -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Colour</Label>
-						<div class="flex gap-1">
+						<div class="flex gap-1 flex-wrap mb-2 items-center">
 							{#each commonColours as colour}
 								<button
-									class="w-8 h-8 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {lineArrowOptions.strokeColour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {lineArrowOptions.strokeColour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
 									onclick={() => lineArrowOptions.strokeColour = colour}
 									aria-label="Select colour {colour}"
 								>
 									<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 								</button>
 							{/each}
+							
+							<!-- Separator line -->
+							<div class="w-px h-8 bg-border mx-1"></div>
+							
+							<!-- Expanded colours toggle button -->
+							<button
+								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColours ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+								onclick={() => showExpandedColours = !showExpandedColours}
+								aria-label="Toggle expanded colour palette"
+							>
+								<div class="w-full h-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"></div>
+							</button>
 						</div>
+
+						{#if showExpandedColours}
+							<!-- Colour Palette -->
+							<div class="space-y-2 mt-3">
+								<Label class="text-xs font-medium">Colours</Label>
+								
+								<!-- Colour Grid -->
+								<div class="space-y-1">
+									{#each colourPalette as row}
+										<div class="flex gap-1">
+											{#each row as colour}
+												<button
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColourFamily === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													onclick={() => {
+														selectedColourFamily = colour as ColourFamily;
+														lineArrowOptions.strokeColour = colour;
+													}}
+													aria-label="Select colour family {colour}"
+												>
+													<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
+												</button>
+											{/each}
+										</div>
+									{/each}
+								</div>
+
+								<!-- Shades -->
+								<div class="space-y-1">
+									<Label class="text-xs font-medium text-muted-foreground">Shades</Label>
+									{#if colourShades[selectedColourFamily].length === 0}
+										<div class="text-xs text-muted-foreground italic py-2">
+											No shades available for this colour
+										</div>
+									{:else}
+										<div class="flex gap-1">
+											{#each colourShades[selectedColourFamily] as shade}
+												<button
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {lineArrowOptions.strokeColour === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													onclick={() => lineArrowOptions.strokeColour = shade}
+													aria-label="Select shade {shade}"
+												>
+													<div class="w-full h-full rounded-sm" style="background-color: {shade}"></div>
+												</button>
+											{/each}
+										</div>
+									{/if}
+								</div>
+							</div>
+						{/if}
 					</div>
 
 					<!-- Line Style -->
