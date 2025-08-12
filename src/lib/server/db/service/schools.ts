@@ -18,9 +18,10 @@ export async function getUsersBySchoolId(schoolId: number, includeArchived: bool
 		})
 		.from(table.user)
 		.where(
-			includeArchived
-				? eq(table.user.schoolId, schoolId)
-				: and(eq(table.user.schoolId, schoolId), eq(table.user.isArchived, false))
+			and(
+				eq(table.user.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.user.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.user.type), asc(table.user.lastName), asc(table.user.firstName));
 
@@ -45,13 +46,11 @@ export async function getUsersBySchoolIdAndTypes(
 		})
 		.from(table.user)
 		.where(
-			includeArchived
-				? and(eq(table.user.schoolId, schoolId), inArray(table.user.type, types))
-				: and(
-						eq(table.user.schoolId, schoolId),
-						inArray(table.user.type, types),
-						eq(table.user.isArchived, false)
-					)
+			and(
+				eq(table.user.schoolId, schoolId),
+				inArray(table.user.type, types),
+				includeArchived ? undefined : eq(table.user.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.user.type), asc(table.user.lastName), asc(table.user.firstName));
 
@@ -75,13 +74,11 @@ export async function getUsersBySchoolIdAndType(
 		})
 		.from(table.user)
 		.where(
-			includeArchived
-				? and(eq(table.user.schoolId, schoolId), eq(table.user.type, type))
-				: and(
-						eq(table.user.schoolId, schoolId),
-						eq(table.user.type, type),
-						eq(table.user.isArchived, false)
-					)
+			and(
+				eq(table.user.schoolId, schoolId),
+				eq(table.user.type, type),
+				includeArchived ? undefined : eq(table.user.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
 
@@ -179,9 +176,10 @@ export async function getCampusesBySchoolId(schoolId: number, includeArchived: b
 		.select()
 		.from(table.campus)
 		.where(
-			includeArchived
-				? eq(table.campus.schoolId, schoolId)
-				: and(eq(table.campus.schoolId, schoolId), eq(table.campus.isArchived, false))
+			and(
+				eq(table.campus.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.campus.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.campus.isArchived), asc(table.campus.name));
 
@@ -270,12 +268,10 @@ export async function getBuildingsByCampusId(campusId: number, includeArchived: 
 		.select()
 		.from(table.schoolBuilding)
 		.where(
-			includeArchived
-				? eq(table.schoolBuilding.campusId, campusId)
-				: and(
-						eq(table.schoolBuilding.campusId, campusId),
-						eq(table.schoolBuilding.isArchived, false)
-					)
+			and(
+				eq(table.schoolBuilding.campusId, campusId),
+				includeArchived ? undefined : eq(table.schoolBuilding.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.schoolBuilding.name));
 
@@ -294,13 +290,10 @@ export async function getBuildingsBySchoolId(schoolId: number, includeArchived: 
 		.from(table.campus)
 		.innerJoin(table.schoolBuilding, eq(table.schoolBuilding.campusId, table.campus.id))
 		.where(
-			includeArchived
-				? eq(table.campus.schoolId, schoolId)
-				: and(
-						eq(table.campus.schoolId, schoolId),
-						eq(table.schoolBuilding.isArchived, false),
-						eq(table.campus.isArchived, false)
-					)
+			and(
+				eq(table.campus.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.schoolBuilding.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.campus.name), asc(table.schoolBuilding.name));
 
@@ -353,9 +346,10 @@ export async function getSpacesBySchoolId(schoolId: number, includeArchived: boo
 		.innerJoin(table.schoolBuilding, eq(table.schoolBuilding.campusId, table.campus.id))
 		.innerJoin(table.schoolSpace, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
 		.where(
-			includeArchived
-				? eq(table.campus.schoolId, schoolId)
-				: and(eq(table.campus.schoolId, schoolId), eq(table.schoolSpace.isArchived, false))
+			and(
+				eq(table.campus.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.schoolSpace.isArchived, false)
+			)
 		)
 		.orderBy(table.schoolSpace.name);
 
@@ -370,9 +364,10 @@ export async function getSpacesByCampusId(campusId: number, includeArchived: boo
 		.from(table.schoolBuilding)
 		.innerJoin(table.schoolSpace, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
 		.where(
-			includeArchived
-				? eq(table.schoolBuilding.campusId, campusId)
-				: and(eq(table.schoolBuilding.campusId, campusId), eq(table.schoolSpace.isArchived, false))
+			and(
+				eq(table.schoolBuilding.campusId, campusId),
+				includeArchived ? undefined : eq(table.schoolSpace.isArchived, false)
+			)
 		)
 		.orderBy(table.schoolSpace.name);
 
@@ -384,9 +379,10 @@ export async function getSpaceById(spaceId: number, includeArchived: boolean = f
 		.select()
 		.from(table.schoolSpace)
 		.where(
-			includeArchived
-				? eq(table.schoolSpace.id, spaceId)
-				: and(eq(table.schoolSpace.id, spaceId), eq(table.schoolSpace.isArchived, false))
+			and(
+				eq(table.schoolSpace.id, spaceId),
+				includeArchived ? undefined : eq(table.schoolSpace.isArchived, false)
+			)
 		)
 		.limit(1);
 

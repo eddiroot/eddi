@@ -51,6 +51,7 @@ All
 
 Lachie
 
+- [ ] Events appearing in everyone's timetables (14/08)
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
@@ -64,8 +65,6 @@ Max
 - [ ] Advanced timetabling (30/08)
   - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
   - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
-- [ ] Events appearing in everyone's timetables (14/08)
-  - [x] enable week by week viewing of the timetable
 - [ ] Class space shifts (21/08)
   - [ ] Changing spaces and handling of this
 

@@ -240,9 +240,11 @@ Make sure to use shadcn-svelte components for all of your UI designs. If a compo
 
 Where possible, use TypeScript Pick or Omit types rather than redefining types that already exist in the schema to ensure a single-source-of-truth for types.
 
-Never pop database calls in +page.server.ts files. Instead, preference using or adding to the database services.
+Never put database calls in +page.server.ts files. Instead, preference using or adding to the database services.
 
 When including @lucide/svelte icons, you do not need to apply h-4 w-4 as that is the default size.
+
+You do not need to add the LoaderData and Action types to Svelte pages, as Svelte does this out of the box from v5.
 
 #fetch https://shadcn-svelte.com/docs/components
 

@@ -309,7 +309,12 @@ export async function getSubjectOfferingClassesBySchoolId(schoolId: number) {
 		.select({
 			id: table.subjectOfferingClass.id,
 			name: table.subjectOfferingClass.name,
-			subjectName: table.subject.name
+			subjectName: table.subject.name,
+			subjectOffering: {
+				id: table.subjectOffering.id,
+				year: table.subjectOffering.year,
+				semester: table.subjectOffering.semester
+			}
 		})
 		.from(table.subjectOfferingClass)
 		.innerJoin(

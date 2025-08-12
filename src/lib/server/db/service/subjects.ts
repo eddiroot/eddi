@@ -98,6 +98,29 @@ export async function getSubjectBySubjectOfferingClassId(subjectOfferingClassId:
 	return result ? result.subject : null;
 }
 
+export async function getSubjectOfferingsBySchoolId(schoolId: number) {
+	const subjectOfferings = await db
+		.select({
+			id: table.subjectOffering.id,
+			year: table.subjectOffering.year,
+			semester: table.subjectOffering.semester,
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.subjectOffering)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(and(eq(table.subject.schoolId, schoolId), eq(table.subjectOffering.isArchived, false)))
+		.orderBy(
+			asc(table.subject.name),
+			asc(table.subjectOffering.year),
+			asc(table.subjectOffering.semester)
+		);
+
+	return subjectOfferings;
+}
+
 export async function getSubjectOfferingsBySubjectId(subjectId: number) {
 	const subjectOfferings = await db
 		.select({
@@ -376,9 +399,10 @@ export async function getSubjectsBySchoolId(schoolId: number, includeArchived: b
 		})
 		.from(table.subject)
 		.where(
-			includeArchived
-				? eq(table.subject.schoolId, schoolId)
-				: and(eq(table.subject.schoolId, schoolId), eq(table.subject.isArchived, false))
+			and(
+				eq(table.subject.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.subject.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.subject.yearLevel), asc(table.subject.name));
 
@@ -699,7 +723,10 @@ export async function getSubjectClassAllocationsByUserIdForDate(userId: string, 
 	return classAllocations;
 }
 
-export async function getSubjectClassAllocationsByUserIdForWeek(userId: string, weekStartDate: Date) {
+export async function getSubjectClassAllocationsByUserIdForWeek(
+	userId: string,
+	weekStartDate: Date
+) {
 	// Calculate start and end of the week (Monday to Sunday)
 	const weekStart = new Date(weekStartDate);
 	const dayOfWeek = weekStart.getDay();

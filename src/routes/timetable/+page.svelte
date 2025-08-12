@@ -8,13 +8,11 @@
 
 	let { data, form } = $props();
 
-	// Use form data if available (from form action), otherwise use initial data
 	let classAllocation = $state(form?.classAllocation || data.classAllocation);
 	let currentWeekStart = $state(form?.currentWeekStart || data.currentWeekStart);
 
 	let timeslots = generateTimeslots(8, 17);
 
-	// Format the current week display
 	function formatWeekDisplay(weekStart: string): string {
 		const startDate = new Date(weekStart);
 		const endDate = new Date(startDate);
@@ -31,7 +29,6 @@
 		return `${startFormatted} - ${endFormatted}, ${startDate.getFullYear()}`;
 	}
 
-	// Calculate the Monday of any given date
 	function getMondayOfWeek(date: Date): Date {
 		const dayOfWeek = date.getDay();
 		const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;

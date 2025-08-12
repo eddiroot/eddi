@@ -13,9 +13,10 @@ export async function getSchoolTimetablesBySchoolId(
 		.select()
 		.from(table.timetable)
 		.where(
-			includeArchived
-				? eq(table.timetable.schoolId, schoolId)
-				: and(eq(table.timetable.schoolId, schoolId), eq(table.timetable.isArchived, false))
+			and(
+				eq(table.timetable.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.timetable.isArchived, false)
+			)
 		)
 		.orderBy(asc(table.timetable.name));
 

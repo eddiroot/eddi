@@ -16,17 +16,9 @@ export const load = async ({ locals: { security }, url }) => {
 
 	const classAllocation = await getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate);
 
-	if (!classAllocation || classAllocation.length === 0) {
-		return {
-			user,
-			classAllocation: [],
-			currentWeekStart: weekStartDate.toISOString().split('T')[0]
-		};
-	}
-
 	return {
 		user,
-		classAllocation: classAllocation,
+		classAllocation,
 		currentWeekStart: weekStartDate.toISOString().split('T')[0]
 	};
 };

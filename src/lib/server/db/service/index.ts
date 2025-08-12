@@ -24,3 +24,6 @@ export * from './user.js';
 
 // Resource
 export * from './resource.js';
+
+// Events
+export * from './events.js';

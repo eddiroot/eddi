@@ -10,6 +10,7 @@
 	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
 	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
 	import DoorOpenIcon from '@lucide/svelte/icons/door-open';
+	import { BusIcon } from '@lucide/svelte';
 
 	const { data } = $props();
 
@@ -46,7 +47,7 @@
 		},
 		{
 			title: 'Subjects',
-			description: 'Define the subjects that your school offers as well as their descriptions',
+			description: 'Define the subjects that your school offers',
 			icon: BookOpenIcon,
 			href: '/admin/subjects'
 		},
@@ -61,6 +62,12 @@
 			description: 'Assign students and teachers to classes and manage enrollments',
 			icon: ContactIcon,
 			href: '/admin/allocations'
+		},
+		{
+			title: 'Events',
+			description: 'Create and manage school, campus, subject, and class-level events',
+			icon: BusIcon,
+			href: '/admin/events'
 		}
 	];
 
