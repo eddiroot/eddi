@@ -217,3 +217,27 @@ export async function getGuardiansForStudent(studentUserId: string) {
 
 	return guardians;
 }
+
+export async function getUserProfileById(userId: string) {
+	const user = await db
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			avatarUrl: table.user.avatarUrl,
+			dateOfBirth: table.user.dateOfBirth,
+			gender: table.user.gender,
+			honorific: table.user.honorific,
+			yearLevel: table.user.yearLevel,
+			type: table.user.type,
+			schoolId: table.user.schoolId,
+			emailVerified: table.user.emailVerified,
+			createdAt: table.user.createdAt
+		})
+		.from(table.user)
+		.where(eq(table.user.id, userId))
+		.limit(1);
+	return user.length > 0 ? user[0] : null;
+}

@@ -89,6 +89,10 @@ Raph
   - shape border width change issues
   - add shape roundness option
   - layering options?
+  - text with websocket
+  - shape adding mechanics
+  - text adding mechanics
+- [ ] Profile Page (13/08)
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
 - [ ] Associate chatbot chats with the lesson/subject they were created in (31/08)
 
