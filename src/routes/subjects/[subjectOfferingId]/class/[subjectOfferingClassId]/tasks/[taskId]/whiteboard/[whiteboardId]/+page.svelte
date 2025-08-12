@@ -34,6 +34,8 @@
 	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import ImageIcon from '@lucide/svelte/icons/image';
+	import MinusIcon from '@lucide/svelte/icons/minus';
+	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard-floating-menu.svelte';
 
 	let { data } = $props();
@@ -48,6 +50,15 @@
 	let currentZoom = $state(1);
 	let showFloatingMenu = $state(false);
 	let imageInput = $state<HTMLInputElement>();
+	let isDrawingLine = $state(false);
+	let isDrawingArrow = $state(false);
+	let isErasing = $state(false);
+	let eraserTrail = $state<fabric.Object[]>([]);
+	let lastEraserPoint = $state<{ x: number; y: number } | null>(null);
+	let hoveredObjectsForDeletion = $state<fabric.Object[]>([]);
+	let originalOpacities = $state<Map<fabric.Object, number>>(new Map());
+	let startPoint = $state({ x: 0, y: 0 });
+	let tempLine: fabric.Line | null = null;
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId));
@@ -111,6 +122,7 @@
 	};	const setSelectTool = () => {
 		selectedTool = 'select';
 		showFloatingMenu = false;
+		clearEraserState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = true;
@@ -121,6 +133,7 @@
 	const setPanTool = () => {
 		selectedTool = 'pan';
 		showFloatingMenu = false;
+		clearEraserState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -132,6 +145,7 @@
 	const setDrawTool = () => {
 		selectedTool = 'draw';
 		showFloatingMenu = true;
+		clearEraserState();
 		if (!canvas) return;
 		canvas.isDrawingMode = true;
 		canvas.selection = false;
@@ -140,6 +154,37 @@
 		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
 		canvas.freeDrawingBrush.width = 2;
 		canvas.freeDrawingBrush.color = '#000000';
+	};
+
+	const setEraserTool = () => {
+		selectedTool = 'eraser';
+		showFloatingMenu = true;
+		if (!canvas) return;
+		canvas.isDrawingMode = false;
+		canvas.selection = false;
+		canvas.defaultCursor = 'crosshair';
+		
+		// Clear any existing eraser state
+		clearEraserState();
+	};
+
+	const clearEraserState = () => {
+		// Remove eraser trail
+		eraserTrail.forEach(trail => canvas?.remove(trail));
+		eraserTrail = [];
+		lastEraserPoint = null;
+		
+		// Restore original opacities of hovered objects
+		hoveredObjectsForDeletion.forEach(obj => {
+			const originalOpacity = originalOpacities.get(obj);
+			if (originalOpacity !== undefined) {
+				obj.set({ opacity: originalOpacity });
+			}
+		});
+		hoveredObjectsForDeletion = [];
+		originalOpacities.clear();
+		
+		canvas?.renderAll();
 	};
 
 	const addShape = (shapeType: string) => {
@@ -305,6 +350,84 @@
 		target.value = '';
 	};
 
+	const setLineTool = () => {
+		selectedTool = 'line';
+		showFloatingMenu = true;
+		clearEraserState();
+		if (!canvas) return;
+		canvas.isDrawingMode = false;
+		canvas.selection = false;
+		canvas.defaultCursor = 'crosshair';
+		canvas.hoverCursor = 'crosshair';
+	};
+
+	const setArrowTool = () => {
+		selectedTool = 'arrow';
+		showFloatingMenu = true;
+		clearEraserState();
+		if (!canvas) return;
+		canvas.isDrawingMode = false;
+		canvas.selection = false;
+		canvas.defaultCursor = 'crosshair';
+		canvas.hoverCursor = 'crosshair';
+	};
+
+	const createArrowHead = (x1: number, y1: number, x2: number, y2: number, arrowLength = 15, arrowAngle = Math.PI / 6) => {
+		const angle = Math.atan2(y2 - y1, x2 - x1);
+		
+		// Calculate the two points of the arrowhead
+		const arrowPoint1 = {
+			x: x2 - arrowLength * Math.cos(angle - arrowAngle),
+			y: y2 - arrowLength * Math.sin(angle - arrowAngle)
+		};
+		
+		const arrowPoint2 = {
+			x: x2 - arrowLength * Math.cos(angle + arrowAngle),
+			y: y2 - arrowLength * Math.sin(angle + arrowAngle)
+		};
+		
+		return [arrowPoint1, arrowPoint2];
+	};
+
+	const createLine = (x1: number, y1: number, x2: number, y2: number) => {
+		return new fabric.Line([x1, y1, x2, y2], {
+			id: uuidv4(),
+			stroke: '#000000',
+			strokeWidth: 2,
+			strokeDashArray: [],
+			opacity: 1,
+			selectable: true
+		});
+	};
+
+	const createArrow = (x1: number, y1: number, x2: number, y2: number) => {
+		const line = createLine(x1, y1, x2, y2);
+		const arrowHeadPoints = createArrowHead(x1, y1, x2, y2);
+		
+		const arrowHead1 = new fabric.Line([x2, y2, arrowHeadPoints[0].x, arrowHeadPoints[0].y], {
+			stroke: '#000000',
+			strokeWidth: 2,
+			strokeDashArray: [],
+			opacity: 1,
+			selectable: false
+		});
+		
+		const arrowHead2 = new fabric.Line([x2, y2, arrowHeadPoints[1].x, arrowHeadPoints[1].y], {
+			stroke: '#000000',
+			strokeWidth: 2,
+			strokeDashArray: [],
+			opacity: 1,
+			selectable: false
+		});
+		
+		// Group the line and arrowhead together
+		const arrowGroup = new fabric.Group([line, arrowHead1, arrowHead2], {
+			selectable: true
+		});
+		
+		return arrowGroup;
+	};
+
 	const clearCanvas = () => {
 		if (!canvas) return;
 
@@ -379,7 +502,7 @@
 				fontSize: options.fontSize,
 				fontFamily: options.fontFamily,
 				fontWeight: options.fontWeight,
-				fill: options.color,
+				fill: options.colour,
 				textAlign: options.textAlign,
 				opacity: options.opacity
 			});
@@ -406,8 +529,8 @@
 			} else {
 				activeObject.set({
 					strokeWidth: options.strokeWidth,
-					stroke: options.strokeColor,
-					fill: options.fillColor === 'transparent' ? 'transparent' : options.fillColor,
+					stroke: options.strokeColour,
+					fill: options.fillColour === 'transparent' ? 'transparent' : options.fillColour,
 					strokeDashArray: options.strokeDashArray,
 					opacity: options.opacity
 				});
@@ -428,11 +551,11 @@
 		if (canvas.freeDrawingBrush) {
 			canvas.freeDrawingBrush.width = options.brushSize;
 			
-			// Apply opacity to the color by converting to rgba format
-			const color = options.brushColor;
+			// Apply opacity to the colour by converting to rgba format
+			const colour = options.brushColour;
 			const opacity = options.opacity;
 			
-			// Convert hex color to rgba with opacity
+			// Convert hex colour to rgba with opacity
 			const hexToRgba = (hex: string, alpha: number) => {
 				const r = parseInt(hex.slice(1, 3), 16);
 				const g = parseInt(hex.slice(3, 5), 16);
@@ -440,7 +563,7 @@
 				return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 			};
 			
-			canvas.freeDrawingBrush.color = hexToRgba(color, opacity);
+			canvas.freeDrawingBrush.color = hexToRgba(colour, opacity);
 			
 			// Update brush type if needed
 			if (options.brushType === 'circle') {
@@ -451,7 +574,42 @@
 				canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
 			}
 			canvas.freeDrawingBrush.width = options.brushSize;
-			canvas.freeDrawingBrush.color = hexToRgba(color, opacity);
+			canvas.freeDrawingBrush.color = hexToRgba(colour, opacity);
+		}
+	};
+
+	const handleLineArrowOptionsChange = (options: any) => {
+		if (!canvas) return;
+		const activeObject = canvas.getActiveObject();
+		if (activeObject && (activeObject.type === 'line' || activeObject.type === 'group')) {
+			if (activeObject.type === 'line') {
+				activeObject.set({
+					strokeWidth: options.strokeWidth,
+					stroke: options.strokeColour,
+					strokeDashArray: options.strokeDashArray,
+					opacity: options.opacity
+				});
+			} else if (activeObject.type === 'group') {
+				// Handle arrow group - update all objects in the group
+				(activeObject as fabric.Group).forEachObject((obj: any) => {
+					if (obj.type === 'line') {
+						obj.set({
+							strokeWidth: options.strokeWidth,
+							stroke: options.strokeColour,
+							strokeDashArray: options.strokeDashArray,
+							opacity: options.opacity
+						});
+					}
+				});
+			}
+			canvas.renderAll();
+			const objData = activeObject.toObject();
+			// @ts-expect-error
+			objData.id = activeObject.id;
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objData
+			});
 		}
 	};
 
@@ -681,7 +839,56 @@
 					canvas.setCursor('default');
 				} else if (selectedTool === 'draw') {
 					canvas.setCursor('crosshair');
+				} else if (selectedTool === 'line' || selectedTool === 'arrow') {
+					canvas.setCursor('crosshair');
 				}
+			}
+
+			// Handle line and arrow completion
+			if ((isDrawingLine || isDrawingArrow) && tempLine) {
+				// Set the object as selectable and finish the drawing
+				tempLine.set({ selectable: true });
+				canvas.setActiveObject(tempLine);
+				canvas.renderAll();
+				
+				// Send the completed line/arrow to other users
+				const objData = tempLine.toObject();
+				// @ts-expect-error
+				objData.id = tempLine.id;
+				sendCanvasUpdate({
+					type: 'add',
+					object: objData
+				});
+				
+				// Auto-switch to selection tool while keeping floating menu open
+				selectedTool = 'select';
+				canvas.isDrawingMode = false;
+				canvas.selection = true;
+				canvas.defaultCursor = 'default';
+				canvas.hoverCursor = 'move';
+				
+				// Reset drawing state
+				isDrawingLine = false;
+				isDrawingArrow = false;
+				tempLine = null;
+			}
+
+			// Handle eraser completion
+			if (isErasing) {
+				isErasing = false;
+				
+				// Delete all objects that were marked for deletion
+				hoveredObjectsForDeletion.forEach((obj) => {
+					canvas.remove(obj);
+					// Send delete message to other users
+					sendCanvasUpdate({
+						type: 'delete',
+						object: { id: (obj as any).id }
+					});
+				});
+				
+				// Clear eraser state
+				clearEraserState();
 			}
 
 			// If we were moving an image, ensure final position is sent
@@ -762,6 +969,48 @@
 					
 					opt.e.preventDefault();
 				}
+			} else if (selectedTool === 'line' || selectedTool === 'arrow') {
+				if (!isDrawingLine && !isDrawingArrow) {
+					const pointer = canvas.getScenePoint(opt.e);
+					startPoint = { x: pointer.x, y: pointer.y };
+					
+					if (selectedTool === 'line') {
+						isDrawingLine = true;
+						tempLine = createLine(startPoint.x, startPoint.y, startPoint.x, startPoint.y);
+					} else {
+						isDrawingArrow = true;
+						tempLine = createArrow(startPoint.x, startPoint.y, startPoint.x, startPoint.y) as any;
+					}
+					
+					if (tempLine) {
+						canvas.add(tempLine);
+						canvas.renderAll();
+					}
+					
+					opt.e.preventDefault();
+					opt.e.stopPropagation();
+				}
+			} else if (selectedTool === 'eraser') {
+				isErasing = true;
+				const pointer = canvas.getScenePoint(opt.e);
+				startPoint = { x: pointer.x, y: pointer.y };
+				lastEraserPoint = { x: pointer.x, y: pointer.y };
+				
+				// Find objects under the eraser and make them transparent
+				canvas.forEachObject((obj) => {
+					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
+						if (!hoveredObjectsForDeletion.includes(obj)) {
+							// Store original opacity and make transparent
+							originalOpacities.set(obj, obj.opacity || 1);
+							obj.set({ opacity: 0.3 });
+							hoveredObjectsForDeletion.push(obj);
+						}
+					}
+				});
+				
+				canvas.renderAll();
+				opt.e.preventDefault();
+				opt.e.stopPropagation();
 			}
 		});
 
@@ -781,6 +1030,96 @@
 				panStartPos = { x: clientX, y: clientY };
 				
 				canvas.setCursor('grabbing');
+			} else if ((isDrawingLine || isDrawingArrow) && tempLine) {
+				// Update the temporary line/arrow while dragging
+				const pointer = canvas.getScenePoint(opt.e);
+				
+				if (isDrawingLine) {
+					// Update line coordinates
+					tempLine.set({
+						x2: pointer.x,
+						y2: pointer.y
+					});
+				} else if (isDrawingArrow) {
+					// Remove the temp arrow and create a new one
+					if (tempLine) {
+						canvas.remove(tempLine);
+					}
+					tempLine = createArrow(startPoint.x, startPoint.y, pointer.x, pointer.y) as any;
+					if (tempLine) {
+						canvas.add(tempLine);
+					}
+				}
+				
+				canvas.renderAll();
+			} else if (isErasing && selectedTool === 'eraser') {
+				// Create visual eraser trail as a solid line
+				const pointer = canvas.getScenePoint(opt.e);
+				
+				// Create a line segment from the last point to current point
+				if (lastEraserPoint) {
+					const trailLine = new fabric.Line([
+						lastEraserPoint.x, 
+						lastEraserPoint.y, 
+						pointer.x, 
+						pointer.y
+					], {
+						stroke: 'rgba(170, 170, 170, 0.4)',
+						strokeWidth: 5,
+						selectable: false,
+						evented: false,
+						excludeFromExport: true
+					});
+					
+					canvas.add(trailLine);
+					eraserTrail.push(trailLine);
+					
+					// Limit trail length for performance
+					if (eraserTrail.length > 15) {
+						const oldTrail = eraserTrail.shift();
+						if (oldTrail) canvas.remove(oldTrail);
+					}
+				}
+				
+				lastEraserPoint = { x: pointer.x, y: pointer.y };
+				
+				// Find objects under the eraser and make them transparent
+				canvas.forEachObject((obj) => {
+					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
+						if (!hoveredObjectsForDeletion.includes(obj)) {
+							// Store original opacity and make transparent
+							originalOpacities.set(obj, obj.opacity || 1);
+							obj.set({ opacity: 0.3 });
+							hoveredObjectsForDeletion.push(obj);
+						}
+					}
+				});
+				
+				canvas.renderAll();
+			} else if (selectedTool === 'eraser' && !isErasing) {
+				// Show hover preview when not actively erasing
+				const pointer = canvas.getScenePoint(opt.e);
+				
+				// Reset any previously hovered objects
+				hoveredObjectsForDeletion.forEach(obj => {
+					const originalOpacity = originalOpacities.get(obj);
+					if (originalOpacity !== undefined) {
+						obj.set({ opacity: originalOpacity });
+					}
+				});
+				hoveredObjectsForDeletion = [];
+				originalOpacities.clear();
+				
+				// Find and highlight objects under cursor
+				canvas.forEachObject((obj) => {
+					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
+						originalOpacities.set(obj, obj.opacity || 1);
+						obj.set({ opacity: 0.5 });
+						hoveredObjectsForDeletion.push(obj);
+					}
+				});
+				
+				canvas.renderAll();
 			}
 		});
 
@@ -939,6 +1278,36 @@
 						<Tooltip.Content>Draw</Tooltip.Content>
 					</Tooltip.Root>
 
+					<!-- Line Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button
+								variant={selectedTool === 'line' ? 'default' : 'ghost'}
+								size="icon"
+								onclick={setLineTool}
+								class="h-9 w-9"
+							>
+								<MinusIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Draw Line</Tooltip.Content>
+					</Tooltip.Root>
+
+					<!-- Arrow Tool -->
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button
+								variant={selectedTool === 'arrow' ? 'default' : 'ghost'}
+								size="icon"
+								onclick={setArrowTool}
+								class="h-9 w-9"
+							>
+								<ArrowRightIcon class="h-4 w-4" />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content>Draw Arrow</Tooltip.Content>
+					</Tooltip.Root>
+
 					<!-- Shapes Dropdown -->
 					<Tooltip.Root>
 						<Tooltip.Trigger>
@@ -989,21 +1358,26 @@
 
 					<div class="bg-border mx-1 h-6 w-px"></div>
 
-					<!-- Delete Selected -->
+					<!-- Eraser Tool -->
 					<Tooltip.Root>
 						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={deleteSelected} class="h-9 w-9">
-								<TrashIcon class="h-4 w-4" />
+							<Button 
+								variant={selectedTool === 'eraser' ? 'default' : 'ghost'}
+								size="icon" 
+								onclick={setEraserTool} 
+								class="h-9 w-9"
+							>
+								<EraseIcon class="h-4 w-4" />
 							</Button>
 						</Tooltip.Trigger>
-						<Tooltip.Content>Delete Selected</Tooltip.Content>
+						<Tooltip.Content>Eraser</Tooltip.Content>
 					</Tooltip.Root>
 
 					<!-- Clear Canvas -->
 					<Tooltip.Root>
 						<Tooltip.Trigger>
 							<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
-								<EraseIcon class="h-4 w-4" />
+								<TrashIcon class="h-4 w-4" />
 							</Button>
 						</Tooltip.Trigger>
 						<Tooltip.Content>Clear All</Tooltip.Content>
@@ -1032,6 +1406,7 @@
 			onTextOptionsChange={handleTextOptionsChange}
 			onShapeOptionsChange={handleShapeOptionsChange}
 			onDrawOptionsChange={handleDrawOptionsChange}
+			onLineArrowOptionsChange={handleLineArrowOptionsChange}
 		/>
 		
 		<!-- Zoom Controls -->

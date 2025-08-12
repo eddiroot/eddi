@@ -20,21 +20,22 @@
 		onTextOptionsChange?: (options: TextOptions) => void;
 		onShapeOptionsChange?: (options: ShapeOptions) => void;
 		onDrawOptionsChange?: (options: DrawOptions) => void;
+		onLineArrowOptionsChange?: (options: LineArrowOptions) => void;
 	}
 
 	interface TextOptions {
 		fontSize: number;
 		fontFamily: string;
 		fontWeight: string;
-		color: string;
+		colour: string;
 		textAlign: string;
 		opacity: number;
 	}
 
 	interface ShapeOptions {
 		strokeWidth: number;
-		strokeColor: string;
-		fillColor: string;
+		strokeColour: string;
+		fillColour: string;
 		strokeDashArray: number[];
 		cornerRadius?: number;
 		opacity: number;
@@ -42,8 +43,15 @@
 
 	interface DrawOptions {
 		brushSize: number;
-		brushColor: string;
+		brushColour: string;
 		brushType: string;
+		opacity: number;
+	}
+
+	interface LineArrowOptions {
+		strokeWidth: number;
+		strokeColour: string;
+		strokeDashArray: number[];
 		opacity: number;
 	}
 
@@ -52,7 +60,8 @@
 		visible, 
 		onTextOptionsChange,
 		onShapeOptionsChange,
-		onDrawOptionsChange 
+		onDrawOptionsChange,
+		onLineArrowOptionsChange 
 	}: Props = $props();
 
 	// Default options
@@ -60,15 +69,15 @@
 		fontSize: 16,
 		fontFamily: 'Arial',
 		fontWeight: 'normal',
-		color: '#4A5568',
+		colour: '#4A5568',
 		textAlign: 'left',
 		opacity: 1
 	});
 
 	let shapeOptions = $state<ShapeOptions>({
 		strokeWidth: 2,
-		strokeColor: '#4A5568',
-		fillColor: 'transparent',
+		strokeColour: '#4A5568',
+		fillColour: 'transparent',
 		strokeDashArray: [],
 		cornerRadius: 0,
 		opacity: 1
@@ -76,8 +85,15 @@
 
 	let drawOptions = $state<DrawOptions>({
 		brushSize: 6,
-		brushColor: '#4A5568',
+		brushColour: '#4A5568',
 		brushType: 'pencil',
+		opacity: 1
+	});
+
+	let lineArrowOptions = $state<LineArrowOptions>({
+		strokeWidth: 2,
+		strokeColour: '#4A5568',
+		strokeDashArray: [],
 		opacity: 1
 	});
 
@@ -87,6 +103,8 @@
 	let textOpacityValue = $state(1);
 	let shapeOpacityValue = $state(1);
 	let drawOpacityValue = $state(1);
+	let lineArrowStrokeWidthValue = $state(2);
+	let lineArrowOpacityValue = $state(1);
 
 	// Keep options in sync with slider values
 	$effect(() => {
@@ -111,6 +129,14 @@
 
 	$effect(() => {
 		drawOptions.opacity = drawOpacityValue;
+	});
+
+	$effect(() => {
+		lineArrowOptions.strokeWidth = lineArrowStrokeWidthValue;
+	});
+
+	$effect(() => {
+		lineArrowOptions.opacity = lineArrowOpacityValue;
 	});
 
 	// Keep slider values in sync when options change externally
@@ -150,6 +176,18 @@
 		}
 	});
 
+	$effect(() => {
+		if (lineArrowStrokeWidthValue !== lineArrowOptions.strokeWidth) {
+			lineArrowStrokeWidthValue = lineArrowOptions.strokeWidth;
+		}
+	});
+
+	$effect(() => {
+		if (lineArrowOpacityValue !== lineArrowOptions.opacity) {
+			lineArrowOpacityValue = lineArrowOptions.opacity;
+		}
+	});
+
 	// Font families available
 	const fontFamilies = [
 		{ value: 'Arial', label: 'Arial' },
@@ -166,13 +204,13 @@
 		{ value: '300', label: 'Light' }
 	];
 
-	// Common colors
-	const commonColors = [
+	// Common colours
+	const commonColours = [
 		'#1E1E1E', '#E53E3E', '#4299E1', '#48BB78'
 	];
 
-	// Extended color palette
-	const colorPalette = [
+	// Extended colour palette
+	const colourPalette = [
 		// Row 1
 		['#FFFFFF', '#8B96A5', '#1E1E1E', '#553C23', '#B83280'],
 		// Row 2  
@@ -181,7 +219,7 @@
 		['#2F855A', '#4D7C0F', '#B7791F', '#C05621', '#C53030']
 	] as const;
 
-	const colorShades = {
+	const colourShades = {
 		'#FFFFFF': [], // No shades for white
 		'#8B96A5': ['#8B96A5', '#A0AEC0', '#CBD5E0', '#E2E8F0', '#F7FAFC'], // Gray
 		'#1E1E1E': [], // No shades for black
@@ -199,9 +237,9 @@
 		'#C53030': ['#C53030', '#E53E3E', '#F56565', '#FEB2B2', '#FED7D7']  // Red
 	} as const;
 
-	type ColorFamily = keyof typeof colorShades;
-	let selectedColorFamily = $state<ColorFamily>('#1E1E1E'); // Default to black
-	let showExpandedColors = $state(false); // Toggle for expanded color palette
+	type ColourFamily = keyof typeof colourShades;
+	let selectedColourFamily = $state<ColourFamily>('#1E1E1E'); // Default to black
+	let showExpandedColours = $state(false); // Toggle for expanded colour palette
 
 	// Reactive updates
 	$effect(() => {
@@ -220,10 +258,20 @@
 		if (selectedTool === 'draw' && onDrawOptionsChange) {
 			onDrawOptionsChange(drawOptions);
 		}
+		
+		if (selectedTool === 'eraser' && onDrawOptionsChange) {
+			onDrawOptionsChange(drawOptions);
+		}
+	});
+
+	$effect(() => {
+		if ((selectedTool === 'line' || selectedTool === 'arrow') && onLineArrowOptionsChange) {
+			onLineArrowOptionsChange(lineArrowOptions);
+		}
 	});
 
 	const shouldShowMenu = $derived(
-		visible && (selectedTool === 'text' || selectedTool === 'shapes' || selectedTool === 'draw')
+		visible && (selectedTool === 'text' || selectedTool === 'shapes' || selectedTool === 'draw' || selectedTool === 'eraser' || selectedTool === 'line' || selectedTool === 'arrow')
 	);
 </script>
 
@@ -309,52 +357,52 @@
 
 					<Separator />
 
-					<!-- Text Color -->
+					<!-- Text Colour -->
 					<div class="space-y-2">
-						<Label class="text-xs font-medium">Text Color</Label>
+						<Label class="text-xs font-medium">Text Colour</Label>
 						<div class="flex gap-1 flex-wrap mb-2 items-center">
-							{#each commonColors as color}
+							{#each commonColours as colour}
 								<button
-									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {textOptions.color === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-									onclick={() => textOptions.color = color}
-									aria-label="Select color {color}"
+									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {textOptions.colour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+									onclick={() => textOptions.colour = colour}
+									aria-label="Select colour {colour}"
 								>
-									<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+									<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 								</button>
 							{/each}
 							
 							<!-- Separator line -->
 							<div class="w-px h-8 bg-border mx-1"></div>
 							
-							<!-- Expanded colors toggle button -->
+							<!-- Expanded colours toggle button -->
 							<button
-								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColors ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-								onclick={() => showExpandedColors = !showExpandedColors}
-								aria-label="Toggle expanded color palette"
+								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColours ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+								onclick={() => showExpandedColours = !showExpandedColours}
+								aria-label="Toggle expanded colour palette"
 							>
 								<div class="w-full h-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"></div>
 							</button>
 						</div>
 
-						{#if showExpandedColors}
-							<!-- Color Palette -->
+						{#if showExpandedColours}
+							<!-- Colour Palette -->
 							<div class="space-y-2 mt-3">
-								<Label class="text-xs font-medium">Colors</Label>
+								<Label class="text-xs font-medium">Colours</Label>
 								
-								<!-- Color Grid -->
+								<!-- Colour Grid -->
 								<div class="space-y-1">
-									{#each colorPalette as row}
+									{#each colourPalette as row}
 										<div class="flex gap-1">
-											{#each row as color}
+											{#each row as colour}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColorFamily === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColourFamily === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
 													onclick={() => {
-														selectedColorFamily = color as ColorFamily;
-														textOptions.color = color;
+														selectedColourFamily = colour as ColourFamily;
+														textOptions.colour = colour;
 													}}
-													aria-label="Select color family {color}"
+													aria-label="Select colour family {colour}"
 												>
-													<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+													<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 												</button>
 											{/each}
 										</div>
@@ -364,16 +412,16 @@
 								<!-- Shades -->
 								<div class="space-y-1">
 									<Label class="text-xs font-medium text-muted-foreground">Shades</Label>
-									{#if colorShades[selectedColorFamily].length === 0}
+									{#if colourShades[selectedColourFamily].length === 0}
 										<div class="text-xs text-muted-foreground italic py-2">
 											No shades available for this colour
 										</div>
 									{:else}
 										<div class="flex gap-1">
-											{#each colorShades[selectedColorFamily] as shade}
+											{#each colourShades[selectedColourFamily] as shade}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {textOptions.color === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-													onclick={() => textOptions.color = shade}
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {textOptions.colour === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													onclick={() => textOptions.colour = shade}
 													aria-label="Select shade {shade}"
 												>
 													<div class="w-full h-full rounded-sm" style="background-color: {shade}"></div>
@@ -479,52 +527,52 @@
 						</div>
 					</div>
 
-					<!-- Stroke Color -->
+					<!-- Stroke Colour -->
 					<div class="space-y-2">
-						<Label class="text-xs font-medium">Stroke Color</Label>
+						<Label class="text-xs font-medium">Stroke Colour</Label>
 						<div class="flex gap-1 flex-wrap mb-2 items-center">
-							{#each commonColors as color}
+							{#each commonColours as colour}
 								<button
-									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.strokeColor === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-									onclick={() => shapeOptions.strokeColor = color}
-									aria-label="Select stroke color {color}"
+									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.strokeColour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+									onclick={() => shapeOptions.strokeColour = colour}
+									aria-label="Select stroke colour {colour}"
 								>
-									<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+									<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 								</button>
 							{/each}
 							
 							<!-- Separator line -->
 							<div class="w-px h-8 bg-border mx-1"></div>
 							
-							<!-- Expanded colors toggle button -->
+							<!-- Expanded colours toggle button -->
 							<button
-								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColors ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-								onclick={() => showExpandedColors = !showExpandedColors}
-								aria-label="Toggle expanded color palette"
+								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColours ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+								onclick={() => showExpandedColours = !showExpandedColours}
+								aria-label="Toggle expanded colour palette"
 							>
 								<div class="w-full h-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"></div>
 							</button>
 						</div>
 
-						{#if showExpandedColors}
-							<!-- Color Palette -->
+						{#if showExpandedColours}
+							<!-- Colour Palette -->
 							<div class="space-y-2 mt-3">
-								<Label class="text-xs font-medium">Colors</Label>
+								<Label class="text-xs font-medium">Colours</Label>
 								
-								<!-- Color Grid -->
+								<!-- Colour Grid -->
 								<div class="space-y-1">
-									{#each colorPalette as row}
+									{#each colourPalette as row}
 										<div class="flex gap-1">
-											{#each row as color}
+											{#each row as colour}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColorFamily === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColourFamily === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
 													onclick={() => {
-														selectedColorFamily = color as ColorFamily;
-														shapeOptions.strokeColor = color;
+														selectedColourFamily = colour as ColourFamily;
+														shapeOptions.strokeColour = colour;
 													}}
-													aria-label="Select color family {color}"
+													aria-label="Select colour family {colour}"
 												>
-													<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+													<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 												</button>
 											{/each}
 										</div>
@@ -534,16 +582,16 @@
 								<!-- Shades -->
 								<div class="space-y-1">
 									<Label class="text-xs font-medium text-muted-foreground">Shades</Label>
-									{#if colorShades[selectedColorFamily].length === 0}
+									{#if colourShades[selectedColourFamily].length === 0}
 										<div class="text-xs text-muted-foreground italic py-2">
 											No shades available for this colour
 										</div>
 									{:else}
 										<div class="flex gap-1">
-											{#each colorShades[selectedColorFamily] as shade}
+											{#each colourShades[selectedColourFamily] as shade}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.strokeColor === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-													onclick={() => shapeOptions.strokeColor = shade}
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.strokeColour === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													onclick={() => shapeOptions.strokeColour = shade}
 													aria-label="Select shade {shade}"
 												>
 													<div class="w-full h-full rounded-sm" style="background-color: {shade}"></div>
@@ -558,62 +606,62 @@
 
 					<Separator />
 
-					<!-- Fill Color -->
+					<!-- Fill Colour -->
 					<div class="space-y-2">
-						<Label class="text-xs font-medium">Fill Color</Label>
+						<Label class="text-xs font-medium">Fill Colour</Label>
 						<div class="flex gap-2 mb-2">
 							<Button
-								variant={shapeOptions.fillColor === 'transparent' ? 'default' : 'outline'}
+								variant={shapeOptions.fillColour === 'transparent' ? 'default' : 'outline'}
 								size="sm"
-								onclick={() => shapeOptions.fillColor = 'transparent'}
+								onclick={() => shapeOptions.fillColour = 'transparent'}
 								class="text-xs h-7"
 							>
 								No Fill
 							</Button>
 						</div>
 						<div class="flex gap-1 flex-wrap mb-2 items-center">
-							{#each commonColors as color}
+							{#each commonColours as colour}
 								<button
-									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.fillColor === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-									onclick={() => shapeOptions.fillColor = color}
-									aria-label="Select fill color {color}"
+									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.fillColour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+									onclick={() => shapeOptions.fillColour = colour}
+									aria-label="Select fill colour {colour}"
 								>
-									<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+									<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 								</button>
 							{/each}
 							
 							<!-- Separator line -->
 							<div class="w-px h-8 bg-border mx-1"></div>
 							
-							<!-- Expanded colors toggle button -->
+							<!-- Expanded colours toggle button -->
 							<button
-								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColors ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-								onclick={() => showExpandedColors = !showExpandedColors}
-								aria-label="Toggle expanded color palette"
+								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColours ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+								onclick={() => showExpandedColours = !showExpandedColours}
+								aria-label="Toggle expanded colour palette"
 							>
 								<div class="w-full h-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"></div>
 							</button>
 						</div>
 
-						{#if showExpandedColors}
-							<!-- Color Palette -->
+						{#if showExpandedColours}
+							<!-- Colour Palette -->
 							<div class="space-y-2 mt-3">
-								<Label class="text-xs font-medium">Colors</Label>
+								<Label class="text-xs font-medium">Colours</Label>
 								
-								<!-- Color Grid -->
+								<!-- Colour Grid -->
 								<div class="space-y-1">
-									{#each colorPalette as row}
+									{#each colourPalette as row}
 										<div class="flex gap-1">
-											{#each row as color}
+											{#each row as colour}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColorFamily === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColourFamily === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
 													onclick={() => {
-														selectedColorFamily = color as ColorFamily;
-														shapeOptions.fillColor = color;
+														selectedColourFamily = colour as ColourFamily;
+														shapeOptions.fillColour = colour;
 													}}
-													aria-label="Select color family {color}"
+													aria-label="Select colour family {colour}"
 												>
-													<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+													<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 												</button>
 											{/each}
 										</div>
@@ -623,16 +671,16 @@
 								<!-- Shades -->
 								<div class="space-y-1">
 									<Label class="text-xs font-medium text-muted-foreground">Shades</Label>
-									{#if colorShades[selectedColorFamily].length === 0}
+									{#if colourShades[selectedColourFamily].length === 0}
 										<div class="text-xs text-muted-foreground italic py-2">
 											No shades available for this colour
 										</div>
 									{:else}
 										<div class="flex gap-1">
-											{#each colorShades[selectedColorFamily] as shade}
+											{#each colourShades[selectedColourFamily] as shade}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.fillColor === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-													onclick={() => shapeOptions.fillColor = shade}
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {shapeOptions.fillColour === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													onclick={() => shapeOptions.fillColour = shade}
 													aria-label="Select shade {shade}"
 												>
 													<div class="w-full h-full rounded-sm" style="background-color: {shade}"></div>
@@ -664,7 +712,7 @@
 					</div>
 				</Card.Content>
 
-			{:else if selectedTool === 'draw'}
+			{:else if selectedTool === 'draw' || selectedTool === 'eraser'}
 				<Card.Header class="pb-3">
 					<Card.Title class="text-sm flex items-center gap-2">
 						<PaletteIcon class="h-4 w-4" />
@@ -703,52 +751,52 @@
 						</div>
 					</div>
 
-					<!-- Brush Color -->
+					<!-- Brush Colour -->
 					<div class="space-y-2">
-						<Label class="text-xs font-medium">Brush Color</Label>
+						<Label class="text-xs font-medium">Brush Colour</Label>
 						<div class="flex gap-1 flex-wrap mb-2 items-center">
-							{#each commonColors as color}
+							{#each commonColours as colour}
 								<button
-									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {drawOptions.brushColor === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-									onclick={() => drawOptions.brushColor = color}
-									aria-label="Select brush color {color}"
+									class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {drawOptions.brushColour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+									onclick={() => drawOptions.brushColour = colour}
+									aria-label="Select brush colour {colour}"
 								>
-									<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+									<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 								</button>
 							{/each}
 							
 							<!-- Separator line -->
 							<div class="w-px h-8 bg-border mx-1"></div>
 							
-							<!-- Expanded colors toggle button -->
+							<!-- Expanded colours toggle button -->
 							<button
-								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColors ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-								onclick={() => showExpandedColors = !showExpandedColors}
-								aria-label="Toggle expanded color palette"
+								class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {showExpandedColours ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+								onclick={() => showExpandedColours = !showExpandedColours}
+								aria-label="Toggle expanded colour palette"
 							>
 								<div class="w-full h-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"></div>
 							</button>
 						</div>
 
-						{#if showExpandedColors}
-							<!-- Color Palette -->
+						{#if showExpandedColours}
+							<!-- Colour Palette -->
 							<div class="space-y-2 mt-3">
-								<Label class="text-xs font-medium">Colors</Label>
+								<Label class="text-xs font-medium">Colours</Label>
 								
-								<!-- Color Grid -->
+								<!-- Colour Grid -->
 								<div class="space-y-1">
-									{#each colorPalette as row}
+									{#each colourPalette as row}
 										<div class="flex gap-1">
-											{#each row as color}
+											{#each row as colour}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColorFamily === color ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {selectedColourFamily === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
 													onclick={() => {
-														selectedColorFamily = color as ColorFamily;
-														drawOptions.brushColor = color;
+														selectedColourFamily = colour as ColourFamily;
+														drawOptions.brushColour = colour;
 													}}
-													aria-label="Select color family {color}"
+													aria-label="Select colour family {colour}"
 												>
-													<div class="w-full h-full rounded-sm" style="background-color: {color}"></div>
+													<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
 												</button>
 											{/each}
 										</div>
@@ -758,16 +806,16 @@
 								<!-- Shades -->
 								<div class="space-y-1">
 									<Label class="text-xs font-medium text-muted-foreground">Shades</Label>
-									{#if colorShades[selectedColorFamily].length === 0}
+									{#if colourShades[selectedColourFamily].length === 0}
 										<div class="text-xs text-muted-foreground italic py-2">
 											No shades available for this colour
 										</div>
 									{:else}
 										<div class="flex gap-1">
-											{#each colorShades[selectedColorFamily] as shade}
+											{#each colourShades[selectedColourFamily] as shade}
 												<button
-													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {drawOptions.brushColor === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
-													onclick={() => drawOptions.brushColor = shade}
+													class="w-10 h-10 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {drawOptions.brushColour === shade ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+													onclick={() => drawOptions.brushColour = shade}
 													aria-label="Select shade {shade}"
 												>
 													<div class="w-full h-full rounded-sm" style="background-color: {shade}"></div>
@@ -793,6 +841,93 @@
 								class="flex-1"
 							/>
 							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(drawOpacityValue * 100)}%</span>
+						</div>
+					</div>
+				</Card.Content>
+			{:else if selectedTool === 'line' || selectedTool === 'arrow'}
+				<Card.Header class="pb-3">
+					<Card.Title class="text-sm flex items-center gap-2">
+						{#if selectedTool === 'line'}
+							<MinusIcon class="h-4 w-4" />
+							Line Options
+						{:else}
+							<!-- Using arrow right icon for arrow tool -->
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+							</svg>
+							Arrow Options
+						{/if}
+					</Card.Title>
+				</Card.Header>
+				<Card.Content class="space-y-4">
+					<!-- Stroke Width -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Stroke Width</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={lineArrowStrokeWidthValue}
+								min={1}
+								max={10}
+								step={1}
+								class="flex-1"
+							/>
+							<span class="text-xs text-muted-foreground w-8 text-right">{lineArrowStrokeWidthValue}px</span>
+						</div>
+					</div>
+
+					<!-- Stroke Colour -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Colour</Label>
+						<div class="flex gap-1">
+							{#each commonColours as colour}
+								<button
+									class="w-8 h-8 rounded-md border-2 p-0.5 transition-colors hover:scale-105 {lineArrowOptions.strokeColour === colour ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'}"
+									onclick={() => lineArrowOptions.strokeColour = colour}
+									aria-label="Select colour {colour}"
+								>
+									<div class="w-full h-full rounded-sm" style="background-color: {colour}"></div>
+								</button>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Line Style -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Line Style</Label>
+						<div class="flex gap-2">
+							<Button
+								variant={lineArrowOptions.strokeDashArray.length === 0 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => lineArrowOptions.strokeDashArray = []}
+								class="flex-1 h-8"
+							>
+								Solid
+							</Button>
+							<Button
+								variant={lineArrowOptions.strokeDashArray.length > 0 ? 'default' : 'outline'}
+								size="sm"
+								onclick={() => lineArrowOptions.strokeDashArray = [5, 5]}
+								class="flex-1 h-8"
+							>
+								Dashed
+							</Button>
+						</div>
+					</div>
+
+					<!-- Opacity -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Opacity</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={lineArrowOpacityValue}
+								min={0.1}
+								max={1}
+								step={0.1}
+								class="flex-1"
+							/>
+							<span class="text-xs text-muted-foreground w-12 text-right">{Math.round(lineArrowOpacityValue * 100)}%</span>
 						</div>
 					</div>
 				</Card.Content>
