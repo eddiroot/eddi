@@ -23,7 +23,7 @@ export function getClassPosition(
 	const height = durationInSlots * slotHeightPx;
 
 	return {
-		top: `${topPosition + 1}px`,
+		top: `${topPosition + 2}px`,
 		height: `${height - 2}px`
 	};
 }

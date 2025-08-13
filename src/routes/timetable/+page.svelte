@@ -209,27 +209,6 @@
 					<div class="border-border border-t" style="height: {slotHeightPx}px;"></div>
 				{/each}
 
-				<!-- Events for this day -->
-				{#each getEventsForDay(day.value) as event, eventIndex}
-					{@const position = getEventPosition(
-						8,
-						event.startTimestamp,
-						event.endTimestamp,
-						eventIndex,
-						60
-					)}
-					<div
-						style="position: absolute; top: {position.top}; height: {position.height}; left: {position.left}; width: {position.width}; z-index: 10;"
-					>
-						<EventCard
-							{event}
-							eventType={event.type}
-							subjectInfo={event.subject}
-							subjectColor={getSubjectColor(event.subjectOfferingId)}
-						/>
-					</div>
-				{/each}
-
 				<!-- Classes for this day -->
 				{#each (classAllocation ?? []).filter((c) => {
 					const dayOfWeek = c.classAllocation.startTimestamp.getDay();
@@ -243,9 +222,30 @@
 						60
 					)}
 					<div
-						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 40%; z-index: 20;"
+						style="position: absolute; top: {position.top}; height: {position.height}; left: 4px; right: 4px; z-index: 20;"
 					>
 						<TimetableCard {cls} href="/subjects/{cls.subjectOffering.id}" />
+					</div>
+				{/each}
+
+				<!-- Events for this day -->
+				{#each getEventsForDay(day.value) as event, eventIndex}
+					{@const position = getEventPosition(
+						8,
+						event.startTimestamp,
+						event.endTimestamp,
+						eventIndex,
+						60
+					)}
+					<div
+						style="position: absolute; top: {position.top}; height: {position.height}; left: 60%; right: 4px; z-index: 30;"
+					>
+						<EventCard
+							{event}
+							eventType={event.type}
+							subjectInfo={event.subject}
+							subjectColor={getSubjectColor(event.subjectOfferingId)}
+						/>
 					</div>
 				{/each}
 			</div>
