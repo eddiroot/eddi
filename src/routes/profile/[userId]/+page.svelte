@@ -8,7 +8,7 @@
     import Calendar from '@lucide/svelte/icons/calendar';
     import User from '@lucide/svelte/icons/user';
     import Lock from '@lucide/svelte/icons/lock';
-    import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+    import BookOpen from '@lucide/svelte/icons/book-open';
     import { goto } from '$app/navigation';
 
     let { data, form } = $props();
@@ -76,6 +76,10 @@
         goto('/dashboard');
     }
 
+    function handleGradesClick() {
+        goto(`/grades/${data.profile.id}`);
+    }
+
     // Show change password button if it's the user's own profile or if current user is admin
     const canChangePassword = data.isOwnProfile || data.isAdmin;
 </script>
@@ -127,8 +131,21 @@
                 </div>
             </div>
 
-            {#if canChangePassword}
-                <div class="flex flex-col gap-2 sm:flex-row">
+            <div class="flex flex-col gap-2 sm:flex-row">
+                {#if data.profile.type === 'student'}
+                    <Button 
+                        variant="default" 
+                        size="sm"
+                        class="flex items-center gap-2"
+                        aria-label="View grades"
+                        onclick={handleGradesClick}
+                    >
+                        <BookOpen class="h-4 w-4" aria-hidden="true" />
+                        <span>View Grades</span>
+                    </Button>
+                {/if}
+                
+                {#if canChangePassword}
                     <Button 
                         variant="outline" 
                         size="sm"
@@ -145,8 +162,8 @@
                             {/if}
                         </span>
                     </Button>
-                </div>
-            {/if}
+                {/if}
+            </div>
         </div>
     </header>
 </div>

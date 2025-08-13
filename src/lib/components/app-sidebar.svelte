@@ -17,6 +17,7 @@
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import User from '@lucide/svelte/icons/user';
+	import BookOpen from '@lucide/svelte/icons/book-open';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import type { School, Campus, Subject, SubjectOffering } from '$lib/server/db/schema';
 	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
@@ -144,6 +145,11 @@
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
+
+	// Helper function to get user initials
+	function getInitials(firstName: string | null, lastName: string | null): string {
+		return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+	}
 
 	// Helper function to check if a main menu item is active
 	function isMainItemActive(itemUrl: string): boolean {
@@ -518,7 +524,7 @@
 							>
 								<Avatar.Root class="h-8 w-8 rounded-lg">
 									<Avatar.Image src={user.avatarUrl} alt={fullName} />
-									<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
+									<Avatar.Fallback class="rounded-lg">{getInitials(user.firstName, user.lastName)}</Avatar.Fallback>
 								</Avatar.Root>
 								<div class="grid flex-1 text-left text-sm leading-tight">
 									<span class="truncate font-medium">{fullName}</span>
@@ -538,7 +544,7 @@
 							<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar.Root class="h-8 w-8 rounded-lg">
 									<Avatar.Image src={user.avatarUrl} alt={fullName} />
-									<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
+									<Avatar.Fallback class="rounded-lg">{getInitials(user.firstName, user.lastName)}</Avatar.Fallback>
 								</Avatar.Root>
 								<div class="grid flex-1 text-left text-sm leading-tight">
 									<span class="truncate font-medium">{fullName}</span>
@@ -551,6 +557,12 @@
 							<User />
 							Profile
 						</DropdownMenu.Item>
+						{#if user.type === 'student' || user.type === 'teacher'}
+							<DropdownMenu.Item class="cursor-pointer" onclick={() => goto(`/grades/${user.id}`)}>
+								<BookOpen />
+								Grades
+							</DropdownMenu.Item>
+						{/if}
 						<DropdownMenu.Separator />
 						<form method="post" action="/?/logout" bind:this={form}>
 							<DropdownMenu.Item class="cursor-pointer" onclick={() => form!.submit()}>
