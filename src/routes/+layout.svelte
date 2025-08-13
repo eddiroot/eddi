@@ -7,6 +7,7 @@
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
+	import { Toaster } from '$lib/components/ui/sonner';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import AiSidebar from '$lib/components/ai-sidebar.svelte';
@@ -111,6 +112,18 @@
 				const pageData = page.data as any;
 				const student = pageData?.student || pageData?.students?.find((s: any) => s.id === studentId);
 				label = student ? `${student.firstName} ${student.lastName}` : `Student ${segment}`;
+			} else if (segments[i - 1] === 'profile') {
+				// This is a user ID in /profile/[userId]
+				const pageData = page.data as any;
+				const profile = pageData?.profile;
+				if (profile) {
+					const fullName = [profile.honorific, profile.firstName, profile.middleName, profile.lastName]
+						.filter(Boolean)
+						.join(' ');
+					label = fullName || `User ${segment}`;
+				} else {
+					label = `User ${segment}`;
+				}
 			} else {
 				label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
 			}
@@ -185,3 +198,5 @@
 		<AiSidebar subjectOfferingId={currentSubjectOfferingId()} />
 	{/if}
 </Sidebar.Provider>
+
+<Toaster />

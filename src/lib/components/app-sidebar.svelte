@@ -16,10 +16,12 @@
 	import MapIcon from '@lucide/svelte/icons/map';
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import User from '@lucide/svelte/icons/user';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import type { School, Campus, Subject, SubjectOffering } from '$lib/server/db/schema';
 	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
 	import { convertToFullName, userPermissions, getPermissions } from '$lib/utils';
+	import { goto } from '$app/navigation';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import { page } from '$app/state';
 	import OrbitIcon from '@lucide/svelte/icons/orbit';
@@ -544,6 +546,11 @@
 								</div>
 							</div>
 						</DropdownMenu.Label>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item class="cursor-pointer" onclick={() => goto(`/profile/${user.id}`)}>
+							<User />
+							Profile
+						</DropdownMenu.Item>
 						<DropdownMenu.Separator />
 						<form method="post" action="/?/logout" bind:this={form}>
 							<DropdownMenu.Item class="cursor-pointer" onclick={() => form!.submit()}>

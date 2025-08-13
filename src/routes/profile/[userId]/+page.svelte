@@ -2,12 +2,17 @@
     import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
     import { Badge } from "$lib/components/ui/badge";
     import { Button } from "$lib/components/ui/button";
+    import { toast } from "svelte-sonner";
+    import ChangePasswordForm from "$lib/components/change-password-form.svelte";
     import Mail from '@lucide/svelte/icons/mail';
     import Calendar from '@lucide/svelte/icons/calendar';
     import User from '@lucide/svelte/icons/user';
     import Lock from '@lucide/svelte/icons/lock';
+    import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+    import { goto } from '$app/navigation';
 
-    let { data } = $props();
+    let { data, form } = $props();
+    let showChangePasswordForm = $state(false);
 
     function getInitials(firstName: string | null, lastName: string | null): string {
         return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
@@ -52,8 +57,27 @@
     }
 
     function formatGender(gender: string): string {
-        return gender === 'unspecified' ? 'Not specified' : gender;
+        if (gender === 'unspecified') return 'Not specified';
+        return gender.charAt(0).toUpperCase() + gender.slice(1);
     }
+
+    function handleChangePasswordClick() {
+        showChangePasswordForm = true;
+    }
+
+    function handlePasswordChangeSuccess() {
+        const message = data.isOwnProfile 
+            ? "Password changed successfully!" 
+            : `Password changed successfully for ${getFullName()}!`;
+        toast.success(message);
+    }
+
+    function handleBackClick() {
+        goto('/dashboard');
+    }
+
+    // Show change password button if it's the user's own profile or if current user is admin
+    const canChangePassword = data.isOwnProfile || data.isAdmin;
 </script>
 
 <div class="container mx-auto p-6 max-w-6xl">
@@ -71,9 +95,9 @@
                 </Avatar>
 
                 <div class="flex flex-col gap-2">
-                    <h1 class="text-2xl font-bold text-foreground md:text-3xl">
+                    <h2 class="text-2xl font-bold text-foreground md:text-3xl">
                         {getFullName()}
-                    </h1>
+                    </h2>
 
                     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                         <Badge 
@@ -103,17 +127,37 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2 sm:flex-row">
-                <Button 
-                    variant="outline" 
-                    size="sm"
-                    class="flex items-center gap-2"
-                    aria-label="Change your password"
-                >
-                    <Lock class="h-4 w-4" aria-hidden="true" />
-                    <span>Change Password</span>
-                </Button>
-            </div>
+            {#if canChangePassword}
+                <div class="flex flex-col gap-2 sm:flex-row">
+                    <Button 
+                        variant="outline" 
+                        size="sm"
+                        class="flex items-center gap-2"
+                        aria-label="Change password"
+                        onclick={handleChangePasswordClick}
+                    >
+                        <Lock class="h-4 w-4" aria-hidden="true" />
+                        <span>
+                            {#if data.isOwnProfile}
+                                Change Password
+                            {:else}
+                                Change User Password
+                            {/if}
+                        </span>
+                    </Button>
+                </div>
+            {/if}
         </div>
     </header>
 </div>
+
+{#if canChangePassword}
+    <ChangePasswordForm 
+        bind:open={showChangePasswordForm}
+        {form}
+        onSuccess={handlePasswordChangeSuccess}
+        isAdmin={data.isAdmin}
+        isOwnProfile={data.isOwnProfile}
+        targetUserName={getFullName()}
+    />
+{/if}

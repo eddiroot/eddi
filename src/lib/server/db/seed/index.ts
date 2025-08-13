@@ -550,11 +550,12 @@ async function seed() {
 				passwordHash,
 				schoolId: schoolRecord.id,
 				type: userTypeEnum.systemAdmin,
-				gender: userGenderEnum.unspecified,
+				gender: userGenderEnum.male,
 				honorific: userHonorificEnum.mr,
 				yearLevel: yearLevelEnum.none,
 				firstName: 'System',
 				lastName: 'Admin',
+				dateOfBirth: new Date('1980-01-15'),
 				emailVerified: true
 			})
 			.returning();
@@ -571,6 +572,7 @@ async function seed() {
 				yearLevel: yearLevelEnum.none,
 				firstName: 'School',
 				lastName: 'Admin',
+				dateOfBirth: new Date('1985-06-22'),
 				emailVerified: true
 			})
 			.returning();
@@ -733,32 +735,50 @@ async function seed() {
 			{
 				firstName: 'Math',
 				lastName: 'Teacher',
-				email: 'm.teacher@eddi.edu'
+				email: 'm.teacher@eddi.edu',
+				gender: userGenderEnum.female,
+				honorific: userHonorificEnum.ms,
+				dateOfBirth: new Date('1982-04-10')
 			},
 			{
 				firstName: 'English',
 				lastName: 'Teacher',
-				email: 'e.teacher@eddi.edu'
+				email: 'e.teacher@eddi.edu',
+				gender: userGenderEnum.male,
+				honorific: userHonorificEnum.mr,
+				dateOfBirth: new Date('1978-11-23')
 			},
 			{
 				firstName: 'Science',
 				lastName: 'Teacher',
-				email: 's.teacher@eddi.edu'
+				email: 's.teacher@eddi.edu',
+				gender: userGenderEnum.female,
+				honorific: userHonorificEnum.dr,
+				dateOfBirth: new Date('1981-09-14')
 			},
 			{
 				firstName: 'PE',
 				lastName: 'Teacher',
-				email: 'pe.teacher@eddi.edu'
+				email: 'pe.teacher@eddi.edu',
+				gender: userGenderEnum.male,
+				honorific: userHonorificEnum.mr,
+				dateOfBirth: new Date('1985-02-28')
 			},
 			{
 				firstName: 'History',
 				lastName: 'Teacher',
-				email: 'h.teacher@eddi.edu'
+				email: 'h.teacher@eddi.edu',
+				gender: userGenderEnum.female,
+				honorific: userHonorificEnum.mrs,
+				dateOfBirth: new Date('1979-07-05')
 			},
 			{
 				firstName: 'Geography',
 				lastName: 'Teacher',
-				email: 'g.teacher@eddi.edu'
+				email: 'g.teacher@eddi.edu',
+				gender: userGenderEnum.male,
+				honorific: userHonorificEnum.mr,
+				dateOfBirth: new Date('1983-12-12')
 			}
 		];
 
@@ -770,11 +790,12 @@ async function seed() {
 					passwordHash,
 					schoolId: schoolRecord.id,
 					type: userTypeEnum.teacher,
-					gender: userGenderEnum.unspecified,
-					honorific: userHonorificEnum.mr,
+					gender: teacher.gender,
+					honorific: teacher.honorific,
 					yearLevel: yearLevelEnum.none,
 					firstName: teacher.firstName,
 					lastName: teacher.lastName,
+					dateOfBirth: teacher.dateOfBirth,
 					emailVerified: true
 				})
 				.returning();

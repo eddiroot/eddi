@@ -123,6 +123,11 @@ export async function updateUserVerificationCode(userId: string, verificationCod
 	await db.update(table.user).set({ verificationCode }).where(eq(table.user.id, userId));
 }
 
+export async function updateUserPassword(userId: string, newPassword: string) {
+	const passwordHash = await hash(newPassword);
+	await db.update(table.user).set({ passwordHash }).where(eq(table.user.id, userId));
+}
+
 export async function getUserById(userId: string) {
 	const users = await db.select().from(table.user).where(eq(table.user.id, userId)).limit(1);
 	return users.length > 0 ? users[0] : null;
