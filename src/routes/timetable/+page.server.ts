@@ -1,4 +1,10 @@
-import { getSubjectClassAllocationsByUserIdForWeek } from '$lib/server/db/service';
+import {
+	getSubjectClassAllocationsByUserIdForWeek,
+	getSchoolEventsForWeekBySchoolId,
+	getCampusEventsForWeekByUserId,
+	getSubjectOfferingEventsForWeekByUserId,
+	getSubjectOfferingClassEventsForWeekByUserId
+} from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, url }) => {
 	const user = security.isAuthenticated().getUser();
@@ -14,11 +20,28 @@ export const load = async ({ locals: { security }, url }) => {
 		weekStartDate = new Date();
 	}
 
-	const classAllocation = await getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate);
+	// Get class allocations and events for the week
+	const [
+		classAllocation,
+		schoolEvents,
+		campusEvents,
+		subjectOfferingEvents,
+		subjectOfferingClassEvents
+	] = await Promise.all([
+		getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate),
+		getSchoolEventsForWeekBySchoolId(user.schoolId, weekStartDate),
+		getCampusEventsForWeekByUserId(user.id, weekStartDate),
+		getSubjectOfferingEventsForWeekByUserId(user.id, weekStartDate),
+		getSubjectOfferingClassEventsForWeekByUserId(user.id, weekStartDate)
+	]);
 
 	return {
 		user,
 		classAllocation,
+		schoolEvents,
+		campusEvents,
+		subjectOfferingEvents,
+		subjectOfferingClassEvents,
 		currentWeekStart: weekStartDate.toISOString().split('T')[0]
 	};
 };
@@ -29,11 +52,28 @@ export const actions = {
 		const formData = await request.formData();
 		const weekStartDate = new Date(formData.get('week') as string);
 
-		const classAllocation = await getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate);
+		// Get class allocations and events for the new week
+		const [
+			classAllocation,
+			schoolEvents,
+			campusEvents,
+			subjectOfferingEvents,
+			subjectOfferingClassEvents
+		] = await Promise.all([
+			getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate),
+			getSchoolEventsForWeekBySchoolId(user.schoolId, weekStartDate),
+			getCampusEventsForWeekByUserId(user.id, weekStartDate),
+			getSubjectOfferingEventsForWeekByUserId(user.id, weekStartDate),
+			getSubjectOfferingClassEventsForWeekByUserId(user.id, weekStartDate)
+		]);
 
 		return {
 			success: true,
 			classAllocation: classAllocation || [],
+			schoolEvents: schoolEvents || [],
+			campusEvents: campusEvents || [],
+			subjectOfferingEvents: subjectOfferingEvents || [],
+			subjectOfferingClassEvents: subjectOfferingClassEvents || [],
 			currentWeekStart: weekStartDate.toISOString().split('T')[0]
 		};
 	}

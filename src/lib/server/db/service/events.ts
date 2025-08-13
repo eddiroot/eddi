@@ -156,6 +156,37 @@ export async function getCampusEventsForWeekByCampusId(
 	return events;
 }
 
+export async function getCampusEventsForWeekByUserId(
+	userId: string,
+	weekStartDate: Date,
+	includeArchived: boolean = false
+) {
+	const weekStart = new Date(weekStartDate);
+	weekStart.setHours(0, 0, 0, 0);
+
+	const weekEnd = new Date(weekStart);
+	weekEnd.setDate(weekEnd.getDate() + 7);
+
+	const events = await db
+		.select({
+			event: table.campusEvent
+		})
+		.from(table.campusEvent)
+		.innerJoin(table.campus, eq(table.campusEvent.campusId, table.campus.id))
+		.innerJoin(table.userCampus, eq(table.campus.id, table.userCampus.campusId))
+		.where(
+			and(
+				eq(table.userCampus.userId, userId),
+				gte(table.campusEvent.startTimestamp, weekStart),
+				lt(table.campusEvent.startTimestamp, weekEnd),
+				includeArchived ? undefined : eq(table.campusEvent.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.campusEvent.startTimestamp));
+
+	return events;
+}
+
 export async function updateCampusEvent(
 	eventId: number,
 	updates: {
@@ -210,12 +241,8 @@ export async function getSubjectOfferingEventsBySchoolId(
 		})
 		.from(table.subjectOfferingEvent)
 		.innerJoin(
-			table.subjectOfferingClass,
-			eq(table.subjectOfferingEvent.subjectOfferingId, table.subjectOfferingClass.id)
-		)
-		.innerJoin(
 			table.subjectOffering,
-			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+			eq(table.subjectOfferingEvent.subjectOfferingId, table.subjectOffering.id)
 		)
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.where(
@@ -251,17 +278,56 @@ export async function getSubjectOfferingEventsForWeekBySchoolId(
 		})
 		.from(table.subjectOfferingEvent)
 		.innerJoin(
-			table.subjectOfferingClass,
-			eq(table.subjectOfferingEvent.subjectOfferingId, table.subjectOfferingClass.id)
-		)
-		.innerJoin(
 			table.subjectOffering,
-			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+			eq(table.subjectOfferingEvent.subjectOfferingId, table.subjectOffering.id)
 		)
 		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
 		.where(
 			and(
 				eq(table.subject.schoolId, schoolId),
+				gte(table.subjectOfferingEvent.startTimestamp, weekStart),
+				lt(table.subjectOfferingEvent.startTimestamp, weekEnd),
+				includeArchived ? undefined : eq(table.subjectOfferingEvent.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.subjectOfferingEvent.startTimestamp));
+
+	return events;
+}
+
+export async function getSubjectOfferingEventsForWeekByUserId(
+	userId: string,
+	weekStartDate: Date,
+	includeArchived: boolean = false
+) {
+	const weekStart = new Date(weekStartDate);
+	weekStart.setHours(0, 0, 0, 0);
+
+	const weekEnd = new Date(weekStart);
+	weekEnd.setDate(weekEnd.getDate() + 7);
+
+	const events = await db
+		.select({
+			event: table.subjectOfferingEvent,
+			subjectOffering: table.subjectOffering,
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.subjectOfferingEvent)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingEvent.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.userSubjectOffering,
+			eq(table.userSubjectOffering.subOfferingId, table.subjectOffering.id)
+		)
+		.where(
+			and(
+				eq(table.userSubjectOffering.userId, userId),
 				gte(table.subjectOfferingEvent.startTimestamp, weekStart),
 				lt(table.subjectOfferingEvent.startTimestamp, weekEnd),
 				includeArchived ? undefined : eq(table.subjectOfferingEvent.isArchived, false)
@@ -380,6 +446,54 @@ export async function getSubjectOfferingClassEventsForWeekBySchoolId(
 		.where(
 			and(
 				eq(table.subject.schoolId, schoolId),
+				gte(table.subjectOfferingClassEvent.startTimestamp, weekStart),
+				lt(table.subjectOfferingClassEvent.startTimestamp, weekEnd),
+				includeArchived ? undefined : eq(table.subjectOfferingClassEvent.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.subjectOfferingClassEvent.startTimestamp));
+
+	return events;
+}
+
+export async function getSubjectOfferingClassEventsForWeekByUserId(
+	userId: string,
+	weekStartDate: Date,
+	includeArchived: boolean = false
+) {
+	const weekStart = new Date(weekStartDate);
+	weekStart.setHours(0, 0, 0, 0);
+
+	const weekEnd = new Date(weekStart);
+	weekEnd.setDate(weekEnd.getDate() + 7);
+
+	const events = await db
+		.select({
+			event: table.subjectOfferingClassEvent,
+			subjectOfferingClass: table.subjectOfferingClass,
+			subjectOffering: table.subjectOffering,
+			subject: {
+				id: table.subject.id,
+				name: table.subject.name
+			}
+		})
+		.from(table.subjectOfferingClassEvent)
+		.innerJoin(
+			table.subjectOfferingClass,
+			eq(table.subjectOfferingClassEvent.subjectOfferingClassId, table.subjectOfferingClass.id)
+		)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.subjectOfferingClass.subOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.innerJoin(
+			table.userSubjectOfferingClass,
+			eq(table.userSubjectOfferingClass.subOffClassId, table.subjectOfferingClass.id)
+		)
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.userId, userId),
 				gte(table.subjectOfferingClassEvent.startTimestamp, weekStart),
 				lt(table.subjectOfferingClassEvent.startTimestamp, weekEnd),
 				includeArchived ? undefined : eq(table.subjectOfferingClassEvent.isArchived, false)

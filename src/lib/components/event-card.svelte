@@ -1,0 +1,125 @@
+<script lang="ts">
+	import * as Card from '$lib/components/ui/card';
+	import { formatTimestampAsTime } from '$lib/utils';
+	import { generateSubjectColors } from '../../routes/timetable/utils.js';
+	import SchoolIcon from '@lucide/svelte/icons/school';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import type {
+		SchoolEvent,
+		CampusEvent,
+		SubjectOfferingEvent,
+		SubjectOfferingClassEvent
+	} from '$lib/server/db/schema/events';
+
+	interface EventCardProps {
+		event: SchoolEvent | CampusEvent | SubjectOfferingEvent | SubjectOfferingClassEvent;
+		eventType: 'school' | 'campus' | 'subject' | 'class';
+		subjectInfo?: {
+			name: string;
+			className?: string;
+		};
+		subjectColor?: number;
+		showTime?: boolean;
+	}
+
+	let { event, eventType, subjectInfo, subjectColor, showTime = true }: EventCardProps = $props();
+
+	let isHovered = $state(false);
+
+	const eventColors = $derived(() => {
+		// For subject and class events, use the same color scheme as timetable cards
+		if ((eventType === 'subject' || eventType === 'class') && subjectColor !== undefined) {
+			const colors = generateSubjectColors(subjectColor);
+			return {
+				borderColor: isHovered ? colors.borderTop : colors.borderAround,
+				borderTopColor: colors.borderTop,
+				backgroundColor: colors.background,
+				textColor: colors.text
+			};
+		}
+
+		if (eventType === 'school') {
+			return {
+				borderColor: isHovered
+					? 'var(--primary)'
+					: 'color-mix(in srgb, var(--primary) 50%, transparent)',
+				borderTopColor: 'var(--primary)',
+				backgroundColor: 'var(--background)',
+				textColor: 'var(--foreground)'
+			};
+		}
+
+		return {
+			borderColor: isHovered
+				? 'var(--secondary)'
+				: 'color-mix(in srgb, var(--secondary) 50%, transparent)',
+			borderTopColor: 'var(--secondary)',
+			backgroundColor: 'var(--background)',
+			textColor: 'var(--foreground)'
+		};
+	});
+
+	const eventIcon = $derived(() => {
+		switch (eventType) {
+			case 'school':
+				return SchoolIcon;
+			case 'campus':
+				return MapPinIcon;
+			case 'subject':
+				return BookOpenIcon;
+			case 'class':
+				return CalendarIcon;
+			default:
+				return CalendarIcon;
+		}
+	});
+</script>
+
+<div
+	class="block h-full"
+	role="group"
+	onmouseover={() => (isHovered = true)}
+	onmouseleave={() => (isHovered = false)}
+	onfocus={() => (isHovered = true)}
+	onblur={() => (isHovered = false)}
+>
+	<Card.Root
+		class="h-full overflow-hidden border-2 border-t-4 px-2 pt-0 shadow-lg transition-colors duration-300"
+		style="border-color: {eventColors().borderColor}; border-top-color: {eventColors()
+			.borderTopColor}; background-color: {eventColors().backgroundColor}; color: {eventColors()
+			.textColor};"
+	>
+		<Card.Header class="p-1">
+			{@const Icon = eventIcon()}
+			<div class="flex items-start justify-between gap-1">
+				<Card.Title
+					class="flex-1 overflow-hidden text-base font-medium text-ellipsis whitespace-nowrap"
+				>
+					{event.name}
+				</Card.Title>
+				<Icon class="mt-0.5 h-3 w-3 flex-shrink-0" />
+			</div>
+
+			<div class="space-y-1">
+				{#if showTime}
+					<Card.Description class="flex items-center gap-1 text-xs text-ellipsis whitespace-nowrap">
+						<ClockIcon class="h-3 w-3" />
+						{formatTimestampAsTime(event.startTimestamp)} - {formatTimestampAsTime(
+							event.endTimestamp
+						)}
+					</Card.Description>
+				{/if}
+
+				{#if subjectInfo}
+					<Card.Description class="text-xs font-medium text-ellipsis whitespace-nowrap">
+						{subjectInfo.name}{#if subjectInfo.className}
+							- {subjectInfo.className}{/if}
+					</Card.Description>
+				{/if}
+			</div>
+		</Card.Header>
+	</Card.Root>
+</div>

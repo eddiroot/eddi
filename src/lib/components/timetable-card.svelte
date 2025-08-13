@@ -18,7 +18,7 @@
 
 <a
 	{href}
-	class="block"
+	class="block h-full"
 	onmouseover={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
 	onfocus={() => (isHovered = true)}

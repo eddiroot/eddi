@@ -1,7 +1,8 @@
 <script lang="ts">
 	import TimetableCard from '$lib/components/timetable-card.svelte';
+	import EventCard from '$lib/components/event-card.svelte';
 	import { days } from '$lib/utils';
-	import { generateTimeslots, getClassPosition } from './utils.js';
+	import { generateTimeslots, getClassPosition, getEventPosition } from './utils.js';
 	import * as Button from '$lib/components/ui/button';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
@@ -9,9 +10,18 @@
 	let { data, form } = $props();
 
 	let classAllocation = $state(form?.classAllocation || data.classAllocation);
+	let schoolEvents = $state(form?.schoolEvents || data.schoolEvents || []);
+	let campusEvents = $state(form?.campusEvents || data.campusEvents || []);
+	let subjectOfferingEvents = $state(
+		form?.subjectOfferingEvents || data.subjectOfferingEvents || []
+	);
+	let subjectOfferingClassEvents = $state(
+		form?.subjectOfferingClassEvents || data.subjectOfferingClassEvents || []
+	);
 	let currentWeekStart = $state(form?.currentWeekStart || data.currentWeekStart);
 
 	let timeslots = generateTimeslots(8, 17);
+	const slotHeightPx = 60; // Static height for each time slot
 
 	function formatWeekDisplay(weekStart: string): string {
 		const startDate = new Date(weekStart);
@@ -35,6 +45,50 @@
 		const monday = new Date(date);
 		monday.setDate(date.getDate() + mondayOffset);
 		return monday;
+	}
+
+	// Helper function to get events for a specific day
+	function getEventsForDay(dayValue: string) {
+		const allEvents = [
+			...schoolEvents.map((e) => ({
+				...e.event,
+				type: 'school' as const,
+				subject: undefined,
+				subjectOfferingId: undefined as number | undefined
+			})),
+			...campusEvents.map((e) => ({
+				...e.event,
+				type: 'campus' as const,
+				subject: undefined,
+				subjectOfferingId: undefined as number | undefined
+			})),
+			...subjectOfferingEvents.map((e) => ({
+				...e.event,
+				type: 'subject' as const,
+				subject: { name: e.subject.name, className: undefined },
+				subjectOfferingId: e.subjectOffering.id
+			})),
+			...subjectOfferingClassEvents.map((e) => ({
+				...e.event,
+				type: 'class' as const,
+				subject: { name: e.subject.name, className: e.subjectOfferingClass.name },
+				subjectOfferingId: e.subjectOffering.id
+			}))
+		];
+
+		return allEvents.filter((event) => {
+			const dayOfWeek = event.startTimestamp.getDay();
+			const dayIndex = dayOfWeek === 0 ? -1 : dayOfWeek - 1;
+			return dayIndex >= 0 && dayIndex < days.length && days[dayIndex].value === dayValue;
+		});
+	}
+
+	// Helper function to get subject color by subject offering ID
+	function getSubjectColor(subjectOfferingId?: number): number | undefined {
+		if (!subjectOfferingId || !classAllocation) return undefined;
+
+		const allocation = classAllocation.find((c) => c.subjectOffering.id === subjectOfferingId);
+		return allocation?.userSubjectOffering.color;
 	}
 </script>
 
@@ -60,6 +114,11 @@
 						'currentWeekStart' in result.data
 					) {
 						classAllocation = result.data.classAllocation as typeof classAllocation;
+						schoolEvents = (result.data.schoolEvents as typeof schoolEvents) || [];
+						subjectOfferingEvents =
+							(result.data.subjectOfferingEvents as typeof subjectOfferingEvents) || [];
+						subjectOfferingClassEvents =
+							(result.data.subjectOfferingClassEvents as typeof subjectOfferingClassEvents) || [];
 						currentWeekStart = result.data.currentWeekStart as string;
 					}
 				};
@@ -94,6 +153,11 @@
 						'currentWeekStart' in result.data
 					) {
 						classAllocation = result.data.classAllocation as typeof classAllocation;
+						schoolEvents = (result.data.schoolEvents as typeof schoolEvents) || [];
+						subjectOfferingEvents =
+							(result.data.subjectOfferingEvents as typeof subjectOfferingEvents) || [];
+						subjectOfferingClassEvents =
+							(result.data.subjectOfferingClassEvents as typeof subjectOfferingClassEvents) || [];
 						currentWeekStart = result.data.currentWeekStart as string;
 					}
 				};
@@ -118,14 +182,15 @@
 
 	<!-- Timetable grid -->
 	<div
-		class="overflow-hidden-3 relative grid h-[calc(100%-60px)] grid-cols-[50px_1fr_1fr_1fr_1fr_1fr] pt-3"
+		class="relative grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr] overflow-auto pt-3"
+		style="height: {timeslots.length * slotHeightPx + 12}px;"
 	>
 		<!-- Time legend column -->
 		<div class="bg-background relative">
 			{#each timeslots as slot}
 				<div
 					class="text-muted-foreground flex items-start justify-start pr-4 text-xs"
-					style="height: {100 / timeslots.length}%; transform: translateY(-8px);"
+					style="height: {slotHeightPx}px; transform: translateY(-8px);"
 				>
 					{slot}
 				</div>
@@ -136,7 +201,28 @@
 			<div class="border-border relative border-r last:border-r-0">
 				<!-- Background timeslot lines -->
 				{#each timeslots}
-					<div class="border-border border-t" style="height: {100 / timeslots.length}%;"></div>
+					<div class="border-border border-t" style="height: {slotHeightPx}px;"></div>
+				{/each}
+
+				<!-- Events for this day -->
+				{#each getEventsForDay(day.value) as event, eventIndex}
+					{@const position = getEventPosition(
+						8,
+						event.startTimestamp,
+						event.endTimestamp,
+						eventIndex,
+						60
+					)}
+					<div
+						style="position: absolute; top: {position.top}; height: {position.height}; left: {position.left}; width: {position.width}; z-index: 10;"
+					>
+						<EventCard
+							{event}
+							eventType={event.type}
+							subjectInfo={event.subject}
+							subjectColor={getSubjectColor(event.subjectOfferingId)}
+						/>
+					</div>
 				{/each}
 
 				<!-- Classes for this day -->
@@ -149,10 +235,10 @@
 						8,
 						cls.classAllocation.startTimestamp,
 						cls.classAllocation.endTimestamp,
-						timeslots
+						60
 					)}
 					<div
-						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 4px;"
+						style="position: absolute; top: {position.top}; height: {position.height}; right: 4px; left: 40%; z-index: 20;"
 					>
 						<TimetableCard {cls} href="/subjects/{cls.subjectOffering.id}" />
 					</div>
