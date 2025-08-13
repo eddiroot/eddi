@@ -38,6 +38,7 @@
   - [x] Generate page shows loading state while generating
   - [x] Result screen blocked until a timetable is generated
 - [x] Teachers can see past attendance (21/08)
+- [x] Events appearing in everyone's timetables (14/08)
 
 ### Doing
 
@@ -51,7 +52,6 @@ All
 
 Lachie
 
-- [ ] Events appearing in everyone's timetables (14/08)
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
