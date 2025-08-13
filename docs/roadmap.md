@@ -65,6 +65,7 @@ Max
 - [ ] Advanced timetabling (30/08)
   - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
   - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
+  - [ ] Checkbox to add a recess and lunchtime period post timetable generation in first and second gap respectively (or allow them to set specific time)
 - [ ] Class space shifts (21/08)
   - [ ] Changing spaces and handling of this
 
