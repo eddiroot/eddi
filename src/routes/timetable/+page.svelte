@@ -174,8 +174,13 @@
 	<div class="grid grid-cols-[50px_1fr_1fr_1fr_1fr_1fr]">
 		<div class="text-center text-base font-semibold text-transparent">Time</div>
 		{#each days as day}
-			<div class="border-primary/20 text-foreground text-center text-base font-semibold">
+			<div
+				class="border-primary/20 text-foreground hidden text-center text-base font-semibold md:block"
+			>
 				{day.name}
+			</div>
+			<div class="border-primary/20 text-foreground text-center text-base font-semibold md:hidden">
+				{day.shortName}
 			</div>
 		{/each}
 	</div>

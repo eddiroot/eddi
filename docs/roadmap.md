@@ -52,10 +52,10 @@ All
 
 Lachie
 
+- [ ] Add/refine current task components (new question and answer type component)
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
-- [ ] Add/refine current task components (new question and answer type component)
 - [ ] Fees / breakdowns
 - [ ] Student reports live throughout semester (10/08)
   - [ ] Creating a profile page for the students
