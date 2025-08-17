@@ -60,18 +60,14 @@ export const task = pgTable(
 export type Task = typeof task.$inferSelect;
 
 export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
-	taskBlockTypeEnum.h1,
-	taskBlockTypeEnum.h2,
-	taskBlockTypeEnum.h3,
-	taskBlockTypeEnum.h4,
-	taskBlockTypeEnum.h5,
-	taskBlockTypeEnum.h6,
+	taskBlockTypeEnum.heading,
 	taskBlockTypeEnum.richText,
+	taskBlockTypeEnum.mathInput,
 	taskBlockTypeEnum.image,
 	taskBlockTypeEnum.video,
 	taskBlockTypeEnum.audio,
-	taskBlockTypeEnum.fillInBlank,
-	taskBlockTypeEnum.multipleChoice,
+	taskBlockTypeEnum.fillBlank,
+	taskBlockTypeEnum.choice,
 	taskBlockTypeEnum.whiteboard,
 	taskBlockTypeEnum.matching,
 	taskBlockTypeEnum.shortAnswer
@@ -97,7 +93,7 @@ export const taskStatusEnumPg = pgEnum('enum_task_status', [
 	taskStatusEnum.published,
 	taskStatusEnum.completed,
 	taskStatusEnum.locked,
-	taskStatusEnum.released
+	taskStatusEnum.graded
 ]);
 
 export const subjectOfferingClassTask = pgTable('sub_off_class_task', {

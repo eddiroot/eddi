@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { BlockRichTextConfig } from '$lib/server/schema/taskSchema';
+	import { ViewMode } from '../constants';
+	import type { BlockProps } from './blockTypes';
 	import { onMount, onDestroy } from 'svelte';
 	import { Editor } from '@tiptap/core';
-	import { cn } from '$lib/utils.js';
 	import StarterKit from '@tiptap/starter-kit';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -15,19 +17,17 @@
 	} from '@lucide/svelte';
 
 	let {
-		content,
-		isEditable,
-		onUpdate,
-		class: className
-	}: {
-		content: string;
-		isEditable: boolean;
-		onUpdate: (content: string) => void;
-		class?: string;
+		initialConfig,
+		onConfigUpdate,
+		viewMode
+	}: BlockProps & {
+		initialConfig: BlockRichTextConfig;
 	} = $props();
 
+	let content = $state<string>(initialConfig.html);
 	let element: HTMLDivElement;
 	let editorBox = $state.raw<{ current: Editor }>();
+	let isEditable = viewMode == ViewMode.EDIT;
 
 	onMount(() => {
 		editorBox = {
@@ -40,11 +40,13 @@
 					editorBox = { current: editorBox!.current };
 				},
 				onUpdate: ({ editor }) => {
-					onUpdate(editor.getHTML());
+					onConfigUpdate({
+						html: editor.getHTML()
+					});
 				},
 				editorProps: {
 					attributes: {
-						class: cn(className, 'p-6 prose dark:prose-invert focus:outline-none min-h-32')
+						class: 'p-6 prose dark:prose-invert focus:outline-none min-h-32'
 					}
 				}
 			})
@@ -57,8 +59,7 @@
 		}
 	});
 
-	// Do not remove
-	// This is necessary to ensure that the editor is editable when the `isEditable` prop changes
+	// DO NOT REMOVE: This is necessary to ensure that the editor is editable when the viewMode changes
 	$effect(() => {
 		if (isEditable && editorBox?.current) {
 			editorBox.current.setEditable(true);

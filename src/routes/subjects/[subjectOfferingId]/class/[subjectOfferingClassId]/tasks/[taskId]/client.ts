@@ -132,3 +132,29 @@ export async function updateBlockOrder(
 
 	return data;
 }
+
+export async function saveTaskBlockResponse(
+	taskBlockId: number,
+	classTaskId: number,
+	response: unknown
+) {
+	const url = `/api/tasks/responses`;
+
+	const result = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			taskBlockId,
+			classTaskId,
+			response
+		})
+	});
+
+	if (!result.ok) {
+		throw new Error('Failed to save response');
+	}
+
+	return result.json();
+}

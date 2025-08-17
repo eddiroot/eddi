@@ -1,3 +1,5 @@
+import { taskBlockTypeEnum } from "$lib/enums";
+
 export const taskCreationPrompts = {
 	lesson: (
 		title: string,
@@ -74,7 +76,6 @@ Analyse the attached documents/images and create an assessment that evaluates st
 Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`
 };
 
-// Shared criteria item schema for answer/criteria blocks
 const criteriaItem = {
 	type: 'object',
 	properties: {
@@ -82,294 +83,228 @@ const criteriaItem = {
 		marks: { type: 'number' }
 	},
 	required: ['description', 'marks']
-} as const;
+}
 
-export const headerComponent = {
+export const blockHeading = {
 	type: 'object',
 	properties: {
-		content: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.heading] },
+		config: {
 			type: 'object',
 			properties: {
-				type: { type: 'string', enum: ['h2', 'h3', 'h4', 'h5', 'h6'] },
-				content: {
-					type: 'object',
-					properties: {
-						text: { type: 'string' }
-					},
-					required: ['text']
-				}
+				text: { type: 'string' },
+				size: { type: 'number' }
 			},
-			required: ['type', 'content']
+			required: ['text', 'size']
 		}
 	},
-	required: ['content']
+	required: ['type', 'config']
 };
 
-export const paragraphComponent = {
+export type BlockHeadingConfig = {
+	text: string,
+	size: number
+}
+
+export const blockRichText = {
 	type: 'object',
 	properties: {
-		content: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.richText] },
+		config: {
 			type: 'object',
 			properties: {
-				type: { type: 'string', enum: ['rich_text'] },
-				content: {
-					type: 'object',
-					properties: {
-						rich_text: { type: 'string' }
-					},
-					required: ['rich_text']
-				}
+				html: { type: 'string' }
 			},
-			required: ['type', 'content']
+			required: ['html']
 		}
 	},
-	required: ['content']
+	required: ['type', 'config']
 };
 
-export const mathInputComponent = {
+export type BlockRichTextConfig = {
+	html: string
+}
+
+export const blockMathInput = {
 	type: 'object',
 	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.mathInput] },
+		config: {
+			type: 'object',
+			properties: {
+				question: { type: 'string' },
+				answer: { type: 'string' }
+			},
+			required: ['question', 'answer']
+		},
 		criteria: {
 			type: 'array',
 			items: criteriaItem,
 			minItems: 1
 		},
-		answer: { type: 'string' },
 		marks: { type: 'number' },
-		content: {
-			type: 'object',
-			properties: {
-				type: { type: 'string', enum: ['math_input'] },
-				content: {
-					type: 'object',
-					properties: {
-						question: { type: 'string' },
-						answer_latex: { type: 'string' }
-					},
-					required: ['question', 'answer_latex']
-				}
-			},
-			required: ['type', 'content']
-		}
 	},
-	required: ['criteria', 'answer', 'content']
+	required: ['type', 'config', 'criteria']
 };
 
-export const multipleChoiceComponent = {
+export type BlockMathInputConfig = {
+	question: string,
+	answer: string
+};
+
+export const blockChoice = {
 	type: 'object',
 	properties: {
-		answer: {
-			type: 'array',
-			items: { type: 'string' },
-			description:
-				'Array of strings that must be a subset of the options array. For single answer questions, array should contain one item. For multiple answer questions, array can contain multiple items.',
-			minItems: 1
-		},
-		marks: { type: 'number' },
-		content: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.choice] },
+		config: {
 			type: 'object',
 			properties: {
-				type: { type: 'string', enum: ['multiple_choice'] },
-				content: {
-					type: 'object',
-					properties: {
-						question: { type: 'string' },
-						options: {
-							type: 'array',
-							items: { type: 'string' }
+				question: { type: 'string' },
+				options: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							text: { type: 'string' },
+							isAnswer: { type: 'boolean' }
 						},
-						multiple: { type: 'boolean' }
-					},
-					required: ['question', 'options', 'multiple']
-				}
-			},
-			required: ['type', 'content']
-		}
-	},
-	required: ['answer', 'content']
-};
-
-export const videoComponent = {
-	type: 'object',
-	properties: {
-		content: {
-			type: 'object',
-			properties: {
-				type: { type: 'string', enum: ['video'] },
-				content: {
-					type: 'object',
-					properties: {
-						url: { type: 'string' },
-						caption: { type: 'string' }
-					},
-					required: ['url', 'caption']
-				}
-			},
-			required: ['type', 'content']
-		}
-	},
-	required: ['content']
-};
-
-export const imageComponent = {
-	type: 'object',
-	properties: {
-		content: {
-			type: 'object',
-			properties: {
-				type: { type: 'string', enum: ['image'] },
-				content: {
-					type: 'object',
-					properties: {
-						url: { type: 'string' },
-						caption: { type: 'string' }
-					},
-					required: ['url', 'caption']
-				}
-			},
-			required: ['type', 'content']
-		}
-	},
-	required: ['content']
-};
-
-export const fillInBlankComponent = {
-	type: 'object',
-	properties: {
-		answer: {
-			type: 'array',
-			items: { type: 'string' },
-			minItems: 1
-		},
-		marks: { type: 'number' },
-		content: {
-			type: 'object',
-			properties: {
-				type: { type: 'string', enum: ['fill_in_blank'] },
-				content: {
-					type: 'object',
-					properties: {
-						sentence: { type: 'string' }
-					},
-					required: ['sentence']
-				}
-			},
-			required: ['type', 'content']
-		}
-	},
-	required: ['answer', 'content']
-};
-
-export const matchingComponent = {
-	type: 'object',
-	properties: {
-		answer: {
-			type: 'array',
-			items: {
-				type: 'object',
-				properties: {
-					left: { type: 'string' },
-					right: { type: 'string' }
+						description:
+							'Array of objects containing the choices and whether that choice is an answer. To make only a single answer valid, the array should contain only one item with isAnswer as true.',
+					}
 				},
-				required: ['left', 'right']
 			},
-			description: 'Array of correct pairs for the matching exercise'
+			required: ['question', 'options']
 		},
 		marks: { type: 'number' },
-		content: {
-			type: 'object',
-			properties: {
-				type: { type: 'string', enum: ['matching'] },
-				content: {
-					type: 'object',
-					properties: {
-						instructions: { type: 'string' },
-						pairs: {
-							type: 'array',
-							items: {
-								type: 'object',
-								properties: {
-									left: { type: 'string' },
-									right: { type: 'string' }
-								},
-								required: ['left', 'right']
-							}
-						}
-					},
-					required: ['instructions', 'pairs']
-				}
-			},
-			required: ['type', 'content']
-		}
 	},
-	required: ['answer', 'content']
+	required: ['type', 'config']
 };
 
-export const shortAnswerComponent = {
+export type BlockChoiceConfig = {
+	question: string,
+	options: {
+		text: string,
+		isAnswer: boolean
+	}[]
+};
+
+export const blockFillBlank = {
 	type: 'object',
 	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.fillBlank] },
+		config: {
+			type: 'object',
+			properties: {
+				sentence: { type: 'string' },
+				answer: { type: 'string' },
+			},
+			required: ['sentence', 'answer']
+		},
+		marks: { type: 'number' },
+	},
+	required: ['type', 'config']
+};
+
+export type BlockFillBlankConfig = {
+	sentence: string,
+	answer: string
+};
+
+export const blockMatching = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.matching] },
+		config: {
+			type: 'object',
+			properties: {
+				instructions: { type: 'string' },
+				pairs: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							left: { type: 'string' },
+							right: { type: 'string' }
+						},
+						required: ['left', 'right']
+					}
+				}
+			},
+			required: ['instructions', 'pairs']
+		},
+		marks: { type: 'number' },
+	},
+	required: ['type', 'config']
+};
+
+export type BlockMatchingConfig = {
+	instructions: string,
+	pairs: { left: string, right: string }[]
+};
+
+export const blockShortAnswer = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.shortAnswer] },
+		config: {
+			type: 'object',
+			properties: {
+				question: { type: 'string' }
+			},
+			required: ['question']
+		},
 		criteria: {
 			type: 'array',
 			items: criteriaItem,
 			minItems: 1
 		},
 		marks: { type: 'number' },
-		content: {
-			type: 'object',
-			properties: {
-				type: { type: 'string', enum: ['short_answer'] },
-				content: {
-					type: 'object',
-					properties: {
-						question: { type: 'string' }
-					},
-					required: ['question']
-				}
-			},
-			required: ['type', 'content']
-		}
 	},
-	required: ['criteria', 'content']
+	required: ['type', 'config', 'criteria']
+};
+
+export type BlockShortAnswerConfig = {
+	question: string
 };
 
 export const taskComponentItems = [
-	headerComponent,
-	paragraphComponent,
-	mathInputComponent,
-	multipleChoiceComponent,
-	videoComponent,
-	imageComponent,
-	fillInBlankComponent,
-	matchingComponent,
-	shortAnswerComponent
+	blockHeading,
+	blockRichText,
+	blockMathInput,
+	blockChoice,
+	blockFillBlank,
+	blockMatching,
+	blockShortAnswer,
 ];
 
-export const taskLayoutItems = [
-	{
-		type: 'object',
-		properties: {
-			type: { type: 'string', enum: ['two_column_layout'] },
-			content: {
-				type: 'object',
-				properties: {
-					leftColumn: {
-						type: 'array',
-						items: {
-							anyOf: taskComponentItems
-						}
-					},
-					rightColumn: {
-						type: 'array',
-						items: {
-							anyOf: taskComponentItems
-						}
+export const layoutTwoColumns = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: ['col_2'] },
+		config: {
+			type: 'object',
+			properties: {
+				leftColumn: {
+					type: 'array',
+					items: {
+						anyOf: taskComponentItems
 					}
 				},
-				required: ['leftColumn', 'rightColumn']
-			}
-		},
-		required: ['type', 'content']
-	}
+				rightColumn: {
+					type: 'array',
+					items: {
+						anyOf: taskComponentItems
+					}
+				}
+			},
+			required: ['leftColumn', 'rightColumn']
+		}
+	},
+	required: ['type', 'config']
+}
+
+export const taskLayoutItems = [
+	layoutTwoColumns
 ];
 
 // Combined schema for all task items (components + layouts)

@@ -45,18 +45,14 @@ export enum taskTypeEnum {
 }
 
 export enum taskBlockTypeEnum {
-	h1 = 'h1',
-	h2 = 'h2',
-	h3 = 'h3',
-	h4 = 'h4',
-	h5 = 'h5',
-	h6 = 'h6',
+	heading = 'heading',
 	richText = 'rich_text',
+	mathInput = 'math_input',
 	image = 'image',
 	video = 'video',
 	audio = 'audio',
-	fillInBlank = 'fill_in_blank',
-	multipleChoice = 'multiple_choice',
+	fillBlank = 'fill_blank',
+	choice = 'choice',
 	whiteboard = 'whiteboard',
 	matching = 'matching',
 	shortAnswer = 'short_answer'
@@ -68,7 +64,7 @@ export enum taskStatusEnum {
 	completed = 'completed', // Lesson
 	published = 'published', //Assessment/Homework
 	locked = 'locked', // Assessment/Homework
-	released = 'released' // Assessment/Homework
+	graded = 'graded' // Assessment/Homework
 }
 
 export enum taskBlockResponseStatusEnum {

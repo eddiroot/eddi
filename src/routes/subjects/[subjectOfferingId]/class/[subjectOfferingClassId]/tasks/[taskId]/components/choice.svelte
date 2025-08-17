@@ -12,56 +12,32 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { ViewMode } from '../constants';
-	import {
-		saveTaskBlockResponse,
-		loadExistingResponse as loadExistingResponseFromAPI,
-		createDebouncedSave
-	} from '../utils/auto-save.js';
+	import type { BlockProps } from './blockTypes';
+	import type { BlockChoiceConfig } from '$lib/server/schema/taskSchema';
+	import { taskStatusEnum } from '$lib/enums';
 
-	interface MultipleChoiceContent {
-		question: string;
-		options: string[];
-		answer: string | string[];
-		multiple: boolean;
-	}
-
-	// Component props using Svelte 5 syntax
 	let {
-		content = {
-			question: '',
-			options: [],
-			answer: '',
-			multiple: false
-		} as MultipleChoiceContent,
-		viewMode = ViewMode.VIEW,
-		onUpdate = () => {},
-		// New props for response saving
-		blockId,
-		taskId,
-		classTaskId,
-		subjectOfferingId,
-		subjectOfferingClassId,
-		isPublished = false
+		initialConfig,
+		onConfigUpdate,
+		initialResponse,
+		onResponseUpdate,
+		viewMode,
+		taskStatus
+	}: BlockProps & {
+		initialConfig: BlockChoiceConfig;
 	} = $props();
 
-	// tempory state for preview
-	let hasSubmitted = $state(false);
+	let config = $state<BlockChoiceConfig>(initialConfig);
 	let selectedAnswers = $state<Set<string>>(new Set());
 
-	// Edit mode states
-	let questionText = $state(content.question || '');
-	let options = $state<string[]>(content.options || []);
-	let correctAnswers = $state<Set<string>>(
-		new Set(
-			content.answer ? (Array.isArray(content.answer) ? content.answer : [content.answer]) : []
-		)
-	);
+	let isMultiAnswer = $derived(() => {
+		return config.options.filter((option) => option.isAnswer).length > 1;
+	});
 
-	// Functions for student interaction
 	function toggleAnswer(option: string) {
-		if (hasSubmitted && !isPublished) return; // Prevent changes after submission in non-published mode
+		if (taskStatus == taskStatusEnum.locked || taskStatus == taskStatusEnum.graded) return;
 
-		if (!content.multiple) {
+		if (!config.multiple) {
 			// Single choice - clear others and set this one
 			selectedAnswers = new Set([option]);
 		} else {

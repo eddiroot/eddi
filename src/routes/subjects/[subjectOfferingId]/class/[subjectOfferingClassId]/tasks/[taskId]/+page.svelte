@@ -1,24 +1,26 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { type TaskBlock } from '$lib/server/db/schema';
+	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
+
+	// UI Components
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
-	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
-	import Heading from './blocks/heading.svelte';
-	import RichTextEditor from './blocks/rich-text-editor.svelte';
-	import Image from './blocks/image.svelte';
-	import Video from './blocks/video.svelte';
-	import Audio from './blocks/audio.svelte';
-	import Whiteboard from './blocks/whiteboard.svelte';
-	import MultipleChoice from './blocks/multiple-choice.svelte';
-	import FillInBlank from './blocks/fill-in-blank.svelte';
-	import Matching from './blocks/matching.svelte';
-	import EyeIcon from '@lucide/svelte/icons/eye';
-	// import ShortAnswer from './blocks/short-answer.svelte';
-	import { type TaskBlock } from '$lib/server/db/schema';
 	import { Badge } from '$lib/components/ui/badge';
+
+	// Block Components
+	import BlockHeading from './components/heading.svelte';
+	import BlockRichText from './components/rich-text-editor.svelte';
+	import BlockWhiteboard from './components/whiteboard.svelte';
+	import BlockChoice from './components/choice.svelte';
+	import BlockFillBlank from './components/fill-in-blank.svelte';
+	import BlockMatching from './components/matching.svelte';
+
+	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
+	import EyeIcon from '@lucide/svelte/icons/eye';
 
 	import {
 		createBlock,
@@ -239,12 +241,15 @@
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
 			<div class={viewMode === ViewMode.EDIT ? 'ml-[38px]' : ''}>
-				<Heading
-					headingSize={1}
-					text={data.task.title}
+				<BlockHeading
+					initialConfig={{
+						text: data.task.title,
+						size: 1
+					}}
+					onConfigUpdate={async (config: { text: string; size: number }) =>
+						await updateTaskTitle({ taskId: data.task.id, title: config.text })}
 					{viewMode}
-					onUpdate={async (newText: string) =>
-						await updateTaskTitle({ taskId: data.task.id, title: newText })}
+					taskStatus={data.classTask.status}
 				/>
 
 				{#if page.url.searchParams.get('submitted') === 'true'}
@@ -297,75 +302,50 @@
 							<div></div>
 						{/if}
 						<div>
-							{#if block.type === taskBlockTypeEnum.h1 || block.type === taskBlockTypeEnum.h2 || block.type === taskBlockTypeEnum.h3 || block.type === taskBlockTypeEnum.h4 || block.type === taskBlockTypeEnum.h5 || block.type === taskBlockTypeEnum.h6}
-								<Heading
-									headingSize={parseInt(block.type[1]) + 1}
-									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
+							{#if block.type === taskBlockTypeEnum.heading}
+								<BlockHeading
+									initialConfig={block.config}
+									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.richText}
-								<RichTextEditor
-									initialContent={block.content as string | undefined}
+								<BlockRichText
+									initialConfig={block.config}
+									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-								/>
-							{:else if block.type === taskBlockTypeEnum.image}
-								<Image
-									content={block.content as Record<string, any> | undefined}
-									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-								/>
-							{:else if block.type === taskBlockTypeEnum.video}
-								<Video
-									content={block.content as Record<string, any> | undefined}
-									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-								/>
-							{:else if block.type === taskBlockTypeEnum.audio}
-								<Audio
-									content={block.content as Record<string, any> | undefined}
-									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.whiteboard}
-								<Whiteboard
-									content={block.content as Record<string, any> | undefined}
+								<BlockWhiteboard
+									initialConfig={block.config}
+									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
+									taskStatus={data.classTask.status}
 								/>
-							{:else if block.type === taskBlockTypeEnum.multipleChoice}
-								<MultipleChoice
-									content={block.content as any}
+							{:else if block.type === taskBlockTypeEnum.choice}
+								<BlockChoice
+									initialConfig={block.config}
+									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-									blockId={block.id}
-									{...responseProps}
+									taskStatus={data.classTask.status}
 								/>
-							{:else if block.type === taskBlockTypeEnum.fillInBlank}
-								<FillInBlank
-									content={block.content as any}
+							{:else if block.type === taskBlockTypeEnum.fillBlank}
+								<BlockFillBlank
+									initialConfig={block.config}
+									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-									blockId={block.id}
-									{...responseProps}
+									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.matching}
-								<Matching
-									content={block.content as any}
+								<BlockMatching
+									initialConfig={block.config}
+									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-									blockId={block.id}
-									{...responseProps}
+									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.shortAnswer}
-								<!-- <ShortAnswer
-									content={block.content as any}
-									{viewMode}
-									onUpdate={async (content: string) => await updateBlock({ block, content })}
-									blockId={block.id}
-									{...responseProps}
-								/> -->
+								<p>Short Answer block is not implemented yet.</p>
 							{:else}
 								<p>Content for {block.type} block.</p>
 							{/if}

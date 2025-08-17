@@ -12,7 +12,7 @@ export interface UpdateTaskTitleResponse {
 export interface CreateBlockRequest {
 	taskId: number;
 	type: string;
-	content: unknown;
+	config: unknown;
 	index: number;
 }
 
@@ -22,7 +22,7 @@ export interface CreateBlockResponse {
 
 export interface UpdateBlockRequest {
 	block: TaskBlock;
-	content?: unknown;
+	config: unknown;
 }
 
 export interface UpdateBlockResponse {

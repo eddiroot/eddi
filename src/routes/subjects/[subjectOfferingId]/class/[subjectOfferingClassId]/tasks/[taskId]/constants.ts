@@ -4,9 +4,6 @@ import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
 import HeadingFourIcon from '@lucide/svelte/icons/heading-4';
 import HeadingFiveIcon from '@lucide/svelte/icons/heading-5';
 import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
-import ImageIcon from '@lucide/svelte/icons/image';
-import FilmIcon from '@lucide/svelte/icons/film';
-import AudioLinesIcon from '@lucide/svelte/icons/audio-lines';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import List from '@lucide/svelte/icons/list';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
@@ -23,107 +20,87 @@ export enum ViewMode {
 export const blockTypes: {
 	type: string;
 	name: string;
-	content: unknown;
+	initialConfig?: Record<string, unknown>;
 	icon: typeof Icon;
 }[] = [
-	{
-		type: taskBlockTypeEnum.h1,
-		name: 'Heading 1',
-		content: 'This is a Heading 1',
-		icon: HeadingOneIcon
-	},
-	{
-		type: taskBlockTypeEnum.h2,
-		name: 'Heading 2',
-		content: 'This is a Heading 2',
-		icon: HeadingTwoIcon
-	},
-	{
-		type: taskBlockTypeEnum.h3,
-		name: 'Heading 3',
-		content: 'This is a Heading 3',
-		icon: HeadingThreeIcon
-	},
-	{
-		type: taskBlockTypeEnum.h4,
-		name: 'Heading 4',
-		content: 'This is a Heading 4',
-		icon: HeadingFourIcon
-	},
-	{
-		type: taskBlockTypeEnum.h5,
-		name: 'Heading 5',
-		content: 'This is a Heading 5',
-		icon: HeadingFiveIcon
-	},
-	{
-		type: taskBlockTypeEnum.richText,
-		name: 'Rich Text',
-		content: '',
-		icon: PilcrowIcon
-	},
-	{
-		type: taskBlockTypeEnum.image,
-		name: 'Image',
-		content: { src: '', alt: 'Image', caption: '' },
-		icon: ImageIcon
-	},
-	{
-		type: taskBlockTypeEnum.video,
-		name: 'Video',
-		content: { src: '', title: 'Video' },
-		icon: FilmIcon
-	},
-	{
-		type: taskBlockTypeEnum.audio,
-		name: 'Audio',
-		content: { src: '', title: 'Audio' },
-		icon: AudioLinesIcon
-	},
-	{
-		type: taskBlockTypeEnum.whiteboard,
-		name: 'Whiteboard',
-		content: { data: '', width: 800, height: 600 },
-		icon: PresentationIcon
-	},
-	{
-		type: taskBlockTypeEnum.multipleChoice,
-		name: 'Multiple Choice',
-		content: {
-			question: 'Sample multiple choice question?',
-			options: ['Option 1', 'Option 2'],
-			answer: 'Option 1',
-			multiple: false
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 1',
+			initialConfig: { text: 'Heading 1', size: 1 },
+			icon: HeadingOneIcon
 		},
-		icon: List
-	},
-	{
-		type: taskBlockTypeEnum.fillInBlank,
-		name: 'Fill in the Blank',
-		content: {
-			sentence: 'Fill in the blank _____.',
-			answer: 'Answer'
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 2',
+			initialConfig: { text: 'Heading 2', size: 2 },
+			icon: HeadingTwoIcon
 		},
-		icon: PenToolIcon
-	},
-	{
-		type: taskBlockTypeEnum.shortAnswer,
-		name: 'Short Answer',
-		content: {
-			question: 'Question'
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 3',
+			initialConfig: { text: 'Heading 3', size: 3 },
+			icon: HeadingThreeIcon
 		},
-		icon: PenToolIcon
-	},
-	{
-		type: taskBlockTypeEnum.matching,
-		name: 'Matching Pairs',
-		content: {
-			instructions: 'Match the items on the left with the correct answers on the right.',
-			pairs: [
-				{ left: 'Item 1', right: 'Answer 1' },
-				{ left: 'Item 2', right: 'Answer 2' }
-			]
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 4',
+			initialConfig: { text: 'Heading 4', size: 4 },
+			icon: HeadingFourIcon
 		},
-		icon: LinkIcon
-	}
-];
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 5',
+			initialConfig: { text: 'Heading 5', size: 5 },
+			icon: HeadingFiveIcon
+		},
+		{
+			type: taskBlockTypeEnum.richText,
+			name: 'Rich Text',
+			initialConfig: { html: 'This is a rich text block' },
+			icon: PilcrowIcon
+		},
+		{
+			type: taskBlockTypeEnum.whiteboard,
+			name: 'Whiteboard',
+			initialConfig: { data: '', width: 800, height: 600 },
+			icon: PresentationIcon
+		},
+		{
+			type: taskBlockTypeEnum.choice,
+			name: 'Multiple Choice',
+			initialConfig: {
+				question: 'Sample multiple choice question?',
+				options: [{ text: 'Option 1', isAnswer: false }, { text: 'Option 2', isAnswer: true }],
+			},
+			icon: List
+		},
+		{
+			type: taskBlockTypeEnum.fillBlank,
+			name: 'Fill in the Blank',
+			initialConfig: {
+				sentence: 'Fill in the blank _____.',
+				answer: 'answer'
+			},
+			icon: PenToolIcon
+		},
+		{
+			type: taskBlockTypeEnum.shortAnswer,
+			name: 'Short Answer',
+			initialConfig: {
+				question: 'Question'
+			},
+			icon: PenToolIcon
+		},
+		{
+			type: taskBlockTypeEnum.matching,
+			name: 'Matching Pairs',
+			initialConfig: {
+				instructions: 'Match the items on the left with the correct answers on the right.',
+				pairs: [
+					{ left: 'Item 1', right: 'Answer 1' },
+					{ left: 'Item 2', right: 'Answer 2' }
+				]
+			},
+			icon: LinkIcon
+		}
+	];

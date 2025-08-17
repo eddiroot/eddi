@@ -7,65 +7,37 @@
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
+	import type { BlockFillBlankConfig } from '$lib/server/schema/taskSchema';
+	import type { BlockProps } from './blockTypes';
 	import { ViewMode } from '../constants';
-	import {
-		createDebouncedSave,
-		saveTaskBlockResponse,
-		loadExistingResponse as loadExistingResponseFromAPI
-	} from '../utils/auto-save.js';
+	import { taskStatusEnum } from '$lib/enums';
 
-	interface FillInBlankContent {
-		sentence: string;
-		answer: string;
-	}
-
-	// Component props using Svelte 5 syntax
 	let {
-		content = {
-			sentence: '',
-			answer: ''
-		} as FillInBlankContent,
-		viewMode = ViewMode.VIEW,
-		onUpdate = () => {},
-		// New props for response saving
-		blockId,
-		taskId,
-		classTaskId,
-		subjectOfferingId,
-		subjectOfferingClassId,
-		isPublished = false
+		initialConfig,
+		onConfigUpdate,
+		initialResponse,
+		onResponseUpdate,
+		viewMode,
+		taskStatus
+	}: BlockProps & {
+		initialConfig: BlockFillBlankConfig;
 	} = $props();
 
-	let hasSubmitted = $state(false);
+	let config = $state<BlockFillBlankConfig>(initialConfig);
 	let userAnswer = $state('');
 
-	// Edit mode state - simple initialization like markdown
-	let sentenceText = $state(content.sentence || '');
-	let correctAnswer = $state(content.answer || '');
-
-	// Auto-save function for student responses
-	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
-		if (isPublished && classTaskId && blockId) {
-			await saveTaskBlockResponse(blockId, classTaskId, response);
-		}
-	});
-
-	// Functions for student interaction
 	function submitAnswer() {
 		if (!userAnswer.trim()) return;
-		hasSubmitted = true;
 	}
 
 	function resetQuiz() {
-		hasSubmitted = false;
 		userAnswer = '';
 	}
 
 	function isAnswerCorrect(): boolean {
-		return userAnswer.trim().toLowerCase() === content.answer.toLowerCase();
+		return userAnswer.trim() == config.answer;
 	}
 
-	// Parse sentence to display with blank
 	function parseSentence(sentence: string): { before: string; after: string } {
 		const blankIndex = sentence.indexOf('_____');
 		if (blankIndex === -1) {
@@ -78,28 +50,25 @@
 	}
 
 	function saveChanges() {
-		if (!sentenceText.trim()) {
+		if (!config.sentence.trim()) {
 			alert('Sentence text is required');
 			return;
 		}
 
-		if (!correctAnswer.trim()) {
+		if (!config.answer.trim()) {
 			alert('Correct answer is required');
 			return;
 		}
 
-		if (!sentenceText.includes('_____')) {
+		if (!config.sentence.includes('_____')) {
 			alert('Sentence must contain _____ to indicate where the blank should be');
 			return;
 		}
 
-		const newContent: FillInBlankContent = {
-			sentence: sentenceText.trim(),
-			answer: correctAnswer.trim()
-		};
-
-		content = newContent;
-		onUpdate(newContent);
+		onConfigUpdate({
+			sentence: config.sentence.trim(),
+			answer: config.answer.trim()
+		});
 	}
 </script>
 
@@ -118,7 +87,7 @@
 					<Label for="sentence-text">Sentence</Label>
 					<Textarea
 						id="sentence-text"
-						bind:value={sentenceText}
+						bind:value={config.sentence}
 						onblur={saveChanges}
 						placeholder="Enter your sentence with _____ where the blank should be..."
 						class="min-h-[80px] resize-none"
@@ -132,14 +101,14 @@
 					<Label for="correct-answer">Correct Answer</Label>
 					<Input
 						id="correct-answer"
-						bind:value={correctAnswer}
+						bind:value={config.answer}
 						onblur={saveChanges}
 						placeholder="Enter the correct answer..."
 					/>
 				</div>
 
-				{#if sentenceText && correctAnswer}
-					{@const parsed = parseSentence(sentenceText)}
+				{#if config.sentence && config.answer}
+					{@const parsed = parseSentence(config.sentence)}
 					<div class="space-y-2">
 						<Label>Preview</Label>
 						<div class="dark:bg-input/30 border-input rounded-lg border bg-transparent p-4">
@@ -148,7 +117,7 @@
 								<span
 									class="border-primary/50 mx-2 inline-block max-w-[200px] min-w-[140px] rounded-lg border-2 px-3 py-2 text-center font-medium shadow-sm"
 								>
-									{correctAnswer}
+									{config.answer}
 								</span>
 								<span>{parsed.after}</span>
 							</div>
@@ -159,7 +128,7 @@
 		</Card.Root>
 	{:else if viewMode === ViewMode.VIEW}
 		<!-- VIEW MODE: Shows the interactive fill-in-blank question -->
-		{#if content.sentence && content.answer}
+		{#if config.sentence && config.answer}
 			<Card.Root>
 				<Card.Content>
 					<div class="mb-6">
@@ -169,8 +138,8 @@
 						</p>
 					</div>
 
-					{@const parsed = parseSentence(content.sentence)}
-					{@const showFeedback = hasSubmitted && !isPublished}
+					{@const parsed = parseSentence(config.sentence)}
+					{@const showFeedback = taskStatus == taskStatusEnum.graded}
 					<div class="mb-6">
 						<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
 							<span>{parsed.before}</span>
@@ -182,8 +151,8 @@
 									class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
 										showFeedback
 											? isAnswerCorrect()
-												? 'border-green-500 bg-green-50 text-green-800 shadow-sm dark:bg-green-900/20 dark:text-green-200'
-												: 'border-red-500 bg-red-50 text-red-800 shadow-sm dark:bg-red-900/20 dark:text-red-200'
+												? 'border-success text-success shadow-sm'
+												: 'border-destructive text-destructive shadow-sm'
 											: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
 									}`}
 									style="border-radius: 8px; padding: 8px 12px;"
@@ -196,36 +165,27 @@
 					</div>
 
 					{#if showFeedback}
-						<div
-							class={`mb-6 rounded-lg border p-4 ${
-								isAnswerCorrect()
-									? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-									: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
-							}`}
-						>
+						<div class="mb-6 rounded-lg border p-4">
 							{#if isAnswerCorrect()}
-								<div class="flex items-center gap-2 text-green-800 dark:text-green-200">
+								<div class="text-success flex items-center gap-2">
 									<CheckIcon class="h-5 w-5" />
 									<span class="font-medium">Correct!</span>
 								</div>
-								<p class="mt-1 text-sm text-green-700 dark:text-green-300">
-									Well done! You got the right answer.
-								</p>
+								<p class="text-success mt-1 text-sm">Well done! You got the right answer.</p>
 							{:else}
-								<div class="flex items-center gap-2 text-red-800 dark:text-red-200">
+								<div class="text-destructive flex items-center gap-2">
 									<XIcon class="h-5 w-5" />
 									<span class="font-medium">Incorrect</span>
 								</div>
-								<p class="mt-1 text-sm text-red-700 dark:text-red-300">
-									The correct answer is: <strong>{content.answer}</strong>
+								<p class="text-destructive mt-1 text-sm">
+									The correct answer is: <strong>{config.answer}</strong>
 								</p>
 							{/if}
 						</div>
 					{/if}
 
-					<!-- Submit/Reset Button - Only show for non-published tasks -->
-					{#if !isPublished}
-						{#if !hasSubmitted}
+					{#if taskStatus == taskStatusEnum.published}
+						{#if !initialResponse}
 							<div class="mt-6">
 								<Button onclick={submitAnswer} disabled={!userAnswer.trim()} class="w-full">
 									Submit Answer

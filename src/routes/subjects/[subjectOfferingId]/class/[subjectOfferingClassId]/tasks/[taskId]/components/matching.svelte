@@ -11,116 +11,46 @@
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	import { ViewMode } from '../constants';
-	import {
-		saveTaskBlockResponse,
-		createDebouncedSave,
-		loadExistingResponse as loadExistingResponseFromAPI
-	} from '../utils/auto-save.js';
+	import type { BlockProps } from './blockTypes';
+	import type { BlockMatchingConfig } from '$lib/server/schema/taskSchema';
 
-	interface MatchingPair {
-		left: string;
-		right: string;
-	}
-
-	interface MatchingContent {
-		instructions: string;
-		pairs: MatchingPair[];
-	}
-
-	// Component props using Svelte 5 syntax
 	let {
-		content = {
-			instructions: '',
-			pairs: []
-		} as MatchingContent,
-		viewMode = ViewMode.VIEW,
-		onUpdate = () => {},
-		// New props for response saving
-		blockId,
-		taskId,
-		classTaskId,
-		subjectOfferingId,
-		subjectOfferingClassId,
-		isPublished = false
+		initialConfig,
+		onConfigUpdate,
+		initialResponse,
+		onResponseUpdate,
+		viewMode,
+		taskStatus
+	}: BlockProps & {
+		initialConfig: BlockMatchingConfig;
 	} = $props();
 
-	// Normalize content to handle potential legacy formats
-	function normalizeContent(content: any): MatchingContent {
-		if (!content || typeof content !== 'object') {
-			return { instructions: '', pairs: [] };
-		}
-
-		return {
-			instructions: content.instructions || '',
-			pairs: Array.isArray(content.pairs)
-				? content.pairs.map((pair: any) => ({
-						left: pair?.left || '',
-						right: pair?.right || ''
-					}))
-				: []
-		};
-	}
-
-	// State management
-	let normalizedContent = $state(normalizeContent(content));
-	let instructions = $state('');
-	let pairs = $state<MatchingPair[]>([]);
-
-	// Preview mode state
-	let hasSubmitted = $state(false);
-	let showFeedback = $state(false);
-	let rightItemsOrder = $state<string[]>([]);
-
-	// Drag and drop state for preview mode
+	let config = $state<BlockMatchingConfig>(initialConfig)
 	let draggedItem = $state<string | null>(null);
 
-	// Auto-save function for student responses
-	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
-		if (isPublished && blockId && classTaskId) {
-			await saveTaskBlockResponse(blockId, classTaskId, response);
-		}
-	}, 1000); // 1 second delay for matching
-
-	// Save function
-	function save() {
-		const validPairs = pairs.filter((pair) => pair.left.trim() && pair.right.trim());
-		const updatedContent = {
-			instructions: instructions.trim(),
-			pairs: validPairs
-		};
-
-		try {
-			onUpdate(updatedContent);
-		} catch (error) {
-			console.error('Failed to save matching block:', error);
-		}
-	}
-
-	// Edit mode functions
 	function addPair() {
-		pairs = [...pairs, { left: '', right: '' }];
-		save();
+		config = {...config, pairs: [...config.pairs, { left: '', right: '' }]};
+		onResponseUpdate(config)
 	}
 
 	function removePair(index: number) {
-		if (pairs.length > 1) {
-			pairs = pairs.filter((_, i) => i !== index);
-			save();
-		}
+		if (config.pairs.length <= 1) return;
+		config = {...config, pairs: config.pairs.filter((_, i) => i !== index)};
+		onResponseUpdate(config);
 	}
 
 	function updatePair(index: number, field: 'left' | 'right', value: string) {
-		pairs[index][field] = value;
-		save();
+		if (index < 0 || index >= config.pairs.length) return;
+		const updatedPairs = [...config.pairs];
+		updatedPairs[index] = { ...updatedPairs[index], [field]: value };
+		config = { ...config, pairs: updatedPairs };
+		onResponseUpdate(config);
 	}
 
 	// Preview mode functions
 	function handleDragOver(state: DragDropState<any>) {
 		const { draggedItem: draggedData, sourceContainer } = state;
 
-		console.log('Matching block drag over:', { sourceContainer, draggedData });
-
-		// Update visual state for right items reordering
 		if (sourceContainer === 'matching-right-items') {
 			draggedItem = draggedData;
 		}
@@ -128,8 +58,6 @@
 
 	function handleDrop(state: DragDropState<any>) {
 		const { draggedItem: droppedItem, targetContainer, sourceContainer } = state;
-
-		console.log('Matching block drop:', { sourceContainer, targetContainer, droppedItem });
 
 		if (
 			!droppedItem ||
@@ -158,7 +86,7 @@
 		draggedItem = null;
 
 		// Auto-save response for published tasks
-		if (isPublished && viewMode === ViewMode.VIEW) {
+		if (taskStatus. && viewMode === ViewMode.VIEW) {
 			const response = {
 				rightItemsOrder: [...rightItemsOrder],
 				submittedAt: new Date().toISOString()
@@ -180,20 +108,6 @@
 			await saveTaskBlockResponse(blockId, classTaskId, response);
 		} catch (error) {
 			console.error('Failed to save matching response:', error);
-		}
-	}
-
-	// Load existing user response using centralized function
-	async function loadExistingResponse() {
-		if (!isPublished || !blockId) return;
-
-		const existingResponse = await loadExistingResponseFromAPI(
-			blockId,
-			taskId,
-			subjectOfferingClassId
-		);
-		if (existingResponse && existingResponse.rightItemsOrder) {
-			rightItemsOrder = [...existingResponse.rightItemsOrder];
 		}
 	}
 
