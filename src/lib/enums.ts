@@ -122,3 +122,24 @@ export enum queueStatusEnum {
 	completed = 'completed',
 	failed = 'failed'
 }
+
+export enum newsPriorityEnum {
+	low = 'low',
+	normal = 'normal',
+	high = 'high',
+	urgent = 'urgent'
+}
+
+export enum newsStatusEnum {
+	draft = 'draft',
+	scheduled = 'scheduled',
+	published = 'published',
+	archived = 'archived'
+}
+
+export enum newsVisibilityEnum {
+	public = 'public',
+	internal = 'internal',
+	staff = 'staff',
+	students = 'students'
+}

@@ -30,3 +30,6 @@ export * from './curriculum';
 
 // Resource schemas
 export * from './resource';
+
+// News schemas
+export * from './news';

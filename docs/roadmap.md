@@ -77,13 +77,14 @@ Beej
 
 Blake
 
-- [ ] Handling of multiple campuses
+
 - [ ] A what to do button to generate study ideas (04/08)
-- [ ] Create school news
-- [ ] News feed
+- [] Create school news
+- [x] News feed
 - [ ] Queue for email sending so it doesn't block requests
 - [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Fleshed out behavioural reporting (see toddle)
+- [ ] Handling of multiple campuses
 
 Bella
 

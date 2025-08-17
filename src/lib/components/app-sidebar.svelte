@@ -26,6 +26,7 @@
 	import LocationEdit from '@lucide/svelte/icons/location-edit';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import RouteIcon from '@lucide/svelte/icons/route';
+	import NewsPaper from '@lucide/svelte/icons/newspaper';
 
 	const items = [
 		{
@@ -51,6 +52,12 @@
 			url: '/attendance',
 			icon: UsersIcon,
 			requiredPermission: userPermissions.viewGuardianAttendance
+		},
+		{
+			title: 'News',
+			url: '/news',
+			icon: NewsPaper,
+			requiredPermission: userPermissions.viewNews
 		}
 	];
 
