@@ -66,7 +66,7 @@ export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
 	taskBlockTypeEnum.h4,
 	taskBlockTypeEnum.h5,
 	taskBlockTypeEnum.h6,
-	taskBlockTypeEnum.markdown,
+	taskBlockTypeEnum.richText,
 	taskBlockTypeEnum.image,
 	taskBlockTypeEnum.video,
 	taskBlockTypeEnum.audio,
@@ -74,7 +74,6 @@ export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
 	taskBlockTypeEnum.multipleChoice,
 	taskBlockTypeEnum.whiteboard,
 	taskBlockTypeEnum.matching,
-	taskBlockTypeEnum.twoColumnLayout,
 	taskBlockTypeEnum.shortAnswer
 ]);
 

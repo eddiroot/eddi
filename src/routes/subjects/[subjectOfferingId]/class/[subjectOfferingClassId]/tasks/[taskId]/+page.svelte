@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import * as Select from '$lib/components/ui/select';
 	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
 	import Heading from './blocks/heading.svelte';
 	import RichTextEditor from './blocks/rich-text-editor.svelte';
@@ -12,14 +13,12 @@
 	import MultipleChoice from './blocks/multiple-choice.svelte';
 	import FillInBlank from './blocks/fill-in-blank.svelte';
 	import Matching from './blocks/matching.svelte';
-	import TwoColumnLayout from './blocks/two-column-layout.svelte';
 	import EyeIcon from '@lucide/svelte/icons/eye';
-	import EditIcon from '@lucide/svelte/icons/edit';
-	import ShortAnswer from './blocks/short-answer.svelte';
+	// import ShortAnswer from './blocks/short-answer.svelte';
 	import { type TaskBlock } from '$lib/server/db/schema';
-	import { ViewMode } from '$lib/utils';
 	import { Badge } from '$lib/components/ui/badge';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import CheckIcon from '@lucide/svelte/icons/check';
 
 	import {
 		createBlock,
@@ -28,81 +27,30 @@
 		updateTaskTitle,
 		updateBlockOrder
 	} from './client';
-	import { blockTypes } from './constants';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+
+	import { blockTypes, ViewMode } from './constants';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
+	import { PresentationIcon } from '@lucide/svelte';
 
 	let { data } = $props();
 	let blocks = $state(data.blocks);
 	let mouseOverElement = $state<string>('');
-	let taskStatus = $state<string>(data.classTask.status);
-	let manualViewMode = $state<ViewMode | null>(null); // Override for manual switching
+	let viewMode = $state<ViewMode>(
+		data.user.type == userTypeEnum.student ? ViewMode.VIEW : ViewMode.EDIT
+	);
+	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 
-	// Common response props for all interactive blocks
 	const responseProps = $derived({
 		taskId: data.task.id,
 		classTaskId: data.classTask.id,
 		subjectOfferingId: data.subjectOfferingId,
 		subjectOfferingClassId: data.subjectOfferingClassId,
-		isPublished: taskStatus === 'published'
+		isPublished: data.classTask.status === taskStatusEnum.published
 	});
-
-	// Use a derived value for viewMode that updates reactively
-	let viewMode = $derived<ViewMode>(
-		manualViewMode !== null
-			? manualViewMode
-			: data.user.type === 'student' || taskStatus === 'published'
-				? ViewMode.VIEW
-				: ViewMode.EDIT
-	);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
-
-	// Handle status changes
-	async function publishTask() {
-		try {
-			const response = await fetch(`?/publish`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				}
-			});
-
-			if (response.ok) {
-				// Update local state instead of reloading
-				taskStatus = 'published';
-				manualViewMode = null; // Reset manual override
-			} else {
-				alert('Failed to publish task');
-			}
-		} catch (error) {
-			console.error('Error publishing task:', error);
-			alert('Failed to publish task');
-		}
-	}
-
-	async function setToDraft() {
-		try {
-			const response = await fetch(`?/setToDraft`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				}
-			});
-
-			if (response.ok) {
-				// Update local state instead of reloading
-				taskStatus = 'draft';
-				manualViewMode = null; // Reset manual override
-			} else {
-				alert('Failed to set task to draft');
-			}
-		} catch (error) {
-			console.error('Error setting task to draft:', error);
-			alert('Failed to set task to draft');
-		}
-	}
 
 	async function handleDrop(state: DragDropState<TaskBlock>) {
 		const { draggedItem, sourceContainer, targetContainer } = state;
@@ -238,61 +186,52 @@
 	<!-- Contents Pane -->
 	<div class="flex flex-col gap-2">
 		{#if data.user.type !== 'student'}
-			{#if taskStatus === 'published'}
-				<Button
-					variant="outline"
-					onclick={setToDraft}
-					size="lg"
-					class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
-				>
-					<EditIcon class="size-5" />
-					Set to Draft
-				</Button>
-			{:else}
-				<Button
-					variant="outline"
-					onclick={() => {
-						if (viewMode === ViewMode.EDIT) {
-							manualViewMode = ViewMode.VIEW;
-						} else {
-							manualViewMode = ViewMode.EDIT;
-						}
-					}}
-					size="lg"
-					class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
-				>
-					{#if viewMode === ViewMode.EDIT}
-						<EyeIcon class="size-5" />
-						Switch to Preview Mode
-					{:else}
-						<EditIcon class="size-5" />
-						Switch to Edit Mode
-					{/if}
-				</Button>
-			{/if}
+			<form method="POST" action="?/status">
+				<Select.Root type="single" name="status" required bind:value={selectedStatus}>
+					<Select.Trigger class="w-full"
+						>{selectedStatus[0].toUpperCase() + selectedStatus.slice(1)}</Select.Trigger
+					>
+					<Select.Content>
+						<Select.Item value={taskStatusEnum.draft}>Draft</Select.Item>
+						<Select.Item value={taskStatusEnum.published}>Published</Select.Item>
+					</Select.Content>
+				</Select.Root>
+			</form>
 			<Button
-				variant="outline"
-				href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/present`}
+				variant={viewMode === ViewMode.EDIT ? 'outline' : 'default'}
+				onclick={() =>
+					viewMode == ViewMode.EDIT ? (viewMode = ViewMode.VIEW) : (viewMode = ViewMode.EDIT)}
 				size="lg"
-				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
 			>
-				Presentation Mode
+				<EyeIcon />
+				Preview
+				{#if viewMode === ViewMode.VIEW}
+					<CheckIcon />
+				{/if}
+			</Button>
+			<Button variant="outline" disabled onclick={() => (viewMode = ViewMode.PRESENT)} size="lg">
+				<PresentationIcon />
+				Present
 			</Button>
 			<Button
 				variant="outline"
 				href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/assess`}
 				size="lg"
-				class="flex h-16 w-full items-center justify-center gap-2 whitespace-normal"
 			>
 				<CheckCircleIcon class="size-5" />
-				Assess Submissions
+				Assess
 			</Button>
 		{/if}
 		<Card.Root class="h-full">
 			<Card.Header>
-				<Card.Title class="text-center text-lg">Contents</Card.Title>
+				<Card.Title>Contents</Card.Title>
 			</Card.Header>
-			<Card.Content></Card.Content>
+			<Card.Content>
+				{#each blocks.filter((block) => block.type.startsWith('h') && block.type.match(/^h[1-6]$/)) as block}
+					<p>{block.content}</p>
+					<br />
+				{/each}
+			</Card.Content>
 		</Card.Root>
 	</div>
 
@@ -300,22 +239,14 @@
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
 			<div class={viewMode === ViewMode.EDIT ? 'ml-[38px]' : ''}>
-				<div class="flex items-center gap-3">
-					<Heading
-						headingSize={1}
-						text={data.task.title}
-						{viewMode}
-						onUpdate={async (newText: string) =>
-							await updateTaskTitle({ taskId: data.task.id, title: newText })}
-					/>
-					<div class="text-muted-foreground flex items-center gap-2 text-lg font-light">
-						{#if taskStatus === 'draft'}
-							<span>Draft</span>
-						{/if}
-					</div>
-				</div>
+				<Heading
+					headingSize={1}
+					text={data.task.title}
+					{viewMode}
+					onUpdate={async (newText: string) =>
+						await updateTaskTitle({ taskId: data.task.id, title: newText })}
+				/>
 
-				<!-- Submission Success Message -->
 				{#if page.url.searchParams.get('submitted') === 'true'}
 					<div class="mt-4">
 						<Badge
@@ -331,18 +262,16 @@
 			<div class="flex h-full flex-col">
 				{#each blocks as block}
 					<div
-						class="min-h-4"
+						class="ml-[38px] min-h-4 rounded-md {dndState.targetContainer === `task-${block.id}`
+							? 'border-accent-foreground my-2 h-8 border border-dashed'
+							: ''}"
 						use:droppable={{
 							container: `task-${block.id}`,
 							callbacks: {
 								onDrop: handleDrop
 							}
 						}}
-					>
-						{#if dndState.targetContainer === `task-${block.id}`}
-							<Separator class="bg-accent-foreground my-2" />
-						{/if}
-					</div>
+					></div>
 
 					<div
 						class="grid {viewMode === ViewMode.EDIT
@@ -368,44 +297,44 @@
 							<div></div>
 						{/if}
 						<div>
-							{#if block.type === 'h1' || block.type === 'h2' || block.type === 'h3' || block.type === 'h4' || block.type === 'h5' || block.type === 'h6'}
+							{#if block.type === taskBlockTypeEnum.h1 || block.type === taskBlockTypeEnum.h2 || block.type === taskBlockTypeEnum.h3 || block.type === taskBlockTypeEnum.h4 || block.type === taskBlockTypeEnum.h5 || block.type === taskBlockTypeEnum.h6}
 								<Heading
 									headingSize={parseInt(block.type[1]) + 1}
 									text={typeof block.content === 'string' ? block.content : 'This is a heading'}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'markdown'}
+							{:else if block.type === taskBlockTypeEnum.richText}
 								<RichTextEditor
 									initialContent={block.content as string | undefined}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'image'}
+							{:else if block.type === taskBlockTypeEnum.image}
 								<Image
 									content={block.content as Record<string, any> | undefined}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'video'}
+							{:else if block.type === taskBlockTypeEnum.video}
 								<Video
 									content={block.content as Record<string, any> | undefined}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'audio'}
+							{:else if block.type === taskBlockTypeEnum.audio}
 								<Audio
 									content={block.content as Record<string, any> | undefined}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'whiteboard'}
+							{:else if block.type === taskBlockTypeEnum.whiteboard}
 								<Whiteboard
 									content={block.content as Record<string, any> | undefined}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 								/>
-							{:else if block.type === 'multiple_choice'}
+							{:else if block.type === taskBlockTypeEnum.multipleChoice}
 								<MultipleChoice
 									content={block.content as any}
 									{viewMode}
@@ -413,7 +342,7 @@
 									blockId={block.id}
 									{...responseProps}
 								/>
-							{:else if block.type === 'fill_in_blank'}
+							{:else if block.type === taskBlockTypeEnum.fillInBlank}
 								<FillInBlank
 									content={block.content as any}
 									{viewMode}
@@ -421,7 +350,7 @@
 									blockId={block.id}
 									{...responseProps}
 								/>
-							{:else if block.type === 'matching'}
+							{:else if block.type === taskBlockTypeEnum.matching}
 								<Matching
 									content={block.content as any}
 									{viewMode}
@@ -429,25 +358,14 @@
 									blockId={block.id}
 									{...responseProps}
 								/>
-							{:else if block.type === 'two_column_layout'}
-								<TwoColumnLayout
-									content={block.content as any}
-									{viewMode}
-									onUpdate={async (content: string) => {
-										await updateBlock({ block, content });
-									}}
-									onGlobalDrop={handleDrop}
-									blockId={block.id}
-									{...responseProps}
-								/>
-							{:else if block.type === 'short_answer'}
-								<ShortAnswer
+							{:else if block.type === taskBlockTypeEnum.shortAnswer}
+								<!-- <ShortAnswer
 									content={block.content as any}
 									{viewMode}
 									onUpdate={async (content: string) => await updateBlock({ block, content })}
 									blockId={block.id}
 									{...responseProps}
-								/>
+								/> -->
 							{:else}
 								<p>Content for {block.type} block.</p>
 							{/if}
@@ -472,7 +390,7 @@
 				{/if}
 
 				<!-- Submit Button for Students -->
-				{#if data.user.type === 'student' && taskStatus === 'published'}
+				{#if data.classTask.status === 'published' && data.user.type === 'student'}
 					<div class="mt-8 ml-[38px]">
 						<Button
 							onclick={() =>
@@ -533,11 +451,6 @@
 					</div>
 				</Card.Content>
 			</Card.Root>
-
-			<!-- Publish Button -->
-			{#if data.user.type !== 'student' && taskStatus === 'draft'}
-				<Button onclick={publishTask} size="lg" class="w-full">Publish Task</Button>
-			{/if}
 		</div>
 	{/if}
 </div>

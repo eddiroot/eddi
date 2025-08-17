@@ -35,11 +35,6 @@
 		const pathname = page.url.pathname;
 		const taskMatch = pathname.match(/\/tasks\/(\d+)/);
 
-		console.log('pathname:', pathname);
-		console.log('taskMatch:', taskMatch);
-		console.log('page.data.task:', page.data?.task);
-		console.log('task.aiTutorEnabled:', page.data?.task?.aiTutorEnabled);
-
 		if (taskMatch && page.data?.task) {
 			return page.data.task;
 		}
@@ -49,18 +44,12 @@
 	// Check if AI tutor should be shown
 	const shouldShowAITutor = $derived(() => {
 		const task = currentTask();
-		console.log('currentTask:', task);
-		console.log('task.aiTutorEnabled:', task?.aiTutorEnabled);
 
-		// If we're on a task page, check if AI tutor is enabled for that task
 		if (task) {
 			const result = task.aiTutorEnabled !== false;
-			console.log('shouldShowAITutor result:', result);
 			return result;
 		}
 
-		// For non-task pages, show AI tutor by default
-		console.log('Not on task page, showing AI tutor');
 		return true;
 	});
 
@@ -110,14 +99,20 @@
 			} else if (segments[i - 1] === 'student' && !isNaN(Number(segment))) {
 				const studentId = Number(segment);
 				const pageData = page.data as any;
-				const student = pageData?.student || pageData?.students?.find((s: any) => s.id === studentId);
+				const student =
+					pageData?.student || pageData?.students?.find((s: any) => s.id === studentId);
 				label = student ? `${student.firstName} ${student.lastName}` : `Student ${segment}`;
 			} else if (segments[i - 1] === 'profile') {
 				// This is a user ID in /profile/[userId]
 				const pageData = page.data as any;
 				const profile = pageData?.profile;
 				if (profile) {
-					const fullName = [profile.honorific, profile.firstName, profile.middleName, profile.lastName]
+					const fullName = [
+						profile.honorific,
+						profile.firstName,
+						profile.middleName,
+						profile.lastName
+					]
 						.filter(Boolean)
 						.join(' ');
 					label = fullName || `User ${segment}`;

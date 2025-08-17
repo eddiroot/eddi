@@ -5,7 +5,7 @@ import {
 	updateSubjectOfferingClassTaskStatus
 } from '$lib/server/db/service';
 import { redirect, fail } from '@sveltejs/kit';
-import { taskStatusEnum } from '$lib/enums';
+import { taskStatusEnum, userTypeEnum } from '$lib/enums';
 
 export const load = async ({
 	locals: { security },
@@ -28,7 +28,6 @@ export const load = async ({
 	const task = await getTaskById(taskIdInt);
 	if (!task) throw redirect(302, '/dashboard');
 
-	// Get the class task to access status
 	const classTask = await getSubjectOfferingClassTaskByTaskId(taskIdInt, classIdInt);
 	if (!classTask) throw redirect(302, '/dashboard');
 
@@ -38,8 +37,12 @@ export const load = async ({
 };
 
 export const actions = {
-	publish: async ({ locals: { security }, params: { taskId, subjectOfferingClassId } }) => {
-		security.isAuthenticated();
+	status: async ({ request, locals: { security }, params: { taskId, subjectOfferingClassId } }) => {
+		const user = security.isAuthenticated().getUser();
+
+		if (user.type === userTypeEnum.student) {
+			return fail(403, { message: 'Students are not allowed to change task status' });
+		}
 
 		const taskIdInt = parseInt(taskId, 10);
 		const classIdInt = parseInt(subjectOfferingClassId, 10);
@@ -48,33 +51,25 @@ export const actions = {
 			return fail(400, { message: 'Invalid task or class ID' });
 		}
 
+		const data = await request.formData();
+		let newStatus;
 		try {
-			await updateSubjectOfferingClassTaskStatus(taskIdInt, classIdInt, taskStatusEnum.published);
-
-			return { success: true };
+			newStatus = data.get('status') as taskStatusEnum;
 		} catch (error) {
-			console.error('Error publishing task:', error);
-			return fail(500, { message: 'Failed to publish task' });
+			console.error('Error parsing status:', error);
+			return fail(400, { message: 'Invalid task status' });
 		}
-	},
 
-	setToDraft: async ({ locals: { security }, params: { taskId, subjectOfferingClassId } }) => {
-		security.isAuthenticated();
-
-		const taskIdInt = parseInt(taskId, 10);
-		const classIdInt = parseInt(subjectOfferingClassId, 10);
-
-		if (isNaN(taskIdInt) || isNaN(classIdInt)) {
-			return fail(400, { message: 'Invalid task or class ID' });
+		if (!newStatus || !Object.values(taskStatusEnum).includes(newStatus)) {
+			return fail(400, { message: 'Invalid task status' });
 		}
 
 		try {
-			await updateSubjectOfferingClassTaskStatus(taskIdInt, classIdInt, taskStatusEnum.draft);
-
+			await updateSubjectOfferingClassTaskStatus(taskIdInt, classIdInt, newStatus);
 			return { success: true };
 		} catch (error) {
-			console.error('Error setting task to draft:', error);
-			return fail(500, { message: 'Failed to set task to draft' });
+			console.error('Error changing task status:', error);
+			return fail(500, { message: 'Failed to change task status' });
 		}
 	}
 };

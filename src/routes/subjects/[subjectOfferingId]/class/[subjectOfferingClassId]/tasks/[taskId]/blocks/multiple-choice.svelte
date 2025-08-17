@@ -11,8 +11,12 @@
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { ViewMode } from '$lib/utils';
-	import { saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI, createDebouncedSave } from '../utils/auto-save.js';
+	import { ViewMode } from '../constants';
+	import {
+		saveTaskBlockResponse,
+		loadExistingResponse as loadExistingResponseFromAPI,
+		createDebouncedSave
+	} from '../utils/auto-save.js';
 
 	interface MultipleChoiceContent {
 		question: string;
@@ -196,37 +200,17 @@
 		onUpdate(newContent);
 	}
 
-	$effect(() => {
-		questionText = content.question || '';
-		options = content.options || [];
-		correctAnswers = new Set(
-			content.answer ? (Array.isArray(content.answer) ? content.answer : [content.answer]) : []
-		);
-
-		hasSubmitted = false; // Reset quiz state when content changes
-		selectedAnswers = new Set();
-
-		// Load existing response for published tasks in view mode
-		if (isPublished && viewMode === ViewMode.VIEW) {
-			loadExistingResponse();
-		}
-	});
-
 	// Save student response for published tasks
 	async function saveStudentResponse() {
 		if (!isPublished || !blockId || !classTaskId) return;
-		
+
 		try {
 			const response = {
 				selectedAnswers: Array.from(selectedAnswers),
 				submittedAt: new Date().toISOString()
 			};
-			
-			await saveTaskBlockResponse(
-				blockId,
-				classTaskId,
-				response
-			);
+
+			await saveTaskBlockResponse(blockId, classTaskId, response);
 		} catch (error) {
 			console.error('Failed to save multiple choice response:', error);
 		}
@@ -235,8 +219,12 @@
 	// Load existing user response using centralized function
 	async function loadExistingResponse() {
 		if (!isPublished || !blockId) return;
-		
-		const existingResponse = await loadExistingResponseFromAPI(blockId, taskId, subjectOfferingClassId);
+
+		const existingResponse = await loadExistingResponseFromAPI(
+			blockId,
+			taskId,
+			subjectOfferingClassId
+		);
 		if (existingResponse && existingResponse.selectedAnswers) {
 			selectedAnswers = new Set(existingResponse.selectedAnswers);
 		}
@@ -310,13 +298,8 @@
 
 								<!-- Delete Button (only show if more than 2 options) -->
 								{#if options.length > 2}
-									<Button
-										variant="ghost"
-										size="sm"
-										onclick={() => removeOption(index)}
-										class="text-red-600 hover:bg-red-50 hover:text-red-700"
-									>
-										<TrashIcon class="h-4 w-4" />
+									<Button variant="ghost" size="sm" onclick={() => removeOption(index)}>
+										<TrashIcon />
 									</Button>
 								{/if}
 							</div>
@@ -355,8 +338,8 @@
 								{@const showFeedback = hasSubmitted && !isPublished}
 								<button
 									class={`interactive flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200
-                                        ${!showFeedback ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default'}
-                                        ${isSelected && !showFeedback ? 'border-blue-200 bg-blue-50' : ''}
+                                        ${!showFeedback ? 'cursor-pointer' : 'cursor-default'}
+                                        ${isSelected && !showFeedback ? 'border-blue-200' : ''}
                                         ${isSelected && isCorrect && showFeedback ? 'border-2 border-green-500 bg-green-50' : ''}
                                         ${isSelected && !isCorrect && showFeedback ? 'border-red-200 bg-red-50' : ''}
                                         ${!isSelected && isCorrect && showFeedback ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}

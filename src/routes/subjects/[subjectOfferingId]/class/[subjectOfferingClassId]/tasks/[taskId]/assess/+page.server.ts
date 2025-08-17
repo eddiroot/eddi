@@ -30,7 +30,10 @@ export const load = async ({
 
 	// Only teachers and above can access assessment page
 	if (user.type === userTypeEnum.student) {
-		throw redirect(302, `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}`);
+		throw redirect(
+			302,
+			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}`
+		);
 	}
 
 	let taskIdInt;
@@ -68,22 +71,22 @@ export const load = async ({
 	}> = [];
 	let selectedStudentBlockResponses: Awaited<ReturnType<typeof getUserTaskBlockResponses>> = [];
 
-	if (selectedStudentId && submissions.find(s => s.authorId === selectedStudentId)) {
-		selectedSubmission = submissions.find(s => s.authorId === selectedStudentId) || null;
+	if (selectedStudentId && submissions.find((s) => s.authorId === selectedStudentId)) {
+		selectedSubmission = submissions.find((s) => s.authorId === selectedStudentId) || null;
 		if (selectedSubmission) {
 			// Get resources with presigned URLs for PDF viewing
 			const resources = await getClassTaskResponseResources(selectedSubmission.id);
-			
+
 			selectedResources = await Promise.all(
 				resources.map(async (resourceData) => {
 					const resource = resourceData.resource as Resource;
 					try {
 						const schoolId = user.schoolId.toString();
 						// Strip schoolId prefix if it exists to avoid double-prefixing
-						const objectName = resource.objectKey.startsWith(schoolId) 
+						const objectName = resource.objectKey.startsWith(schoolId)
 							? resource.objectKey.substring(schoolId.length + 1)
 							: resource.objectKey;
-						
+
 						const downloadUrl = await getPresignedUrl(
 							schoolId,
 							objectName,
@@ -110,8 +113,11 @@ export const load = async ({
 				})
 			);
 
-			// Get student's task block responses for ResponseViewer
-			selectedStudentBlockResponses = await getUserTaskBlockResponses(taskIdInt, selectedStudentId, classTask.id);
+			selectedStudentBlockResponses = await getUserTaskBlockResponses(
+				taskIdInt,
+				selectedStudentId,
+				classTask.id
+			);
 		}
 	}
 
@@ -146,7 +152,7 @@ export const actions = {
 		}
 
 		const { taskId, subjectOfferingClassId } = params;
-		
+
 		try {
 			const taskIdInt = parseInt(taskId, 10);
 			const classIdInt = parseInt(subjectOfferingClassId, 10);
@@ -173,5 +179,3 @@ export const actions = {
 		}
 	}
 };
-
-

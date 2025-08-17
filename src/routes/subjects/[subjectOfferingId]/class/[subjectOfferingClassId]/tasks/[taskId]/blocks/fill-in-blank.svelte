@@ -4,12 +4,15 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import EditIcon from '@lucide/svelte/icons/edit';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { ViewMode } from '$lib/utils';
-	import { createDebouncedSave, saveTaskBlockResponse, loadExistingResponse as loadExistingResponseFromAPI } from '../utils/auto-save.js';
+	import { ViewMode } from '../constants';
+	import {
+		createDebouncedSave,
+		saveTaskBlockResponse,
+		loadExistingResponse as loadExistingResponseFromAPI
+	} from '../utils/auto-save.js';
 
 	interface FillInBlankContent {
 		sentence: string;
@@ -43,11 +46,7 @@
 	// Auto-save function for student responses
 	const debouncedSaveResponse = createDebouncedSave(async (response: unknown) => {
 		if (isPublished && classTaskId && blockId) {
-			await saveTaskBlockResponse(
-				blockId,
-				classTaskId,
-				response
-			);
+			await saveTaskBlockResponse(blockId, classTaskId, response);
 		}
 	});
 
@@ -101,37 +100,6 @@
 
 		content = newContent;
 		onUpdate(newContent);
-	}
-
-	// Update edit state when content prop changes (like markdown)
-	$effect(() => {
-		sentenceText = content.sentence || '';
-		correctAnswer = content.answer || '';
-		// Reset quiz state
-		hasSubmitted = false;
-		userAnswer = '';
-
-		// Load existing response for published tasks in view mode
-		if (isPublished && viewMode === ViewMode.VIEW) {
-			loadExistingResponse();
-		}
-	});
-
-	// Auto-save when user types answer in published tasks
-	$effect(() => {
-		if (isPublished && viewMode === ViewMode.VIEW && userAnswer) {
-			debouncedSaveResponse(userAnswer);
-		}
-	});
-
-	// Load existing user response using centralized function
-	async function loadExistingResponse() {
-		if (!isPublished || !blockId) return;
-		
-		const existingResponse = await loadExistingResponseFromAPI(blockId, taskId, subjectOfferingClassId);
-		if (existingResponse) {
-			userAnswer = existingResponse;
-		}
 	}
 </script>
 
@@ -284,6 +252,5 @@
 		{/if}
 	{:else}
 		<!-- PRESENTATION MODE: Placeholder for presentation-specific rendering -->
-		
 	{/if}
 </div>

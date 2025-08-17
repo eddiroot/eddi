@@ -76,12 +76,12 @@ Each component should be structured according to the provided schema. Prioritize
 
 // Shared criteria item schema for answer/criteria blocks
 const criteriaItem = {
-  type: 'object',
-  properties: {
-    description: { type: 'string' },
-    marks: { type: 'number' }
-  },
-  required: ['description', 'marks']
+	type: 'object',
+	properties: {
+		description: { type: 'string' },
+		marks: { type: 'number' }
+	},
+	required: ['description', 'marks']
 } as const;
 
 export const headerComponent = {
@@ -111,13 +111,13 @@ export const paragraphComponent = {
 		content: {
 			type: 'object',
 			properties: {
-				type: { type: 'string', enum: ['paragraph'] },
+				type: { type: 'string', enum: ['rich_text'] },
 				content: {
 					type: 'object',
 					properties: {
-						markdown: { type: 'string' }
+						rich_text: { type: 'string' }
 					},
-					required: ['markdown']
+					required: ['rich_text']
 				}
 			},
 			required: ['type', 'content']

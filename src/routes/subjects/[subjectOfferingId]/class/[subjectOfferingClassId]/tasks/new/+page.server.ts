@@ -99,7 +99,7 @@ async function createBlockFromComponent(component: any, taskId: number) {
 		case 'paragraph': {
 			// Extract paragraph content properly
 			const paragraphContent = content?.markdown || '';
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.markdown, paragraphContent);
+			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.richText, paragraphContent);
 			break;
 		}
 		case 'math_input': {

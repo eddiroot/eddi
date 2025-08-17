@@ -9,7 +9,7 @@
 	import PauseIcon from '@lucide/svelte/icons/pause';
 	import VolumeXIcon from '@lucide/svelte/icons/volume-x';
 	import Volume2Icon from '@lucide/svelte/icons/volume-2';
-	import { ViewMode } from '$lib/utils';
+	import { ViewMode } from '../constants';
 
 	let {
 		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
@@ -30,17 +30,6 @@
 	let autoplay = $state(content.autoplay || false);
 	let controls = $state(content.controls !== false);
 	let loop = $state(content.loop || false);
-
-	// Initialize editing state when component loads or content changes
-	$effect(() => {
-		if (viewMode = ViewMode.EDIT) {
-			src = content.src || '';
-			caption = content.caption || '';
-			autoplay = content.autoplay || false;
-			controls = content.controls !== false;
-			loop = content.loop || false;
-		}
-	});
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;

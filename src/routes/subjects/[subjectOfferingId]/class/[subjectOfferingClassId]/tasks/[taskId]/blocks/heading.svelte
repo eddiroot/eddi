@@ -1,12 +1,11 @@
-<script lang='ts'>
-	import Input from '$lib/components/ui/input/input.svelte';
-	import { ViewMode } from '$lib/utils';
+<script lang="ts">
+	import { ViewMode } from '../constants';
 
-	let { 
-		headingSize = 1, 
-		text = 'Heading goes here', 
+	let {
+		headingSize = 1,
+		text = 'Heading goes here',
 		viewMode = ViewMode.VIEW,
-		onUpdate 
+		onUpdate
 	}: {
 		headingSize: number;
 		text: string;
@@ -19,11 +18,6 @@
 		text = editText;
 		onUpdate(text);
 	}
-
-	// Update editText when text prop changes
-	$effect(() => {
-		editText = text;
-	});
 </script>
 
 <div class="w-full">
@@ -37,7 +31,7 @@
 					}
 				}}
 				onblur={saveText}
-				class="w-full scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				class="h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 text-4xl font-extrabold tracking-tight shadow-none focus:ring-0 focus:outline-none lg:text-5xl"
 				placeholder="Enter heading text..."
 			/>
 		{:else if headingSize === 2}
@@ -49,7 +43,7 @@
 					}
 				}}
 				onblur={saveText}
-				class="w-full scroll-m-20 text-3xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				class="h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 text-3xl font-semibold tracking-tight shadow-none focus:ring-0 focus:outline-none"
 				placeholder="Enter heading text..."
 			/>
 		{:else if headingSize === 3}
@@ -61,7 +55,7 @@
 					}
 				}}
 				onblur={saveText}
-				class="w-full scroll-m-20 text-2xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				class="h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 text-2xl font-semibold tracking-tight shadow-none focus:ring-0 focus:outline-none"
 				placeholder="Enter heading text..."
 			/>
 		{:else if headingSize === 4}
@@ -73,7 +67,7 @@
 					}
 				}}
 				onblur={saveText}
-				class="w-full scroll-m-20 text-xl font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				class="h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 text-xl font-semibold tracking-tight shadow-none focus:ring-0 focus:outline-none"
 				placeholder="Enter heading text..."
 			/>
 		{:else if headingSize === 5}
@@ -85,7 +79,7 @@
 					}
 				}}
 				onblur={saveText}
-				class="w-full scroll-m-20 text-lg font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				class="h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 text-lg font-semibold tracking-tight shadow-none focus:ring-0 focus:outline-none"
 				placeholder="Enter heading text..."
 			/>
 		{:else}
@@ -97,24 +91,21 @@
 					}
 				}}
 				onblur={saveText}
-				class="w-full scroll-m-20 text-base font-semibold tracking-tight border-none shadow-none p-0 h-auto bg-transparent focus:outline-none focus:ring-0 resize-none"
+				class="h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 text-base font-semibold tracking-tight shadow-none focus:ring-0 focus:outline-none"
 				placeholder="Enter heading text..."
 			/>
 		{/if}
-	{:else }
-		{#if headingSize === 1}
-			<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
-		{:else if headingSize === 2}
-			<h2 class="scroll-m-20 text-3xl font-semibold tracking-tight">{text}</h2>
-		{:else if headingSize === 3}
-			<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">{text}</h3>
-		{:else if headingSize === 4}
-			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">{text}</h4>
-		{:else if headingSize === 5}
-			<h5 class="scroll-m-20 text-lg font-semibold tracking-tight">{text}</h5>
-		{:else}
-			<h6 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h6>
-		{/if}
-		
+	{:else if headingSize === 1}
+		<h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{text}</h1>
+	{:else if headingSize === 2}
+		<h2 class="scroll-m-20 text-3xl font-semibold tracking-tight">{text}</h2>
+	{:else if headingSize === 3}
+		<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">{text}</h3>
+	{:else if headingSize === 4}
+		<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">{text}</h4>
+	{:else if headingSize === 5}
+		<h5 class="scroll-m-20 text-lg font-semibold tracking-tight">{text}</h5>
+	{:else}
+		<h6 class="scroll-m-20 text-base font-semibold tracking-tight">{text}</h6>
 	{/if}
 </div>

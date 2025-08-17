@@ -51,7 +51,7 @@ export enum taskBlockTypeEnum {
 	h4 = 'h4',
 	h5 = 'h5',
 	h6 = 'h6',
-	markdown = 'markdown',
+	richText = 'rich_text',
 	image = 'image',
 	video = 'video',
 	audio = 'audio',
@@ -59,7 +59,6 @@ export enum taskBlockTypeEnum {
 	multipleChoice = 'multiple_choice',
 	whiteboard = 'whiteboard',
 	matching = 'matching',
-	twoColumnLayout = 'two_column_layout',
 	shortAnswer = 'short_answer'
 }
 

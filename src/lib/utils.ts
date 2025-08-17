@@ -296,9 +296,3 @@ export function parseCSVData(csvText: string): Array<Record<string, string>> {
 
 	return data;
 }
-
-export enum ViewMode {
-	EDIT = 'edit',
-	VIEW = 'view',
-	PRESENT = 'present'
-}

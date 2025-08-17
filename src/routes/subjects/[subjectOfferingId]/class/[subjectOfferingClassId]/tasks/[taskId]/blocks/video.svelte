@@ -5,7 +5,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import FilmIcon from '@lucide/svelte/icons/film';
 	import UploadIcon from '@lucide/svelte/icons/upload';
-	import { ViewMode } from '$lib/utils';
+	import { ViewMode } from '../constants';
 
 	let {
 		content = { src: '', caption: '', autoplay: false, controls: true, loop: false },
@@ -20,17 +20,6 @@
 	let autoplay = $state(content.autoplay || false);
 	let controls = $state(content.controls !== false);
 	let loop = $state(content.loop || false);
-
-	// Initialize editing state when component loads or content changes
-	$effect(() => {
-		if (viewMode === ViewMode.EDIT) {
-			src = content.src || '';
-			caption = content.caption || '';
-			autoplay = content.autoplay || false;
-			controls = content.controls !== false;
-			loop = content.loop || false;
-		}
-	});
 
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
