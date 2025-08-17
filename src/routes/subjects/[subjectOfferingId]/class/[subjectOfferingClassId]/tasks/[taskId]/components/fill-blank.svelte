@@ -7,8 +7,7 @@
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import type { BlockFillBlankConfig } from '$lib/server/schema/taskSchema';
-	import type { BlockProps } from './blockTypes';
+	import type { FillBlankBlockProps } from './blockTypes';
 	import { ViewMode } from '../constants';
 	import { taskStatusEnum } from '$lib/enums';
 
@@ -19,11 +18,9 @@
 		onResponseUpdate,
 		viewMode,
 		taskStatus
-	}: BlockProps & {
-		initialConfig: BlockFillBlankConfig;
-	} = $props();
+	}: FillBlankBlockProps = $props();
 
-	let config = $state<BlockFillBlankConfig>(initialConfig);
+	let config = $state(initialConfig);
 	let userAnswer = $state('');
 
 	function submitAnswer() {

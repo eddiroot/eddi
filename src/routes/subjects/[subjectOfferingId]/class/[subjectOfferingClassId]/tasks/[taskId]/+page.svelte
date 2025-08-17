@@ -14,7 +14,7 @@
 	import BlockRichText from './components/rich-text-editor.svelte';
 	import BlockWhiteboard from './components/whiteboard.svelte';
 	import BlockChoice from './components/choice.svelte';
-	import BlockFillBlank from './components/fill-in-blank.svelte';
+	import BlockFillBlank from './components/fill-blank.svelte';
 	import BlockMatching from './components/matching.svelte';
 
 	// Icons
@@ -43,14 +43,6 @@
 	);
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 
-	const responseProps = $derived({
-		taskId: data.task.id,
-		classTaskId: data.classTask.id,
-		subjectOfferingId: data.subjectOfferingId,
-		subjectOfferingClassId: data.subjectOfferingClassId,
-		isPublished: data.classTask.status === taskStatusEnum.published
-	});
-
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
 
@@ -64,7 +56,7 @@
 			const { block } = await createBlock({
 				taskId: data.task.id,
 				type: draggedItem.type,
-				content: draggedItem.content,
+				config: draggedItem.config,
 				index: targetContainer === 'task-bottom' ? blocks.length : index
 			});
 
@@ -90,7 +82,7 @@
 			const { block } = await createBlock({
 				taskId: data.task.id,
 				type: draggedItem.type,
-				content: draggedItem.content,
+				config: draggedItem.config,
 				index: targetContainer === 'task-bottom' ? blocks.length : index
 			});
 
@@ -228,10 +220,9 @@
 			<Card.Header>
 				<Card.Title>Contents</Card.Title>
 			</Card.Header>
-			<Card.Content>
-				{#each blocks.filter((block) => block.type.startsWith('h') && block.type.match(/^h[1-6]$/)) as block}
-					<p>{block.content}</p>
-					<br />
+			<Card.Content class="space-y-1">
+				{#each blocks.filter((block) => block.type === taskBlockTypeEnum.heading) as block}
+					<p>{block.config!.text}</p>
 				{/each}
 			</Card.Content>
 		</Card.Root>
@@ -246,7 +237,7 @@
 						text: data.task.title,
 						size: 1
 					}}
-					onConfigUpdate={async (config: { text: string; size: number }) =>
+					onConfigUpdate={async (config) =>
 						await updateTaskTitle({ taskId: data.task.id, title: config.text })}
 					{viewMode}
 					taskStatus={data.classTask.status}
@@ -304,42 +295,48 @@
 						<div>
 							{#if block.type === taskBlockTypeEnum.heading}
 								<BlockHeading
-									initialConfig={block.config}
+									initialConfig={block.config as { text: string; size: number }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.richText}
 								<BlockRichText
-									initialConfig={block.config}
+									initialConfig={block.config as { html: string }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.whiteboard}
 								<BlockWhiteboard
-									initialConfig={block.config}
+									initialConfig={block.config as { title: string; whiteboardId: number | null }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.choice}
 								<BlockChoice
-									initialConfig={block.config}
+									initialConfig={block.config as {
+										question: string;
+										options: { text: string; isAnswer: boolean }[];
+									}}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.fillBlank}
 								<BlockFillBlank
-									initialConfig={block.config}
+									initialConfig={block.config as { sentence: string; answer: string }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.matching}
 								<BlockMatching
-									initialConfig={block.config}
+									initialConfig={block.config as {
+										instructions: string;
+										pairs: { left: string; right: string }[];
+									}}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 									taskStatus={data.classTask.status}
@@ -413,7 +410,7 @@
 							}
 						}}
 					>
-						{#each blockTypes as { type, name, content, icon }}
+						{#each blockTypes as { type, name, initialConfig, icon }}
 							{@const Icon = icon}
 							<div
 								class="flex flex-col items-center justify-center gap-1 {buttonVariants({
@@ -421,7 +418,7 @@
 								})} aspect-square h-18 w-full"
 								use:draggable={{
 									container: 'blockPalette',
-									dragData: { type, content, id: 0 }
+									dragData: { type, config: initialConfig, id: 0 }
 								}}
 							>
 								<Icon class="size-8" />

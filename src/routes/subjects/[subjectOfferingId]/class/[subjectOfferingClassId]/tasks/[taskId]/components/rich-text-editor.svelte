@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { BlockRichTextConfig } from '$lib/server/schema/taskSchema';
 	import { ViewMode } from '../constants';
-	import type { BlockProps } from './blockTypes';
+	import type { RichTextBlockProps } from './blockTypes';
 	import { onMount, onDestroy } from 'svelte';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
@@ -16,13 +15,7 @@
 		ListOrderedIcon
 	} from '@lucide/svelte';
 
-	let {
-		initialConfig,
-		onConfigUpdate,
-		viewMode
-	}: BlockProps & {
-		initialConfig: BlockRichTextConfig;
-	} = $props();
+	let { initialConfig, onConfigUpdate, viewMode }: RichTextBlockProps = $props();
 
 	let content = $state<string>(initialConfig.html);
 	let element: HTMLDivElement;

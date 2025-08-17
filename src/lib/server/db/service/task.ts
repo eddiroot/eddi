@@ -265,7 +265,7 @@ export async function updateTaskTitle(taskId: number, title: string) {
 export async function createTaskBlock(
 	taskId: number,
 	type: taskBlockTypeEnum,
-	content: unknown,
+	config: Record<string, unknown>,
 	index: number | undefined = undefined
 ) {
 	// If index is not provided, calculate the next available index used for LLM
@@ -292,7 +292,7 @@ export async function createTaskBlock(
 		.values({
 			taskId,
 			type,
-			content,
+			config,
 			index
 		})
 		.returning();
@@ -303,7 +303,7 @@ export async function createTaskBlock(
 export async function updateTaskBlock(
 	blockId: number,
 	updates: {
-		content?: unknown;
+		config?: Record<string, unknown>;
 		type?: taskBlockTypeEnum;
 	}
 ) {

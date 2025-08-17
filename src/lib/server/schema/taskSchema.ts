@@ -1,4 +1,4 @@
-import { taskBlockTypeEnum } from "$lib/enums";
+import { taskBlockTypeEnum } from '$lib/enums';
 
 export const taskCreationPrompts = {
 	lesson: (
@@ -83,7 +83,7 @@ const criteriaItem = {
 		marks: { type: 'number' }
 	},
 	required: ['description', 'marks']
-}
+};
 
 export const blockHeading = {
 	type: 'object',
@@ -102,9 +102,9 @@ export const blockHeading = {
 };
 
 export type BlockHeadingConfig = {
-	text: string,
-	size: number
-}
+	text: string;
+	size: number;
+};
 
 export const blockRichText = {
 	type: 'object',
@@ -122,8 +122,8 @@ export const blockRichText = {
 };
 
 export type BlockRichTextConfig = {
-	html: string
-}
+	html: string;
+};
 
 export const blockMathInput = {
 	type: 'object',
@@ -142,14 +142,14 @@ export const blockMathInput = {
 			items: criteriaItem,
 			minItems: 1
 		},
-		marks: { type: 'number' },
+		marks: { type: 'number' }
 	},
 	required: ['type', 'config', 'criteria']
 };
 
 export type BlockMathInputConfig = {
-	question: string,
-	answer: string
+	question: string;
+	answer: string;
 };
 
 export const blockChoice = {
@@ -169,23 +169,23 @@ export const blockChoice = {
 							isAnswer: { type: 'boolean' }
 						},
 						description:
-							'Array of objects containing the choices and whether that choice is an answer. To make only a single answer valid, the array should contain only one item with isAnswer as true.',
+							'Array of objects containing the choices and whether that choice is an answer. To make only a single answer valid, the array should contain only one item with isAnswer as true.'
 					}
-				},
+				}
 			},
 			required: ['question', 'options']
 		},
-		marks: { type: 'number' },
+		marks: { type: 'number' }
 	},
 	required: ['type', 'config']
 };
 
 export type BlockChoiceConfig = {
-	question: string,
+	question: string;
 	options: {
-		text: string,
-		isAnswer: boolean
-	}[]
+		text: string;
+		isAnswer: boolean;
+	}[];
 };
 
 export const blockFillBlank = {
@@ -196,18 +196,18 @@ export const blockFillBlank = {
 			type: 'object',
 			properties: {
 				sentence: { type: 'string' },
-				answer: { type: 'string' },
+				answer: { type: 'string' }
 			},
 			required: ['sentence', 'answer']
 		},
-		marks: { type: 'number' },
+		marks: { type: 'number' }
 	},
 	required: ['type', 'config']
 };
 
 export type BlockFillBlankConfig = {
-	sentence: string,
-	answer: string
+	sentence: string;
+	answer: string;
 };
 
 export const blockMatching = {
@@ -232,14 +232,14 @@ export const blockMatching = {
 			},
 			required: ['instructions', 'pairs']
 		},
-		marks: { type: 'number' },
+		marks: { type: 'number' }
 	},
 	required: ['type', 'config']
 };
 
 export type BlockMatchingConfig = {
-	instructions: string,
-	pairs: { left: string, right: string }[]
+	instructions: string;
+	pairs: { left: string; right: string }[];
 };
 
 export const blockShortAnswer = {
@@ -258,13 +258,35 @@ export const blockShortAnswer = {
 			items: criteriaItem,
 			minItems: 1
 		},
-		marks: { type: 'number' },
+		marks: { type: 'number' }
 	},
 	required: ['type', 'config', 'criteria']
 };
 
 export type BlockShortAnswerConfig = {
-	question: string
+	question: string;
+};
+
+export const blockWhiteboard = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.whiteboard] },
+		config: {
+			type: 'object',
+			properties: {
+				title: { type: 'string' },
+				whiteboardId: { type: 'number', nullable: true }
+			},
+			required: ['data', 'width', 'height']
+		},
+		marks: { type: 'number' }
+	},
+	required: ['type', 'config']
+};
+
+export type BlockWhiteboardConfig = {
+	title: string;
+	whiteboardId: number | null;
 };
 
 export const taskComponentItems = [
@@ -274,7 +296,7 @@ export const taskComponentItems = [
 	blockChoice,
 	blockFillBlank,
 	blockMatching,
-	blockShortAnswer,
+	blockShortAnswer
 ];
 
 export const layoutTwoColumns = {
@@ -301,11 +323,9 @@ export const layoutTwoColumns = {
 		}
 	},
 	required: ['type', 'config']
-}
+};
 
-export const taskLayoutItems = [
-	layoutTwoColumns
-];
+export const taskLayoutItems = [layoutTwoColumns];
 
 // Combined schema for all task items (components + layouts)
 export const allTaskItems = [...taskComponentItems, ...taskLayoutItems];

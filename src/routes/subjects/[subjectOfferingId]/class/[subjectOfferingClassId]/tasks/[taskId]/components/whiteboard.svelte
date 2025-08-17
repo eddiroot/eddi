@@ -7,15 +7,11 @@
 	import * as Card from '$lib/components/ui/card';
 	import { ViewMode } from '../constants';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
+	import type { WhiteboardBlockProps } from './blockTypes';
 
-	let {
-		content = { whiteboardId: null, title: '' },
-		viewMode = ViewMode.VIEW,
-		onUpdate = () => {}
-	} = $props();
+	let { initialConfig, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();
 
-	let title = $state(content.title || '');
-	let whiteboardId = $state(content.whiteboardId);
+	let config = $state(initialConfig);
 
 	const { taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 
@@ -28,13 +24,13 @@
 				},
 				body: JSON.stringify({
 					taskId: parseInt(taskId),
-					title: title || null
+					title: config.title || null
 				})
 			});
 
 			if (response.ok) {
 				const data = await response.json();
-				whiteboardId = data.whiteboardId;
+				config.whiteboardId = data.whiteboardId;
 				return data.whiteboardId;
 			}
 		} catch (error) {
@@ -44,41 +40,39 @@
 	};
 
 	const saveChanges = async () => {
-		let currentWhiteboardId = whiteboardId;
+		let currentWhiteboardId = config.whiteboardId;
 
 		if (!currentWhiteboardId) {
 			currentWhiteboardId = await createWhiteboard();
 		}
 
-		const newContent = {
+		const newConfig = {
 			whiteboardId: currentWhiteboardId,
-			title: title || ''
+			title: config.title || ''
 		};
 
-		content = newContent;
-		onUpdate(newContent);
+		config = newConfig;
+		await onConfigUpdate(newConfig);
 	};
 
 	const openWhiteboard = async () => {
-		console.log('openWhiteboard called');
-		let currentWhiteboardId = whiteboardId;
+		let currentWhiteboardId = config.whiteboardId;
 
 		if (!currentWhiteboardId) {
 			console.log('Creating new whiteboard...');
 			currentWhiteboardId = await createWhiteboard();
 			if (currentWhiteboardId) {
-				const newContent = {
+				const newConfig = {
 					whiteboardId: currentWhiteboardId,
-					title: title || ''
+					title: config.title || ''
 				};
-				content = newContent;
-				onUpdate(newContent);
+				config = newConfig;
+				await onConfigUpdate(newConfig);
 			}
 		}
 
 		if (currentWhiteboardId) {
 			const url = `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/${currentWhiteboardId}`;
-			console.log('Navigating to:', url);
 			goto(url);
 		} else {
 			console.error('Failed to get whiteboard ID');
@@ -100,18 +94,18 @@
 					<Label for="whiteboard-title">Whiteboard Title (Optional)</Label>
 					<Input
 						id="whiteboard-title"
-						bind:value={title}
+						bind:value={config.title}
 						onblur={saveChanges}
 						placeholder="Enter a title here"
 					/>
 				</div>
 			</Card.Content>
 		</Card.Root>
-	{:else if whiteboardId}
+	{:else if config.whiteboardId}
 		<div class="rounded-lg border p-6 text-center">
 			<PresentationIcon class="text-muted-foreground mx-auto mb-3 h-12 w-12" />
 			<h3 class="mb-2 text-lg font-semibold break-words">
-				{title || 'Interactive Whiteboard'}
+				{config.title || 'Interactive Whiteboard'}
 			</h3>
 			<Button class="mt-6 w-full" onclick={openWhiteboard}>Open Whiteboard</Button>
 		</div>

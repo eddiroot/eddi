@@ -1,12 +1,8 @@
-import type { Task, TaskBlock } from '$lib/server/db/schema';
+import type { TaskBlock } from '$lib/server/db/schema';
 
 export interface UpdateTaskTitleRequest {
 	taskId: number;
 	title: string;
-}
-
-export interface UpdateTaskTitleResponse {
-	task: Task;
 }
 
 export interface CreateBlockRequest {

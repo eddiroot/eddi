@@ -1,17 +1,10 @@
 <script lang="ts">
-	import type { BlockHeadingConfig } from '$lib/server/schema/taskSchema';
 	import { ViewMode } from '../constants';
-	import type { BlockProps } from './blockTypes';
+	import type { HeadingBlockProps } from './blockTypes';
 
-	let {
-		initialConfig,
-		onConfigUpdate,
-		viewMode
-	}: BlockProps & {
-		initialConfig: BlockHeadingConfig;
-	} = $props();
+	let { initialConfig, onConfigUpdate, viewMode }: HeadingBlockProps = $props();
 
-	let config = $state<BlockHeadingConfig>(initialConfig);
+	let config = $state(initialConfig);
 
 	const getClassesBySize = (size: number): string => {
 		const coreClasses =
@@ -36,7 +29,7 @@
 </script>
 
 <div class="w-full">
-	{#if (viewMode = ViewMode.VIEW)}
+	{#if viewMode === ViewMode.VIEW}
 		<input
 			bind:value={config.text}
 			onkeydown={(e) => {

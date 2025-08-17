@@ -12,8 +12,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { ViewMode } from '../constants';
-	import type { BlockProps } from './blockTypes';
-	import type { BlockChoiceConfig } from '$lib/server/schema/taskSchema';
+	import type { ChoiceBlockProps } from './blockTypes';
 	import { taskStatusEnum } from '$lib/enums';
 
 	let {
@@ -23,12 +22,10 @@
 		onResponseUpdate,
 		viewMode,
 		taskStatus
-	}: BlockProps & {
-		initialConfig: BlockChoiceConfig;
-	} = $props();
+	}: ChoiceBlockProps = $props();
 
-	let config = $state<BlockChoiceConfig>(initialConfig);
-	let selectedAnswers = $state<Set<string>>(new Set());
+	let config = $state(initialConfig);
+	let selectedAnswers = $state<string[]>([]);
 
 	let isMultiAnswer = $derived(() => {
 		return config.options.filter((option) => option.isAnswer).length > 1;
@@ -37,172 +34,43 @@
 	function toggleAnswer(option: string) {
 		if (taskStatus == taskStatusEnum.locked || taskStatus == taskStatusEnum.graded) return;
 
-		if (!config.multiple) {
+		if (!isMultiAnswer()) {
 			// Single choice - clear others and set this one
-			selectedAnswers = new Set([option]);
+			selectedAnswers = [option];
 		} else {
-			// Multiple choice - toggle this option
-			if (selectedAnswers.has(option)) {
-				selectedAnswers.delete(option);
+			if (selectedAnswers.includes(option)) {
+				selectedAnswers = selectedAnswers.filter((ans) => ans !== option);
 			} else {
-				selectedAnswers.add(option);
+				selectedAnswers = [...selectedAnswers, option];
 			}
-			selectedAnswers = new Set(selectedAnswers); // Trigger reactivity
-		}
-
-		// Auto-save response for published tasks
-		if (isPublished && blockId && classTaskId) {
-			const response = {
-				selectedAnswers: Array.from(selectedAnswers),
-				submittedAt: new Date().toISOString()
-			};
-			debouncedSave(response);
 		}
 	}
 
-	function submitAnswers() {
-		hasSubmitted = true;
+	function getCorrectAnswers() {
+		return config.options.filter((opt) => opt.isAnswer).map((opt) => opt.text);
 	}
 
-	function resetQuiz() {
-		hasSubmitted = false;
-		selectedAnswers = new Set();
-	}
-
-	// Auto-save student response when selections change
-	const debouncedSave = createDebouncedSave(async (response: any) => {
-		await saveTaskBlockResponse(blockId, classTaskId, response);
-	});
-
-	// Updated function with case-insensitive comparison and proper type checking
 	function isAnswerCorrect(option: string): boolean {
-		if (Array.isArray(content.answer)) {
-			// For multiple choice, check if option matches any correct answer (case-insensitive)
-			return content.answer.some((correctAnswer) => {
-				// Convert both to strings and compare case-insensitively
-				const answerStr = String(correctAnswer).toLowerCase();
-				const optionStr = option.toLowerCase();
-				return answerStr === optionStr;
-			});
-		} else if (content.answer !== null && content.answer !== undefined) {
-			// For single choice, compare with the single correct answer (case-insensitive)
-			// Convert both to strings to handle boolean/string mismatches
-			const answerStr = String(content.answer).toLowerCase();
-			const optionStr = option.toLowerCase();
-			return answerStr === optionStr;
-		}
-		// If content.answer is null or undefined, return false
-		return false;
-	}
-
-	function getAnswerStatus(option: string): 'correct' | 'incorrect' | 'neutral' {
-		if (!hasSubmitted) return 'neutral';
-
-		const isSelected = selectedAnswers.has(option);
-		const isCorrect = isAnswerCorrect(option);
-
-		if (isSelected && isCorrect) return 'correct';
-		if (isSelected && !isCorrect) return 'incorrect';
-		if (!isSelected && isCorrect) return 'correct'; // Show correct answers even if not selected
-		return 'neutral';
-	}
-
-	function addNewOption() {
-		options = [...options, ''];
-	}
-
-	function removeOption(index: number) {
-		if (options.length <= 2) {
-			return;
-		}
-		const removedOption = options[index];
-		options = options.filter((_, i) => i !== index);
-		// Remove from correct answers if it was selected
-		correctAnswers.delete(removedOption);
-		correctAnswers = new Set(correctAnswers);
-		// Auto-save after removing
-		saveChanges();
-	}
-
-	// Updated toggleCorrect function to also handle case-insensitive comparison
-	function toggleCorrect(option: string) {
-		// Always allow multiple correct answers - user can toggle any option
-		if (correctAnswers.has(option)) {
-			// Prevent removing the last correct answer
-			if (correctAnswers.size === 1) {
-				return;
-			}
-			correctAnswers.delete(option);
-		} else {
-			correctAnswers.add(option);
-		}
-		correctAnswers = new Set(correctAnswers);
-		// Auto-save after toggling correct answer
-		saveChanges();
-	}
-
-	// Updated saveChanges function to ensure consistent casing
-	function saveChanges() {
-		// Only save if we have a question
-		if (!questionText.trim()) {
-			return; // Don't show alert, just don't save yet
-		}
-
-		const validOptions = options.filter((opt) => opt.trim()).map((opt) => opt.trim());
-		if (validOptions.length < 2) {
-			return; // Don't save until we have at least 2 valid options
-		}
-
-		// Filter correct answers to only include valid options (case-insensitive matching)
-		const validCorrectAnswers = Array.from(correctAnswers).filter((correctAns) =>
-			validOptions.some((validOpt) => validOpt.toLowerCase() === correctAns.toLowerCase())
+		return config.options.some(
+			(opt) => opt.text.toLowerCase() === option.toLowerCase() && opt.isAnswer
 		);
-
-		if (validCorrectAnswers.length === 0) {
-			return; // Don't save until we have at least one correct answer
-		}
-
-		// Determine if it's multiple choice based on number of correct answers
-		const isMultiple = validCorrectAnswers.length > 1;
-
-		const newContent: MultipleChoiceContent = {
-			question: questionText.trim(),
-			options: validOptions,
-			answer: isMultiple ? validCorrectAnswers : validCorrectAnswers[0],
-			multiple: isMultiple
-		};
-
-		content = newContent;
-		onUpdate(newContent);
 	}
 
-	// Save student response for published tasks
-	async function saveStudentResponse() {
-		if (!isPublished || !blockId || !classTaskId) return;
-
-		try {
-			const response = {
-				selectedAnswers: Array.from(selectedAnswers),
-				submittedAt: new Date().toISOString()
-			};
-
-			await saveTaskBlockResponse(blockId, classTaskId, response);
-		} catch (error) {
-			console.error('Failed to save multiple choice response:', error);
-		}
+	async function addOption() {
+		config.options.push({ text: '', isAnswer: false });
+		onConfigUpdate(config);
 	}
 
-	// Load existing user response using centralized function
-	async function loadExistingResponse() {
-		if (!isPublished || !blockId) return;
+	async function removeOption(option: string) {
+		config.options = config.options.filter((opt) => opt.text !== option);
+		onConfigUpdate(config);
+	}
 
-		const existingResponse = await loadExistingResponseFromAPI(
-			blockId,
-			taskId,
-			subjectOfferingClassId
-		);
-		if (existingResponse && existingResponse.selectedAnswers) {
-			selectedAnswers = new Set(existingResponse.selectedAnswers);
+	async function toggleCorrect(option: string) {
+		const index = config.options.findIndex((opt) => opt.text === option);
+		if (index !== -1) {
+			config.options[index].isAnswer = !config.options[index].isAnswer;
+			onConfigUpdate(config);
 		}
 	}
 </script>
@@ -223,8 +91,10 @@
 					<Label for="question-text">Question</Label>
 					<Textarea
 						id="question-text"
-						bind:value={questionText}
-						onblur={saveChanges}
+						bind:value={config.question}
+						onblur={async () => {
+							await onConfigUpdate(config);
+						}}
 						placeholder="Enter your multiple choice question..."
 						class="min-h-[80px] resize-none"
 					/>
@@ -234,28 +104,25 @@
 				<div class="space-y-4">
 					<div class="flex items-center justify-between">
 						<Label>Answer Options</Label>
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={addNewOption}
-							class="flex items-center gap-2"
-						>
+						<Button variant="outline" size="sm" onclick={addOption} class="flex items-center gap-2">
 							<PlusIcon class="h-4 w-4" />
 							Add Option
 						</Button>
 					</div>
 					<div class="space-y-3">
-						{#each options as option, index}
+						{#each config.options as option, index}
 							<div class="flex items-start gap-3 rounded-lg border p-3">
 								<!-- Correct Answer Checkbox -->
 								<button
 									type="button"
-									onclick={() => toggleCorrect(option)}
+									onclick={() => toggleCorrect(option.text)}
 									class="mt-1 text-green-600 transition-colors hover:text-green-700"
-									title={correctAnswers.has(option) ? 'Mark as incorrect' : 'Mark as correct'}
-									disabled={!option.trim()}
+									title={getCorrectAnswers().includes(option.text)
+										? 'Mark as incorrect'
+										: 'Mark as correct'}
+									disabled={!option.text.trim()}
 								>
-									{#if correctAnswers.has(option)}
+									{#if getCorrectAnswers().includes(option.text)}
 										<CheckCircleIcon class="h-5 w-5" />
 									{:else}
 										<CircleIcon class="h-5 w-5" />
@@ -265,16 +132,18 @@
 								<!-- Answer Text Input -->
 								<div class="flex-1">
 									<Input
-										bind:value={options[index]}
-										onblur={saveChanges}
+										bind:value={config.options[index].text}
+										onblur={async () => {
+											await onConfigUpdate(config);
+										}}
 										placeholder={`Option ${index + 1}`}
 										class="w-full"
 									/>
 								</div>
 
 								<!-- Delete Button (only show if more than 2 options) -->
-								{#if options.length > 2}
-									<Button variant="ghost" size="sm" onclick={() => removeOption(index)}>
+								{#if config.options.length > 2}
+									<Button variant="ghost" size="sm" onclick={() => removeOption(option.text)}>
 										<TrashIcon />
 									</Button>
 								{/if}
@@ -291,14 +160,14 @@
 	{:else if viewMode === ViewMode.VIEW}
 		<!-- VIEW MODE: Shows the completed multiple choice question -->
 		<div class="group relative">
-			{#if content.question && content.options?.length > 0}
+			{#if config.question && config.options?.length > 0}
 				<!-- Display the complete question -->
 				<Card.Root>
 					<Card.Content>
 						<!-- Question Text -->
 						<div class="mb-6">
-							<h3 class="mb-2 text-lg font-medium">{content.question}</h3>
-							{#if content.multiple}
+							<h3 class="mb-2 text-lg font-medium">{config.question}</h3>
+							{#if isMultiAnswer()}
 								<p class="text-muted-foreground text-sm">Select all correct answers</p>
 							{:else}
 								<p class="text-muted-foreground text-sm">Select one answer</p>
@@ -307,11 +176,10 @@
 
 						<!-- Answer Options -->
 						<div class="space-y-3">
-							{#each content.options as option, index}
-								{@const answerStatus = getAnswerStatus(option)}
-								{@const isSelected = selectedAnswers.has(option)}
-								{@const isCorrect = isAnswerCorrect(option)}
-								{@const showFeedback = hasSubmitted && !isPublished}
+							{#each config.options as option, index}
+								{@const isSelected = selectedAnswers.includes(option.text)}
+								{@const isCorrect = isAnswerCorrect(option.text)}
+								{@const showFeedback = taskStatus === taskStatusEnum.graded}
 								<button
 									class={`interactive flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200
                                         ${!showFeedback ? 'cursor-pointer' : 'cursor-default'}
@@ -320,13 +188,11 @@
                                         ${isSelected && !isCorrect && showFeedback ? 'border-red-200 bg-red-50' : ''}
                                         ${!isSelected && isCorrect && showFeedback ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}
                                     `}
-									onclick={() => toggleAnswer(option)}
+									onclick={() => toggleAnswer(option.text)}
 									disabled={showFeedback}
 								>
-									<!-- Selection indicator -->
 									<div class="mt-1 flex-shrink-0">
-										{#if content.multiple}
-											<!-- Checkbox style for multiple choice -->
+										{#if isMultiAnswer()}
 											{#if !showFeedback}
 												{#if isSelected}
 													<div
@@ -415,25 +281,6 @@
 								</button>
 							{/each}
 						</div>
-
-						<!-- Submit/Reset Button - Only show for non-published tasks -->
-						{#if !isPublished}
-							{#if !hasSubmitted}
-								<div class="mt-6">
-									<Button
-										onclick={submitAnswers}
-										disabled={selectedAnswers.size === 0}
-										class="w-full"
-									>
-										Submit Answer{selectedAnswers.size > 1 ? 's' : ''}
-									</Button>
-								</div>
-							{:else}
-								<div class="mt-6 flex gap-2">
-									<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
-								</div>
-							{/if}
-						{/if}
 					</Card.Content>
 				</Card.Root>
 			{:else}
@@ -450,7 +297,7 @@
 			{/if}
 		</div>
 	{:else}
-		<!-- No content placeholder -->
+		<!-- No config placeholder -->
 		<div></div>
 	{/if}
 </div>

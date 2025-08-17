@@ -2,7 +2,6 @@
 
 import type {
 	UpdateTaskTitleRequest,
-	UpdateTaskTitleResponse,
 	CreateBlockRequest,
 	CreateBlockResponse,
 	UpdateBlockRequest,
@@ -19,7 +18,7 @@ const API_BASE = '/api/tasks';
  */
 export async function updateTaskTitle(
 	request: UpdateTaskTitleRequest
-): Promise<UpdateTaskTitleResponse> {
+): Promise<UpdateBlockResponse> {
 	const response = await fetch(API_BASE, {
 		method: 'PATCH',
 		headers: {
@@ -143,7 +142,7 @@ export async function saveTaskBlockResponse(
 	const result = await fetch(url, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
+			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
 			taskBlockId,

@@ -1,15 +1,41 @@
-import type { taskStatusEnum } from "$lib/enums";
-import type { ViewMode } from "../constants";
+import type { taskStatusEnum } from '$lib/enums';
+import type { ViewMode } from '../constants';
+import type {
+	BlockHeadingConfig,
+	BlockRichTextConfig,
+	BlockChoiceConfig,
+	BlockFillBlankConfig,
+	BlockMatchingConfig,
+	BlockShortAnswerConfig,
+	BlockWhiteboardConfig
+} from '$lib/server/schema/taskSchema';
+import type { UpdateBlockResponse } from '../../../../../../../api/tasks/types';
+import type { TaskBlockResponse } from '$lib/server/db/schema';
 
-export type BlockProps = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initialConfig: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onConfigUpdate: (config: any) => Promise<any>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initialResponse?: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onResponseUpdate?: (response: any) => Promise<any>;
-    viewMode: ViewMode;
-    taskStatus: taskStatusEnum
-}
+// Union type for all possible block configs
+export type BlockConfig =
+	| BlockHeadingConfig
+	| BlockRichTextConfig
+	| BlockChoiceConfig
+	| BlockFillBlankConfig
+	| BlockMatchingConfig
+	| BlockShortAnswerConfig
+	| BlockWhiteboardConfig;
+
+export type BlockProps<T extends BlockConfig = BlockConfig> = {
+	initialConfig: T;
+	onConfigUpdate: (config: T) => Promise<UpdateBlockResponse>;
+	initialResponse?: TaskBlockResponse;
+	onResponseUpdate?: (response: TaskBlockResponse) => Promise<UpdateBlockResponse>;
+	viewMode: ViewMode;
+	taskStatus: taskStatusEnum;
+};
+
+// Specific prop types for each block type
+export type HeadingBlockProps = BlockProps<BlockHeadingConfig>;
+export type RichTextBlockProps = BlockProps<BlockRichTextConfig>;
+export type ChoiceBlockProps = BlockProps<BlockChoiceConfig>;
+export type FillBlankBlockProps = BlockProps<BlockFillBlankConfig>;
+export type MatchingBlockProps = BlockProps<BlockMatchingConfig>;
+export type ShortAnswerBlockProps = BlockProps<BlockShortAnswerConfig>;
+export type WhiteboardBlockProps = BlockProps<BlockWhiteboardConfig>;

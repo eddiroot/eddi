@@ -79,7 +79,7 @@ export const taskBlock = pgTable('task_block', {
 		.notNull()
 		.references(() => task.id, { onDelete: 'cascade' }),
 	type: taskBlockTypeEnumPg().notNull(),
-	content: jsonb('content').notNull(),
+	config: jsonb('config').$type<Record<string, unknown>>().notNull(),
 	index: integer('index').notNull().default(0),
 	availableMarks: integer('available_marks'),
 	...timestamps
