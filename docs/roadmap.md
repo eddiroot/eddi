@@ -94,6 +94,7 @@ Raph
   - text adding mechanics
 - [ ] Profile Page (13/08)
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
+  - admin grade style option (percentage vs 0-8 scale)
 - [ ] Associate chatbot chats with the lesson/subject they were created in (31/08)
 
 Beej

@@ -72,10 +72,6 @@
         toast.success(message);
     }
 
-    function handleBackClick() {
-        goto('/dashboard');
-    }
-
     function handleGradesClick() {
         goto(`/grades/${data.profile.id}`);
     }

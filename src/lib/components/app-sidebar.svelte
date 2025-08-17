@@ -29,6 +29,7 @@
 	import LocationEdit from '@lucide/svelte/icons/location-edit';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import RouteIcon from '@lucide/svelte/icons/route';
+	import { BookOpenIcon } from '@lucide/svelte';
 
 	const items = [
 		{
@@ -95,6 +96,12 @@
 			icon: BarChart3Icon,
 			classLevel: true,
 			requiredPermission: userPermissions.viewAnalytics
+		},
+		{
+			title: 'Grades',
+			url: 'grades',
+			icon: BookOpenIcon,
+			classLevel: true,
 		}
 	];
 
