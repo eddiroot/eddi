@@ -47,16 +47,14 @@
 	const currentStudent = $derived(selectedSubmission?.student);
 	const currentBlockResponses = $derived(selectedStudentBlockResponses);
 	const selectedBlock = $derived(
-		selectedBlockId
-			? currentBlockResponses?.find((br) => br.taskBlock.id === selectedBlockId)
-			: null
+		selectedBlockId ? currentBlockResponses?.find((br) => br.block.id === selectedBlockId) : null
 	);
 
 	// Initialize feedback and selected block
 	$effect(() => {
-		feedback = selectedSubmission?.comment || '';
+		feedback = selectedSubmission?.classTaskResponse.comment || '';
 		if (currentBlockResponses && currentBlockResponses.length > 0 && !selectedBlockId) {
-			selectedBlockId = currentBlockResponses[0].taskBlock.id;
+			selectedBlockId = currentBlockResponses[0].block.id;
 		}
 	});
 
@@ -68,16 +66,20 @@
 	}
 
 	function nextStudent() {
-		const currentIndex = submissions.findIndex((s) => s.authorId === selectedStudentId);
+		const currentIndex = submissions.findIndex(
+			(s) => s.classTaskResponse.authorId === selectedStudentId
+		);
 		if (currentIndex >= 0 && currentIndex < submissions.length - 1) {
-			navigateToStudent(submissions[currentIndex + 1].authorId);
+			navigateToStudent(submissions[currentIndex + 1].classTaskResponse.authorId);
 		}
 	}
 
 	function previousStudent() {
-		const currentIndex = submissions.findIndex((s) => s.authorId === selectedStudentId);
+		const currentIndex = submissions.findIndex(
+			(s) => s.classTaskResponse.authorId === selectedStudentId
+		);
 		if (currentIndex > 0) {
-			navigateToStudent(submissions[currentIndex - 1].authorId);
+			navigateToStudent(submissions[currentIndex - 1].classTaskResponse.authorId);
 		}
 	}
 
@@ -122,18 +124,23 @@
 							variant="outline"
 							size="sm"
 							onclick={previousStudent}
-							disabled={submissions.findIndex((s) => s.authorId === selectedStudentId) <= 0}
+							disabled={submissions.findIndex(
+								(s) => s.classTaskResponse.authorId === selectedStudentId
+							) <= 0}
 						>
 							<ChevronLeft class="h-4 w-4" />
 						</Button>
 						<span class="px-2 text-sm">
-							{submissions.findIndex((s) => s.authorId === selectedStudentId) + 1} of {submissions.length}
+							{submissions.findIndex((s) => s.classTaskResponse.authorId === selectedStudentId) + 1}
+							of {submissions.length}
 						</span>
 						<Button
 							variant="outline"
 							size="sm"
 							onclick={nextStudent}
-							disabled={submissions.findIndex((s) => s.authorId === selectedStudentId) >=
+							disabled={submissions.findIndex(
+								(s) => s.classTaskResponse.authorId === selectedStudentId
+							) >=
 								submissions.length - 1}
 						>
 							<ChevronRight class="h-4 w-4" />
@@ -251,7 +258,7 @@
 					</div>
 					{#if !showResources && selectedBlock}
 						<p class="text-muted-foreground mt-2 text-sm">
-							Assessing: {selectedBlock.taskBlock.type} block
+							Assessing: {selectedBlock.block.type} block
 						</p>
 					{:else if !showResources}
 						<p class="text-muted-foreground mt-2 text-sm">
@@ -299,8 +306,8 @@
 								<div class="space-y-6">
 									<CriteriaCard
 										criteria={{
-											id: selectedBlock.taskBlock.id,
-											description: `Assessment criteria for ${selectedBlock.taskBlock.type} block`,
+											id: selectedBlock.block.id,
+											description: `Assessment criteria for ${selectedBlock.block.type} block`,
 											marks: 10
 										}}
 										feedback={null}
@@ -312,7 +319,7 @@
 
 									<AnswerCard
 										answer={{
-											id: selectedBlock.taskBlock.id,
+											id: selectedBlock.block.id,
 											answer: selectedBlock.response?.response || 'No response provided',
 											marks: selectedBlock.response?.marks || 0
 										}}
@@ -344,7 +351,11 @@
 											};
 										}}
 									>
-										<input type="hidden" name="studentId" value={selectedSubmission.authorId} />
+										<input
+											type="hidden"
+											name="studentId"
+											value={selectedSubmission.classTaskResponse.authorId}
+										/>
 
 										<div class="space-y-4">
 											<div>
@@ -392,10 +403,10 @@
 				</div>
 
 				<div class="space-y-2">
-					{#each submissions as submission (submission.id)}
+					{#each submissions as submission (submission.classTaskResponse.id)}
 						<button
 							class="hover:bg-muted w-full rounded-lg border p-4 text-left transition-colors"
-							onclick={() => navigateToStudent(submission.authorId)}
+							onclick={() => navigateToStudent(submission.classTaskResponse.authorId)}
 						>
 							<div class="font-medium">
 								{submission.student.firstName}
@@ -405,8 +416,11 @@
 								{submission.student.email}
 							</div>
 							<div class="mt-2 flex items-center gap-2">
-								<Badge variant={submission.comment ? 'default' : 'secondary'} class="text-xs">
-									{submission.comment ? 'Feedback Given' : 'Not Assessed'}
+								<Badge
+									variant={submission.classTaskResponse.comment ? 'default' : 'secondary'}
+									class="text-xs"
+								>
+									{submission.classTaskResponse.comment ? 'Feedback Given' : 'Not Assessed'}
 								</Badge>
 							</div>
 						</button>

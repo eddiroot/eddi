@@ -10,7 +10,7 @@ import type {
 	BlockWhiteboardConfig
 } from '$lib/server/schema/taskSchema';
 import type { UpdateBlockResponse } from '../../../../../../../api/tasks/types';
-import type { TaskBlockResponse } from '$lib/server/db/schema';
+import type { ClassTaskBlockResponse } from '$lib/server/db/schema';
 
 // Union type for all possible block configs
 export type BlockConfig =
@@ -25,8 +25,8 @@ export type BlockConfig =
 export type BlockProps<T extends BlockConfig = BlockConfig> = {
 	initialConfig: T;
 	onConfigUpdate: (config: T) => Promise<UpdateBlockResponse>;
-	initialResponse?: TaskBlockResponse;
-	onResponseUpdate?: (response: TaskBlockResponse) => Promise<UpdateBlockResponse>;
+	initialResponse?: ClassTaskBlockResponse;
+	onResponseUpdate?: (response: ClassTaskBlockResponse) => Promise<UpdateBlockResponse>;
 	viewMode: ViewMode;
 	taskStatus: taskStatusEnum;
 };

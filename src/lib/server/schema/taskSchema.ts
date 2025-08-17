@@ -289,7 +289,7 @@ export type BlockWhiteboardConfig = {
 	whiteboardId: number | null;
 };
 
-export const taskComponentItems = [
+export const taskBlocks = [
 	blockHeading,
 	blockRichText,
 	blockMathInput,
@@ -309,13 +309,13 @@ export const layoutTwoColumns = {
 				leftColumn: {
 					type: 'array',
 					items: {
-						anyOf: taskComponentItems
+						anyOf: taskBlocks
 					}
 				},
 				rightColumn: {
 					type: 'array',
 					items: {
-						anyOf: taskComponentItems
+						anyOf: taskBlocks
 					}
 				}
 			},
@@ -325,18 +325,19 @@ export const layoutTwoColumns = {
 	required: ['type', 'config']
 };
 
-export const taskLayoutItems = [layoutTwoColumns];
+export const taskLayouts = [layoutTwoColumns];
 
 // Combined schema for all task items (components + layouts)
-export const allTaskItems = [...taskComponentItems, ...taskLayoutItems];
+export const taskBlocksAndLayouts = [...taskBlocks, ...taskLayouts];
 
-export const taskComponentSchema = {
+export const taskSchema = {
 	type: 'object',
 	properties: {
-		task: {
+		blocks: {
 			type: 'array',
 			items: {
-				anyOf: allTaskItems
+				// TODO: Change to taskBlocksAndLayouts once layouts are implemented
+				anyOf: taskBlocks
 			}
 		}
 	},

@@ -3,7 +3,10 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { geminiCompletion } from '$lib/server/ai';
-import { taskComponentSchema, taskCreationPrompts } from '$lib/server/schema/taskSchema';
+import {
+	taskSchema as taskGenerationSchema,
+	taskCreationPrompts
+} from '$lib/server/schema/taskSchema';
 import {
 	createTask,
 	createTaskBlock,
@@ -13,14 +16,12 @@ import {
 	createSubjectOfferingClassTask,
 	getCurriculumLearningAreaWithStandards,
 	type CurriculumStandardWithElaborations,
-	getSubjectYearLevelBySubjectOfferingId,
-	createAnswer,
-	createCriteria
+	getSubjectYearLevelBySubjectOfferingId
 } from '$lib/server/db/service';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { taskBlockTypeEnum, taskTypeEnum } from '$lib/enums';
+import { taskTypeEnum } from '$lib/enums';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -44,181 +45,26 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 // Helper function to validate and create blocks from task schema
 async function createBlocksFromSchema(taskSchema: string, taskId: number) {
 	try {
-		// Parse the JSON schema
-		const parsedSchema = JSON.parse(taskSchema);
+		const blocks = JSON.parse(taskSchema)?.blocks || [];
 
-		// Extract task components from schema
-		const taskComponents = parsedSchema?.task || [];
-
-		if (!Array.isArray(taskComponents)) {
-			throw new Error('Invalid task schema: task property must be an array');
+		if (!Array.isArray(blocks)) {
+			throw new Error('Invalid schema: blocks property must be an array');
 		}
 
-		// Process each component and create blocks
-		for (let i = 0; i < taskComponents.length; i++) {
-			const component = taskComponents[i];
-			try {
-				await createBlockFromComponent(component, taskId);
-			} catch (error) {
-				console.error(`Error creating block from component ${i + 1}:`, component, error);
-				// Continue processing other components even if one fails
-			}
-		}
+		await Promise.all(
+			blocks.map(async (block) => {
+				try {
+					await createTaskBlock(taskId, block.type, block.config, taskId);
+				} catch (error) {
+					console.error(`Error creating block:`, block, error);
+				}
+			})
+		);
 	} catch (error) {
 		console.error('Error parsing or processing task schema:', error);
 		throw new Error(
 			`Failed to process task schema: ${error instanceof Error ? error.message : 'Unknown error'}`
 		);
-	}
-}
-
-// Helper function to create individual blocks from components
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createBlockFromComponent(component: any, taskId: number) {
-	if (!component || !component.content || !component.content.type) {
-		console.warn('Invalid component structure:', component);
-		return;
-	}
-
-	const type = component.content.type;
-	const content = component.content.content;
-
-	let createdBlock;
-
-	switch (type) {
-		case 'h1':
-		case 'h2':
-		case 'h3':
-		case 'h4':
-		case 'h5': {
-			// Extract text content properly
-			const headingText = content?.text || content || 'Heading';
-			createdBlock = await createTaskBlock(taskId, type, headingText);
-			break;
-		}
-		case 'paragraph': {
-			// Extract paragraph content properly
-			const paragraphContent = content?.markdown || '';
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.richText, paragraphContent);
-			break;
-		}
-		case 'math_input': {
-			// const question = content?.question || '';
-			// const answerLatex = content?.answer_latex || '';
-			// await createTaskBlock(taskId, 'math_input', { question, answer_latex: answerLatex });
-			break;
-		}
-		case 'multiple_choice': {
-			// Validate and transform multiple choice content structure
-			const question = content?.question || '';
-			const options = content?.options || [];
-			const multiple = content?.multiple || false;
-			const answer = component.answer || [];
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.multipleChoice, {
-				question,
-				options,
-				answer,
-				multiple
-			});
-			break;
-		}
-
-		case 'image': {
-			// Validate and transform image content structure
-			const url = content?.url || '';
-			const caption = content?.caption || '';
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.image, { url, caption });
-			break;
-		}
-
-		case 'video': {
-			const url = content?.url || '';
-			const caption = content?.caption || '';
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.video, { url, caption });
-			break;
-		}
-
-		// Unsupported block types that we'll ignore for now
-		case 'fill_in_blank': {
-			const sentence = content?.sentence || '';
-			const answer = component.answer || [];
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.fillInBlank, {
-				sentence,
-				answer
-			});
-			break;
-		}
-
-		case 'matching': {
-			const instructions = content?.instructions || '';
-			const pairs = content?.pairs || [];
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.matching, {
-				instructions,
-				pairs
-			});
-			break;
-		}
-		case 'short_answer': {
-			const question = content?.question || '';
-			createdBlock = await createTaskBlock(taskId, taskBlockTypeEnum.shortAnswer, { question });
-			break;
-		}
-
-		default:
-			console.warn(`Unknown block type: ${type}, ignoring`);
-			return;
-	}
-
-	// If block was created successfully, process answers and criteria
-	if (createdBlock) {
-		await processAnswersAndCriteria(component, createdBlock.id);
-	}
-}
-
-// Helper function to process answers and criteria for a task block
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function processAnswersAndCriteria(component: any, taskBlockId: number) {
-	try {
-		// Process answers
-		if (component.answers && Array.isArray(component.answers)) {
-			for (const answerData of component.answers) {
-				const answer = answerData.answer || answerData;
-				const marks = answerData.marks || answerData.mark || undefined;
-
-				await createAnswer(taskBlockId, answer, marks);
-			}
-		} else if (component.answer !== undefined) {
-			// Handle single answer (like in multiple choice, fill in blank, etc.)
-			const marks = component.marks || component.mark || undefined;
-			await createAnswer(taskBlockId, component.answer, marks);
-		}
-
-		// Process criteria
-		if (component.criteria && Array.isArray(component.criteria)) {
-			for (const criteriaData of component.criteria) {
-				const description = criteriaData.description || criteriaData.criterion || criteriaData;
-				const marks = criteriaData.marks || criteriaData.mark || 1; // Default to 1 mark if not specified
-
-				if (typeof description === 'string' && description.trim()) {
-					await createCriteria(taskBlockId, description.trim(), marks);
-				}
-			}
-		}
-
-		// Process marking criteria (alternative structure)
-		if (component.marking_criteria && Array.isArray(component.marking_criteria)) {
-			for (const criteriaData of component.marking_criteria) {
-				const description = criteriaData.description || criteriaData.criterion || criteriaData;
-				const marks = criteriaData.marks || criteriaData.mark || 1;
-
-				if (typeof description === 'string' && description.trim()) {
-					await createCriteria(taskBlockId, description.trim(), marks);
-				}
-			}
-		}
-	} catch (error) {
-		console.error(`Error processing answers/criteria for task block ${taskBlockId}:`, error);
-		// Don't throw - continue processing other blocks
 	}
 }
 
@@ -233,11 +79,9 @@ export const actions = {
 			const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
 			const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
 
-			// Read the form data ONCE
 			const formData = await request.formData();
 			const form = await superValidate(formData, zod4(formSchema));
 
-			// Extract selected learning area content IDs
 			const selectedLearningAreaContentIds = form.data.selectedLearningAreaContentIds || [];
 
 			let learningAreaContentData: CurriculumStandardWithElaborations[] = [];
@@ -248,7 +92,7 @@ export const actions = {
 			}
 
 			let courseMapItemId = form.data.taskTopicId;
-			// Create new topic if needed
+
 			if (form.data.newTopicName && !courseMapItemId) {
 				const newTopic = await createCourseMapItem(subjectOfferingIdInt, form.data.newTopicName);
 				courseMapItemId = newTopic.id;
@@ -327,7 +171,7 @@ export const actions = {
 						const aiResponse = await geminiCompletion(
 							enhancedPrompt,
 							tempFilePath,
-							taskComponentSchema
+							taskGenerationSchema
 						);
 						taskSchema += aiResponse;
 					} catch (aiError) {
@@ -344,7 +188,7 @@ export const actions = {
 				enhancedPrompt += `For Year Level: ${yearLevel}\n` + contentElaborationPrompt;
 
 				try {
-					taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskComponentSchema);
+					taskSchema = await geminiCompletion(enhancedPrompt, undefined, taskGenerationSchema);
 				} catch (aiError) {
 					console.error('Error in AI generation:', aiError);
 					throw new Error(`AI generation failed: ${aiError}`);

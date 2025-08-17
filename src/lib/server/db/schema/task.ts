@@ -18,7 +18,6 @@ import { doublePrecision } from 'drizzle-orm/pg-core';
 import { learningAreaStandard } from './curriculum';
 import { resource } from './resource';
 import {
-	taskBlockResponseStatusEnum,
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
@@ -59,6 +58,18 @@ export const task = pgTable(
 
 export type Task = typeof task.$inferSelect;
 
+export const taskStandard = pgTable('task_std', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskId: integer('task_id')
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	learningAreaStandardId: integer('lrn_a_std_id')
+		.notNull()
+		.references(() => learningAreaStandard.id, { onDelete: 'cascade' })
+});
+
+export type TaskStandard = typeof taskStandard.$inferSelect;
+
 export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
 	taskBlockTypeEnum.heading,
 	taskBlockTypeEnum.richText,
@@ -79,7 +90,7 @@ export const taskBlock = pgTable('task_block', {
 		.notNull()
 		.references(() => task.id, { onDelete: 'cascade' }),
 	type: taskBlockTypeEnumPg().notNull(),
-	config: jsonb('config').$type<Record<string, unknown>>().notNull(),
+	config: jsonb('config').notNull(),
 	index: integer('index').notNull().default(0),
 	availableMarks: integer('available_marks'),
 	...timestamps
@@ -121,20 +132,7 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 
 export type SubjectOfferingClassTask = typeof subjectOfferingClassTask.$inferSelect;
 
-// potential analysis: This table links tasks to learning area standards, allowing for tracking of which standards are covered by each task.
-export const taskStandard = pgTable('task_standard', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	classTaskId: integer('class_task_id')
-		.notNull()
-		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
-	learningAreaStandardId: integer('la_standard_id')
-		.notNull()
-		.references(() => learningAreaStandard.id, { onDelete: 'cascade' })
-});
-
-export type TaskStandard = typeof taskStandard.$inferSelect;
-
-export const taskBlockResponse = pgTable('task_block_response', {
+export const classTaskBlockResponse = pgTable('cls_task_block_res', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	taskBlockId: integer('task_block_id')
 		.notNull()
@@ -145,48 +143,37 @@ export const taskBlockResponse = pgTable('task_block_response', {
 	classTaskId: integer('class_task_id')
 		.notNull()
 		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
-	response: jsonb('response'), // This is what the student submits for this task block
-	feedback: text('feedback'), // Teacher feedback on the response
-	marks: doublePrecision('marks'), // Marks awarded for this task block response (accumulated from answer and criteria responses)
+	response: jsonb('response'), // This is what the student submitted for this task block
+	feedback: text('feedback'), // Teacher feedback on the block response
+	marks: doublePrecision('marks'), // Marks awarded for this task block response
 	...timestamps
 });
 
-export type TaskBlockResponse = typeof taskBlockResponse.$inferSelect;
+export type ClassTaskBlockResponse = typeof classTaskBlockResponse.$inferSelect;
 
-export const taskBlockResponseStatusEnumPg = pgEnum('enum_task_block_response_status', [
-	taskBlockResponseStatusEnum.editPermission,
-	taskBlockResponseStatusEnum.submitted,
-	taskBlockResponseStatusEnum.graded
-]);
-
-export const classTaskResponse = pgTable('task_response', {
+export const classTaskResponse = pgTable('cls_task_res', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	classTaskId: integer('class_task_id')
+	classTaskId: integer('cls_task_id')
 		.notNull()
 		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
+	comment: text('comment'), // Optional comment from the student about their submission
+	feedback: text('feedback'), // Optional feedback from the teacher
 	authorId: uuid('author_id')
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }), // Students response to the task
-	comment: text('comment'), // Optional comment from the student about their submission
-	feedback: text('feedback'), // Teacher feedback on the task response
-	marks: doublePrecision('marks').notNull(), // Total marks awarded for the task response
-	status: taskBlockResponseStatusEnumPg().notNull().default(taskBlockResponseStatusEnum.submitted),
-	teacherId: uuid('teacher_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }), // Teacher who graded the task response
+		.references(() => user.id, { onDelete: 'cascade' }),
+	teacherId: uuid('teacher_id').references(() => user.id, { onDelete: 'cascade' }), // Teacher who graded the task response
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
 export type ClassTaskResponse = typeof classTaskResponse.$inferSelect;
 
-// Junction table for task response resources (one-to-many relationship)
 export const classTaskResponseResource = pgTable('task_response_resource', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	classTaskResponseId: integer('task_response_id')
+	classTaskResponseId: integer('cls_task_res_id')
 		.notNull()
 		.references(() => classTaskResponse.id, { onDelete: 'cascade' }),
-	resourceId: integer('resource_id')
+	resourceId: integer('res_id')
 		.notNull()
 		.references(() => resource.id, { onDelete: 'cascade' }),
 	authorId: uuid('author_id')
@@ -197,106 +184,6 @@ export const classTaskResponseResource = pgTable('task_response_resource', {
 });
 
 export type ClassTaskResponseResource = typeof classTaskResponseResource.$inferSelect;
-
-export const whiteboard = pgTable('whiteboard', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	taskId: integer('task_id')
-		.notNull()
-		.references(() => task.id, { onDelete: 'cascade' }),
-	title: text('title'),
-	...timestamps
-});
-
-export type Whiteboard = typeof whiteboard.$inferSelect;
-
-export const whiteboardObjectTypeEnumPg = pgEnum('enum_whiteboard_object_type', [
-	whiteboardObjectTypeEnum.rect,
-	whiteboardObjectTypeEnum.circle,
-	whiteboardObjectTypeEnum.path,
-	whiteboardObjectTypeEnum.textbox,
-	whiteboardObjectTypeEnum.image
-]);
-
-export const whiteboardObject = pgTable('whiteboard_object', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	whiteboardId: integer('whiteboard_id')
-		.notNull()
-		.references(() => whiteboard.id, { onDelete: 'cascade' }),
-	objectId: text('object_id').notNull().unique(),
-	objectType: whiteboardObjectTypeEnumPg().notNull(),
-	objectData: jsonb('object_data').notNull(),
-	...timestamps
-});
-
-export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
-
-export const answer = pgTable('answer', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	taskBlockId: integer('task_block_id')
-		.notNull()
-		.references(() => taskBlock.id, { onDelete: 'cascade' }),
-	answer: jsonb('answer'),
-	marks: doublePrecision('marks'),
-	...timestamps
-});
-
-export type Answer = typeof answer.$inferSelect;
-
-export enum feedbackLevelEnum {
-	met = 'met',
-	no = 'no',
-	partial = 'partial'
-}
-
-export const feedbackLevelEnumPg = pgEnum('enum_feedback_level', [
-	feedbackLevelEnum.met,
-	feedbackLevelEnum.no,
-	feedbackLevelEnum.partial
-]);
-
-export const answerFeedback = pgTable('ans_feed', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	answerId: integer('ans_id')
-		.notNull()
-		.references(() => answer.id, { onDelete: 'cascade' }),
-	taskBlockResponseId: integer('task_block_response_id')
-		.notNull()
-		.references(() => taskBlockResponse.id, { onDelete: 'cascade' }),
-	marks: doublePrecision('marks').notNull(), // Marks awarded for this answer response
-	feedbackLevel: feedbackLevelEnumPg(), // nothing
-	...timestamps
-});
-
-export type AnswerFeedback = typeof answerFeedback.$inferSelect;
-
-export const criteria = pgTable('criteria', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	taskBlockId: integer('task_block_id')
-		.notNull()
-		.references(() => taskBlock.id, { onDelete: 'cascade' }),
-	description: text('description').notNull(),
-	marks: doublePrecision('marks').notNull(), // Marks assigned to this criteria 1 or 0.5 etc.
-	...timestamps
-});
-
-export type Criteria = typeof criteria.$inferSelect;
-
-// Record teacher checks for individual criteria on a task-block response
-// can award full marks, half marks, or no marks. etc.
-export const criteriaFeedback = pgTable('crit_fdbck', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-	criteriaId: integer('crit_id')
-		.notNull()
-		.references(() => criteria.id, { onDelete: 'cascade' }),
-	taskBlockResponseId: integer('task_block_response_id')
-		.notNull()
-		.references(() => taskBlockResponse.id, { onDelete: 'cascade' }),
-	feedbackLevel: feedbackLevelEnumPg(), // no | partial | met
-	marks: doublePrecision('marks').notNull(), // Marks awarded for this criteria response // can be 1, 0.5, or 0 etc.
-	...timestamps
-});
-
-export type CriteriaFeedback = typeof criteriaFeedback.$inferSelect;
 
 export const rubric = pgTable('rubric', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -354,3 +241,35 @@ export const rubricCellFeedback = pgTable('rubric_feedback', {
 });
 
 export type RubricCellFeedback = typeof rubricCellFeedback.$inferSelect;
+
+export const whiteboard = pgTable('whiteboard', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskId: integer('task_id')
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	title: text('title'),
+	...timestamps
+});
+
+export type Whiteboard = typeof whiteboard.$inferSelect;
+
+export const whiteboardObjectTypeEnumPg = pgEnum('enum_whiteboard_object_type', [
+	whiteboardObjectTypeEnum.rect,
+	whiteboardObjectTypeEnum.circle,
+	whiteboardObjectTypeEnum.path,
+	whiteboardObjectTypeEnum.textbox,
+	whiteboardObjectTypeEnum.image
+]);
+
+export const whiteboardObject = pgTable('whiteboard_object', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	whiteboardId: integer('whiteboard_id')
+		.notNull()
+		.references(() => whiteboard.id, { onDelete: 'cascade' }),
+	objectId: text('object_id').notNull().unique(),
+	objectType: whiteboardObjectTypeEnumPg().notNull(),
+	objectData: jsonb('object_data').notNull(),
+	...timestamps
+});
+
+export type WhiteboardObject = typeof whiteboardObject.$inferSelect;

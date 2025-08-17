@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { createOrUpdateTaskBlockResponse } from '$lib/server/db/service';
+import { upsertClassTaskBlockResponse } from '$lib/server/db/service';
 
 export async function POST({ request, locals: { security } }) {
 	try {
@@ -10,7 +10,7 @@ export async function POST({ request, locals: { security } }) {
 			return json({ error: 'Missing required fields' }, { status: 400 });
 		}
 
-		const savedResponse = await createOrUpdateTaskBlockResponse(
+		const savedResponse = await upsertClassTaskBlockResponse(
 			taskBlockId,
 			user.id,
 			classTaskId,

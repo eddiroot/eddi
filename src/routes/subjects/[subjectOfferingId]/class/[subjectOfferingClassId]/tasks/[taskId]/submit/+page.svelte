@@ -42,7 +42,7 @@
 		}
 	});
 
-	const hasSubmitted = data.existingSubmission?.status === 'submitted';
+	const hasSubmitted = data.existingSubmission !== null;
 
 	async function removeExistingFile(resourceId: number, fileName: string) {
 		const formData = new FormData();

@@ -3,14 +3,12 @@ import { db } from '$lib/server/db';
 import { desc, eq, and, or, gte, inArray, asc, sql } from 'drizzle-orm';
 import { verifyUserAccessToClass } from './user';
 import {
-	taskBlockResponseStatusEnum,
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
 	userTypeEnum,
 	whiteboardObjectTypeEnum
 } from '$lib/enums.js';
-import { feedbackLevelEnum } from '$lib/server/db/schema/task';
 
 export async function addTasksToClass(
 	taskIds: number[],
@@ -892,138 +890,6 @@ export async function duplicateRubric(rubricId: number, newTitle?: string) {
 	return await createCompleteRubric(title, rows);
 }
 
-// Answer methods
-export async function createAnswer(taskBlockId: number, answer: unknown, marks?: number) {
-	const [createdAnswer] = await db
-		.insert(table.answer)
-		.values({
-			taskBlockId,
-			answer,
-			marks
-		})
-		.returning();
-
-	return createdAnswer;
-}
-
-export async function updateAnswer(
-	answerId: number,
-	updates: {
-		answer?: unknown;
-		marks?: number;
-	}
-) {
-	const [updatedAnswer] = await db
-		.update(table.answer)
-		.set({ ...updates })
-		.where(eq(table.answer.id, answerId))
-		.returning();
-
-	return updatedAnswer;
-}
-
-export async function deleteAnswer(answerId: number) {
-	await db.delete(table.answer).where(eq(table.answer.id, answerId));
-}
-
-export async function getAnswersByTaskBlockId(taskBlockId: number) {
-	const answers = await db
-		.select()
-		.from(table.answer)
-		.where(eq(table.answer.taskBlockId, taskBlockId))
-		.orderBy(asc(table.answer.id));
-
-	return answers;
-}
-
-export async function getAnswerById(answerId: number) {
-	const answers = await db
-		.select()
-		.from(table.answer)
-		.where(eq(table.answer.id, answerId))
-		.limit(1);
-
-	return answers[0] || null;
-}
-
-// Criteria methods
-export async function createCriteria(taskBlockId: number, description: string, marks: number) {
-	const [createdCriteria] = await db
-		.insert(table.criteria)
-		.values({
-			taskBlockId,
-			description,
-			marks
-		})
-		.returning();
-
-	return createdCriteria;
-}
-
-export async function updateCriteria(
-	criteriaId: number,
-	updates: {
-		description?: string;
-		marks?: number;
-	}
-) {
-	const [updatedCriteria] = await db
-		.update(table.criteria)
-		.set({ ...updates })
-		.where(eq(table.criteria.id, criteriaId))
-		.returning();
-
-	return updatedCriteria;
-}
-
-export async function deleteCriteria(criteriaId: number) {
-	await db.delete(table.criteria).where(eq(table.criteria.id, criteriaId));
-}
-
-export async function getCriteriaByTaskBlockId(taskBlockId: number) {
-	const criteria = await db
-		.select()
-		.from(table.criteria)
-		.where(eq(table.criteria.taskBlockId, taskBlockId))
-		.orderBy(asc(table.criteria.id));
-
-	return criteria;
-}
-
-export async function getCriteriaById(criteriaId: number) {
-	const criteria = await db
-		.select()
-		.from(table.criteria)
-		.where(eq(table.criteria.id, criteriaId))
-		.limit(1);
-
-	return criteria[0] || null;
-}
-
-// Combined methods for task block with answers and criteria
-export async function getTaskBlockWithAnswersAndCriteria(taskBlockId: number) {
-	const taskBlock = await db
-		.select()
-		.from(table.taskBlock)
-		.where(eq(table.taskBlock.id, taskBlockId))
-		.limit(1);
-
-	if (!taskBlock[0]) {
-		return null;
-	}
-
-	const [answers, criteria] = await Promise.all([
-		getAnswersByTaskBlockId(taskBlockId),
-		getCriteriaByTaskBlockId(taskBlockId)
-	]);
-
-	return {
-		taskBlock: taskBlock[0],
-		answers,
-		criteria
-	};
-}
-
 export async function getSubjectOfferingClassTaskByTaskId(
 	taskId: number,
 	subjectOfferingClassId: number
@@ -1059,317 +925,58 @@ export async function updateSubjectOfferingClassTaskStatus(
 }
 
 // Task Block Response functions
-export async function createOrUpdateTaskBlockResponse(
+
+export async function upsertClassTaskBlockResponse(
 	taskBlockId: number,
 	authorId: string,
 	classTaskId: number,
 	response: unknown
 ) {
-	// First, try to find an existing response
-	const existingResponse = await db
-		.select()
-		.from(table.taskBlockResponse)
-		.where(
-			and(
-				eq(table.taskBlockResponse.taskBlockId, taskBlockId),
-				eq(table.taskBlockResponse.authorId, authorId),
-				eq(table.taskBlockResponse.classTaskId, classTaskId)
-			)
-		)
-		.limit(1);
-
-	if (existingResponse.length > 0) {
-		// Update existing response
-		const [updatedResponse] = await db
-			.update(table.taskBlockResponse)
-			.set({
-				response,
-				updatedAt: new Date()
-			})
-			.where(eq(table.taskBlockResponse.id, existingResponse[0].id))
-			.returning();
-
-		return updatedResponse;
-	} else {
-		// Create new response
-		const [newResponse] = await db
-			.insert(table.taskBlockResponse)
-			.values({
-				taskBlockId,
-				authorId,
-				classTaskId,
+	const [upsertedResponse] = await db
+		.insert(table.classTaskBlockResponse)
+		.values({
+			taskBlockId,
+			authorId,
+			classTaskId,
+			response
+		})
+		.onConflictDoUpdate({
+			target: [
+				table.classTaskBlockResponse.taskBlockId,
+				table.classTaskBlockResponse.authorId,
+				table.classTaskBlockResponse.classTaskId
+			],
+			set: {
 				response
-			})
-			.returning();
+			}
+		})
+		.returning();
 
-		return newResponse;
-	}
+	return upsertedResponse;
 }
 
-export async function getTaskBlockResponse(
-	taskBlockId: number,
-	authorId: string,
-	classTaskId: number
-) {
-	const response = await db
-		.select()
-		.from(table.taskBlockResponse)
-		.where(
-			and(
-				eq(table.taskBlockResponse.taskBlockId, taskBlockId),
-				eq(table.taskBlockResponse.authorId, authorId),
-				eq(table.taskBlockResponse.classTaskId, classTaskId)
-			)
-		)
-		.limit(1);
-
-	return response[0] || null;
-}
-
-export async function getUserTaskBlockResponses(
+export async function getClassTaskBlockResponsesByAuthorId(
 	taskId: number,
 	authorId: string,
 	classTaskId: number
 ) {
 	const responses = await db
 		.select({
-			taskBlockResponse: table.taskBlockResponse,
-			taskBlock: table.taskBlock
+			response: table.classTaskBlockResponse,
+			block: table.taskBlock
 		})
-		.from(table.taskBlockResponse)
-		.innerJoin(table.taskBlock, eq(table.taskBlockResponse.taskBlockId, table.taskBlock.id))
+		.from(table.classTaskBlockResponse)
+		.innerJoin(table.taskBlock, eq(table.classTaskBlockResponse.taskBlockId, table.taskBlock.id))
 		.where(
 			and(
 				eq(table.taskBlock.taskId, taskId),
-				eq(table.taskBlockResponse.authorId, authorId),
-				eq(table.taskBlockResponse.classTaskId, classTaskId)
+				eq(table.classTaskBlockResponse.authorId, authorId),
+				eq(table.classTaskBlockResponse.classTaskId, classTaskId)
 			)
 		)
 		.orderBy(asc(table.taskBlock.index));
 
-	// Map the responses to associate each task block with its response
-	return responses.map((row) => ({
-		taskBlock: row.taskBlock,
-		response: row.taskBlockResponse
-	}));
-}
-
-export async function getUserCriteriaAndAnswerFeedback(
-	taskBlockId: number,
-	authorId: string,
-	classTaskId: number
-) {
-	const feedback = await db
-		.select({
-			criteria: table.criteria,
-			criteriaFeedback: table.criteriaFeedback,
-			answer: table.answer,
-			answerFeedback: table.answerFeedback
-		})
-		.from(table.taskBlockResponse)
-		.innerJoin(table.criteria, eq(table.taskBlockResponse.taskBlockId, table.criteria.taskBlockId))
-		.leftJoin(
-			table.criteriaFeedback,
-			and(
-				eq(table.criteriaFeedback.criteriaId, table.criteria.id),
-				eq(table.criteriaFeedback.taskBlockResponseId, table.taskBlockResponse.id)
-			)
-		)
-		.innerJoin(table.answer, eq(table.taskBlockResponse.taskBlockId, table.answer.taskBlockId))
-		.leftJoin(
-			table.answerFeedback,
-			and(
-				eq(table.answerFeedback.answerId, table.answer.id),
-				eq(table.answerFeedback.taskBlockResponseId, table.taskBlockResponse.id)
-			)
-		)
-		.where(
-			and(
-				eq(table.taskBlockResponse.authorId, authorId),
-				eq(table.taskBlockResponse.taskBlockId, taskBlockId),
-				eq(table.taskBlockResponse.classTaskId, classTaskId)
-			)
-		);
-
-	// Group the results to avoid duplicates and structure the data properly
-	const criteriaMap = new Map();
-	const answersMap = new Map();
-
-	for (const row of feedback) {
-		// Process criteria
-		if (row.criteria && !criteriaMap.has(row.criteria.id)) {
-			criteriaMap.set(row.criteria.id, {
-				criteria: row.criteria,
-				feedback: row.criteriaFeedback
-			});
-		}
-
-		// Process answers
-		if (row.answer && !answersMap.has(row.answer.id)) {
-			answersMap.set(row.answer.id, {
-				answer: row.answer,
-				feedback: row.answerFeedback
-			});
-		}
-	}
-
-	return {
-		criteria: Array.from(criteriaMap.values()),
-		answers: Array.from(answersMap.values())
-	};
-}
-
-// Criteria Feedback methods
-export async function createCriteriaFeedback(
-	criteriaId: number,
-	taskBlockResponseId: number,
-	feedbackLevel: feedbackLevelEnum,
-	marks: number
-) {
-	const [feedback] = await db
-		.insert(table.criteriaFeedback)
-		.values({
-			criteriaId,
-			taskBlockResponseId,
-			feedbackLevel,
-			marks
-		})
-		.returning();
-
-	return feedback;
-}
-
-export async function updateCriteriaFeedback(
-	criteriaFeedbackId: number,
-	updates: {
-		feedbackLevel?: feedbackLevelEnum;
-		marks?: number;
-	}
-) {
-	const [feedback] = await db
-		.update(table.criteriaFeedback)
-		.set({ ...updates })
-		.where(eq(table.criteriaFeedback.id, criteriaFeedbackId))
-		.returning();
-
-	return feedback;
-}
-
-export async function createOrUpdateCriteriaFeedback(
-	criteriaId: number,
-	taskBlockResponseId: number,
-	feedbackLevel: feedbackLevelEnum,
-	marks: number
-) {
-	// First, try to find an existing feedback
-	const existingFeedback = await db
-		.select()
-		.from(table.criteriaFeedback)
-		.where(
-			and(
-				eq(table.criteriaFeedback.criteriaId, criteriaId),
-				eq(table.criteriaFeedback.taskBlockResponseId, taskBlockResponseId)
-			)
-		)
-		.limit(1);
-
-	if (existingFeedback.length > 0) {
-		// Update existing feedback
-		const [updatedFeedback] = await db
-			.update(table.criteriaFeedback)
-			.set({
-				feedbackLevel,
-				marks,
-				updatedAt: new Date()
-			})
-			.where(eq(table.criteriaFeedback.id, existingFeedback[0].id))
-			.returning();
-
-		return updatedFeedback;
-	} else {
-		// Create new feedback
-		return await createCriteriaFeedback(criteriaId, taskBlockResponseId, feedbackLevel, marks);
-	}
-}
-
-export async function deleteCriteriaFeedback(criteriaFeedbackId: number) {
-	await db.delete(table.criteriaFeedback).where(eq(table.criteriaFeedback.id, criteriaFeedbackId));
-}
-
-// Answer Feedback methods
-export async function createAnswerFeedback(
-	answerId: number,
-	taskBlockResponseId: number,
-	feedbackLevel: feedbackLevelEnum,
-	marks: number
-) {
-	const [feedback] = await db
-		.insert(table.answerFeedback)
-		.values({
-			answerId,
-			taskBlockResponseId,
-			feedbackLevel,
-			marks
-		})
-		.returning();
-
-	return feedback;
-}
-
-export async function updateAnswerFeedback(
-	answerFeedbackId: number,
-	updates: {
-		feedbackLevel?: feedbackLevelEnum;
-		marks?: number;
-	}
-) {
-	const [feedback] = await db
-		.update(table.answerFeedback)
-		.set({ ...updates })
-		.where(eq(table.answerFeedback.id, answerFeedbackId))
-		.returning();
-
-	return feedback;
-}
-
-export async function createOrUpdateAnswerFeedback(
-	answerId: number,
-	taskBlockResponseId: number,
-	feedbackLevel: feedbackLevelEnum,
-	marks: number
-) {
-	// First, try to find an existing feedback
-	const existingFeedback = await db
-		.select()
-		.from(table.answerFeedback)
-		.where(
-			and(
-				eq(table.answerFeedback.answerId, answerId),
-				eq(table.answerFeedback.taskBlockResponseId, taskBlockResponseId)
-			)
-		)
-		.limit(1);
-
-	if (existingFeedback.length > 0) {
-		// Update existing feedback
-		const [updatedFeedback] = await db
-			.update(table.answerFeedback)
-			.set({
-				feedbackLevel,
-				marks,
-				updatedAt: new Date()
-			})
-			.where(eq(table.answerFeedback.id, existingFeedback[0].id))
-			.returning();
-
-		return updatedFeedback;
-	} else {
-		// Create new feedback
-		return await createAnswerFeedback(answerId, taskBlockResponseId, feedbackLevel, marks);
-	}
-}
-export async function deleteAnswerFeedback(answerFeedbackId: number) {
-	await db.delete(table.answerFeedback).where(eq(table.answerFeedback.id, answerFeedbackId));
+	return responses;
 }
 
 // Helper function to get teacher from class
@@ -1396,59 +1003,15 @@ export async function getClassTeacher(subjectOfferingClassId: number) {
 export async function createClassTaskResponse(
 	classTaskId: number,
 	authorId: string,
-	comment?: string,
-	marks: number = 0,
-	status: taskBlockResponseStatusEnum = taskBlockResponseStatusEnum.submitted,
-	teacherId?: string
+	comment?: string
 ) {
-	// If no teacherId provided, try to get it from the class
-	let finalTeacherId = teacherId;
-	if (!finalTeacherId) {
-		// Get the class from classTaskId
-		const classTask = await db
-			.select({ subjectOfferingClassId: table.subjectOfferingClassTask.subjectOfferingClassId })
-			.from(table.subjectOfferingClassTask)
-			.where(eq(table.subjectOfferingClassTask.id, classTaskId))
-			.limit(1);
-
-		if (classTask[0]) {
-			const teacherFromClass = await getClassTeacher(classTask[0].subjectOfferingClassId);
-			finalTeacherId = teacherFromClass || undefined;
-		}
-	}
-
 	const [response] = await db
 		.insert(table.classTaskResponse)
 		.values({
 			classTaskId,
 			authorId,
-			comment,
-			marks,
-			status,
-			teacherId: finalTeacherId || authorId // Fallback to author if no teacher found
+			comment
 		})
-		.returning();
-
-	return response;
-}
-
-export async function updateClassTaskResponseStatus(
-	classTaskId: number,
-	authorId: string,
-	status: taskBlockResponseStatusEnum
-) {
-	const [response] = await db
-		.update(table.classTaskResponse)
-		.set({
-			status,
-			updatedAt: new Date()
-		})
-		.where(
-			and(
-				eq(table.classTaskResponse.classTaskId, classTaskId),
-				eq(table.classTaskResponse.authorId, authorId)
-			)
-		)
 		.returning();
 
 	return response;
@@ -1509,11 +1072,7 @@ export async function getClassTaskResponsesWithStudents(classTaskId: number) {
 		)
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
 
-	// Transform the response to match our expected format
-	return responses.map((response) => ({
-		...response.classTaskResponse,
-		student: response.student
-	}));
+	return responses;
 }
 
 export async function updateClassTaskResponseComment(
@@ -1523,8 +1082,7 @@ export async function updateClassTaskResponseComment(
 	const [response] = await db
 		.update(table.classTaskResponse)
 		.set({
-			comment,
-			updatedAt: new Date()
+			comment
 		})
 		.where(eq(table.classTaskResponse.id, classTaskResponseId))
 		.returning();
@@ -1532,18 +1090,16 @@ export async function updateClassTaskResponseComment(
 	return response;
 }
 
-export async function removeAllResourcesFromClassTaskResponse(classTaskResponseId: number) {
+export async function archiveAllResourcesFromClassTaskResponse(classTaskResponseId: number) {
 	await db
 		.update(table.classTaskResponseResource)
 		.set({
-			isArchived: true,
-			updatedAt: new Date()
+			isArchived: true
 		})
 		.where(eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId));
 }
 
 export async function deleteResourcesFromClassTaskResponse(classTaskResponseId: number) {
-	// First get all the resources to delete from S3
 	const resources = await db
 		.select({
 			resource: table.resource
@@ -1558,12 +1114,10 @@ export async function deleteResourcesFromClassTaskResponse(classTaskResponseId: 
 			)
 		);
 
-	// Delete the relationship records
 	await db
 		.delete(table.classTaskResponseResource)
 		.where(eq(table.classTaskResponseResource.classTaskResponseId, classTaskResponseId));
 
-	// Return the resource info for S3 deletion
 	return resources.map((r) => r.resource);
 }
 
@@ -1572,7 +1126,6 @@ export async function deleteResourceFromClassTaskResponse(
 	resourceId: number,
 	userId: string
 ) {
-	// First get the resource to delete from S3 and verify it belongs to the user's response
 	const [resourceData] = await db
 		.select({
 			resource: table.resource,
@@ -1598,7 +1151,6 @@ export async function deleteResourceFromClassTaskResponse(
 		throw new Error('Resource not found or access denied');
 	}
 
-	// Delete the relationship record
 	await db
 		.delete(table.classTaskResponseResource)
 		.where(
@@ -1608,7 +1160,6 @@ export async function deleteResourceFromClassTaskResponse(
 			)
 		);
 
-	// Return the resource info for S3 deletion
 	return resourceData.resource;
 }
 

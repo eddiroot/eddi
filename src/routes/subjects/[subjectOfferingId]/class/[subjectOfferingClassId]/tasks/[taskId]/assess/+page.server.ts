@@ -5,21 +5,12 @@ import {
 	getClassTaskResponseResources,
 	getClassTaskResponsesWithStudents,
 	updateClassTaskResponseComment,
-	getUserTaskBlockResponses
+	getClassTaskBlockResponsesByAuthorId
 } from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
 import { redirect, fail } from '@sveltejs/kit';
 import { userTypeEnum } from '$lib/enums';
-import type { ClassTaskResponse, Resource } from '$lib/server/db/schema';
-
-interface StudentSubmission extends ClassTaskResponse {
-	student: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		email: string;
-	};
-}
+import type { Resource } from '$lib/server/db/schema';
 
 export const load = async ({
 	locals: { security },
@@ -60,7 +51,8 @@ export const load = async ({
 
 	// Get specific student submission if studentId is provided in URL
 	const selectedStudentId = url.searchParams.get('studentId');
-	let selectedSubmission: StudentSubmission | null = null;
+	let selectedSubmission: Awaited<ReturnType<typeof getClassTaskResponsesWithStudents>>[0] | null =
+		null;
 	let selectedResources: Array<{
 		id: number;
 		fileName: string;
@@ -69,13 +61,21 @@ export const load = async ({
 		resourceType: string;
 		fileSize: number;
 	}> = [];
-	let selectedStudentBlockResponses: Awaited<ReturnType<typeof getUserTaskBlockResponses>> = [];
+	let selectedStudentBlockResponses: Awaited<
+		ReturnType<typeof getClassTaskBlockResponsesByAuthorId>
+	> = [];
 
-	if (selectedStudentId && submissions.find((s) => s.authorId === selectedStudentId)) {
-		selectedSubmission = submissions.find((s) => s.authorId === selectedStudentId) || null;
+	if (
+		selectedStudentId &&
+		submissions.find((s) => s.classTaskResponse.authorId === selectedStudentId)
+	) {
+		selectedSubmission =
+			submissions.find((s) => s.classTaskResponse.authorId === selectedStudentId) || null;
 		if (selectedSubmission) {
 			// Get resources with presigned URLs for PDF viewing
-			const resources = await getClassTaskResponseResources(selectedSubmission.id);
+			const resources = await getClassTaskResponseResources(
+				selectedSubmission.classTaskResponse.id
+			);
 
 			selectedResources = await Promise.all(
 				resources.map(async (resourceData) => {
@@ -87,11 +87,7 @@ export const load = async ({
 							? resource.objectKey.substring(schoolId.length + 1)
 							: resource.objectKey;
 
-						const downloadUrl = await getPresignedUrl(
-							schoolId,
-							objectName,
-							7 * 24 * 60 * 60 // 7 days expiry
-						);
+						const downloadUrl = await getPresignedUrl(schoolId, objectName);
 						return {
 							id: resource.id,
 							fileName: resource.fileName,
@@ -113,7 +109,7 @@ export const load = async ({
 				})
 			);
 
-			selectedStudentBlockResponses = await getUserTaskBlockResponses(
+			selectedStudentBlockResponses = await getClassTaskBlockResponsesByAuthorId(
 				taskIdInt,
 				selectedStudentId,
 				classTask.id

@@ -222,7 +222,11 @@
 			</Card.Header>
 			<Card.Content class="space-y-1">
 				{#each blocks.filter((block) => block.type === taskBlockTypeEnum.heading) as block}
-					<p>{block.config!.text}</p>
+					{#if block.config && typeof block.config === 'object' && 'text' in block.config}
+						<p>{(block.config as { text: string }).text}</p>
+					{:else}
+						<p>Untitled Heading</p>
+					{/if}
 				{/each}
 			</Card.Content>
 		</Card.Root>

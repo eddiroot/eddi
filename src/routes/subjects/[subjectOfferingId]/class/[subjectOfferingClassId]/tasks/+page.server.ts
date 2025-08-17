@@ -85,11 +85,7 @@ export const load = async ({
 					? row.resource.objectKey.substring(schoolId.length + 1)
 					: row.resource.objectKey;
 
-				const downloadUrl = await getPresignedUrl(
-					schoolId,
-					objectName,
-					7 * 24 * 60 * 60 // 7 days expiry
-				);
+				const downloadUrl = await getPresignedUrl(schoolId, objectName);
 				return {
 					id: row.resource.id,
 					title: row.resourceRelation.title,

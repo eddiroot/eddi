@@ -67,12 +67,6 @@ export enum taskStatusEnum {
 	graded = 'graded' // Assessment/Homework
 }
 
-export enum taskBlockResponseStatusEnum {
-	editPermission = 'edit_permission', // Student can edit their response
-	submitted = 'submitted', // Student has submitted their response
-	graded = 'graded' // Teacher has graded the response
-}
-
 export enum whiteboardObjectTypeEnum {
 	rect = 'Rect',
 	circle = 'Circle',

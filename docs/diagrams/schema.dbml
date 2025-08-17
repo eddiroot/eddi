@@ -1,9 +1,3 @@
-enum enum_feedback_level {
-  met
-  no
-  partial
-}
-
 enum enum_relationship_type {
   mother
   father
@@ -36,12 +30,6 @@ enum enum_sub_thread_type {
   question
   announcement
   qanda
-}
-
-enum enum_task_block_response_status {
-  edit_permission
-  submitted
-  graded
 }
 
 enum enum_task_block_type {
@@ -133,25 +121,6 @@ enum enum_year_level {
   "13"
 }
 
-table answer {
-  id integer [pk, not null]
-  task_block_id integer [not null]
-  answer jsonb
-  marks "double precision"
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
-}
-
-table ans_feed {
-  id integer [pk, not null]
-  ans_id integer [not null]
-  task_block_response_id integer [not null]
-  marks "double precision" [not null]
-  feedbackLevel enum_feedback_level
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
-}
-
 table cm_ass_pln_la_std {
   id integer [pk, not null]
   cm_itm_ass_pln_id integer [not null]
@@ -205,15 +174,25 @@ table cb_msg {
   updatedAt timestamp [not null, default: `now()`]
 }
 
-table task_response {
+table cls_task_block_res {
   id integer [pk, not null]
-  class_task_id integer [not null]
+  task_block_id integer [not null]
   author_id uuid [not null]
+  class_task_id integer [not null]
+  response jsonb
+  feedback text
+  marks "double precision"
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, default: `now()`]
+}
+
+table cls_task_res {
+  id integer [pk, not null]
+  cls_task_id integer [not null]
   comment text
   feedback text
-  marks "double precision" [not null]
-  status enum_task_block_response_status [not null, default: 'submitted']
-  teacher_id uuid [not null]
+  author_id uuid [not null]
+  teacher_id uuid
   is_archived boolean [not null, default: false]
   createdAt timestamp [not null, default: `now()`]
   updatedAt timestamp [not null, default: `now()`]
@@ -221,8 +200,8 @@ table task_response {
 
 table task_response_resource {
   id integer [pk, not null]
-  task_response_id integer [not null]
-  resource_id integer [not null]
+  cls_task_res_id integer [not null]
+  res_id integer [not null]
   author_id uuid [not null]
   is_archived boolean [not null, default: false]
   createdAt timestamp [not null, default: `now()`]
@@ -331,25 +310,6 @@ table cm_itm_res {
     
     (original_id, version) [name: 'cm_itm_res_original_id_version_unique', unique]
   }
-}
-
-table criteria {
-  id integer [pk, not null]
-  task_block_id integer [not null]
-  description text [not null]
-  marks "double precision" [not null]
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
-}
-
-table crit_fdbck {
-  id integer [pk, not null]
-  crit_id integer [not null]
-  task_block_response_id integer [not null]
-  feedbackLevel enum_feedback_level
-  marks "double precision" [not null]
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
 }
 
 table crclm {
@@ -719,22 +679,10 @@ table task_block {
   updatedAt timestamp [not null, default: `now()`]
 }
 
-table task_block_response {
+table task_std {
   id integer [pk, not null]
-  task_block_id integer [not null]
-  author_id uuid [not null]
-  class_task_id integer [not null]
-  response jsonb
-  feedback text
-  marks "double precision"
-  createdAt timestamp [not null, default: `now()`]
-  updatedAt timestamp [not null, default: `now()`]
-}
-
-table task_standard {
-  id integer [pk, not null]
-  class_task_id integer [not null]
-  la_standard_id integer [not null]
+  task_id integer [not null]
+  lrn_a_std_id integer [not null]
 }
 
 table tt {
@@ -893,12 +841,6 @@ table whiteboard_object {
   updatedAt timestamp [not null, default: `now()`]
 }
 
-ref answer_task_block_id_task_block_id_fk: answer.task_block_id > task_block.id [delete: cascade, update: no action]
-
-ref ans_feed_ans_id_answer_id_fk: ans_feed.ans_id > answer.id [delete: cascade, update: no action]
-
-ref ans_feed_task_block_response_id_task_block_response_id_fk: ans_feed.task_block_response_id > task_block_response.id [delete: cascade, update: no action]
-
 ref cm_ass_pln_la_std_cm_itm_ass_pln_id_cm_itm_ass_pln_id_fk: cm_ass_pln_la_std.cm_itm_ass_pln_id > cm_itm_ass_pln.id [delete: cascade, update: no action]
 
 ref cm_ass_pln_la_std_la_std_id_lrn_a_std_id_fk: cm_ass_pln_la_std.la_std_id > lrn_a_std.id [delete: cascade, update: no action]
@@ -917,15 +859,21 @@ ref cb_msg_author_id_user_id_fk: cb_msg.author_id > user.id [delete: cascade, up
 
 ref cb_msg_cb_chat_id_cb_chat_id_fk: cb_msg.cb_chat_id > cb_chat.id [delete: cascade, update: no action]
 
-ref task_response_class_task_id_sub_off_class_task_id_fk: task_response.class_task_id > sub_off_class_task.id [delete: cascade, update: no action]
+ref cls_task_block_res_task_block_id_task_block_id_fk: cls_task_block_res.task_block_id > task_block.id [delete: cascade, update: no action]
 
-ref task_response_author_id_user_id_fk: task_response.author_id > user.id [delete: cascade, update: no action]
+ref cls_task_block_res_author_id_user_id_fk: cls_task_block_res.author_id > user.id [delete: cascade, update: no action]
 
-ref task_response_teacher_id_user_id_fk: task_response.teacher_id > user.id [delete: cascade, update: no action]
+ref cls_task_block_res_class_task_id_sub_off_class_task_id_fk: cls_task_block_res.class_task_id > sub_off_class_task.id [delete: cascade, update: no action]
 
-ref task_response_resource_task_response_id_task_response_id_fk: task_response_resource.task_response_id > task_response.id [delete: cascade, update: no action]
+ref cls_task_res_cls_task_id_sub_off_class_task_id_fk: cls_task_res.cls_task_id > sub_off_class_task.id [delete: cascade, update: no action]
 
-ref task_response_resource_resource_id_res_id_fk: task_response_resource.resource_id > res.id [delete: cascade, update: no action]
+ref cls_task_res_author_id_user_id_fk: cls_task_res.author_id > user.id [delete: cascade, update: no action]
+
+ref cls_task_res_teacher_id_user_id_fk: cls_task_res.teacher_id > user.id [delete: cascade, update: no action]
+
+ref task_response_resource_cls_task_res_id_cls_task_res_id_fk: task_response_resource.cls_task_res_id > cls_task_res.id [delete: cascade, update: no action]
+
+ref task_response_resource_res_id_res_id_fk: task_response_resource.res_id > res.id [delete: cascade, update: no action]
 
 ref task_response_resource_author_id_user_id_fk: task_response_resource.author_id > user.id [delete: cascade, update: no action]
 
@@ -959,12 +907,6 @@ ref cm_itm_res_resource_id_res_id_fk: cm_itm_res.resource_id > res.id [delete: c
 
 ref cm_itm_res_original_id_cm_itm_res_id_fk: cm_itm_res.original_id > cm_itm_res.id [delete: cascade, update: no action]
 
-ref criteria_task_block_id_task_block_id_fk: criteria.task_block_id > task_block.id [delete: cascade, update: no action]
-
-ref crit_fdbck_crit_id_criteria_id_fk: crit_fdbck.crit_id > criteria.id [delete: cascade, update: no action]
-
-ref crit_fdbck_task_block_response_id_task_block_response_id_fk: crit_fdbck.task_block_response_id > task_block_response.id [delete: cascade, update: no action]
-
 ref crclm_sub_cur_id_crclm_id_fk: crclm_sub.cur_id > crclm.id [delete: cascade, update: no action]
 
 ref sub_elec_sch_id_sch_id_fk: sub_elec.sch_id > sch.id [delete: cascade, update: no action]
@@ -987,7 +929,7 @@ ref res_uploaded_by_user_id_fk: res.uploaded_by > user.id [delete: cascade, upda
 
 ref rubric_cell_row_id_rubric_row_id_fk: rubric_cell.row_id > rubric_row.id [delete: cascade, update: no action]
 
-ref rubric_feedback_class_task_response_id_task_response_id_fk: rubric_feedback.class_task_response_id > task_response.id [delete: cascade, update: no action]
+ref rubric_feedback_class_task_response_id_cls_task_res_id_fk: rubric_feedback.class_task_response_id > cls_task_res.id [delete: cascade, update: no action]
 
 ref rubric_feedback_rubric_row_id_rubric_row_id_fk: rubric_feedback.rubric_row_id > rubric_row.id [delete: cascade, update: no action]
 
@@ -1067,15 +1009,9 @@ ref task_original_id_task_id_fk: task.original_id > task.id [delete: cascade, up
 
 ref task_block_task_id_task_id_fk: task_block.task_id > task.id [delete: cascade, update: no action]
 
-ref task_block_response_task_block_id_task_block_id_fk: task_block_response.task_block_id > task_block.id [delete: cascade, update: no action]
+ref task_std_task_id_task_id_fk: task_std.task_id > task.id [delete: cascade, update: no action]
 
-ref task_block_response_author_id_user_id_fk: task_block_response.author_id > user.id [delete: cascade, update: no action]
-
-ref task_block_response_class_task_id_sub_off_class_task_id_fk: task_block_response.class_task_id > sub_off_class_task.id [delete: cascade, update: no action]
-
-ref task_standard_class_task_id_sub_off_class_task_id_fk: task_standard.class_task_id > sub_off_class_task.id [delete: cascade, update: no action]
-
-ref task_standard_la_standard_id_lrn_a_std_id_fk: task_standard.la_standard_id > lrn_a_std.id [delete: cascade, update: no action]
+ref task_std_lrn_a_std_id_lrn_a_std_id_fk: task_std.lrn_a_std_id > lrn_a_std.id [delete: cascade, update: no action]
 
 ref tt_sch_id_sch_id_fk: tt.sch_id > sch.id [delete: cascade, update: no action]
 
