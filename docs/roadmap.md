@@ -123,6 +123,7 @@ Pending eddi study completion
 
 ### Future
 
+- [ ] Eddi tutor could be extended to help teachers with common eddi functionality (or action it for them through MCP servers)
 - [ ] Review breadcrumbs on all pages (e.g. attendance history)
 - [ ] News posts have a percentage of the students in the school who've seen/read it
 - [ ] Consider using Google/Microsoft/OAuth provider sessions rather than managing our own
