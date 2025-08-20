@@ -2,6 +2,7 @@
     import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
     import { Badge } from "$lib/components/ui/badge";
     import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
+    import { Progress } from "$lib/components/ui/progress";
     import BookOpen from '@lucide/svelte/icons/book-open';
 
     let { data } = $props();
@@ -145,12 +146,7 @@
                                             <span>Progress</span>
                                             <span>{subject.completedTasks}/{subject.totalTasks} tasks</span>
                                         </div>
-                                        <div class="w-full bg-muted rounded-full h-2">
-                                            <div 
-                                                class="bg-primary rounded-full h-2 transition-all duration-300"
-                                                style="width: {(subject.completedTasks / subject.totalTasks) * 100}%"
-                                            ></div>
-                                        </div>
+                                        <Progress value={(subject.completedTasks / subject.totalTasks) * 100} class="h-2" />
                                     </div>
 
                                     <!-- Last Updated -->

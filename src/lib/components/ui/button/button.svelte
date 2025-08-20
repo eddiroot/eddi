@@ -52,6 +52,9 @@
 		children,
 		...restProps
 	}: ButtonProps = $props();
+		interface $$Events {
+		click: MouseEvent;
+	}
 </script>
 
 {#if href}
