@@ -7,7 +7,11 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import { ViewMode, type MatchingBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		type BlockMatchingResponse,
+		ViewMode,
+		type MatchingBlockProps
+	} from '$lib/schemas/taskSchema';
 
 	let {
 		initialConfig,
@@ -18,6 +22,11 @@
 	}: MatchingBlockProps = $props();
 
 	let config = $state(initialConfig);
+	let response = $state<BlockMatchingResponse>(
+		initialResponse || {
+			matches: []
+		}
+	);
 
 	function addPair() {
 		config = { ...config, pairs: [...config.pairs, { left: '', right: '' }] };

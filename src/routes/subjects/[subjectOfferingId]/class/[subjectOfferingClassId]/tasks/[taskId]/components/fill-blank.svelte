@@ -7,7 +7,11 @@
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { ViewMode, type FillBlankBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		type BlockFillBlankResponse,
+		ViewMode,
+		type FillBlankBlockProps
+	} from '$lib/schemas/taskSchema';
 
 	let {
 		initialConfig,
@@ -18,7 +22,7 @@
 	}: FillBlankBlockProps = $props();
 
 	let config = $state(initialConfig);
-	let response = $state(initialResponse || { answer: '' });
+	let response = $state<BlockFillBlankResponse>(initialResponse || { answer: '' });
 
 	function isAnswerCorrect(): boolean {
 		return response?.answer.trim() == config.answer;
@@ -115,48 +119,46 @@
 		{#if config.sentence && config.answer}
 			<Card.Root>
 				<Card.Content>
-					<p class="text-muted-foreground mb-6 text-sm">
-						Complete the sentence by filling in the blank.
-					</p>
-
 					{@const parsed = parseSentence(config.sentence)}
-					<div class="mb-6">
-						<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
-							<span>{parsed.before}</span>
-							<div class="relative mx-2 inline-block">
-								<Input
-									bind:value={response.answer}
-									disabled={viewMode !== ViewMode.ANSWER}
-									placeholder="Your answer"
-									class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
-										viewMode === ViewMode.ANSWER
-											? isAnswerCorrect()
-												? 'border-success shadow-sm'
-												: response.answer
-													? 'border-destructive shadow-sm'
-													: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
-											: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
-									}`}
-									style="border-radius: 8px; padding: 8px 12px;"
-								/>
-							</div>
-							{#if parsed.after}
-								<span>{parsed.after}</span>
-							{/if}
+					<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
+						<span>{parsed.before}</span>
+						<div class="relative mx-2 inline-block">
+							<Input
+								bind:value={response.answer}
+								disabled={viewMode !== ViewMode.ANSWER}
+								placeholder="Your answer"
+								class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
+									viewMode === ViewMode.ANSWER
+										? isAnswerCorrect()
+											? 'border-success shadow-sm'
+											: response.answer
+												? 'border-destructive shadow-sm'
+												: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
+										: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
+								}`}
+								style="border-radius: 8px; padding: 8px 12px;"
+							/>
 						</div>
+						{#if parsed.after}
+							<span>{parsed.after}</span>
+						{/if}
 					</div>
 
-					{#if viewMode !== ViewMode.ANSWER}
-						<div class="mb-6 rounded-lg border p-4">
-							{#if !isAnswerCorrect()}
-								<div class="text-destructive flex items-center gap-2">
-									<XIcon class="h-5 w-5" />
-									<span class="font-medium">Incorrect</span>
-								</div>
-								<p class="text-destructive mt-1 text-sm">
-									The correct answer is: <strong>{config.answer}</strong>
-								</p>
-							{/if}
+					{#if viewMode === ViewMode.ANSWER}
+						<p class="text-muted-foreground mt-4 text-sm">
+							Complete the sentence by filling in the blank.
+						</p>
+					{/if}
+
+					{#if viewMode === ViewMode.REVIEW && !isAnswerCorrect()}
+						<div class="mt-6 rounded-lg border p-4">
+							<div class="text-destructive flex items-center gap-2">
+								<XIcon class="h-5 w-5" />
+								<span class="font-medium">Incorrect</span>
+							</div>
+							<p class="text-destructive mt-1 text-sm">
+								The correct answer is: <strong>{config.answer}</strong>
+							</p>
 						</div>
 					{/if}
 				</Card.Content>

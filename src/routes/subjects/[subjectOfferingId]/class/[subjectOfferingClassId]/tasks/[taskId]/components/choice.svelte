@@ -13,7 +13,11 @@
 	import CheckSquareIcon from '@lucide/svelte/icons/check-square';
 	import XSquareIcon from '@lucide/svelte/icons/x-square';
 	import SquareIcon from '@lucide/svelte/icons/square';
-	import { ViewMode, type ChoiceBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		type BlockChoiceResponse,
+		ViewMode,
+		type ChoiceBlockProps
+	} from '$lib/schemas/taskSchema';
 
 	let {
 		initialConfig,
@@ -24,7 +28,7 @@
 	}: ChoiceBlockProps = $props();
 
 	let config = $state(initialConfig);
-	let response = $state(initialResponse || { answers: [] });
+	let response = $state<BlockChoiceResponse>(initialResponse || { answers: [] });
 
 	let isMultiAnswer = $derived(() => {
 		return config.options.filter((option) => option.isAnswer).length > 1;
