@@ -23,7 +23,7 @@
 - [x] Behavioural reporting (visible to parents)
 - [x] Auto generated summaries of discussions
 - [x] Option for teachers to disable eddi AI on a task
-- [x] Onboarding flow (14/07)
+- [x] Onboarding flow
 - [x] Switch locations to buildings and rooms
 - [x] Basic timetabling (Frontend/Backend)
 - [x] Basic timetabling (Generation)
@@ -33,12 +33,13 @@
 - [x] Coursemap flow
 - [x] Fix lesson generation with learning areas and content
 - [x] Admin dashboard allocations page
-- [x] Google/Microsoft Auth (28/08)
-- [x] Basic timetabling (Import) (07/08)
+- [x] Google/Microsoft Auth
+- [x] Basic timetabling (Import)
   - [x] Generate page shows loading state while generating
   - [x] Result screen blocked until a timetable is generated
-- [x] Teachers can see past attendance (21/08)
-- [x] Events appearing in everyone's timetables (14/08)
+- [x] Teachers can see past attendance
+- [x] Events appearing in everyone's timetables
+- [x] Basic security research and compliance documentation
 
 ### Doing
 
@@ -52,13 +53,25 @@ All
 
 Lachie
 
-- [ ] Add/refine current task components (new question and answer type component)
+- [ ] Add/refine current task blocks (new question and answer type component)
+  - Maths
+    - [ ] Graph/plot
+    - [ ] table
+    - [ ] arithmotic/formula (handling maths in a friendly way)
+  - Science
+    - [ ] image
+    - [ ] diagram? (with movable or input box)
+  - Written/English
+  - Question and answer type comment
+  - [ ] highlight what is wrong
+  - [ ] text, highlight the quotes that match themes
+  - [ ] fill in the sentance (middle of the paragraph)
+  - [ ] integrate correct quote
+- [ ] Class tests / quizzes
+- [ ] View students work
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
-- [ ] Fees / breakdowns
-- [ ] Student reports live throughout semester (10/08)
-  - [ ] Creating a profile page for the students
 
 Max
 
@@ -68,12 +81,8 @@ Max
   - [ ] Checkbox to add a recess and lunchtime period post timetable generation in first and second gap respectively (or allow them to set specific time)
 - [ ] Class space shifts (21/08)
   - [ ] Changing spaces and handling of this
-
-Jack
-
-- [ ] Class tests / quizzes (23/07)
-- [ ] AI feedback / assisted marking
-- [ ] View students work
+- [ ] Student reports live throughout semester (10/08)
+  - [ ] Creating a profile page for the students
 
 Raph
 
@@ -92,25 +101,21 @@ Raph
   - text with websocket
   - shape adding mechanics
   - text adding mechanics
-- [ ] Profile Page (13/08)
 - [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
   - admin grade style option (percentage vs 0-8 scale)
-- [ ] Associate chatbot chats with the lesson/subject they were created in (31/08)
+- [ ] Queue for email sending so it doesn't block requests
 
 Beej
 
 - [ ] Parent/teacher interviews (21/07)
 - [ ] Teacher to parent comms (one way) (28/07)
-- [ ] Security research and compliance documentation (28/08)
 
 Blake
 
 - [ ] Handling of multiple campuses
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
-- [ ] Create school news
-- [ ] News feed
-- [ ] Queue for email sending so it doesn't block requests
+- [ ] Create school news & news feed
 - [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Fleshed out behavioural reporting (see toddle)
 
@@ -120,10 +125,13 @@ Pending eddi study completion
 - [ ] Complete LLM access to discussions + lessons
 - [ ] Lesson plans / teacher notes based on generated lesson
 - [ ] See teacher's feedback
+- [ ] AI feedback / assisted marking
+- [ ] Associate chatbot chats with the lesson/subject they were created in
+- [ ] Eddi tutor could be extended to help teachers with common eddi functionality (or action it for them through MCP servers)
 
 ### Future
 
-- [ ] Eddi tutor could be extended to help teachers with common eddi functionality (or action it for them through MCP servers)
+- [ ] Fees / breakdowns
 - [ ] Review breadcrumbs on all pages (e.g. attendance history)
 - [ ] News posts have a percentage of the students in the school who've seen/read it
 - [ ] Consider using Google/Microsoft/OAuth provider sessions rather than managing our own
@@ -159,23 +167,9 @@ Pending eddi study completion
 
 Shippable by 31/08!
 
-Jack and Bella and Lachie
+Jack and Bella
 
 - [ ] Teach me (skills/lessons)
-  - [ ] task blocks
-    - Maths
-      - [ ] Graph/plot
-      - [ ] table
-      - [ ] arithmotic/formula (handling maths in a friendly way)
-    - Science
-      - [ ] image
-      - [ ] diagram? (with movable or input box)
-    - Written/English
-      - [ ] highlight what is wrong
-      - [ ] text, highlight the quotes that match themes
-      - [ ] fill in the sentance (middle of the paragraph)
-      - [ ] integrate correct quote
-      - ... open to more.
 - [ ] Train me
   - [ ] Cue card generation
   - [ ] Feedback
