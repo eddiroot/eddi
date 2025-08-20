@@ -101,7 +101,8 @@ Raph
   - text with websocket
   - shape adding mechanics
   - text adding mechanics
-- [ ] Student/lesson analytics (20/08) (use mock data for now - waiting for eddi study)
+- [x] Student grades (20/08) (use mock data for now - waiting for eddi study)
+- [ ] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
   - admin grade style option (percentage vs 0-8 scale)
 - [ ] Queue for email sending so it doesn't block requests
 
