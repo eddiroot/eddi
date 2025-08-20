@@ -30,7 +30,7 @@
 		updateBlockOrder
 	} from './client';
 
-	import { blockTypes, ViewMode } from './constants';
+	import { blockTypes, ViewMode } from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
 	import { PresentationIcon } from '@lucide/svelte';
@@ -39,7 +39,7 @@
 	let blocks = $state(data.blocks);
 	let mouseOverElement = $state<string>('');
 	let viewMode = $state<ViewMode>(
-		data.user.type == userTypeEnum.student ? ViewMode.VIEW : ViewMode.EDIT
+		data.user.type == userTypeEnum.student ? ViewMode.ANSWER : ViewMode.CONFIGURE
 	);
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 
@@ -173,7 +173,7 @@
 </script>
 
 <div
-	class="grid h-full gap-4 p-4 {viewMode === ViewMode.EDIT
+	class="grid h-full gap-4 p-4 {viewMode === ViewMode.CONFIGURE
 		? 'grid-cols-[200px_1fr_300px]'
 		: 'grid-cols-[200px_1fr]'}"
 >
@@ -192,14 +192,16 @@
 				</Select.Root>
 			</form>
 			<Button
-				variant={viewMode === ViewMode.EDIT ? 'outline' : 'default'}
+				variant={viewMode === ViewMode.CONFIGURE ? 'outline' : 'default'}
 				onclick={() =>
-					viewMode == ViewMode.EDIT ? (viewMode = ViewMode.VIEW) : (viewMode = ViewMode.EDIT)}
+					viewMode == ViewMode.CONFIGURE
+						? (viewMode = ViewMode.ANSWER)
+						: (viewMode = ViewMode.CONFIGURE)}
 				size="lg"
 			>
 				<EyeIcon />
 				Preview
-				{#if viewMode === ViewMode.VIEW}
+				{#if viewMode === ViewMode.ANSWER}
 					<CheckIcon />
 				{/if}
 			</Button>
@@ -235,7 +237,7 @@
 	<!-- Task Blocks -->
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
-			<div class={viewMode === ViewMode.EDIT ? 'ml-[38px]' : ''}>
+			<div class={viewMode === ViewMode.CONFIGURE ? 'ml-[38px]' : ''}>
 				<BlockHeading
 					initialConfig={{
 						text: data.task.title,
@@ -244,7 +246,6 @@
 					onConfigUpdate={async (config) =>
 						await updateTaskTitle({ taskId: data.task.id, title: config.text })}
 					{viewMode}
-					taskStatus={data.classTask.status}
 				/>
 
 				{#if page.url.searchParams.get('submitted') === 'true'}
@@ -274,14 +275,14 @@
 					></div>
 
 					<div
-						class="grid {viewMode === ViewMode.EDIT
+						class="grid {viewMode === ViewMode.CONFIGURE
 							? 'grid-cols-[30px_1fr]'
 							: 'grid-cols-1'} items-center gap-2"
 						role="group"
 						onmouseover={() => (mouseOverElement = `task-${block.id}`)}
 						onfocus={() => (mouseOverElement = `task-${block.id}`)}
 					>
-						{#if viewMode === ViewMode.EDIT && mouseOverElement === `task-${block.id}`}
+						{#if viewMode === ViewMode.CONFIGURE && mouseOverElement === `task-${block.id}`}
 							<div
 								use:draggable={{
 									container: 'task',
@@ -293,7 +294,7 @@
 									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
 								/>
 							</div>
-						{:else if viewMode === ViewMode.EDIT}
+						{:else if viewMode === ViewMode.CONFIGURE}
 							<div></div>
 						{/if}
 						<div>
@@ -302,21 +303,18 @@
 									initialConfig={block.config as { text: string; size: number }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.richText}
 								<BlockRichText
 									initialConfig={block.config as { html: string }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.whiteboard}
 								<BlockWhiteboard
 									initialConfig={block.config as { title: string; whiteboardId: number | null }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
-									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.choice}
 								<BlockChoice
@@ -325,15 +323,15 @@
 										options: { text: string; isAnswer: boolean }[];
 									}}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
+									onResponseUpdate={async (response) => {}}
 									{viewMode}
-									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.fillBlank}
 								<BlockFillBlank
 									initialConfig={block.config as { sentence: string; answer: string }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
+									onResponseUpdate={async (response) => {}}
 									{viewMode}
-									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.matching}
 								<BlockMatching
@@ -342,8 +340,8 @@
 										pairs: { left: string; right: string }[];
 									}}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
+									onResponseUpdate={async (response) => {}}
 									{viewMode}
-									taskStatus={data.classTask.status}
 								/>
 							{:else if block.type === taskBlockTypeEnum.shortAnswer}
 								<p>Short Answer block is not implemented yet.</p>
@@ -353,7 +351,7 @@
 						</div>
 					</div>
 				{/each}
-				{#if viewMode === ViewMode.EDIT}
+				{#if viewMode === ViewMode.CONFIGURE}
 					<div
 						use:droppable={{
 							container: `task-bottom`,
@@ -388,7 +386,7 @@
 	</Card.Root>
 
 	<!-- Block Pane -->
-	{#if viewMode === ViewMode.EDIT}
+	{#if viewMode === ViewMode.CONFIGURE}
 		<div class="flex flex-col gap-4">
 			<Card.Root class="h-full">
 				<Card.Header>

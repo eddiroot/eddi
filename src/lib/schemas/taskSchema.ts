@@ -152,6 +152,10 @@ export type BlockMathInputConfig = {
 	answer: string;
 };
 
+export type BlockMathInputResponse = {
+	answer: string;
+};
+
 export const blockChoice = {
 	type: 'object',
 	properties: {
@@ -188,6 +192,10 @@ export type BlockChoiceConfig = {
 	}[];
 };
 
+export type BlockChoiceResponse = {
+	answers: string[];
+};
+
 export const blockFillBlank = {
 	type: 'object',
 	properties: {
@@ -207,6 +215,10 @@ export const blockFillBlank = {
 
 export type BlockFillBlankConfig = {
 	sentence: string;
+	answer: string;
+};
+
+export type BlockFillBlankResponse = {
 	answer: string;
 };
 
@@ -242,6 +254,10 @@ export type BlockMatchingConfig = {
 	pairs: { left: string; right: string }[];
 };
 
+export type BlockMatchingResponse = {
+	matches: { left: string; right: string }[];
+};
+
 export const blockShortAnswer = {
 	type: 'object',
 	properties: {
@@ -265,6 +281,10 @@ export const blockShortAnswer = {
 
 export type BlockShortAnswerConfig = {
 	question: string;
+};
+
+export type BlockShortAnswerResponse = {
+	answer: string;
 };
 
 export const blockWhiteboard = {
@@ -343,3 +363,149 @@ export const taskSchema = {
 	},
 	required: ['task']
 };
+
+// Union type for all possible block configs
+export type BlockConfig =
+	| BlockHeadingConfig
+	| BlockRichTextConfig
+	| BlockChoiceConfig
+	| BlockFillBlankConfig
+	| BlockMatchingConfig
+	| BlockShortAnswerConfig
+	| BlockWhiteboardConfig;
+
+export type BlockResponse =
+	| BlockChoiceResponse
+	| BlockFillBlankResponse
+	| BlockMatchingResponse
+	| BlockShortAnswerResponse;
+
+export type BlockProps<T extends BlockConfig = BlockConfig, Q extends BlockResponse = never> = {
+	initialConfig: T;
+	onConfigUpdate: (config: T) => Promise<void>;
+	viewMode: ViewMode;
+} & ([Q] extends [never]
+	? object
+	: {
+			initialResponse?: Q;
+			onResponseUpdate: (response: Q) => Promise<void>;
+		});
+
+// Specific prop types for each block type
+export type HeadingBlockProps = BlockProps<BlockHeadingConfig>;
+export type RichTextBlockProps = BlockProps<BlockRichTextConfig>;
+export type ChoiceBlockProps = BlockProps<BlockChoiceConfig, BlockChoiceResponse>;
+export type FillBlankBlockProps = BlockProps<BlockFillBlankConfig, BlockFillBlankResponse>;
+export type MatchingBlockProps = BlockProps<BlockMatchingConfig, BlockMatchingResponse>;
+export type ShortAnswerBlockProps = BlockProps<BlockShortAnswerConfig, BlockShortAnswerResponse>;
+export type WhiteboardBlockProps = BlockProps<BlockWhiteboardConfig>;
+
+import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
+import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
+import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
+import HeadingFourIcon from '@lucide/svelte/icons/heading-4';
+import HeadingFiveIcon from '@lucide/svelte/icons/heading-5';
+import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
+import PresentationIcon from '@lucide/svelte/icons/presentation';
+import List from '@lucide/svelte/icons/list';
+import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+import LinkIcon from '@lucide/svelte/icons/link';
+import type { Icon } from '@lucide/svelte';
+
+export enum ViewMode {
+	CONFIGURE = 'configure',
+	ANSWER = 'answer',
+	REVIEW = 'review',
+	PRESENT = 'present'
+}
+
+export const blockTypes: {
+	type: string;
+	name: string;
+	initialConfig: Record<string, unknown>;
+	icon: typeof Icon;
+}[] = [
+	{
+		type: taskBlockTypeEnum.heading,
+		name: 'Heading 1',
+		initialConfig: { text: 'Heading 1', size: 2 },
+		icon: HeadingOneIcon
+	},
+	{
+		type: taskBlockTypeEnum.heading,
+		name: 'Heading 2',
+		initialConfig: { text: 'Heading 2', size: 3 },
+		icon: HeadingTwoIcon
+	},
+	{
+		type: taskBlockTypeEnum.heading,
+		name: 'Heading 3',
+		initialConfig: { text: 'Heading 3', size: 4 },
+		icon: HeadingThreeIcon
+	},
+	{
+		type: taskBlockTypeEnum.heading,
+		name: 'Heading 4',
+		initialConfig: { text: 'Heading 4', size: 5 },
+		icon: HeadingFourIcon
+	},
+	{
+		type: taskBlockTypeEnum.heading,
+		name: 'Heading 5',
+		initialConfig: { text: 'Heading 5', size: 6 },
+		icon: HeadingFiveIcon
+	},
+	{
+		type: taskBlockTypeEnum.richText,
+		name: 'Rich Text',
+		initialConfig: { html: 'This is a rich text block' },
+		icon: PilcrowIcon
+	},
+	{
+		type: taskBlockTypeEnum.whiteboard,
+		name: 'Whiteboard',
+		initialConfig: { data: '', width: 800, height: 600 },
+		icon: PresentationIcon
+	},
+	{
+		type: taskBlockTypeEnum.choice,
+		name: 'Multiple Choice',
+		initialConfig: {
+			question: 'Sample multiple choice question?',
+			options: [
+				{ text: 'Option 1', isAnswer: false },
+				{ text: 'Option 2', isAnswer: true }
+			]
+		},
+		icon: List
+	},
+	{
+		type: taskBlockTypeEnum.fillBlank,
+		name: 'Fill Blank',
+		initialConfig: {
+			sentence: 'Fill in the _____.',
+			answer: 'answer'
+		},
+		icon: PenToolIcon
+	},
+	{
+		type: taskBlockTypeEnum.shortAnswer,
+		name: 'Short Answer',
+		initialConfig: {
+			question: 'Question'
+		},
+		icon: PenToolIcon
+	},
+	{
+		type: taskBlockTypeEnum.matching,
+		name: 'Matching Pairs',
+		initialConfig: {
+			instructions: 'Match the items on the left with the correct answers on the right.',
+			pairs: [
+				{ left: 'Item 1', right: 'Answer 1' },
+				{ left: 'Item 2', right: 'Answer 2' }
+			]
+		},
+		icon: LinkIcon
+	}
+];

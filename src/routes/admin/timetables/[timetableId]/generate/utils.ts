@@ -11,7 +11,7 @@ import {
 	getSubjectsBySchoolId,
 	getSchoolById
 } from '$lib/server/db/service';
-import type { FETActivity, FETOutput } from '$lib/server/schema/fetSchema';
+import type { FETActivity, FETOutput } from '$lib/schemas/fetSchema';
 
 export type TimetableData = {
 	timetableDays: Awaited<ReturnType<typeof getTimetableDays>>;

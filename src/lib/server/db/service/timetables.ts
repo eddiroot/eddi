@@ -3,7 +3,7 @@ import { db } from '$lib/server/db';
 import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { days } from '$lib/utils';
 import { queueStatusEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
-import type { FETActivity } from '$lib/server/schema/fetSchema';
+import type { FETActivity } from '$lib/schemas/fetSchema';
 
 export async function getSchoolTimetablesBySchoolId(
 	schoolId: number,

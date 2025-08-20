@@ -16,7 +16,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod/v4';
 import { taskStatusEnum } from '$lib/enums';
-import { inferResourceTypeFromFileName } from '$lib/server/schema/resourceSchema';
+import { inferResourceTypeFromFileName } from '$lib/schemas/resourceSchema';
 import { uploadBufferHelper, generateUniqueFileName, deleteFile } from '$lib/server/obj';
 
 // Simplified schema for the task submission

@@ -11,7 +11,7 @@ import {
 	getSchoolById,
 	createTimetableQueueEntry
 } from '$lib/server/db/service';
-import { userTypeEnum } from '$lib/enums';
+import { userTypeEnum } from '$lib/enums.js';
 import { buildFETInput } from './utils.js';
 import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 

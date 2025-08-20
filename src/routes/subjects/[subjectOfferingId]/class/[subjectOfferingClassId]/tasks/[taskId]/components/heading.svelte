@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { ViewMode } from '../constants';
-	import type { HeadingBlockProps } from './blockTypes';
+	import { ViewMode, type HeadingBlockProps } from '$lib/schemas/taskSchema';
 
 	let { initialConfig, onConfigUpdate, viewMode }: HeadingBlockProps = $props();
 
@@ -29,7 +28,7 @@
 </script>
 
 <div class="w-full">
-	{#if viewMode === ViewMode.VIEW}
+	{#if viewMode === ViewMode.CONFIGURE}
 		<input
 			bind:value={config.text}
 			onkeydown={(e) => {

@@ -6,43 +6,49 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import CircleIcon from '@lucide/svelte/icons/circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import XIcon from '@lucide/svelte/icons/x';
-	import { ViewMode } from '../constants';
-	import type { ChoiceBlockProps } from './blockTypes';
-	import { taskStatusEnum } from '$lib/enums';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import XCircleIcon from '@lucide/svelte/icons/x-circle';
+	import CircleIcon from '@lucide/svelte/icons/circle';
+	import CheckSquareIcon from '@lucide/svelte/icons/check-square';
+	import XSquareIcon from '@lucide/svelte/icons/x-square';
+	import SquareIcon from '@lucide/svelte/icons/square';
+	import { ViewMode, type ChoiceBlockProps } from '$lib/schemas/taskSchema';
 
 	let {
 		initialConfig,
 		onConfigUpdate,
 		initialResponse,
 		onResponseUpdate,
-		viewMode,
-		taskStatus
+		viewMode
 	}: ChoiceBlockProps = $props();
 
 	let config = $state(initialConfig);
-	let selectedAnswers = $state<string[]>([]);
+	let response = $state(initialResponse || { answers: [] });
 
 	let isMultiAnswer = $derived(() => {
 		return config.options.filter((option) => option.isAnswer).length > 1;
 	});
 
-	function toggleAnswer(option: string) {
-		if (taskStatus == taskStatusEnum.locked || taskStatus == taskStatusEnum.graded) return;
-
+	async function toggleAnswer(option: string) {
 		if (!isMultiAnswer()) {
-			// Single choice - clear others and set this one
-			selectedAnswers = [option];
+			response.answers = [option];
 		} else {
-			if (selectedAnswers.includes(option)) {
-				selectedAnswers = selectedAnswers.filter((ans) => ans !== option);
+			if (response.answers.includes(option)) {
+				response.answers = response.answers.filter((ans) => ans !== option);
 			} else {
-				selectedAnswers = [...selectedAnswers, option];
+				response.answers = [...response.answers, option];
 			}
+		}
+
+		await onResponseUpdate(response);
+	}
+
+	async function toggleCorrect(option: string) {
+		const index = config.options.findIndex((opt) => opt.text === option);
+		if (index !== -1) {
+			config.options[index].isAnswer = !config.options[index].isAnswer;
+			onConfigUpdate(config);
 		}
 	}
 
@@ -55,38 +61,18 @@
 			(opt) => opt.text.toLowerCase() === option.toLowerCase() && opt.isAnswer
 		);
 	}
-
-	async function addOption() {
-		config.options.push({ text: '', isAnswer: false });
-		onConfigUpdate(config);
-	}
-
-	async function removeOption(option: string) {
-		config.options = config.options.filter((opt) => opt.text !== option);
-		onConfigUpdate(config);
-	}
-
-	async function toggleCorrect(option: string) {
-		const index = config.options.findIndex((opt) => opt.text === option);
-		if (index !== -1) {
-			config.options[index].isAnswer = !config.options[index].isAnswer;
-			onConfigUpdate(config);
-		}
-	}
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if viewMode === ViewMode.EDIT}
-		<!-- EDIT MODE: Shows form for creating/editing the multiple choice question -->
+	{#if viewMode === ViewMode.CONFIGURE}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
 					<HelpCircleIcon class="h-4 w-4" />
-					Edit Multiple Choice Question
+					Configure Choice Block
 				</Card.Title>
 			</Card.Header>
 			<Card.Content class="space-y-6">
-				<!-- QUESTION INPUT SECTION -->
 				<div class="space-y-2">
 					<Label for="question-text">Question</Label>
 					<Textarea
@@ -100,11 +86,16 @@
 					/>
 				</div>
 
-				<!-- ANSWER OPTIONS SECTION -->
 				<div class="space-y-4">
 					<div class="flex items-center justify-between">
 						<Label>Answer Options</Label>
-						<Button variant="outline" size="sm" onclick={addOption} class="flex items-center gap-2">
+						<Button
+							size="sm"
+							onclick={async () => {
+								config.options.push({ text: '', isAnswer: false });
+								await onConfigUpdate(config);
+							}}
+						>
 							<PlusIcon class="h-4 w-4" />
 							Add Option
 						</Button>
@@ -112,22 +103,23 @@
 					<div class="space-y-3">
 						{#each config.options as option, index}
 							<div class="flex items-start gap-3 rounded-lg border p-3">
-								<!-- Correct Answer Checkbox -->
-								<button
+								<Button
 									type="button"
+									variant={getCorrectAnswers().includes(option.text) ? 'success' : 'destructive'}
+									size="icon"
 									onclick={() => toggleCorrect(option.text)}
-									class="mt-1 text-green-600 transition-colors hover:text-green-700"
-									title={getCorrectAnswers().includes(option.text)
-										? 'Mark as incorrect'
-										: 'Mark as correct'}
 									disabled={!option.text.trim()}
 								>
 									{#if getCorrectAnswers().includes(option.text)}
-										<CheckCircleIcon class="h-5 w-5" />
+										{#if !isMultiAnswer()}
+											<CheckCircleIcon />
+										{:else}
+											<CheckSquareIcon />
+										{/if}
 									{:else}
-										<CircleIcon class="h-5 w-5" />
+										<CircleIcon />
 									{/if}
-								</button>
+								</Button>
 
 								<!-- Answer Text Input -->
 								<div class="flex-1">
@@ -141,30 +133,29 @@
 									/>
 								</div>
 
-								<!-- Delete Button (only show if more than 2 options) -->
 								{#if config.options.length > 2}
-									<Button variant="ghost" size="sm" onclick={() => removeOption(option.text)}>
+									<Button
+										variant="destructive"
+										size="icon"
+										onclick={async () => {
+											config.options = config.options.filter((opt) => opt.text !== option.text);
+											onConfigUpdate(config);
+										}}
+									>
 										<TrashIcon />
 									</Button>
 								{/if}
 							</div>
 						{/each}
 					</div>
-
-					<p class="text-muted-foreground text-xs">
-						Click the circle icon to mark correct answers. You can select multiple correct answers.
-					</p>
 				</div>
 			</Card.Content>
 		</Card.Root>
-	{:else if viewMode === ViewMode.VIEW}
-		<!-- VIEW MODE: Shows the completed multiple choice question -->
+	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}
 		<div class="group relative">
 			{#if config.question && config.options?.length > 0}
-				<!-- Display the complete question -->
 				<Card.Root>
 					<Card.Content>
-						<!-- Question Text -->
 						<div class="mb-6">
 							<h3 class="mb-2 text-lg font-medium">{config.question}</h3>
 							{#if isMultiAnswer()}
@@ -174,130 +165,50 @@
 							{/if}
 						</div>
 
-						<!-- Answer Options -->
-						<div class="space-y-3">
-							{#each config.options as option, index}
-								{@const isSelected = selectedAnswers.includes(option.text)}
+						<div class="flex flex-col gap-y-3">
+							{#each config.options as option}
+								{@const isSelected = response.answers.includes(option.text)}
 								{@const isCorrect = isAnswerCorrect(option.text)}
-								{@const showFeedback = taskStatus === taskStatusEnum.graded}
-								<button
-									class={`interactive flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200
-                                        ${!showFeedback ? 'cursor-pointer' : 'cursor-default'}
-                                        ${isSelected && !showFeedback ? 'border-blue-200' : ''}
-                                        ${isSelected && isCorrect && showFeedback ? 'border-2 border-green-500 bg-green-50' : ''}
-                                        ${isSelected && !isCorrect && showFeedback ? 'border-red-200 bg-red-50' : ''}
-                                        ${!isSelected && isCorrect && showFeedback ? 'border-2 border-dashed border-yellow-400 bg-yellow-50' : ''}
-                                    `}
+								<Button
+									variant="outline"
 									onclick={() => toggleAnswer(option.text)}
-									disabled={showFeedback}
+									class="text-left"
+									disabled={viewMode === ViewMode.REVIEW}
 								>
-									<div class="mt-1 flex-shrink-0">
-										{#if isMultiAnswer()}
-											{#if !showFeedback}
-												{#if isSelected}
-													<div
-														class="flex h-5 w-5 items-center justify-center rounded border-2 border-blue-600 bg-blue-600"
-													>
-														<CheckIcon class="h-3 w-3 text-white" />
-													</div>
-												{:else}
-													<div class="h-5 w-5 rounded border-2 border-gray-300"></div>
-												{/if}
-											{:else if isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded border-2 border-green-600 bg-green-600"
-												>
-													<CheckIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if isSelected && !isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded border-2 border-red-600 bg-red-600"
-												>
-													<XIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if !isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded border-2 border-yellow-400 bg-yellow-400"
-												>
-													<CheckIcon class="h-3 w-3 text-yellow-900" />
-												</div>
-											{:else}
-												<div class="h-5 w-5 rounded border-2 border-gray-300"></div>
-											{/if}
+									{#if !isMultiAnswer()}
+										{#if isSelected && isCorrect}
+											<CheckCircleIcon class="text-success" />
+										{:else if isSelected && !isCorrect}
+											<XCircleIcon class="text-destructive" />
 										{:else}
-											<!-- Radio button style for single choice -->
-											{#if !showFeedback}
-												{#if isSelected}
-													<div
-														class="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600"
-													>
-														<div class="h-2 w-2 rounded-full bg-white"></div>
-													</div>
-												{:else}
-													<div class="h-5 w-5 rounded-full border-2 border-gray-300"></div>
-												{/if}
-											{:else if isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded-full bg-green-600"
-												>
-													<CheckIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if isSelected && !isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded-full bg-red-600"
-												>
-													<XIcon class="h-3 w-3 text-white" />
-												</div>
-											{:else if !isSelected && isCorrect}
-												<div
-													class="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400"
-												>
-													<CheckIcon class="h-3 w-3 text-yellow-900" />
-												</div>
-											{:else}
-												<div class="h-5 w-5 rounded-full border-2 border-gray-300"></div>
-											{/if}
+											<CircleIcon class="text-muted-foreground" />
 										{/if}
-									</div>
-
-									<!-- Option text with letter prefix -->
+									{:else if isSelected && isCorrect}
+										<CheckSquareIcon class="text-success" />
+									{:else if isSelected && !isCorrect}
+										<XSquareIcon class="text-destructive" />
+									{:else}
+										<SquareIcon class="text-muted-foreground" />
+									{/if}
 									<span class="flex-1">
-										<span class="mr-2 text-sm font-medium text-gray-600">
-											{String.fromCharCode(65 + index)}.
-										</span>
-										<span
-											class={`
-                                            ${isSelected && isCorrect && showFeedback ? 'font-semibold text-green-800' : ''}
-                                            ${isSelected && !isCorrect && showFeedback ? 'text-red-800' : ''}
-                                            ${!isSelected && isCorrect && showFeedback ? 'font-medium text-yellow-800' : ''}
-                                        `}
-										>
-											{option}
-										</span>
-										{#if !isSelected && isCorrect && showFeedback}
-											<span class="ml-2 text-xs font-medium text-yellow-700">(Correct Answer)</span>
-										{/if}
+										{option.text}
 									</span>
-								</button>
+								</Button>
 							{/each}
 						</div>
 					</Card.Content>
 				</Card.Root>
 			{:else}
-				<!-- Empty state when no question is created yet -->
 				<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
 					<div class="text-center">
 						<HelpCircleIcon class="text-muted-foreground mx-auto h-12 w-12" />
 						<p class="text-muted-foreground mt-2 text-sm">No question created</p>
 						<p class="text-muted-foreground text-xs">
-							Click edit to create a multiple choice question
+							Please configure this choice block in the task editor.
 						</p>
 					</div>
 				</div>
 			{/if}
 		</div>
-	{:else}
-		<!-- No config placeholder -->
-		<div></div>
 	{/if}
 </div>

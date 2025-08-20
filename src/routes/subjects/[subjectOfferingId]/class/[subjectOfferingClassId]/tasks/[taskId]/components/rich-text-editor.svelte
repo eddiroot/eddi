@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { ViewMode } from '../constants';
-	import type { RichTextBlockProps } from './blockTypes';
+	import { ViewMode, type RichTextBlockProps } from '$lib/schemas/taskSchema';
 	import { onMount, onDestroy } from 'svelte';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
@@ -20,7 +19,7 @@
 	let content = $state<string>(initialConfig.html);
 	let element: HTMLDivElement;
 	let editorBox = $state.raw<{ current: Editor }>();
-	let isEditable = viewMode == ViewMode.EDIT;
+	let isEditable = viewMode == ViewMode.CONFIGURE;
 
 	onMount(() => {
 		editorBox = {

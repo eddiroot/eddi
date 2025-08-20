@@ -7,16 +7,14 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import { ViewMode } from '../constants';
-	import type { MatchingBlockProps } from './blockTypes';
+	import { ViewMode, type MatchingBlockProps } from '$lib/schemas/taskSchema';
 
 	let {
 		initialConfig,
 		onConfigUpdate,
 		initialResponse,
 		onResponseUpdate,
-		viewMode,
-		taskStatus
+		viewMode
 	}: MatchingBlockProps = $props();
 
 	let config = $state(initialConfig);
@@ -41,7 +39,7 @@
 	}
 </script>
 
-{#if viewMode === ViewMode.EDIT}
+{#if viewMode === ViewMode.CONFIGURE}
 	<Card.Root class="p-4">
 		<Card.Header>
 			<Card.Title class="text-lg font-semibold">Matching Exercise</Card.Title>
@@ -114,7 +112,7 @@
 			</div>
 		</Card.Content>
 	</Card.Root>
-{:else if viewMode === ViewMode.VIEW}
+{:else if viewMode === ViewMode.ANSWER}
 	<!-- Preview Mode -->
 	<Card.Root class="p-6">
 		<Card.Header>

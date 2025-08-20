@@ -5,9 +5,8 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { ViewMode } from '../constants';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
-	import type { WhiteboardBlockProps } from './blockTypes';
+	import { ViewMode, type WhiteboardBlockProps } from '$lib/schemas/taskSchema';
 
 	let { initialConfig, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();
 
@@ -81,7 +80,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if viewMode === ViewMode.EDIT}
+	{#if viewMode === ViewMode.CONFIGURE}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">

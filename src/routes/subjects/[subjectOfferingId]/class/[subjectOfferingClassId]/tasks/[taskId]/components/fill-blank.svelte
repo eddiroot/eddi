@@ -7,32 +7,21 @@
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
-	import type { FillBlankBlockProps } from './blockTypes';
-	import { ViewMode } from '../constants';
-	import { taskStatusEnum } from '$lib/enums';
+	import { ViewMode, type FillBlankBlockProps } from '$lib/schemas/taskSchema';
 
 	let {
 		initialConfig,
 		onConfigUpdate,
 		initialResponse,
 		onResponseUpdate,
-		viewMode,
-		taskStatus
+		viewMode
 	}: FillBlankBlockProps = $props();
 
 	let config = $state(initialConfig);
-	let userAnswer = $state('');
-
-	function submitAnswer() {
-		if (!userAnswer.trim()) return;
-	}
-
-	function resetQuiz() {
-		userAnswer = '';
-	}
+	let response = $state(initialResponse || { answer: '' });
 
 	function isAnswerCorrect(): boolean {
-		return userAnswer.trim() == config.answer;
+		return response?.answer.trim() == config.answer;
 	}
 
 	function parseSentence(sentence: string): { before: string; after: string } {
@@ -70,13 +59,12 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
-	{#if viewMode === ViewMode.EDIT}
-		<!-- EDIT MODE: Shows form for creating/editing the fill-in-blank question -->
+	{#if viewMode === ViewMode.CONFIGURE}
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
 					<PenToolIcon class="h-4 w-4" />
-					Edit Fill-in-the-Blank Question
+					Configure Fill Blank Block
 				</Card.Title>
 			</Card.Header>
 			<Card.Content class="space-y-6">
@@ -123,33 +111,30 @@
 				{/if}
 			</Card.Content>
 		</Card.Root>
-	{:else if viewMode === ViewMode.VIEW}
-		<!-- VIEW MODE: Shows the interactive fill-in-blank question -->
+	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}
 		{#if config.sentence && config.answer}
 			<Card.Root>
 				<Card.Content>
-					<div class="mb-6">
-						<h3 class="mb-2 text-lg font-medium">Fill in the Blank</h3>
-						<p class="text-muted-foreground mb-6 text-sm">
-							Complete the sentence by filling in the blank.
-						</p>
-					</div>
+					<p class="text-muted-foreground mb-6 text-sm">
+						Complete the sentence by filling in the blank.
+					</p>
 
 					{@const parsed = parseSentence(config.sentence)}
-					{@const showFeedback = taskStatus == taskStatusEnum.graded}
 					<div class="mb-6">
 						<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
 							<span>{parsed.before}</span>
 							<div class="relative mx-2 inline-block">
 								<Input
-									bind:value={userAnswer}
-									disabled={showFeedback}
+									bind:value={response.answer}
+									disabled={viewMode !== ViewMode.ANSWER}
 									placeholder="Your answer"
 									class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
-										showFeedback
+										viewMode === ViewMode.ANSWER
 											? isAnswerCorrect()
-												? 'border-success text-success shadow-sm'
-												: 'border-destructive text-destructive shadow-sm'
+												? 'border-success shadow-sm'
+												: response.answer
+													? 'border-destructive shadow-sm'
+													: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
 											: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
 									}`}
 									style="border-radius: 8px; padding: 8px 12px;"
@@ -161,15 +146,9 @@
 						</div>
 					</div>
 
-					{#if showFeedback}
+					{#if viewMode !== ViewMode.ANSWER}
 						<div class="mb-6 rounded-lg border p-4">
-							{#if isAnswerCorrect()}
-								<div class="text-success flex items-center gap-2">
-									<CheckIcon class="h-5 w-5" />
-									<span class="font-medium">Correct!</span>
-								</div>
-								<p class="text-success mt-1 text-sm">Well done! You got the right answer.</p>
-							{:else}
+							{#if !isAnswerCorrect()}
 								<div class="text-destructive flex items-center gap-2">
 									<XIcon class="h-5 w-5" />
 									<span class="font-medium">Incorrect</span>
@@ -179,20 +158,6 @@
 								</p>
 							{/if}
 						</div>
-					{/if}
-
-					{#if taskStatus == taskStatusEnum.published}
-						{#if !initialResponse}
-							<div class="mt-6">
-								<Button onclick={submitAnswer} disabled={!userAnswer.trim()} class="w-full">
-									Submit Answer
-								</Button>
-							</div>
-						{:else}
-							<div class="mt-6 flex gap-2">
-								<Button onclick={resetQuiz} variant="outline" class="flex-1">Try Again</Button>
-							</div>
-						{/if}
 					{/if}
 				</Card.Content>
 			</Card.Root>

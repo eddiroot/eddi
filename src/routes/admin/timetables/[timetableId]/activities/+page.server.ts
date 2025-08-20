@@ -10,7 +10,7 @@ import { activityFormSchema } from './schema.js';
 import { superValidate, message } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { fail } from '@sveltejs/kit';
-import { yearLevelEnum, userTypeEnum } from '$lib/enums';
+import { yearLevelEnum, userTypeEnum } from '$lib/enums.js';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
