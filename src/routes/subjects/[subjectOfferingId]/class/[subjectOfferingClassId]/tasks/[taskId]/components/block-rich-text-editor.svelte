@@ -21,6 +21,11 @@
 	let editorBox = $state.raw<{ current: Editor }>();
 	let isEditable = viewMode == ViewMode.CONFIGURE;
 
+	// Do not remove. Updates config state when block order is changed.
+	$effect(() => {
+		content = initialConfig.html;
+	});
+
 	onMount(() => {
 		editorBox = {
 			current: new Editor({

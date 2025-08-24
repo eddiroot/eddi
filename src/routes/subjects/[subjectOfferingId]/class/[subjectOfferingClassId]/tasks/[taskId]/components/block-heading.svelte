@@ -5,6 +5,11 @@
 
 	let config = $state(initialConfig);
 
+	// Do not remove. Updates config state when block order is changed.
+	$effect(() => {
+		config = initialConfig;
+	});
+
 	const getClassesBySize = (size: number): string => {
 		const coreClasses =
 			'h-auto w-full resize-none scroll-m-20 border-none bg-transparent p-0 shadow-none focus:ring-0 focus:outline-none tracking-tight ';

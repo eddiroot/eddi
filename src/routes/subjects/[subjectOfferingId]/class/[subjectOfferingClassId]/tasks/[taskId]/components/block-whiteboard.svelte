@@ -12,6 +12,11 @@
 
 	let config = $state(initialConfig);
 
+	// Do not remove. Updates config state when block order is changed.
+	$effect(() => {
+		config = initialConfig;
+	});
+
 	const { taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 
 	const createWhiteboard = async () => {

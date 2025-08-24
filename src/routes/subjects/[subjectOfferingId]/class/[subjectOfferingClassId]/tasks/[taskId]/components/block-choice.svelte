@@ -30,6 +30,11 @@
 	let config = $state(initialConfig);
 	let response = $state<BlockChoiceResponse>(initialResponse || { answers: [] });
 
+	// Do not remove. Updates config state when block order is changed.
+	$effect(() => {
+		config = initialConfig;
+	});
+
 	// Do not remove. Updates response state when new student selected.
 	$effect(() => {
 		response = initialResponse || { answers: [] };
