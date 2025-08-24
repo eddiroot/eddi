@@ -174,40 +174,45 @@
 			<Card.Title class="text-lg">Assignment History</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<Table.Root>
-				<Table.Header>
+			<!-- Header table for consistent styling -->
+			<Table.Root class="w-full table-fixed">
+				<Table.Header class="border-b">
 					<Table.Row>
 						<Table.Head class="w-1/3">Assignment</Table.Head>
-						<Table.Head class="w-1/6">Score</Table.Head>
-						<Table.Head class="w-1/4">Due Date</Table.Head>
-						<Table.Head class="w-1/4">Status</Table.Head>
+						<Table.Head class="w-32">Score</Table.Head>
+						<Table.Head class="w-40">Due Date</Table.Head>
+						<Table.Head class="w-40">Status</Table.Head>
 					</Table.Row>
 				</Table.Header>
-				<Table.Body>
-					{#each studentData.assignmentHistory as assignment}
-						<Table.Row>
-							<Table.Cell>
-								<span class="text-primary font-medium">{assignment.name}</span>
-							</Table.Cell>
-							<Table.Cell>
-								{#if assignment.score !== null}
-									<Badge variant="secondary">{assignment.score}%</Badge>
-								{:else}
-									<span class="text-muted-foreground">-</span>
-								{/if}
-							</Table.Cell>
-							<Table.Cell>{assignment.dueDate}</Table.Cell>
-							<Table.Cell>
-								<Badge
-									variant={assignment.status === 'completed' ? 'default' : assignment.status === 'submitted' ? 'secondary' : 'outline'}
-								>
-									{assignment.status}
-								</Badge>
-							</Table.Cell>
-						</Table.Row>
-					{/each}
-				</Table.Body>
 			</Table.Root>
+			<div class="overflow-y-auto [scrollbar-gutter:stable] h-72">
+				<Table.Root class="w-full table-fixed">
+					<Table.Body>
+						{#each studentData.assignmentHistory as assignment}
+							<Table.Row>
+								<Table.Cell class="w-1/3 font-medium">
+									<span class="text-primary font-medium truncate block">{assignment.name}</span>
+								</Table.Cell>
+								<Table.Cell class="w-32">
+									{#if assignment.score !== null}
+										<Badge variant="secondary">{assignment.score}%</Badge>
+									{:else}
+										<span class="text-muted-foreground">-</span>
+									{/if}
+								</Table.Cell>
+								<Table.Cell class="w-40">{assignment.dueDate}</Table.Cell>
+								<Table.Cell class="w-40">
+									<Badge
+										variant={assignment.status === 'completed' ? 'default' : assignment.status === 'submitted' ? 'secondary' : 'outline'}
+									>
+										{assignment.status}
+									</Badge>
+								</Table.Cell>
+							</Table.Row>
+						{/each}
+					</Table.Body>
+				</Table.Root>
+			</div>
 		</Card.Content>
 	</Card.Root>
 
@@ -217,40 +222,45 @@
 			<Card.Title class="text-lg">Lesson History</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<Table.Root>
-				<Table.Header>
+			<!-- Header table for consistent styling -->
+			<Table.Root class="w-full table-fixed">
+				<Table.Header class="border-b">
 					<Table.Row>
 						<Table.Head class="w-1/3">Lesson</Table.Head>
-						<Table.Head class="w-1/6">Score</Table.Head>
-						<Table.Head class="w-1/4">Due Date</Table.Head>
-						<Table.Head class="w-1/4">Status</Table.Head>
+						<Table.Head class="w-32">Score</Table.Head>
+						<Table.Head class="w-40">Due Date</Table.Head>
+						<Table.Head class="w-40">Status</Table.Head>
 					</Table.Row>
 				</Table.Header>
-				<Table.Body>
-					{#each studentData.lessonProgress as lesson}
-						<Table.Row>
-							<Table.Cell>
-								<span class="text-primary font-medium">{lesson.name}</span>
-							</Table.Cell>
-							<Table.Cell>
-								{#if typeof lesson.score === 'number' && lesson.score !== null}
-									<Badge variant="secondary">{lesson.score}%</Badge>
-								{:else}
-									<span class="text-muted-foreground">-</span>
-								{/if}
-							</Table.Cell>
-							<Table.Cell>{lesson.dueDate}</Table.Cell>
-							<Table.Cell>
-								<Badge
-									variant={lesson.status === 'completed' ? 'default' : lesson.status === 'submitted' ? 'secondary' : 'outline'}
-								>
-									{lesson.status}
-								</Badge>
-							</Table.Cell>
-						</Table.Row>
-					{/each}
-				</Table.Body>
 			</Table.Root>
+			<div class="overflow-y-auto [scrollbar-gutter:stable] h-72">
+				<Table.Root class="w-full table-fixed">
+					<Table.Body>
+						{#each studentData.lessonProgress as lesson}
+							<Table.Row>
+								<Table.Cell class="w-1/3 font-medium">
+									<span class="text-primary font-medium truncate block">{lesson.name}</span>
+								</Table.Cell>
+								<Table.Cell class="w-32">
+									{#if typeof lesson.score === 'number' && lesson.score !== null}
+										<Badge variant="secondary">{lesson.score}%</Badge>
+									{:else}
+										<span class="text-muted-foreground">-</span>
+									{/if}
+								</Table.Cell>
+								<Table.Cell class="w-40">{lesson.dueDate}</Table.Cell>
+								<Table.Cell class="w-40">
+									<Badge
+										variant={lesson.status === 'completed' ? 'default' : lesson.status === 'submitted' ? 'secondary' : 'outline'}
+									>
+										{lesson.status}
+									</Badge>
+								</Table.Cell>
+							</Table.Row>
+						{/each}
+					</Table.Body>
+				</Table.Root>
+			</div>
 		</Card.Content>
 	</Card.Root>
 
