@@ -102,7 +102,12 @@ Raph
   - shape adding mechanics
   - text adding mechanics
 - [x] Student grades (20/08) (use mock data for now - waiting for eddi study)
+  - fix scrollbar gutter
+  - fix filters and sorts
+  - full width, remove fixed-table
+  - remove and fix showFeedback
 - [ ] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
+  - fix table width issues
   - admin grade style option (percentage vs 0-8 scale)
 - [ ] Queue for email sending so it doesn't block requests
 

@@ -23,6 +23,7 @@
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import ArrowUp from '@lucide/svelte/icons/arrow-up';
 	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import { formatTimestampAsDate } from '$lib/utils';
 
 	let { data } = $props();
 
@@ -55,6 +56,8 @@
 					lastName: 'Smith',
 					avatarUrl: '/avatars/sam.jpg',
 					participation: 82,
+					participationCompletedCount: 8,
+					participationTotal: 10,
 					assignmentsCompleted: 75, // percentage
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 3,
@@ -73,6 +76,8 @@
 					lastName: 'Johnson',
 					avatarUrl: '/avatars/emma.jpg',
 					participation: 95,
+					participationCompletedCount: 10,
+					participationTotal: 10,
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -91,6 +96,8 @@
 					lastName: 'Chen',
 					avatarUrl: '/avatars/michael.jpg',
 					participation: 60,
+					participationCompletedCount: 6,
+					participationTotal: 10,
 					assignmentsCompleted: 50,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 2,
@@ -109,6 +116,8 @@
 					lastName: 'Davis',
 					avatarUrl: '/avatars/sarah.jpg',
 					participation: 88,
+					participationCompletedCount: 9,
+					participationTotal: 10,
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -127,6 +136,8 @@
 					lastName: 'Wilson',
 					avatarUrl: '/avatars/david.jpg',
 					participation: 40,
+					participationCompletedCount: 4,
+					participationTotal: 10,
 					assignmentsCompleted: 25,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 1,
@@ -145,6 +156,8 @@
 					lastName: 'Martinez',
 					avatarUrl: '/avatars/lisa.jpg',
 					participation: 97,
+					participationCompletedCount: 10,
+					participationTotal: 10,
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -163,6 +176,8 @@
 					lastName: 'Brown',
 					avatarUrl: '/avatars/james.jpg',
 					participation: 70,
+					participationCompletedCount: 7,
+					participationTotal: 10,
 					assignmentsCompleted: 75,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 3,
@@ -181,6 +196,8 @@
 					lastName: 'Taylor',
 					avatarUrl: '/avatars/ashley.jpg',
 					participation: 92,
+					participationCompletedCount: 9,
+					participationTotal: 10,
 					assignmentsCompleted: 100,
 					assignmentsTotal: 4,
 					assignmentsCompletedCount: 4,
@@ -220,6 +237,7 @@
 			tasks: [
 				{
 					name: 'Assignment 1',
+					type: 'assessment',
 					studentsCompleted: 100,
 					totalStudents: 21,
 					completedCount: 21,
@@ -227,11 +245,13 @@
 					totalScore: 40,
 					scoreCount: 26,
 					averageTime: '58 Minutes',
-					dueDate: '1 week ago',
+					weight: 10,
+					dueDate: '2025-08-17', // was '1 week ago'
 					status: 'completed'
 				},
 				{
 					name: 'Lesson 1',
+					type: 'lesson',
 					studentsCompleted: 67,
 					totalStudents: 21,
 					completedCount: 14,
@@ -239,11 +259,13 @@
 					totalScore: 40,
 					scoreCount: 33,
 					averageTime: '22 Minutes',
-					dueDate: 'In 1 day',
+					weight: 5,
+					dueDate: '2025-08-25', // was 'In 1 day'
 					status: 'due'
 				},
 				{
 					name: 'Quiz 1',
+					type: 'assessment',
 					studentsCompleted: 95,
 					totalStudents: 21,
 					completedCount: 20,
@@ -251,11 +273,13 @@
 					totalScore: 40,
 					scoreCount: 31,
 					averageTime: '15 Minutes',
-					dueDate: '3 days ago',
+					weight: 15,
+					dueDate: '2025-08-21', // was '3 days ago'
 					status: 'completed'
 				},
 				{
 					name: 'Assignment 2',
+					type: 'assessment',
 					studentsCompleted: 81,
 					totalStudents: 21,
 					completedCount: 17,
@@ -263,11 +287,13 @@
 					totalScore: 40,
 					scoreCount: 29,
 					averageTime: '45 Minutes',
-					dueDate: 'In 3 days',
+					weight: 12,
+					dueDate: '2025-08-27', // was 'In 3 days'
 					status: 'due'
 				},
 				{
 					name: 'Lesson 2',
+					type: 'lesson',
 					studentsCompleted: 76,
 					totalStudents: 21,
 					completedCount: 16,
@@ -275,11 +301,27 @@
 					totalScore: 40,
 					scoreCount: 34,
 					averageTime: '28 Minutes',
-					dueDate: '2 days ago',
+					weight: 5,
+					dueDate: '2025-08-22', // was '2 days ago'
 					status: 'completed'
 				},
 				{
+					name: 'Homework 1',
+					type: 'homework',
+					studentsCompleted: 54,
+					totalStudents: 21,
+					completedCount: 11,
+					averageScore: 74,
+					totalScore: 40,
+					scoreCount: 30,
+					averageTime: '35 Minutes',
+					weight: 8,
+					dueDate: '2025-08-24',
+					status: 'due'
+				},
+				{
 					name: 'Project Proposal',
+					type: 'assessment',
 					studentsCompleted: 38,
 					totalStudents: 21,
 					completedCount: 8,
@@ -287,7 +329,8 @@
 					totalScore: 40,
 					scoreCount: 35,
 					averageTime: '2 Hours',
-					dueDate: 'In 1 week',
+					weight: 25,
+					dueDate: '2025-08-31', // was 'In 1 week'
 					status: 'due'
 				}
 			]
@@ -451,19 +494,29 @@
 	}
 
 	// ------- Student Performance table controls -------
-	type SP_SortKey = 'name' | 'grade' | 'assignments' | 'lessons' | 'homework' | 'lastActive' | 'participation';
+	type SP_SortKey =
+		| 'name'
+		| 'grade'
+		| 'assignments'
+		| 'lessons'
+		| 'homework'
+		| 'lastActive'
+		| 'participation';
 	type SortDir = 'asc' | 'desc';
 	let spSortKey = $state<SP_SortKey>('grade');
 	let spSortDir = $state<SortDir>('desc');
-	const spGradeBands = ['A','B','C/D','F'] as const;
-	let spSelectedBands = $state(new Set<typeof spGradeBands[number]>());
+	const spGradeBands = ['A', 'B', 'C/D', 'F'] as const;
+	let spSelectedBands = $state(new Set<(typeof spGradeBands)[number]>());
 
-	function toggleSpBand(b: typeof spGradeBands[number]) {
+	function toggleSpBand(b: (typeof spGradeBands)[number]) {
 		const s = new Set(spSelectedBands);
-		if (s.has(b)) s.delete(b); else s.add(b);
+		if (s.has(b)) s.delete(b);
+		else s.add(b);
 		spSelectedBands = s;
 	}
-	function clearSpBands() { spSelectedBands = new Set(); }
+	function clearSpBands() {
+		spSelectedBands = new Set();
+	}
 
 	function inSelectedBand(grade: number): boolean {
 		if (spSelectedBands.size === 0) return true;
@@ -485,7 +538,8 @@
 			if (spSortKey === 'name') return (nameA < nameB ? -1 : nameA > nameB ? 1 : 0) * dir;
 			if (spSortKey === 'participation') return (a.participation - b.participation) * dir;
 			if (spSortKey === 'grade') return (a.grade - b.grade) * dir;
-			if (spSortKey === 'assignments') return (a.assignmentsCompleted - b.assignmentsCompleted) * dir;
+			if (spSortKey === 'assignments')
+				return (a.assignmentsCompleted - b.assignmentsCompleted) * dir;
 			if (spSortKey === 'lessons') return (a.lessonsCompleted - b.lessonsCompleted) * dir;
 			if (spSortKey === 'homework') return (a.homeworkCompleted - b.homeworkCompleted) * dir;
 			// lastActive: smaller days = more recent
@@ -496,46 +550,98 @@
 	});
 
 	// ------- Task Analytics table controls -------
-	type TA_SortKey = 'name' | 'studentsCompleted' | 'averageScore' | 'averageTime' | 'dueDate';
+	type TA_SortKey =
+		| 'name'
+		| 'studentsCompleted'
+		| 'averageScore'
+		| 'averageTime'
+		| 'weight'
+		| 'dueDate';
 	let taSortKey = $state<TA_SortKey>('studentsCompleted');
 	let taSortDir = $state<SortDir>('desc');
-	const taStatusOptions = ['due','completed'] as const;
-	let taSelectedStatuses = $state(new Set<typeof taStatusOptions[number]>());
-	function toggleTaStatus(s: typeof taStatusOptions[number]) {
+	// Type filter (multi-select)
+	const taTypeOptions = ['lesson', 'homework', 'assessment'] as const;
+	let taSelectedTypes = $state(new Set<(typeof taTypeOptions)[number]>());
+	function toggleTaType(t: (typeof taTypeOptions)[number]) {
+		const s = new Set(taSelectedTypes);
+		if (s.has(t)) s.delete(t);
+		else s.add(t);
+		taSelectedTypes = s;
+	}
+	function clearTaTypes() {
+		taSelectedTypes = new Set();
+	}
+	// Exposed filter options shown to user (graded/pending) mapped to internal statuses (completed/due)
+	const taDisplayStatus = { graded: 'completed', pending: 'due' } as const;
+	type TaDisplayStatusKey = keyof typeof taDisplayStatus;
+	const taStatusOptions = Object.keys(taDisplayStatus) as TaDisplayStatusKey[]; // ['graded','pending']
+	let taSelectedStatuses = $state(new Set<TaDisplayStatusKey>());
+	function toggleTaStatus(s: TaDisplayStatusKey) {
 		const set = new Set(taSelectedStatuses);
-		if (set.has(s)) set.delete(s); else set.add(s);
+		if (set.has(s)) set.delete(s);
+		else set.add(s);
 		taSelectedStatuses = set;
 	}
-	function clearTaStatuses() { taSelectedStatuses = new Set(); }
+	function clearTaStatuses() {
+		taSelectedStatuses = new Set();
+	}
 
 	let taFilteredTasks = $derived(() => {
 		let tasks = mockData.taskAnalytics.tasks;
+		// type filter first
+		if (taSelectedTypes.size > 0) {
+			tasks = tasks.filter((t) => taSelectedTypes.has(t.type as any));
+		}
 		if (taSelectedStatuses.size > 0) {
-			tasks = tasks.filter((t) => taSelectedStatuses.has(t.status as any));
+			const internal = new Set(Array.from(taSelectedStatuses).map((d) => taDisplayStatus[d]));
+			tasks = tasks.filter((t) => internal.has(t.status as any));
 		}
 		const dir = taSortDir === 'asc' ? 1 : -1;
 		return [...tasks].sort((a, b) => {
-			if (taSortKey === 'name') return (a.name.localeCompare(b.name)) * dir;
-			if (taSortKey === 'studentsCompleted') return (a.studentsCompleted - b.studentsCompleted) * dir;
+			if (taSortKey === 'name') return a.name.localeCompare(b.name) * dir;
+			if (taSortKey === 'studentsCompleted')
+				return (a.studentsCompleted - b.studentsCompleted) * dir;
 			if (taSortKey === 'averageScore') return (a.averageScore - b.averageScore) * dir;
-			if (taSortKey === 'averageTime') return (toMinutes(a.averageTime) - toMinutes(b.averageTime)) * dir;
-			// dueDate is relative text; sort by 'due' first then lexically as fallback
-			return (a.dueDate.localeCompare(b.dueDate)) * dir;
+			if (taSortKey === 'averageTime')
+				return (toMinutes(a.averageTime) - toMinutes(b.averageTime)) * dir;
+			if (taSortKey === 'weight') return (a.weight - b.weight) * dir;
+			return a.dueDate.localeCompare(b.dueDate) * dir; // dueDate ISO string now
 		});
 	});
 
+	function taTypeVariant(type: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+		switch (type) {
+			case 'assessment':
+				return 'destructive';
+			case 'homework':
+				return 'secondary';
+			case 'lesson':
+				return 'outline';
+			default:
+				return 'outline';
+		}
+	}
+
 	// ------- Discussion Analytics table controls -------
-	type DA_SortKey = 'name' | 'questionsPosted' | 'questionsAnswered' | 'totalContributions' | 'lastActive';
+	type DA_SortKey =
+		| 'name'
+		| 'questionsPosted'
+		| 'questionsAnswered'
+		| 'totalContributions'
+		| 'lastActive';
 	let daSortKey = $state<DA_SortKey>('totalContributions');
 	let daSortDir = $state<SortDir>('desc');
-	const daActivityOptions = ['active','inactive'] as const; // active <=1 day, inactive >=7 days
-	let daSelectedActivity = $state(new Set<typeof daActivityOptions[number]>());
-	function toggleDaActivity(a: typeof daActivityOptions[number]) {
+	const daActivityOptions = ['active', 'inactive'] as const; // active <=1 day, inactive >=7 days
+	let daSelectedActivity = $state(new Set<(typeof daActivityOptions)[number]>());
+	function toggleDaActivity(a: (typeof daActivityOptions)[number]) {
 		const s = new Set(daSelectedActivity);
-		if (s.has(a)) s.delete(a); else s.add(a);
+		if (s.has(a)) s.delete(a);
+		else s.add(a);
 		daSelectedActivity = s;
 	}
-	function clearDaActivity() { daSelectedActivity = new Set(); }
+	function clearDaActivity() {
+		daSelectedActivity = new Set();
+	}
 
 	function matchesDaActivity(days: number): boolean {
 		if (daSelectedActivity.size === 0) return true;
@@ -547,15 +653,19 @@
 	}
 
 	let daFilteredStudents = $derived(() => {
-		let students = mockData.discussionAnalytics.students.filter((s) => matchesDaActivity(parseLastActiveToDays(s.lastActive)));
+		let students = mockData.discussionAnalytics.students.filter((s) =>
+			matchesDaActivity(parseLastActiveToDays(s.lastActive))
+		);
 		const dir = daSortDir === 'asc' ? 1 : -1;
 		return [...students].sort((a, b) => {
 			const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
 			const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
 			if (daSortKey === 'name') return (nameA < nameB ? -1 : nameA > nameB ? 1 : 0) * dir;
 			if (daSortKey === 'questionsPosted') return (a.questionsPosted - b.questionsPosted) * dir;
-			if (daSortKey === 'questionsAnswered') return (a.questionsAnswered - b.questionsAnswered) * dir;
-			if (daSortKey === 'totalContributions') return (a.totalContributions - b.totalContributions) * dir;
+			if (daSortKey === 'questionsAnswered')
+				return (a.questionsAnswered - b.questionsAnswered) * dir;
+			if (daSortKey === 'totalContributions')
+				return (a.totalContributions - b.totalContributions) * dir;
 			const da = parseLastActiveToDays(a.lastActive);
 			const db = parseLastActiveToDays(b.lastActive);
 			return (da - db) * dir;
@@ -636,109 +746,236 @@
 				</Card.Root>
 			</div>
 
-			<!-- Student Performance Table (title removed for more vertical space) -->
+			<!-- Student Performance Table -->
 			<Card.Root class="shadow-none">
 				<Card.Content class="pt-0 pb-0">
-					<div class="overflow-y-auto [scrollbar-gutter:stable] h-66">
+					<Table.Root class="w-full">
+						<Table.Header class="border-b">
+							<Table.Row>
+								<Table.Head class="w-52">
+									<div class="flex items-center gap-1">
+										<span>Student</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by name"
+											onclick={() => {
+												if (spSortKey === 'name') spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'name';
+													spSortDir = 'asc';
+												}
+											}}
+										>
+											{#if spSortKey === 'name'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-50">
+									<div class="flex items-center gap-1">
+										<span>Participation</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by participation"
+											onclick={() => {
+												if (spSortKey === 'participation')
+													spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'participation';
+													spSortDir = 'desc';
+												}
+											}}
+										>
+											{#if spSortKey === 'participation'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-50">
+									<div class="flex items-center gap-1">
+										<span>Assignments</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by assignments"
+											onclick={() => {
+												if (spSortKey === 'assignments')
+													spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'assignments';
+													spSortDir = 'desc';
+												}
+											}}
+										>
+											{#if spSortKey === 'assignments'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-50">
+									<div class="flex items-center gap-1">
+										<span>Homework</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by homework"
+											onclick={() => {
+												if (spSortKey === 'homework')
+													spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'homework';
+													spSortDir = 'desc';
+												}
+											}}
+										>
+											{#if spSortKey === 'homework'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-50">
+									<div class="flex items-center gap-1">
+										<span>Lessons</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by lessons"
+											onclick={() => {
+												if (spSortKey === 'lessons')
+													spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'lessons';
+													spSortDir = 'desc';
+												}
+											}}
+										>
+											{#if spSortKey === 'lessons'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-40">
+									<div class="flex items-center gap-1">
+										<span>Last Active</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by last active"
+											onclick={() => {
+												if (spSortKey === 'lastActive')
+													spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'lastActive';
+													spSortDir = 'asc';
+												}
+											}}
+										>
+											{#if spSortKey === 'lastActive'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head>
+									<div class="flex items-center gap-1">
+										<span>Grade</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by grade"
+											onclick={() => {
+												if (spSortKey === 'grade') spSortDir = spSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													spSortKey = 'grade';
+													spSortDir = 'desc';
+												}
+											}}
+										>
+											{#if spSortKey === 'grade'}{#if spSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+							</Table.Row>
+						</Table.Header>
+					</Table.Root>
+					<div class="h-56 overflow-y-auto [scrollbar-gutter:stable]">
 						<Table.Root class="w-full table-fixed">
-							<Table.Header class="border-b">
-								<Table.Row>
-									<Table.Head class="w-64">
-										<div class="flex items-center gap-1">
-											<span>Student</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by name" onclick={() => { if (spSortKey==='name') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='name'; spSortDir='asc'; } }}>
-												{#if spSortKey==='name'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-									<Table.Head class="w-44">
-										<div class="flex items-center gap-1">
-											<span>Participation</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by participation" onclick={() => { if (spSortKey==='participation') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='participation'; spSortDir='desc'; } }}>
-												{#if spSortKey==='participation'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-									<Table.Head class="w-52">
-										<div class="flex items-center gap-1">
-											<span>Assignments</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by assignments" onclick={() => { if (spSortKey==='assignments') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='assignments'; spSortDir='desc'; } }}>
-												{#if spSortKey==='assignments'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-									<Table.Head class="w-52">
-										<div class="flex items-center gap-1">
-											<span>Homework</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by homework" onclick={() => { if (spSortKey==='homework') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='homework'; spSortDir='desc'; } }}>
-												{#if spSortKey==='homework'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-									<Table.Head class="w-52">
-										<div class="flex items-center gap-1">
-											<span>Lessons</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by lessons" onclick={() => { if (spSortKey==='lessons') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='lessons'; spSortDir='desc'; } }}>
-												{#if spSortKey==='lessons'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-									<Table.Head class="w-32">
-										<div class="flex items-center gap-1">
-											<span>Last Active</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by last active" onclick={() => { if (spSortKey==='lastActive') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='lastActive'; spSortDir='asc'; } }}>
-												{#if spSortKey==='lastActive'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-									<Table.Head class="w-24">
-										<div class="flex items-center gap-1">
-											<span>Grade</span>
-											<Button variant="ghost" size="sm" class="h-5 w-5 p-0" aria-label="Sort by grade" onclick={() => { if (spSortKey==='grade') spSortDir = spSortDir==='asc'?'desc':'asc'; else { spSortKey='grade'; spSortDir='desc'; } }}>
-												{#if spSortKey==='grade'}{#if spSortDir==='asc'}<ArrowUp class="h-4 w-4" />{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
-											</Button>
-										</div>
-									</Table.Head>
-								</Table.Row>
-							</Table.Header>
 							<Table.Body class="divide-y">
 								{#each spFilteredStudents() as student}
 									<Table.Row>
-										<Table.Cell class="w-64">
-											{student.firstName} {student.lastName}
-										</Table.Cell>
-										<Table.Cell class="w-44">
+										<Table.Cell class="w-52">{student.firstName} {student.lastName}</Table.Cell>
+										<Table.Cell class="w-50">
 											<div class="flex items-center gap-2">
 												<Progress value={student.participation} class="w-20" />
-												<span class="text-sm truncate">{student.participation}%</span>
+												<span class="truncate text-sm"
+													>{student.participation}% ({student.participationCompletedCount}/{student.participationTotal})</span
+												>
 											</div>
 										</Table.Cell>
-										<Table.Cell class="w-52">
+										<Table.Cell class="w-50">
 											<div class="flex items-center gap-2">
 												<Progress value={student.assignmentsCompleted} class="w-20" />
-												<span class="text-sm truncate">{student.assignmentsCompleted}% ({student.assignmentsCompletedCount}/{student.assignmentsTotal})</span>
+												<span class="truncate text-sm"
+													>{student.assignmentsCompleted}% ({student.assignmentsCompletedCount}/{student.assignmentsTotal})</span
+												>
 											</div>
 										</Table.Cell>
-										<Table.Cell class="w-52">
+										<Table.Cell class="w-50">
 											<div class="flex items-center gap-2">
 												<Progress value={student.homeworkCompleted} class="w-20" />
-												<span class="text-sm truncate">{student.homeworkCompleted}% ({student.homeworkCompletedCount}/{student.homeworkTotal})</span>
+												<span class="truncate text-sm"
+													>{student.homeworkCompleted}% ({student.homeworkCompletedCount}/{student.homeworkTotal})</span
+												>
 											</div>
 										</Table.Cell>
-										<Table.Cell class="w-52">
+										<Table.Cell class="w-50">
 											<div class="flex items-center gap-2">
 												<Progress value={student.lessonsCompleted} class="w-20" />
-												<span class="text-sm truncate">{student.lessonsCompleted}% ({student.lessonsCompletedCount}/{student.lessonsTotal})</span>
+												<span class="truncate text-sm"
+													>{student.lessonsCompleted}% ({student.lessonsCompletedCount}/{student.lessonsTotal})</span
+												>
 											</div>
 										</Table.Cell>
-										<Table.Cell class="w-32">{student.lastActive}</Table.Cell>
-										<Table.Cell class="w-24"><Badge variant="secondary">{student.grade}%</Badge></Table.Cell>
+										<Table.Cell class="w-40">{student.lastActive}</Table.Cell>
+										<Table.Cell><Badge variant="secondary">{student.grade}%</Badge></Table.Cell>
 									</Table.Row>
 								{/each}
 							</Table.Body>
 						</Table.Root>
 					</div>
-					<div class="flex justify-end mt-2 text-sm text-muted-foreground">Showing {spFilteredStudents().length} of {mockData.studentPerformance.students.length} students</div>
+					<div class="text-muted-foreground mt-2 flex justify-end text-sm">
+						Showing {spFilteredStudents().length} of {mockData.studentPerformance.students.length} students
+					</div>
 				</Card.Content>
 			</Card.Root>
 		</Tabs.Content>
@@ -807,26 +1044,218 @@
 			<Card.Root class="shadow-none">
 				<Card.Content class="pt-0 pb-0">
 					<!-- Header table for consistent styling -->
-					<Table.Root class="w-full table-fixed">
+					<Table.Root class="w-full">
 						<Table.Header class="border-b">
 							<Table.Row>
-								<Table.Head class="w-64">
-									<div class="flex items-center gap-2">
+								<Table.Head class="w-60">
+									<div class="flex items-center gap-1">
 										<span>Task</span>
-										<Button variant="ghost" size="sm" class="h-6 w-6 p-0" aria-label="Sort by name" onclick={() => { taSortKey = 'name'; taSortDir = taSortDir === 'asc' ? 'desc' : 'asc'; }}>
-											<ArrowUpDown class="h-5 w-4" strokeWidth={1.5} />
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by task"
+											onclick={() => {
+												if (taSortKey === 'name') taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													taSortKey = 'name';
+													taSortDir = 'asc';
+												}
+											}}
+										>
+											{#if taSortKey === 'name'}{#if taSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
 										</Button>
 									</div>
 								</Table.Head>
-								<Table.Head class="w-56">Students Completed</Table.Head>
-								<Table.Head class="w-56">Average Score</Table.Head>
-								<Table.Head class="w-40">Average Time Taken</Table.Head>
 								<Table.Head class="w-32">
-									<div class="flex items-center gap-2">
-										<span>Due / Status</span>
+									<div class="flex items-center gap-1">
+										<span>Type</span>
 										<DropdownMenu>
 											<DropdownMenuTrigger>
-												<Button variant="ghost" size="sm" class="h-6 w-6 p-0" aria-label="Filter by status">
+												<Button
+													variant="ghost"
+													size="sm"
+													class="h-5 w-5 p-0"
+													aria-label="Filter by type"
+												>
+													<ListFilter />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="start" class="min-w-40">
+												<DropdownMenuLabel>Filter</DropdownMenuLabel>
+												<DropdownMenuSeparator />
+												<DropdownMenuItem onclick={clearTaTypes}>
+													<div class="flex w-full items-center justify-between">
+														<span>All</span>{#if taSelectedTypes.size === 0}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => toggleTaType('lesson')}>
+													<div class="flex w-full items-center justify-between">
+														<span>Lessons</span>{#if taSelectedTypes.has('lesson')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => toggleTaType('homework')}>
+													<div class="flex w-full items-center justify-between">
+														<span>Homework</span>{#if taSelectedTypes.has('homework')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => toggleTaType('assessment')}>
+													<div class="flex w-full items-center justify-between">
+														<span>Assessments</span>{#if taSelectedTypes.has('assessment')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-56">
+									<div class="flex items-center gap-1">
+										<span>Students Completed</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by students completed"
+											onclick={() => {
+												if (taSortKey === 'studentsCompleted')
+													taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													taSortKey = 'studentsCompleted';
+													taSortDir = 'desc';
+												}
+											}}
+										>
+											{#if taSortKey === 'studentsCompleted'}{#if taSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-56">
+									<div class="flex items-center gap-1">
+										<span>Average Score</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by average score"
+											onclick={() => {
+												if (taSortKey === 'averageScore')
+													taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													taSortKey = 'averageScore';
+													taSortDir = 'desc';
+												}
+											}}
+										>
+											{#if taSortKey === 'averageScore'}{#if taSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-48">
+									<div class="flex items-center gap-1">
+										<span>Average Time Taken</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by average time"
+											onclick={() => {
+												if (taSortKey === 'averageTime')
+													taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													taSortKey = 'averageTime';
+													taSortDir = 'asc';
+												}
+											}}
+										>
+											{#if taSortKey === 'averageTime'}{#if taSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-28">
+									<div class="flex items-center gap-1">
+										<span>Weight</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by weight"
+											onclick={() => {
+												if (taSortKey === 'weight')
+													taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													taSortKey = 'weight';
+													taSortDir = 'desc';
+												}
+											}}
+										>
+											{#if taSortKey === 'weight'}{#if taSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-36">
+									<div class="flex items-center gap-1">
+										<span>Due Date</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by due date"
+											onclick={() => {
+												if (taSortKey === 'dueDate')
+													taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													taSortKey = 'dueDate';
+													taSortDir = 'asc';
+												}
+											}}
+										>
+											{#if taSortKey === 'dueDate'}{#if taSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head>
+									<div class="flex items-center gap-1">
+										<span>Status</span>
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<Button
+													variant="ghost"
+													size="sm"
+													class="h-5 w-5 p-0"
+													aria-label="Filter by status"
+												>
 													<ListFilter />
 												</Button>
 											</DropdownMenuTrigger>
@@ -835,60 +1264,49 @@
 												<DropdownMenuSeparator />
 												<DropdownMenuItem onclick={clearTaStatuses}>
 													<div class="flex w-full items-center justify-between">
-														<span>All</span>
-														{#if taSelectedStatuses.size === 0}<Check class="h-4 w-4" />{/if}
+														<span>All</span>{#if taSelectedStatuses.size === 0}<Check
+																class="h-4 w-4"
+															/>{/if}
 													</div>
 												</DropdownMenuItem>
-												<DropdownMenuItem onclick={() => toggleTaStatus('due')}>
-													<div class="flex w-full items-center justify-between"><span>Due</span>{#if taSelectedStatuses.has('due')}<Check class="h-4 w-4" />{/if}</div>
+												<DropdownMenuItem onclick={() => toggleTaStatus('graded')}>
+													<div class="flex w-full items-center justify-between">
+														<span>graded</span>{#if taSelectedStatuses.has('graded')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
 												</DropdownMenuItem>
-												<DropdownMenuItem onclick={() => toggleTaStatus('completed')}>
-													<div class="flex w-full items-center justify-between"><span>Completed</span>{#if taSelectedStatuses.has('completed')}<Check class="h-4 w-4" />{/if}</div>
+												<DropdownMenuItem onclick={() => toggleTaStatus('pending')}>
+													<div class="flex w-full items-center justify-between">
+														<span>pending</span>{#if taSelectedStatuses.has('pending')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</div>
 								</Table.Head>
-								<Table.Head class="w-12 text-right">
-									<DropdownMenu>
-										<DropdownMenuTrigger>
-											<Button variant="ghost" size="sm" class="h-6 w-6 p-0" aria-label="Sort">
-												<ArrowUpDown class="h-5 w-4" strokeWidth={1.5} />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end" class="min-w-48">
-											<DropdownMenuLabel>Sort by</DropdownMenuLabel>
-											<DropdownMenuSeparator />
-											<DropdownMenuItem onclick={() => { taSortKey = 'studentsCompleted'; taSortDir = 'desc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Students completed</span>{#if taSortKey==='studentsCompleted' && taSortDir==='desc'}<Check class="h-4 w-4" />{/if}</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { taSortKey = 'averageScore'; taSortDir = 'desc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Average score</span>{#if taSortKey==='averageScore' && taSortDir==='desc'}<Check class="h-4 w-4" />{/if}</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { taSortKey = 'averageTime'; taSortDir = 'asc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Time taken (fastest)</span>{#if taSortKey==='averageTime' && taSortDir==='asc'}<Check class="h-4 w-4" />{/if}</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { taSortKey = 'name'; taSortDir = 'asc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Name A–Z</span>{#if taSortKey==='name' && taSortDir==='asc'}<Check class="h-4 w-4" />{/if}</div>
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								</Table.Head>
 							</Table.Row>
 						</Table.Header>
 					</Table.Root>
-					<div class="overflow-y-auto [scrollbar-gutter:stable] h-56">
-						<Table.Root class="w-full table-fixed">
+					<div class="h-56 overflow-y-auto [scrollbar-gutter:stable]">
+						<Table.Root class="w-full">
 							<Table.Body>
 								{#each taFilteredTasks() as task}
 									<Table.Row>
-										<Table.Cell class="w-64 font-medium">
-											<span class="text-primary font-medium truncate block">{task.name}</span>
+										<Table.Cell class="w-60 font-medium">
+											<span class="text-primary block truncate font-medium">{task.name}</span>
+										</Table.Cell>
+										<Table.Cell class="w-32">
+											<Badge variant={taTypeVariant(task.type)} class="capitalize"
+												>{task.type}</Badge
+											>
 										</Table.Cell>
 										<Table.Cell class="w-56">
 											<div class="flex items-center gap-2">
 												<Progress value={task.studentsCompleted} class="w-20" />
-												<span class="text-sm truncate">
+												<span class="truncate text-sm">
 													{task.studentsCompleted}% ({task.completedCount}/{task.totalStudents})
 												</span>
 											</div>
@@ -896,23 +1314,32 @@
 										<Table.Cell class="w-56">
 											<div class="flex items-center gap-2">
 												<Progress value={task.averageScore} class="w-20" />
-												<span class="text-sm truncate">
+												<span class="truncate text-sm">
 													{task.averageScore}% ({task.scoreCount}/{task.totalScore})
 												</span>
 											</div>
 										</Table.Cell>
-										<Table.Cell class="w-40">{task.averageTime}</Table.Cell>
-										<Table.Cell class="w-32">
-											<Badge variant={task.status === 'due' ? 'destructive' : 'secondary'}>
-												{task.dueDate}
-											</Badge>
+										<Table.Cell class="w-48">{task.averageTime}</Table.Cell>
+										<Table.Cell class="w-28">{task.weight}%</Table.Cell>
+										<Table.Cell class="w-36"
+											>{formatTimestampAsDate(new Date(task.dueDate))}</Table.Cell
+										>
+										<Table.Cell>
+											<!-- Map internal status to graded/pending display similar to grades route -->
+											{#if task.status === 'completed'}
+												<Badge variant="default">graded</Badge>
+											{:else}
+												<Badge variant="secondary">pending</Badge>
+											{/if}
 										</Table.Cell>
 									</Table.Row>
 								{/each}
 							</Table.Body>
 						</Table.Root>
 					</div>
-					<div class="flex justify-end mt-2 text-sm text-muted-foreground">Showing {taFilteredTasks().length} of {mockData.taskAnalytics.tasks.length} tasks</div>
+					<div class="text-muted-foreground mt-2 flex justify-end text-sm">
+						Showing {taFilteredTasks().length} of {mockData.taskAnalytics.tasks.length} tasks
+					</div>
 				</Card.Content>
 			</Card.Root>
 		</Tabs.Content>
@@ -980,7 +1407,6 @@
 				</Card.Root>
 			</div>
 
-			<!-- Discussion Participation Table (title removed for more vertical space) -->
 			<Card.Root class="shadow-none">
 				<Card.Content class="pt-0 pb-0">
 					<!-- Header table for consistent styling -->
@@ -990,7 +1416,16 @@
 								<Table.Head class="w-64">
 									<div class="flex items-center gap-2">
 										<span>Student</span>
-										<Button variant="ghost" size="sm" class="h-6 w-6 p-0" aria-label="Sort by name" onclick={() => { daSortKey = 'name'; daSortDir = daSortDir === 'asc' ? 'desc' : 'asc'; }}>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-6 w-6 p-0"
+											aria-label="Sort by name"
+											onclick={() => {
+												daSortKey = 'name';
+												daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+											}}
+										>
 											<ArrowUpDown class="h-5 w-4" strokeWidth={1.5} />
 										</Button>
 									</div>
@@ -1003,7 +1438,12 @@
 										<span>Last Active</span>
 										<DropdownMenu>
 											<DropdownMenuTrigger>
-												<Button variant="ghost" size="sm" class="h-6 w-6 p-0" aria-label="Filter by activity">
+												<Button
+													variant="ghost"
+													size="sm"
+													class="h-6 w-6 p-0"
+													aria-label="Filter by activity"
+												>
 													<ListFilter />
 												</Button>
 											</DropdownMenuTrigger>
@@ -1011,13 +1451,24 @@
 												<DropdownMenuLabel>Filter</DropdownMenuLabel>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem onclick={clearDaActivity}>
-													<div class="flex w-full items-center justify-between"><span>All</span>{#if daSelectedActivity.size === 0}<Check class="h-4 w-4" />{/if}</div>
+													<div class="flex w-full items-center justify-between">
+														<span>All</span>{#if daSelectedActivity.size === 0}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
 												</DropdownMenuItem>
 												<DropdownMenuItem onclick={() => toggleDaActivity('active')}>
-													<div class="flex w-full items-center justify-between"><span>Active (≤1 day)</span>{#if daSelectedActivity.has('active')}<Check class="h-4 w-4" />{/if}</div>
+													<div class="flex w-full items-center justify-between">
+														<span>Active (≤1 day)</span>{#if daSelectedActivity.has('active')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
 												</DropdownMenuItem>
 												<DropdownMenuItem onclick={() => toggleDaActivity('inactive')}>
-													<div class="flex w-full items-center justify-between"><span>Inactive (≥7 days)</span>{#if daSelectedActivity.has('inactive')}<Check class="h-4 w-4" />{/if}</div>
+													<div class="flex w-full items-center justify-between">
+														<span>Inactive (≥7 days)</span
+														>{#if daSelectedActivity.has('inactive')}<Check class="h-4 w-4" />{/if}
+													</div>
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
@@ -1033,20 +1484,70 @@
 										<DropdownMenuContent align="end" class="min-w-48">
 											<DropdownMenuLabel>Sort by</DropdownMenuLabel>
 											<DropdownMenuSeparator />
-											<DropdownMenuItem onclick={() => { daSortKey = 'totalContributions'; daSortDir = 'desc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Total contributions</span>{#if daSortKey==='totalContributions' && daSortDir==='desc'}<Check class="h-4 w-4" />{/if}</div>
+											<DropdownMenuItem
+												onclick={() => {
+													daSortKey = 'totalContributions';
+													daSortDir = 'desc';
+												}}
+											>
+												<div class="flex w-full items-center justify-between">
+													<span>Total contributions</span
+													>{#if daSortKey === 'totalContributions' && daSortDir === 'desc'}<Check
+															class="h-4 w-4"
+														/>{/if}
+												</div>
 											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { daSortKey = 'questionsPosted'; daSortDir = 'desc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Questions posted</span>{#if daSortKey==='questionsPosted' && daSortDir==='desc'}<Check class="h-4 w-4" />{/if}</div>
+											<DropdownMenuItem
+												onclick={() => {
+													daSortKey = 'questionsPosted';
+													daSortDir = 'desc';
+												}}
+											>
+												<div class="flex w-full items-center justify-between">
+													<span>Questions posted</span
+													>{#if daSortKey === 'questionsPosted' && daSortDir === 'desc'}<Check
+															class="h-4 w-4"
+														/>{/if}
+												</div>
 											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { daSortKey = 'questionsAnswered'; daSortDir = 'desc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Questions answered</span>{#if daSortKey==='questionsAnswered' && daSortDir==='desc'}<Check class="h-4 w-4" />{/if}</div>
+											<DropdownMenuItem
+												onclick={() => {
+													daSortKey = 'questionsAnswered';
+													daSortDir = 'desc';
+												}}
+											>
+												<div class="flex w-full items-center justify-between">
+													<span>Questions answered</span
+													>{#if daSortKey === 'questionsAnswered' && daSortDir === 'desc'}<Check
+															class="h-4 w-4"
+														/>{/if}
+												</div>
 											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { daSortKey = 'lastActive'; daSortDir = 'asc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Last active (recent first)</span>{#if daSortKey==='lastActive' && daSortDir==='asc'}<Check class="h-4 w-4" />{/if}</div>
+											<DropdownMenuItem
+												onclick={() => {
+													daSortKey = 'lastActive';
+													daSortDir = 'asc';
+												}}
+											>
+												<div class="flex w-full items-center justify-between">
+													<span>Last active (recent first)</span
+													>{#if daSortKey === 'lastActive' && daSortDir === 'asc'}<Check
+															class="h-4 w-4"
+														/>{/if}
+												</div>
 											</DropdownMenuItem>
-											<DropdownMenuItem onclick={() => { daSortKey = 'name'; daSortDir = 'asc'; }}>
-												<div class="flex w-full items-center justify-between"><span>Name A–Z</span>{#if daSortKey==='name' && daSortDir==='asc'}<Check class="h-4 w-4" />{/if}</div>
+											<DropdownMenuItem
+												onclick={() => {
+													daSortKey = 'name';
+													daSortDir = 'asc';
+												}}
+											>
+												<div class="flex w-full items-center justify-between">
+													<span>Name A–Z</span
+													>{#if daSortKey === 'name' && daSortDir === 'asc'}<Check
+															class="h-4 w-4"
+														/>{/if}
+												</div>
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>
@@ -1054,7 +1555,7 @@
 							</Table.Row>
 						</Table.Header>
 					</Table.Root>
-					<div class="overflow-y-auto [scrollbar-gutter:stable] h-56">
+					<div class="h-56 overflow-y-auto [scrollbar-gutter:stable]">
 						<Table.Root class="w-full table-fixed">
 							<Table.Body>
 								{#each daFilteredStudents() as student}
@@ -1063,9 +1564,10 @@
 											<Button
 												variant="link"
 												href={`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics/student/${student.id}`}
-												class="p-0 h-auto font-medium text-primary hover:underline truncate"
+												class="text-primary h-auto truncate p-0 font-medium hover:underline"
 											>
-												{student.firstName} {student.lastName}
+												{student.firstName}
+												{student.lastName}
 											</Button>
 										</Table.Cell>
 										<Table.Cell class="w-40">{student.questionsPosted}</Table.Cell>
@@ -1079,7 +1581,9 @@
 							</Table.Body>
 						</Table.Root>
 					</div>
-					<div class="flex justify-end mt-2 text-sm text-muted-foreground">Showing {daFilteredStudents().length} of {mockData.discussionAnalytics.students.length} students</div>
+					<div class="text-muted-foreground mt-2 flex justify-end text-sm">
+						Showing {daFilteredStudents().length} of {mockData.discussionAnalytics.students.length} students
+					</div>
 				</Card.Content>
 			</Card.Root>
 		</Tabs.Content>
