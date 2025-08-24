@@ -955,6 +955,33 @@ export async function upsertClassTaskBlockResponse(
 	return upsertedResponse;
 }
 
+export async function getClassTaskBlockResponsesByClassTaskId(classTaskId: number) {
+	const responses = await db
+		.select({
+			response: table.classTaskBlockResponse,
+			block: table.taskBlock
+		})
+		.from(table.classTaskBlockResponse)
+		.innerJoin(table.taskBlock, eq(table.classTaskBlockResponse.taskBlockId, table.taskBlock.id))
+		.where(eq(table.classTaskBlockResponse.classTaskId, classTaskId))
+		.orderBy(asc(table.classTaskBlockResponse.authorId), asc(table.taskBlock.index));
+
+	const groupedResponses: {
+		[authorId: string]: {
+			[blockId: number]: table.ClassTaskBlockResponse;
+		};
+	} = {};
+	for (const item of responses) {
+		const authorId = item.response.authorId;
+		if (!groupedResponses[authorId]) {
+			groupedResponses[authorId] = {};
+		}
+		groupedResponses[authorId][item.block.id] = item.response;
+	}
+
+	return groupedResponses;
+}
+
 export async function getClassTaskBlockResponsesByAuthorId(
 	taskId: number,
 	authorId: string,
@@ -1011,6 +1038,21 @@ export async function createClassTaskResponse(
 			classTaskId,
 			authorId,
 			comment
+		})
+		.returning();
+
+	return response;
+}
+
+export async function upsertClassTaskResponse(classTaskId: number, authorId: string) {
+	const [response] = await db
+		.insert(table.classTaskResponse)
+		.values({
+			classTaskId,
+			authorId
+		})
+		.onConflictDoNothing({
+			target: [table.classTaskResponse.classTaskId, table.classTaskResponse.authorId]
 		})
 		.returning();
 

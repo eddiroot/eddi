@@ -2,7 +2,6 @@ import { json } from '@sveltejs/kit';
 import { createTaskBlock, updateTaskBlock, deleteTaskBlock } from '$lib/server/db/service';
 import { taskBlockTypeEnum } from '$lib/enums';
 
-// POST /api/tasks/blocks - Create a new block
 export async function POST({ request }: { request: Request }) {
 	try {
 		const { taskId, type, config, index } = await request.json();
@@ -37,7 +36,6 @@ export async function POST({ request }: { request: Request }) {
 	}
 }
 
-// PATCH /api/tasks/blocks - Update a block
 export async function PATCH({ request }: { request: Request }) {
 	try {
 		const { block, config } = await request.json();
@@ -76,7 +74,6 @@ export async function PATCH({ request }: { request: Request }) {
 	}
 }
 
-// DELETE /api/tasks/blocks?blockId=123 - Delete a block
 export async function DELETE({ url }: { url: URL }) {
 	try {
 		const blockIdParam = url.searchParams.get('blockId');

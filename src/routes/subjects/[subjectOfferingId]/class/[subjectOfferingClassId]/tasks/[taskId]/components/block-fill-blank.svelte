@@ -24,6 +24,11 @@
 	let config = $state(initialConfig);
 	let response = $state<BlockFillBlankResponse>(initialResponse || { answer: '' });
 
+	// Do not remove. Updates response state when new student selected.
+	$effect(() => {
+		response = initialResponse || { answer: '' };
+	});
+
 	function isAnswerCorrect(): boolean {
 		return response?.answer.trim() == config.answer;
 	}

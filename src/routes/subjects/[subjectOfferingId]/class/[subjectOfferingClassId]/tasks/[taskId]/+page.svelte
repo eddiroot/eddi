@@ -10,12 +10,12 @@
 	import { Badge } from '$lib/components/ui/badge';
 
 	// Block Components
-	import BlockHeading from './components/heading.svelte';
-	import BlockRichText from './components/rich-text-editor.svelte';
-	import BlockWhiteboard from './components/whiteboard.svelte';
-	import BlockChoice from './components/choice.svelte';
-	import BlockFillBlank from './components/fill-blank.svelte';
-	import BlockMatching from './components/matching.svelte';
+	import BlockHeading from './components/block-heading.svelte';
+	import BlockRichText from './components/block-rich-text-editor.svelte';
+	import BlockWhiteboard from './components/block-whiteboard.svelte';
+	import BlockChoice from './components/block-choice.svelte';
+	import BlockFillBlank from './components/block-fill-blank.svelte';
+	import BlockMatching from './components/block-matching.svelte';
 
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
@@ -27,10 +27,19 @@
 		deleteBlock,
 		updateBlock,
 		updateTaskTitle,
-		updateBlockOrder
+		updateBlockOrder,
+		upsertBlockResponse
 	} from './client';
 
-	import { blockTypes, ViewMode } from '$lib/schemas/taskSchema';
+	import {
+		blockTypes,
+		ViewMode,
+		type BlockChoiceResponse,
+		type BlockFillBlankResponse,
+		type BlockHeadingConfig,
+		type BlockMatchingResponse,
+		type BlockResponse
+	} from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
 	import { PresentationIcon } from '@lucide/svelte';
@@ -42,6 +51,7 @@
 		data.user.type == userTypeEnum.student ? ViewMode.ANSWER : ViewMode.CONFIGURE
 	);
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
+	let selectedStudent = $state<string | null>(null);
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -192,7 +202,7 @@
 				</Select.Root>
 			</form>
 			<Button
-				variant={viewMode === ViewMode.CONFIGURE ? 'outline' : 'default'}
+				variant={viewMode === ViewMode.ANSWER ? 'default' : 'outline'}
 				onclick={() =>
 					viewMode == ViewMode.CONFIGURE
 						? (viewMode = ViewMode.ANSWER)
@@ -210,26 +220,45 @@
 				Present
 			</Button>
 			<Button
-				variant="outline"
-				href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/assess`}
+				variant={viewMode === ViewMode.REVIEW ? 'default' : 'outline'}
+				onclick={() =>
+					viewMode == ViewMode.REVIEW
+						? (viewMode = ViewMode.CONFIGURE)
+						: (viewMode = ViewMode.REVIEW)}
 				size="lg"
 			>
-				<CheckCircleIcon class="size-5" />
-				Assess
+				<CheckCircleIcon />
+				Review
+				{#if viewMode === ViewMode.REVIEW}
+					<CheckIcon />
+				{/if}
 			</Button>
 		{/if}
 		<Card.Root class="h-full">
 			<Card.Header>
-				<Card.Title>Contents</Card.Title>
+				<Card.Title>{viewMode === ViewMode.REVIEW ? 'Students' : 'Content'}</Card.Title>
 			</Card.Header>
 			<Card.Content class="space-y-1">
-				{#each blocks.filter((block) => block.type === taskBlockTypeEnum.heading) as block}
-					{#if block.config && typeof block.config === 'object' && 'text' in block.config}
-						<p>{(block.config as { text: string }).text}</p>
-					{:else}
-						<p>Untitled Heading</p>
-					{/if}
-				{/each}
+				{#if viewMode === ViewMode.REVIEW}
+					{#each data.responses as response}
+						<Button
+							onclick={() => (selectedStudent = response.student.id)}
+							size="lg"
+							variant={selectedStudent === response.student.id ? 'default' : 'ghost'}
+						>
+							{response.student.firstName}
+							{response.student.lastName}
+						</Button>
+					{/each}
+				{:else}
+					{#each blocks.filter((block) => block.type === taskBlockTypeEnum.heading) as block}
+						{#if block.type === taskBlockTypeEnum.heading}
+							<p class="text-muted-foreground">{(block.config as BlockHeadingConfig).text}</p>
+						{:else}
+							<p class="text-muted-foreground">Untitled Heading</p>
+						{/if}
+					{/each}
+				{/if}
 			</Card.Content>
 		</Card.Root>
 	</div>
@@ -238,15 +267,27 @@
 	<Card.Root class="h-full overflow-y-auto">
 		<Card.Content class="h-full space-y-4">
 			<div class={viewMode === ViewMode.CONFIGURE ? 'ml-[38px]' : ''}>
-				<BlockHeading
-					initialConfig={{
-						text: data.task.title,
-						size: 1
-					}}
-					onConfigUpdate={async (config) =>
-						await updateTaskTitle({ taskId: data.task.id, title: config.text })}
-					{viewMode}
-				/>
+				<div class="flex items-center gap-4">
+					<BlockHeading
+						initialConfig={{
+							text: data.task.title,
+							size: 1
+						}}
+						onConfigUpdate={async (config) =>
+							await updateTaskTitle({ taskId: data.task.id, title: config.text })}
+						{viewMode}
+					/>
+					<!-- Submit Button for Students -->
+					{#if data.classTask.status === 'published' && data.user.type === userTypeEnum.student}
+						<Button
+							href="/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data
+								.task.id}/submit"
+							size="lg"
+						>
+							Submit Task
+						</Button>
+					{/if}
+				</div>
 
 				{#if page.url.searchParams.get('submitted') === 'true'}
 					<div class="mt-4">
@@ -323,14 +364,24 @@
 										options: { text: string; isAnswer: boolean }[];
 									}}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
-									onResponseUpdate={async (response) => {}}
+									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
+										? (data.groupedBlockResponses[selectedStudent][block.id]
+												?.response as BlockChoiceResponse)
+										: undefined}
+									onResponseUpdate={async (response) =>
+										await upsertBlockResponse(block.id, data.classTask.id, response)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.fillBlank}
 								<BlockFillBlank
 									initialConfig={block.config as { sentence: string; answer: string }}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
-									onResponseUpdate={async (response) => {}}
+									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
+										? (data.groupedBlockResponses[selectedStudent][block.id]
+												?.response as BlockFillBlankResponse)
+										: undefined}
+									onResponseUpdate={async (response) =>
+										await upsertBlockResponse(block.id, data.classTask.id, response)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.matching}
@@ -340,13 +391,16 @@
 										pairs: { left: string; right: string }[];
 									}}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
-									onResponseUpdate={async (response) => {}}
+									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
+										? (data.groupedBlockResponses[selectedStudent][block.id]
+												?.response as BlockMatchingResponse)
+										: undefined}
+									onResponseUpdate={async (response) =>
+										await upsertBlockResponse(block.id, data.classTask.id, response)}
 									{viewMode}
 								/>
-							{:else if block.type === taskBlockTypeEnum.shortAnswer}
-								<p>Short Answer block is not implemented yet.</p>
 							{:else}
-								<p>Content for {block.type} block.</p>
+								<p>Block of type "{block.type}" is not yet implemented.</p>
 							{/if}
 						</div>
 					</div>
@@ -365,20 +419,6 @@
 							: notDraggedOverClasses}"
 					>
 						<span class="text-muted-foreground text-sm">Add more blocks here</span>
-					</div>
-				{/if}
-
-				<!-- Submit Button for Students -->
-				{#if data.classTask.status === 'published' && data.user.type === 'student'}
-					<div class="mt-8 ml-[38px]">
-						<Button
-							onclick={() =>
-								(window.location.href = `/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data.task.id}/submit`)}
-							size="lg"
-							class="w-full"
-						>
-							Submit Task
-						</Button>
 					</div>
 				{/if}
 			</div>

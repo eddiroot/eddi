@@ -28,6 +28,13 @@
 		}
 	);
 
+	// Do not remove. Updates response state when new student selected.
+	$effect(() => {
+		response = initialResponse || {
+			matches: []
+		};
+	});
+
 	function addPair() {
 		config = { ...config, pairs: [...config.pairs, { left: '', right: '' }] };
 		onConfigUpdate(config);

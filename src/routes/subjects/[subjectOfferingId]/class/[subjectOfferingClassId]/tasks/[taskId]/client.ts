@@ -1,24 +1,6 @@
-// Client-side API helper functions for Tasks API
-
-import type {
-	UpdateTaskTitleRequest,
-	CreateBlockRequest,
-	CreateBlockResponse,
-	UpdateBlockRequest,
-	UpdateBlockResponse,
-	GetTaskBlocksResponse,
-	UpdateBlockOrderRequest,
-	ApiSuccessResponse
-} from '../../../../../../api/tasks/types';
-
 const API_BASE = '/api/tasks';
 
-/**
- * Update a task's title
- */
-export async function updateTaskTitle(
-	request: UpdateTaskTitleRequest
-): Promise<UpdateBlockResponse> {
+export async function updateTaskTitle(request) {
 	const response = await fetch(API_BASE, {
 		method: 'PATCH',
 		headers: {
@@ -36,24 +18,7 @@ export async function updateTaskTitle(
 	return data;
 }
 
-/**
- * Get blocks for a task
- */
-export async function getTaskBlocks(taskId: number): Promise<GetTaskBlocksResponse> {
-	const response = await fetch(`${API_BASE}?taskId=${taskId}`);
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data.error || 'Failed to fetch task blocks');
-	}
-
-	return data;
-}
-
-/**
- * Create a new block
- */
-export async function createBlock(request: CreateBlockRequest): Promise<CreateBlockResponse> {
+export async function createBlock(request) {
 	const response = await fetch(`${API_BASE}/blocks`, {
 		method: 'POST',
 		headers: {
@@ -71,10 +36,7 @@ export async function createBlock(request: CreateBlockRequest): Promise<CreateBl
 	return data;
 }
 
-/**
- * Update an existing block
- */
-export async function updateBlock(request: UpdateBlockRequest): Promise<UpdateBlockResponse> {
+export async function updateBlock(request) {
 	const response = await fetch(`${API_BASE}/blocks`, {
 		method: 'PATCH',
 		headers: {
@@ -92,10 +54,7 @@ export async function updateBlock(request: UpdateBlockRequest): Promise<UpdateBl
 	return data;
 }
 
-/**
- * Delete a block
- */
-export async function deleteBlock(blockId: number): Promise<ApiSuccessResponse> {
+export async function deleteBlock(blockId: number) {
 	const response = await fetch(`${API_BASE}/blocks?blockId=${blockId}`, {
 		method: 'DELETE'
 	});
@@ -109,12 +68,7 @@ export async function deleteBlock(blockId: number): Promise<ApiSuccessResponse> 
 	return data;
 }
 
-/**
- * Update the order of blocks
- */
-export async function updateBlockOrder(
-	request: UpdateBlockOrderRequest
-): Promise<ApiSuccessResponse> {
+export async function updateBlockOrder(request) {
 	const response = await fetch(`${API_BASE}/blocks/order`, {
 		method: 'PUT',
 		headers: {
@@ -132,14 +86,12 @@ export async function updateBlockOrder(
 	return data;
 }
 
-export async function saveTaskBlockResponse(
+export async function upsertBlockResponse(
 	taskBlockId: number,
 	classTaskId: number,
 	response: unknown
 ) {
-	const url = `/api/tasks/responses`;
-
-	const result = await fetch(url, {
+	const result = await fetch(`${API_BASE}/blocks/responses`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'

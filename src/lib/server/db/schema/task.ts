@@ -132,39 +132,47 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 
 export type SubjectOfferingClassTask = typeof subjectOfferingClassTask.$inferSelect;
 
-export const classTaskBlockResponse = pgTable('cls_task_block_res', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	taskBlockId: integer('task_block_id')
-		.notNull()
-		.references(() => taskBlock.id, { onDelete: 'cascade' }),
-	authorId: uuid('author_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	classTaskId: integer('class_task_id')
-		.notNull()
-		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
-	response: jsonb('response'), // This is what the student submitted for this task block
-	feedback: text('feedback'), // Teacher feedback on the block response
-	marks: doublePrecision('marks'), // Marks awarded for this task block response
-	...timestamps
-});
+export const classTaskBlockResponse = pgTable(
+	'cls_task_block_res',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		taskBlockId: integer('task_block_id')
+			.notNull()
+			.references(() => taskBlock.id, { onDelete: 'cascade' }),
+		authorId: uuid('author_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		classTaskId: integer('class_task_id')
+			.notNull()
+			.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
+		response: jsonb('response'), // This is what the student submitted for this task block
+		feedback: text('feedback'), // Teacher feedback on the block response
+		marks: doublePrecision('marks'), // Marks awarded for this task block response
+		...timestamps
+	},
+	(self) => [unique().on(self.taskBlockId, self.authorId, self.classTaskId)]
+);
 
 export type ClassTaskBlockResponse = typeof classTaskBlockResponse.$inferSelect;
 
-export const classTaskResponse = pgTable('cls_task_res', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	classTaskId: integer('cls_task_id')
-		.notNull()
-		.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
-	comment: text('comment'), // Optional comment from the student about their submission
-	feedback: text('feedback'), // Optional feedback from the teacher
-	authorId: uuid('author_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	teacherId: uuid('teacher_id').references(() => user.id, { onDelete: 'cascade' }), // Teacher who graded the task response
-	isArchived: boolean('is_archived').notNull().default(false),
-	...timestamps
-});
+export const classTaskResponse = pgTable(
+	'cls_task_res',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		classTaskId: integer('cls_task_id')
+			.notNull()
+			.references(() => subjectOfferingClassTask.id, { onDelete: 'cascade' }),
+		comment: text('comment'), // Optional comment from the student about their submission
+		feedback: text('feedback'), // Optional feedback from the teacher
+		authorId: uuid('author_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		teacherId: uuid('teacher_id').references(() => user.id, { onDelete: 'cascade' }), // Teacher who graded the task response
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.classTaskId, self.authorId)]
+);
 
 export type ClassTaskResponse = typeof classTaskResponse.$inferSelect;
 

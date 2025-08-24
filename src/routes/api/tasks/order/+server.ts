@@ -1,6 +1,5 @@
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
-import type { UpdateTaskOrderRequest } from '../types';
 import { updateTaskOrder } from '$lib/server/db/service';
 
 export const PATCH: RequestHandler = async ({ request, locals: { security } }) => {
@@ -8,10 +7,12 @@ export const PATCH: RequestHandler = async ({ request, locals: { security } }) =
 
 	try {
 		const body = await request.json();
-		const { type } = body;
+		const { type, taskOrder } = body as {
+			type: string;
+			taskOrder: { id: number; index: number }[];
+		};
 
 		if (type === 'task') {
-			const { taskOrder } = body as UpdateTaskOrderRequest;
 			await updateTaskOrder(taskOrder);
 		} else {
 			return json({ error: 'Invalid order type' }, { status: 400 });

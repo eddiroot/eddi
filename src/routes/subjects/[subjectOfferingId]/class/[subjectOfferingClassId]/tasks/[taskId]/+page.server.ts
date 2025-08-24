@@ -2,7 +2,9 @@ import {
 	getTaskById,
 	getTaskBlocksByTaskId,
 	getSubjectOfferingClassTaskByTaskId,
-	updateSubjectOfferingClassTaskStatus
+	updateSubjectOfferingClassTaskStatus,
+	getClassTaskResponsesWithStudents,
+	getClassTaskBlockResponsesByClassTaskId
 } from '$lib/server/db/service';
 import { redirect, fail } from '@sveltejs/kit';
 import { taskStatusEnum, userTypeEnum } from '$lib/enums';
@@ -32,8 +34,19 @@ export const load = async ({
 	if (!classTask) throw redirect(302, '/dashboard');
 
 	const blocks = await getTaskBlocksByTaskId(taskIdInt);
+	const responses = await getClassTaskResponsesWithStudents(classTask.id);
+	const groupedBlockResponses = await getClassTaskBlockResponsesByClassTaskId(classTask.id);
 
-	return { task, classTask, blocks, subjectOfferingId, subjectOfferingClassId, user };
+	return {
+		task,
+		classTask,
+		blocks,
+		responses,
+		groupedBlockResponses,
+		subjectOfferingId,
+		subjectOfferingClassId,
+		user
+	};
 };
 
 export const actions = {

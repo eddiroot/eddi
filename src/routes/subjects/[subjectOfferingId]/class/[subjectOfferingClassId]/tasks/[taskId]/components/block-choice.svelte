@@ -30,6 +30,11 @@
 	let config = $state(initialConfig);
 	let response = $state<BlockChoiceResponse>(initialResponse || { answers: [] });
 
+	// Do not remove. Updates response state when new student selected.
+	$effect(() => {
+		response = initialResponse || { answers: [] };
+	});
+
 	let isMultiAnswer = $derived(() => {
 		return config.options.filter((option) => option.isAnswer).length > 1;
 	});
@@ -95,6 +100,7 @@
 						<Label>Answer Options</Label>
 						<Button
 							size="sm"
+							variant="outline"
 							onclick={async () => {
 								config.options.push({ text: '', isAnswer: false });
 								await onConfigUpdate(config);
