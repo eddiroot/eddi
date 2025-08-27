@@ -982,11 +982,7 @@ export async function getClassTaskBlockResponsesByClassTaskId(classTaskId: numbe
 	return groupedResponses;
 }
 
-export async function getClassTaskBlockResponsesByAuthorId(
-	taskId: number,
-	authorId: string,
-	classTaskId: number
-) {
+export async function getClassTaskBlockResponsesByAuthorId(classTaskId: number, authorId: string) {
 	const responses = await db
 		.select({
 			response: table.classTaskBlockResponse,
@@ -996,14 +992,18 @@ export async function getClassTaskBlockResponsesByAuthorId(
 		.innerJoin(table.taskBlock, eq(table.classTaskBlockResponse.taskBlockId, table.taskBlock.id))
 		.where(
 			and(
-				eq(table.taskBlock.taskId, taskId),
 				eq(table.classTaskBlockResponse.authorId, authorId),
 				eq(table.classTaskBlockResponse.classTaskId, classTaskId)
 			)
-		)
-		.orderBy(asc(table.taskBlock.index));
+		);
 
-	return responses;
+	return responses.reduce(
+		(acc, curr) => {
+			acc[curr.block.id] = curr.response;
+			return acc;
+		},
+		{} as { [blockId: number]: table.ClassTaskBlockResponse }
+	);
 }
 
 // Helper function to get teacher from class

@@ -46,14 +46,16 @@
 	import { PresentationIcon } from '@lucide/svelte';
 
 	let { data } = $props();
+
 	let blocks = $state(data.blocks);
+	let responses = $state<Record<number, any>>({});
+
 	let mouseOverElement = $state<string>('');
 	let viewMode = $state<ViewMode>(
 		data.user.type == userTypeEnum.student ? ViewMode.ANSWER : ViewMode.CONFIGURE
 	);
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 	let selectedStudent = $state<string | null>(null);
-	let userBlockResponses = $state<Record<string, any>>({});
 
 	function getInitialResponse(blockType: string) {
 		switch (blockType) {
@@ -69,24 +71,25 @@
 	}
 
 	function getCurrentResponse(blockId: number, blockType: string) {
-		const blockIdStr = blockId.toString();
+		if (data.user.type == userTypeEnum.student) {
+			return data.blockResponses![blockId] || getInitialResponse(blockType);
+		}
 
 		if (viewMode === ViewMode.REVIEW && selectedStudent) {
 			return (
-				data.groupedBlockResponses[selectedStudent]?.[blockId]?.response ||
+				data.groupedBlockResponses![selectedStudent]?.[blockId]?.response ||
 				getInitialResponse(blockType)
 			);
 		}
 
-		if (!Object.prototype.hasOwnProperty.call(userBlockResponses, blockIdStr)) {
-			userBlockResponses[blockIdStr] = getInitialResponse(blockType);
+		if (!Object.prototype.hasOwnProperty.call(responses, blockId)) {
+			responses[blockId] = getInitialResponse(blockType);
 		}
-		return userBlockResponses[blockIdStr];
+		return responses[blockId];
 	}
 
 	async function handleConfigUpdate(block: TaskBlock, config: any) {
 		await updateBlock({ block, config });
-		// Update local state after successful server update
 		const blockIndex = blocks.findIndex((b) => b.id === block.id);
 		if (blockIndex !== -1) {
 			blocks[blockIndex] = { ...blocks[blockIndex], config };
@@ -94,20 +97,19 @@
 	}
 
 	async function handleResponseUpdate(blockId: number, response: any) {
-		const blockIdStr = blockId.toString();
-		userBlockResponses[blockIdStr] = response;
+		responses[blockId] = response;
 
-		if (responseUpdateTimeouts[blockIdStr]) {
-			clearTimeout(responseUpdateTimeouts[blockIdStr]);
+		if (responseUpdateTimeouts[blockId]) {
+			clearTimeout(responseUpdateTimeouts[blockId]);
 		}
 
-		responseUpdateTimeouts[blockIdStr] = setTimeout(async () => {
+		responseUpdateTimeouts[blockId] = setTimeout(async () => {
 			try {
 				await upsertBlockResponse(blockId, data.classTask.id, response);
 			} catch (error) {
 				console.error('Failed to save response:', error);
 			}
-			delete responseUpdateTimeouts[blockIdStr];
+			delete responseUpdateTimeouts[blockId];
 		}, 500);
 	}
 
@@ -296,7 +298,7 @@
 			</Card.Header>
 			<Card.Content class="space-y-1">
 				{#if viewMode === ViewMode.REVIEW}
-					{#each data.responses as response}
+					{#each data.responses! as response}
 						<Button
 							onclick={() => (selectedStudent = response.student.id)}
 							size="lg"

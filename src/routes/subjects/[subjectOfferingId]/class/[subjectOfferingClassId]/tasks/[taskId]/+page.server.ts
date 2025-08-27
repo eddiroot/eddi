@@ -4,7 +4,8 @@ import {
 	getSubjectOfferingClassTaskByTaskId,
 	updateSubjectOfferingClassTaskStatus,
 	getClassTaskResponsesWithStudents,
-	getClassTaskBlockResponsesByClassTaskId
+	getClassTaskBlockResponsesByClassTaskId,
+	getClassTaskBlockResponsesByAuthorId
 } from '$lib/server/db/service';
 import { redirect, fail } from '@sveltejs/kit';
 import { taskStatusEnum, userTypeEnum } from '$lib/enums';
@@ -34,6 +35,20 @@ export const load = async ({
 	if (!classTask) throw redirect(302, '/dashboard');
 
 	const blocks = await getTaskBlocksByTaskId(taskIdInt);
+
+	if (user.type === userTypeEnum.student) {
+		const blockResponses = await getClassTaskBlockResponsesByAuthorId(classTask.id, user.id);
+		return {
+			task,
+			classTask,
+			blocks,
+			blockResponses,
+			subjectOfferingId,
+			subjectOfferingClassId,
+			user
+		};
+	}
+
 	const responses = await getClassTaskResponsesWithStudents(classTask.id);
 	const groupedBlockResponses = await getClassTaskBlockResponsesByClassTaskId(classTask.id);
 
