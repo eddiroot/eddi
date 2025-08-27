@@ -238,6 +238,7 @@
 			],
 			tasks: [
 				{
+					id: 'assignment-1',
 					name: 'Assignment 1',
 					type: 'assessment',
 					studentsCompleted: 100,
@@ -252,6 +253,7 @@
 					status: 'completed'
 				},
 				{
+					id: 'lesson-1',
 					name: 'Lesson 1',
 					type: 'lesson',
 					studentsCompleted: 67,
@@ -266,6 +268,7 @@
 					status: 'due'
 				},
 				{
+					id: 'quiz-1',
 					name: 'Quiz 1',
 					type: 'assessment',
 					studentsCompleted: 95,
@@ -280,6 +283,7 @@
 					status: 'completed'
 				},
 				{
+					id: 'assignment-2',
 					name: 'Assignment 2',
 					type: 'assessment',
 					studentsCompleted: 81,
@@ -294,6 +298,7 @@
 					status: 'due'
 				},
 				{
+					id: 'lesson-2',
 					name: 'Lesson 2',
 					type: 'lesson',
 					studentsCompleted: 76,
@@ -308,6 +313,7 @@
 					status: 'completed'
 				},
 				{
+					id: 'homework-1',
 					name: 'Homework 1',
 					type: 'homework',
 					studentsCompleted: 54,
@@ -322,6 +328,7 @@
 					status: 'due'
 				},
 				{
+					id: 'project-proposal',
 					name: 'Project Proposal',
 					type: 'assessment',
 					studentsCompleted: 38,
@@ -990,7 +997,14 @@
 							<Table.Body class="divide-y">
 								{#each spFilteredStudents() as student}
 									<Table.Row>
-										<Table.Cell class="w-52">{student.firstName} {student.lastName}</Table.Cell>
+										<Table.Cell class="w-52">
+											<!-- Fix route when implemented -->
+											<a
+												href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/grades`}
+												class="text-primary focus-visible:ring-primary/40 truncate rounded font-medium outline-none hover:underline focus:underline focus-visible:ring-1"
+												>{student.firstName} {student.lastName}</a
+											>
+										</Table.Cell>
 										<Table.Cell class="w-50">
 											<div class="flex items-center gap-2">
 												<Progress value={student.participation} class="w-20" />
@@ -1065,7 +1079,7 @@
 						{@const nt = nextTaskDue()}
 						{#if nt}
 							<div class="flex items-center justify-between gap-2">
-								<h4 class="truncate font-bold text-xl">{nt.name}</h4>
+								<h4 class="truncate text-xl font-bold">{nt.name}</h4>
 								<Badge variant="secondary" class="shrink-0 text-xs">{nt.weight}% weight</Badge>
 							</div>
 							<div class="flex items-center justify-between text-sm">
@@ -1378,7 +1392,11 @@
 								{#each taFilteredTasks() as task}
 									<Table.Row>
 										<Table.Cell class="w-60 font-medium">
-											<span class="text-primary block truncate font-medium">{task.name}</span>
+											<a
+												href={`/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${task.id}`}
+												class="text-primary focus-visible:ring-primary/40 block truncate rounded font-medium outline-none hover:underline focus:underline focus-visible:ring-1"
+												>{task.name}</a
+											>
 										</Table.Cell>
 										<Table.Cell class="w-32">
 											<Badge variant={taTypeVariant(task.type)} class="capitalize"
