@@ -222,19 +222,19 @@
 				'Your students on average score best on the multiple choice block'
 			],
 			submissionsDue: 7,
-			avgScoreOverTime: [
-				{ lesson: 'Week 1', score: 58 },
-				{ lesson: 'Week 2', score: 65 },
-				{ lesson: 'Week 3', score: 62 },
-				{ lesson: 'Week 4', score: 72 },
-				{ lesson: 'Week 5', score: 68 },
-				{ lesson: 'Week 6', score: 78 },
-				{ lesson: 'Week 7', score: 75 },
-				{ lesson: 'Week 8', score: 82 },
-				{ lesson: 'Week 9', score: 79 },
-				{ lesson: 'Week 10', score: 85 },
-				{ lesson: 'Week 11', score: 83 },
-				{ lesson: 'Week 12', score: 88 }
+			avgGradeOverTime: [
+				{ lesson: 'Week 1', grade: 58 },
+				{ lesson: 'Week 2', grade: 65 },
+				{ lesson: 'Week 3', grade: 62 },
+				{ lesson: 'Week 4', grade: 72 },
+				{ lesson: 'Week 5', grade: 68 },
+				{ lesson: 'Week 6', grade: 78 },
+				{ lesson: 'Week 7', grade: 75 },
+				{ lesson: 'Week 8', grade: 82 },
+				{ lesson: 'Week 9', grade: 79 },
+				{ lesson: 'Week 10', grade: 85 },
+				{ lesson: 'Week 11', grade: 83 },
+				{ lesson: 'Week 12', grade: 88 }
 			],
 			tasks: [
 				{
@@ -243,9 +243,9 @@
 					studentsCompleted: 100,
 					totalStudents: 21,
 					completedCount: 21,
-					averageScore: 65,
-					totalScore: 40,
-					scoreCount: 26,
+					averageGrade: 65,
+					totalGrade: 40,
+					gradeCount: 26,
 					averageTime: '58 Minutes',
 					weight: 10,
 					dueDate: '2025-08-17', // was '1 week ago'
@@ -257,9 +257,9 @@
 					studentsCompleted: 67,
 					totalStudents: 21,
 					completedCount: 14,
-					averageScore: 83,
-					totalScore: 40,
-					scoreCount: 33,
+					averageGrade: 83,
+					totalGrade: 40,
+					gradeCount: 33,
 					averageTime: '22 Minutes',
 					weight: 5,
 					dueDate: '2025-08-25', // was 'In 1 day'
@@ -271,9 +271,9 @@
 					studentsCompleted: 95,
 					totalStudents: 21,
 					completedCount: 20,
-					averageScore: 78,
-					totalScore: 40,
-					scoreCount: 31,
+					averageGrade: 78,
+					totalGrade: 40,
+					gradeCount: 31,
 					averageTime: '15 Minutes',
 					weight: 15,
 					dueDate: '2025-08-21', // was '3 days ago'
@@ -285,9 +285,9 @@
 					studentsCompleted: 81,
 					totalStudents: 21,
 					completedCount: 17,
-					averageScore: 72,
-					totalScore: 40,
-					scoreCount: 29,
+					averageGrade: 72,
+					totalGrade: 40,
+					gradeCount: 29,
 					averageTime: '45 Minutes',
 					weight: 12,
 					dueDate: '2025-08-27', // was 'In 3 days'
@@ -299,9 +299,9 @@
 					studentsCompleted: 76,
 					totalStudents: 21,
 					completedCount: 16,
-					averageScore: 85,
-					totalScore: 40,
-					scoreCount: 34,
+					averageGrade: 85,
+					totalGrade: 40,
+					gradeCount: 34,
 					averageTime: '28 Minutes',
 					weight: 5,
 					dueDate: '2025-08-22', // was '2 days ago'
@@ -313,9 +313,9 @@
 					studentsCompleted: 54,
 					totalStudents: 21,
 					completedCount: 11,
-					averageScore: 74,
-					totalScore: 40,
-					scoreCount: 30,
+					averageGrade: 74,
+					totalGrade: 40,
+					gradeCount: 30,
 					averageTime: '35 Minutes',
 					weight: 8,
 					dueDate: '2025-08-24',
@@ -327,9 +327,9 @@
 					studentsCompleted: 38,
 					totalStudents: 21,
 					completedCount: 8,
-					averageScore: 88,
-					totalScore: 40,
-					scoreCount: 35,
+					averageGrade: 88,
+					totalGrade: 40,
+					gradeCount: 35,
 					averageTime: '2 Hours',
 					weight: 25,
 					dueDate: '2025-08-31', // was 'In 1 week'
@@ -453,9 +453,21 @@
 		count: { label: 'Students', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
 
-	const scoreOverTimeConfig = {
-		score: { label: 'Average Score', color: 'var(--chart-1)' }
+	const gradeOverTimeConfig = {
+		grade: { label: 'Average Grade', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
+
+	function taskGradesByDueDate() {
+		return [...mockData.taskAnalytics.tasks]
+			.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+			.map((t, idx) => ({
+				order: idx + 1,
+				id: t.name,
+				label: t.name,
+				date: new Date(t.dueDate),
+				grade: t.averageGrade
+			}));
+	}
 
 	const postsOverTimeConfig = {
 		posts: { label: 'Posts', color: 'var(--chart-1)' }
@@ -562,7 +574,7 @@
 	type TA_SortKey =
 		| 'name'
 		| 'studentsCompleted'
-		| 'averageScore'
+		| 'averageGrade'
 		| 'averageTime'
 		| 'weight'
 		| 'dueDate';
@@ -610,12 +622,30 @@
 			if (taSortKey === 'name') return a.name.localeCompare(b.name) * dir;
 			if (taSortKey === 'studentsCompleted')
 				return (a.studentsCompleted - b.studentsCompleted) * dir;
-			if (taSortKey === 'averageScore') return (a.averageScore - b.averageScore) * dir;
+			if (taSortKey === 'averageGrade') return (a.averageGrade - b.averageGrade) * dir;
 			if (taSortKey === 'averageTime')
 				return (toMinutes(a.averageTime) - toMinutes(b.averageTime)) * dir;
 			if (taSortKey === 'weight') return (a.weight - b.weight) * dir;
 			return a.dueDate.localeCompare(b.dueDate) * dir; // dueDate ISO string now
 		});
+	});
+
+	// Next task due (earliest future dueDate or soonest past-due if none upcoming)
+	let nextTaskDue = $derived(() => {
+		const now = new Date();
+		const tasks = mockData.taskAnalytics.tasks.map((t) => ({ ...t, date: new Date(t.dueDate) }));
+		const future = tasks
+			.filter((t) => t.date >= now)
+			.sort((a, b) => a.date.getTime() - b.date.getTime());
+		const target = future[0] || tasks.sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+		if (!target) return null;
+		const msPerDay = 1000 * 60 * 60 * 24;
+		const rawDiff = Math.ceil((target.date.getTime() - now.getTime()) / msPerDay);
+		return {
+			...target,
+			daysLeft: rawDiff,
+			isPast: rawDiff < 0
+		};
 	});
 
 	function taTypeVariant(type: string): 'default' | 'secondary' | 'destructive' | 'outline' {
@@ -1021,35 +1051,60 @@
 					</Card.Content>
 				</Card.Root>
 
-				<!-- Submissions Due -->
+				<!-- Next Task Due -->
 				<Card.Root class="shadow-none">
 					<Card.Header>
-						<Card.Title class="text-base">Submission Due For Next Task</Card.Title>
+						<Card.Title class="text-base">Next Task Due</Card.Title>
 					</Card.Header>
-					<Card.Content class="flex items-center justify-center py-2">
-						<div class="text-3xl font-bold">{mockData.taskAnalytics.submissionsDue}</div>
+					<Card.Content class="space-y-3">
+						{@const nt = nextTaskDue()}
+						{#if nt}
+							<div class="flex items-center justify-between gap-2">
+								<h4 class="truncate font-semibold">{nt.name}</h4>
+								<Badge variant="secondary" class="shrink-0 text-xs">{nt.weight}% weight</Badge>
+							</div>
+							<div class="flex items-center justify-between text-sm">
+								<span class="text-muted-foreground">Due {formatTimestampAsDate(nt.date)}</span>
+								{#if nt.isPast}
+									<span class="font-medium text-red-600">{Math.abs(nt.daysLeft)}d overdue</span>
+								{:else}
+									<span class="text-primary font-medium">{nt.daysLeft}d left</span>
+								{/if}
+							</div>
+							<!-- Progress: submission completion -->
+							<div class="space-y-1">
+								<div class="text-muted-foreground flex justify-between text-xs tracking-wide">
+									<span>Submissions</span>
+									<span>{nt.completedCount}/{nt.totalStudents}</span>
+								</div>
+								<Progress value={nt.studentsCompleted} />
+							</div>
+						{:else}
+							<p class="text-muted-foreground text-sm">No tasks available.</p>
+						{/if}
 					</Card.Content>
 				</Card.Root>
 
 				<!-- Average Score over Time Chart -->
 				<Card.Root class="shadow-none">
 					<Card.Header>
-						<Card.Title class="text-base">Average Score per Lesson over Time</Card.Title>
+						<Card.Title class="text-base">Average Grade per Task over Time</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<Chart.Container config={scoreOverTimeConfig} class="aspect-auto h-[150px] w-full">
+						<Chart.Container config={gradeOverTimeConfig} class="aspect-auto h-[150px] w-full">
 							<BarChart
-								data={mockData.taskAnalytics.avgScoreOverTime}
-								x="lesson"
+								data={taskGradesByDueDate()}
+								x="id"
 								series={[
 									{
-										key: 'score',
-										label: 'Average Score',
-										color: scoreOverTimeConfig.score.color
+										key: 'grade',
+										label: 'Average Grade',
+										color: gradeOverTimeConfig.grade.color
 									}
 								]}
 								props={{
 									bars: { stroke: 'none', rounded: 'none' },
+									xAxis: { format: () => '' },
 									yAxis: { format: (v) => `${v}%` }
 								}}
 							>
@@ -1169,22 +1224,22 @@
 								</Table.Head>
 								<Table.Head class="w-56">
 									<div class="flex items-center gap-1">
-										<span>Average Score</span>
+										<span>Average Grade</span>
 										<Button
 											variant="ghost"
 											size="sm"
 											class="h-5 w-5 p-0"
-											aria-label="Sort by average score"
+											aria-label="Sort by average grade"
 											onclick={() => {
-												if (taSortKey === 'averageScore')
+												if (taSortKey === 'averageGrade')
 													taSortDir = taSortDir === 'asc' ? 'desc' : 'asc';
 												else {
-													taSortKey = 'averageScore';
+													taSortKey = 'averageGrade';
 													taSortDir = 'desc';
 												}
 											}}
 										>
-											{#if taSortKey === 'averageScore'}{#if taSortDir === 'asc'}<ArrowUp
+											{#if taSortKey === 'averageGrade'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
 													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
 													class="h-4 w-4"
@@ -1335,9 +1390,9 @@
 										</Table.Cell>
 										<Table.Cell class="w-56">
 											<div class="flex items-center gap-2">
-												<Progress value={task.averageScore} class="w-20" />
+												<Progress value={task.averageGrade} class="w-20" />
 												<span class="truncate text-sm">
-													{task.averageScore}% ({task.scoreCount}/{task.totalScore})
+													{task.averageGrade}% ({task.gradeCount}/{task.totalGrade})
 												</span>
 											</div>
 										</Table.Cell>

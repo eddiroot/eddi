@@ -31,18 +31,18 @@
 		questionsAnswered: 15,
 		totalContributions: 22,
 		assignmentHistory: [
-			{ name: 'Assignment 1', score: 85, dueDate: '1 week ago', status: 'completed' },
-			{ name: 'Assignment 2', score: 78, dueDate: '3 days ago', status: 'completed' },
-			{ name: 'Assignment 3', score: 92, dueDate: 'In 2 days', status: 'submitted' },
-			{ name: 'Assignment 4', score: null, dueDate: 'In 1 week', status: 'pending' }
+			{ name: 'Assignment 1', grade: 85, dueDate: '1 week ago', status: 'completed' },
+			{ name: 'Assignment 2', grade: 78, dueDate: '3 days ago', status: 'completed' },
+			{ name: 'Assignment 3', grade: 92, dueDate: 'In 2 days', status: 'submitted' },
+			{ name: 'Assignment 4', grade: null, dueDate: 'In 1 week', status: 'pending' }
 		],
 		lessonProgress: [
-			{ name: 'Lesson 1', score: 88, dueDate: '2 weeks ago', status: 'completed' },
-			{ name: 'Lesson 2', score: 92, dueDate: '1 week ago', status: 'completed' },
-			{ name: 'Lesson 3', score: 85, dueDate: '3 days ago', status: 'completed' },
-			{ name: 'Lesson 4', score: 90, dueDate: '1 day ago', status: 'completed' },
-			{ name: 'Lesson 5', score: 87, dueDate: 'In 2 days', status: 'submitted' },
-			{ name: 'Lesson 6', score: null, dueDate: 'In 1 week', status: 'pending' }
+			{ name: 'Lesson 1', grade: 88, dueDate: '2 weeks ago', status: 'completed' },
+			{ name: 'Lesson 2', grade: 92, dueDate: '1 week ago', status: 'completed' },
+			{ name: 'Lesson 3', grade: 85, dueDate: '3 days ago', status: 'completed' },
+			{ name: 'Lesson 4', grade: 90, dueDate: '1 day ago', status: 'completed' },
+			{ name: 'Lesson 5', grade: 87, dueDate: 'In 2 days', status: 'submitted' },
+			{ name: 'Lesson 6', grade: null, dueDate: 'In 1 week', status: 'pending' }
 		],
 		activityTimeline: [
 			{ activity: 'Submitted Assignment 2', time: '2 hours ago', type: 'assignment' },
@@ -179,7 +179,7 @@
 				<Table.Header class="border-b">
 					<Table.Row>
 						<Table.Head class="w-1/3">Assignment</Table.Head>
-						<Table.Head class="w-32">Score</Table.Head>
+						<Table.Head class="w-32">Grade</Table.Head>
 						<Table.Head class="w-40">Due Date</Table.Head>
 						<Table.Head class="w-40">Status</Table.Head>
 					</Table.Row>
@@ -194,8 +194,8 @@
 									<span class="text-primary font-medium truncate block">{assignment.name}</span>
 								</Table.Cell>
 								<Table.Cell class="w-32">
-									{#if assignment.score !== null}
-										<Badge variant="secondary">{assignment.score}%</Badge>
+									{#if assignment.grade !== null}
+										<Badge variant="secondary">{assignment.grade}%</Badge>
 									{:else}
 										<span class="text-muted-foreground">-</span>
 									{/if}
@@ -227,7 +227,7 @@
 				<Table.Header class="border-b">
 					<Table.Row>
 						<Table.Head class="w-1/3">Lesson</Table.Head>
-						<Table.Head class="w-32">Score</Table.Head>
+						<Table.Head class="w-32">Grade</Table.Head>
 						<Table.Head class="w-40">Due Date</Table.Head>
 						<Table.Head class="w-40">Status</Table.Head>
 					</Table.Row>
@@ -242,8 +242,8 @@
 									<span class="text-primary font-medium truncate block">{lesson.name}</span>
 								</Table.Cell>
 								<Table.Cell class="w-32">
-									{#if typeof lesson.score === 'number' && lesson.score !== null}
-										<Badge variant="secondary">{lesson.score}%</Badge>
+									{#if typeof lesson.grade === 'number' && lesson.grade !== null}
+										<Badge variant="secondary">{lesson.grade}%</Badge>
 									{:else}
 										<span class="text-muted-foreground">-</span>
 									{/if}
