@@ -1445,11 +1445,20 @@
 					<Card.Header>
 						<Card.Title class="text-base">Views on Last Announcement</Card.Title>
 					</Card.Header>
-					<Card.Content class="flex items-center justify-center py-2">
-						<div class="text-4xl font-bold">
-							{mockData.discussionAnalytics.viewsOnLastAnnouncement.views}/{mockData
-								.discussionAnalytics.viewsOnLastAnnouncement.total}
+					<Card.Content class="space-y-3 py-2">
+						{@const v = mockData.discussionAnalytics.viewsOnLastAnnouncement}
+						{@const percent = Math.round((v.views / v.total) * 100)}
+						<div class="flex items-center justify-between">
+							<div>
+								<div class="text-3xl leading-tight font-bold">{v.views}/{v.total}</div>
+								<p class="text-muted-foreground text-xs">{percent}% viewed</p>
+							</div>
 						</div>
+						<Progress value={percent} />
+						<p class="text-muted-foreground text-xs">
+							{v.total - v.views}
+							{v.total - v.views === 1 ? 'student has' : 'students have'} not viewed it yet
+						</p>
 					</Card.Content>
 				</Card.Root>
 
@@ -1472,6 +1481,7 @@
 								]}
 								props={{
 									bars: { stroke: 'none', rounded: 'none' },
+									xAxis: { format: () => '' },
 									yAxis: { format: (v) => `${v}` }
 								}}
 							>
