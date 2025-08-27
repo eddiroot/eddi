@@ -19,7 +19,7 @@
 
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import CheckIcon from '@lucide/svelte/icons/check';
+	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 
 	import {
@@ -34,11 +34,15 @@
 	import {
 		blockTypes,
 		ViewMode,
+		type BlockChoiceConfig,
 		type BlockChoiceResponse,
+		type BlockFillBlankConfig,
 		type BlockFillBlankResponse,
 		type BlockHeadingConfig,
+		type BlockMatchingConfig,
 		type BlockMatchingResponse,
-		type BlockResponse
+		type BlockRichTextConfig,
+		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
@@ -202,36 +206,32 @@
 				</Select.Root>
 			</form>
 			<Button
-				variant={viewMode === ViewMode.ANSWER ? 'default' : 'outline'}
-				onclick={() =>
-					viewMode == ViewMode.CONFIGURE
-						? (viewMode = ViewMode.ANSWER)
-						: (viewMode = ViewMode.CONFIGURE)}
+				variant={viewMode === ViewMode.CONFIGURE ? 'default' : 'outline'}
+				onclick={() => (viewMode = ViewMode.CONFIGURE)}
 				size="lg"
 			>
-				<EyeIcon />
-				Preview
-				{#if viewMode === ViewMode.ANSWER}
-					<CheckIcon />
-				{/if}
+				<WrenchIcon />
+				Configure
 			</Button>
 			<Button variant="outline" disabled onclick={() => (viewMode = ViewMode.PRESENT)} size="lg">
 				<PresentationIcon />
 				Present
 			</Button>
 			<Button
+				variant={viewMode === ViewMode.ANSWER ? 'default' : 'outline'}
+				onclick={() => (viewMode = ViewMode.ANSWER)}
+				size="lg"
+			>
+				<EyeIcon />
+				Preview
+			</Button>
+			<Button
 				variant={viewMode === ViewMode.REVIEW ? 'default' : 'outline'}
-				onclick={() =>
-					viewMode == ViewMode.REVIEW
-						? (viewMode = ViewMode.CONFIGURE)
-						: (viewMode = ViewMode.REVIEW)}
+				onclick={() => (viewMode = ViewMode.REVIEW)}
 				size="lg"
 			>
 				<CheckCircleIcon />
 				Review
-				{#if viewMode === ViewMode.REVIEW}
-					<CheckIcon />
-				{/if}
 			</Button>
 		{/if}
 		<Card.Root class="h-full">
@@ -253,7 +253,18 @@
 				{:else}
 					{#each blocks.filter((block) => block.type === taskBlockTypeEnum.heading) as block}
 						{#if block.type === taskBlockTypeEnum.heading}
-							<p class="text-muted-foreground">{(block.config as BlockHeadingConfig).text}</p>
+							<p
+								class="text-muted-foreground"
+								style="font-size: {1.5 -
+									(block.config as BlockHeadingConfig).size * 0.1}rem; font-weight: {700 -
+									(block.config as BlockHeadingConfig).size * 100}; margin-left: {((
+									block.config as BlockHeadingConfig
+								).size -
+									1) *
+									4}px"
+							>
+								{(block.config as BlockHeadingConfig).text}
+							</p>
 						{:else}
 							<p class="text-muted-foreground">Untitled Heading</p>
 						{/if}
@@ -341,28 +352,25 @@
 						<div>
 							{#if block.type === taskBlockTypeEnum.heading}
 								<BlockHeading
-									initialConfig={block.config as { text: string; size: number }}
+									initialConfig={block.config as BlockHeadingConfig}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.richText}
 								<BlockRichText
-									initialConfig={block.config as { html: string }}
+									initialConfig={block.config as BlockRichTextConfig}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.whiteboard}
 								<BlockWhiteboard
-									initialConfig={block.config as { title: string; whiteboardId: number | null }}
+									initialConfig={block.config as BlockWhiteboardConfig}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.choice}
 								<BlockChoice
-									initialConfig={block.config as {
-										question: string;
-										options: { text: string; isAnswer: boolean }[];
-									}}
+									initialConfig={block.config as BlockChoiceConfig}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
 										? (data.groupedBlockResponses[selectedStudent][block.id]
@@ -374,7 +382,7 @@
 								/>
 							{:else if block.type === taskBlockTypeEnum.fillBlank}
 								<BlockFillBlank
-									initialConfig={block.config as { sentence: string; answer: string }}
+									initialConfig={block.config as BlockFillBlankConfig}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
 										? (data.groupedBlockResponses[selectedStudent][block.id]
@@ -386,10 +394,7 @@
 								/>
 							{:else if block.type === taskBlockTypeEnum.matching}
 								<BlockMatching
-									initialConfig={block.config as {
-										instructions: string;
-										pairs: { left: string; right: string }[];
-									}}
+									initialConfig={block.config as BlockMatchingConfig}
 									onConfigUpdate={async (config) => await updateBlock({ block, config })}
 									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
 										? (data.groupedBlockResponses[selectedStudent][block.id]
@@ -400,7 +405,7 @@
 									{viewMode}
 								/>
 							{:else}
-								<p>Block of type "{block.type}" is not yet implemented.</p>
+								<p>Block of type {block.type} is not yet implemented.</p>
 							{/if}
 						</div>
 					</div>

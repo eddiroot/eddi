@@ -53,25 +53,30 @@ All
 
 Lachie
 
-- [ ] Add/refine current task blocks (new question and answer type component)
+- [ ] Add/refine current task blocks
+  - Audio Block
   - Maths
     - [ ] Graph/plot
-    - [ ] table
-    - [ ] arithmotic/formula (handling maths in a friendly way)
-  - Science
-    - [ ] image
-    - [ ] diagram? (with movable or input box)
+    - [ ] Table
   - Written/English
-  - Question and answer type comment
-  - [ ] highlight what is wrong
-  - [ ] text, highlight the quotes that match themes
-  - [ ] fill in the sentance (middle of the paragraph)
-  - [ ] integrate correct quote
+    - [ ] Short answer component
+    - [ ] Highlight text (in the config choose whether to highlight right or wrong)
+    - [ ] Extend fill blank block (needs to be able to handle multiple blanks)
+    - [ ] Fill a sentence middle of text (criteria rather than right/wrong) (input box invisible/smaller)
 - [ ] Class tests / quizzes
 - [ ] View students work
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
+
+Bella
+
+- [ ] Add/refine current task blocks
+  - Maths
+    - [ ] Arithmetic/formula (handling maths in a friendly way)
+  - Science
+    - [ ] Image / Video
+    - [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
 
 Max
 

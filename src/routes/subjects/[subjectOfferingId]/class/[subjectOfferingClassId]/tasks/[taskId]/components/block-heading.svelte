@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { ViewMode, type HeadingBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		ViewMode,
+		type BlockHeadingConfig,
+		type HeadingBlockProps
+	} from '$lib/schemas/taskSchema';
 
 	let { initialConfig, onConfigUpdate, viewMode }: HeadingBlockProps = $props();
 
-	let config = $state(initialConfig);
+	let config = $state<BlockHeadingConfig>(initialConfig);
 
 	// Do not remove. Updates config state when block order is changed.
 	$effect(() => {

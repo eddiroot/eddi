@@ -10,7 +10,8 @@
 	import {
 		type BlockMatchingResponse,
 		ViewMode,
-		type MatchingBlockProps
+		type MatchingBlockProps,
+		type BlockMatchingConfig
 	} from '$lib/schemas/taskSchema';
 
 	let {
@@ -21,7 +22,7 @@
 		viewMode
 	}: MatchingBlockProps = $props();
 
-	let config = $state(initialConfig);
+	let config = $state<BlockMatchingConfig>(initialConfig);
 	let response = $state<BlockMatchingResponse>(
 		initialResponse || {
 			matches: []

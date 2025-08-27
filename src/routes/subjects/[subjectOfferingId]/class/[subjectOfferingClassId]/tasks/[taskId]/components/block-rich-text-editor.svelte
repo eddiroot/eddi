@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { ViewMode, type RichTextBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		type BlockRichTextConfig,
+		ViewMode,
+		type RichTextBlockProps
+	} from '$lib/schemas/taskSchema';
 	import { onMount, onDestroy } from 'svelte';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
@@ -16,14 +20,14 @@
 
 	let { initialConfig, onConfigUpdate, viewMode }: RichTextBlockProps = $props();
 
-	let content = $state<string>(initialConfig.html);
+	let config = $state<BlockRichTextConfig>(initialConfig);
 	let element: HTMLDivElement;
 	let editorBox = $state.raw<{ current: Editor }>();
 	let isEditable = viewMode == ViewMode.CONFIGURE;
 
 	// Do not remove. Updates config state when block order is changed.
 	$effect(() => {
-		content = initialConfig.html;
+		config = initialConfig;
 	});
 
 	onMount(() => {
@@ -31,7 +35,7 @@
 			current: new Editor({
 				element,
 				extensions: [StarterKit],
-				content,
+				content: config.html,
 				editable: isEditable,
 				onTransaction: () => {
 					editorBox = { current: editorBox!.current };

@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button/index.js';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
-	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import {
 		type BlockFillBlankResponse,
 		ViewMode,
-		type FillBlankBlockProps
+		type FillBlankBlockProps,
+		type BlockFillBlankConfig
 	} from '$lib/schemas/taskSchema';
 
 	let {
@@ -21,7 +20,7 @@
 		viewMode
 	}: FillBlankBlockProps = $props();
 
-	let config = $state(initialConfig);
+	let config = $state<BlockFillBlankConfig>(initialConfig);
 	let response = $state<BlockFillBlankResponse>(initialResponse || { answer: '' });
 
 	// Do not remove. Updates config state when block order is changed.

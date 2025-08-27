@@ -6,11 +6,15 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
-	import { ViewMode, type WhiteboardBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		type BlockWhiteboardConfig,
+		ViewMode,
+		type WhiteboardBlockProps
+	} from '$lib/schemas/taskSchema';
 
 	let { initialConfig, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();
 
-	let config = $state(initialConfig);
+	let config = $state<BlockWhiteboardConfig>(initialConfig);
 
 	// Do not remove. Updates config state when block order is changed.
 	$effect(() => {

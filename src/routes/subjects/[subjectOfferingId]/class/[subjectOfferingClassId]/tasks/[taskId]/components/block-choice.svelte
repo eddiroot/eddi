@@ -16,7 +16,8 @@
 	import {
 		type BlockChoiceResponse,
 		ViewMode,
-		type ChoiceBlockProps
+		type ChoiceBlockProps,
+		type BlockChoiceConfig
 	} from '$lib/schemas/taskSchema';
 
 	let {
@@ -27,7 +28,7 @@
 		viewMode
 	}: ChoiceBlockProps = $props();
 
-	let config = $state(initialConfig);
+	let config = $state<BlockChoiceConfig>(initialConfig);
 	let response = $state<BlockChoiceResponse>(initialResponse || { answers: [] });
 
 	// Do not remove. Updates config state when block order is changed.
