@@ -631,31 +631,9 @@
 		| 'lastActive';
 	let daSortKey = $state<DA_SortKey>('totalContributions');
 	let daSortDir = $state<SortDir>('desc');
-	const daActivityOptions = ['active', 'inactive'] as const; // active <=1 day, inactive >=7 days
-	let daSelectedActivity = $state(new Set<(typeof daActivityOptions)[number]>());
-	function toggleDaActivity(a: (typeof daActivityOptions)[number]) {
-		const s = new Set(daSelectedActivity);
-		if (s.has(a)) s.delete(a);
-		else s.add(a);
-		daSelectedActivity = s;
-	}
-	function clearDaActivity() {
-		daSelectedActivity = new Set();
-	}
-
-	function matchesDaActivity(days: number): boolean {
-		if (daSelectedActivity.size === 0) return true;
-		const isActive = days <= 1;
-		const isInactive = days >= 7;
-		if (isActive && daSelectedActivity.has('active')) return true;
-		if (isInactive && daSelectedActivity.has('inactive')) return true;
-		return false;
-	}
 
 	let daFilteredStudents = $derived(() => {
-		let students = mockData.discussionAnalytics.students.filter((s) =>
-			matchesDaActivity(parseLastActiveToDays(s.lastActive))
-		);
+		let students = mockData.discussionAnalytics.students; // no activity filtering
 		const dir = daSortDir === 'asc' ? 1 : -1;
 		return [...students].sort((a, b) => {
 			const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
@@ -1409,148 +1387,132 @@
 
 			<Card.Root class="shadow-none">
 				<Card.Content class="pt-0 pb-0">
-					<!-- Header table for consistent styling -->
 					<Table.Root class="w-full table-fixed">
 						<Table.Header class="border-b">
 							<Table.Row>
 								<Table.Head class="w-64">
-									<div class="flex items-center gap-2">
+									<div class="flex items-center gap-1">
 										<span>Student</span>
 										<Button
 											variant="ghost"
 											size="sm"
-											class="h-6 w-6 p-0"
+											class="h-5 w-5 p-0"
 											aria-label="Sort by name"
 											onclick={() => {
-												daSortKey = 'name';
-												daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+												if (daSortKey === 'name') daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													daSortKey = 'name';
+													daSortDir = 'asc';
+												}
 											}}
 										>
-											<ArrowUpDown class="h-5 w-4" strokeWidth={1.5} />
+											{#if daSortKey === 'name'}{#if daSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
 										</Button>
 									</div>
 								</Table.Head>
-								<Table.Head class="w-40">Questions Posted</Table.Head>
-								<Table.Head class="w-44">Questions Answered</Table.Head>
-								<Table.Head class="w-44">Total Contributions</Table.Head>
-								<Table.Head class="w-32">
-									<div class="flex items-center gap-2">
-										<span>Last Active</span>
-										<DropdownMenu>
-											<DropdownMenuTrigger>
-												<Button
-													variant="ghost"
-													size="sm"
-													class="h-6 w-6 p-0"
-													aria-label="Filter by activity"
-												>
-													<ListFilter />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="start" class="min-w-40">
-												<DropdownMenuLabel>Filter</DropdownMenuLabel>
-												<DropdownMenuSeparator />
-												<DropdownMenuItem onclick={clearDaActivity}>
-													<div class="flex w-full items-center justify-between">
-														<span>All</span>{#if daSelectedActivity.size === 0}<Check
-																class="h-4 w-4"
-															/>{/if}
-													</div>
-												</DropdownMenuItem>
-												<DropdownMenuItem onclick={() => toggleDaActivity('active')}>
-													<div class="flex w-full items-center justify-between">
-														<span>Active (≤1 day)</span>{#if daSelectedActivity.has('active')}<Check
-																class="h-4 w-4"
-															/>{/if}
-													</div>
-												</DropdownMenuItem>
-												<DropdownMenuItem onclick={() => toggleDaActivity('inactive')}>
-													<div class="flex w-full items-center justify-between">
-														<span>Inactive (≥7 days)</span
-														>{#if daSelectedActivity.has('inactive')}<Check class="h-4 w-4" />{/if}
-													</div>
-												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-								</Table.Head>
-								<Table.Head class="w-12 text-right">
-									<DropdownMenu>
-										<DropdownMenuTrigger>
-											<Button variant="ghost" size="sm" class="h-6 w-6 p-0" aria-label="Sort">
-												<ArrowUpDown class="h-5 w-4" strokeWidth={1.5} />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end" class="min-w-48">
-											<DropdownMenuLabel>Sort by</DropdownMenuLabel>
-											<DropdownMenuSeparator />
-											<DropdownMenuItem
-												onclick={() => {
-													daSortKey = 'totalContributions';
-													daSortDir = 'desc';
-												}}
-											>
-												<div class="flex w-full items-center justify-between">
-													<span>Total contributions</span
-													>{#if daSortKey === 'totalContributions' && daSortDir === 'desc'}<Check
-															class="h-4 w-4"
-														/>{/if}
-												</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onclick={() => {
+								<Table.Head class="w-64">
+									<div class="flex items-center gap-1">
+										<span>Questions Posted</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by questions posted"
+											onclick={() => {
+												if (daSortKey === 'questionsPosted')
+													daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+												else {
 													daSortKey = 'questionsPosted';
 													daSortDir = 'desc';
-												}}
-											>
-												<div class="flex w-full items-center justify-between">
-													<span>Questions posted</span
-													>{#if daSortKey === 'questionsPosted' && daSortDir === 'desc'}<Check
-															class="h-4 w-4"
-														/>{/if}
-												</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onclick={() => {
+												}
+											}}
+										>
+											{#if daSortKey === 'questionsPosted'}{#if daSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-64">
+									<div class="flex items-center gap-1">
+										<span>Questions Answered</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by questions answered"
+											onclick={() => {
+												if (daSortKey === 'questionsAnswered')
+													daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+												else {
 													daSortKey = 'questionsAnswered';
 													daSortDir = 'desc';
-												}}
-											>
-												<div class="flex w-full items-center justify-between">
-													<span>Questions answered</span
-													>{#if daSortKey === 'questionsAnswered' && daSortDir === 'desc'}<Check
-															class="h-4 w-4"
-														/>{/if}
-												</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onclick={() => {
+												}
+											}}
+										>
+											{#if daSortKey === 'questionsAnswered'}{#if daSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head class="w-64">
+									<div class="flex items-center gap-1">
+										<span>Total Contributions</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by total contributions"
+											onclick={() => {
+												if (daSortKey === 'totalContributions')
+													daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+												else {
+													daSortKey = 'totalContributions';
+													daSortDir = 'desc';
+												}
+											}}
+										>
+											{#if daSortKey === 'totalContributions'}{#if daSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
+								</Table.Head>
+								<Table.Head>
+									<div class="flex items-center gap-1">
+										<span>Last Active</span>
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-5 w-5 p-0"
+											aria-label="Sort by last active"
+											onclick={() => {
+												if (daSortKey === 'lastActive')
+													daSortDir = daSortDir === 'asc' ? 'desc' : 'asc';
+												else {
 													daSortKey = 'lastActive';
 													daSortDir = 'asc';
-												}}
-											>
-												<div class="flex w-full items-center justify-between">
-													<span>Last active (recent first)</span
-													>{#if daSortKey === 'lastActive' && daSortDir === 'asc'}<Check
-															class="h-4 w-4"
-														/>{/if}
-												</div>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onclick={() => {
-													daSortKey = 'name';
-													daSortDir = 'asc';
-												}}
-											>
-												<div class="flex w-full items-center justify-between">
-													<span>Name A–Z</span
-													>{#if daSortKey === 'name' && daSortDir === 'asc'}<Check
-															class="h-4 w-4"
-														/>{/if}
-												</div>
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
+												}
+											}}
+										>
+											{#if daSortKey === 'lastActive'}{#if daSortDir === 'asc'}<ArrowUp
+														class="h-4 w-4"
+													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
+													class="h-4 w-4"
+												/>{/if}
+										</Button>
+									</div>
 								</Table.Head>
 							</Table.Row>
 						</Table.Header>
@@ -1570,12 +1532,12 @@
 												{student.lastName}
 											</Button>
 										</Table.Cell>
-										<Table.Cell class="w-40">{student.questionsPosted}</Table.Cell>
-										<Table.Cell class="w-44">{student.questionsAnswered}</Table.Cell>
-										<Table.Cell class="w-44">
+										<Table.Cell class="w-64">{student.questionsPosted}</Table.Cell>
+										<Table.Cell class="w-64">{student.questionsAnswered}</Table.Cell>
+										<Table.Cell class="w-64">
 											<Badge variant="secondary">{student.totalContributions}</Badge>
 										</Table.Cell>
-										<Table.Cell class="w-32">{student.lastActive}</Table.Cell>
+										<Table.Cell>{student.lastActive}</Table.Cell>
 									</Table.Row>
 								{/each}
 							</Table.Body>
