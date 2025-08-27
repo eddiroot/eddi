@@ -6,7 +6,6 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Progress } from '$lib/components/ui/progress';
 	import { BarChart } from 'layerchart';
-	import UsersIcon from '@lucide/svelte/icons/users';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
 	import { Button } from '$lib/components/ui/button';
@@ -24,6 +23,8 @@
 	import ArrowUp from '@lucide/svelte/icons/arrow-up';
 	import ArrowDown from '@lucide/svelte/icons/arrow-down';
 	import { formatTimestampAsDate } from '$lib/utils';
+	import TrendingUp from '@lucide/svelte/icons/trending-up';
+	import TrendingDown from '@lucide/svelte/icons/trending-down';
 
 	let { data } = $props();
 
@@ -36,6 +37,7 @@
 				"1 student hasn't visited your page in the past week"
 			],
 			currentAverage: 65,
+			currentAverageChange: 3,
 			gradeDistribution: [
 				{ grade: 'F', count: 1 },
 				{ grade: 'D', count: 1 },
@@ -461,6 +463,13 @@
 
 	let activeTab = $state('student-performance');
 
+	// Hardcoded breakdown values (placeholder)
+	const spBreakdown = {
+		assignments: 85,
+		homework: 80,
+		participation: 89
+	};
+
 	// ------- Shared helpers for filters/sorting -------
 	function parseLastActiveToDays(s: string): number {
 		const str = s.trim().toLowerCase();
@@ -667,9 +676,9 @@
 		<!-- Student Performance Tab -->
 		<Tabs.Content value="student-performance" class="space-y-6">
 			<!-- Key Insights and Stats Row -->
-			<div class="grid gap-3 md:grid-cols-3">
+			<div class="grid gap-3 md:grid-cols-6">
 				<!-- Key Insights -->
-				<Card.Root class="shadow-none">
+				<Card.Root class="shadow-none md:col-span-2">
 					<Card.Header>
 						<Card.Title class="text-base">Key Insights</Card.Title>
 					</Card.Header>
@@ -684,17 +693,52 @@
 				</Card.Root>
 
 				<!-- Current Average -->
-				<Card.Root class="shadow-none">
+				<Card.Root class="shadow-none md:col-span-1">
 					<Card.Header>
 						<Card.Title class="text-base">Current Average</Card.Title>
 					</Card.Header>
-					<Card.Content class="flex items-center justify-center py-2">
-						<div class="text-3xl font-bold">{mockData.studentPerformance.currentAverage}%</div>
+					<Card.Content class="py-2">
+						<div class="text-4xl leading-none font-bold">
+							{mockData.studentPerformance.currentAverage}%
+						</div>
+						{#if mockData.studentPerformance.currentAverageChange !== undefined}
+							<div class="mt-3 flex items-center gap-1 text-sm font-medium">
+								{#if mockData.studentPerformance.currentAverageChange > 0}
+									<TrendingUp class="h-4 w-4 text-green-600" />
+								{:else if mockData.studentPerformance.currentAverageChange < 0}
+									<TrendingDown class="h-4 w-4 text-red-600" />
+								{/if}
+								<span class="text-muted-foreground">
+									{mockData.studentPerformance.currentAverageChange > 0 ? '+' : ''}{mockData
+										.studentPerformance.currentAverageChange}% from last week
+								</span>
+							</div>
+						{/if}
+					</Card.Content>
+				</Card.Root>
+
+				<!-- Breakdown -->
+				<Card.Root class="shadow-none md:col-span-1">
+					<Card.Header>
+						<Card.Title class="text-base">Current Average <br /> Grade Breakdown</Card.Title>
+					</Card.Header>
+					<Card.Content class="space-y-2 py-2 text-sm">
+						<div class="flex items-center justify-between">
+							<span>Assignments</span><span class="font-semibold">{spBreakdown.assignments}%</span>
+						</div>
+						<div class="flex items-center justify-between">
+							<span>Homework</span><span class="font-semibold">{spBreakdown.homework}%</span>
+						</div>
+						<div class="flex items-center justify-between">
+							<span>Participation</span><span class="font-semibold"
+								>{spBreakdown.participation}%</span
+							>
+						</div>
 					</Card.Content>
 				</Card.Root>
 
 				<!-- Grade Distribution Chart -->
-				<Card.Root class="shadow-none">
+				<Card.Root class="shadow-none md:col-span-2">
 					<Card.Header>
 						<Card.Title class="text-base">Grade Distribution</Card.Title>
 					</Card.Header>
