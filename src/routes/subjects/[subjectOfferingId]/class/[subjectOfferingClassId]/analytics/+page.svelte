@@ -570,6 +570,15 @@
 		});
 	});
 
+	// Median grade (integer) across all students
+	let spMedianGrade = $derived(() => {
+		const grades = mockData.studentPerformance.students.map((s) => s.grade).sort((a, b) => a - b);
+		const n = grades.length;
+		if (!n) return 0;
+		if (n % 2 === 1) return grades[(n - 1) / 2];
+		return Math.round((grades[n / 2 - 1] + grades[n / 2]) / 2);
+	});
+
 	// ------- Task Analytics table controls -------
 	type TA_SortKey =
 		| 'name'
@@ -722,47 +731,43 @@
 					</Card.Content>
 				</Card.Root>
 
-				<!-- Current Average -->
-				<Card.Root class="shadow-none md:col-span-1">
-					<Card.Header>
-						<Card.Title class="text-base">Current Average</Card.Title>
+				<!-- Current Average + Breakdown Combined -->
+				<Card.Root class="shadow-none md:col-span-2">
+					<Card.Header class="pb-1">
+						<Card.Title class="text-base">Current Average & Breakdown</Card.Title>
 					</Card.Header>
-					<Card.Content class="py-2">
-						<div class="text-4xl leading-none font-bold">
-							{mockData.studentPerformance.currentAverage}%
-						</div>
-						{#if mockData.studentPerformance.currentAverageChange !== undefined}
-							<div class="mt-3 flex items-center gap-1 text-sm font-medium">
-								{#if mockData.studentPerformance.currentAverageChange > 0}
-									<TrendingUp class="h-4 w-4 text-green-600" />
-								{:else if mockData.studentPerformance.currentAverageChange < 0}
-									<TrendingDown class="h-4 w-4 text-red-600" />
-								{/if}
-								<span class="text-muted-foreground">
-									{mockData.studentPerformance.currentAverageChange > 0 ? '+' : ''}{mockData
-										.studentPerformance.currentAverageChange}% from last week
-								</span>
+					<Card.Content class="grid gap-6 md:grid-cols-2">
+						<!-- Average -->
+						<div class="space-y-4">
+							<div class="text-4xl leading-none font-bold">
+								{mockData.studentPerformance.currentAverage}%
 							</div>
-						{/if}
-					</Card.Content>
-				</Card.Root>
-
-				<!-- Breakdown -->
-				<Card.Root class="shadow-none md:col-span-1">
-					<Card.Header>
-						<Card.Title class="text-base">Current Average <br /> Grade Breakdown</Card.Title>
-					</Card.Header>
-					<Card.Content class="space-y-2 py-2 text-sm">
-						<div class="flex items-center justify-between">
-							<span>Assignments</span><span class="font-semibold">{spBreakdown.assignments}%</span>
+							{#if mockData.studentPerformance.currentAverageChange !== undefined}
+								<div class="flex items-center gap-1 text-sm font-medium">
+									{#if mockData.studentPerformance.currentAverageChange > 0}
+										<TrendingUp class="h-4 w-4 text-green-600" />
+									{:else if mockData.studentPerformance.currentAverageChange < 0}
+										<TrendingDown class="h-4 w-4 text-red-600" />
+									{/if}
+									<span class="text-muted-foreground">
+										{mockData.studentPerformance.currentAverageChange > 0 ? '+' : ''}{mockData
+											.studentPerformance.currentAverageChange}% from last week
+									</span>
+								</div>
+							{/if}
+							<p class="text-muted-foreground mt-1 text-xs">Median: {spMedianGrade()}%</p>
 						</div>
-						<div class="flex items-center justify-between">
-							<span>Homework</span><span class="font-semibold">{spBreakdown.homework}%</span>
-						</div>
-						<div class="flex items-center justify-between">
-							<span>Participation</span><span class="font-semibold"
-								>{spBreakdown.participation}%</span
-							>
+						<!-- Breakdown with progress bars -->
+						<div class="space-y-4">
+							{#each [{ label: 'Assignments', value: spBreakdown.assignments }, { label: 'Homework', value: spBreakdown.homework }, { label: 'Participation', value: spBreakdown.participation }] as part}
+								<div class="space-y-1">
+									<div class="flex items-center justify-between text-sm">
+										<span>{part.label}</span>
+										<span class="font-semibold">{part.value}%</span>
+									</div>
+									<Progress value={part.value} />
+								</div>
+							{/each}
 						</div>
 					</Card.Content>
 				</Card.Root>
@@ -1060,7 +1065,7 @@
 						{@const nt = nextTaskDue()}
 						{#if nt}
 							<div class="flex items-center justify-between gap-2">
-								<h4 class="truncate font-semibold">{nt.name}</h4>
+								<h4 class="truncate font-bold text-xl">{nt.name}</h4>
 								<Badge variant="secondary" class="shrink-0 text-xs">{nt.weight}% weight</Badge>
 							</div>
 							<div class="flex items-center justify-between text-sm">
