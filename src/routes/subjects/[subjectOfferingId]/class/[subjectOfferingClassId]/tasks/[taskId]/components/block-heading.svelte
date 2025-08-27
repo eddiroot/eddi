@@ -1,18 +1,7 @@
 <script lang="ts">
-	import {
-		ViewMode,
-		type BlockHeadingConfig,
-		type HeadingBlockProps
-	} from '$lib/schemas/taskSchema';
+	import { ViewMode, type HeadingBlockProps } from '$lib/schemas/taskSchema';
 
-	let { initialConfig, onConfigUpdate, viewMode }: HeadingBlockProps = $props();
-
-	let config = $state<BlockHeadingConfig>(initialConfig);
-
-	// Do not remove. Updates config state when block order is changed.
-	$effect(() => {
-		config = initialConfig;
-	});
+	let { config, onConfigUpdate, viewMode }: HeadingBlockProps = $props();
 
 	const getClassesBySize = (size: number): string => {
 		const coreClasses =
@@ -39,7 +28,7 @@
 <div class="w-full">
 	{#if viewMode === ViewMode.CONFIGURE}
 		<input
-			bind:value={config.text}
+			value={config.text}
 			onkeydown={(e) => {
 				if (e.key === 'Enter') {
 					onConfigUpdate(config);

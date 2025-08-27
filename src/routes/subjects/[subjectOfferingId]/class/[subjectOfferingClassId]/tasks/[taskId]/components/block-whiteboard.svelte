@@ -6,20 +6,9 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
-	import {
-		type BlockWhiteboardConfig,
-		ViewMode,
-		type WhiteboardBlockProps
-	} from '$lib/schemas/taskSchema';
+	import { ViewMode, type WhiteboardBlockProps } from '$lib/schemas/taskSchema';
 
-	let { initialConfig, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();
-
-	let config = $state<BlockWhiteboardConfig>(initialConfig);
-
-	// Do not remove. Updates config state when block order is changed.
-	$effect(() => {
-		config = initialConfig;
-	});
+	let { config, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();
 
 	const { taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 
@@ -59,7 +48,6 @@
 			title: config.title || ''
 		};
 
-		config = newConfig;
 		await onConfigUpdate(newConfig);
 	};
 
@@ -67,14 +55,12 @@
 		let currentWhiteboardId = config.whiteboardId;
 
 		if (!currentWhiteboardId) {
-			console.log('Creating new whiteboard...');
 			currentWhiteboardId = await createWhiteboard();
 			if (currentWhiteboardId) {
 				const newConfig = {
 					whiteboardId: currentWhiteboardId,
 					title: config.title || ''
 				};
-				config = newConfig;
 				await onConfigUpdate(newConfig);
 			}
 		}

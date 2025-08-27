@@ -7,57 +7,28 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import {
-		type BlockMatchingResponse,
-		ViewMode,
-		type MatchingBlockProps,
-		type BlockMatchingConfig
-	} from '$lib/schemas/taskSchema';
+	import { ViewMode, type MatchingBlockProps } from '$lib/schemas/taskSchema';
 
-	let {
-		initialConfig,
-		onConfigUpdate,
-		initialResponse,
-		onResponseUpdate,
-		viewMode
-	}: MatchingBlockProps = $props();
-
-	let config = $state<BlockMatchingConfig>(initialConfig);
-	let response = $state<BlockMatchingResponse>(
-		initialResponse || {
-			matches: []
-		}
-	);
-
-	// Do not remove. Updates config state when block order is changed.
-	$effect(() => {
-		config = initialConfig;
-	});
-
-	// Do not remove. Updates response state when new student selected.
-	$effect(() => {
-		response = initialResponse || {
-			matches: []
-		};
-	});
+	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: MatchingBlockProps =
+		$props();
 
 	function addPair() {
-		config = { ...config, pairs: [...config.pairs, { left: '', right: '' }] };
-		onConfigUpdate(config);
+		const newConfig = { ...config, pairs: [...config.pairs, { left: '', right: '' }] };
+		onConfigUpdate(newConfig);
 	}
 
 	function removePair(index: number) {
 		if (config.pairs.length <= 1) return;
-		config = { ...config, pairs: config.pairs.filter((_, i) => i !== index) };
-		onConfigUpdate(config);
+		const newConfig = { ...config, pairs: config.pairs.filter((_, i) => i !== index) };
+		onConfigUpdate(newConfig);
 	}
 
 	function updatePair(index: number, field: 'left' | 'right', value: string) {
 		if (index < 0 || index >= config.pairs.length) return;
 		const updatedPairs = [...config.pairs];
 		updatedPairs[index] = { ...updatedPairs[index], [field]: value };
-		config = { ...config, pairs: updatedPairs };
-		onConfigUpdate(config);
+		const newConfig = { ...config, pairs: updatedPairs };
+		onConfigUpdate(newConfig);
 	}
 </script>
 

@@ -5,33 +5,10 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import XIcon from '@lucide/svelte/icons/x';
-	import {
-		type BlockFillBlankResponse,
-		ViewMode,
-		type FillBlankBlockProps,
-		type BlockFillBlankConfig
-	} from '$lib/schemas/taskSchema';
+	import { ViewMode, type FillBlankBlockProps } from '$lib/schemas/taskSchema';
 
-	let {
-		initialConfig,
-		onConfigUpdate,
-		initialResponse,
-		onResponseUpdate,
-		viewMode
-	}: FillBlankBlockProps = $props();
-
-	let config = $state<BlockFillBlankConfig>(initialConfig);
-	let response = $state<BlockFillBlankResponse>(initialResponse || { answer: '' });
-
-	// Do not remove. Updates config state when block order is changed.
-	$effect(() => {
-		config = initialConfig;
-	});
-
-	// Do not remove. Updates response state when new student selected.
-	$effect(() => {
-		response = initialResponse || { answer: '' };
-	});
+	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: FillBlankBlockProps =
+		$props();
 
 	function isAnswerCorrect(): boolean {
 		return response?.answer.trim() == config.answer;
@@ -85,7 +62,7 @@
 					<Label for="sentence-text">Sentence</Label>
 					<Textarea
 						id="sentence-text"
-						bind:value={config.sentence}
+						value={config.sentence}
 						onblur={saveChanges}
 						placeholder="Enter your sentence with _____ where the blank should be..."
 						class="min-h-[80px] resize-none"
@@ -133,7 +110,12 @@
 						<span>{parsed.before}</span>
 						<div class="relative mx-2 inline-block">
 							<Input
-								bind:value={response.answer}
+								value={response.answer}
+								oninput={async (e) => {
+									const target = e.target as HTMLInputElement;
+									const newResponse = { ...response, answer: target.value };
+									await onResponseUpdate(newResponse);
+								}}
 								disabled={viewMode !== ViewMode.ANSWER}
 								placeholder="Your answer"
 								class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${

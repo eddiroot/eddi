@@ -381,13 +381,13 @@ export type BlockResponse =
 	| BlockShortAnswerResponse;
 
 export type BlockProps<T extends BlockConfig = BlockConfig, Q extends BlockResponse = never> = {
-	initialConfig: T;
+	config: T;
 	onConfigUpdate: (config: T) => Promise<void>;
 	viewMode: ViewMode;
 } & ([Q] extends [never]
 	? object
 	: {
-			initialResponse?: Q;
+			response: Q;
 			onResponseUpdate: (response: Q) => Promise<void>;
 		});
 

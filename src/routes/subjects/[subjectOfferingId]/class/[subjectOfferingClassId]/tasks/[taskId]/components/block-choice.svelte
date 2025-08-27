@@ -13,50 +13,28 @@
 	import CheckSquareIcon from '@lucide/svelte/icons/check-square';
 	import XSquareIcon from '@lucide/svelte/icons/x-square';
 	import SquareIcon from '@lucide/svelte/icons/square';
-	import {
-		type BlockChoiceResponse,
-		ViewMode,
-		type ChoiceBlockProps,
-		type BlockChoiceConfig
-	} from '$lib/schemas/taskSchema';
+	import { ViewMode, type ChoiceBlockProps } from '$lib/schemas/taskSchema';
 
-	let {
-		initialConfig,
-		onConfigUpdate,
-		initialResponse,
-		onResponseUpdate,
-		viewMode
-	}: ChoiceBlockProps = $props();
-
-	let config = $state<BlockChoiceConfig>(initialConfig);
-	let response = $state<BlockChoiceResponse>(initialResponse || { answers: [] });
-
-	// Do not remove. Updates config state when block order is changed.
-	$effect(() => {
-		config = initialConfig;
-	});
-
-	// Do not remove. Updates response state when new student selected.
-	$effect(() => {
-		response = initialResponse || { answers: [] };
-	});
+	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: ChoiceBlockProps = $props();
 
 	let isMultiAnswer = $derived(() => {
 		return config.options.filter((option) => option.isAnswer).length > 1;
 	});
 
 	async function toggleAnswer(option: string) {
+		let newResponse = { ...response };
+
 		if (!isMultiAnswer()) {
-			response.answers = [option];
+			newResponse.answers = [option];
 		} else {
-			if (response.answers.includes(option)) {
-				response.answers = response.answers.filter((ans) => ans !== option);
+			if (newResponse.answers.includes(option)) {
+				newResponse.answers = newResponse.answers.filter((ans) => ans !== option);
 			} else {
-				response.answers = [...response.answers, option];
+				newResponse.answers = [...newResponse.answers, option];
 			}
 		}
 
-		await onResponseUpdate(response);
+		await onResponseUpdate(newResponse);
 	}
 
 	async function toggleCorrect(option: string) {
@@ -92,7 +70,7 @@
 					<Label for="question-text">Question</Label>
 					<Textarea
 						id="question-text"
-						bind:value={config.question}
+						value={config.question}
 						onblur={async () => {
 							await onConfigUpdate(config);
 						}}

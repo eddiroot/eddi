@@ -35,12 +35,9 @@
 		blockTypes,
 		ViewMode,
 		type BlockChoiceConfig,
-		type BlockChoiceResponse,
 		type BlockFillBlankConfig,
-		type BlockFillBlankResponse,
 		type BlockHeadingConfig,
 		type BlockMatchingConfig,
-		type BlockMatchingResponse,
 		type BlockRichTextConfig,
 		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
@@ -56,6 +53,65 @@
 	);
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 	let selectedStudent = $state<string | null>(null);
+	let userBlockResponses = $state<Record<string, any>>({});
+
+	function getInitialResponse(blockType: string) {
+		switch (blockType) {
+			case taskBlockTypeEnum.choice:
+				return { answers: [] };
+			case taskBlockTypeEnum.fillBlank:
+				return { answer: '' };
+			case taskBlockTypeEnum.matching:
+				return { matches: [] };
+			default:
+				return {};
+		}
+	}
+
+	function getCurrentResponse(blockId: number, blockType: string) {
+		const blockIdStr = blockId.toString();
+
+		if (viewMode === ViewMode.REVIEW && selectedStudent) {
+			return (
+				data.groupedBlockResponses[selectedStudent]?.[blockId]?.response ||
+				getInitialResponse(blockType)
+			);
+		}
+
+		if (!Object.prototype.hasOwnProperty.call(userBlockResponses, blockIdStr)) {
+			userBlockResponses[blockIdStr] = getInitialResponse(blockType);
+		}
+		return userBlockResponses[blockIdStr];
+	}
+
+	async function handleConfigUpdate(block: TaskBlock, config: any) {
+		await updateBlock({ block, config });
+		// Update local state after successful server update
+		const blockIndex = blocks.findIndex((b) => b.id === block.id);
+		if (blockIndex !== -1) {
+			blocks[blockIndex] = { ...blocks[blockIndex], config };
+		}
+	}
+
+	async function handleResponseUpdate(blockId: number, response: any) {
+		const blockIdStr = blockId.toString();
+		userBlockResponses[blockIdStr] = response;
+
+		if (responseUpdateTimeouts[blockIdStr]) {
+			clearTimeout(responseUpdateTimeouts[blockIdStr]);
+		}
+
+		responseUpdateTimeouts[blockIdStr] = setTimeout(async () => {
+			try {
+				await upsertBlockResponse(blockId, data.classTask.id, response);
+			} catch (error) {
+				console.error('Failed to save response:', error);
+			}
+			delete responseUpdateTimeouts[blockIdStr];
+		}, 500);
+	}
+
+	let responseUpdateTimeouts: Record<string, NodeJS.Timeout> = {};
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -280,7 +336,7 @@
 			<div class={viewMode === ViewMode.CONFIGURE ? 'ml-[38px]' : ''}>
 				<div class="flex items-center gap-4">
 					<BlockHeading
-						initialConfig={{
+						config={{
 							text: data.task.title,
 							size: 1
 						}}
@@ -352,56 +408,47 @@
 						<div>
 							{#if block.type === taskBlockTypeEnum.heading}
 								<BlockHeading
-									initialConfig={block.config as BlockHeadingConfig}
-									onConfigUpdate={async (config) => await updateBlock({ block, config })}
+									config={block.config as BlockHeadingConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.richText}
 								<BlockRichText
-									initialConfig={block.config as BlockRichTextConfig}
-									onConfigUpdate={async (config) => await updateBlock({ block, config })}
+									config={block.config as BlockRichTextConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.whiteboard}
 								<BlockWhiteboard
-									initialConfig={block.config as BlockWhiteboardConfig}
-									onConfigUpdate={async (config) => await updateBlock({ block, config })}
+									config={block.config as BlockWhiteboardConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.choice}
 								<BlockChoice
-									initialConfig={block.config as BlockChoiceConfig}
-									onConfigUpdate={async (config) => await updateBlock({ block, config })}
-									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
-										? (data.groupedBlockResponses[selectedStudent][block.id]
-												?.response as BlockChoiceResponse)
-										: undefined}
+									config={block.config as BlockChoiceConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>
-										await upsertBlockResponse(block.id, data.classTask.id, response)}
+										await handleResponseUpdate(block.id, response)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.fillBlank}
 								<BlockFillBlank
-									initialConfig={block.config as BlockFillBlankConfig}
-									onConfigUpdate={async (config) => await updateBlock({ block, config })}
-									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
-										? (data.groupedBlockResponses[selectedStudent][block.id]
-												?.response as BlockFillBlankResponse)
-										: undefined}
+									config={block.config as BlockFillBlankConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>
-										await upsertBlockResponse(block.id, data.classTask.id, response)}
+										await handleResponseUpdate(block.id, response)}
 									{viewMode}
 								/>
 							{:else if block.type === taskBlockTypeEnum.matching}
 								<BlockMatching
-									initialConfig={block.config as BlockMatchingConfig}
-									onConfigUpdate={async (config) => await updateBlock({ block, config })}
-									initialResponse={viewMode === ViewMode.REVIEW && selectedStudent
-										? (data.groupedBlockResponses[selectedStudent][block.id]
-												?.response as BlockMatchingResponse)
-										: undefined}
+									config={block.config as BlockMatchingConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>
-										await upsertBlockResponse(block.id, data.classTask.id, response)}
+										await handleResponseUpdate(block.id, response)}
 									{viewMode}
 								/>
 							{:else}
