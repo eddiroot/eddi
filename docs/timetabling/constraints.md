@@ -1,0 +1,114 @@
+# Handling Timetable Constraints:
+
+## Background:
+
+Every constraint has a weight. A weight of 100% mean that this constraint must be respected. A lower value mean it should be respected, it's not necessary. It's pretty difficult to explain the exact function, but a simple illustration is the following: 50% weight mean that in average FET retries two times to place an activity without a conflict. If FET isn't able to place the activity without a conflict after average 2 times it keeps the conflict and tries to place the next activity.
+
+## List of Constraints that need to be handled in the "buildFETInput" function:
+
+- [ ] Teacher not available constraint
+- [ ] Student not available constraint
+- [ ] All students + All teachers are not available constraint
+- [ ] Class preferred times constraint
+- [ ] Min-days between activities
+- [ ] Max-days between activities
+- [ ] Hourly constraints:
+  - [ ] The min hours daily constraints are:
+  - [ ] Time constraints (teachers) → Min hours daily for a teacher
+  - [ ] Time constraints (teachers) → Min hours daily for all teachers
+  - [ ] Time constraints (students) → Min hours daily for a students set
+  - [ ] Time constraints (students) → Min hours daily for all students
+
+  - [ ] The max hours daily constraints are:
+  - [ ] Time constraints (teachers) → Max hours daily for a teacher
+  - [ ] Time constraints (teachers) → Max hours daily for all teachers
+  - [ ] Time constraints (students) → Max hours daily for a students set
+  - [ ] Time constraints (students) → Max hours daily for all students
+  - [ ] Time constraints (teachers) → Max hours daily with an activity tag for a teacher
+  - [ ] Time constraints (teachers) → Max hours daily with an activity tag for all teachers
+  - [ ] Time constraints (students) → Max hours daily with an activity tag for a students set
+  - [ ] Time constraints (students) → Max hours daily with an activity tag for all students
+  - [ ] The max hours continuously constraints are:
+  - [ ] Time constraints (teachers) → Max hours continuously for a teacher
+  - [ ] Time constraints (teachers) → Max hours continuously all teachers
+  - [ ] Time constraints (students) → Max hours continuously a students set
+  - [ ] Time constraints (students) → Max hours continuously for all students
+  - [ ] Time constraints (teachers) → Max hours continuously with an activity tag for a teacher
+  - [ ] Time constraints (teachers) → Max hours continuously with an activity tag all teachers
+  - [ ] Time constraints (students) → Max hours continuously with an activity tag a students set
+  - [ ] Time constraints (students) → Max hours continuously with an activity tag for all students
+
+- [ ] Gap constaints: (A gap is an unused timeslot (or several) between two activities.)
+  - [ ] The max gaps constraints are:
+  - [ ] Time constraints (teachers) → Max gaps per week for a teacher
+  - [ ] Time constraints (teachers) → Max gaps per week for all teachers
+  - [ ] Time constraints (teachers) → Max gaps per day for a teacher
+  - [ ] Time constraints (teachers) → Max gaps per day for all teachers
+  - [ ] Time constraints (students) → Max gaps per week for a students set
+  - [ ] Time constraints (students) → Max gaps per week for all students
+  - [ ] Time constraints (students) → Max gaps per day for a students set
+  - [ ] Time constraints (students) → Max gaps per day for all students
+  - **The law of many countries rule that students of primary and secondary schools don't have a gap.
+    Add constraint Max gaps per week for all students with value 0 and weight 100%.**
+- [ ] Student Starts early constraints:
+  - [ ] Time constraints (students) → A students set begins early
+  - [ ] Time constraints (students) → All students begin early
+- [ ] Activity ends day constraints:
+  - [ ] Time constraints (activities) → An activity ends students day
+  - [ ] Time constraints (activities) → A set of activities ends students day
+- [ ] Time constraints (activities) → Two activities are consecutive
+- [ ] Time constraints (activities) → Min gaps (hours) between a set of activities
+- [ ] The Working in an hourly interval max days per week constraints are:
+  - [ ] Time constraints (teachers) → A teacher works in an hourly interval max days per week
+  - [ ] Time constraints (teachers) → All teachers works in an hourly interval max days per week
+  - [ ] Time constraints (students) → A students set works in an hourly interval max days per week
+  - [ ] Time constraints (students) → All students works in an hourly interval max days per week
+- [ ] Preferred time constraints:
+  - [ ] Time constraints (activities) → An activity has a preferred starting time
+  - [ ] Time constraints (activities) → An activity has a set of preferred time slots
+  - [ ] Time constraints (activities) → A set of activities has a set of preferred time slots
+  - [ ] Time constraints (activities) → A set of subactivities has a set of preferred time slots
+  - [ ] Time constraints (activities) → An activity has a set of preferred starting times
+  - [ ] Time constraints (activities) → A set of activities has a set of preferred starting times
+  - [ ] Time constraints (activities) → A set of subactivities has a set of preferred starting times
+- [ ] Same starting time constraints:
+  - [ ] The same starting time constraints are:
+  - [ ] Time constraints (activities) → A set of activities has same starting time (day+hour)
+  - [ ] Time constraints (activities) → A set of activities has same starting day (any hour)
+  - [ ] Time constraints (activities) → A set of activities has same starting hour (any days)
+- [ ] Time constraints (activities) → A set of activities are not overlapping
+- [ ] Min resting hour constraints:
+  - [ ] Time constraints (teachers) → Min resting hours for a teacher
+  - [ ] Time constraints (teachers) → Min resting hours for all teachers
+  - [ ] Time constraints (students) → Min resting hours for a students set
+  - [ ] Time constraints (students) → Min resting hours for all students
+- [ ] Home room constaints:
+- [ ] The home rooms constraints are:
+  - [ ] Space constraints (teachers) → A teacher has a home room
+  - [ ] Space constraints (teachers) → A teacher has a set of home rooms
+  - [ ] Space constraints (students) → A set of students has a home room
+  - [ ] Space constraints (students) → A set of students has a set of home rooms
+- [ ] Preferred room constraints:
+  - [ ] The same starting time constraints are:
+  - [ ] Space constraints (subject) → A subject has a preferred room
+  - [ ] Space constraints (subject) → A subject has a set of preferred rooms
+  - [ ] Space constraints (subject+activity) → A subject+activity tag have a preferred room
+  - [ ] Space constraints (subject+activity) → A subject+activity tag have a set of preferred rooms
+  - [ ] Space constraints (activity) → An activity has a preferred room
+  - [ ] Space constraints (activity) → An activity has a set of preferred rooms
+- [ ] Space constraints (activity) → A set of activities occupies max different rooms
+- [ ] Space constraints (activity) → A set of activities are in the same room if they are consecutive
+- [ ] Building constraints:
+  - [ ] The buildings constraints are:
+  - [ ] Space constraints (teachers) → Max building changes per day for a teacher
+  - [ ] Space constraints (teachers) → Max building changes per day for all teachers
+  - [ ] Space constraints (teachers) → Max building changes per week for a teacher
+  - [ ] Space constraints (teachers) → Max building changes per week for all teachers
+  - [ ] Space constraints (teachers) → Min gaps between building changes for a teacher
+  - [ ] Space constraints (teachers) → Min gaps between building changes for all teachers
+  - [ ] Space constraints (students) → Max building changes per day for a set of students
+  - [ ] Space constraints (students) → Max building changes per day for all students
+  - [ ] Space constraints (students) → Max building changes per week for a set of students
+  - [ ] Space constraints (students) → Max building changes per week for all students
+  - [ ] Space constraints (students) → Min gaps between building changes for a set of students
+  - [ ] Space constraints (students) → Min gaps between building changes for all students
