@@ -40,6 +40,7 @@
 - [x] Teachers can see past attendance
 - [x] Events appearing in everyone's timetables
 - [x] Basic security research and compliance documentation
+- [x] View students work on tasks
 
 ### Doing
 
@@ -53,13 +54,11 @@ All
 
 Lachie
 
+- [ ] Class tests / quizzes
 - [ ] Add/refine current task blocks
-  - Audio Block
   - Maths
     - [ ] Graph/plot
     - [ ] Table
-- [ ] Class tests / quizzes
-- [ ] View students work
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed
@@ -70,7 +69,7 @@ Bella
   - Maths
     - [ ] Arithmetic/formula (handling maths in a friendly way)
   - Science
-    - [ ] Image / Video
+    - [ ] Image / Video / Audio
     - [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
 
 Max
