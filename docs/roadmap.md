@@ -123,7 +123,6 @@ Blake
 - [ ] A what to do button to generate study ideas (04/08)
 - [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Fleshed out behavioural reporting (see toddle)
-- [ ] Handling of multiple campuses
 
 Pending eddi study completion
 
