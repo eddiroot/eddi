@@ -297,10 +297,9 @@ export const blockClose = {
 		config: {
 			type: 'object',
 			properties: {
-				text: { type: 'string' },
-				placeholder: { type: 'string' }
+				text: { type: 'string' }
 			},
-			required: ['text', 'placeholder']
+			required: ['text']
 		},
 		criteria: {
 			type: 'array',
@@ -314,11 +313,10 @@ export const blockClose = {
 
 export type BlockCloseConfig = {
 	text: string;
-	placeholder: string;
 };
 
 export type BlockCloseResponse = {
-	answer: string;
+	answers: string[];
 };
 
 export const blockHighlightText = {
@@ -564,21 +562,20 @@ export const blockTypes: {
 		icon: PenToolIcon
 	},
 	{
+		type: taskBlockTypeEnum.close,
+		name: 'Answer Blank',
+		initialConfig: {
+			text: 'Complete this sentence with _____ and _____.'
+		},
+		icon: PenToolIcon
+	},
+	{
 		type: taskBlockTypeEnum.shortAnswer,
 		name: 'Short Answer',
 		initialConfig: {
 			question: 'Question'
 		},
 		icon: MessageSquareTextIcon
-	},
-	{
-		type: taskBlockTypeEnum.close,
-		name: 'Close (Text Fill)',
-		initialConfig: {
-			text: 'Complete this sentence...',
-			placeholder: 'Type your completion here'
-		},
-		icon: PenToolIcon
 	},
 	{
 		type: taskBlockTypeEnum.highlightText,
