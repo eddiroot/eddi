@@ -17,6 +17,8 @@
 	import BlockFillBlank from './components/block-fill-blank.svelte';
 	import BlockMatching from './components/block-matching.svelte';
 	import BlockShortAnswer from './components/block-short-answer.svelte';
+	import BlockClose from './components/block-close.svelte';
+	import BlockHighlightText from './components/block-highlight-text.svelte';
 
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
@@ -41,7 +43,9 @@
 		type BlockMatchingConfig,
 		type BlockRichTextConfig,
 		type BlockShortAnswerConfig,
-		type BlockWhiteboardConfig
+		type BlockWhiteboardConfig,
+		type BlockCloseConfig,
+		type BlockHighlightTextConfig
 	} from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
@@ -59,16 +63,28 @@
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 	let selectedStudent = $state<string | null>(null);
 
+	$effect(() => {
+		blocks.forEach((block) => {
+			if (!Object.prototype.hasOwnProperty.call(responses, block.id)) {
+				responses[block.id] = getInitialResponse(block.type);
+			}
+		});
+	});
+
 	function getInitialResponse(blockType: string) {
 		switch (blockType) {
 			case taskBlockTypeEnum.choice:
 				return { answers: [] };
 			case taskBlockTypeEnum.fillBlank:
-				return { answer: '' };
+				return { answers: [] };
 			case taskBlockTypeEnum.matching:
 				return { matches: [] };
 			case taskBlockTypeEnum.shortAnswer:
 				return { answer: '' };
+			case taskBlockTypeEnum.close:
+				return { answer: '' };
+			case taskBlockTypeEnum.highlightText:
+				return { selectedText: [] };
 			default:
 				return {};
 		}
@@ -86,10 +102,7 @@
 			);
 		}
 
-		if (!Object.prototype.hasOwnProperty.call(responses, blockId)) {
-			responses[blockId] = getInitialResponse(blockType);
-		}
-		return responses[blockId];
+		return responses[blockId] || getInitialResponse(blockType);
 	}
 
 	async function handleConfigUpdate(block: TaskBlock, config: any) {
@@ -103,21 +116,12 @@
 	async function handleResponseUpdate(blockId: number, response: any) {
 		responses[blockId] = response;
 
-		if (responseUpdateTimeouts[blockId]) {
-			clearTimeout(responseUpdateTimeouts[blockId]);
+		try {
+			await upsertBlockResponse(blockId, data.classTask.id, response);
+		} catch (error) {
+			console.error('Failed to save response:', error);
 		}
-
-		responseUpdateTimeouts[blockId] = setTimeout(async () => {
-			try {
-				await upsertBlockResponse(blockId, data.classTask.id, response);
-			} catch (error) {
-				console.error('Failed to save response:', error);
-			}
-			delete responseUpdateTimeouts[blockId];
-		}, 500);
 	}
-
-	let responseUpdateTimeouts: Record<string, NodeJS.Timeout> = {};
 
 	const draggedOverClasses = 'border-accent-foreground';
 	const notDraggedOverClasses = 'border-bg';
@@ -460,6 +464,24 @@
 							{:else if block.type === taskBlockTypeEnum.shortAnswer}
 								<BlockShortAnswer
 									config={block.config as BlockShortAnswerConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
+									onResponseUpdate={async (response) =>
+										await handleResponseUpdate(block.id, response)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.close}
+								<BlockClose
+									config={block.config as BlockCloseConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
+									onResponseUpdate={async (response) =>
+										await handleResponseUpdate(block.id, response)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.highlightText}
+								<BlockHighlightText
+									config={block.config as BlockHighlightTextConfig}
 									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>

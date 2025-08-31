@@ -81,7 +81,9 @@ export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
 	taskBlockTypeEnum.choice,
 	taskBlockTypeEnum.whiteboard,
 	taskBlockTypeEnum.matching,
-	taskBlockTypeEnum.shortAnswer
+	taskBlockTypeEnum.shortAnswer,
+	taskBlockTypeEnum.close,
+	taskBlockTypeEnum.highlightText
 ]);
 
 export const taskBlock = pgTable('task_block', {

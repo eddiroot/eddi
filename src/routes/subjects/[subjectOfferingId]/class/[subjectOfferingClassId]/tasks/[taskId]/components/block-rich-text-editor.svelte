@@ -18,7 +18,7 @@
 
 	let element: HTMLDivElement;
 	let editorBox = $state.raw<{ current: Editor }>();
-	let isEditable = viewMode == ViewMode.CONFIGURE;
+	let isEditable = $state(viewMode == ViewMode.CONFIGURE);
 
 	onMount(() => {
 		editorBox = {
@@ -52,6 +52,7 @@
 
 	// DO NOT REMOVE: This is necessary to ensure that the editor is editable when the viewMode changes
 	$effect(() => {
+		isEditable = viewMode == ViewMode.CONFIGURE;
 		if (isEditable && editorBox?.current) {
 			editorBox.current.setEditable(true);
 		} else if (editorBox?.current) {

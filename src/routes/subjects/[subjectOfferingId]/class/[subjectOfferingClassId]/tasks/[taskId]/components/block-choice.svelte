@@ -144,7 +144,9 @@
 										size="icon"
 										onclick={async () => {
 											const newConfig = { ...config };
-											newConfig.options = newConfig.options.filter((opt) => opt.text !== option.text);
+											newConfig.options = newConfig.options.filter(
+												(opt) => opt.text !== option.text
+											);
 											await onConfigUpdate(newConfig);
 										}}
 									>

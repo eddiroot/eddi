@@ -204,9 +204,12 @@ export const blockFillBlank = {
 			type: 'object',
 			properties: {
 				sentence: { type: 'string' },
-				answer: { type: 'string' }
+				answers: {
+					type: 'array',
+					items: { type: 'string' }
+				}
 			},
-			required: ['sentence', 'answer']
+			required: ['sentence', 'answers']
 		},
 		marks: { type: 'number' }
 	},
@@ -215,11 +218,11 @@ export const blockFillBlank = {
 
 export type BlockFillBlankConfig = {
 	sentence: string;
-	answer: string;
+	answers: string[];
 };
 
 export type BlockFillBlankResponse = {
-	answer: string;
+	answers: string[];
 };
 
 export const blockMatching = {
@@ -287,6 +290,65 @@ export type BlockShortAnswerResponse = {
 	answer: string;
 };
 
+export const blockClose = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.close] },
+		config: {
+			type: 'object',
+			properties: {
+				text: { type: 'string' },
+				placeholder: { type: 'string' }
+			},
+			required: ['text', 'placeholder']
+		},
+		criteria: {
+			type: 'array',
+			items: criteriaItem,
+			minItems: 1
+		},
+		marks: { type: 'number' }
+	},
+	required: ['type', 'config', 'criteria']
+};
+
+export type BlockCloseConfig = {
+	text: string;
+	placeholder: string;
+};
+
+export type BlockCloseResponse = {
+	answer: string;
+};
+
+export const blockHighlightText = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.highlightText] },
+		config: {
+			type: 'object',
+			properties: {
+				text: { type: 'string' },
+				instructions: { type: 'string' },
+				highlightCorrect: { type: 'boolean' }
+			},
+			required: ['text', 'instructions', 'highlightCorrect']
+		},
+		marks: { type: 'number' }
+	},
+	required: ['type', 'config']
+};
+
+export type BlockHighlightTextConfig = {
+	text: string;
+	instructions: string;
+	highlightCorrect: boolean;
+};
+
+export type BlockHighlightTextResponse = {
+	selectedText: string[];
+};
+
 export const blockWhiteboard = {
 	type: 'object',
 	properties: {
@@ -316,7 +378,9 @@ export const taskBlocks = [
 	blockChoice,
 	blockFillBlank,
 	blockMatching,
-	blockShortAnswer
+	blockShortAnswer,
+	blockClose,
+	blockHighlightText
 ];
 
 export const layoutTwoColumns = {
@@ -372,13 +436,17 @@ export type BlockConfig =
 	| BlockFillBlankConfig
 	| BlockMatchingConfig
 	| BlockShortAnswerConfig
-	| BlockWhiteboardConfig;
+	| BlockWhiteboardConfig
+	| BlockCloseConfig
+	| BlockHighlightTextConfig;
 
 export type BlockResponse =
 	| BlockChoiceResponse
 	| BlockFillBlankResponse
 	| BlockMatchingResponse
-	| BlockShortAnswerResponse;
+	| BlockShortAnswerResponse
+	| BlockCloseResponse
+	| BlockHighlightTextResponse;
 
 export type BlockProps<T extends BlockConfig = BlockConfig, Q extends BlockResponse = never> = {
 	config: T;
@@ -399,6 +467,11 @@ export type FillBlankBlockProps = BlockProps<BlockFillBlankConfig, BlockFillBlan
 export type MatchingBlockProps = BlockProps<BlockMatchingConfig, BlockMatchingResponse>;
 export type ShortAnswerBlockProps = BlockProps<BlockShortAnswerConfig, BlockShortAnswerResponse>;
 export type WhiteboardBlockProps = BlockProps<BlockWhiteboardConfig>;
+export type CloseBlockProps = BlockProps<BlockCloseConfig, BlockCloseResponse>;
+export type HighlightTextBlockProps = BlockProps<
+	BlockHighlightTextConfig,
+	BlockHighlightTextResponse
+>;
 
 import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
@@ -410,6 +483,8 @@ import PresentationIcon from '@lucide/svelte/icons/presentation';
 import List from '@lucide/svelte/icons/list';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 import LinkIcon from '@lucide/svelte/icons/link';
+import HighlighterIcon from '@lucide/svelte/icons/highlighter';
+import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
 import type { Icon } from '@lucide/svelte';
 
 export enum ViewMode {
@@ -483,8 +558,8 @@ export const blockTypes: {
 		type: taskBlockTypeEnum.fillBlank,
 		name: 'Fill Blank',
 		initialConfig: {
-			sentence: 'Fill in the _____.',
-			answer: 'answer'
+			sentence: 'Fill in the _____ and _____.',
+			answers: ['first blank', 'second blank']
 		},
 		icon: PenToolIcon
 	},
@@ -494,7 +569,26 @@ export const blockTypes: {
 		initialConfig: {
 			question: 'Question'
 		},
+		icon: MessageSquareTextIcon
+	},
+	{
+		type: taskBlockTypeEnum.close,
+		name: 'Close (Text Fill)',
+		initialConfig: {
+			text: 'Complete this sentence...',
+			placeholder: 'Type your completion here'
+		},
 		icon: PenToolIcon
+	},
+	{
+		type: taskBlockTypeEnum.highlightText,
+		name: 'Highlight Text',
+		initialConfig: {
+			text: 'Sample text for students to highlight key concepts and important information.',
+			instructions: 'Highlight the correct information',
+			highlightCorrect: true
+		},
+		icon: HighlighterIcon
 	},
 	{
 		type: taskBlockTypeEnum.matching,

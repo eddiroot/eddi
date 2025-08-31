@@ -40,7 +40,7 @@
 					<Textarea
 						id="question-text"
 						value={config.question}
-						oninput={(e) => {
+						onblur={(e) => {
 							const value = (e.target as HTMLTextAreaElement)?.value;
 							saveChanges(value ? { ...config, question: value } : config);
 						}}
@@ -51,22 +51,6 @@
 						Students will provide a written response to this question.
 					</p>
 				</div>
-
-				{#if config.question}
-					<div class="space-y-2">
-						<Label>Preview</Label>
-						<div class="dark:bg-input/30 border-input rounded-lg border bg-transparent p-4">
-							<div class="space-y-4">
-								<p class="text-lg font-medium">{config.question}</p>
-								<Textarea
-									placeholder="Student's answer will appear here..."
-									class="min-h-[120px] resize-none"
-									disabled
-								/>
-							</div>
-						</div>
-					</div>
-				{/if}
 			</Card.Content>
 		</Card.Root>
 	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}

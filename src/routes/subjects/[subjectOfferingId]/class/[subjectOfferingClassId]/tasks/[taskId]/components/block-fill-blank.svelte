@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
@@ -15,40 +16,49 @@
 		$props();
 
 	function isAnswerCorrect(): boolean {
-		return response?.answer.trim() == config.answer;
+		if (!response?.answers || !config.answers) return false;
+		if (response.answers.length !== config.answers.length) return false;
+		return response.answers.every(
+			(answer, index) => answer.trim().toLowerCase() === config.answers[index].trim().toLowerCase()
+		);
 	}
 
-	function parseSentence(sentence: string): { before: string; after: string } {
-		const blankIndex = sentence.indexOf('_____');
-		if (blankIndex === -1) {
-			return { before: sentence, after: '' };
-		}
-		return {
-			before: sentence.substring(0, blankIndex).trim(),
-			after: sentence.substring(blankIndex + 5).trim()
-		};
+	function parseSentence(sentence: string): { parts: string[] } {
+		const parts = sentence.split('_____');
+		return { parts };
+	}
+
+	function getBlankCount(sentence: string): number {
+		return (sentence.match(/_____/g) || []).length;
 	}
 
 	function saveChanges(input: BlockFillBlankConfig) {
 		if (!input.sentence.trim()) {
-			alert('Sentence text is required');
-			return;
-		}
-
-		if (!input.answer.trim()) {
-			alert('Correct answer is required');
-			return;
-		}
-
-		if (!input.sentence.includes('_____')) {
-			alert('Sentence must contain _____ to indicate where the blank should be');
 			return;
 		}
 
 		onConfigUpdate({
 			sentence: input.sentence.trim(),
-			answer: input.answer.trim()
+			answers: input.answers || []
 		});
+	}
+
+	function syncBlanksWithSentence(sentence: string, currentAnswers: string[] = []) {
+		const blankCount = getBlankCount(sentence);
+		const newAnswers = [...currentAnswers];
+
+		// Adjust answers array to match blank count
+		if (newAnswers.length > blankCount) {
+			// Remove excess answers
+			newAnswers.splice(blankCount);
+		} else if (newAnswers.length < blankCount) {
+			// Add empty answers for new blanks
+			while (newAnswers.length < blankCount) {
+				newAnswers.push('');
+			}
+		}
+
+		return newAnswers;
 	}
 </script>
 
@@ -67,44 +77,64 @@
 					<Textarea
 						id="sentence-text"
 						value={config.sentence}
-						oninput={(e) => {
+						onblur={(e) => {
 							const value = (e.target as HTMLTextAreaElement)?.value;
-							saveChanges(value ? { ...config, sentence: value } : config);
+							if (value) {
+								const syncedAnswers = syncBlanksWithSentence(value, config.answers);
+								saveChanges({ ...config, sentence: value, answers: syncedAnswers });
+							}
 						}}
-						placeholder="Enter your sentence with _____ where the blank should be..."
+						placeholder="Enter your sentence with _____ where blanks should be..."
 						class="min-h-[80px] resize-none"
 					/>
 					<p class="text-muted-foreground text-xs">
-						Use _____ (5 underscores) to indicate where the blank should appear in the sentence.
+						Use _____ (5 underscores) to indicate where blanks should appear in the sentence.
 					</p>
 				</div>
 
 				<div class="space-y-2">
-					<Label for="correct-answer">Correct Answer</Label>
-					<Input
-						id="correct-answer"
-						value={config.answer}
-						oninput={(e) => {
-							const value = (e.target as HTMLInputElement)?.value;
-							saveChanges(value ? { ...config, answer: value } : config);
-						}}
-						placeholder="Enter the correct answer..."
-					/>
+					<Label>Correct Answers</Label>
+					{#each config.answers || [] as answer, index}
+						<div class="flex gap-2">
+							<Input
+								value={answer}
+								oninput={(e) => {
+									const value = (e.target as HTMLInputElement)?.value;
+									const newAnswers = [...(config.answers || [])];
+									newAnswers[index] = value;
+									saveChanges({ ...config, answers: newAnswers });
+								}}
+							/>
+							<Button
+								variant="destructive"
+								onclick={() => {
+									const newAnswers = [...(config.answers || [])];
+									newAnswers[index] = '';
+									saveChanges({ ...config, answers: newAnswers });
+								}}
+							>
+								Clear
+							</Button>
+						</div>
+					{/each}
 				</div>
 
-				{#if config.sentence && config.answer}
+				{#if config.sentence && config.answers && config.answers.length > 0}
 					{@const parsed = parseSentence(config.sentence)}
 					<div class="space-y-2">
 						<Label>Preview</Label>
 						<div class="dark:bg-input/30 border-input rounded-lg border bg-transparent p-4">
 							<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
-								<span>{parsed.before}</span>
-								<span
-									class="border-primary/50 mx-2 inline-block max-w-[200px] min-w-[140px] rounded-lg border-2 px-3 py-2 text-center font-medium shadow-sm"
-								>
-									{config.answer}
-								</span>
-								<span>{parsed.after}</span>
+								{#each parsed.parts as part, index}
+									<span>{part}</span>
+									{#if index < parsed.parts.length - 1}
+										<span
+											class="border-primary/50 mx-2 inline-block max-w-[200px] min-w-[140px] rounded-lg border-2 px-3 py-2 text-center font-medium shadow-sm"
+										>
+											{config.answers[index] || ''}
+										</span>
+									{/if}
+								{/each}
 							</div>
 						</div>
 					</div>
@@ -112,42 +142,45 @@
 			</Card.Content>
 		</Card.Root>
 	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}
-		{#if config.sentence && config.answer}
+		{#if config.sentence && config.answers}
 			<Card.Root>
 				<Card.Content>
 					{@const parsed = parseSentence(config.sentence)}
 					<div class="flex flex-wrap items-center gap-2 text-lg leading-relaxed">
-						<span>{parsed.before}</span>
-						<div class="relative mx-2 inline-block">
-							<Input
-								value={response.answer}
-								oninput={async (e) => {
-									const target = e.target as HTMLInputElement;
-									const newResponse = { ...response, answer: target.value };
-									await onResponseUpdate(newResponse);
-								}}
-								disabled={viewMode !== ViewMode.ANSWER}
-								placeholder="Your answer"
-								class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
-									viewMode === ViewMode.ANSWER
-										? isAnswerCorrect()
-											? 'border-success shadow-sm'
-											: response.answer
-												? 'border-destructive shadow-sm'
+						{#each parsed.parts as part, index}
+							<span>{part}</span>
+							{#if index < parsed.parts.length - 1}
+								<div class="relative mx-2 inline-block">
+									<Input
+										value={response.answers?.[index] || ''}
+										oninput={async (e) => {
+											const target = e.target as HTMLInputElement;
+											const newAnswers = [...(response.answers || [])];
+											newAnswers[index] = target.value;
+											const newResponse = { ...response, answers: newAnswers };
+											await onResponseUpdate(newResponse);
+										}}
+										disabled={viewMode !== ViewMode.ANSWER}
+										placeholder="Your answer"
+										class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
+											viewMode === ViewMode.ANSWER
+												? isAnswerCorrect()
+													? 'border-success shadow-sm'
+													: response.answers?.[index]
+														? 'border-destructive shadow-sm'
+														: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
 												: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
-										: 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
-								}`}
-								style="border-radius: 8px; padding: 8px 12px;"
-							/>
-						</div>
-						{#if parsed.after}
-							<span>{parsed.after}</span>
-						{/if}
+										}`}
+										style="border-radius: 8px; padding: 8px 12px;"
+									/>
+								</div>
+							{/if}
+						{/each}
 					</div>
 
 					{#if viewMode === ViewMode.ANSWER}
 						<p class="text-muted-foreground mt-4 text-sm">
-							Complete the sentence by filling in the blank.
+							Complete the sentence by filling in the blanks.
 						</p>
 					{/if}
 
@@ -158,7 +191,7 @@
 								<span class="font-medium">Incorrect</span>
 							</div>
 							<p class="text-destructive mt-1 text-sm">
-								The correct answer is: <strong>{config.answer}</strong>
+								The correct answers are: <strong>{config.answers.join(', ')}</strong>
 							</p>
 						</div>
 					{/if}
