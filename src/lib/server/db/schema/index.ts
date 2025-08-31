@@ -33,3 +33,6 @@ export * from './resource';
 
 // Event schemas
 export * from './events';
+
+// News schemas
+export * from './news';

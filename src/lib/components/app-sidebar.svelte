@@ -29,7 +29,8 @@
 	import LocationEdit from '@lucide/svelte/icons/location-edit';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import RouteIcon from '@lucide/svelte/icons/route';
-	import { BookOpenIcon } from '@lucide/svelte';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import NewsPaper from '@lucide/svelte/icons/newspaper';
 
 	const items = [
 		{
@@ -55,6 +56,12 @@
 			url: '/attendance',
 			icon: UsersIcon,
 			requiredPermission: userPermissions.viewGuardianAttendance
+		},
+		{
+			title: 'News',
+			url: '/news',
+			icon: NewsPaper,
+			requiredPermission: userPermissions.viewNews
 		}
 	];
 
@@ -101,7 +108,7 @@
 			title: 'Grades',
 			url: 'grades',
 			icon: BookOpenIcon,
-			classLevel: true,
+			classLevel: true
 		}
 	];
 
@@ -531,7 +538,9 @@
 							>
 								<Avatar.Root class="h-8 w-8 rounded-lg">
 									<Avatar.Image src={user.avatarUrl} alt={fullName} />
-									<Avatar.Fallback class="rounded-lg">{getInitials(user.firstName, user.lastName)}</Avatar.Fallback>
+									<Avatar.Fallback class="rounded-lg"
+										>{getInitials(user.firstName, user.lastName)}</Avatar.Fallback
+									>
 								</Avatar.Root>
 								<div class="grid flex-1 text-left text-sm leading-tight">
 									<span class="truncate font-medium">{fullName}</span>
@@ -551,7 +560,9 @@
 							<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar.Root class="h-8 w-8 rounded-lg">
 									<Avatar.Image src={user.avatarUrl} alt={fullName} />
-									<Avatar.Fallback class="rounded-lg">{getInitials(user.firstName, user.lastName)}</Avatar.Fallback>
+									<Avatar.Fallback class="rounded-lg"
+										>{getInitials(user.firstName, user.lastName)}</Avatar.Fallback
+									>
 								</Avatar.Root>
 								<div class="grid flex-1 text-left text-sm leading-tight">
 									<span class="truncate font-medium">{fullName}</span>

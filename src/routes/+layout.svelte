@@ -12,6 +12,7 @@
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import AiSidebar from '$lib/components/ai-sidebar.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let { children, data } = $props();
 
