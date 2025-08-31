@@ -59,7 +59,6 @@ Lachie
     - [ ] Graph/plot
     - [ ] Table
   - Written/English
-    - [ ] Short answer component
     - [ ] Highlight text (in the config choose whether to highlight right or wrong)
     - [ ] Extend fill blank block (needs to be able to handle multiple blanks)
     - [ ] Fill a sentence middle of text (criteria rather than right/wrong) (input box invisible/smaller)

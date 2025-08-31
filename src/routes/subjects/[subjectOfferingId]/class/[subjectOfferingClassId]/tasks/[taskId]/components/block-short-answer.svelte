@@ -1,0 +1,128 @@
+<script lang="ts">
+	import Label from '$lib/components/ui/label/label.svelte';
+	import * as Card from '$lib/components/ui/card';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import {
+		ViewMode,
+		type BlockShortAnswerConfig,
+		type ShortAnswerBlockProps
+	} from '$lib/schemas/taskSchema';
+
+	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: ShortAnswerBlockProps =
+		$props();
+
+	function saveChanges(input: BlockShortAnswerConfig) {
+		if (!input.question.trim()) {
+			alert('Question text is required');
+			return;
+		}
+
+		onConfigUpdate({
+			question: input.question.trim()
+		});
+	}
+</script>
+
+<div class="flex w-full flex-col gap-4">
+	{#if viewMode === ViewMode.CONFIGURE}
+		<Card.Root>
+			<Card.Header>
+				<Card.Title class="flex items-center gap-2">
+					<PenToolIcon class="h-4 w-4" />
+					Configure Short Answer Block
+				</Card.Title>
+			</Card.Header>
+			<Card.Content class="space-y-6">
+				<div class="space-y-2">
+					<Label for="question-text">Question</Label>
+					<Textarea
+						id="question-text"
+						value={config.question}
+						oninput={(e) => {
+							const value = (e.target as HTMLTextAreaElement)?.value;
+							saveChanges(value ? { ...config, question: value } : config);
+						}}
+						placeholder="Enter your question here..."
+						class="min-h-[80px] resize-none"
+					/>
+					<p class="text-muted-foreground text-xs">
+						Students will provide a written response to this question.
+					</p>
+				</div>
+
+				{#if config.question}
+					<div class="space-y-2">
+						<Label>Preview</Label>
+						<div class="dark:bg-input/30 border-input rounded-lg border bg-transparent p-4">
+							<div class="space-y-4">
+								<p class="text-lg font-medium">{config.question}</p>
+								<Textarea
+									placeholder="Student's answer will appear here..."
+									class="min-h-[120px] resize-none"
+									disabled
+								/>
+							</div>
+						</div>
+					</div>
+				{/if}
+			</Card.Content>
+		</Card.Root>
+	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}
+		{#if config.question}
+			<Card.Root>
+				<Card.Content class="space-y-4">
+					<div class="space-y-4">
+						<p class="text-lg font-medium">{config.question}</p>
+						<Textarea
+							value={response.answer}
+							onblur={async (e) => {
+								const target = e.target as HTMLTextAreaElement;
+								const newResponse = { ...response, answer: target.value };
+								await onResponseUpdate(newResponse);
+							}}
+							disabled={viewMode !== ViewMode.ANSWER}
+							placeholder="Type your answer here..."
+							class={`min-h-[120px] resize-none transition-all duration-200 ${
+								viewMode === ViewMode.ANSWER
+									? 'border-primary/30 focus:border-primary bg-background hover:border-primary/50 border-2 shadow-sm'
+									: 'border-input bg-background'
+							}`}
+						/>
+					</div>
+
+					{#if viewMode === ViewMode.ANSWER}
+						<p class="text-muted-foreground text-sm">
+							Provide a detailed written response to the question above.
+						</p>
+					{/if}
+
+					{#if viewMode === ViewMode.REVIEW}
+						<div class="mt-6 rounded-lg border p-4">
+							<div class="text-primary flex items-center gap-2">
+								<CheckCircleIcon class="h-5 w-5" />
+								<span class="font-medium">Response Submitted</span>
+							</div>
+							<p class="text-muted-foreground mt-1 text-sm">
+								This response will be reviewed and graded by the teacher.
+							</p>
+						</div>
+					{/if}
+				</Card.Content>
+			</Card.Root>
+		{:else}
+			<div class="flex h-48 w-full items-center justify-center rounded-lg border border-dashed">
+				<div class="text-center">
+					<PenToolIcon class="text-muted-foreground mx-auto h-12 w-12" />
+					<p class="text-muted-foreground mt-2 text-sm">No question created</p>
+					<p class="text-muted-foreground text-xs">
+						Switch to edit mode to create a short answer question
+					</p>
+				</div>
+			</div>
+		{/if}
+	{:else}
+		<!-- PRESENTATION MODE: Placeholder for presentation-specific rendering -->
+	{/if}
+</div>

@@ -44,11 +44,17 @@
 					<div class="grid gap-6">
 						<div class="grid gap-3">
 							<Label for="email">Email</Label>
-							<Input id="email" name="email" type="email" required />
+							<Input id="email" name="email" type="email" autocomplete="email" required />
 						</div>
 						<div class="grid gap-3">
 							<Label for="password">Password</Label>
-							<Input id="password" name="password" type="password" required />
+							<Input
+								id="password"
+								name="password"
+								type="password"
+								autocomplete="current-password"
+								required
+							/>
 						</div>
 						<Button type="submit" class="w-full">Login</Button>
 					</div>

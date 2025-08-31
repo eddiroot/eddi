@@ -5,7 +5,11 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { ViewMode, type FillBlankBlockProps } from '$lib/schemas/taskSchema';
+	import {
+		ViewMode,
+		type BlockFillBlankConfig,
+		type FillBlankBlockProps
+	} from '$lib/schemas/taskSchema';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: FillBlankBlockProps =
 		$props();
@@ -25,25 +29,25 @@
 		};
 	}
 
-	function saveChanges() {
-		if (!config.sentence.trim()) {
+	function saveChanges(input: BlockFillBlankConfig) {
+		if (!input.sentence.trim()) {
 			alert('Sentence text is required');
 			return;
 		}
 
-		if (!config.answer.trim()) {
+		if (!input.answer.trim()) {
 			alert('Correct answer is required');
 			return;
 		}
 
-		if (!config.sentence.includes('_____')) {
+		if (!input.sentence.includes('_____')) {
 			alert('Sentence must contain _____ to indicate where the blank should be');
 			return;
 		}
 
 		onConfigUpdate({
-			sentence: config.sentence.trim(),
-			answer: config.answer.trim()
+			sentence: input.sentence.trim(),
+			answer: input.answer.trim()
 		});
 	}
 </script>
@@ -63,7 +67,10 @@
 					<Textarea
 						id="sentence-text"
 						value={config.sentence}
-						onblur={saveChanges}
+						oninput={(e) => {
+							const value = (e.target as HTMLTextAreaElement)?.value;
+							saveChanges(value ? { ...config, sentence: value } : config);
+						}}
 						placeholder="Enter your sentence with _____ where the blank should be..."
 						class="min-h-[80px] resize-none"
 					/>
@@ -76,8 +83,11 @@
 					<Label for="correct-answer">Correct Answer</Label>
 					<Input
 						id="correct-answer"
-						bind:value={config.answer}
-						onblur={saveChanges}
+						value={config.answer}
+						oninput={(e) => {
+							const value = (e.target as HTMLInputElement)?.value;
+							saveChanges(value ? { ...config, answer: value } : config);
+						}}
 						placeholder="Enter the correct answer..."
 					/>
 				</div>

@@ -16,6 +16,7 @@
 	import BlockChoice from './components/block-choice.svelte';
 	import BlockFillBlank from './components/block-fill-blank.svelte';
 	import BlockMatching from './components/block-matching.svelte';
+	import BlockShortAnswer from './components/block-short-answer.svelte';
 
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
@@ -39,6 +40,7 @@
 		type BlockHeadingConfig,
 		type BlockMatchingConfig,
 		type BlockRichTextConfig,
+		type BlockShortAnswerConfig,
 		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
@@ -65,6 +67,8 @@
 				return { answer: '' };
 			case taskBlockTypeEnum.matching:
 				return { matches: [] };
+			case taskBlockTypeEnum.shortAnswer:
+				return { answer: '' };
 			default:
 				return {};
 		}
@@ -447,6 +451,15 @@
 							{:else if block.type === taskBlockTypeEnum.matching}
 								<BlockMatching
 									config={block.config as BlockMatchingConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
+									onResponseUpdate={async (response) =>
+										await handleResponseUpdate(block.id, response)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.shortAnswer}
+								<BlockShortAnswer
+									config={block.config as BlockShortAnswerConfig}
 									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>
