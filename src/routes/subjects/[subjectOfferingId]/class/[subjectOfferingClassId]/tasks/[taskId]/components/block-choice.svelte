@@ -40,8 +40,9 @@
 	async function toggleCorrect(option: string) {
 		const index = config.options.findIndex((opt) => opt.text === option);
 		if (index !== -1) {
-			config.options[index].isAnswer = !config.options[index].isAnswer;
-			onConfigUpdate(config);
+			const newConfig = { ...config };
+			newConfig.options[index].isAnswer = !newConfig.options[index].isAnswer;
+			await onConfigUpdate(newConfig);
 		}
 	}
 
@@ -71,8 +72,12 @@
 					<Textarea
 						id="question-text"
 						value={config.question}
-						onblur={async () => {
-							await onConfigUpdate(config);
+						oninput={(e) => {
+							const value = (e.target as HTMLTextAreaElement)?.value;
+							if (value !== undefined) {
+								const newConfig = { ...config, question: value };
+								onConfigUpdate(newConfig);
+							}
 						}}
 						placeholder="Enter your multiple choice question..."
 						class="min-h-[80px] resize-none"
@@ -86,8 +91,9 @@
 							size="sm"
 							variant="outline"
 							onclick={async () => {
-								config.options.push({ text: '', isAnswer: false });
-								await onConfigUpdate(config);
+								const newConfig = { ...config };
+								newConfig.options.push({ text: '', isAnswer: false });
+								await onConfigUpdate(newConfig);
 							}}
 						>
 							<PlusIcon class="h-4 w-4" />
@@ -118,9 +124,14 @@
 								<!-- Answer Text Input -->
 								<div class="flex-1">
 									<Input
-										bind:value={config.options[index].text}
-										onblur={async () => {
-											await onConfigUpdate(config);
+										value={config.options[index].text}
+										oninput={(e) => {
+											const value = (e.target as HTMLInputElement)?.value;
+											if (value !== undefined) {
+												const newConfig = { ...config };
+												newConfig.options[index].text = value;
+												onConfigUpdate(newConfig);
+											}
 										}}
 										placeholder={`Option ${index + 1}`}
 										class="w-full"
@@ -132,8 +143,9 @@
 										variant="destructive"
 										size="icon"
 										onclick={async () => {
-											config.options = config.options.filter((opt) => opt.text !== option.text);
-											onConfigUpdate(config);
+											const newConfig = { ...config };
+											newConfig.options = newConfig.options.filter((opt) => opt.text !== option.text);
+											await onConfigUpdate(newConfig);
 										}}
 									>
 										<TrashIcon />

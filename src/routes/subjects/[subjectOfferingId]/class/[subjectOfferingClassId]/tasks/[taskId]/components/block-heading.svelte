@@ -29,12 +29,13 @@
 	{#if viewMode === ViewMode.CONFIGURE}
 		<input
 			value={config.text}
-			onkeydown={(e) => {
-				if (e.key === 'Enter') {
-					onConfigUpdate(config);
+			oninput={(e) => {
+				const value = (e.target as HTMLInputElement)?.value;
+				if (value !== undefined) {
+					const newConfig = { ...config, text: value };
+					onConfigUpdate(newConfig);
 				}
 			}}
-			onblur={() => onConfigUpdate(config)}
 			class={getClassesBySize(config.size)}
 			placeholder="Enter heading text..."
 		/>

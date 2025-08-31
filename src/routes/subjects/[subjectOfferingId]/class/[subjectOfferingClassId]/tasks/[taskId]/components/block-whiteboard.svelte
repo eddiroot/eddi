@@ -88,8 +88,14 @@
 					<Label for="whiteboard-title">Whiteboard Title (Optional)</Label>
 					<Input
 						id="whiteboard-title"
-						bind:value={config.title}
-						onblur={saveChanges}
+						value={config.title}
+						oninput={(e) => {
+							const value = (e.target as HTMLInputElement)?.value;
+							if (value !== undefined) {
+								const newConfig = { ...config, title: value };
+								onConfigUpdate(newConfig);
+							}
+						}}
 						placeholder="Enter a title here"
 					/>
 				</div>

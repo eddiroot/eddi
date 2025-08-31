@@ -25,9 +25,10 @@
 
 	function updatePair(index: number, field: 'left' | 'right', value: string) {
 		if (index < 0 || index >= config.pairs.length) return;
-		const updatedPairs = [...config.pairs];
+		const newConfig = { ...config };
+		const updatedPairs = [...newConfig.pairs];
 		updatedPairs[index] = { ...updatedPairs[index], [field]: value };
-		const newConfig = { ...config, pairs: updatedPairs };
+		newConfig.pairs = updatedPairs;
 		onConfigUpdate(newConfig);
 	}
 </script>
@@ -43,9 +44,13 @@
 				<Label for="instructions">Instructions</Label>
 				<Textarea
 					id="instructions"
-					bind:value={config.instructions}
-					onblur={async () => {
-						await onConfigUpdate(config);
+					value={config.instructions}
+					oninput={(e) => {
+						const value = (e.target as HTMLTextAreaElement)?.value;
+						if (value !== undefined) {
+							const newConfig = { ...config, instructions: value };
+							onConfigUpdate(newConfig);
+						}
 					}}
 					placeholder="Enter instructions for the matching exercise..."
 					class="min-h-20"
@@ -67,9 +72,12 @@
 						<div class="flex-1">
 							<Label class="text-muted-foreground text-xs">Left Item</Label>
 							<Input
-								bind:value={pair.left}
-								onblur={async () => {
-									await onConfigUpdate(config);
+								value={pair.left}
+								oninput={(e) => {
+									const value = (e.target as HTMLInputElement)?.value;
+									if (value !== undefined) {
+										updatePair(index, 'left', value);
+									}
 								}}
 								placeholder="Left item..."
 								class="mt-1"
@@ -81,9 +89,12 @@
 						<div class="flex-1">
 							<Label class="text-muted-foreground text-xs">Right Item</Label>
 							<Input
-								bind:value={pair.right}
-								onblur={async () => {
-									await onConfigUpdate(config);
+								value={pair.right}
+								oninput={(e) => {
+									const value = (e.target as HTMLInputElement)?.value;
+									if (value !== undefined) {
+										updatePair(index, 'right', value);
+									}
 								}}
 								placeholder="Right item..."
 								class="mt-1"
