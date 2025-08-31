@@ -41,6 +41,7 @@
 - [x] Events appearing in everyone's timetables
 - [x] Basic security research and compliance documentation
 - [x] View students work on tasks
+- [x] Create school news & news feed
 
 ### Doing
 
@@ -54,6 +55,7 @@ All
 
 Lachie
 
+- [ ] Queue for email sending so it doesn't block requests
 - [ ] Class tests / quizzes
 - [ ] Add/refine current task blocks
   - Maths
@@ -108,7 +110,6 @@ Raph
 - [ ] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
   - fix table width issues
   - admin grade style option (percentage vs 0-8 scale)
-- [ ] Queue for email sending so it doesn't block requests
 
 Beej
 
@@ -120,22 +121,21 @@ Blake
 - [ ] Handling of multiple campuses
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
-- [ ] Create school news & news feed
 - [ ] Subject selection (see example lessons, choose your subjects as a student)
 - [ ] Fleshed out behavioural reporting (see toddle)
 
 Pending eddi study completion
 
-- [ ] Student note writing (30/08)
+- [ ] Student note writing
 - [ ] Complete LLM access to discussions + lessons
 - [ ] Lesson plans / teacher notes based on generated lesson
 - [ ] See teacher's feedback
 - [ ] AI feedback / assisted marking
 - [ ] Associate chatbot chats with the lesson/subject they were created in
-- [ ] Eddi tutor could be extended to help teachers with common eddi functionality (or action it for them through MCP servers)
 
 ### Future
 
+- [ ] eddi tutor extended to help teachers with common functionality (or action it for them through MCP servers)
 - [ ] Fees / breakdowns
 - [ ] Review breadcrumbs on all pages (e.g. attendance history)
 - [ ] News posts have a percentage of the students in the school who've seen/read it
@@ -169,10 +169,6 @@ Pending eddi study completion
 ### Done
 
 ### Doing
-
-Shippable by 31/08!
-
-Jack and Bella
 
 - [ ] Teach me (skills/lessons)
 - [ ] Train me
