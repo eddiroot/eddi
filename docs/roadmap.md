@@ -118,11 +118,11 @@ Beej
 
 Blake
 
+- [ ] Subject selection
 - [ ] Handling of multiple campuses
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
-- [ ] Subject selection (see example lessons, choose your subjects as a student)
-- [ ] Fleshed out behavioural reporting (see toddle)
+- [ ] Fleshed out behavioural reporting (see toddle) (new incident button on attendance page)
 
 Pending eddi study completion
 
@@ -135,6 +135,7 @@ Pending eddi study completion
 
 ### Future
 
+- [ ] See example lessons in subject selection
 - [ ] eddi tutor extended to help teachers with common functionality (or action it for them through MCP servers)
 - [ ] Fees / breakdowns
 - [ ] Review breadcrumbs on all pages (e.g. attendance history)
