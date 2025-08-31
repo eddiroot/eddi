@@ -28,444 +28,116 @@
 
 	let { data } = $props();
 
-	// Comprehensive mock data based on the designs
-	const mockData = {
-		// Student Performance Tab Data
-		studentPerformance: {
-			keyInsights: [
-				"2 students haven't turned in assignment 1",
-				"1 student hasn't visited your page in the past week"
-			],
-			currentAverage: 65,
-			currentAverageChange: 3,
-			gradeDistribution: [
-				{ grade: 'F', count: 1 },
-				{ grade: 'D', count: 1 },
-				{ grade: 'C-', count: 1 },
-				{ grade: 'C', count: 2 },
-				{ grade: 'C+', count: 3 },
-				{ grade: 'B-', count: 4 },
-				{ grade: 'B', count: 6 },
-				{ grade: 'B+', count: 8 },
-				{ grade: 'A-', count: 6 },
-				{ grade: 'A', count: 4 },
-				{ grade: 'A+', count: 2 }
-			],
-			students: [
-				{
-					id: '1',
-					firstName: 'Sam',
-					lastName: 'Smith',
-					avatarUrl: '/avatars/sam.jpg',
-					participation: 82,
-					participationCompletedCount: 8,
-					participationTotal: 10,
-					assignmentsCompleted: 75, // percentage
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 3,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 75,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 3,
-					lastActive: '< 1 day',
-					grade: 85
-				},
-				{
-					id: '2',
-					firstName: 'Emma',
-					lastName: 'Johnson',
-					avatarUrl: '/avatars/emma.jpg',
-					participation: 95,
-					participationCompletedCount: 10,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 100,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 4,
-					lastActive: '2 hours ago',
-					grade: 92
-				},
-				{
-					id: '3',
-					firstName: 'Michael',
-					lastName: 'Chen',
-					avatarUrl: '/avatars/michael.jpg',
-					participation: 60,
-					participationCompletedCount: 6,
-					participationTotal: 10,
-					assignmentsCompleted: 50,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 2,
-					lessonsCompleted: 83,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 5,
-					homeworkCompleted: 25,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 1,
-					lastActive: '3 days ago',
-					grade: 68
-				},
-				{
-					id: '4',
-					firstName: 'Sarah',
-					lastName: 'Davis',
-					avatarUrl: '/avatars/sarah.jpg',
-					participation: 88,
-					participationCompletedCount: 9,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 75,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 3,
-					lastActive: '1 day ago',
-					grade: 88
-				},
-				{
-					id: '5',
-					firstName: 'David',
-					lastName: 'Wilson',
-					avatarUrl: '/avatars/david.jpg',
-					participation: 40,
-					participationCompletedCount: 4,
-					participationTotal: 10,
-					assignmentsCompleted: 25,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 1,
-					lessonsCompleted: 67,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 4,
-					homeworkCompleted: 0,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 0,
-					lastActive: '1 week ago',
-					grade: 45
-				},
-				{
-					id: '6',
-					firstName: 'Lisa',
-					lastName: 'Martinez',
-					avatarUrl: '/avatars/lisa.jpg',
-					participation: 97,
-					participationCompletedCount: 10,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 100,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 4,
-					lastActive: '3 hours ago',
-					grade: 95
-				},
-				{
-					id: '7',
-					firstName: 'James',
-					lastName: 'Brown',
-					avatarUrl: '/avatars/james.jpg',
-					participation: 70,
-					participationCompletedCount: 7,
-					participationTotal: 10,
-					assignmentsCompleted: 75,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 3,
-					lessonsCompleted: 83,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 5,
-					homeworkCompleted: 50,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 2,
-					lastActive: '2 days ago',
-					grade: 73
-				},
-				{
-					id: '8',
-					firstName: 'Ashley',
-					lastName: 'Taylor',
-					avatarUrl: '/avatars/ashley.jpg',
-					participation: 92,
-					participationCompletedCount: 9,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 100,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 4,
-					lastActive: '5 hours ago',
-					grade: 90
-				}
-			]
-		},
+	const analyticsData = data.analyticsData;
 
-		// Task Analytics Tab Data
-		taskAnalytics: {
-			keyInsights: [
-				'Your most used lesson component used to question is the fill in the blank block',
-				'Your students on average score best on the multiple choice block'
-			],
-			submissionsDue: 7,
-			avgGradeOverTime: [
-				{ lesson: 'Week 1', grade: 58 },
-				{ lesson: 'Week 2', grade: 65 },
-				{ lesson: 'Week 3', grade: 62 },
-				{ lesson: 'Week 4', grade: 72 },
-				{ lesson: 'Week 5', grade: 68 },
-				{ lesson: 'Week 6', grade: 78 },
-				{ lesson: 'Week 7', grade: 75 },
-				{ lesson: 'Week 8', grade: 82 },
-				{ lesson: 'Week 9', grade: 79 },
-				{ lesson: 'Week 10', grade: 85 },
-				{ lesson: 'Week 11', grade: 83 },
-				{ lesson: 'Week 12', grade: 88 }
-			],
-			tasks: [
-				{
-					id: 'assignment-1',
-					name: 'Assignment 1',
-					type: 'assessment',
-					studentsCompleted: 100,
-					totalStudents: 21,
-					completedCount: 21,
-					averageGrade: 65,
-					totalGrade: 40,
-					gradeCount: 26,
-					averageTime: '58 Minutes',
-					weight: 10,
-					dueDate: '2025-08-17', // was '1 week ago'
-					status: 'completed'
-				},
-				{
-					id: 'lesson-1',
-					name: 'Lesson 1',
-					type: 'lesson',
-					studentsCompleted: 67,
-					totalStudents: 21,
-					completedCount: 14,
-					averageGrade: 83,
-					totalGrade: 40,
-					gradeCount: 33,
-					averageTime: '22 Minutes',
-					weight: 5,
-					dueDate: '2025-08-25', // was 'In 1 day'
-					status: 'due'
-				},
-				{
-					id: 'quiz-1',
-					name: 'Quiz 1',
-					type: 'assessment',
-					studentsCompleted: 95,
-					totalStudents: 21,
-					completedCount: 20,
-					averageGrade: 78,
-					totalGrade: 40,
-					gradeCount: 31,
-					averageTime: '15 Minutes',
-					weight: 15,
-					dueDate: '2025-08-21', // was '3 days ago'
-					status: 'completed'
-				},
-				{
-					id: 'assignment-2',
-					name: 'Assignment 2',
-					type: 'assessment',
-					studentsCompleted: 81,
-					totalStudents: 21,
-					completedCount: 17,
-					averageGrade: 72,
-					totalGrade: 40,
-					gradeCount: 29,
-					averageTime: '45 Minutes',
-					weight: 12,
-					dueDate: '2025-08-27', // was 'In 3 days'
-					status: 'due'
-				},
-				{
-					id: 'lesson-2',
-					name: 'Lesson 2',
-					type: 'lesson',
-					studentsCompleted: 76,
-					totalStudents: 21,
-					completedCount: 16,
-					averageGrade: 85,
-					totalGrade: 40,
-					gradeCount: 34,
-					averageTime: '28 Minutes',
-					weight: 5,
-					dueDate: '2025-08-22', // was '2 days ago'
-					status: 'completed'
-				},
-				{
-					id: 'homework-1',
-					name: 'Homework 1',
-					type: 'homework',
-					studentsCompleted: 54,
-					totalStudents: 21,
-					completedCount: 11,
-					averageGrade: 74,
-					totalGrade: 40,
-					gradeCount: 30,
-					averageTime: '35 Minutes',
-					weight: 8,
-					dueDate: '2025-08-24',
-					status: 'due'
-				},
-				{
-					id: 'project-proposal',
-					name: 'Project Proposal',
-					type: 'assessment',
-					studentsCompleted: 38,
-					totalStudents: 21,
-					completedCount: 8,
-					averageGrade: 88,
-					totalGrade: 40,
-					gradeCount: 35,
-					averageTime: '2 Hours',
-					weight: 25,
-					dueDate: '2025-08-31', // was 'In 1 week'
-					status: 'due'
-				}
-			]
-		},
+	const mockData = data.mockData;
 
-		// Discussion Analytics Tab Data
-		discussionAnalytics: {
-			keyInsights: [
-				'The average response time on your discussion forum is 123 minutes',
-				'There are 2 unanswered questions'
-			],
-			viewsOnLastAnnouncement: { views: 19, total: 21 },
-			postsOverTime: [
-				{ week: 'Jan W1', posts: 3 },
-				{ week: 'Jan W2', posts: 5 },
-				{ week: 'Jan W3', posts: 8 },
-				{ week: 'Jan W4', posts: 12 },
-				{ week: 'Feb W1', posts: 15 },
-				{ week: 'Feb W2', posts: 18 },
-				{ week: 'Feb W3', posts: 22 },
-				{ week: 'Feb W4', posts: 25 },
-				{ week: 'Mar W1', posts: 28 },
-				{ week: 'Mar W2', posts: 32 },
-				{ week: 'Mar W3', posts: 29 },
-				{ week: 'Mar W4', posts: 35 },
-				{ week: 'Apr W1', posts: 38 },
-				{ week: 'Apr W2', posts: 42 },
-				{ week: 'Apr W3', posts: 45 },
-				{ week: 'Apr W4', posts: 48 }
-			],
-			students: [
-				{
-					id: '1',
-					firstName: 'Sam',
-					lastName: 'Smith',
-					avatarUrl: '/avatars/sam.jpg',
-					questionsPosted: 7,
-					questionsAnswered: 15,
-					totalContributions: 22,
-					lastActive: '< 1 day'
-				},
-				{
-					id: '2',
-					firstName: 'Emma',
-					lastName: 'Johnson',
-					avatarUrl: '/avatars/emma.jpg',
-					questionsPosted: 12,
-					questionsAnswered: 23,
-					totalContributions: 35,
-					lastActive: '2 hours ago'
-				},
-				{
-					id: '3',
-					firstName: 'Michael',
-					lastName: 'Chen',
-					avatarUrl: '/avatars/michael.jpg',
-					questionsPosted: 3,
-					questionsAnswered: 8,
-					totalContributions: 11,
-					lastActive: '3 days ago'
-				},
-				{
-					id: '4',
-					firstName: 'Sarah',
-					lastName: 'Davis',
-					avatarUrl: '/avatars/sarah.jpg',
-					questionsPosted: 9,
-					questionsAnswered: 18,
-					totalContributions: 27,
-					lastActive: '1 day ago'
-				},
-				{
-					id: '5',
-					firstName: 'David',
-					lastName: 'Wilson',
-					avatarUrl: '/avatars/david.jpg',
-					questionsPosted: 1,
-					questionsAnswered: 2,
-					totalContributions: 3,
-					lastActive: '1 week ago'
-				},
-				{
-					id: '6',
-					firstName: 'Lisa',
-					lastName: 'Martinez',
-					avatarUrl: '/avatars/lisa.jpg',
-					questionsPosted: 15,
-					questionsAnswered: 28,
-					totalContributions: 43,
-					lastActive: '3 hours ago'
-				},
-				{
-					id: '7',
-					firstName: 'James',
-					lastName: 'Brown',
-					avatarUrl: '/avatars/james.jpg',
-					questionsPosted: 5,
-					questionsAnswered: 12,
-					totalContributions: 17,
-					lastActive: '2 days ago'
-				},
-				{
-					id: '8',
-					firstName: 'Ashley',
-					lastName: 'Taylor',
-					avatarUrl: '/avatars/ashley.jpg',
-					questionsPosted: 8,
-					questionsAnswered: 20,
-					totalContributions: 28,
-					lastActive: '5 hours ago'
-				}
-			]
+	function mergeArraysUnique(base: string[], extra: string[]) {
+		const set = new Set(base);
+		for (const x of extra) if (!set.has(x)) base.push(x);
+		return base;
+	}
+
+	function mergeAnalytics(mock: typeof mockData, real: typeof analyticsData) {
+		// Student Performance
+		const realSP = real.studentPerformance;
+		const mockSP = mock.studentPerformance;
+		// Build merged student list: start with real (enriched), then append any mock-only students
+		const realByName = new Map<string, any>();
+		for (const rs of realSP.students || []) {
+			realByName.set(`${rs.firstName}|${rs.lastName}`.toLowerCase(), rs);
 		}
-	};
+		const mergedStudents = (realSP.students || []).map((rs: any) => {
+			const match = mockSP.students.find(
+				(ms) => ms.firstName === rs.firstName && ms.lastName === rs.lastName
+			);
+			return { ...match, ...rs };
+		});
+		for (const ms of mockSP.students) {
+			const key = `${ms.firstName}|${ms.lastName}`.toLowerCase();
+			if (!realByName.has(key)) mergedStudents.push(ms);
+		}
+		const sp = {
+			keyInsights: mergeArraysUnique([...mockSP.keyInsights], realSP.keyInsights || []),
+			currentAverage: realSP.currentAverage ?? mockSP.currentAverage,
+			currentAverageChange: realSP.currentAverageChange ?? mockSP.currentAverageChange,
+			students: mergedStudents as any
+		};
 
-	// Chart configurations
+		// Task Analytics
+		const realTA = real.taskAnalytics;
+		const mockTA = mock.taskAnalytics;
+		const tasks = realTA.tasks?.length
+			? realTA.tasks.map((rt) => {
+					const match = mockTA.tasks.find((mt) => mt.name === rt.name || mt.id === rt.id);
+					return {
+						...match,
+						...rt,
+						averageTime: rt.averageTime || match?.averageTime || '—',
+						weight: rt.weight ?? match?.weight ?? 10
+					};
+				})
+			: mockTA.tasks;
+		const ta = {
+			keyInsights: mergeArraysUnique([...mockTA.keyInsights], realTA.keyInsights || []),
+			submissionsDue: realTA.submissionsDue ?? mockTA.submissionsDue,
+			avgGradeOverTime: realTA.avgGradeOverTime?.length
+				? realTA.avgGradeOverTime
+				: mockTA.avgGradeOverTime,
+			tasks
+		};
+
+		// Discussion Analytics
+		const realDA = real.discussionAnalytics;
+		const mockDA = mock.discussionAnalytics;
+		const realHasActivity = realDA.students.some(
+			(s) => (s.questionsPosted || 0) + (s.questionsAnswered || 0) + (s.totalContributions || 0) > 0
+		);
+		const da = realHasActivity
+			? {
+					keyInsights: mergeArraysUnique([...mockDA.keyInsights], realDA.keyInsights || []),
+					viewsOnLastAnnouncement: realDA.viewsOnLastAnnouncement,
+					postsOverTime: realDA.postsOverTime?.length ? realDA.postsOverTime : mockDA.postsOverTime,
+					students: realDA.students.map((rs) => {
+						const match = mockDA.students.find(
+							(ms) => ms.firstName === rs.firstName && ms.lastName === rs.lastName
+						);
+						return { ...match, ...rs };
+					})
+				}
+			: mockDA;
+
+		return { studentPerformance: sp, taskAnalytics: ta, discussionAnalytics: da };
+	}
+
+	const combinedData = mergeAnalytics(mockData, analyticsData);
+
+	// Chart configs
 	const gradeDistributionConfig = {
 		count: { label: 'Students', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
 
+	const computedGradeDistribution = $derived(() => {
+		const bins = [
+			{ label: 'F', min: 0, max: 39, count: 0 },
+			{ label: 'E', min: 40, max: 49, count: 0 },
+			{ label: 'D', min: 50, max: 59, count: 0 },
+			{ label: 'C', min: 60, max: 69, count: 0 },
+			{ label: 'B', min: 70, max: 79, count: 0 },
+			{ label: 'A', min: 80, max: 100, count: 0 }
+		];
+		for (const s of combinedData.studentPerformance.students) {
+			const g = typeof s.grade === 'number' ? s.grade : 0;
+			const bin = bins.find((b) => g >= b.min && g <= b.max);
+			if (bin) bin.count += 1;
+		}
+		return bins.map((b) => ({ grade: b.label, count: b.count }));
+	});
 	const gradeOverTimeConfig = {
 		grade: { label: 'Average Grade', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
-
 	function taskGradesByDueDate() {
-		return [...mockData.taskAnalytics.tasks]
+		return [...combinedData.taskAnalytics.tasks]
 			.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 			.map((t, idx) => ({
 				order: idx + 1,
@@ -475,19 +147,31 @@
 				grade: t.averageGrade
 			}));
 	}
-
 	const postsOverTimeConfig = {
 		posts: { label: 'Posts', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
-
 	let activeTab = $state('student-performance');
 
-	// Hardcoded breakdown values (placeholder)
-	const spBreakdown = {
-		assignments: 85,
-		homework: 80,
-		participation: 89
-	};
+	const spActualAverage = $derived(() => {
+		const students = combinedData.studentPerformance.students;
+		if (!students.length) return 0;
+		const total = students.reduce((sum: number, s: any) => sum + (s.grade || 0), 0);
+		return Math.round(total / students.length);
+	});
+
+	const spBreakdown = $derived(() => {
+		const students = combinedData.studentPerformance.students;
+		if (!students.length) return { assignments: 0, homework: 0, participation: 0 };
+		const avg = (key: string) =>
+			Math.round(
+				students.reduce((sum: number, s: any) => sum + (s[key] || 0), 0) / students.length
+			);
+		return {
+			assignments: avg('assignmentsCompleted'),
+			homework: avg('homeworkCompleted'),
+			participation: avg('participation')
+		};
+	});
 
 	// ------- Shared helpers for filters/sorting -------
 	function parseLastActiveToDays(s: string): number {
@@ -558,9 +242,11 @@
 	}
 
 	let spFilteredStudents = $derived(() => {
-		const students = mockData.studentPerformance.students.filter((s) => inSelectedBand(s.grade));
+		const students = combinedData.studentPerformance.students.filter((s: any) =>
+			inSelectedBand(s.grade)
+		);
 		const dir = spSortDir === 'asc' ? 1 : -1;
-		return [...students].sort((a, b) => {
+		return [...students].sort((a: any, b: any) => {
 			const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
 			const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
 			if (spSortKey === 'name') return (nameA < nameB ? -1 : nameA > nameB ? 1 : 0) * dir;
@@ -570,7 +256,6 @@
 				return (a.assignmentsCompleted - b.assignmentsCompleted) * dir;
 			if (spSortKey === 'lessons') return (a.lessonsCompleted - b.lessonsCompleted) * dir;
 			if (spSortKey === 'homework') return (a.homeworkCompleted - b.homeworkCompleted) * dir;
-			// lastActive: smaller days = more recent
 			const da = parseLastActiveToDays(a.lastActive);
 			const db = parseLastActiveToDays(b.lastActive);
 			return (da - db) * dir;
@@ -579,11 +264,105 @@
 
 	// Median grade (integer) across all students
 	let spMedianGrade = $derived(() => {
-		const grades = mockData.studentPerformance.students.map((s) => s.grade).sort((a, b) => a - b);
+		const grades = combinedData.studentPerformance.students
+			.map((s: any) => s.grade)
+			.sort((a: number, b: number) => a - b);
 		const n = grades.length;
 		if (!n) return 0;
 		if (n % 2 === 1) return grades[(n - 1) / 2];
 		return Math.round((grades[n / 2 - 1] + grades[n / 2]) / 2);
+	});
+
+	// ---------------- Dynamic Key Insights (max 4 each) ----------------
+	function limit4(list: string[]) {
+		return list.filter(Boolean).slice(0, 4);
+	}
+
+	const studentPerformanceInsights = $derived(() => {
+		const insights: string[] = [];
+		const students = combinedData.studentPerformance.students;
+		if (!students.length) return insights;
+		// 1. Low participation (<60%) if more than 5 lessons (we don't have lessons count per student beyond lessonsTotal; treat lessonsTotal as number of lessons so far if >5)
+		const lowPart = students.filter(
+			(s: any) => (s.participation || 0) < 60 && (s.lessonsTotal || 0) > 5
+		).length;
+		if (lowPart >= 1)
+			insights.push(`${lowPart} student${lowPart === 1 ? '' : 's'} have low participation (<60%)`);
+		// 2. Last active over 1 week ago
+		const inactive = students.filter((s: any) => {
+			const days = parseLastActiveToDays(s.lastActive || '');
+			return days > 7;
+		}).length;
+		if (inactive >= 1)
+			insights.push(
+				`${inactive} student${inactive === 1 ? '' : 's'} were last active over 1 week ago`
+			);
+		// 3. Low grades (<50%)
+		const lowGrades = students.filter((s: any) => (s.grade || 0) < 50).length;
+		if (lowGrades >= 1)
+			insights.push(`${lowGrades} student${lowGrades === 1 ? '' : 's'} have low grades (<50%)`);
+		// 4. High participation correlation: students with >=90% participation average X% higher grades than others; show if X>=5%
+		const highPartStudents = students.filter((s: any) => (s.participation || 0) >= 90);
+		const otherStudents = students.filter((s: any) => (s.participation || 0) < 90);
+		if (highPartStudents.length && otherStudents.length) {
+			const avg = (arr: any[]) => arr.reduce((sum, s: any) => sum + (s.grade || 0), 0) / arr.length;
+			const highAvg = avg(highPartStudents);
+			const otherAvg = avg(otherStudents) || 0;
+			const diff = Math.round(highAvg - otherAvg);
+			if (diff >= 5)
+				insights.push(
+					`Students with >= 90% participation average ${diff}% higher grades than those with < 90% participation`
+				);
+		}
+		return limit4(insights);
+	});
+
+	const taskAnalyticsInsights = $derived(() => {
+		const insights: string[] = [];
+		const tasks = combinedData.taskAnalytics.tasks;
+		if (!tasks.length) return insights;
+		const now = new Date();
+		const msPerDay = 86400000;
+		const dueSoon = tasks.filter((t) => {
+			const d = new Date(t.dueDate);
+			const diff = (d.getTime() - now.getTime()) / msPerDay;
+			return diff >= 0 && diff <= 7;
+		}).length;
+		if (dueSoon > 0) insights.push(`${dueSoon} task${dueSoon === 1 ? '' : 's'} due in next 7 days`);
+		const overdue = tasks.filter(
+			(t) => new Date(t.dueDate) < now && t.status !== 'completed'
+		).length;
+		if (overdue > 0) insights.push(`${overdue} overdue task${overdue === 1 ? '' : 's'}`);
+		const avgCompletion = Math.round(
+			tasks.reduce((sum, t) => sum + (t.studentsCompleted || 0), 0) / tasks.length
+		);
+		insights.push(`Avg completion ${avgCompletion}%`);
+		const pending = tasks.filter((t) => t.status === 'due').length;
+		if (pending > 0) insights.push(`${pending} pending grading`);
+		return limit4(insights);
+	});
+
+	const discussionAnalyticsInsights = $derived(() => {
+		const insights: string[] = [];
+		const students = combinedData.discussionAnalytics.students;
+		if (!students.length) return insights;
+		// Approximate unanswered questions: total questionsPosted - total answers (cannot go below 0)
+		const totalPosted = students.reduce((s, st) => s + (st.questionsPosted || 0), 0);
+		const totalAnswered = students.reduce((s, st) => s + (st.questionsAnswered || 0), 0);
+		const unanswered = Math.max(0, totalPosted - totalAnswered);
+		if (unanswered >= 1)
+			insights.push(
+				`There ${unanswered === 1 ? 'is' : 'are'} ${unanswered} unanswered question${unanswered === 1 ? '' : 's'}`
+			);
+		const active = students.filter((s) => (s.totalContributions || 0) > 0).length;
+		if (active > 0) insights.push(`${active} active contributor${active === 1 ? '' : 's'}`);
+		const lowActivity = students.filter((s) => (s.totalContributions || 0) === 0).length;
+		if (lowActivity > 0) insights.push(`${lowActivity} with no contributions`);
+		const avgContrib = active
+			? Math.round(students.reduce((sum, s) => sum + (s.totalContributions || 0), 0) / active)
+			: 0;
+		if (avgContrib > 0) insights.push(`Avg contributions ${avgContrib}/active student`);
+		return limit4(insights);
 	});
 
 	// ------- Task Analytics table controls -------
@@ -624,7 +403,7 @@
 	}
 
 	let taFilteredTasks = $derived(() => {
-		let tasks = mockData.taskAnalytics.tasks;
+		let tasks = combinedData.taskAnalytics.tasks;
 		// type filter first
 		if (taSelectedTypes.size > 0) {
 			tasks = tasks.filter((t) => taSelectedTypes.has(t.type as any));
@@ -646,22 +425,18 @@
 		});
 	});
 
-	// Next task due (earliest future dueDate or soonest past-due if none upcoming)
+	// Next task due
 	let nextTaskDue = $derived(() => {
 		const now = new Date();
-		const tasks = mockData.taskAnalytics.tasks.map((t) => ({ ...t, date: new Date(t.dueDate) }));
-		const future = tasks
-			.filter((t) => t.date >= now)
+		const future = combinedData.taskAnalytics.tasks
+			.map((t) => ({ ...t, date: new Date(t.dueDate) }))
+			.filter((t) => t.date.getTime() > now.getTime())
 			.sort((a, b) => a.date.getTime() - b.date.getTime());
-		const target = future[0] || tasks.sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+		const target = future[0];
 		if (!target) return null;
 		const msPerDay = 1000 * 60 * 60 * 24;
 		const rawDiff = Math.ceil((target.date.getTime() - now.getTime()) / msPerDay);
-		return {
-			...target,
-			daysLeft: rawDiff,
-			isPast: rawDiff < 0
-		};
+		return { ...target, daysLeft: rawDiff, isPast: false };
 	});
 
 	function taTypeVariant(type: string): 'default' | 'secondary' | 'destructive' | 'outline' {
@@ -688,7 +463,7 @@
 	let daSortDir = $state<SortDir>('desc');
 
 	let daFilteredStudents = $derived(() => {
-		let students = mockData.discussionAnalytics.students; // no activity filtering
+		let students = combinedData.discussionAnalytics.students; // no activity filtering
 		const dir = daSortDir === 'asc' ? 1 : -1;
 		return [...students].sort((a, b) => {
 			const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
@@ -729,7 +504,7 @@
 						<Card.Title class="text-base">Key Insights</Card.Title>
 					</Card.Header>
 					<Card.Content class="space-y-2">
-						{#each mockData.studentPerformance.keyInsights as insight}
+						{#each studentPerformanceInsights() as insight}
 							<div class="flex items-start gap-2">
 								<AlertCircleIcon class="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
 								<p class="text-muted-foreground text-sm">{insight}</p>
@@ -747,18 +522,19 @@
 						<!-- Average -->
 						<div class="space-y-4">
 							<div class="text-4xl leading-none font-bold">
-								{mockData.studentPerformance.currentAverage}%
+								{spActualAverage()}%
 							</div>
-							{#if mockData.studentPerformance.currentAverageChange !== undefined}
+							{#if combinedData.studentPerformance.currentAverageChange !== undefined}
 								<div class="flex items-center gap-1 text-sm font-medium">
-									{#if mockData.studentPerformance.currentAverageChange > 0}
+									{#if combinedData.studentPerformance.currentAverageChange > 0}
 										<TrendingUp class="h-4 w-4 text-green-600" />
-									{:else if mockData.studentPerformance.currentAverageChange < 0}
+									{:else if combinedData.studentPerformance.currentAverageChange < 0}
 										<TrendingDown class="h-4 w-4 text-red-600" />
 									{/if}
 									<span class="text-muted-foreground">
-										{mockData.studentPerformance.currentAverageChange > 0 ? '+' : ''}{mockData
-											.studentPerformance.currentAverageChange}% from last week
+										{combinedData.studentPerformance.currentAverageChange > 0
+											? '+'
+											: ''}{combinedData.studentPerformance.currentAverageChange}% from last week
 									</span>
 								</div>
 							{/if}
@@ -766,7 +542,7 @@
 						</div>
 						<!-- Breakdown with progress bars -->
 						<div class="space-y-4">
-							{#each [{ label: 'Assignments', value: spBreakdown.assignments }, { label: 'Homework', value: spBreakdown.homework }, { label: 'Participation', value: spBreakdown.participation }] as part}
+							{#each [{ label: 'Assignments', value: spBreakdown().assignments }, { label: 'Homework', value: spBreakdown().homework }, { label: 'Participation', value: spBreakdown().participation }] as part}
 								<div class="space-y-1">
 									<div class="flex items-center justify-between text-sm">
 										<span>{part.label}</span>
@@ -787,7 +563,7 @@
 					<Card.Content>
 						<Chart.Container config={gradeDistributionConfig} class="aspect-auto h-[150px] w-full">
 							<BarChart
-								data={mockData.studentPerformance.gradeDistribution}
+								data={computedGradeDistribution()}
 								x="grade"
 								series={[
 									{
@@ -1045,7 +821,8 @@
 						</Table.Root>
 					</div>
 					<div class="text-muted-foreground mt-2 flex justify-end text-sm">
-						Showing {spFilteredStudents().length} of {mockData.studentPerformance.students.length} students
+						Showing {spFilteredStudents().length} of {combinedData.studentPerformance.students
+							.length} students
 					</div>
 				</Card.Content>
 			</Card.Root>
@@ -1061,7 +838,7 @@
 						<Card.Title class="text-base">Key Insights</Card.Title>
 					</Card.Header>
 					<Card.Content class="space-y-2">
-						{#each mockData.taskAnalytics.keyInsights as insight}
+						{#each taskAnalyticsInsights() as insight}
 							<div class="flex items-start gap-2">
 								<AlertCircleIcon class="text-primary mt-0.5 h-4 w-4 flex-shrink-0" />
 								<p class="text-muted-foreground text-sm">{insight}</p>
@@ -1438,7 +1215,7 @@
 						</Table.Root>
 					</div>
 					<div class="text-muted-foreground mt-2 flex justify-end text-sm">
-						Showing {taFilteredTasks().length} of {mockData.taskAnalytics.tasks.length} tasks
+						Showing {taFilteredTasks().length} of {combinedData.taskAnalytics.tasks.length} tasks
 					</div>
 				</Card.Content>
 			</Card.Root>
@@ -1454,7 +1231,7 @@
 						<Card.Title class="text-base">Key Insights</Card.Title>
 					</Card.Header>
 					<Card.Content class="space-y-2">
-						{#each mockData.discussionAnalytics.keyInsights as insight}
+						{#each discussionAnalyticsInsights() as insight}
 							<div class="flex items-start gap-2">
 								<MessageSquareIcon class="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
 								<p class="text-muted-foreground text-sm">{insight}</p>
@@ -1469,7 +1246,7 @@
 						<Card.Title class="text-base">Views on Last Announcement</Card.Title>
 					</Card.Header>
 					<Card.Content class="space-y-3 py-2">
-						{@const v = mockData.discussionAnalytics.viewsOnLastAnnouncement}
+						{@const v = combinedData.discussionAnalytics.viewsOnLastAnnouncement}
 						{@const percent = Math.round((v.views / v.total) * 100)}
 						<div class="flex items-center justify-between">
 							<div>
@@ -1493,7 +1270,7 @@
 					<Card.Content>
 						<Chart.Container config={postsOverTimeConfig} class="aspect-auto h-[150px] w-full">
 							<BarChart
-								data={mockData.discussionAnalytics.postsOverTime}
+								data={combinedData.discussionAnalytics.postsOverTime}
 								x="week"
 								series={[
 									{
@@ -1676,7 +1453,8 @@
 						</Table.Root>
 					</div>
 					<div class="text-muted-foreground mt-2 flex justify-end text-sm">
-						Showing {daFilteredStudents().length} of {mockData.discussionAnalytics.students.length} students
+						Showing {daFilteredStudents().length} of {combinedData.discussionAnalytics.students
+							.length} students
 					</div>
 				</Card.Content>
 			</Card.Root>

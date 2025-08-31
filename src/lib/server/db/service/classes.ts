@@ -458,3 +458,26 @@ export async function getStudentAttendanceHistoryForClass(
 
 	return attendanceHistory;
 }
+
+export async function getStudentsBySubjectOfferingClassId(subjectOfferingClassId: number) {
+	const students = await db
+		.select({
+			id: table.user.id,
+			firstName: table.user.firstName,
+			lastName: table.user.lastName,
+			email: table.user.email,
+			avatarUrl: table.user.avatarUrl
+		})
+		.from(table.userSubjectOfferingClass)
+		.innerJoin(table.user, eq(table.user.id, table.userSubjectOfferingClass.userId))
+		.where(
+			and(
+				eq(table.userSubjectOfferingClass.subOffClassId, subjectOfferingClassId),
+				eq(table.user.type, userTypeEnum.student),
+				eq(table.userSubjectOfferingClass.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+
+	return students;
+}
