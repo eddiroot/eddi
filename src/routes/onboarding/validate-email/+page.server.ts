@@ -38,7 +38,7 @@ export const actions = {
 
 		const code = String(randomInt(100000, 1000000));
 		await updateUserVerificationCode(user.id, code);
-		await sendEmailVerification(user.email, code);
+		sendEmailVerification(user.email, code);
 
 		return { success: true };
 	}

@@ -23,8 +23,8 @@ interface SendEmailParams {
 	html: string;
 }
 
-export async function sendEmail({ to, subject, text, html }: SendEmailParams) {
-	await transporter.sendMail({
+export function sendEmail({ to, subject, text, html }: SendEmailParams) {
+	transporter.sendMail({
 		from: '',
 		to,
 		subject,
@@ -33,8 +33,8 @@ export async function sendEmail({ to, subject, text, html }: SendEmailParams) {
 	});
 }
 
-export async function sendEmailVerification(to: string, code: string): Promise<string> {
-	await transporter.sendMail({
+export function sendEmailVerification(to: string, code: string): string {
+	transporter.sendMail({
 		from: '"eddi" <no-reply@eddi.com>',
 		to,
 		subject: 'Your verification code',
@@ -121,7 +121,7 @@ export async function sendAbsenceEmail(
 		day: '2-digit'
 	});
 
-	await sendEmail({
+	sendEmail({
 		to,
 		subject: `Absence Notification for ${studentName}`,
 		text: `Dear Guardian,\n\nThis is to inform you that your child, ${studentName}, was absent from class ${className} on ${formattedDate}.\n\nBest regards,\nThe eddi Team`,

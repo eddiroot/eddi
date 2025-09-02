@@ -63,7 +63,7 @@ export const actions = {
 					const today = new Date();
 
 					for (const guardianData of guardians) {
-						await sendAbsenceEmail(guardianData.guardian.email, studentName, className, today);
+						sendAbsenceEmail(guardianData.guardian.email, studentName, className, today);
 					}
 				}
 			}

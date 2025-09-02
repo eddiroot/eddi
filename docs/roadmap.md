@@ -55,7 +55,6 @@ All
 
 Lachie
 
-- [ ] Queue for email sending so it doesn't block requests
 - [ ] Class tests / quizzes
 - [ ] Add/refine current task blocks
   - Maths

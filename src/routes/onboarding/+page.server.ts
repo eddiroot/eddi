@@ -58,7 +58,7 @@ export const actions = {
 			middleName: form.data.middleName
 		});
 
-		await sendEmailVerification(user.email, verificationCode);
+		sendEmailVerification(user.email, verificationCode);
 
 		cookies.set('verify_user_id', user.id, {
 			path: '/',
