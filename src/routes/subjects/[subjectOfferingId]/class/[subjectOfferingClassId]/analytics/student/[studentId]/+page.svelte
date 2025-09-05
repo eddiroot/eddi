@@ -12,7 +12,7 @@
 	let { data } = $props();
 
 	// Use student data from server for breadcrumb, with additional mock data for display
-    // TODO: get this data from the server
+	// TODO: get this data from the server
 	const studentData = {
 		name: `${data.student.firstName} ${data.student.lastName}`,
 		avatar: data.student.avatarUrl,
@@ -65,9 +65,9 @@
 	<div class="flex items-center gap-4">
 		<a
 			href={`/subjects/${data.subject.id}/class/${data.subjectOfferingClassId}/analytics`}
-			class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+			class="text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors"
 		>
-			<ArrowLeftIcon class="h-4 w-4" />
+			<ArrowLeftIcon />
 			Back to Class Analytics
 		</a>
 	</div>
@@ -129,7 +129,7 @@
 					<span class="text-sm font-medium">{studentData.assignmentsCompleted}%</span>
 				</div>
 				<Progress value={studentData.assignmentsCompleted} class="w-full" />
-				<div class="text-xs text-muted-foreground">
+				<div class="text-muted-foreground text-xs">
 					{studentData.assignmentsCompletedCount} of {studentData.assignmentsTotal} assignments
 				</div>
 			</Card.Content>
@@ -145,7 +145,7 @@
 					<span class="text-sm font-medium">{studentData.lessonsCompleted}%</span>
 				</div>
 				<Progress value={studentData.lessonsCompleted} class="w-full" />
-				<div class="text-xs text-muted-foreground">
+				<div class="text-muted-foreground text-xs">
 					{studentData.lessonsCompletedCount} of {studentData.lessonsTotal} lessons
 				</div>
 			</Card.Content>
@@ -161,7 +161,7 @@
 					<span class="text-sm font-medium">{studentData.homeworkCompleted}%</span>
 				</div>
 				<Progress value={studentData.homeworkCompleted} class="w-full" />
-				<div class="text-xs text-muted-foreground">
+				<div class="text-muted-foreground text-xs">
 					{studentData.homeworkCompletedCount} of {studentData.homeworkTotal} homework assignments
 				</div>
 			</Card.Content>
@@ -185,13 +185,13 @@
 					</Table.Row>
 				</Table.Header>
 			</Table.Root>
-			<div class="overflow-y-auto [scrollbar-gutter:stable] h-72">
+			<div class="h-72 overflow-y-auto [scrollbar-gutter:stable]">
 				<Table.Root class="w-full table-fixed">
 					<Table.Body>
 						{#each studentData.assignmentHistory as assignment}
 							<Table.Row>
 								<Table.Cell class="w-1/3 font-medium">
-									<span class="text-primary font-medium truncate block">{assignment.name}</span>
+									<span class="text-primary block truncate font-medium">{assignment.name}</span>
 								</Table.Cell>
 								<Table.Cell class="w-32">
 									{#if assignment.grade !== null}
@@ -203,7 +203,11 @@
 								<Table.Cell class="w-40">{assignment.dueDate}</Table.Cell>
 								<Table.Cell class="w-40">
 									<Badge
-										variant={assignment.status === 'completed' ? 'default' : assignment.status === 'submitted' ? 'secondary' : 'outline'}
+										variant={assignment.status === 'completed'
+											? 'default'
+											: assignment.status === 'submitted'
+												? 'secondary'
+												: 'outline'}
 									>
 										{assignment.status}
 									</Badge>
@@ -233,13 +237,13 @@
 					</Table.Row>
 				</Table.Header>
 			</Table.Root>
-			<div class="overflow-y-auto [scrollbar-gutter:stable] h-72">
+			<div class="h-72 overflow-y-auto [scrollbar-gutter:stable]">
 				<Table.Root class="w-full table-fixed">
 					<Table.Body>
 						{#each studentData.lessonProgress as lesson}
 							<Table.Row>
 								<Table.Cell class="w-1/3 font-medium">
-									<span class="text-primary font-medium truncate block">{lesson.name}</span>
+									<span class="text-primary block truncate font-medium">{lesson.name}</span>
 								</Table.Cell>
 								<Table.Cell class="w-32">
 									{#if typeof lesson.grade === 'number' && lesson.grade !== null}
@@ -251,7 +255,11 @@
 								<Table.Cell class="w-40">{lesson.dueDate}</Table.Cell>
 								<Table.Cell class="w-40">
 									<Badge
-										variant={lesson.status === 'completed' ? 'default' : lesson.status === 'submitted' ? 'secondary' : 'outline'}
+										variant={lesson.status === 'completed'
+											? 'default'
+											: lesson.status === 'submitted'
+												? 'secondary'
+												: 'outline'}
 									>
 										{lesson.status}
 									</Badge>
@@ -274,11 +282,11 @@
 				{#each studentData.activityTimeline as activity}
 					<div class="flex items-center gap-3">
 						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
-							<UsersIcon class="h-4 w-4" />
+							<UsersIcon />
 						</div>
 						<div class="flex-1">
 							<p class="text-sm font-medium">{activity.activity}</p>
-							<p class="text-xs text-muted-foreground">{activity.time}</p>
+							<p class="text-muted-foreground text-xs">{activity.time}</p>
 						</div>
 						<Badge variant="outline">{activity.type}</Badge>
 					</div>
@@ -287,46 +295,43 @@
 		</Card.Content>
 	</Card.Root>
 
-    <!-- Contact Parent Section -->
-    <Card.Root class="shadow-none">
-        <Card.Header>
-            <Card.Title class="text-lg">Contact Parent/Guardian</Card.Title>
-            <Card.Description>
-                Get in touch with {studentData.parentContact.guardianName} ({studentData.parentContact.relationship})
-            </Card.Description>
-        </Card.Header>
-        <Card.Content>
-            <div class="flex items-center gap-4">
-                <div class="flex-1 space-y-2">
-                    <div class="flex items-center gap-2">
-                        <MailIcon class="h-4 w-4 text-muted-foreground" />
-                        <span class="text-sm">{studentData.parentContact.email}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <PhoneIcon class="h-4 w-4 text-muted-foreground" />
-                        <span class="text-sm">{studentData.parentContact.phone}</span>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <!-- mailto link needs a default email client set?? fix to discuss with team -->
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        href={`mailto:${studentData.parentContact.email}?subject=Regarding ${studentData.name}'s Progress`}
-                    >
-                        <MailIcon class="h-4 w-4 mr-2" />
-                        Send Email
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        href={`tel:${studentData.parentContact.phone}`}
-                    >
-                        <PhoneIcon class="h-4 w-4 mr-2" />
-                        Call
-                    </Button>
-                </div>
-            </div>
-        </Card.Content>
-    </Card.Root>
+	<!-- Contact Parent Section -->
+	<Card.Root class="shadow-none">
+		<Card.Header>
+			<Card.Title class="text-lg">Contact Parent/Guardian</Card.Title>
+			<Card.Description>
+				Get in touch with {studentData.parentContact.guardianName} ({studentData.parentContact
+					.relationship})
+			</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<div class="flex items-center gap-4">
+				<div class="flex-1 space-y-2">
+					<div class="flex items-center gap-2">
+						<MailIcon class="text-muted-foreground h-4 w-4" />
+						<span class="text-sm">{studentData.parentContact.email}</span>
+					</div>
+					<div class="flex items-center gap-2">
+						<PhoneIcon class="text-muted-foreground h-4 w-4" />
+						<span class="text-sm">{studentData.parentContact.phone}</span>
+					</div>
+				</div>
+				<div class="flex gap-2">
+					<!-- mailto link needs a default email client set?? fix to discuss with team -->
+					<Button
+						variant="outline"
+						size="sm"
+						href={`mailto:${studentData.parentContact.email}?subject=Regarding ${studentData.name}'s Progress`}
+					>
+						<MailIcon class="mr-2 h-4 w-4" />
+						Send Email
+					</Button>
+					<Button variant="outline" size="sm" href={`tel:${studentData.parentContact.phone}`}>
+						<PhoneIcon class="mr-2 h-4 w-4" />
+						Call
+					</Button>
+				</div>
+			</div>
+		</Card.Content>
+	</Card.Root>
 </div>

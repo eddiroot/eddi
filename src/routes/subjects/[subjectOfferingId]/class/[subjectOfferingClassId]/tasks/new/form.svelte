@@ -269,7 +269,7 @@
 									}}
 									aria-label="Cancel creating new topic"
 								>
-									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -385,7 +385,7 @@
 															aria-label="Show description"
 															class="ml-auto focus:outline-none"
 														>
-															<BadgeInfo class="h-4 w-4" />
+															<BadgeInfo />
 														</HoverCard.Trigger>
 														<HoverCard.Content
 															class="z-50 max-w-xs rounded-lg border p-3 text-xs leading-relaxed shadow-lg"
@@ -416,7 +416,7 @@
 															aria-label="Show description"
 															class="ml-2 focus:outline-none"
 														>
-															<BadgeInfo class="h-4 w-4" />
+															<BadgeInfo />
 														</HoverCard.Trigger>
 														<HoverCard.Content
 															class="z-50 max-w-xs rounded-lg border p-3 text-xs leading-relaxed shadow-lg"

@@ -374,7 +374,7 @@
 							variant="default"
 							class="flex w-fit items-center gap-2 border-green-300 bg-green-100 text-green-800"
 						>
-							<CheckCircleIcon class="h-4 w-4" />
+							<CheckCircleIcon />
 							Task submitted successfully!
 						</Badge>
 					</div>

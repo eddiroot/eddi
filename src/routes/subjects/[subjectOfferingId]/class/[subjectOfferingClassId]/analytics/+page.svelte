@@ -610,9 +610,7 @@
 										>
 											{#if spSortKey === 'name'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -635,9 +633,7 @@
 										>
 											{#if spSortKey === 'participation'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -660,9 +656,7 @@
 										>
 											{#if spSortKey === 'assignments'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -685,9 +679,7 @@
 										>
 											{#if spSortKey === 'homework'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -710,9 +702,7 @@
 										>
 											{#if spSortKey === 'lessons'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -735,9 +725,7 @@
 										>
 											{#if spSortKey === 'lastActive'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -759,9 +747,7 @@
 										>
 											{#if spSortKey === 'grade'}{#if spSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -938,9 +924,7 @@
 										>
 											{#if taSortKey === 'name'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1012,9 +996,7 @@
 										>
 											{#if taSortKey === 'studentsCompleted'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1037,9 +1019,7 @@
 										>
 											{#if taSortKey === 'averageGrade'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1062,9 +1042,7 @@
 										>
 											{#if taSortKey === 'averageTime'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1087,9 +1065,7 @@
 										>
 											{#if taSortKey === 'weight'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1112,9 +1088,7 @@
 										>
 											{#if taSortKey === 'dueDate'}{#if taSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1317,9 +1291,7 @@
 										>
 											{#if daSortKey === 'name'}{#if daSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1342,9 +1314,7 @@
 										>
 											{#if daSortKey === 'questionsPosted'}{#if daSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1367,9 +1337,7 @@
 										>
 											{#if daSortKey === 'questionsAnswered'}{#if daSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1392,9 +1360,7 @@
 										>
 											{#if daSortKey === 'totalContributions'}{#if daSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>
@@ -1417,9 +1383,7 @@
 										>
 											{#if daSortKey === 'lastActive'}{#if daSortDir === 'asc'}<ArrowUp
 														class="h-4 w-4"
-													/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-													class="h-4 w-4"
-												/>{/if}
+													/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 										</Button>
 									</div>
 								</Table.Head>

@@ -145,13 +145,13 @@
 			{/if}
 			<Button type="submit" class="flex items-center gap-2">
 				{#if isReply}
-					<MessageSquare class="h-4 w-4" />
+					<MessageSquare />
 					Post Reply
 				{:else if $formData.type === 'answer'}
-					<CheckCircle class="h-4 w-4" />
+					<CheckCircle />
 					Post Answer
 				{:else}
-					<MessageSquare class="h-4 w-4" />
+					<MessageSquare />
 					Post Comment
 				{/if}
 			</Button>

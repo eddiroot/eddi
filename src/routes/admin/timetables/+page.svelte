@@ -72,7 +72,7 @@
 						Cancel
 					</Button>
 					<Button type="submit" class="gap-2">
-						<PlusIcon class="h-4 w-4" />
+						<PlusIcon />
 						Create Timetable
 					</Button>
 				</Dialog.Footer>

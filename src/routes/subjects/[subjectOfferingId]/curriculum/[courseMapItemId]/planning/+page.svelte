@@ -207,7 +207,7 @@
 		{/if}
 		<div class="flex flex-wrap items-center justify-center gap-6 text-sm">
 			<div class="flex items-center gap-1">
-				<Calendar class="h-4 w-4" />
+				<Calendar />
 				{#if editMode}
 					<span>Week</span>
 					<Input
@@ -220,7 +220,7 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-1">
-				<Clock class="h-4 w-4" />
+				<Clock />
 				{#if editMode}
 					<Input
 						bind:value={editedDuration}
@@ -233,11 +233,11 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-1">
-				<BookTest class="h-4 w-4" />
+				<BookTest />
 				Subject
 			</div>
 			<div class="flex items-center gap-1">
-				<Archive class="h-4 w-4" />
+				<Archive />
 				<ResourcesPopover
 					resources={data.resources}
 					onAddResource={handleAddResource}
@@ -317,7 +317,7 @@
 						<Sheet>
 							<SheetTrigger>
 								<Button variant="outline" size="sm" class="gap-2">
-									<Plus class="h-4 w-4" />
+									<Plus />
 									Learning Area
 								</Button>
 							</SheetTrigger>
@@ -407,7 +407,7 @@
 			<Sheet bind:open={lessonPlanDrawerOpen}>
 				<SheetTrigger>
 					<Button variant="outline" class="gap-2">
-						<Plus class="h-4 w-4" />
+						<Plus />
 						Lesson Plan
 					</Button>
 				</SheetTrigger>
@@ -596,7 +596,7 @@
 										<RefreshCw class="h-4 w-4 animate-spin" />
 										Generating New Plan...
 									{:else}
-										<Sparkles class="h-4 w-4" />
+										<Sparkles />
 										Generate Different Plan
 									{/if}
 								</Button>
@@ -617,7 +617,7 @@
 										<RefreshCw class="h-4 w-4 animate-spin" />
 										Generating Summary...
 									{:else}
-										<Sparkles class="h-4 w-4" />
+										<Sparkles />
 										Generate Summary with AI
 									{/if}
 								</Button>
@@ -674,7 +674,7 @@
 			<Sheet bind:open={assessmentPlanDrawerOpen}>
 				<SheetTrigger>
 					<Button variant="outline" class="gap-2">
-						<Plus class="h-4 w-4" />
+						<Plus />
 						Assessment Plan
 					</Button>
 				</SheetTrigger>
@@ -863,7 +863,7 @@
 										<RefreshCw class="h-4 w-4 animate-spin" />
 										Generating New Plan...
 									{:else}
-										<Sparkles class="h-4 w-4" />
+										<Sparkles />
 										Generate Different Plan
 									{/if}
 								</Button>
@@ -884,7 +884,7 @@
 										<RefreshCw class="h-4 w-4 animate-spin" />
 										Generating Summary...
 									{:else}
-										<Sparkles class="h-4 w-4" />
+										<Sparkles />
 										Generate Summary with AI
 									{/if}
 								</Button>

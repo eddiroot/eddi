@@ -5,7 +5,12 @@
 		console.log = (...args) => {
 			const message = args.join(' ');
 			// Filter out fabric.js object data logs
-			if (message.includes('originY') && message.includes('left') && message.includes('top') && message.includes('fill')) {
+			if (
+				message.includes('originY') &&
+				message.includes('left') &&
+				message.includes('top') &&
+				message.includes('fill')
+			) {
 				return; // Don't log fabric.js object data
 			}
 			originalLog.apply(console, args);
@@ -109,7 +114,7 @@
 					angle: objData.angle,
 					opacity: objData.opacity
 				};
-				
+
 				sendCanvasUpdate({
 					type: 'modify',
 					object: updateData,
@@ -119,7 +124,8 @@
 			imageUpdateQueue.clear();
 			imageThrottleTimeout = null;
 		}, 100); // 100ms throttle for images
-	};	const setSelectTool = () => {
+	};
+	const setSelectTool = () => {
 		selectedTool = 'select';
 		showFloatingMenu = false;
 		clearEraserState();
@@ -163,19 +169,19 @@
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
 		canvas.defaultCursor = 'crosshair';
-		
+
 		// Clear any existing eraser state
 		clearEraserState();
 	};
 
 	const clearEraserState = () => {
 		// Remove eraser trail
-		eraserTrail.forEach(trail => canvas?.remove(trail));
+		eraserTrail.forEach((trail) => canvas?.remove(trail));
 		eraserTrail = [];
 		lastEraserPoint = null;
-		
+
 		// Restore original opacities of hovered objects
-		hoveredObjectsForDeletion.forEach(obj => {
+		hoveredObjectsForDeletion.forEach((obj) => {
 			const originalOpacity = originalOpacities.get(obj);
 			if (originalOpacity !== undefined) {
 				obj.set({ opacity: originalOpacity });
@@ -183,7 +189,7 @@
 		});
 		hoveredObjectsForDeletion = [];
 		originalOpacities.clear();
-		
+
 		canvas?.renderAll();
 	};
 
@@ -293,7 +299,7 @@
 	const handleImageUpload = (event: Event) => {
 		const target = event.target as HTMLInputElement;
 		const file = target.files?.[0];
-		
+
 		if (!file || !canvas) return;
 
 		// Check if file is an image
@@ -306,46 +312,48 @@
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			const imgSrc = e.target?.result as string;
-			
+
 			// Create fabric image from the uploaded file
-			fabric.FabricImage.fromURL(imgSrc).then((img) => {
-				// @ts-expect-error
-				img.id = uuidv4();
-				
-				// Scale image to reasonable size
-				const maxWidth = 300;
-				const maxHeight = 300;
-				const scaleX = img.width! > maxWidth ? maxWidth / img.width! : 1;
-				const scaleY = img.height! > maxHeight ? maxHeight / img.height! : 1;
-				const scale = Math.min(scaleX, scaleY);
-				
-				img.scale(scale);
-				
-				// Center the image
-				img.set({
-					left: canvas.width! / 2 - (img.width! * scale) / 2,
-					top: canvas.height! / 2 - (img.height! * scale) / 2
+			fabric.FabricImage.fromURL(imgSrc)
+				.then((img) => {
+					// @ts-expect-error
+					img.id = uuidv4();
+
+					// Scale image to reasonable size
+					const maxWidth = 300;
+					const maxHeight = 300;
+					const scaleX = img.width! > maxWidth ? maxWidth / img.width! : 1;
+					const scaleY = img.height! > maxHeight ? maxHeight / img.height! : 1;
+					const scale = Math.min(scaleX, scaleY);
+
+					img.scale(scale);
+
+					// Center the image
+					img.set({
+						left: canvas.width! / 2 - (img.width! * scale) / 2,
+						top: canvas.height! / 2 - (img.height! * scale) / 2
+					});
+
+					canvas.add(img);
+					canvas.setActiveObject(img);
+					canvas.renderAll();
+
+					const objData = img.toObject();
+					// @ts-expect-error
+					objData.id = img.id;
+					sendCanvasUpdate({
+						type: 'add',
+						object: objData
+					});
+				})
+				.catch((error) => {
+					console.error('Error loading image:', error);
+					alert('Error loading image. Please try a different file.');
 				});
-				
-				canvas.add(img);
-				canvas.setActiveObject(img);
-				canvas.renderAll();
-				
-				const objData = img.toObject();
-				// @ts-expect-error
-				objData.id = img.id;
-				sendCanvasUpdate({
-					type: 'add',
-					object: objData
-				});
-			}).catch((error) => {
-				console.error('Error loading image:', error);
-				alert('Error loading image. Please try a different file.');
-			});
 		};
-		
+
 		reader.readAsDataURL(file);
-		
+
 		// Reset the input value so the same file can be selected again
 		target.value = '';
 	};
@@ -372,20 +380,27 @@
 		canvas.hoverCursor = 'crosshair';
 	};
 
-	const createArrowHead = (x1: number, y1: number, x2: number, y2: number, arrowLength = 15, arrowAngle = Math.PI / 6) => {
+	const createArrowHead = (
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		arrowLength = 15,
+		arrowAngle = Math.PI / 6
+	) => {
 		const angle = Math.atan2(y2 - y1, x2 - x1);
-		
+
 		// Calculate the two points of the arrowhead
 		const arrowPoint1 = {
 			x: x2 - arrowLength * Math.cos(angle - arrowAngle),
 			y: y2 - arrowLength * Math.sin(angle - arrowAngle)
 		};
-		
+
 		const arrowPoint2 = {
 			x: x2 - arrowLength * Math.cos(angle + arrowAngle),
 			y: y2 - arrowLength * Math.sin(angle + arrowAngle)
 		};
-		
+
 		return [arrowPoint1, arrowPoint2];
 	};
 
@@ -403,7 +418,7 @@
 	const createArrow = (x1: number, y1: number, x2: number, y2: number) => {
 		const line = createLine(x1, y1, x2, y2);
 		const arrowHeadPoints = createArrowHead(x1, y1, x2, y2);
-		
+
 		const arrowHead1 = new fabric.Line([x2, y2, arrowHeadPoints[0].x, arrowHeadPoints[0].y], {
 			stroke: '#000000',
 			strokeWidth: 2,
@@ -411,7 +426,7 @@
 			opacity: 1,
 			selectable: false
 		});
-		
+
 		const arrowHead2 = new fabric.Line([x2, y2, arrowHeadPoints[1].x, arrowHeadPoints[1].y], {
 			stroke: '#000000',
 			strokeWidth: 2,
@@ -419,12 +434,12 @@
 			opacity: 1,
 			selectable: false
 		});
-		
+
 		// Group the line and arrowhead together
 		const arrowGroup = new fabric.Group([line, arrowHead1, arrowHead2], {
 			selectable: true
 		});
-		
+
 		return arrowGroup;
 	};
 
@@ -520,7 +535,13 @@
 	const handleShapeOptionsChange = (options: any) => {
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
-		if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'circle' || activeObject.type === 'triangle' || activeObject.type === 'image')) {
+		if (
+			activeObject &&
+			(activeObject.type === 'rect' ||
+				activeObject.type === 'circle' ||
+				activeObject.type === 'triangle' ||
+				activeObject.type === 'image')
+		) {
 			// For images, only apply opacity (other properties don't make sense for images)
 			if (activeObject.type === 'image') {
 				activeObject.set({
@@ -550,11 +571,11 @@
 		if (!canvas) return;
 		if (canvas.freeDrawingBrush) {
 			canvas.freeDrawingBrush.width = options.brushSize;
-			
+
 			// Apply opacity to the colour by converting to rgba format
 			const colour = options.brushColour;
 			const opacity = options.opacity;
-			
+
 			// Convert hex colour to rgba with opacity
 			const hexToRgba = (hex: string, alpha: number) => {
 				const r = parseInt(hex.slice(1, 3), 16);
@@ -562,9 +583,9 @@
 				const b = parseInt(hex.slice(5, 7), 16);
 				return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 			};
-			
+
 			canvas.freeDrawingBrush.color = hexToRgba(colour, opacity);
-			
+
 			// Update brush type if needed
 			if (options.brushType === 'circle') {
 				canvas.freeDrawingBrush = new fabric.CircleBrush(canvas);
@@ -640,13 +661,13 @@
 				const rect = whiteContainer.getBoundingClientRect();
 				const width = rect.width - 4;
 				const height = rect.height - 4;
-				
+
 				whiteboardCanvas.width = width;
 				whiteboardCanvas.height = height;
-				
-				canvas.setDimensions({ 
+
+				canvas.setDimensions({
 					width: width,
-					height: height 
+					height: height
 				});
 				canvas.renderAll();
 			}
@@ -661,7 +682,9 @@
 
 		setSelectTool();
 
-		socket = new WebSocket(`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`);
+		socket = new WebSocket(
+			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`
+		);
 
 		socket.addEventListener('open', () => {
 			if (socket && socket.readyState === WebSocket.OPEN) {
@@ -685,11 +708,17 @@
 						canvas.clear();
 						objects.forEach((obj: any) => {
 							// Preserve the custom id property
-							if (messageData.whiteboard.objects.find((o: any) => o.id && o.left === obj.left && o.top === obj.top)) {
-								const originalObj = messageData.whiteboard.objects.find((o: any) => o.id && o.left === obj.left && o.top === obj.top);
+							if (
+								messageData.whiteboard.objects.find(
+									(o: any) => o.id && o.left === obj.left && o.top === obj.top
+								)
+							) {
+								const originalObj = messageData.whiteboard.objects.find(
+									(o: any) => o.id && o.left === obj.left && o.top === obj.top
+								);
 								obj.id = originalObj.id;
 							}
-							
+
 							if (obj && typeof obj.addTo === 'function') {
 								obj.addTo(canvas);
 							} else {
@@ -754,7 +783,7 @@
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			
+
 			// Only throttle image movements, send immediate updates for other objects
 			if (target.type === 'image') {
 				isMovingImage = true;
@@ -773,7 +802,7 @@
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			
+
 			// Only throttle image scaling, send immediate updates for other objects
 			if (target.type === 'image') {
 				isMovingImage = true;
@@ -792,7 +821,7 @@
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			
+
 			// Only throttle image rotation, send immediate updates for other objects
 			if (target.type === 'image') {
 				isMovingImage = true;
@@ -812,7 +841,7 @@
 			const objData = target.toObject();
 			// @ts-expect-error
 			objData.id = target.id;
-			
+
 			if (target.type === 'image') {
 				// @ts-expect-error
 				sendImageUpdate(target.id, objData, true);
@@ -831,7 +860,7 @@
 			if (isPanMode) {
 				isPanMode = false;
 				canvas.selection = selectedTool === 'select';
-				
+
 				// Set cursor based on current tool
 				if (selectedTool === 'pan') {
 					canvas.setCursor('grab');
@@ -850,7 +879,7 @@
 				tempLine.set({ selectable: true });
 				canvas.setActiveObject(tempLine);
 				canvas.renderAll();
-				
+
 				// Send the completed line/arrow to other users
 				const objData = tempLine.toObject();
 				// @ts-expect-error
@@ -859,14 +888,14 @@
 					type: 'add',
 					object: objData
 				});
-				
+
 				// Auto-switch to selection tool while keeping floating menu open
 				selectedTool = 'select';
 				canvas.isDrawingMode = false;
 				canvas.selection = true;
 				canvas.defaultCursor = 'default';
 				canvas.hoverCursor = 'move';
-				
+
 				// Reset drawing state
 				isDrawingLine = false;
 				isDrawingArrow = false;
@@ -876,7 +905,7 @@
 			// Handle eraser completion
 			if (isErasing) {
 				isErasing = false;
-				
+
 				// Delete all objects that were marked for deletion
 				hoveredObjectsForDeletion.forEach((obj) => {
 					canvas.remove(obj);
@@ -886,7 +915,7 @@
 						object: { id: (obj as any).id }
 					});
 				});
-				
+
 				// Clear eraser state
 				clearEraserState();
 			}
@@ -929,12 +958,12 @@
 
 		canvas.on('mouse:wheel', (opt) => {
 			const delta = opt.e.deltaY;
-			
+
 			let zoom = canvas.getZoom();
-			zoom *= 0.990 ** delta;
+			zoom *= 0.99 ** delta;
 			if (zoom > 10) zoom = 10;
 			if (zoom < 0.1) zoom = 0.1;
-			
+
 			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
 			canvas.zoomToPoint(point, zoom);
 			currentZoom = zoom;
@@ -944,17 +973,17 @@
 
 		canvas.on('mouse:down', (opt) => {
 			const evt = opt.e;
-			
+
 			if (selectedTool === 'pan') {
 				isPanMode = true;
 				canvas.selection = false;
 				canvas.discardActiveObject();
 				canvas.setCursor('grabbing');
-				
+
 				const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
 				const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
 				panStartPos = { x: clientX, y: clientY };
-				
+
 				opt.e.preventDefault();
 				opt.e.stopPropagation();
 			} else if (selectedTool === 'select') {
@@ -962,18 +991,18 @@
 					isPanMode = true;
 					canvas.selection = false;
 					canvas.setCursor('grab');
-					
+
 					const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
 					const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
 					panStartPos = { x: clientX, y: clientY };
-					
+
 					opt.e.preventDefault();
 				}
 			} else if (selectedTool === 'line' || selectedTool === 'arrow') {
 				if (!isDrawingLine && !isDrawingArrow) {
 					const pointer = canvas.getScenePoint(opt.e);
 					startPoint = { x: pointer.x, y: pointer.y };
-					
+
 					if (selectedTool === 'line') {
 						isDrawingLine = true;
 						tempLine = createLine(startPoint.x, startPoint.y, startPoint.x, startPoint.y);
@@ -981,12 +1010,12 @@
 						isDrawingArrow = true;
 						tempLine = createArrow(startPoint.x, startPoint.y, startPoint.x, startPoint.y) as any;
 					}
-					
+
 					if (tempLine) {
 						canvas.add(tempLine);
 						canvas.renderAll();
 					}
-					
+
 					opt.e.preventDefault();
 					opt.e.stopPropagation();
 				}
@@ -995,7 +1024,7 @@
 				const pointer = canvas.getScenePoint(opt.e);
 				startPoint = { x: pointer.x, y: pointer.y };
 				lastEraserPoint = { x: pointer.x, y: pointer.y };
-				
+
 				// Find objects under the eraser and make them transparent
 				canvas.forEachObject((obj) => {
 					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
@@ -1007,7 +1036,7 @@
 						}
 					}
 				});
-				
+
 				canvas.renderAll();
 				opt.e.preventDefault();
 				opt.e.stopPropagation();
@@ -1017,23 +1046,23 @@
 		canvas.on('mouse:move', (opt) => {
 			const pointer = canvas.getScenePoint(opt.e);
 			currentMousePos = { x: pointer.x, y: pointer.y };
-			
+
 			if (isPanMode) {
 				const e = opt.e;
 				const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || 0;
 				const clientY = 'clientY' in e ? e.clientY : e.touches?.[0]?.clientY || 0;
-				
+
 				const deltaX = clientX - panStartPos.x;
 				const deltaY = clientY - panStartPos.y;
-				
+
 				canvas.relativePan(new fabric.Point(deltaX, deltaY));
 				panStartPos = { x: clientX, y: clientY };
-				
+
 				canvas.setCursor('grabbing');
 			} else if ((isDrawingLine || isDrawingArrow) && tempLine) {
 				// Update the temporary line/arrow while dragging
 				const pointer = canvas.getScenePoint(opt.e);
-				
+
 				if (isDrawingLine) {
 					// Update line coordinates
 					tempLine.set({
@@ -1050,39 +1079,37 @@
 						canvas.add(tempLine);
 					}
 				}
-				
+
 				canvas.renderAll();
 			} else if (isErasing && selectedTool === 'eraser') {
 				// Create visual eraser trail as a solid line
 				const pointer = canvas.getScenePoint(opt.e);
-				
+
 				// Create a line segment from the last point to current point
 				if (lastEraserPoint) {
-					const trailLine = new fabric.Line([
-						lastEraserPoint.x, 
-						lastEraserPoint.y, 
-						pointer.x, 
-						pointer.y
-					], {
-						stroke: 'rgba(170, 170, 170, 0.4)',
-						strokeWidth: 5,
-						selectable: false,
-						evented: false,
-						excludeFromExport: true
-					});
-					
+					const trailLine = new fabric.Line(
+						[lastEraserPoint.x, lastEraserPoint.y, pointer.x, pointer.y],
+						{
+							stroke: 'rgba(170, 170, 170, 0.4)',
+							strokeWidth: 5,
+							selectable: false,
+							evented: false,
+							excludeFromExport: true
+						}
+					);
+
 					canvas.add(trailLine);
 					eraserTrail.push(trailLine);
-					
+
 					// Limit trail length for performance
 					if (eraserTrail.length > 15) {
 						const oldTrail = eraserTrail.shift();
 						if (oldTrail) canvas.remove(oldTrail);
 					}
 				}
-				
+
 				lastEraserPoint = { x: pointer.x, y: pointer.y };
-				
+
 				// Find objects under the eraser and make them transparent
 				canvas.forEachObject((obj) => {
 					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
@@ -1094,14 +1121,14 @@
 						}
 					}
 				});
-				
+
 				canvas.renderAll();
 			} else if (selectedTool === 'eraser' && !isErasing) {
 				// Show hover preview when not actively erasing
 				const pointer = canvas.getScenePoint(opt.e);
-				
+
 				// Reset any previously hovered objects
-				hoveredObjectsForDeletion.forEach(obj => {
+				hoveredObjectsForDeletion.forEach((obj) => {
 					const originalOpacity = originalOpacities.get(obj);
 					if (originalOpacity !== undefined) {
 						obj.set({ opacity: originalOpacity });
@@ -1109,7 +1136,7 @@
 				});
 				hoveredObjectsForDeletion = [];
 				originalOpacities.clear();
-				
+
 				// Find and highlight objects under cursor
 				canvas.forEachObject((obj) => {
 					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
@@ -1118,7 +1145,7 @@
 						hoveredObjectsForDeletion.push(obj);
 					}
 				});
-				
+
 				canvas.renderAll();
 			}
 		});
@@ -1128,18 +1155,18 @@
 		// Add pinch-to-zoom for touch devices
 		let initialPinchDistance = 0;
 		let initialZoom = 1;
-		
+
 		whiteboardCanvas.addEventListener('touchstart', (e) => {
 			if (e.touches.length === 2) {
 				// Two finger touch - setup for pinch zoom
 				const touch1 = e.touches[0];
 				const touch2 = e.touches[1];
-				
+
 				const dx = touch1.clientX - touch2.clientX;
 				const dy = touch1.clientY - touch2.clientY;
 				initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
 				initialZoom = canvas.getZoom();
-				
+
 				e.preventDefault();
 			}
 		});
@@ -1149,26 +1176,26 @@
 				// Two finger move - pinch to zoom
 				const touch1 = e.touches[0];
 				const touch2 = e.touches[1];
-				
+
 				const dx = touch1.clientX - touch2.clientX;
 				const dy = touch1.clientY - touch2.clientY;
 				const currentDistance = Math.sqrt(dx * dx + dy * dy);
-				
+
 				const scale = currentDistance / initialPinchDistance;
 				const newZoom = initialZoom * scale;
 				const constrainedZoom = Math.max(0.1, Math.min(10, newZoom));
-				
+
 				// Zoom at center of pinch gesture
 				const centerX = (touch1.clientX + touch2.clientX) / 2;
 				const centerY = (touch1.clientY + touch2.clientY) / 2;
-				
+
 				if (whiteboardCanvas) {
 					const rect = whiteboardCanvas.getBoundingClientRect();
 					const point = new fabric.Point(centerX - rect.left, centerY - rect.top);
 					canvas.zoomToPoint(point, constrainedZoom);
 					currentZoom = constrainedZoom; // Update zoom state
 				}
-				
+
 				e.preventDefault();
 			}
 		});
@@ -1188,12 +1215,12 @@
 	onDestroy(() => {
 		// Restore body scrolling when leaving whiteboard
 		document.body.style.overflow = '';
-		
+
 		// Clear any pending image throttle timeouts
 		if (imageThrottleTimeout !== null) {
 			clearTimeout(imageThrottleTimeout);
 		}
-		
+
 		if (socket) {
 			socket.close();
 		}
@@ -1225,232 +1252,230 @@
 			</div>
 		</header>
 
-	<!-- Whiteboard Canvas -->
-	<main class="flex flex-1 items-center justify-center overflow-hidden p-4 relative">
-		<!-- Floating Toolbar -->
-		<div class="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
-			<div class="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur border rounded-md shadow-sm">
-				<div class="flex items-center gap-1 px-4 py-2">
-					<!-- Selection Tool -->
+		<!-- Whiteboard Canvas -->
+		<main class="relative flex flex-1 items-center justify-center overflow-hidden p-4">
+			<!-- Floating Toolbar -->
+			<div class="absolute top-8 left-1/2 z-10 -translate-x-1/2 transform">
+				<div
+					class="bg-background/95 supports-[backdrop-filter]:bg-background/60 rounded-md border shadow-sm backdrop-blur"
+				>
+					<div class="flex items-center gap-1 px-4 py-2">
+						<!-- Selection Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button
+									variant={selectedTool === 'select' ? 'default' : 'ghost'}
+									size="icon"
+									onclick={setSelectTool}
+									class="h-9 w-9"
+								>
+									<MousePointerIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Select</Tooltip.Content>
+						</Tooltip.Root>
+
+						<!-- Pan Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button
+									variant={selectedTool === 'pan' ? 'default' : 'ghost'}
+									size="icon"
+									onclick={setPanTool}
+									class="h-9 w-9"
+								>
+									<HandIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Pan</Tooltip.Content>
+						</Tooltip.Root>
+
+						<div class="bg-border mx-1 h-6 w-px"></div>
+
+						<!-- Draw Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button
+									variant={selectedTool === 'draw' ? 'default' : 'ghost'}
+									size="icon"
+									onclick={setDrawTool}
+									class="h-9 w-9"
+								>
+									<PenToolIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Draw</Tooltip.Content>
+						</Tooltip.Root>
+
+						<!-- Line Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button
+									variant={selectedTool === 'line' ? 'default' : 'ghost'}
+									size="icon"
+									onclick={setLineTool}
+									class="h-9 w-9"
+								>
+									<MinusIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Draw Line</Tooltip.Content>
+						</Tooltip.Root>
+
+						<!-- Arrow Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button
+									variant={selectedTool === 'arrow' ? 'default' : 'ghost'}
+									size="icon"
+									onclick={setArrowTool}
+									class="h-9 w-9"
+								>
+									<ArrowRightIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Draw Arrow</Tooltip.Content>
+						</Tooltip.Root>
+
+						<!-- Shapes Dropdown -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										{#snippet child({ props })}
+											<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
+												<SquareIcon />
+											</Button>
+										{/snippet}
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content>
+										<DropdownMenu.Item onclick={() => addShape('rectangle')}>
+											<SquareIcon />
+											Rectangle
+										</DropdownMenu.Item>
+										<DropdownMenu.Item onclick={() => addShape('circle')}>
+											<CircleIcon />
+											Circle
+										</DropdownMenu.Item>
+										<DropdownMenu.Item onclick={() => addShape('triangle')}>
+											<TriangleIcon />
+											Triangle
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Add Shapes</Tooltip.Content>
+						</Tooltip.Root>
+						<!-- Text Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
+									<TypeIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Add Text</Tooltip.Content>
+						</Tooltip.Root>
+
+						<!-- Image Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button variant="ghost" size="icon" onclick={addImage} class="h-9 w-9">
+									<ImageIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Upload Image</Tooltip.Content>
+						</Tooltip.Root>
+
+						<div class="bg-border mx-1 h-6 w-px"></div>
+
+						<!-- Eraser Tool -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button
+									variant={selectedTool === 'eraser' ? 'default' : 'ghost'}
+									size="icon"
+									onclick={setEraserTool}
+									class="h-9 w-9"
+								>
+									<EraseIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Eraser</Tooltip.Content>
+						</Tooltip.Root>
+
+						<!-- Clear Canvas -->
+						<Tooltip.Root>
+							<Tooltip.Trigger>
+								<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
+									<TrashIcon />
+								</Button>
+							</Tooltip.Trigger>
+							<Tooltip.Content>Clear All</Tooltip.Content>
+						</Tooltip.Root>
+					</div>
+				</div>
+			</div>
+
+			<div class="flex h-full w-full rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700">
+				<canvas bind:this={whiteboardCanvas} class="h-full w-full"></canvas>
+			</div>
+
+			<!-- Hidden file input for image uploads -->
+			<input
+				bind:this={imageInput}
+				type="file"
+				accept="image/*"
+				onchange={handleImageUpload}
+				class="hidden"
+			/>
+
+			<!-- Floating Menu -->
+			<WhiteboardFloatingMenu
+				{selectedTool}
+				visible={showFloatingMenu}
+				onTextOptionsChange={handleTextOptionsChange}
+				onShapeOptionsChange={handleShapeOptionsChange}
+				onDrawOptionsChange={handleDrawOptionsChange}
+				onLineArrowOptionsChange={handleLineArrowOptionsChange}
+			/>
+
+			<!-- Zoom Controls -->
+			<div class="absolute bottom-8 left-8">
+				<div class="bg-background flex items-center gap-1 rounded-md border px-2 py-1 shadow-sm">
 					<Tooltip.Root>
 						<Tooltip.Trigger>
-							<Button
-								variant={selectedTool === 'select' ? 'default' : 'ghost'}
-								size="icon"
-								onclick={setSelectTool}
-								class="h-9 w-9"
-							>
-								<MousePointerIcon class="h-4 w-4" />
+							<Button variant="ghost" size="icon" onclick={zoomOut} class="h-8 w-8">
+								<ZoomOutIcon />
 							</Button>
 						</Tooltip.Trigger>
-						<Tooltip.Content>Select</Tooltip.Content>
+						<Tooltip.Content>Zoom Out</Tooltip.Content>
 					</Tooltip.Root>
 
-					<!-- Pan Tool -->
+					<Button variant="ghost" size="sm" onclick={resetZoom} class="h-8 px-2 font-mono text-xs">
+						{Math.round(currentZoom * 100)}%
+					</Button>
+
 					<Tooltip.Root>
 						<Tooltip.Trigger>
-							<Button
-								variant={selectedTool === 'pan' ? 'default' : 'ghost'}
-								size="icon"
-								onclick={setPanTool}
-								class="h-9 w-9"
-							>
-								<HandIcon class="h-4 w-4" />
+							<Button variant="ghost" size="icon" onclick={zoomIn} class="h-8 w-8">
+								<ZoomInIcon />
 							</Button>
 						</Tooltip.Trigger>
-						<Tooltip.Content>Pan</Tooltip.Content>
+						<Tooltip.Content>Zoom In</Tooltip.Content>
 					</Tooltip.Root>
 
 					<div class="bg-border mx-1 h-6 w-px"></div>
 
-					<!-- Draw Tool -->
 					<Tooltip.Root>
 						<Tooltip.Trigger>
-							<Button
-								variant={selectedTool === 'draw' ? 'default' : 'ghost'}
-								size="icon"
-								onclick={setDrawTool}
-								class="h-9 w-9"
-							>
-								<PenToolIcon class="h-4 w-4" />
+							<Button variant="ghost" size="icon" onclick={recenterView} class="h-8 w-8">
+								<HomeIcon />
 							</Button>
 						</Tooltip.Trigger>
-						<Tooltip.Content>Draw</Tooltip.Content>
-					</Tooltip.Root>
-
-					<!-- Line Tool -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button
-								variant={selectedTool === 'line' ? 'default' : 'ghost'}
-								size="icon"
-								onclick={setLineTool}
-								class="h-9 w-9"
-							>
-								<MinusIcon class="h-4 w-4" />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Draw Line</Tooltip.Content>
-					</Tooltip.Root>
-
-					<!-- Arrow Tool -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button
-								variant={selectedTool === 'arrow' ? 'default' : 'ghost'}
-								size="icon"
-								onclick={setArrowTool}
-								class="h-9 w-9"
-							>
-								<ArrowRightIcon class="h-4 w-4" />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Draw Arrow</Tooltip.Content>
-					</Tooltip.Root>
-
-					<!-- Shapes Dropdown -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<DropdownMenu.Root>
-								<DropdownMenu.Trigger>
-									{#snippet child({ props })}
-										<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
-											<SquareIcon class="h-4 w-4" />
-										</Button>
-									{/snippet}
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Content>
-							<DropdownMenu.Item onclick={() => addShape('rectangle')}>
-								<SquareIcon class="h-4 w-4" />
-								Rectangle
-							</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => addShape('circle')}>
-								<CircleIcon class="h-4 w-4" />
-								Circle
-							</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => addShape('triangle')}>
-								<TriangleIcon class="h-4 w-4" />
-								Triangle
-								</DropdownMenu.Item>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Add Shapes</Tooltip.Content>
-					</Tooltip.Root>					<!-- Text Tool -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
-								<TypeIcon class="h-4 w-4" />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Add Text</Tooltip.Content>
-					</Tooltip.Root>
-
-					<!-- Image Tool -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={addImage} class="h-9 w-9">
-								<ImageIcon class="h-4 w-4" />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Upload Image</Tooltip.Content>
-					</Tooltip.Root>
-
-					<div class="bg-border mx-1 h-6 w-px"></div>
-
-					<!-- Eraser Tool -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button 
-								variant={selectedTool === 'eraser' ? 'default' : 'ghost'}
-								size="icon" 
-								onclick={setEraserTool} 
-								class="h-9 w-9"
-							>
-								<EraseIcon class="h-4 w-4" />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Eraser</Tooltip.Content>
-					</Tooltip.Root>
-
-					<!-- Clear Canvas -->
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
-								<TrashIcon class="h-4 w-4" />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Clear All</Tooltip.Content>
+						<Tooltip.Content>Recenter View</Tooltip.Content>
 					</Tooltip.Root>
 				</div>
 			</div>
-		</div>
-
-		<div class="rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700 w-full h-full flex">
-			<canvas bind:this={whiteboardCanvas} class="w-full h-full"></canvas>
-		</div>
-		
-		<!-- Hidden file input for image uploads -->
-		<input
-			bind:this={imageInput}
-			type="file"
-			accept="image/*"
-			onchange={handleImageUpload}
-			class="hidden"
-		/>
-		
-		<!-- Floating Menu -->
-		<WhiteboardFloatingMenu
-			{selectedTool}
-			visible={showFloatingMenu}
-			onTextOptionsChange={handleTextOptionsChange}
-			onShapeOptionsChange={handleShapeOptionsChange}
-			onDrawOptionsChange={handleDrawOptionsChange}
-			onLineArrowOptionsChange={handleLineArrowOptionsChange}
-		/>
-		
-		<!-- Zoom Controls -->
-		<div class="absolute bottom-8 left-8">
-			<div class="bg-background flex items-center gap-1 rounded-md border px-2 py-1 shadow-sm">
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button variant="ghost" size="icon" onclick={zoomOut} class="h-8 w-8">
-							<ZoomOutIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Zoom Out</Tooltip.Content>
-				</Tooltip.Root>
-				
-				<Button 
-					variant="ghost" 
-					size="sm" 
-					onclick={resetZoom} 
-					class="h-8 px-2 text-xs font-mono"
-				>
-					{Math.round(currentZoom * 100)}%
-				</Button>
-				
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button variant="ghost" size="icon" onclick={zoomIn} class="h-8 w-8">
-							<ZoomInIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Zoom In</Tooltip.Content>
-				</Tooltip.Root>
-
-				<div class="bg-border mx-1 h-6 w-px"></div>
-
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Button variant="ghost" size="icon" onclick={recenterView} class="h-8 w-8">
-							<HomeIcon class="h-4 w-4" />
-						</Button>
-					</Tooltip.Trigger>
-					<Tooltip.Content>Recenter View</Tooltip.Content>
-				</Tooltip.Root>
-			</div>
-		</div>
-	</main>
+		</main>
 	</div>
 </Tooltip.Provider>

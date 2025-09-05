@@ -194,9 +194,7 @@
 								>
 									{#if sortKey === 'name'}{#if sortDir === 'asc'}<ArrowUp
 												class="h-4 w-4"
-											/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-											class="h-4 w-4"
-										/>{/if}
+											/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 								</Button>
 							</div>
 						</Table.Head>
@@ -221,26 +219,26 @@
 											<div class="flex w-full items-center justify-between">
 												<span>All tasks</span>
 												{#if selectedTypeFilters.size === 0}
-													<Check class="h-4 w-4" />
+													<Check />
 												{/if}
 											</div>
 										</DropdownMenuItem>
 										<DropdownMenuItem onclick={() => toggleTypeFilter('lesson')}>
 											<div class="flex w-full items-center justify-between">
 												<span>Lessons</span>
-												{#if selectedTypeFilters.has('lesson')}<Check class="h-4 w-4" />{/if}
+												{#if selectedTypeFilters.has('lesson')}<Check />{/if}
 											</div>
 										</DropdownMenuItem>
 										<DropdownMenuItem onclick={() => toggleTypeFilter('homework')}>
 											<div class="flex w-full items-center justify-between">
 												<span>Homework</span>
-												{#if selectedTypeFilters.has('homework')}<Check class="h-4 w-4" />{/if}
+												{#if selectedTypeFilters.has('homework')}<Check />{/if}
 											</div>
 										</DropdownMenuItem>
 										<DropdownMenuItem onclick={() => toggleTypeFilter('assessment')}>
 											<div class="flex w-full items-center justify-between">
 												<span>Assessments</span>
-												{#if selectedTypeFilters.has('assessment')}<Check class="h-4 w-4" />{/if}
+												{#if selectedTypeFilters.has('assessment')}<Check />{/if}
 											</div>
 										</DropdownMenuItem>
 									</DropdownMenuContent>
@@ -259,9 +257,7 @@
 								>
 									{#if sortKey === 'grade'}{#if sortDir === 'asc'}<ArrowUp
 												class="h-4 w-4"
-											/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-											class="h-4 w-4"
-										/>{/if}
+											/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 								</Button>
 							</div>
 						</Table.Head>
@@ -277,9 +273,7 @@
 								>
 									{#if sortKey === 'weight'}{#if sortDir === 'asc'}<ArrowUp
 												class="h-4 w-4"
-											/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-											class="h-4 w-4"
-										/>{/if}
+											/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 								</Button>
 							</div>
 						</Table.Head>
@@ -304,26 +298,26 @@
 											<div class="flex w-full items-center justify-between">
 												<span>All</span>
 												{#if selectedStatusFilters.size === 0}
-													<Check class="h-4 w-4" />
+													<Check />
 												{/if}
 											</div>
 										</DropdownMenuItem>
 										<DropdownMenuItem onclick={() => toggleStatusFilter('graded')}>
 											<div class="flex w-full items-center justify-between">
 												<span>Graded</span>
-												{#if selectedStatusFilters.has('graded')}<Check class="h-4 w-4" />{/if}
+												{#if selectedStatusFilters.has('graded')}<Check />{/if}
 											</div>
 										</DropdownMenuItem>
 										<DropdownMenuItem onclick={() => toggleStatusFilter('submitted')}>
 											<div class="flex w-full items-center justify-between">
 												<span>Submitted</span>
-												{#if selectedStatusFilters.has('submitted')}<Check class="h-4 w-4" />{/if}
+												{#if selectedStatusFilters.has('submitted')}<Check />{/if}
 											</div>
 										</DropdownMenuItem>
 										<DropdownMenuItem onclick={() => toggleStatusFilter('pending')}>
 											<div class="flex w-full items-center justify-between">
 												<span>Pending</span>
-												{#if selectedStatusFilters.has('pending')}<Check class="h-4 w-4" />{/if}
+												{#if selectedStatusFilters.has('pending')}<Check />{/if}
 											</div>
 										</DropdownMenuItem>
 									</DropdownMenuContent>
@@ -342,9 +336,7 @@
 								>
 									{#if sortKey === 'dueDate'}{#if sortDir === 'asc'}<ArrowUp
 												class="h-4 w-4"
-											/>{:else}<ArrowDown class="h-4 w-4" />{/if}{:else}<ArrowUpDown
-											class="h-4 w-4"
-										/>{/if}
+											/>{:else}<ArrowDown />{/if}{:else}<ArrowUpDown class="h-4 w-4" />{/if}
 								</Button>
 							</div>
 						</Table.Head>

@@ -125,7 +125,7 @@
 			}}
 		>
 			<Button.Root variant="outline" size="sm" type="submit">
-				<ChevronLeft class="h-4 w-4" />
+				<ChevronLeft />
 				Previous Week
 			</Button.Root>
 		</form>
@@ -165,7 +165,7 @@
 		>
 			<Button.Root variant="outline" size="sm" type="submit">
 				Next Week
-				<ChevronRight class="h-4 w-4" />
+				<ChevronRight />
 			</Button.Root>
 		</form>
 	</div>

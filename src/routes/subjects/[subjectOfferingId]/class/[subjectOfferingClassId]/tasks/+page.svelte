@@ -105,11 +105,11 @@
 		{#if data?.user?.type !== 'student'}
 			<div class="flex items-center gap-2">
 				<Button onclick={() => (showUploadDialog = true)} variant="outline">
-					<UploadIcon class="h-4 w-4" />
+					<UploadIcon />
 					Upload Resource
 				</Button>
 				<Button href={`${page.url.pathname}/new`} variant="outline">
-					<PlusIcon class="h-4 w-4" />
+					<PlusIcon />
 					New Task
 				</Button>
 			</div>
@@ -152,7 +152,7 @@
 							<Card.Header class="flex-1 truncate">
 								<div class="flex items-center justify-between">
 									<Card.Title class="flex items-center gap-2">
-										<FileIcon class="h-4 w-4" />
+										<FileIcon />
 										{#if resource.downloadUrl}
 											<a href={resource.downloadUrl} target="_blank" class="hover:underline">
 												{resource.title}
@@ -164,11 +164,11 @@
 									<div class="flex items-center gap-1 truncate">
 										{#if resource.downloadUrl}
 											<Button href={resource.downloadUrl} size="sm" variant="ghost" target="_blank">
-												<DownloadIcon class="h-4 w-4" />
+												<DownloadIcon />
 											</Button>
 										{/if}
 										<Button size="sm" variant="ghost" onclick={() => deleteResource(resource.id)}>
-											<TrashIcon class="h-4 w-4" />
+											<TrashIcon />
 										</Button>
 									</div>
 								</div>

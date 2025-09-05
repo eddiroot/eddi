@@ -62,7 +62,7 @@
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
-					<HelpCircleIcon class="h-4 w-4" />
+					<HelpCircleIcon />
 					Configure Choice Block
 				</Card.Title>
 			</Card.Header>
@@ -96,7 +96,7 @@
 								await onConfigUpdate(newConfig);
 							}}
 						>
-							<PlusIcon class="h-4 w-4" />
+							<PlusIcon />
 							Add Option
 						</Button>
 					</div>

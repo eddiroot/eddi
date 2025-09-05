@@ -67,7 +67,7 @@
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
-					<PenToolIcon class="h-4 w-4" />
+					<PenToolIcon />
 					Configure Fill Blank Block
 				</Card.Title>
 			</Card.Header>

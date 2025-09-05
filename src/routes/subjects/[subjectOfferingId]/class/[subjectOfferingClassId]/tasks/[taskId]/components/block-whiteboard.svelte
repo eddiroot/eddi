@@ -79,7 +79,7 @@
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
-					<PresentationIcon class="h-4 w-4" />
+					<PresentationIcon />
 					Configure Whiteboard
 				</Card.Title>
 			</Card.Header>

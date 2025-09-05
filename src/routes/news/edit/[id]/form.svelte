@@ -484,7 +484,7 @@ You can format your content using:
 									: ''}"
 							>
 								<div class="flex flex-col items-center gap-1">
-									<Upload class="h-4 w-4" />
+									<Upload />
 									<span class="text-sm">Click to upload images</span>
 								</div>
 							</Button>

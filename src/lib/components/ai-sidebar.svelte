@@ -286,7 +286,7 @@
 											<div
 												class="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full"
 											>
-												<BotIcon class="h-4 w-4" />
+												<BotIcon />
 											</div>
 										</div>
 									{/if}
@@ -311,7 +311,7 @@
 									{#if !!message.authorId}
 										<div class="flex-shrink-0">
 											<div class="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
-												<UserIcon class="h-4 w-4" />
+												<UserIcon />
 											</div>
 										</div>
 									{/if}
@@ -324,7 +324,7 @@
 										<div
 											class="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full"
 										>
-											<BotIcon class="h-4 w-4" />
+											<BotIcon />
 										</div>
 									</div>
 									<div class="max-w-[80%]">
@@ -360,7 +360,7 @@
 						class="flex-1"
 					/>
 					<Button onclick={sendMessage} disabled={!currentMessage.trim() || isLoading} size="sm">
-						<SendIcon class="h-4 w-4" />
+						<SendIcon />
 					</Button>
 				</div>
 				<p class="text-muted-foreground mt-2 text-xs">

@@ -108,7 +108,7 @@
 								onclick={() => removePair(index)}
 								class="text-destructive hover:text-destructive"
 							>
-								<TrashIcon class="h-4 w-4" />
+								<TrashIcon />
 							</Button>
 						{/if}
 					</div>

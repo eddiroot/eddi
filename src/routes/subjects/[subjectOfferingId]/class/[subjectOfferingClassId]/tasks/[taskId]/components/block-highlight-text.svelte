@@ -88,7 +88,7 @@
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
-					<HighlighterIcon class="h-4 w-4" />
+					<HighlighterIcon />
 					Configure Highlight Text Block
 				</Card.Title>
 			</Card.Header>

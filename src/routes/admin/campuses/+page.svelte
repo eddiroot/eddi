@@ -90,7 +90,7 @@
 									{#snippet child({ props })}
 										<Button {...props} variant="ghost" size="sm" class="h-8 w-8 p-0">
 											<span class="sr-only">Open menu</span>
-											<MoreHorizontalIcon class="h-4 w-4" />
+											<MoreHorizontalIcon />
 										</Button>
 									{/snippet}
 								</DropdownMenu.Trigger>
@@ -133,7 +133,7 @@
 									{#snippet child({ props })}
 										<Button {...props} variant="ghost" size="sm" class="h-8 w-8 p-0">
 											<span class="sr-only">Open menu</span>
-											<MoreHorizontalIcon class="h-4 w-4" />
+											<MoreHorizontalIcon />
 										</Button>
 									{/snippet}
 								</DropdownMenu.Trigger>

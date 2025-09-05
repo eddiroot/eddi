@@ -103,7 +103,7 @@
 			</div>
 		</div>
 		<Button size="lg" class="gap-2">
-			<DownloadIcon class="h-4 w-4" />
+			<DownloadIcon />
 			Download Timetable
 		</Button>
 	</div>

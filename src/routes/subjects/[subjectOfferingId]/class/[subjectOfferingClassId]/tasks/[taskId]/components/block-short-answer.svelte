@@ -30,7 +30,7 @@
 		<Card.Root>
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
-					<MessageSquareTextIcon class="h-4 w-4" />
+					<MessageSquareTextIcon />
 					Configure Short Answer Block
 				</Card.Title>
 			</Card.Header>

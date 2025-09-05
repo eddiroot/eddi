@@ -28,7 +28,7 @@
 	<!-- Header -->
 	<div class="flex items-center gap-4">
 		<Button.Root variant="ghost" size="icon" href="/admin/events">
-			<ArrowLeft class="h-4 w-4" />
+			<ArrowLeft />
 		</Button.Root>
 		<div>
 			<h1 class="text-2xl font-bold tracking-tight">Create Subject Event</h1>
@@ -69,7 +69,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Label for={props.id} class="flex items-center gap-2">
-								<BookOpen class="h-4 w-4" />
+								<BookOpen />
 								Subject Offering *
 							</Label>
 							<Select.Root
@@ -114,7 +114,7 @@
 						<Form.Control>
 							{#snippet children({ props })}
 								<Label for={props.id} class="flex items-center gap-2">
-									<Clock class="h-4 w-4" />
+									<Clock />
 									Start Date & Time *
 								</Label>
 								<Input
@@ -132,7 +132,7 @@
 						<Form.Control>
 							{#snippet children({ props })}
 								<Label for={props.id} class="flex items-center gap-2">
-									<Clock class="h-4 w-4" />
+									<Clock />
 									End Date & Time *
 								</Label>
 								<Input
