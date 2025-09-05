@@ -19,6 +19,7 @@
 	import BlockShortAnswer from './components/block-short-answer.svelte';
 	import BlockClose from './components/block-close.svelte';
 	import BlockHighlightText from './components/block-highlight-text.svelte';
+	import BlockTable from './components/block-table.svelte';
 
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
@@ -45,7 +46,8 @@
 		type BlockShortAnswerConfig,
 		type BlockWhiteboardConfig,
 		type BlockCloseConfig,
-		type BlockHighlightTextConfig
+		type BlockHighlightTextConfig,
+		type BlockTableConfig
 	} from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
@@ -486,6 +488,12 @@
 									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>
 										await handleResponseUpdate(block.id, response)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.table}
+								<BlockTable
+									config={block.config as BlockTableConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									{viewMode}
 								/>
 							{:else}

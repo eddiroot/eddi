@@ -347,6 +347,37 @@ export type BlockHighlightTextResponse = {
 	selectedText: string[];
 };
 
+export const blockTable = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.table] },
+		config: {
+			type: 'object',
+			properties: {
+				title: { type: 'string' },
+				rows: { type: 'number' },
+				columns: { type: 'number' },
+				data: {
+					type: 'array',
+					items: {
+						type: 'array',
+						items: { type: 'string' }
+					}
+				}
+			},
+			required: ['title', 'rows', 'columns', 'data']
+		}
+	},
+	required: ['type', 'config']
+};
+
+export type BlockTableConfig = {
+	title: string;
+	rows: number;
+	columns: number;
+	data: string[][];
+};
+
 export const blockWhiteboard = {
 	type: 'object',
 	properties: {
@@ -378,7 +409,8 @@ export const taskBlocks = [
 	blockMatching,
 	blockShortAnswer,
 	blockClose,
-	blockHighlightText
+	blockHighlightText,
+	blockTable
 ];
 
 export const layoutTwoColumns = {
@@ -436,7 +468,8 @@ export type BlockConfig =
 	| BlockShortAnswerConfig
 	| BlockWhiteboardConfig
 	| BlockCloseConfig
-	| BlockHighlightTextConfig;
+	| BlockHighlightTextConfig
+	| BlockTableConfig;
 
 export type BlockResponse =
 	| BlockChoiceResponse
@@ -470,6 +503,7 @@ export type HighlightTextBlockProps = BlockProps<
 	BlockHighlightTextConfig,
 	BlockHighlightTextResponse
 >;
+export type TableBlockProps = BlockProps<BlockTableConfig>;
 
 import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
@@ -483,6 +517,7 @@ import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 import LinkIcon from '@lucide/svelte/icons/link';
 import HighlighterIcon from '@lucide/svelte/icons/highlighter';
 import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
+import TableIcon from '@lucide/svelte/icons/table';
 import type { Icon } from '@lucide/svelte';
 
 export enum ViewMode {
@@ -598,5 +633,20 @@ export const blockTypes: {
 			]
 		},
 		icon: LinkIcon
+	},
+	{
+		type: taskBlockTypeEnum.table,
+		name: 'Table',
+		initialConfig: {
+			title: 'Table',
+			rows: 3,
+			columns: 3,
+			data: [
+				['Header 1', 'Header 2', 'Header 3'],
+				['Row 1 Col 1', 'Row 1 Col 2', 'Row 1 Col 3'],
+				['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3']
+			]
+		},
+		icon: TableIcon
 	}
 ];

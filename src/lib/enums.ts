@@ -57,7 +57,8 @@ export enum taskBlockTypeEnum {
 	matching = 'matching',
 	shortAnswer = 'short_answer',
 	close = 'close',
-	highlightText = 'highlight_text'
+	highlightText = 'highlight_text',
+	table = 'table'
 }
 
 export enum taskStatusEnum {
