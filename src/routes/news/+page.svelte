@@ -1,30 +1,22 @@
 <!-- +page.svelte -->
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
-	import {
-		Card,
-		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
 	import Calendar from '@lucide/svelte/icons/calendar';
-	import Eye from '@lucide/svelte/icons/eye';
 	import Pin from '@lucide/svelte/icons/pin';
 	import MapPin from '@lucide/svelte/icons/map-pin';
-	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 	import AlertCircle from '@lucide/svelte/icons/alert-circle';
 	import Filter from '@lucide/svelte/icons/filter';
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
 	import FileText from '@lucide/svelte/icons/file-text';
 	import { userPermissions, getPermissions } from '$lib/utils';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	interface NewsItem {
 		news: {
@@ -369,7 +361,7 @@
 	// Handle published parameter - scroll to newly published article
 	$effect(() => {
 		if (typeof window !== 'undefined') {
-			const publishedId = $page.url.searchParams.get('published');
+			const publishedId = page.url.searchParams.get('published');
 			if (publishedId) {
 				const element = document.getElementById(`news-${publishedId}`);
 				if (element) {
@@ -408,10 +400,8 @@
 		</div>
 		<div class="flex items-center gap-2">
 			{#if canCreateNews()}
-				<Button variant="default" size="sm" onclick={() => (window.location.href = '/news/new')}>
-					Create News
-				</Button>
-				<Button variant="outline" size="sm" onclick={() => (window.location.href = '/news/drafts')}>
+				<Button variant="default" size="sm" href="/news/new">Create News</Button>
+				<Button variant="outline" size="sm" href="/news/drafts">
 					<FileText />
 					My Drafts
 				</Button>
@@ -434,9 +424,9 @@
 	</div>
 
 	<!-- Success Message for Published Articles -->
-	{#if $page.url.searchParams.get('published')}
+	{#if page.url.searchParams.get('published')}
 		<div class="rounded-lg border border-green-200 bg-green-50 p-4">
-			<div class="text-sm text-green-800">Article has been successfully published!</div>
+			<div class="text-success text-sm">Article has been successfully published!</div>
 		</div>
 	{/if}
 
@@ -576,7 +566,7 @@
 							id="news-{newsItem.news.id}"
 						>
 							<div class="absolute top-3 right-3">
-								<Pin class="text-primary fill-primary/20" />
+								<Pin class="text-primary fill-primary" />
 							</div>
 
 							{#if newsItem.news.featuredImageUrl}

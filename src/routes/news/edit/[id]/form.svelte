@@ -5,8 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Save from '@lucide/svelte/icons/save';
 	import Send from '@lucide/svelte/icons/send';
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
@@ -111,30 +110,30 @@
 	}
 
 	// Form state
-	let title = $state($page.form?.formData?.title || data.newsItem.news.title || '');
+	let title = $state(page.form?.formData?.title || data.newsItem.news.title || '');
 	let content = $state(
-		$page.form?.formData?.content || reconstructContent(data.newsItem.news.content) || ''
+		page.form?.formData?.content || reconstructContent(data.newsItem.news.content) || ''
 	);
 	let selectedCategory = $state(
-		$page.form?.formData?.categoryId?.toString() || data.newsItem.news.categoryId?.toString() || ''
+		page.form?.formData?.categoryId?.toString() || data.newsItem.news.categoryId?.toString() || ''
 	);
 	let selectedCampus = $state(
-		$page.form?.formData?.campusId?.toString() || data.newsItem.news.campusId?.toString() || ''
+		page.form?.formData?.campusId?.toString() || data.newsItem.news.campusId?.toString() || ''
 	);
 	let selectedVisibility = $state(
-		$page.form?.formData?.visibility || data.newsItem.news.visibility || 'public'
+		page.form?.formData?.visibility || data.newsItem.news.visibility || 'public'
 	);
-	let tags = $state($page.form?.formData?.tags || parseTags(data.newsItem.news.tags) || '');
-	let isPinned = $state($page.form?.formData?.isPinned || data.newsItem.news.isPinned || false);
+	let tags = $state(page.form?.formData?.tags || parseTags(data.newsItem.news.tags) || '');
+	let isPinned = $state(page.form?.formData?.isPinned || data.newsItem.news.isPinned || false);
 	let submitting = $state(false);
 	let selectedImages: File[] = $state([]);
 	let fileInput: HTMLInputElement;
 	let tagInput = $state('');
 	let tagsList: string[] = $state(
-		$page.form?.formData?.tags
-			? Array.isArray($page.form.formData.tags)
-				? $page.form.formData.tags
-				: [$page.form.formData.tags]
+		page.form?.formData?.tags
+			? Array.isArray(page.form.formData.tags)
+				? page.form.formData.tags
+				: [page.form.formData.tags]
 			: (parseTags(data.newsItem.news.tags) || '')
 					.split(',')
 					.map((t) => t.trim())
@@ -367,7 +366,7 @@
 
 <div class="bg-background min-h-screen">
 	<div class="mx-auto max-w-6xl p-6">
-		<Button variant="ghost" onclick={() => goto('/news/drafts')} class="mb-6">
+		<Button variant="ghost" href="/news/drafts" class="mb-6">
 			<ArrowLeft class="mr-2 h-4 w-4" />
 			Back to Drafts
 		</Button>
@@ -384,9 +383,9 @@
 			</div>
 		{/if}
 
-		{#if $page.form?.error}
+		{#if page.form?.error}
 			<div class="mb-6 rounded border border-red-200 bg-red-50 p-4">
-				<p class="text-sm text-red-800">{$page.form.error}</p>
+				<p class="text-sm text-red-800">{page.form.error}</p>
 			</div>
 		{/if}
 

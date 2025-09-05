@@ -5,8 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Save from '@lucide/svelte/icons/save';
 	import Send from '@lucide/svelte/icons/send';
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
@@ -42,22 +41,22 @@
 	} = $props();
 
 	// Form state
-	let title = $state($page.form?.formData?.title || '');
-	let content = $state($page.form?.formData?.content || '');
-	let selectedCategory = $state($page.form?.formData?.categoryId?.toString() || '');
-	let selectedCampus = $state($page.form?.formData?.campusId?.toString() || '');
-	let selectedVisibility = $state($page.form?.formData?.visibility || 'public');
-	let tags = $state($page.form?.formData?.tags || '');
-	let isPinned = $state($page.form?.formData?.isPinned || false);
+	let title = $state(page.form?.formData?.title || '');
+	let content = $state(page.form?.formData?.content || '');
+	let selectedCategory = $state(page.form?.formData?.categoryId?.toString() || '');
+	let selectedCampus = $state(page.form?.formData?.campusId?.toString() || '');
+	let selectedVisibility = $state(page.form?.formData?.visibility || 'public');
+	let tags = $state(page.form?.formData?.tags || '');
+	let isPinned = $state(page.form?.formData?.isPinned || false);
 	let submitting = $state(false);
 	let selectedImages: File[] = $state([]);
 	let fileInput: HTMLInputElement;
 	let tagInput = $state('');
 	let tagsList: string[] = $state(
-		$page.form?.formData?.tags
-			? Array.isArray($page.form.formData.tags)
-				? $page.form.formData.tags
-				: [$page.form.formData.tags]
+		page.form?.formData?.tags
+			? Array.isArray(page.form.formData.tags)
+				? page.form.formData.tags
+				: [page.form.formData.tags]
 			: []
 	);
 
@@ -287,16 +286,16 @@
 
 <div class="bg-background min-h-screen">
 	<div class="mx-auto max-w-6xl p-6">
-		<Button variant="ghost" onclick={() => goto('/news')} class="mb-6">
+		<Button variant="ghost" href="/news" class="mb-6">
 			<ArrowLeft class="mr-2 h-4 w-4" />
 			Back to News
 		</Button>
 
 		<h1 class="mb-6 text-2xl font-bold">Create News Article</h1>
 
-		{#if $page.form?.error}
+		{#if page.form?.error}
 			<div class="mb-6 rounded border border-red-200 bg-red-50 p-4">
-				<p class="text-sm text-red-800">{$page.form.error}</p>
+				<p class="text-sm text-red-800">{page.form.error}</p>
 			</div>
 		{/if}
 
@@ -560,10 +559,10 @@ You can create bullet points like this:
 						class="w-full"
 					>
 						{#if submitting}
-							<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+							<LoaderIcon class="animate-spin" />
 							Saving...
 						{:else}
-							<Save class="mr-2 h-4 w-4" />
+							<Save />
 							Save Draft
 						{/if}
 					</Button>
@@ -575,10 +574,10 @@ You can create bullet points like this:
 						class="w-full"
 					>
 						{#if submitting}
-							<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+							<LoaderIcon class="animate-spin" />
 							Publishing...
 						{:else}
-							<Send class="mr-2 h-4 w-4" />
+							<Send />
 							Publish
 						{/if}
 					</Button>

@@ -1,17 +1,9 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
-	import {
-		Card,
-		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
-	import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import Clock from '@lucide/svelte/icons/clock';
@@ -175,7 +167,7 @@
 
 	// Show success toast if coming from a successful deletion
 	$effect(() => {
-		if (typeof window !== 'undefined' && $page.url.searchParams.get('deleted') === '1') {
+		if (typeof window !== 'undefined' && page.url.searchParams.get('deleted') === '1') {
 			toast.success('Draft article deleted successfully!');
 			// Clean up the URL parameter
 			const url = new URL(window.location.href);
@@ -203,7 +195,7 @@
 			<h1 class="text-3xl font-bold tracking-tight">Draft Articles</h1>
 			<p class="text-muted-foreground mt-1">Manage your unpublished news articles</p>
 		</div>
-		<Button variant="default" size="sm" onclick={() => goto('/news/new')}>
+		<Button variant="default" size="sm" href="/news/new">
 			<FileText />
 			New Draft
 		</Button>
@@ -230,11 +222,7 @@
 								</CardTitle>
 							</div>
 							<div class="flex gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onclick={() => goto(`/news/edit/${draft.news.id}`)}
-								>
+								<Button variant="outline" size="sm" href={`/news/edit/${draft.news.id}`}>
 									<Edit />
 									Edit
 								</Button>
