@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { campus, school } from './schools';
 import { subjectOffering, subjectOfferingClass } from './subjects';
@@ -73,7 +73,7 @@ export const eventRSVP = pgTable(
 	'event_rsvp',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		userId: text('user_id')
+		userId: uuid('user_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
 		eventType: text('event_type', {
