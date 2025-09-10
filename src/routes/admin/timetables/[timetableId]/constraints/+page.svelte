@@ -8,150 +8,160 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import CheckIcon from '@lucide/svelte/icons/check';
+	import type { constraintTypeEnum } from '$lib/enums';
 
 	interface Constraint {
-		id: number;
 		name: string;
-		type: string;
-		enabled: boolean;
-		parameters: Record<string, any>;
+		description: string;
+		type: constraintTypeEnum;
+		active: boolean;
+		parameterSchema: Record<string, unknown>;
+		exampleParameters: Record<string, unknown>;
 	}
 
-	// Mock data based on constraints.json structure
-	let timeConstraints = $state([
-		{
-			id: 1,
-			name: 'Basic Compulsory Time',
-			type: 'ConstraintBasicCompulsoryTime',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 2,
-			name: 'Students Early Max Beginnings At Second Hour',
-			type: 'ConstraintStudentsEarlyMaxBeginningsAtSecondHour',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Max_Beginnings_At_Second_Hour: '0',
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 3,
-			name: 'Students Max Gaps Per Week',
-			type: 'ConstraintStudentsMaxGapsPerWeek',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Max_Gaps: '0',
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 4,
-			name: 'Min Days Between Activities',
-			type: 'ConstraintMinDaysBetweenActivities',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '95',
-				Consecutive_If_Same_Day: 'true',
-				Number_of_Activities: '4',
-				Activity_Ids: ['21', '22', '23', '24'],
-				MinDays: '1',
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 5,
-			name: 'Teachers Max Gaps Per Week',
-			type: 'ConstraintTeachersMaxGapsPerWeek',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Max_Gaps: '3',
-				Active: 'true',
-				Comments: null
-			}
-		}
-	]);
+	let { data } = $props();
+	let { user, timeConstraints, spaceConstraints, timetableId } = data;
 
-	let spaceConstraints = $state([
-		{
-			id: 6,
-			name: 'Teacher Not Available Times - Sepp',
-			type: 'ConstraintTeacherNotAvailableTimes',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Teacher: 'Sepp',
-				Number_of_Not_Available_Times: '6',
-				Not_Available_Times: [
-					{ Day: 'Monday', Hour: '1' },
-					{ Day: 'Monday', Hour: '2' },
-					{ Day: 'Monday', Hour: '3' },
-					{ Day: 'Monday', Hour: '4' },
-					{ Day: 'Monday', Hour: '5' },
-					{ Day: 'Monday', Hour: '6' }
-				],
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 7,
-			name: 'Teacher Max Days Per Week - Julia',
-			type: 'ConstraintTeacherMaxDaysPerWeek',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Teacher_Name: 'Julia',
-				Max_Days_Per_Week: '4',
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 8,
-			name: 'Activities Preferred Starting Times',
-			type: 'ConstraintActivitiesPreferredStartingTimes',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Teacher_Name: null,
-				Students_Name: null,
-				Subject_Name: null,
-				Activity_Tag_Name: '1,3,5',
-				Duration: null,
-				Number_of_Preferred_Starting_Times: '15',
-				Preferred_Starting_Time: '\n\t\t',
-				Active: 'true',
-				Comments: null
-			}
-		},
-		{
-			id: 9,
-			name: 'Activity Preferred Starting Time - Specific',
-			type: 'ConstraintActivityPreferredStartingTime',
-			enabled: true,
-			parameters: {
-				Weight_Percentage: '100',
-				Activity_Ids: ['478'],
-				Preferred_Day: 'Thursday',
-				Preferred_Hour: '5',
-				Permanently_Locked: 'true',
-				Active: 'true',
-				Comments: null
-			}
-		}
-	]);
+	console.log('User:', user);
+	console.log('Time Constraints:', timeConstraints);
+	console.log('Space Constraints:', spaceConstraints);
+	console.log('Timetable ID:', timetableId);
+
+	// // Mock data based on constraints.json structure
+	// let timeConstraints = $state([
+	// 	{
+	// 		id: 1,
+	// 		name: 'Basic Compulsory Time',
+	// 		type: 'ConstraintBasicCompulsoryTime',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		name: 'Students Early Max Beginnings At Second Hour',
+	// 		type: 'ConstraintStudentsEarlyMaxBeginningsAtSecondHour',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Max_Beginnings_At_Second_Hour: '0',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		name: 'Students Max Gaps Per Week',
+	// 		type: 'ConstraintStudentsMaxGapsPerWeek',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Max_Gaps: '0',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		name: 'Min Days Between Activities',
+	// 		type: 'ConstraintMinDaysBetweenActivities',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '95',
+	// 			Consecutive_If_Same_Day: 'true',
+	// 			Number_of_Activities: '4',
+	// 			Activity_Ids: ['21', '22', '23', '24'],
+	// 			MinDays: '1',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 5,
+	// 		name: 'Teachers Max Gaps Per Week',
+	// 		type: 'ConstraintTeachersMaxGapsPerWeek',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Max_Gaps: '3',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	}
+	// ]);
+
+	// let spaceConstraints = $state([
+	// 	{
+	// 		id: 6,
+	// 		name: 'Teacher Not Available Times - Sepp',
+	// 		type: 'ConstraintTeacherNotAvailableTimes',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Teacher: 'Sepp',
+	// 			Number_of_Not_Available_Times: '6',
+	// 			Not_Available_Times: [
+	// 				{ Day: 'Monday', Hour: '1' },
+	// 				{ Day: 'Monday', Hour: '2' },
+	// 				{ Day: 'Monday', Hour: '3' },
+	// 				{ Day: 'Monday', Hour: '4' },
+	// 				{ Day: 'Monday', Hour: '5' },
+	// 				{ Day: 'Monday', Hour: '6' }
+	// 			],
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 7,
+	// 		name: 'Teacher Max Days Per Week - Julia',
+	// 		type: 'ConstraintTeacherMaxDaysPerWeek',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Teacher_Name: 'Julia',
+	// 			Max_Days_Per_Week: '4',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 8,
+	// 		name: 'Activities Preferred Starting Times',
+	// 		type: 'ConstraintActivitiesPreferredStartingTimes',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Teacher_Name: null,
+	// 			Students_Name: null,
+	// 			Subject_Name: null,
+	// 			Activity_Tag_Name: '1,3,5',
+	// 			Duration: null,
+	// 			Number_of_Preferred_Starting_Times: '15',
+	// 			Preferred_Starting_Time: '\n\t\t',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 9,
+	// 		name: 'Activity Preferred Starting Time - Specific',
+	// 		type: 'ConstraintActivityPreferredStartingTime',
+	// 		enabled: true,
+	// 		parameters: {
+	// 			Weight_Percentage: '100',
+	// 			Activity_Ids: ['478'],
+	// 			Preferred_Day: 'Thursday',
+	// 			Preferred_Hour: '5',
+	// 			Permanently_Locked: 'true',
+	// 			Active: 'true',
+	// 			Comments: null
+	// 		}
+	// 	}
+	// ]);
 
 	// Modal state
 	let editModalOpen = $state(false);
@@ -160,7 +170,7 @@
 
 	function openEditModal(constraint: Constraint) {
 		editingConstraint = constraint;
-		tempParameters = { ...constraint.parameters };
+		tempParameters = { ...constraint.parameterSchema };
 		editModalOpen = true;
 	}
 
@@ -172,13 +182,13 @@
 
 	function saveConstraint() {
 		if (editingConstraint) {
-			editingConstraint.parameters = { ...tempParameters };
+			editingConstraint.parameterSchema = { ...tempParameters };
 		}
 		closeEditModal();
 	}
 
 	function toggleConstraint(constraint: Constraint) {
-		constraint.enabled = !constraint.enabled;
+		constraint.active = !constraint.active;
 	}
 
 	function formatParameterKey(key: string): string {
@@ -257,7 +267,7 @@
 									<td class="px-4 py-2 font-medium">{constraint.name}</td>
 									<td class="px-4 py-2">
 										<Checkbox
-											checked={constraint.enabled}
+											checked={constraint.active}
 											onCheckedChange={() => toggleConstraint(constraint)}
 										/>
 									</td>

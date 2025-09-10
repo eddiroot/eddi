@@ -24,7 +24,7 @@ Example structure:
   </ConstraintStudentsEarlyMaxBeginningsAtSecondHour>
 
 
-ConstraintStudentsMaxGapsPerWeek:
+ConstraintStudentsMaxGapsPerWeek: +
 ---------------------------------
 Parameters: Active, Comments, Max_Gaps, Weight_Percentage
 Example structure:
@@ -36,7 +36,7 @@ Example structure:
   </ConstraintStudentsMaxGapsPerWeek>
 
 
-ConstraintMinDaysBetweenActivities:
+ConstraintMinDaysBetweenActivities: +
 -----------------------------------
 Parameters: Active, Activity_Id, Comments, Consecutive_If_Same_Day, MinDays, Number_of_Activities, Weight_Percentage
 Example structure:

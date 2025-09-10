@@ -447,7 +447,6 @@ export async function createTimetableFETActivitiesFromFETExport(
 }
 
 export async function createConstraint(data: {
-	id: string;
 	name: string;
 	description: string;
 	type: constraintTypeEnum;
@@ -457,7 +456,6 @@ export async function createConstraint(data: {
 	const [constraint] = await db
 		.insert(table.constraint)
 		.values({
-			id: data.id,
 			name: data.name,
 			description: data.description,
 			type: data.type,
@@ -470,7 +468,7 @@ export async function createConstraint(data: {
 	return constraint;
 }
 
-export async function createTimetableConstriant(timetableId: number, constraintId: string) {
+export async function createTimetableConstriant(timetableId: number, constraintId: number) {
 	const [constraint] = await db
 		.insert(table.timetableConstraint)
 		.values({
@@ -482,7 +480,7 @@ export async function createTimetableConstriant(timetableId: number, constraintI
 	return constraint;
 }
 
-export async function getConstraintsByTimetableId(timetableId: number) {
+export async function getAllConstraintsByTimetableId(timetableId: number) {
 	return db
 		.select({
 			id: table.constraint.id,
@@ -499,6 +497,50 @@ export async function getConstraintsByTimetableId(timetableId: number) {
 		.orderBy(asc(table.constraint.name));
 }
 
+export async function getTimeConstraintsByTimetableId(timetableId: number) {
+	return db
+		.select({
+			id: table.constraint.id,
+			name: table.constraint.name,
+			description: table.constraint.description,
+			type: table.constraint.type,
+			parameterSchema: table.constraint.parameterSchema,
+			exampleParameters: table.constraint.exampleParameters,
+			active: table.constraint.active
+		})
+		.from(table.timetableConstraint)
+		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.where(
+			and(
+				eq(table.timetableConstraint.timetableId, timetableId),
+				eq(table.constraint.type, constraintTypeEnum.time)
+			)
+		)
+		.orderBy(asc(table.constraint.name));
+}
+
+export async function getSpaceConstraintsByTimetableId(timetableId: number) {
+	return db
+		.select({
+			id: table.constraint.id,
+			name: table.constraint.name,
+			description: table.constraint.description,
+			type: table.constraint.type,
+			parameterSchema: table.constraint.parameterSchema,
+			exampleParameters: table.constraint.exampleParameters,
+			active: table.constraint.active
+		})
+		.from(table.timetableConstraint)
+		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.where(
+			and(
+				eq(table.timetableConstraint.timetableId, timetableId),
+				eq(table.constraint.type, constraintTypeEnum.space)
+			)
+		)
+		.orderBy(asc(table.constraint.name));
+}
+
 export async function getAllConstraints() {
 	const constraints = await db
 		.select()
@@ -509,7 +551,7 @@ export async function getAllConstraints() {
 	return constraints;
 }
 
-export async function getConstraintById(constraintId: string) {
+export async function getConstraintById(constraintId: number) {
 	const [constraint] = await db
 		.select()
 		.from(table.constraint)
@@ -519,7 +561,7 @@ export async function getConstraintById(constraintId: string) {
 	return constraint;
 }
 
-export async function deleteTimetableConstraint(timetableId: number, constraintId: string) {
+export async function deleteTimetableConstraint(timetableId: number, constraintId: number) {
 	await db
 		.delete(table.timetableConstraint)
 		.where(
