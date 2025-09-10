@@ -58,7 +58,8 @@ export enum taskBlockTypeEnum {
 	shortAnswer = 'short_answer',
 	close = 'close',
 	highlightText = 'highlight_text',
-	table = 'table'
+	table = 'table',
+	graph = 'graph'
 }
 
 export enum taskStatusEnum {

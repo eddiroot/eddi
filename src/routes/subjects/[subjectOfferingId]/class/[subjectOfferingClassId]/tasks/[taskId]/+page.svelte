@@ -20,6 +20,7 @@
 	import BlockClose from './components/block-close.svelte';
 	import BlockHighlightText from './components/block-highlight-text.svelte';
 	import BlockTable from './components/block-table.svelte';
+	import BlockGraph from './components/block-graph.svelte';
 
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
@@ -47,7 +48,8 @@
 		type BlockWhiteboardConfig,
 		type BlockCloseConfig,
 		type BlockHighlightTextConfig,
-		type BlockTableConfig
+		type BlockTableConfig,
+		type BlockGraphConfig
 	} from '$lib/schemas/taskSchema';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
@@ -87,6 +89,8 @@
 				return { answer: '' };
 			case taskBlockTypeEnum.highlightText:
 				return { selectedText: [] };
+			case taskBlockTypeEnum.graph:
+				return { studentPlots: [] };
 			default:
 				return {};
 		}
@@ -494,6 +498,15 @@
 								<BlockTable
 									config={block.config as BlockTableConfig}
 									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.graph}
+								<BlockGraph
+									config={block.config as BlockGraphConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
+									onResponseUpdate={async (response) =>
+										await handleResponseUpdate(block.id, response)}
 									{viewMode}
 								/>
 							{:else}

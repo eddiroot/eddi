@@ -56,9 +56,6 @@ All
 Lachie
 
 - [ ] Class tests / quizzes
-- [ ] Add/refine current task blocks
-  - Maths
-    - [ ] Graph/plot
 - [ ] Excursions (permission forms)
   - [ ] Potential AI generation of form
   - [ ] Change colour of event in calendar once form is signed

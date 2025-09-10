@@ -400,6 +400,75 @@ export type BlockWhiteboardConfig = {
 	whiteboardId: number | null;
 };
 
+export const blockGraph = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.graph] },
+		config: {
+			type: 'object',
+			properties: {
+				title: { type: 'string' },
+				xAxisLabel: { type: 'string' },
+				yAxisLabel: { type: 'string' },
+				xRange: {
+					type: 'object',
+					properties: {
+						min: { type: 'number' },
+						max: { type: 'number' }
+					},
+					required: ['min', 'max']
+				},
+				yRange: {
+					type: 'object',
+					properties: {
+						min: { type: 'number' },
+						max: { type: 'number' }
+					},
+					required: ['min', 'max']
+				},
+				staticPlots: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							id: { type: 'string' },
+							equation: { type: 'string' },
+							color: { type: 'string' },
+							label: { type: 'string' }
+						},
+						required: ['id', 'equation', 'color', 'label']
+					}
+				}
+			},
+			required: ['title', 'xAxisLabel', 'yAxisLabel', 'xRange', 'yRange', 'staticPlots']
+		}
+	},
+	required: ['type', 'config']
+};
+
+export type BlockGraphConfig = {
+	title: string;
+	xAxisLabel: string;
+	yAxisLabel: string;
+	xRange: { min: number; max: number };
+	yRange: { min: number; max: number };
+	staticPlots: {
+		id: string;
+		equation: string;
+		color: string;
+		label: string;
+	}[];
+};
+
+export type BlockGraphResponse = {
+	studentPlots: {
+		id: string;
+		equation: string;
+		color: string;
+		label: string;
+	}[];
+};
+
 export const taskBlocks = [
 	blockHeading,
 	blockRichText,
@@ -410,7 +479,8 @@ export const taskBlocks = [
 	blockShortAnswer,
 	blockClose,
 	blockHighlightText,
-	blockTable
+	blockTable,
+	blockGraph
 ];
 
 export const layoutTwoColumns = {
@@ -469,7 +539,8 @@ export type BlockConfig =
 	| BlockWhiteboardConfig
 	| BlockCloseConfig
 	| BlockHighlightTextConfig
-	| BlockTableConfig;
+	| BlockTableConfig
+	| BlockGraphConfig;
 
 export type BlockResponse =
 	| BlockChoiceResponse
@@ -477,7 +548,8 @@ export type BlockResponse =
 	| BlockMatchingResponse
 	| BlockShortAnswerResponse
 	| BlockCloseResponse
-	| BlockHighlightTextResponse;
+	| BlockHighlightTextResponse
+	| BlockGraphResponse;
 
 export type BlockProps<T extends BlockConfig = BlockConfig, Q extends BlockResponse = never> = {
 	config: T;
@@ -486,9 +558,9 @@ export type BlockProps<T extends BlockConfig = BlockConfig, Q extends BlockRespo
 } & ([Q] extends [never]
 	? object
 	: {
-			response: Q;
-			onResponseUpdate: (response: Q) => Promise<void>;
-		});
+		response: Q;
+		onResponseUpdate: (response: Q) => Promise<void>;
+	});
 
 // Specific prop types for each block type
 export type HeadingBlockProps = BlockProps<BlockHeadingConfig>;
@@ -504,6 +576,7 @@ export type HighlightTextBlockProps = BlockProps<
 	BlockHighlightTextResponse
 >;
 export type TableBlockProps = BlockProps<BlockTableConfig>;
+export type GraphBlockProps = BlockProps<BlockGraphConfig, BlockGraphResponse>;
 
 import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
@@ -518,6 +591,7 @@ import LinkIcon from '@lucide/svelte/icons/link';
 import HighlighterIcon from '@lucide/svelte/icons/highlighter';
 import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
 import TableIcon from '@lucide/svelte/icons/table';
+import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 import type { Icon } from '@lucide/svelte';
 
 export enum ViewMode {
@@ -533,120 +607,133 @@ export const blockTypes: {
 	initialConfig: Record<string, unknown>;
 	icon: typeof Icon;
 }[] = [
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 1',
-		initialConfig: { text: 'Heading 1', size: 2 },
-		icon: HeadingOneIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 2',
-		initialConfig: { text: 'Heading 2', size: 3 },
-		icon: HeadingTwoIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 3',
-		initialConfig: { text: 'Heading 3', size: 4 },
-		icon: HeadingThreeIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 4',
-		initialConfig: { text: 'Heading 4', size: 5 },
-		icon: HeadingFourIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 5',
-		initialConfig: { text: 'Heading 5', size: 6 },
-		icon: HeadingFiveIcon
-	},
-	{
-		type: taskBlockTypeEnum.richText,
-		name: 'Rich Text',
-		initialConfig: { html: 'This is a rich text block' },
-		icon: PilcrowIcon
-	},
-	{
-		type: taskBlockTypeEnum.whiteboard,
-		name: 'Whiteboard',
-		initialConfig: { data: '', width: 800, height: 600 },
-		icon: PresentationIcon
-	},
-	{
-		type: taskBlockTypeEnum.choice,
-		name: 'Multiple Choice',
-		initialConfig: {
-			question: 'Sample multiple choice question?',
-			options: [
-				{ text: 'Option 1', isAnswer: false },
-				{ text: 'Option 2', isAnswer: true }
-			]
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 1',
+			initialConfig: { text: 'Heading 1', size: 2 },
+			icon: HeadingOneIcon
 		},
-		icon: List
-	},
-	{
-		type: taskBlockTypeEnum.fillBlank,
-		name: 'Fill Blank',
-		initialConfig: {
-			sentence: 'Fill in the _____ and _____.',
-			answers: ['first blank', 'second blank']
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 2',
+			initialConfig: { text: 'Heading 2', size: 3 },
+			icon: HeadingTwoIcon
 		},
-		icon: PenToolIcon
-	},
-	{
-		type: taskBlockTypeEnum.close,
-		name: 'Answer Blank',
-		initialConfig: {
-			text: 'Complete this sentence with _____ and _____.'
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 3',
+			initialConfig: { text: 'Heading 3', size: 4 },
+			icon: HeadingThreeIcon
 		},
-		icon: PenToolIcon
-	},
-	{
-		type: taskBlockTypeEnum.shortAnswer,
-		name: 'Short Answer',
-		initialConfig: {
-			question: 'Question'
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 4',
+			initialConfig: { text: 'Heading 4', size: 5 },
+			icon: HeadingFourIcon
 		},
-		icon: MessageSquareTextIcon
-	},
-	{
-		type: taskBlockTypeEnum.highlightText,
-		name: 'Highlight Text',
-		initialConfig: {
-			text: 'Sample text for students to highlight key concepts and important information.',
-			instructions: 'Highlight the correct information',
-			highlightCorrect: true
+		{
+			type: taskBlockTypeEnum.heading,
+			name: 'Heading 5',
+			initialConfig: { text: 'Heading 5', size: 6 },
+			icon: HeadingFiveIcon
 		},
-		icon: HighlighterIcon
-	},
-	{
-		type: taskBlockTypeEnum.matching,
-		name: 'Matching Pairs',
-		initialConfig: {
-			instructions: 'Match the items on the left with the correct answers on the right.',
-			pairs: [
-				{ left: 'Item 1', right: 'Answer 1' },
-				{ left: 'Item 2', right: 'Answer 2' }
-			]
+		{
+			type: taskBlockTypeEnum.richText,
+			name: 'Rich Text',
+			initialConfig: { html: 'This is a rich text block' },
+			icon: PilcrowIcon
 		},
-		icon: LinkIcon
-	},
-	{
-		type: taskBlockTypeEnum.table,
-		name: 'Table',
-		initialConfig: {
-			title: 'Table',
-			rows: 3,
-			columns: 3,
-			data: [
-				['Header 1', 'Header 2', 'Header 3'],
-				['Row 1 Col 1', 'Row 1 Col 2', 'Row 1 Col 3'],
-				['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3']
-			]
+		{
+			type: taskBlockTypeEnum.whiteboard,
+			name: 'Whiteboard',
+			initialConfig: { data: '', width: 800, height: 600 },
+			icon: PresentationIcon
 		},
-		icon: TableIcon
-	}
-];
+		{
+			type: taskBlockTypeEnum.choice,
+			name: 'Multiple Choice',
+			initialConfig: {
+				question: 'Sample multiple choice question?',
+				options: [
+					{ text: 'Option 1', isAnswer: false },
+					{ text: 'Option 2', isAnswer: true }
+				]
+			},
+			icon: List
+		},
+		{
+			type: taskBlockTypeEnum.fillBlank,
+			name: 'Fill Blank',
+			initialConfig: {
+				sentence: 'Fill in the _____ and _____.',
+				answers: ['first blank', 'second blank']
+			},
+			icon: PenToolIcon
+		},
+		{
+			type: taskBlockTypeEnum.close,
+			name: 'Answer Blank',
+			initialConfig: {
+				text: 'Complete this sentence with _____ and _____.'
+			},
+			icon: PenToolIcon
+		},
+		{
+			type: taskBlockTypeEnum.shortAnswer,
+			name: 'Short Answer',
+			initialConfig: {
+				question: 'Question'
+			},
+			icon: MessageSquareTextIcon
+		},
+		{
+			type: taskBlockTypeEnum.highlightText,
+			name: 'Highlight Text',
+			initialConfig: {
+				text: 'Sample text for students to highlight key concepts and important information.',
+				instructions: 'Highlight the correct information',
+				highlightCorrect: true
+			},
+			icon: HighlighterIcon
+		},
+		{
+			type: taskBlockTypeEnum.matching,
+			name: 'Matching Pairs',
+			initialConfig: {
+				instructions: 'Match the items on the left with the correct answers on the right.',
+				pairs: [
+					{ left: 'Item 1', right: 'Answer 1' },
+					{ left: 'Item 2', right: 'Answer 2' }
+				]
+			},
+			icon: LinkIcon
+		},
+		{
+			type: taskBlockTypeEnum.table,
+			name: 'Table',
+			initialConfig: {
+				title: 'Table',
+				rows: 3,
+				columns: 3,
+				data: [
+					['Header 1', 'Header 2', 'Header 3'],
+					['Row 1 Col 1', 'Row 1 Col 2', 'Row 1 Col 3'],
+					['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3']
+				]
+			},
+			icon: TableIcon
+		},
+		{
+			type: taskBlockTypeEnum.graph,
+			name: 'Graph',
+			initialConfig: {
+				title: 'Function Graph',
+				xAxisLabel: 'x',
+				yAxisLabel: 'y',
+				xRange: { min: -10, max: 10 },
+				yRange: { min: -10, max: 10 },
+				staticPlots: []
+			},
+			icon: TrendingUpIcon
+		}
+	];
