@@ -1,10 +1,16 @@
 # Handling Timetable Constraints:
 
+## Database Structure:
+
+TIMETABLE(tt_id,.....)
+CONTSTRAINTS(con_id, con_name, con_type, con_params_json)
+TIMETABLE_CONSTRAINTS(tt_id, con_id)
+
 ## Background:
 
 Every constraint has a weight. A weight of 100% mean that this constraint must be respected. A lower value mean it should be respected, it's not necessary. It's pretty difficult to explain the exact function, but a simple illustration is the following: 50% weight mean that in average FET retries two times to place an activity without a conflict. If FET isn't able to place the activity without a conflict after average 2 times it keeps the conflict and tries to place the next activity.
 
-## List of Constraints that need to be handled in the "buildFETInput" function:
+## List of available FET constraints:
 
 - [ ] Teacher not available constraint
 - [ ] Student not available constraint
@@ -111,4 +117,105 @@ Every constraint has a weight. A weight of 100% mean that this constraint must b
   - [ ] Space constraints (students) → Max building changes per week for a set of students
   - [ ] Space constraints (students) → Max building changes per week for all students
   - [ ] Space constraints (students) → Min gaps between building changes for a set of students
-  - [ ] Space constraints (students) → Min gaps between building changes for all students
+  - [ ] Space constraints (students) → Min gaps between building changes for all student
+
+Idea:
+**Each constraint has weight percentage to dictate how crucial it is for the algorithm to oblige**
+2 different types of constraints:
+
+- Time_Constraints_List
+- Space_Constraints_List
+
+### Time_Constraints_List:
+
+- ConstraintBasicCompulsoryTime
+- ConstraintStudentsSetNotAvailableTimes
+  - Students
+  - Number_of_Not_Available_Times
+  - Not_Available_Time
+- ConstraintMinDaysBetweenActivities
+  - Consecutive_If_Same_Day
+  - Number_of_Activities
+  - Activity_Id
+  - MinDays
+- ConstraintActivitiesPreferredStartingTimes
+  - Teacher_Name
+  - Students_Name
+  - Subject_Name
+  - Activity_Tag_Name
+  - Duration
+  - Number_of_Preferred_Starting_Times
+  - Preferred_Starting_Time
+- ConstraintTeacherNotAvailableTimes
+  - Teacher
+  - Number_of_Not_Available_Times
+  - Not_Available_Time
+- ConstraintTeacherMaxGapsPerDay
+  - Teacher_Name
+  - Max_Gaps
+- ConstraintBreakTimes
+  - Number_of_Break_Times
+  - Break_Time
+- ConstraintTeacherMaxHoursDaily
+  - Teacher
+  - Maximum_Hours_Daily
+- ConstraintActivityPreferredTimeSlots
+  - Activity_Id
+  - Number_of_Preferred_Time_Slots
+  - Preferred_Time_Slot
+    - Day
+    - Hour
+- ConstraintActivitiesSameStartingTime
+  - Number_of_Activities
+  - Activity_Id
+- ConstraintActivitiesNotOverlapping
+  - Number_of_Activities
+  - Activity_Id
+- ConstraintActivitiesOccupyMaxDifferentRooms
+  - Number_of_Activities
+  - Activity_Id
+  - Max_Number_of_Different_Rooms
+- ConstraintActivitiesPreferredTimeSlots
+  - Teacher
+  - Students
+  - Subject
+  - Activity_Tag
+  - Duration
+  - Number_of_Preferred_Time_Slots
+  - Preferred_Time_Slot
+- ConstraintActivitiesSameRoomIfConsecutive
+  - Number_of_Activities
+  - Activity_Id
+- ConstraintMinGapsBetweenActivities
+  - Number_of_Activities
+  - Activity_Id
+  - MinGaps
+- ConstraintTwoActivitiesConsecutive
+  - First_Activity_Id
+  - Second_Activity_Id
+
+### Space_Constraints_List
+
+- ConstraintBasicCompulsorySpace
+- ConstraintTeacherHomeRoom
+  - Teacher
+  - Room
+- ConstraintActivityPreferredRoom
+  - Activity_Id
+  - Room
+  - Permanently_Locked
+- ConstraintActivityPreferredRooms
+  - Activity_Id
+  - Number_of_Preferred_Rooms
+  - Preferred_Room
+- ConstraintStudentsSetHomeRoom
+  - Students
+  - Room
+- ConstraintSubjectActivityTagPreferredRoom
+  - Subject
+  - Activity_Tag
+  - Room
+- ConstraintSubjectPreferredRooms
+  - Subject
+  - Number_of_Preferred_Rooms
+  - Preferred_Room

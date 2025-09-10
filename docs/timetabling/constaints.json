@@ -1,0 +1,5624 @@
+{
+	"time_constraints": [
+		{
+			"type": "ConstraintBasicCompulsoryTime",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintStudentsEarlyMaxBeginningsAtSecondHour",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Max_Beginnings_At_Second_Hour": "0",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintStudentsMaxGapsPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Max_Gaps": "0",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["21", "22", "23", "24"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["25", "26", "27", "28"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["29", "30", "31", "32"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["33", "34", "35", "36"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["37", "38", "39", "40", "41"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["42", "43", "44", "45", "46"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["47", "48", "49", "50", "51"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["52", "53", "54", "55", "56"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["57", "58"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["59", "60"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["61", "62"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["63", "64"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["73", "74"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["75", "76"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["87", "88"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["97", "98", "99", "100"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["101", "102", "103", "104"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["105", "106", "107", "108"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["109", "110", "111", "112"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["113", "114", "115", "116"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["117", "118", "119", "120"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["121", "122", "123", "124"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["125", "126", "127", "128"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["129", "130", "131", "132", "133"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["134", "135", "136", "137", "138"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["144", "145", "146", "147", "148"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["149", "150"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["151", "152"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["153", "154"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["155", "156"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["161", "162"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["163", "164"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["165", "166"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["167", "168"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["169", "170"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["171", "172"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["173", "174"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["175", "176"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["177", "178"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["179", "180"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["181", "182"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["183", "184"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["185", "186"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["187", "188"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["189", "190"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["191", "192"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["197", "198"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["203", "204", "205", "206"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["207", "208", "209", "210"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["211", "212", "213", "214"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["215", "216", "217", "218"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["219", "220", "221", "222"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["223", "224", "225", "226"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["227", "228", "229", "230"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["231", "232", "233", "234"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["235", "236", "237", "238"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["239", "240", "241", "242"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["243", "244", "245", "246"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["247", "248", "249", "250"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["251", "252"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["253", "254"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["255", "256"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["257", "258"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["263", "264"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["265", "266"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["267", "268"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["269", "270"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["275", "276", "277"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["278", "279", "280"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["281", "282", "283"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["284", "285", "286"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["303", "304"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["313", "314", "315", "316"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["317", "318", "319", "320"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["321", "322", "323", "324"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["325", "326", "327", "328"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["329", "330", "331", "332"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["333", "334", "335", "336"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["337", "338", "339", "340"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["341", "342", "343", "344"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["345", "346", "347", "348"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["349", "350"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["351", "352"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["353", "354"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["361", "362"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["363", "364"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["365", "366"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["367", "368"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["369", "370"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["371", "372"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["373", "374"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["375", "376"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["377", "378"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["379", "380"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["389", "390", "391"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["392", "393", "394"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["395", "396", "397"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["398", "399", "400"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["401", "402", "403"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["404", "405", "406", "407"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["408", "409", "410", "411"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["412", "413", "414", "415"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["416", "417", "418", "419"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["420", "421", "422", "423"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["424", "425", "426", "427"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["428", "429", "430", "431"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["432", "433", "434", "435"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["436", "437", "438", "439"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["440", "441", "442", "443"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["444", "445", "446", "447"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["448", "449", "450", "451"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["452", "453"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["454", "455"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["456", "457"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["458", "459"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["468", "469"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["470", "471"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["472", "473"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["474", "475"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["476", "477"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["479", "480"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["481", "482", "483", "484"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["485", "486"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["487", "488"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["489", "490"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["491", "492"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["493", "494", "495", "496"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["497", "498", "499", "500"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["501", "502", "503", "504"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["505", "506", "507", "508"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["509", "510", "511", "512"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["513", "514", "515", "516"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["517", "518", "519", "520"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["521", "522", "523", "524"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["525", "526", "527", "528"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["529", "530", "531", "532"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["533", "534", "535", "536"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["537", "538", "539", "540"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["541", "542", "543", "544"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["551", "552"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["553", "554"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["555", "556"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["560", "561"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Sepp",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Jan",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Tanja",
+				"Number_of_Not_Available_Times": "4",
+				"Not_Available_Times": [
+					{
+						"Day": "Wednesday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Julia",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Laura",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Maren",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Kyra",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Agnes",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Mona",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["562", "563", "564", "565"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["566", "567", "568", "569"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["570", "571", "572", "573"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["574", "575", "576", "577"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["578", "579", "580", "581"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivitiesPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": null,
+				"Activity_Tag_Name": "1,3,5",
+				"Duration": null,
+				"Number_of_Preferred_Starting_Times": "15",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["594", "595"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["596", "597"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["598", "599", "600", "601"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["602", "603"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["604", "605"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["606", "607"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["608", "609", "610", "611"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["612", "613", "614", "615"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["616", "617", "618", "619"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["620", "621", "622", "623"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["624"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["624", "625"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["626"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["626", "627"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["628"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["628", "629"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["630"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["631"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Linda",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTime",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["478"],
+				"Preferred_Day": "Thursday",
+				"Preferred_Hour": "5",
+				"Permanently_Locked": "true",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Simon",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Tuesday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeachersMaxGapsPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Max_Gaps": "3",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "1",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "DE",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "DE",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "DE",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "1",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "MA",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "MA",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "MA",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "1",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "EN",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "EN",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "EN",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "BI",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "BI",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "TC",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "TC",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "FR",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "FR",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "SW",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "SW",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintBasicCompulsoryTime",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintStudentsEarlyMaxBeginningsAtSecondHour",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Max_Beginnings_At_Second_Hour": "0",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintStudentsMaxGapsPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Max_Gaps": "0",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["21", "22", "23", "24"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["25", "26", "27", "28"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["29", "30", "31", "32"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["33", "34", "35", "36"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["37", "38", "39", "40", "41"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["42", "43", "44", "45", "46"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["47", "48", "49", "50", "51"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["52", "53", "54", "55", "56"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["57", "58"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["59", "60"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["61", "62"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["63", "64"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["73", "74"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["75", "76"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["87", "88"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["97", "98", "99", "100"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["101", "102", "103", "104"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["105", "106", "107", "108"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["109", "110", "111", "112"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["113", "114", "115", "116"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["117", "118", "119", "120"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["121", "122", "123", "124"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["125", "126", "127", "128"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["129", "130", "131", "132", "133"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["134", "135", "136", "137", "138"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "5",
+				"Activity_Ids": ["144", "145", "146", "147", "148"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["149", "150"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["151", "152"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["153", "154"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["155", "156"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["161", "162"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["163", "164"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["165", "166"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["167", "168"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["169", "170"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["171", "172"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["173", "174"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["175", "176"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["177", "178"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["179", "180"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["181", "182"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["183", "184"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["185", "186"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["187", "188"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["189", "190"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["191", "192"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["197", "198"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["203", "204", "205", "206"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["207", "208", "209", "210"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["211", "212", "213", "214"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["215", "216", "217", "218"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["219", "220", "221", "222"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["223", "224", "225", "226"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["227", "228", "229", "230"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["231", "232", "233", "234"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["235", "236", "237", "238"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["239", "240", "241", "242"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["243", "244", "245", "246"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["247", "248", "249", "250"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["251", "252"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["253", "254"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["255", "256"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["257", "258"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["263", "264"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["265", "266"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["267", "268"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["269", "270"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["275", "276", "277"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["278", "279", "280"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["281", "282", "283"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["284", "285", "286"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["303", "304"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["313", "314", "315", "316"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["317", "318", "319", "320"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["321", "322", "323", "324"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["325", "326", "327", "328"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["329", "330", "331", "332"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["333", "334", "335", "336"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["337", "338", "339", "340"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["341", "342", "343", "344"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["345", "346", "347", "348"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["349", "350"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["351", "352"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["353", "354"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["361", "362"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["363", "364"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["365", "366"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["367", "368"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["369", "370"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["371", "372"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["373", "374"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["375", "376"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["377", "378"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["379", "380"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["389", "390", "391"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["392", "393", "394"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["395", "396", "397"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["398", "399", "400"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "3",
+				"Activity_Ids": ["401", "402", "403"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["404", "405", "406", "407"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["408", "409", "410", "411"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["412", "413", "414", "415"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["416", "417", "418", "419"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["420", "421", "422", "423"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["424", "425", "426", "427"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["428", "429", "430", "431"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["432", "433", "434", "435"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["436", "437", "438", "439"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["440", "441", "442", "443"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["444", "445", "446", "447"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["448", "449", "450", "451"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["452", "453"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["454", "455"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["456", "457"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["458", "459"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["468", "469"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["470", "471"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["472", "473"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["474", "475"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["476", "477"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["479", "480"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["481", "482", "483", "484"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["485", "486"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["487", "488"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["489", "490"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["491", "492"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["493", "494", "495", "496"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["497", "498", "499", "500"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["501", "502", "503", "504"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["505", "506", "507", "508"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["509", "510", "511", "512"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["513", "514", "515", "516"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["517", "518", "519", "520"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["521", "522", "523", "524"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["525", "526", "527", "528"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["529", "530", "531", "532"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["533", "534", "535", "536"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["537", "538", "539", "540"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["541", "542", "543", "544"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["551", "552"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["553", "554"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["555", "556"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["560", "561"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Sepp",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Jan",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Tanja",
+				"Number_of_Not_Available_Times": "4",
+				"Not_Available_Times": [
+					{
+						"Day": "Wednesday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Julia",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Laura",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Maren",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Kyra",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Agnes",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherMaxDaysPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": "Mona",
+				"Max_Days_Per_Week": "4",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["562", "563", "564", "565"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["566", "567", "568", "569"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["570", "571", "572", "573"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["574", "575", "576", "577"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["578", "579", "580", "581"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivitiesPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": null,
+				"Activity_Tag_Name": "1,3,5",
+				"Duration": null,
+				"Number_of_Preferred_Starting_Times": "15",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["594", "595"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["596", "597"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["598", "599", "600", "601"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["602", "603"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["604", "605"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["606", "607"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["608", "609", "610", "611"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["612", "613", "614", "615"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["616", "617", "618", "619"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "4",
+				"Activity_Ids": ["620", "621", "622", "623"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["624"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["624", "625"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["626"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["626", "627"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["628"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintMinDaysBetweenActivities",
+			"parameters": {
+				"Weight_Percentage": "95",
+				"Consecutive_If_Same_Day": "true",
+				"Number_of_Activities": "2",
+				"Activity_Ids": ["628", "629"],
+				"MinDays": "1",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["630"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["631"],
+				"Number_of_Preferred_Starting_Times": "5",
+				"Preferred_Starting_Time": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Linda",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintActivityPreferredStartingTime",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Activity_Ids": ["478"],
+				"Preferred_Day": "Thursday",
+				"Preferred_Hour": "5",
+				"Permanently_Locked": "true",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeacherNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Teacher": "Simon",
+				"Number_of_Not_Available_Times": "6",
+				"Not_Available_Times": [
+					{
+						"Day": "Tuesday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "4"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "6"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintTeachersMaxGapsPerWeek",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Max_Gaps": "3",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "1",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "DE",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "DE",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "DE",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "1",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "MA",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "MA",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "MA",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "1",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "EN",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "EN",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "EN",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "BI",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "BI",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "TC",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "TC",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "FR",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "FR",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "2",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "SW",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubactivitiesPreferredTimeSlots",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Component_Number": "3",
+				"Teacher_Name": null,
+				"Students_Name": null,
+				"Subject_Name": "SW",
+				"Activity_Tag_Name": null,
+				"Duration": null,
+				"Number_of_Preferred_Time_Slots": "20",
+				"Preferred_Time_Slot": "\n\t\t",
+				"Active": "true",
+				"Comments": null
+			}
+		}
+	],
+	"space_constraints": [
+		{
+			"type": "ConstraintBasicCompulsorySpace",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintRoomNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Room": "H1",
+				"Number_of_Not_Available_Times": "9",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Friday",
+						"Hour": "1"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintRoomNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Room": "H2",
+				"Number_of_Not_Available_Times": "9",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Friday",
+						"Hour": "1"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintRoomNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Room": "H3",
+				"Number_of_Not_Available_Times": "11",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Friday",
+						"Hour": "1"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRoom",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "KU",
+				"Room": "501",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRoom",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "TX",
+				"Room": "503",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRoom",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "RE",
+				"Room": "304",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "BI",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["401", "403"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "TC",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["504", "101"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "CH",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["401", "162"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "PH",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["162", "161"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "MU",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["302", "303"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "SP",
+				"Number_of_Preferred_Rooms": "3",
+				"Preferred_Rooms": ["H1", "H2", "H3"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintBasicCompulsorySpace",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintRoomNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Room": "H1",
+				"Number_of_Not_Available_Times": "9",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Friday",
+						"Hour": "1"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintRoomNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Room": "H2",
+				"Number_of_Not_Available_Times": "9",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Friday",
+						"Hour": "1"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintRoomNotAvailableTimes",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Room": "H3",
+				"Number_of_Not_Available_Times": "11",
+				"Not_Available_Times": [
+					{
+						"Day": "Monday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Monday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Tuesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "5"
+					},
+					{
+						"Day": "Wednesday",
+						"Hour": "6"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "1"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "2"
+					},
+					{
+						"Day": "Thursday",
+						"Hour": "3"
+					},
+					{
+						"Day": "Friday",
+						"Hour": "1"
+					}
+				],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRoom",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "KU",
+				"Room": "501",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRoom",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "TX",
+				"Room": "503",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRoom",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "RE",
+				"Room": "304",
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "BI",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["401", "403"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "TC",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["504", "101"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "CH",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["401", "162"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "PH",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["162", "161"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "MU",
+				"Number_of_Preferred_Rooms": "2",
+				"Preferred_Rooms": ["302", "303"],
+				"Active": "true",
+				"Comments": null
+			}
+		},
+		{
+			"type": "ConstraintSubjectPreferredRooms",
+			"parameters": {
+				"Weight_Percentage": "100",
+				"Subject": "SP",
+				"Number_of_Preferred_Rooms": "3",
+				"Preferred_Rooms": ["H1", "H2", "H3"],
+				"Active": "true",
+				"Comments": null
+			}
+		}
+	]
+}
