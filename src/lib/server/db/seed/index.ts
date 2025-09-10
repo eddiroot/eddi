@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { VCAACurriculumData } from './data/types';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { reset } from 'drizzle-seed';
 import {
 	relationshipTypeEnum,
@@ -301,6 +301,57 @@ async function seed() {
 			}
 		}
 
+		// Helper function to map year level string to enum values
+		function mapYearLevelToEnum(yearLevelStr: string): (typeof yearLevelEnum)[keyof typeof yearLevelEnum][] {
+			// Handle Foundation-Level 2 case - just map to Foundation
+			if (yearLevelStr.includes('Foundation-Level')) {
+				return [yearLevelEnum.foundation];
+			}
+			
+			// Handle single levels
+			if (yearLevelStr === 'Foundation') {
+				return [yearLevelEnum.foundation];
+			} else if (yearLevelStr === 'Level 1') {
+				return [yearLevelEnum.year1];
+			} else if (yearLevelStr === 'Level 2') {
+				return [yearLevelEnum.year2];
+			} else if (yearLevelStr === 'Level 3') {
+				return [yearLevelEnum.year3];
+			} else if (yearLevelStr === 'Level 4') {
+				return [yearLevelEnum.year4];
+			} else if (yearLevelStr === 'Level 5') {
+				return [yearLevelEnum.year5];
+			} else if (yearLevelStr === 'Level 6') {
+				return [yearLevelEnum.year6];
+			} else if (yearLevelStr === 'Level 7') {
+				return [yearLevelEnum.year7];
+			} else if (yearLevelStr === 'Level 8') {
+				return [yearLevelEnum.year8];
+			} else if (yearLevelStr === 'Level 9') {
+				return [yearLevelEnum.year9];
+			} else if (yearLevelStr === 'Level 10') {
+				return [yearLevelEnum.year10];
+			} else if (yearLevelStr === 'Level 10A') {
+				return [yearLevelEnum.year10A];
+			}
+			
+			// Handle ranges
+			if (yearLevelStr === 'Level 1-2') {
+				return [yearLevelEnum.year1, yearLevelEnum.year2];
+			} else if (yearLevelStr === 'Level 3-4') {
+				return [yearLevelEnum.year3, yearLevelEnum.year4];
+			} else if (yearLevelStr === 'Level 5-6') {
+				return [yearLevelEnum.year5, yearLevelEnum.year6];
+			} else if (yearLevelStr === 'Level 7-8') {
+				return [yearLevelEnum.year7, yearLevelEnum.year8];
+			} else if (yearLevelStr === 'Level 9-10') {
+				return [yearLevelEnum.year9, yearLevelEnum.year10];
+			}
+			
+			// Default fallback
+			return [yearLevelEnum.foundation];
+		}
+
 		// Create learning area content for each scraped item
 		const learningAreaStandardMap = new Map<string, number>();
 
@@ -308,66 +359,47 @@ async function seed() {
 			const learningAreaId = learningAreaMap.get(item.learningArea);
 			if (!learningAreaId) continue;
 
-			// Check if this content already exists to avoid duplicates
-			const existingContent = await db
-				.select()
-				.from(schema.learningAreaStandard)
-				.where(eq(schema.learningAreaStandard.name, item.vcaaCode))
-				.limit(1);
+			// Get all year levels for this item (could be multiple for ranges)
+			const yearLevels = mapYearLevelToEnum(item.yearLevel);
 
-			if (existingContent.length === 0) {
-				// Convert yearLevel string to enum value
-				const normalizedYearLevel = item.yearLevel
-					.toLowerCase()
-					.replace(/\s+/g, '')
-					.replace('year', '');
-				let yearLevelValue: (typeof yearLevelEnum)[keyof typeof yearLevelEnum];
+			// Create a separate standard entry for each year level
+			for (const yearLevelValue of yearLevels) {
+				// Create unique identifier for this standard + year level combination
+				const standardKey = `${item.vcaaCode}-${yearLevelValue}`;
+				
+				// Check if this content already exists to avoid duplicates
+				const existingContent = await db
+					.select()
+					.from(schema.learningAreaStandard)
+					.where(
+						and(
+							eq(schema.learningAreaStandard.name, item.vcaaCode),
+							eq(schema.learningAreaStandard.yearLevel, yearLevelValue)
+						)
+					)
+					.limit(1);
 
-				if (normalizedYearLevel === 'foundation') {
-					yearLevelValue = yearLevelEnum.foundation;
-				} else if (normalizedYearLevel === '1') {
-					yearLevelValue = yearLevelEnum.year1;
-				} else if (normalizedYearLevel === '2') {
-					yearLevelValue = yearLevelEnum.year2;
-				} else if (normalizedYearLevel === '3') {
-					yearLevelValue = yearLevelEnum.year3;
-				} else if (normalizedYearLevel === '4') {
-					yearLevelValue = yearLevelEnum.year4;
-				} else if (normalizedYearLevel === '5') {
-					yearLevelValue = yearLevelEnum.year5;
-				} else if (normalizedYearLevel === '6') {
-					yearLevelValue = yearLevelEnum.year6;
-				} else if (normalizedYearLevel === '7') {
-					yearLevelValue = yearLevelEnum.year7;
-				} else if (normalizedYearLevel === '8') {
-					yearLevelValue = yearLevelEnum.year8;
-				} else if (normalizedYearLevel === '9') {
-					yearLevelValue = yearLevelEnum.year9;
-				} else if (normalizedYearLevel === '10') {
-					yearLevelValue = yearLevelEnum.year10;
-				} else {
-					yearLevelValue = yearLevelEnum.foundation; // Default fallback
-				}
+				if (existingContent.length === 0) {
+					const [learningAreaStandard] = await db
+						.insert(schema.learningAreaStandard)
+						.values({
+							learningAreaId: learningAreaId,
+							name: item.vcaaCode,
+							description: `${item.learningArea}: ${item.description}`,
+							yearLevel: yearLevelValue
+						})
+						.returning();
 
-				const [learningAreaStandard] = await db
-					.insert(schema.learningAreaStandard)
-					.values({
-						learningAreaId: learningAreaId,
-						name: item.vcaaCode,
-						description: `${item.learningArea}: ${item.description}`,
-						yearLevel: yearLevelValue
-					})
-					.returning();
+					learningAreaStandardMap.set(standardKey, learningAreaStandard.id);
 
-				learningAreaStandardMap.set(item.vcaaCode, learningAreaStandard.id);
-
-				// Create elaborations for this content item
-				for (const elaboration of item.elaborations) {
-					await db.insert(schema.standardElaboration).values({
-						learningAreaStandardId: learningAreaStandard.id,
-						name: `Elaboration for ${item.vcaaCode}`,
-						standardElaboration: elaboration
-					});
+					// Create elaborations for this content item
+					for (const elaboration of item.elaborations) {
+						await db.insert(schema.standardElaboration).values({
+							learningAreaStandardId: learningAreaStandard.id,
+							name: `Elaboration for ${item.vcaaCode}`,
+							standardElaboration: elaboration
+						});
+					}
 				}
 			}
 		}

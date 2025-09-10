@@ -264,9 +264,12 @@ export class VCAAF10Scraper {
 				if (pathway.curriculum && Array.isArray(pathway.curriculum)) {
 					for (const levelData of pathway.curriculum) {
 						if (levelData.contentDescriptionsContent && Array.isArray(levelData.contentDescriptionsContent)) {
+							// Extract the level information from levelData
+							const levelInfo = this.extractLevelFromLevelData(levelData);
+							
 							for (const strandData of levelData.contentDescriptionsContent) {
-								// Handle strands and substrands
-								this.extractLearningAreasFromStrand(strandData, learningAreas);
+								// Handle strands and substrands, passing level info
+								this.extractLearningAreasFromStrand(strandData, learningAreas, levelInfo);
 							}
 						}
 					}
@@ -285,7 +288,102 @@ export class VCAAF10Scraper {
 		}
 	}
 
-	private extractLearningAreasFromStrand(strandData: any, learningAreas: LearningAreaContent[]): void {
+	private extractLevelFromLevelData(levelData: any): string {
+		// Extract year level from the level data structure
+		// Handle different API formats: single levels, ranges, foundation variations
+		
+		if (levelData.level) {
+			const level = levelData.level.toString();
+			
+			// Handle Foundation levels first
+			if (level.includes('Foundation Level A')) {
+				return 'Foundation';
+			} else if (level.includes('Foundation Level B')) {
+				return 'Foundation';
+			} else if (level.includes('Foundation Level C')) {
+				return 'Foundation';
+			} else if (level.includes('Foundation Level D')) {
+				return 'Foundation';
+			} else if (level === 'Foundation') {
+				return 'Foundation';
+			}
+			
+			// Handle range-based levels like "Foundation to Level 2"
+			if (level.includes('Foundation to Level')) {
+				const levelMatch = level.match(/Foundation to Level\s*(\d+)/i);
+				if (levelMatch) {
+					return `Foundation-Level ${levelMatch[1]}`;
+				}
+			}
+			
+			// Handle range levels like "Levels 3 and 4" 
+			const rangeMatch = level.match(/Levels\s*(\d+)\s*and\s*(\d+)/i);
+			if (rangeMatch) {
+				const startLevel = rangeMatch[1];
+				const endLevel = rangeMatch[2];
+				return `Level ${startLevel}-${endLevel}`;
+			}
+			
+			// Handle range levels like "Levels 1 and 2"
+			const levelPairMatch = level.match(/Levels\s*(\d+)\s*and\s*(\d+)/i);
+			if (levelPairMatch) {
+				const level1 = levelPairMatch[1];
+				const level2 = levelPairMatch[2];
+				return `Level ${level1}-${level2}`;
+			}
+			
+			// Handle single levels like "Level 1", "Level 2", etc.
+			const singleLevelMatch = level.match(/^Level\s*(\d+)$/i);
+			if (singleLevelMatch) {
+				const levelNum = singleLevelMatch[1];
+				if (levelNum === '10' && level.includes('A')) {
+					return 'Level 10A';
+				}
+				return `Level ${levelNum}`;
+			}
+		}
+		
+		// Handle cases where we need to use the ID field directly
+		if (levelData.id) {
+			const id = levelData.id.toString();
+			
+			// Foundation level variations
+			if (id === 'FLA' || id === 'FLB' || id === 'FLC' || id === 'FLD' || id === 'F') {
+				return 'Foundation';
+			}
+			
+			// Range IDs like "3–4", "5–6", "F–2"
+			if (id.includes('–')) {
+				const parts = id.split('–');
+				if (parts.length === 2) {
+					const start = parts[0].trim();
+					const end = parts[1].trim();
+					
+					// Handle Foundation ranges like "F–2"
+					if (start === 'F') {
+						return `Foundation-Level ${end}`;
+					}
+					
+					// Handle numeric ranges like "3–4"
+					if (!isNaN(parseInt(start)) && !isNaN(parseInt(end))) {
+						return `Level ${start}-${end}`;
+					}
+				}
+			}
+			
+			// Single numeric levels
+			if (!isNaN(parseInt(id))) {
+				const levelNum = parseInt(id);
+				return `Level ${levelNum}`;
+			}
+		}
+		
+		// Fallback to Foundation if we can't determine level
+		console.warn('Could not determine level from levelData:', JSON.stringify(levelData, null, 2));
+		return 'Foundation';
+	}
+
+	private extractLearningAreasFromStrand(strandData: any, learningAreas: LearningAreaContent[], levelInfo: string): void {
 		// Special handling for Science curriculum - flatten substrands under main strand
 		const isScience = strandData.title === 'Science as a Human Endeavour' || 
 						  strandData.title === 'Science Understanding' || 
@@ -293,7 +391,7 @@ export class VCAAF10Scraper {
 		
 		// Process main strand
 		if (strandData.title && strandData.contentDescriptions && Array.isArray(strandData.contentDescriptions)) {
-			this.addOrUpdateLearningArea(learningAreas, strandData.title, strandData.contentDescriptions);
+			this.addOrUpdateLearningArea(learningAreas, strandData.title, strandData.contentDescriptions, levelInfo);
 		}
 
 		// Process substrands
@@ -302,18 +400,18 @@ export class VCAAF10Scraper {
 				if (subStrand.title && subStrand.contentDescriptions && Array.isArray(subStrand.contentDescriptions)) {
 					if (isScience && strandData.title) {
 						// For Science, flatten substrand standards under the main strand
-						this.addOrUpdateLearningArea(learningAreas, strandData.title, subStrand.contentDescriptions);
+						this.addOrUpdateLearningArea(learningAreas, strandData.title, subStrand.contentDescriptions, levelInfo);
 					} else {
 						// For other subjects, use substrand title as learning area name
 						const learningAreaName = subStrand.title;
-						this.addOrUpdateLearningArea(learningAreas, learningAreaName, subStrand.contentDescriptions);
+						this.addOrUpdateLearningArea(learningAreas, learningAreaName, subStrand.contentDescriptions, levelInfo);
 					}
 				}
 			}
 		}
 	}
 
-	private addOrUpdateLearningArea(learningAreas: LearningAreaContent[], areaName: string, contentDescriptions: any[]): void {
+	private addOrUpdateLearningArea(learningAreas: LearningAreaContent[], areaName: string, contentDescriptions: any[], levelInfo: string): void {
 		// Find existing learning area or create new one
 		let learningArea = learningAreas.find(la => la.name === areaName);
 		if (!learningArea) {
@@ -331,7 +429,7 @@ export class VCAAF10Scraper {
 				const standard: LearningAreaStandard = {
 					name: content.code,
 					description: content.contentDescription || content.description || 'No description available',
-					yearLevel: this.extractYearLevelFromVcaaCode(content.code),
+					yearLevel: levelInfo, // Use the level info from the JSON structure instead of extracting from code
 					elaborations: []
 				};
 
