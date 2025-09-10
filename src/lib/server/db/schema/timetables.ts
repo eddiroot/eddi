@@ -149,7 +149,9 @@ export const timetableConstraint = pgTable('tt_constraint', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
-	constraintId: text('constraint_id').notNull(), // unique identifier for the constraint
+	constraintId: integer('constraint_id')
+		.notNull() // unique identifier for the constraint
+		.references(() => constraint.id, { onDelete: 'cascade' }),
 	...timestamps
 });
 
@@ -161,7 +163,7 @@ export const constraintTypeEnumPg = pgEnum('enum_constraint_type', [
 ]);
 
 export const constraint = pgTable('constraint', {
-	id: text('id').primaryKey(), // unique identifier for the constraint
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }), // unique identifier for the constraint
 	name: text('name').notNull(),
 	description: text('description').notNull(),
 	type: constraintTypeEnumPg().notNull(), // e.g., 'time', 'space'

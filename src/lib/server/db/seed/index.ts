@@ -17,7 +17,8 @@ import {
 	yearLevelEnum,
 	newsPriorityEnum,
 	newsStatusEnum,
-	newsVisibilityEnum
+	newsVisibilityEnum,
+	constraintTypeEnum
 } from '$lib/enums.js';
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -255,12 +256,14 @@ async function seed() {
 		const __filename = fileURLToPath(import.meta.url);
 		const __dirname = dirname(__filename);
 		const curriculumDataPath = join(__dirname, 'data', 'vcaa-curriculum.json');
-		const curriculumData: VCAACurriculumData = JSON.parse(readFileSync(curriculumDataPath, 'utf-8'));
-		
+		const curriculumData: VCAACurriculumData = JSON.parse(
+			readFileSync(curriculumDataPath, 'utf-8')
+		);
+
 		// Transform JSON data to match the expected format
-		const contentItems = curriculumData.subjects.flatMap(subject =>
-			subject.learningAreas.flatMap(learningArea =>
-				learningArea.standards.map(standard => ({
+		const contentItems = curriculumData.subjects.flatMap((subject) =>
+			subject.learningAreas.flatMap((learningArea) =>
+				learningArea.standards.map((standard) => ({
 					vcaaCode: standard.name,
 					description: standard.description,
 					yearLevel: standard.yearLevel,
@@ -1047,6 +1050,55 @@ async function seed() {
 		console.log(
 			`✅ Created mock timetable with ${timetableDays.length} days, ${timetablePeriods.length} periods, ${timetableGroups.length} groups, and ${timetableActivities.length} activities`
 		);
+
+		console.log(`🕙 Creating mock Constraints for the Timetable...`);
+
+		const constraints = [
+			{
+				name: 'ConstraintBasicCompulsoryTime',
+				description: 'Basic compulsory time constraint for the timetable',
+				type: constraintTypeEnum.time,
+				active: true,
+				parameterSchema: {
+					Weight_Percentage: 100,
+					Active: 'true',
+					Comments: null
+				},
+				exampleParameters: {
+					Weight_Percentage: 100,
+					Active: 'true',
+					Comments: null
+				}
+			},
+			{
+				name: 'ConstraintBasicCompulsorySpace',
+				description: 'Basic compulsory Space constraint for timetable',
+				type: constraintTypeEnum.space,
+				active: true,
+				parameterSchema: {
+					Weight_Percentage: 100,
+					Active: 'true',
+					Comments: null
+				},
+				exampleParameters: {
+					Weight_Percentage: 100,
+					Active: 'true',
+					Comments: null
+				}
+			}
+		];
+		const cons = await db.insert(schema.constraint).values(constraints).returning();
+
+		console.log(`✅ Created ${constraints.length} mock Constraints for the Timetable`);
+
+		for (const con of cons) {
+			await db.insert(schema.timetableConstraint).values({
+				timetableId: mockTimetable.id,
+				constraintId: con.id
+			});
+		}
+
+		console.log('🔗 Linked Constraints to the timetable');
 
 		// Calculate the most recent Monday
 		const today = new Date();
