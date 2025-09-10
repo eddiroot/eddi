@@ -81,9 +81,6 @@ Max
 
 Raph
 
-- [x] Class resources (14/07)
-  - Improve (remove upload route?)
-  - Title and description truncation issue
 - [x] Class home page (20/07)
   - Improve look and functionality
   - Fix ordering and resource tag

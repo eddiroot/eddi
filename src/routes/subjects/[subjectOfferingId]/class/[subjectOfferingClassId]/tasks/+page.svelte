@@ -15,10 +15,15 @@
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod/v4';
 	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	let { data } = $props();
 	let topicsWithTasks = $state(data.topicsWithTasks || []);
 	let showUploadDialog = $state(false);
+	// Deletion dialog state
+	let showDeleteDialog = $state(false);
+	let resourcePendingDelete = $state<{ id: number; title: string } | null>(null);
+	let deletingResource = $state(false);
 
 	const uploadSchema = z.object({
 		file: z.instanceof(File).refine((file) => file.size > 0, 'Please select a file to upload'),
@@ -31,7 +36,15 @@
 		validators: zod4(uploadSchema),
 		onUpdated: async ({ form }) => {
 			if (form.valid) {
+				// Successful submit: close dialog and clear local state so next open is empty
 				showUploadDialog = false;
+				selectedFile = null;
+				selectedTopic = undefined;
+				if (fileInput) fileInput.value = '';
+				$formData.file = undefined as unknown as File; // clear file reference
+				$formData.title = '' as any;
+				$formData.description = '' as any;
+				$formData.topicId = undefined as any;
 				await invalidateAll();
 			}
 		}
@@ -71,31 +84,47 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 	}
 
-	// Handle resource deletion
-	async function deleteResource(resourceId: number) {
-		if (!confirm('Are you sure you want to delete this resource?')) {
-			return;
-		}
+	// Open confirmation dialog
+	function requestDelete(resourceId: number, title: string) {
+		resourcePendingDelete = { id: resourceId, title };
+		showDeleteDialog = true;
+	}
 
+	// Confirm deletion
+	async function confirmDelete() {
+		if (!resourcePendingDelete || deletingResource) return;
+		deletingResource = true;
 		try {
 			const formData = new FormData();
-			formData.append('resourceId', resourceId.toString());
-
-			const response = await fetch('?/delete', {
-				method: 'POST',
-				body: formData
-			});
-
+			formData.append('resourceId', resourcePendingDelete.id.toString());
+			const response = await fetch('?/delete', { method: 'POST', body: formData });
 			if (response.ok) {
+				toast.success('Resource deleted');
+				showDeleteDialog = false;
+				resourcePendingDelete = null;
 				await invalidateAll();
 			} else {
-				const result = await response.json();
-				alert(result.message || 'Failed to delete resource');
+				const result = await response.json().catch(() => ({}));
+				toast.error(result.message || 'Failed to delete resource');
 			}
-		} catch (error) {
-			console.error('Error deleting resource:', error);
-			alert('Failed to delete resource');
+		} catch (e) {
+			console.error('Error deleting resource:', e);
+			toast.error('Failed to delete resource');
+		} finally {
+			deletingResource = false;
 		}
+	}
+
+	function openUploadDialog() {
+		// Reset all fields before opening
+		selectedFile = null;
+		selectedTopic = undefined;
+		if (fileInput) fileInput.value = '';
+		$formData.file = undefined as unknown as File;
+		$formData.title = '' as any;
+		$formData.description = '' as any;
+		$formData.topicId = undefined as any;
+		showUploadDialog = true;
 	}
 </script>
 
@@ -104,7 +133,7 @@
 		<h1 class="text-3xl font-bold">Tasks</h1>
 		{#if data?.user?.type !== 'student'}
 			<div class="flex items-center gap-2">
-				<Button onclick={() => (showUploadDialog = true)} variant="outline">
+				<Button onclick={openUploadDialog} variant="outline">
 					<UploadIcon />
 					Upload Resource
 				</Button>
@@ -148,41 +177,49 @@
 
 					<!-- Resources -->
 					{#each resources as resource}
-						<Card.Root class="flex h-full flex-col transition-shadow hover:shadow-md">
-							<Card.Header class="flex-1 truncate">
-								<div class="flex items-center justify-between">
-									<Card.Title class="flex items-center gap-2">
-										<FileIcon />
-										{#if resource.downloadUrl}
-											<a href={resource.downloadUrl} target="_blank" class="hover:underline">
-												{resource.title}
-											</a>
-										{:else}
-											{resource.title}
-										{/if}
+						<Card.Root class="w-84">
+							<Card.Header>
+								<a target="_blank" href={resource.downloadUrl}>
+									<Card.Title class="w-48 truncate py-0.5 break-all hover:underline">
+										{resource.title && resource.title.trim() !== ''
+											? resource.title
+											: resource.fileName}
 									</Card.Title>
-									<div class="flex items-center gap-1 truncate">
-										{#if resource.downloadUrl}
-											<Button href={resource.downloadUrl} size="sm" variant="ghost" target="_blank">
-												<DownloadIcon />
-											</Button>
-										{/if}
-										<Button size="sm" variant="ghost" onclick={() => deleteResource(resource.id)}>
-											<TrashIcon />
+								</a>
+
+								<Card.Action class="space-x-2">
+									{#if resource.downloadUrl}
+										<Button class="w-8" variant="ghost" target="_blank" href={resource.downloadUrl}>
+											<DownloadIcon />
 										</Button>
-									</div>
-								</div>
-								{#if resource.description}
-									<Card.Description>
-										{resource.description}
-									</Card.Description>
-								{/if}
+									{/if}
+									<Button
+										class="w-8"
+										variant="ghost"
+										onclick={() =>
+											requestDelete(
+												resource.id,
+												resource.title && resource.title.trim() !== ''
+													? resource.title
+													: resource.fileName
+											)}
+									>
+										<TrashIcon />
+									</Button>
+								</Card.Action>
 							</Card.Header>
-							<Card.Content class="mt-auto">
-								<div class="text-muted-foreground text-sm">
-									{formatFileSize(resource.fileSize)}
-								</div>
+							<Card.Content class="h-12 w-72 truncate break-all">
+								{#if resource.description}
+									<span class="text-muted-foreground h-12 truncate text-sm text-wrap">
+										{resource.description}
+									</span>
+								{/if}
 							</Card.Content>
+							<Card.Footer>
+								<span class="text-muted-foreground text-sm">
+									{formatFileSize(resource.fileSize)}
+								</span>
+							</Card.Footer>
 						</Card.Root>
 					{/each}
 				</div>
@@ -282,6 +319,7 @@
 						id="description"
 						name="description"
 						placeholder="Resource description"
+						class="h-36 max-h-56 break-all"
 						bind:value={$formData.description}
 					/>
 				</div>
@@ -299,6 +337,46 @@
 					</Button>
 				</div>
 			</form>
+		</Dialog.Content>
+	</Dialog.Root>
+
+	<!-- Delete Confirmation Dialog -->
+	<Dialog.Root bind:open={showDeleteDialog}>
+		<Dialog.Content class="sm:max-w-[420px]">
+			<Dialog.Header>
+				<Dialog.Title>Delete resource</Dialog.Title>
+				<Dialog.Description class="w-full truncate text-wrap break-words">
+					{#if resourcePendingDelete}
+						<span class="font-semibold break-all">
+							"{resourcePendingDelete.title}"
+						</span>
+						will be permanently removed. This action cannot be undone.
+					{:else}
+						This action cannot be undone.
+					{/if}
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="flex justify-end gap-2 pt-2">
+				<Button
+					type="button"
+					variant="outline"
+					onclick={() => {
+						showDeleteDialog = false;
+						resourcePendingDelete = null;
+					}}
+					disabled={deletingResource}
+				>
+					Cancel
+				</Button>
+				<Button
+					type="button"
+					variant="destructive"
+					onclick={confirmDelete}
+					disabled={deletingResource}
+				>
+					{#if deletingResource}Deleting...{:else}Delete{/if}
+				</Button>
+			</div>
 		</Dialog.Content>
 	</Dialog.Root>
 </div>
