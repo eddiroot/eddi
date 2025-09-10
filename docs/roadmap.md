@@ -57,6 +57,7 @@ All
 Lachie
 
 - [ ] Class tests / quizzes
+- [ ] Subject selection
 
 Bella
 
@@ -111,13 +112,12 @@ Beej
 
 Blake
 
-- [ ] Subject selection
 - [ ] Handling of multiple campuses
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
 - [ ] Fleshed out behavioural reporting (see toddle) (new incident button on attendance page)
 
-Pending eddi study completion
+### To Do
 
 - [ ] Student note writing
 - [ ] Complete LLM access to discussions + lessons
@@ -125,9 +125,6 @@ Pending eddi study completion
 - [ ] See teacher's feedback
 - [ ] AI feedback / assisted marking
 - [ ] Associate chatbot chats with the lesson/subject they were created in
-
-### Future
-
 - [ ] Permission for children to go to events
 - [ ] See example lessons in subject selection
 - [ ] eddi tutor extended to help teachers with common functionality (or action it for them through MCP servers)
@@ -158,22 +155,3 @@ Pending eddi study completion
 - [ ] Parent forum / teacher forum
 - [ ] Mark absence for select periods of the day rather than whole day
 - [ ] Add per-school theming [with this](https://github.com/huntabyte/shadcn-svelte/discussions/1124)
-
-## eddi study
-
-### Done
-
-### Doing
-
-- [ ] Teach me (skills/lessons)
-- [ ] Train me
-  - [ ] Cue card generation
-  - [ ] Feedback
-  - [ ] Sample questions
-- [ ] Test me
-  - [ ] Improvement assessment generation
-  - [ ] Marking/grading/feedback
-- [ ] Improved chatbot
-- [ ] Tiers
-  - [ ] Free tiers for the free models
-  - [ ] Pay for the better models
