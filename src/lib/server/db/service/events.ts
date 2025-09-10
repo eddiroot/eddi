@@ -7,7 +7,8 @@ export async function createSchoolEvent(
 	schoolId: number,
 	name: string,
 	startTimestamp: Date,
-	endTimestamp: Date
+	endTimestamp: Date,
+	requiresRSVP: boolean = false
 ) {
 	const [schoolEvent] = await db
 		.insert(table.schoolEvent)
@@ -15,7 +16,8 @@ export async function createSchoolEvent(
 			schoolId,
 			name,
 			startTimestamp,
-			endTimestamp
+			endTimestamp,
+			requiresRSVP
 		})
 		.returning();
 
@@ -94,7 +96,8 @@ export async function createCampusEvent(
 	campusId: number,
 	name: string,
 	startTimestamp: Date,
-	endTimestamp: Date
+	endTimestamp: Date,
+	requiresRSVP: boolean = false
 ) {
 	const [campusEvent] = await db
 		.insert(table.campusEvent)
@@ -102,7 +105,8 @@ export async function createCampusEvent(
 			campusId,
 			name,
 			startTimestamp,
-			endTimestamp
+			endTimestamp,
+			requiresRSVP
 		})
 		.returning();
 
@@ -210,7 +214,8 @@ export async function createSubjectOfferingEvent(
 	subjectOfferingId: number,
 	name: string,
 	startTimestamp: Date,
-	endTimestamp: Date
+	endTimestamp: Date,
+	requiresRSVP: boolean = false
 ) {
 	const [subjectEvent] = await db
 		.insert(table.subjectOfferingEvent)
@@ -219,6 +224,7 @@ export async function createSubjectOfferingEvent(
 			name,
 			startTimestamp,
 			endTimestamp,
+			requiresRSVP,
 			isArchived: false
 		})
 		.returning();
@@ -361,7 +367,8 @@ export async function createSubjectOfferingClassEvent(
 	subjectOfferingClassId: number,
 	name: string,
 	startTimestamp: Date,
-	endTimestamp: Date
+	endTimestamp: Date,
+	requiresRSVP: boolean = false
 ) {
 	const [classEvent] = await db
 		.insert(table.subjectOfferingClassEvent)
@@ -370,6 +377,7 @@ export async function createSubjectOfferingClassEvent(
 			name,
 			startTimestamp,
 			endTimestamp,
+			requiresRSVP,
 			isArchived: false
 		})
 		.returning();
@@ -520,4 +528,112 @@ export async function updateSubjectOfferingClassEvent(
 		.returning();
 
 	return updatedEvent;
+}
+
+// RSVP Functions
+export async function createOrUpdateEventRSVP(
+	userId: string,
+	eventType: 'school' | 'campus' | 'subject' | 'class',
+	eventId: number,
+	willAttend: boolean
+) {
+	const [rsvp] = await db
+		.insert(table.eventRSVP)
+		.values({
+			userId,
+			eventType,
+			eventId,
+			willAttend
+		})
+		.onConflictDoUpdate({
+			target: [table.eventRSVP.userId, table.eventRSVP.eventType, table.eventRSVP.eventId],
+			set: {
+				willAttend,
+				updatedAt: new Date()
+			}
+		})
+		.returning();
+
+	return rsvp;
+}
+
+export async function getEventRSVP(
+	userId: string,
+	eventType: 'school' | 'campus' | 'subject' | 'class',
+	eventId: number
+) {
+	const [rsvp] = await db
+		.select()
+		.from(table.eventRSVP)
+		.where(
+			and(
+				eq(table.eventRSVP.userId, userId),
+				eq(table.eventRSVP.eventType, eventType),
+				eq(table.eventRSVP.eventId, eventId)
+			)
+		);
+
+	return rsvp;
+}
+
+export async function getUserEventRSVPs(userId: string) {
+	const rsvps = await db
+		.select()
+		.from(table.eventRSVP)
+		.where(eq(table.eventRSVP.userId, userId));
+
+	return rsvps;
+}
+
+// Get individual event by ID functions
+export async function getSchoolEventById(eventId: number) {
+	const [event] = await db
+		.select()
+		.from(table.schoolEvent)
+		.where(eq(table.schoolEvent.id, eventId));
+
+	return event;
+}
+
+export async function getCampusEventById(eventId: number) {
+	const [event] = await db
+		.select()
+		.from(table.campusEvent)
+		.where(eq(table.campusEvent.id, eventId));
+
+	return event;
+}
+
+export async function getSubjectOfferingEventById(eventId: number) {
+	const [event] = await db
+		.select()
+		.from(table.subjectOfferingEvent)
+		.where(eq(table.subjectOfferingEvent.id, eventId));
+
+	return event;
+}
+
+export async function getSubjectOfferingClassEventById(eventId: number) {
+	const [event] = await db
+		.select()
+		.from(table.subjectOfferingClassEvent)
+		.where(eq(table.subjectOfferingClassEvent.id, eventId));
+
+	return event;
+}
+
+export async function deleteEventRSVP(
+	userId: string,
+	eventType: 'school' | 'campus' | 'subject' | 'class',
+	eventId: number
+) {
+	await db
+		.delete(table.eventRSVP)
+		.where(
+			and(
+				eq(table.eventRSVP.userId, userId),
+				eq(table.eventRSVP.eventType, eventType),
+				eq(table.eventRSVP.eventId, eventId)
+			)
+		);
 }

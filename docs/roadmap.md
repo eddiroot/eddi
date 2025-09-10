@@ -39,6 +39,7 @@
   - [x] Result screen blocked until a timetable is generated
 - [x] Teachers can see past attendance
 - [x] Events appearing in everyone's timetables
+- [x] RSVP for school events
 - [x] Basic security research and compliance documentation
 - [x] View students work on tasks
 - [x] Create school news & news feed
@@ -56,9 +57,6 @@ All
 Lachie
 
 - [ ] Class tests / quizzes
-- [ ] Excursions (permission forms)
-  - [ ] Potential AI generation of form
-  - [ ] Change colour of event in calendar once form is signed
 
 Bella
 
@@ -130,6 +128,7 @@ Pending eddi study completion
 
 ### Future
 
+- [ ] Permission for children to go to events
 - [ ] See example lessons in subject selection
 - [ ] eddi tutor extended to help teachers with common functionality (or action it for them through MCP servers)
 - [ ] Fees / breakdowns

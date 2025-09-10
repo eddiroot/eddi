@@ -3,7 +3,8 @@ import {
 	getSchoolEventsForWeekBySchoolId,
 	getCampusEventsForWeekByUserId,
 	getSubjectOfferingEventsForWeekByUserId,
-	getSubjectOfferingClassEventsForWeekByUserId
+	getSubjectOfferingClassEventsForWeekByUserId,
+	getUserEventRSVPs
 } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, url }) => {
@@ -26,13 +27,15 @@ export const load = async ({ locals: { security }, url }) => {
 		schoolEvents,
 		campusEvents,
 		subjectOfferingEvents,
-		subjectOfferingClassEvents
+		subjectOfferingClassEvents,
+		userRSVPs
 	] = await Promise.all([
 		getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate),
 		getSchoolEventsForWeekBySchoolId(user.schoolId, weekStartDate),
 		getCampusEventsForWeekByUserId(user.id, weekStartDate),
 		getSubjectOfferingEventsForWeekByUserId(user.id, weekStartDate),
-		getSubjectOfferingClassEventsForWeekByUserId(user.id, weekStartDate)
+		getSubjectOfferingClassEventsForWeekByUserId(user.id, weekStartDate),
+		getUserEventRSVPs(user.id)
 	]);
 
 	return {
@@ -42,6 +45,7 @@ export const load = async ({ locals: { security }, url }) => {
 		campusEvents,
 		subjectOfferingEvents,
 		subjectOfferingClassEvents,
+		userRSVPs,
 		currentWeekStart: weekStartDate.toISOString().split('T')[0]
 	};
 };
@@ -58,13 +62,15 @@ export const actions = {
 			schoolEvents,
 			campusEvents,
 			subjectOfferingEvents,
-			subjectOfferingClassEvents
+			subjectOfferingClassEvents,
+			userRSVPs
 		] = await Promise.all([
 			getSubjectClassAllocationsByUserIdForWeek(user.id, weekStartDate),
 			getSchoolEventsForWeekBySchoolId(user.schoolId, weekStartDate),
 			getCampusEventsForWeekByUserId(user.id, weekStartDate),
 			getSubjectOfferingEventsForWeekByUserId(user.id, weekStartDate),
-			getSubjectOfferingClassEventsForWeekByUserId(user.id, weekStartDate)
+			getSubjectOfferingClassEventsForWeekByUserId(user.id, weekStartDate),
+			getUserEventRSVPs(user.id)
 		]);
 
 		return {
@@ -74,6 +80,7 @@ export const actions = {
 			campusEvents: campusEvents || [],
 			subjectOfferingEvents: subjectOfferingEvents || [],
 			subjectOfferingClassEvents: subjectOfferingClassEvents || [],
+			userRSVPs: userRSVPs || [],
 			currentWeekStart: weekStartDate.toISOString().split('T')[0]
 		};
 	}

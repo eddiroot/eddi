@@ -13,7 +13,8 @@ export const createSchoolEventSchema = z
 	.object({
 		name: eventNameSchema,
 		startTimestamp: eventTimestampSchema,
-		endTimestamp: eventTimestampSchema
+		endTimestamp: eventTimestampSchema,
+		requiresRSVP: z.boolean().optional().default(false)
 	})
 	.refine((data) => data.endTimestamp > data.startTimestamp, {
 		error: 'End time must be after start time',
@@ -25,7 +26,8 @@ export const createCampusEventSchema = z
 		name: eventNameSchema,
 		campusId: z.coerce.number().int().positive('Please select a campus'),
 		startTimestamp: eventTimestampSchema,
-		endTimestamp: eventTimestampSchema
+		endTimestamp: eventTimestampSchema,
+		requiresRSVP: z.boolean().optional().default(false)
 	})
 	.refine((data) => data.endTimestamp > data.startTimestamp, {
 		error: 'End time must be after start time',
@@ -37,7 +39,8 @@ export const createSubjectOfferingEventSchema = z
 		name: eventNameSchema,
 		subjectOfferingId: z.coerce.number().int().positive('Please select a subject offering'),
 		startTimestamp: eventTimestampSchema,
-		endTimestamp: eventTimestampSchema
+		endTimestamp: eventTimestampSchema,
+		requiresRSVP: z.boolean().optional().default(false)
 	})
 	.refine((data) => data.endTimestamp > data.startTimestamp, {
 		error: 'End time must be after start time',
@@ -49,7 +52,8 @@ export const createSubjectOfferingClassEventSchema = z
 		name: eventNameSchema,
 		subjectOfferingClassId: z.coerce.number().int().positive('Please select a class'),
 		startTimestamp: eventTimestampSchema,
-		endTimestamp: eventTimestampSchema
+		endTimestamp: eventTimestampSchema,
+		requiresRSVP: z.boolean().optional().default(false)
 	})
 	.refine((data) => data.endTimestamp > data.startTimestamp, {
 		error: 'End time must be after start time',

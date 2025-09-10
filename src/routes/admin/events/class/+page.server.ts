@@ -32,21 +32,14 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		try {
-			await createSubjectOfferingClassEvent(
-				form.data.subjectOfferingClassId as number,
-				form.data.name as string,
-				new Date(form.data.startTimestamp),
-				new Date(form.data.endTimestamp)
-			);
+		await createSubjectOfferingClassEvent(
+			form.data.subjectOfferingClassId as number,
+			form.data.name as string,
+			new Date(form.data.startTimestamp),
+			new Date(form.data.endTimestamp),
+			form.data.requiresRSVP
+		);
 
-			redirect(302, '/admin/events?success=class-event-created');
-		} catch (error) {
-			console.error('Error creating class event:', error);
-			return fail(500, {
-				form,
-				message: 'Failed to create class event. Please try again.'
-			});
-		}
+		redirect(302, '/admin/events?success=class-event-created');
 	}
 };

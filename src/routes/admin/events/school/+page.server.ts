@@ -29,7 +29,8 @@ export const actions = {
 			user.schoolId,
 			form.data.name,
 			new Date(form.data.startTimestamp),
-			new Date(form.data.endTimestamp)
+			new Date(form.data.endTimestamp),
+			form.data.requiresRSVP
 		);
 
 		redirect(302, '/admin/events?success=school-event-created');

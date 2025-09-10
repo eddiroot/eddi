@@ -18,6 +18,7 @@
 	let subjectOfferingClassEvents = $state(
 		form?.subjectOfferingClassEvents || data.subjectOfferingClassEvents || []
 	);
+	let userRSVPs = $state(form?.userRSVPs || data.userRSVPs || []);
 	let currentWeekStart = $state(form?.currentWeekStart || data.currentWeekStart);
 
 	let timeslots = generateTimeslots(8, 17);
@@ -90,6 +91,19 @@
 		const allocation = classAllocation.find((c) => c.subjectOffering.id === subjectOfferingId);
 		return allocation?.userSubjectOffering.color;
 	}
+
+	// Helper function to check if user has RSVP'd to an event
+	function hasUserRSVPd(eventId: number, eventType: string): boolean {
+		return userRSVPs.some(
+			(rsvp) => rsvp.eventId === eventId && rsvp.eventType === eventType && rsvp.willAttend
+		);
+	}
+
+	// Helper function to get RSVP status for an event
+	function getRSVPStatus(event: any, eventType: string): 'required' | 'completed' | 'none' {
+		if (!event.requiresRSVP) return 'none';
+		return hasUserRSVPd(event.id, eventType) ? 'completed' : 'required';
+	}
 </script>
 
 <div class="h-full space-y-4 p-8">
@@ -119,6 +133,7 @@
 							(result.data.subjectOfferingEvents as typeof subjectOfferingEvents) || [];
 						subjectOfferingClassEvents =
 							(result.data.subjectOfferingClassEvents as typeof subjectOfferingClassEvents) || [];
+						userRSVPs = (result.data.userRSVPs as typeof userRSVPs) || [];
 						currentWeekStart = result.data.currentWeekStart as string;
 					}
 				};
@@ -158,6 +173,7 @@
 							(result.data.subjectOfferingEvents as typeof subjectOfferingEvents) || [];
 						subjectOfferingClassEvents =
 							(result.data.subjectOfferingClassEvents as typeof subjectOfferingClassEvents) || [];
+						userRSVPs = (result.data.userRSVPs as typeof userRSVPs) || [];
 						currentWeekStart = result.data.currentWeekStart as string;
 					}
 				};
@@ -237,6 +253,7 @@
 						eventIndex,
 						60
 					)}
+					{@const rsvpStatus = getRSVPStatus(event, event.type)}
 					<div
 						style="position: absolute; top: {position.top}; height: {position.height}; left: 60%; right: 4px; z-index: 30;"
 					>
@@ -245,6 +262,7 @@
 							eventType={event.type}
 							subjectInfo={event.subject}
 							subjectColor={getSubjectColor(event.subjectOfferingId)}
+							{rsvpStatus}
 						/>
 					</div>
 				{/each}

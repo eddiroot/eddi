@@ -25,21 +25,14 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		try {
-			await createCampusEvent(
-				form.data.campusId as number,
-				form.data.name as string,
-				new Date(form.data.startTimestamp),
-				new Date(form.data.endTimestamp)
-			);
+		await createCampusEvent(
+			form.data.campusId as number,
+			form.data.name as string,
+			new Date(form.data.startTimestamp),
+			new Date(form.data.endTimestamp),
+			form.data.requiresRSVP
+		);
 
-			redirect(302, '/admin/events?success=campus-event-created');
-		} catch (error) {
-			console.error('Error creating campus event:', error);
-			return fail(500, {
-				form,
-				message: 'Failed to create campus event. Please try again.'
-			});
-		}
+		redirect(302, '/admin/events?success=campus-event-created');
 	}
 };

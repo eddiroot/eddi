@@ -1,7 +1,8 @@
-import { pgTable, text, integer, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { campus, school } from './schools';
 import { subjectOffering, subjectOfferingClass } from './subjects';
+import { user } from './user';
 
 // Things like whole school assemblies, school fairs etc
 export const schoolEvent = pgTable('sch_evt', {
@@ -12,6 +13,7 @@ export const schoolEvent = pgTable('sch_evt', {
 	name: text('name').notNull(),
 	startTimestamp: timestamp('start_ts').notNull(),
 	endTimestamp: timestamp('end_ts').notNull(),
+	requiresRSVP: boolean('requires_rsvp').notNull().default(false),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
@@ -27,6 +29,7 @@ export const campusEvent = pgTable('cmps_evt', {
 	name: text('name').notNull(),
 	startTimestamp: timestamp('start_ts').notNull(),
 	endTimestamp: timestamp('end_ts').notNull(),
+	requiresRSVP: boolean('requires_rsvp').notNull().default(false),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
@@ -42,6 +45,7 @@ export const subjectOfferingEvent = pgTable('sub_off_evt', {
 	name: text('name').notNull(),
 	startTimestamp: timestamp('start_ts').notNull(),
 	endTimestamp: timestamp('end_ts').notNull(),
+	requiresRSVP: boolean('requires_rsvp').notNull().default(false),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
@@ -57,8 +61,29 @@ export const subjectOfferingClassEvent = pgTable('sub_off_cls_evt', {
 	name: text('name').notNull(),
 	startTimestamp: timestamp('start_ts').notNull(),
 	endTimestamp: timestamp('end_ts').notNull(),
+	requiresRSVP: boolean('requires_rsvp').notNull().default(false),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 
 export type SubjectOfferingClassEvent = typeof subjectOfferingClassEvent.$inferSelect;
+
+// RSVP Response table to track event RSVPs
+export const eventRSVP = pgTable(
+	'event_rsvp',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		eventType: text('event_type', {
+			enum: ['school', 'campus', 'subject', 'class']
+		}).notNull(),
+		eventId: integer('event_id').notNull(),
+		willAttend: boolean('will_attend').notNull(),
+		...timestamps
+	},
+	(self) => [unique().on(self.userId, self.eventType, self.eventId)]
+);
+
+export type EventRSVP = typeof eventRSVP.$inferSelect;

@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { ArrowLeft, Calendar, Clock, BookOpen } from '@lucide/svelte';
+	import { ArrowLeft, Calendar, Clock, BookOpen, UserCheck } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Button from '$lib/components/ui/button';
 	import * as Form from '$lib/components/ui/form';
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { createSubjectOfferingEventSchema } from '../schemas';
 	import type { PageData } from './$types';
 
@@ -145,6 +146,30 @@
 						<Form.FieldErrors />
 					</Form.Field>
 				</div>
+
+				<!-- RSVP Requirement -->
+				<Form.Field {form} name="requiresRSVP">
+					<Form.Control>
+						{#snippet children({ props })}
+							<div class="flex items-center space-x-3">
+								<Checkbox {...props} bind:checked={$formData.requiresRSVP} id={props.id} />
+								<div class="grid gap-1.5 leading-none">
+									<Label
+										for={props.id}
+										class="flex items-center gap-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+									>
+										<UserCheck class="h-4 w-4" />
+										Require RSVP
+									</Label>
+									<p class="text-muted-foreground text-xs">
+										Parents and students will need to confirm their attendance for this event
+									</p>
+								</div>
+							</div>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
 
 				<!-- Action Buttons -->
 				<div class="flex justify-end gap-3 pt-4">

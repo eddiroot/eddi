@@ -29,21 +29,14 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		try {
-			await createSubjectOfferingEvent(
-				form.data.subjectOfferingId as number,
-				form.data.name as string,
-				new Date(form.data.startTimestamp),
-				new Date(form.data.endTimestamp)
-			);
+		await createSubjectOfferingEvent(
+			form.data.subjectOfferingId as number,
+			form.data.name as string,
+			new Date(form.data.startTimestamp),
+			new Date(form.data.endTimestamp),
+			form.data.requiresRSVP
+		);
 
-			redirect(302, '/admin/events?success=subject-event-created');
-		} catch (error) {
-			console.error('Error creating subject event:', error);
-			return fail(500, {
-				form,
-				message: 'Failed to create subject event. Please try again.'
-			});
-		}
+		redirect(302, '/admin/events?success=subject-event-created');
 	}
 };
