@@ -36,8 +36,8 @@ export const actions = {
 			await createSubjectOfferingClassEvent(
 				form.data.subjectOfferingClassId as number,
 				form.data.name as string,
-				form.data.startTimestamp as Date,
-				form.data.endTimestamp as Date
+				new Date(form.data.startTimestamp),
+				new Date(form.data.endTimestamp)
 			);
 
 			redirect(302, '/admin/events?success=class-event-created');

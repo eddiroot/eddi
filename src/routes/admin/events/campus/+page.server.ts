@@ -29,8 +29,8 @@ export const actions = {
 			await createCampusEvent(
 				form.data.campusId as number,
 				form.data.name as string,
-				form.data.startTimestamp as Date,
-				form.data.endTimestamp as Date
+				new Date(form.data.startTimestamp),
+				new Date(form.data.endTimestamp)
 			);
 
 			redirect(302, '/admin/events?success=campus-event-created');

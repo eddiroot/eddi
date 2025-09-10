@@ -17,7 +17,7 @@ export const load = async ({ locals: { security } }) => {
 
 export const actions = {
 	default: async ({ request, locals: { security } }) => {
-		security.isAuthenticated().isSchoolAdmin();
+		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const form = await superValidate(request, zod4(createSchoolEventSchema));
 
@@ -25,21 +25,13 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		try {
-			await createSchoolEvent(
-				form.data.schoolId as number,
-				form.data.name as string,
-				form.data.startTimestamp as Date,
-				form.data.endTimestamp as Date
-			);
+		await createSchoolEvent(
+			user.schoolId,
+			form.data.name,
+			new Date(form.data.startTimestamp),
+			new Date(form.data.endTimestamp)
+		);
 
-			redirect(302, '/admin/events?success=school-event-created');
-		} catch (error) {
-			console.error('Error creating school event:', error);
-			return fail(500, {
-				form,
-				message: 'Failed to create school event. Please try again.'
-			});
-		}
+		redirect(302, '/admin/events?success=school-event-created');
 	}
 };

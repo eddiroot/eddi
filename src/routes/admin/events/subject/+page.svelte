@@ -20,7 +20,6 @@
 
 	const { form: formData, enhance, submitting } = form;
 
-	// Convert numeric form values to string for Select components
 	let selectedSubjectOfferingId = $derived($formData.subjectOfferingId?.toString() || '');
 </script>
 
@@ -150,13 +149,7 @@
 				<!-- Action Buttons -->
 				<div class="flex justify-end gap-3 pt-4">
 					<Button.Root variant="outline" href="/admin/events">Cancel</Button.Root>
-					<Button.Root type="submit" disabled={$submitting}>
-						{#if $submitting}
-							Creating Event...
-						{:else}
-							Create Subject Event
-						{/if}
-					</Button.Root>
+					<Button.Root type="submit" disabled={$submitting}>Create Subject Event</Button.Root>
 				</div>
 			</form>
 		</Card.Content>

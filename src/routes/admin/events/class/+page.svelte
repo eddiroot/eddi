@@ -149,13 +149,7 @@
 				<!-- Action Buttons -->
 				<div class="flex justify-end gap-3 pt-4">
 					<Button.Root variant="outline" href="/admin/events">Cancel</Button.Root>
-					<Button.Root type="submit" disabled={$submitting}>
-						{#if $submitting}
-							Creating Event...
-						{:else}
-							Create Class Event
-						{/if}
-					</Button.Root>
+					<Button.Root type="submit" disabled={$submitting}>Create Class Event</Button.Root>
 				</div>
 			</form>
 		</Card.Content>
