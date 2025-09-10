@@ -95,7 +95,7 @@ Raph
   - fix filters and sorts
   - full width, remove fixed-table
   - remove and fix showFeedback
-- [ ] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
+- [x] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
   - fix table width issues
   - admin grade style option (percentage vs 0-8 scale)
 

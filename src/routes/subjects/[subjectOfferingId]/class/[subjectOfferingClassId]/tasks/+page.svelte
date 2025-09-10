@@ -152,7 +152,7 @@
 					<h2 class="text-foreground text-xl font-semibold">{topic.name}</h2>
 				</div>
 
-				<div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+				<div class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-8">
 					{#if tasks.length === 0 && resources.length === 0}
 						<div class="text-muted-foreground col-span-full text-sm">
 							No tasks or resources available for this topic.
@@ -167,17 +167,26 @@
 									<Card.Title>
 										{task.task.title}
 									</Card.Title>
-									<Card.Description class="mt-0.5 space-y-1">
-										<div>Status: {task.status}</div>
-									</Card.Description>
 								</Card.Header>
+								<Card.Content class="h-12 w-72 truncate break-all">
+									{#if task.task.description}
+										<span class="text-muted-foreground h-12 truncate text-sm text-wrap">
+											{task.task.description}
+										</span>
+									{/if}
+								</Card.Content>
+								<Card.Footer>
+									<span class="text-muted-foreground text-sm">
+										<div>Status: {task.status}</div>
+									</span>
+								</Card.Footer>
 							</Card.Root>
 						</a>
 					{/each}
 
 					<!-- Resources -->
 					{#each resources as resource}
-						<Card.Root class="w-84">
+						<Card.Root class="w-full">
 							<Card.Header>
 								<a target="_blank" href={resource.downloadUrl}>
 									<Card.Title class="w-48 truncate py-0.5 break-all hover:underline">
