@@ -2,7 +2,10 @@ import * as schema from '../schema';
 import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { VCAAF10Scraper } from './scraper/index';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import type { VCAACurriculumData } from './data/types';
 import { eq } from 'drizzle-orm';
 import { reset } from 'drizzle-seed';
 import {
@@ -247,12 +250,26 @@ async function seed() {
 			return subject && subject.yearLevel === yearLevelEnum.year9;
 		});
 
-		// Initialize VCAA scraper and scrape core subjects
-		console.log('🎯 Initialising VCAA F-10 curriculum scraper...');
-		const scraper = new VCAAF10Scraper();
-
-		// Scrape core subject content from VCAA
-		const contentItems = await scraper.scrapeCoreSubjects();
+		// Load pre-scraped VCAA curriculum data from JSON
+		console.log('📚 Loading VCAA F-10 curriculum data from JSON...');
+		const __filename = fileURLToPath(import.meta.url);
+		const __dirname = dirname(__filename);
+		const curriculumDataPath = join(__dirname, 'data', 'vcaa-curriculum.json');
+		const curriculumData: VCAACurriculumData = JSON.parse(readFileSync(curriculumDataPath, 'utf-8'));
+		
+		// Transform JSON data to match the expected format
+		const contentItems = curriculumData.subjects.flatMap(subject =>
+			subject.learningAreas.flatMap(learningArea =>
+				learningArea.standards.map(standard => ({
+					vcaaCode: standard.name,
+					description: standard.description,
+					yearLevel: standard.yearLevel,
+					learningArea: learningArea.name,
+					strand: subject.name,
+					elaborations: standard.elaborations
+				}))
+			)
+		);
 
 		// Create learning areas for scraped content
 		const learningAreaMap = new Map<string, number>();
@@ -337,7 +354,7 @@ async function seed() {
 					.values({
 						learningAreaId: learningAreaId,
 						name: item.vcaaCode,
-						description: `${item.strand}: ${item.description}`,
+						description: `${item.learningArea}: ${item.description}`,
 						yearLevel: yearLevelValue
 					})
 					.returning();
