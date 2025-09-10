@@ -39,18 +39,18 @@ export const steps = {
 		percentage: 70,
 		label: 'Activities',
 		previous: 'spaces',
-		next: 'rules'
+		next: 'constraints'
 	},
-	rules: {
+	constraints: {
 		percentage: 80,
-		label: 'Rules',
+		label: 'Constraints',
 		previous: 'activities',
 		next: 'generate'
 	},
 	generate: {
 		percentage: 90,
 		label: 'Generate',
-		previous: 'rules',
+		previous: 'constraints',
 		next: 'result'
 	},
 	result: {
