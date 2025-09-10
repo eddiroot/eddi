@@ -11,32 +11,28 @@
 			title: 'School Events',
 			description: 'e.g. end-of-year ceremonies, open days, and holidays.',
 			href: '/admin/events/school',
-			icon: SchoolIcon,
-			color: 'bg-blue-100 text-blue-600'
+			icon: SchoolIcon
 		},
 		{
 			type: 'campus',
 			title: 'Campus Events',
 			description: 'e.g. sports days, campus tours, and community events',
 			href: '/admin/events/campus',
-			icon: MapPinIcon,
-			color: 'bg-green-100 text-green-600'
+			icon: MapPinIcon
 		},
 		{
 			type: 'subject',
 			title: 'Subject Events',
 			description: 'e.g. year-wide exams, excursions, and presentations',
 			href: '/admin/events/subject',
-			icon: BookOpenIcon,
-			color: 'bg-yellow-100 text-yellow-600'
+			icon: BookOpenIcon
 		},
 		{
 			type: 'class',
 			title: 'Class Events',
 			description: 'e.g. tests, class trips, and special activities',
 			href: '/admin/events/class',
-			icon: ContactIcon,
-			color: 'bg-purple-100 text-purple-600'
+			icon: ContactIcon
 		}
 	];
 </script>
@@ -49,7 +45,7 @@
 				<Card.Root class="h-56">
 					<Card.Header>
 						<div class="mb-4 flex items-center justify-center">
-							<div class="rounded-2xl p-4 {eventType.color} shadow-sm">
+							<div class="bg-primary rounded-2xl p-4 shadow-sm">
 								<eventType.icon class="h-8 w-8" />
 							</div>
 						</div>
