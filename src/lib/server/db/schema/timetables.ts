@@ -1,10 +1,20 @@
-import { pgTable, text, integer, boolean, unique, uuid, time, pgEnum } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	boolean,
+	unique,
+	uuid,
+	time,
+	pgEnum,
+	jsonb
+} from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
 import { user } from './user';
 import { yearLevelEnumPg } from './curriculum';
 import { subject } from './subjects';
 import { school } from './schools';
-import { queueStatusEnum } from '../../../enums';
+import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 
 export const timetable = pgTable(
 	'tt',
@@ -133,3 +143,34 @@ export const fetActivity = pgTable('fet_activity', {
 });
 
 export type FETDBActivity = typeof fetActivity.$inferSelect;
+
+export const timetableConstraint = pgTable('tt_constraint', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableId: integer('tt_id')
+		.notNull()
+		.references(() => timetable.id, { onDelete: 'cascade' }),
+	constraintId: text('constraint_id').notNull(), // unique identifier for the constraint
+	...timestamps
+});
+
+export type TimetableConstraint = typeof timetableConstraint.$inferSelect;
+
+export const constraintTypeEnumPg = pgEnum('enum_constraint_type', [
+	constraintTypeEnum.time,
+	constraintTypeEnum.space
+]);
+
+export const constraint = pgTable('constraint', {
+	id: text('id').primaryKey(), // unique identifier for the constraint
+	name: text('name').notNull(),
+	description: text('description').notNull(),
+	type: constraintTypeEnumPg().notNull(), // e.g., 'time', 'space'
+	active: boolean('active').notNull().default(true),
+	// JSON schema to define the structure of parameters for this constraint
+	parameterSchema: jsonb('parameter_schema').notNull(),
+	// Example parameters to help users understand how to configure this constraint
+	exampleParameters: jsonb('example_parameters').notNull(),
+	...timestamps
+});
+
+export type Constraint = typeof constraint.$inferSelect;

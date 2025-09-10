@@ -2,7 +2,7 @@ import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { days } from '$lib/utils';
-import { queueStatusEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
+import { queueStatusEnum, userTypeEnum, yearLevelEnum, constraintTypeEnum } from '$lib/enums.js';
 import type { FETActivity } from '$lib/schemas/fetSchema';
 
 export async function getSchoolTimetablesBySchoolId(
@@ -444,4 +444,88 @@ export async function createTimetableFETActivitiesFromFETExport(
 	}));
 
 	await db.insert(table.fetActivity).values(activities);
+}
+
+export async function createConstraint(data: {
+	id: string;
+	name: string;
+	description: string;
+	type: constraintTypeEnum;
+	parameterSchema: Record<string, unknown>;
+	exampleParameters: Record<string, unknown>;
+}) {
+	const [constraint] = await db
+		.insert(table.constraint)
+		.values({
+			id: data.id,
+			name: data.name,
+			description: data.description,
+			type: data.type,
+			parameterSchema: data.parameterSchema,
+			exampleParameters: data.exampleParameters,
+			active: true
+		})
+		.returning();
+
+	return constraint;
+}
+
+export async function createTimetableConstriant(timetableId: number, constraintId: string) {
+	const [constraint] = await db
+		.insert(table.timetableConstraint)
+		.values({
+			timetableId,
+			constraintId
+		})
+		.returning();
+
+	return constraint;
+}
+
+export async function getConstraintsByTimetableId(timetableId: number) {
+	return db
+		.select({
+			id: table.constraint.id,
+			name: table.constraint.name,
+			description: table.constraint.description,
+			type: table.constraint.type,
+			parameterSchema: table.constraint.parameterSchema,
+			exampleParameters: table.constraint.exampleParameters,
+			active: table.constraint.active
+		})
+		.from(table.timetableConstraint)
+		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.where(eq(table.timetableConstraint.timetableId, timetableId))
+		.orderBy(asc(table.constraint.name));
+}
+
+export async function getAllConstraints() {
+	const constraints = await db
+		.select()
+		.from(table.constraint)
+		.where(eq(table.constraint.active, true))
+		.orderBy(asc(table.constraint.name));
+
+	return constraints;
+}
+
+export async function getConstraintById(constraintId: string) {
+	const [constraint] = await db
+		.select()
+		.from(table.constraint)
+		.where(eq(table.constraint.id, constraintId))
+		.limit(1);
+
+	return constraint;
+}
+
+export async function deleteTimetableConstraint(timetableId: number, constraintId: string) {
+	await db
+		.delete(table.timetableConstraint)
+		.where(
+			and(
+				eq(table.timetableConstraint.timetableId, timetableId),
+				eq(table.timetableConstraint.constraintId, constraintId)
+			)
+		);
 }

@@ -118,6 +118,11 @@ export enum queueStatusEnum {
 	failed = 'failed'
 }
 
+export enum constraintTypeEnum {
+	time = 'time',
+	space = 'space'
+}
+
 export enum newsPriorityEnum {
 	low = 'low',
 	normal = 'normal',
