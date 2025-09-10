@@ -141,9 +141,6 @@
 			<h4 class="font-medium text-sm truncate">
 				{resource.fileName}
 			</h4>
-			<Badge variant="secondary" class="{getResourceTypeColor(resource.resourceType)} text-xs">
-				{resource.resourceType}
-			</Badge>
 		</div>
 		<div class="flex items-center gap-3 text-xs text-muted-foreground">
 			<span>{formatFileSize(resource.fileSize)}</span>

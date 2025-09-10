@@ -83,7 +83,7 @@ Raph
 
 - [x] Class home page (20/07)
   - Improve look and functionality
-  - Fix ordering and resource tag
+  - Fix ordering
 - [ ] Better whiteboard (20/07)
   - undo/redo
   - Fix colour options/view + tooltip, colour options popout instead of in menu?
