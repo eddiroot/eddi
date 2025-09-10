@@ -122,6 +122,8 @@
 	async function handleResponseUpdate(blockId: number, response: any) {
 		responses[blockId] = response;
 
+		if (data.user.type !== userTypeEnum.student) return;
+
 		try {
 			await upsertBlockResponse(blockId, data.classTask.id, response);
 		} catch (error) {

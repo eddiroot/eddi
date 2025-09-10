@@ -37,7 +37,7 @@
 		"@types/jsdom": "^21.1.7",
 		"@types/node": "^22.15.33",
 		"@types/nodemailer": "^6.4.17",
-		"@types/plotly.js": "^3.0.4",
+		"@types/plotly.js-dist-min": "^2.3.4",
 		"@types/seedrandom": "^3.0.8",
 		"bits-ui": "^2.8.8",
 		"cheerio": "^1.1.0",
@@ -90,7 +90,7 @@
 		"node-cron": "^4.2.1",
 		"nodemailer": "^7.0.5",
 		"pdfjs-dist": "^5.3.93",
-		"plotly.js": "^3.1.0",
+		"plotly.js-dist-min": "^3.1.0",
 		"postgres": "^3.4.5",
 		"uuid": "^11.1.0",
 		"zod": "^3.25.76"

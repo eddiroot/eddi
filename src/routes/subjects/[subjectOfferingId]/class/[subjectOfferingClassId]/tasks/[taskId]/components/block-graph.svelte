@@ -9,37 +9,87 @@
 	import { ViewMode, type GraphBlockProps } from '$lib/schemas/taskSchema';
 	import { onMount } from 'svelte';
 	import { evaluate } from 'mathjs';
-	import type { PlotData } from 'plotly.js';
+	import type { PlotData, Root } from 'plotly.js-dist-min';
+	import { mode } from 'mode-watcher';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: GraphBlockProps = $props();
 
-	let plotContainer: HTMLDivElement | undefined = $state();
-	let Plotly: typeof import('plotly.js');
+	let plotContainer: Root | undefined = $state();
+	let Plotly: typeof import('plotly.js-dist-min');
 
 	onMount(async () => {
-		const plotlyModule = await import('plotly.js');
-		Plotly = plotlyModule.default;
+		const plotlyModule = await import('plotly.js-dist-min');
+		Plotly = plotlyModule.default || plotlyModule;
 		await updatePlot();
 	});
 
-	function generatePlotData(equation: string, xRange: { min: number; max: number }) {
+	function getThemeAwareColor(originalColor: string): string {
+		if (mode.current !== 'dark') return originalColor;
+
+		const colorMap: Record<string, string> = {
+			'#3b82f6': '#60a5fa',
+			'#ef4444': '#f87171',
+			'#10b981': '#34d399',
+			'#f59e0b': '#fbbf24',
+			'#8b5cf6': '#a78bfa',
+			'#06b6d4': '#22d3ee',
+			'#ec4899': '#f472b6',
+			'#84cc16': '#a3e635'
+		};
+
+		return colorMap[originalColor] || originalColor;
+	}
+
+	function generatePlotData(equation: string) {
 		const xValues = [];
 		const yValues = [];
-		const step = (xRange.max - xRange.min) / 1000;
+		const step = (config.xRange.max - config.xRange.min) / 1000;
 
-		for (let x = xRange.min; x <= xRange.max; x += step) {
+		for (let x = config.xRange.min; x <= config.xRange.max; x += step) {
 			try {
 				const y = evaluate(equation, { x });
 				if (typeof y === 'number' && isFinite(y)) {
 					xValues.push(x);
 					yValues.push(y);
 				}
-			} catch (error) {
-				// Skip invalid points
-			}
+			} catch {}
 		}
 
 		return { x: xValues, y: yValues };
+	}
+
+	function createTrace(plot: any, isDashed = false): Partial<PlotData> | null {
+		const data = generatePlotData(plot.equation);
+		if (data.x.length === 0) return null;
+
+		const color = getThemeAwareColor(plot.color || '#3b82f6');
+		const trace: Partial<PlotData> = {
+			x: data.x,
+			y: data.y,
+			type: 'scatter',
+			mode: 'lines',
+			name: plot.label,
+			line: {
+				color,
+				width: 2
+			}
+		};
+
+		if (isDashed && trace.line) {
+			(trace.line as any).dash = 'dash';
+		}
+
+		return trace;
+	}
+
+	function getAxisStyle() {
+		const isDark = mode.current === 'dark';
+		return {
+			zeroline: true,
+			zerolinecolor: isDark ? '#374151' : '#d1d5db',
+			gridcolor: isDark ? '#374151' : '#e5e7eb',
+			color: isDark ? '#e5e7eb' : '#374151'
+		};
 	}
 
 	async function updatePlot() {
@@ -48,40 +98,14 @@
 		const traces: Partial<PlotData>[] = [];
 
 		config.staticPlots.forEach((plot) => {
-			try {
-				const data = generatePlotData(plot.equation, config.xRange);
-				if (data.x.length > 0) {
-					traces.push({
-						x: data.x,
-						y: data.y,
-						type: 'scatter',
-						mode: 'lines',
-						name: plot.label,
-						line: { color: plot.color, width: 2 }
-					});
-				}
-			} catch (error) {
-				console.warn(`Error plotting equation "${plot.equation}":`, error);
-			}
+			const trace = createTrace(plot);
+			if (trace) traces.push(trace);
 		});
 
-		if ((viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW) && response.studentPlots) {
+		if ((viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW) && response?.studentPlots) {
 			response.studentPlots.forEach((plot) => {
-				try {
-					const data = generatePlotData(plot.equation, config.xRange);
-					if (data.x.length > 0) {
-						traces.push({
-							x: data.x,
-							y: data.y,
-							type: 'scatter',
-							mode: 'lines',
-							name: plot.label,
-							line: { color: plot.color, width: 2, dash: 'dash' }
-						});
-					}
-				} catch (error) {
-					console.warn(`Error plotting student equation "${plot.equation}":`, error);
-				}
+				const trace = createTrace({ ...plot, color: plot.color || '#ef4444' }, true);
+				if (trace) traces.push(trace);
 			});
 		}
 
@@ -90,105 +114,72 @@
 			xaxis: {
 				title: { text: config.xAxisLabel },
 				range: [config.xRange.min, config.xRange.max],
-				zeroline: true,
-				grid: true
+				...getAxisStyle()
 			},
 			yaxis: {
 				title: { text: config.yAxisLabel },
 				range: [config.yRange.min, config.yRange.max],
-				zeroline: true,
-				grid: true
+				...getAxisStyle()
 			},
 			showlegend: traces.length > 1,
 			responsive: true,
-			height: 500
+			height: 500,
+			paper_bgcolor: 'rgba(0,0,0,0)',
+			plot_bgcolor: 'rgba(0,0,0,0)',
+			font: {
+				color: mode.current === 'dark' ? '#e5e7eb' : '#374151'
+			}
 		};
 
-		await Plotly.newPlot(plotContainer, traces, layout, { displayModeBar: false });
+		await Plotly.react(plotContainer, traces, layout, { displayModeBar: false });
 	}
 
-	function addStaticPlot() {
-		const newPlot = {
+	function createPlot(defaultColor: string, labelPrefix: string, count: number) {
+		return {
 			id: crypto.randomUUID(),
 			equation: 'x',
-			color: '#3b82f6',
-			label: `Plot ${config.staticPlots.length + 1}`
+			color: defaultColor,
+			label: `${labelPrefix} ${count + 1}`
 		};
-
-		const updatedConfig = {
-			...config,
-			staticPlots: [...config.staticPlots, newPlot]
-		};
-
-		onConfigUpdate(updatedConfig);
 	}
 
-	function removeStaticPlot(index: number) {
-		const updatedConfig = {
-			...config,
-			staticPlots: config.staticPlots.filter((_, i) => i !== index)
-		};
+	function updatePlots(
+		isStatic: boolean,
+		action: 'add' | 'remove' | 'update',
+		index?: number,
+		field?: string,
+		value?: string
+	) {
+		if (isStatic) {
+			let staticPlots = [...config.staticPlots];
 
-		onConfigUpdate(updatedConfig);
-	}
+			if (action === 'add') {
+				staticPlots.push(createPlot('#3b82f6', 'Plot', staticPlots.length));
+			} else if (action === 'remove' && index !== undefined) {
+				staticPlots = staticPlots.filter((_, i) => i !== index);
+			} else if (action === 'update' && index !== undefined && field && value !== undefined) {
+				staticPlots[index] = { ...staticPlots[index], [field]: value };
+			}
 
-	function updateStaticPlot(index: number, field: string, value: string) {
-		const updatedPlots = [...config.staticPlots];
-		updatedPlots[index] = { ...updatedPlots[index], [field]: value };
+			onConfigUpdate({ ...config, staticPlots });
+		} else {
+			if (!response) return;
+			let studentPlots = [...response.studentPlots];
 
-		const updatedConfig = {
-			...config,
-			staticPlots: updatedPlots
-		};
+			if (action === 'add') {
+				studentPlots.push(createPlot('#ef4444', 'My Plot', studentPlots.length));
+			} else if (action === 'remove' && index !== undefined) {
+				studentPlots = studentPlots.filter((_, i) => i !== index);
+			} else if (action === 'update' && index !== undefined && field && value !== undefined) {
+				studentPlots[index] = { ...studentPlots[index], [field]: value };
+			}
 
-		onConfigUpdate(updatedConfig);
-	}
-
-	function addStudentPlot() {
-		if (!response) return;
-
-		const newPlot = {
-			id: crypto.randomUUID(),
-			equation: 'x',
-			color: '#ef4444',
-			label: `My Plot ${response.studentPlots.length + 1}`
-		};
-
-		const updatedResponse = {
-			...response,
-			studentPlots: [...response.studentPlots, newPlot]
-		};
-
-		onResponseUpdate(updatedResponse);
-	}
-
-	function removeStudentPlot(index: number) {
-		if (!response) return;
-
-		const updatedResponse = {
-			...response,
-			studentPlots: response.studentPlots.filter((_, i) => i !== index)
-		};
-
-		onResponseUpdate(updatedResponse);
-	}
-
-	function updateStudentPlot(index: number, field: string, value: string) {
-		if (!response) return;
-
-		const updatedPlots = [...response.studentPlots];
-		updatedPlots[index] = { ...updatedPlots[index], [field]: value };
-
-		const updatedResponse = {
-			...response,
-			studentPlots: updatedPlots
-		};
-
-		onResponseUpdate(updatedResponse);
+			onResponseUpdate({ ...response, studentPlots });
+		}
 	}
 
 	$effect(() => {
-		if (config || response) {
+		if (config || response || mode.current || viewMode) {
 			updatePlot();
 		}
 	});
@@ -206,15 +197,13 @@
 			<Card.Content class="space-y-6">
 				<!-- Graph Settings -->
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<div class="space-y-2">
+					<div class="space-y-2 md:col-span-2">
 						<Label for="graph-title">Title</Label>
 						<Input
 							id="graph-title"
 							value={config.title}
-							oninput={(e) => {
-								const value = (e.target as HTMLInputElement)?.value;
-								onConfigUpdate({ ...config, title: value });
-							}}
+							oninput={(e) =>
+								onConfigUpdate({ ...config, title: (e.target as HTMLInputElement).value })}
 							placeholder="Graph title"
 						/>
 					</div>
@@ -224,10 +213,8 @@
 						<Input
 							id="x-axis-label"
 							value={config.xAxisLabel}
-							oninput={(e) => {
-								const value = (e.target as HTMLInputElement)?.value;
-								onConfigUpdate({ ...config, xAxisLabel: value });
-							}}
+							oninput={(e) =>
+								onConfigUpdate({ ...config, xAxisLabel: (e.target as HTMLInputElement).value })}
 							placeholder="x"
 						/>
 					</div>
@@ -237,10 +224,8 @@
 						<Input
 							id="y-axis-label"
 							value={config.yAxisLabel}
-							oninput={(e) => {
-								const value = (e.target as HTMLInputElement)?.value;
-								onConfigUpdate({ ...config, yAxisLabel: value });
-							}}
+							oninput={(e) =>
+								onConfigUpdate({ ...config, yAxisLabel: (e.target as HTMLInputElement).value })}
 							placeholder="y"
 						/>
 					</div>
@@ -254,25 +239,21 @@
 							<Input
 								type="number"
 								value={config.xRange.min}
-								oninput={(e) => {
-									const value = Number((e.target as HTMLInputElement)?.value);
+								oninput={(e) =>
 									onConfigUpdate({
 										...config,
-										xRange: { ...config.xRange, min: value }
-									});
-								}}
+										xRange: { ...config.xRange, min: Number((e.target as HTMLInputElement).value) }
+									})}
 								placeholder="Min"
 							/>
 							<Input
 								type="number"
 								value={config.xRange.max}
-								oninput={(e) => {
-									const value = Number((e.target as HTMLInputElement)?.value);
+								oninput={(e) =>
 									onConfigUpdate({
 										...config,
-										xRange: { ...config.xRange, max: value }
-									});
-								}}
+										xRange: { ...config.xRange, max: Number((e.target as HTMLInputElement).value) }
+									})}
 								placeholder="Max"
 							/>
 						</div>
@@ -284,25 +265,21 @@
 							<Input
 								type="number"
 								value={config.yRange.min}
-								oninput={(e) => {
-									const value = Number((e.target as HTMLInputElement)?.value);
+								oninput={(e) =>
 									onConfigUpdate({
 										...config,
-										yRange: { ...config.yRange, min: value }
-									});
-								}}
+										yRange: { ...config.yRange, min: Number((e.target as HTMLInputElement).value) }
+									})}
 								placeholder="Min"
 							/>
 							<Input
 								type="number"
 								value={config.yRange.max}
-								oninput={(e) => {
-									const value = Number((e.target as HTMLInputElement)?.value);
+								oninput={(e) =>
 									onConfigUpdate({
 										...config,
-										yRange: { ...config.yRange, max: value }
-									});
-								}}
+										yRange: { ...config.yRange, max: Number((e.target as HTMLInputElement).value) }
+									})}
 								placeholder="Max"
 							/>
 						</div>
@@ -312,59 +289,48 @@
 				<!-- Static Plots Configuration -->
 				<div class="space-y-4">
 					<div class="flex items-center justify-between">
-						<Label class="text-base font-semibold">Static Plots (Teacher Examples)</Label>
-						<Button onclick={addStaticPlot} variant="outline" size="sm">
+						<Label class="text-base font-semibold">Static Plots</Label>
+						<Button onclick={() => updatePlots(true, 'add')} variant="outline" size="sm">
 							<PlusIcon class="mr-2" />
 							Add Plot
 						</Button>
 					</div>
 
 					{#each config.staticPlots as plot, index}
-						<div class="space-y-3 rounded-lg border p-4">
-							<div class="flex items-center justify-between">
-								<span class="font-medium">Plot {index + 1}</span>
-								<Button onclick={() => removeStaticPlot(index)} variant="destructive" size="sm">
-									<TrashIcon />
-								</Button>
-							</div>
+						<div class="grid grid-cols-[3fr_3fr_3fr_1fr] gap-3">
+							<Input
+								value={plot.equation}
+								oninput={(e) =>
+									updatePlots(
+										true,
+										'update',
+										index,
+										'equation',
+										(e.target as HTMLInputElement).value
+									)}
+								placeholder="e.g., x^2, sin(x), 2*x+1"
+							/>
 
-							<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-								<div class="space-y-1">
-									<Label>Equation (use 'x' as variable)</Label>
-									<Input
-										value={plot.equation}
-										oninput={(e) => {
-											const value = (e.target as HTMLInputElement)?.value;
-											updateStaticPlot(index, 'equation', value);
-										}}
-										placeholder="e.g., x^2, sin(x), 2*x+1"
-									/>
-								</div>
+							<Input
+								type="color"
+								value={plot.color || '#3b82f6'}
+								oninput={(e) =>
+									updatePlots(true, 'update', index, 'color', (e.target as HTMLInputElement).value)}
+							/>
 
-								<div class="space-y-1">
-									<Label>Color</Label>
-									<Input
-										type="color"
-										value={plot.color}
-										oninput={(e) => {
-											const value = (e.target as HTMLInputElement)?.value;
-											updateStaticPlot(index, 'color', value);
-										}}
-									/>
-								</div>
-
-								<div class="space-y-1">
-									<Label>Label</Label>
-									<Input
-										value={plot.label}
-										oninput={(e) => {
-											const value = (e.target as HTMLInputElement)?.value;
-											updateStaticPlot(index, 'label', value);
-										}}
-										placeholder="Plot label"
-									/>
-								</div>
-							</div>
+							<Input
+								value={plot.label}
+								oninput={(e) =>
+									updatePlots(true, 'update', index, 'label', (e.target as HTMLInputElement).value)}
+								placeholder="Plot label"
+							/>
+							<Button
+								onclick={() => updatePlots(true, 'remove', index)}
+								variant="destructive"
+								size="sm"
+							>
+								<TrashIcon />
+							</Button>
 						</div>
 					{/each}
 
@@ -378,7 +344,7 @@
 				<!-- Preview -->
 				<div class="space-y-2">
 					<Label class="text-base font-semibold">Preview</Label>
-					<div bind:this={plotContainer} class="rounded-lg border"></div>
+					<div bind:this={plotContainer} class="h-[500px] rounded-lg border"></div>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -392,72 +358,68 @@
 			</Card.Header>
 			<Card.Content class="space-y-6">
 				<!-- Graph Display -->
-				<div bind:this={plotContainer} class="rounded-lg border"></div>
+				<div bind:this={plotContainer} class="h-[500px] rounded-lg border"></div>
 
 				{#if viewMode === ViewMode.ANSWER}
 					<!-- Student Plot Controls -->
 					<div class="space-y-4">
 						<div class="flex items-center justify-between">
-							<Label class="text-base font-semibold">Add Your Own Plots</Label>
-							<Button onclick={addStudentPlot} variant="outline" size="sm">
+							<Label class="text-base font-semibold">Your Plots</Label>
+							<Button onclick={() => updatePlots(false, 'add')} variant="outline" size="sm">
 								<PlusIcon class="mr-2" />
 								Add Plot
 							</Button>
 						</div>
 
 						{#each response.studentPlots as plot, index}
-							<div class="bg-muted/30 space-y-3 rounded-lg border p-4">
-								<div class="flex items-center justify-between">
-									<span class="font-medium">Your Plot {index + 1}</span>
-									<Button onclick={() => removeStudentPlot(index)} variant="destructive" size="sm">
-										<TrashIcon />
-									</Button>
-								</div>
+							<div class="grid grid-cols-[3fr_3fr_3fr_1fr] gap-3">
+								<Input
+									value={plot.equation}
+									oninput={(e) =>
+										updatePlots(
+											false,
+											'update',
+											index,
+											'equation',
+											(e.target as HTMLInputElement).value
+										)}
+									placeholder="e.g., x^2, sin(x), 2*x+1"
+								/>
 
-								<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-									<div class="space-y-1">
-										<Label>Equation (use 'x' as variable)</Label>
-										<Input
-											value={plot.equation}
-											oninput={(e) => {
-												const value = (e.target as HTMLInputElement)?.value;
-												updateStudentPlot(index, 'equation', value);
-											}}
-											placeholder="e.g., x^2, sin(x), 2*x+1"
-										/>
-									</div>
+								<Input
+									type="color"
+									value={plot.color || '#ef4444'}
+									oninput={(e) =>
+										updatePlots(
+											false,
+											'update',
+											index,
+											'color',
+											(e.target as HTMLInputElement).value
+										)}
+								/>
 
-									<div class="space-y-1">
-										<Label>Color</Label>
-										<Input
-											type="color"
-											value={plot.color}
-											oninput={(e) => {
-												const value = (e.target as HTMLInputElement)?.value;
-												updateStudentPlot(index, 'color', value);
-											}}
-										/>
-									</div>
-
-									<div class="space-y-1">
-										<Label>Label</Label>
-										<Input
-											value={plot.label}
-											oninput={(e) => {
-												const value = (e.target as HTMLInputElement)?.value;
-												updateStudentPlot(index, 'label', value);
-											}}
-											placeholder="Plot label"
-										/>
-									</div>
-								</div>
+								<Input
+									value={plot.label}
+									oninput={(e) =>
+										updatePlots(
+											false,
+											'update',
+											index,
+											'label',
+											(e.target as HTMLInputElement).value
+										)}
+									placeholder="Plot label"
+								/>
+								<Button
+									onclick={() => updatePlots(false, 'remove', index)}
+									variant="destructive"
+									size="sm"
+								>
+									<TrashIcon />
+								</Button>
 							</div>
 						{/each}
-
-						<p class="text-muted-foreground text-sm">
-							Enter mathematical equations using 'x' as the variable. Examples: x^2, sin(x), cos(x),
-							2*x+1, sqrt(x)
-						</p>
 					</div>
 				{/if}
 
@@ -477,7 +439,7 @@
 											<span class="font-medium">Color:</span>
 											<span
 												class="ml-1 inline-block h-4 w-4 rounded"
-												style="background-color: {plot.color}"
+												style="background-color: {plot.color || '#ef4444'}"
 											></span>
 										</div>
 										<div>
