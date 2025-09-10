@@ -933,6 +933,89 @@ async function seed() {
 			});
 		}
 
+		// Create mock timetable structure
+		console.log('📅 Creating mock timetable...');
+
+		const [mockTimetable] = await db
+			.insert(schema.timetable)
+			.values({
+				schoolId: schoolRecord.id,
+				name: 'Main School Timetable 2025',
+				schoolYear: 2025,
+				isArchived: false
+			})
+			.returning();
+
+		// Create timetable days (Monday to Friday)
+		const timetableDays = await db
+			.insert(schema.timetableDay)
+			.values([
+				{ timetableId: mockTimetable.id, day: 1 }, // Monday
+				{ timetableId: mockTimetable.id, day: 2 }, // Tuesday
+				{ timetableId: mockTimetable.id, day: 3 }, // Wednesday
+				{ timetableId: mockTimetable.id, day: 4 }, // Thursday
+				{ timetableId: mockTimetable.id, day: 5 } // Friday
+			])
+			.returning();
+
+		// Create timetable periods (6 periods from 9:00 to 15:30)
+		const timetablePeriods = await db
+			.insert(schema.timetablePeriod)
+			.values([
+				{ timetableId: mockTimetable.id, startTime: '09:00', endTime: '09:50' },
+				{ timetableId: mockTimetable.id, startTime: '09:50', endTime: '10:40' },
+				{ timetableId: mockTimetable.id, startTime: '11:00', endTime: '11:50' }, // 20 min break after period 2
+				{ timetableId: mockTimetable.id, startTime: '11:50', endTime: '12:40' },
+				{ timetableId: mockTimetable.id, startTime: '13:40', endTime: '14:30' }, // 1 hour lunch break after period 4
+				{ timetableId: mockTimetable.id, startTime: '14:30', endTime: '15:20' }
+			])
+			.returning();
+
+		// Create timetable groups for Year 9 students
+		const timetableGroups = await db
+			.insert(schema.timetableGroup)
+			.values([
+				{ timetableId: mockTimetable.id, yearLevel: yearLevelEnum.year9, name: '9A' },
+				{ timetableId: mockTimetable.id, yearLevel: yearLevelEnum.year9, name: '9B' },
+				{ timetableId: mockTimetable.id, yearLevel: yearLevelEnum.year9, name: '9C' }
+			])
+			.returning();
+
+		// Assign students to timetable groups
+		const studentGroupAssignments = [
+			{ userId: student1.id, groupId: timetableGroups[0].id }, // Student 1 -> 9A
+			{ userId: student2.id, groupId: timetableGroups[1].id }, // Student 2 -> 9B
+			{ userId: student3.id, groupId: timetableGroups[2].id } // Student 3 -> 9C
+		];
+
+		await db.insert(schema.timetableGroupMember).values(studentGroupAssignments);
+
+		// Create timetable activities for each group and subject
+		const timetableActivities = [];
+		for (let groupIndex = 0; groupIndex < timetableGroups.length; groupIndex++) {
+			const group = timetableGroups[groupIndex];
+
+			for (let subjectIndex = 0; subjectIndex < year9Offerings.length; subjectIndex++) {
+				const offering = year9Offerings[subjectIndex];
+				const teacherId = teacherIds[subjectIndex];
+
+				timetableActivities.push({
+					timetableId: mockTimetable.id,
+					subjectId: offering.subjectId,
+					teacherId: teacherId,
+					groupId: group.id,
+					periodsPerInstance: 1, // Single period classes
+					totalPeriods: 5 // 5 periods per week for each subject
+				});
+			}
+		}
+
+		await db.insert(schema.timetableActivity).values(timetableActivities);
+
+		console.log(
+			`✅ Created mock timetable with ${timetableDays.length} days, ${timetablePeriods.length} periods, ${timetableGroups.length} groups, and ${timetableActivities.length} activities`
+		);
+
 		// Calculate the most recent Monday
 		const today = new Date();
 		const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
@@ -1115,7 +1198,8 @@ async function seed() {
 			.values([
 				{
 					title: 'Welcome Back to School Year 2025',
-					excerpt: 'We are excited to welcome all students, teachers, and families back for another fantastic year at School of eddi.',
+					excerpt:
+						'We are excited to welcome all students, teachers, and families back for another fantastic year at School of eddi.',
 					content: {
 						blocks: [
 							{
@@ -1124,11 +1208,13 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'We are thrilled to welcome everyone back to School of eddi for the 2025 academic year! After a wonderful summer break, our campus is buzzing with excitement as students return to their classrooms and teachers prepare for another year of inspiring education.'
+								content:
+									'We are thrilled to welcome everyone back to School of eddi for the 2025 academic year! After a wonderful summer break, our campus is buzzing with excitement as students return to their classrooms and teachers prepare for another year of inspiring education.'
 							},
 							{
 								type: 'paragraph',
-								content: 'This year, we have some exciting new initiatives planned, including enhanced STEM programs, updated library resources, and improved playground facilities. Our dedicated teaching staff has been working hard during the break to prepare engaging lessons and activities for all year levels.'
+								content:
+									'This year, we have some exciting new initiatives planned, including enhanced STEM programs, updated library resources, and improved playground facilities. Our dedicated teaching staff has been working hard during the break to prepare engaging lessons and activities for all year levels.'
 							},
 							{
 								type: 'paragraph',
@@ -1145,7 +1231,8 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'We look forward to working together to make 2025 a successful and memorable year for all our students. If you have any questions or concerns, please don\'t hesitate to contact the school office.'
+								content:
+									"We look forward to working together to make 2025 a successful and memorable year for all our students. If you have any questions or concerns, please don't hesitate to contact the school office."
 							},
 							{
 								type: 'paragraph',
@@ -1163,20 +1250,23 @@ async function seed() {
 					publishedAt: new Date(),
 					isPinned: true,
 					viewCount: 0,
-					isArchived: false,
+					isArchived: false
 				},
 				{
 					title: 'Year 9 Science Fair Competition Results',
-					excerpt: "Congratulations to all Year 9 students who participated in our annual Science Fair. Outstanding projects showcased creativity and scientific thinking across multiple disciplines including biology, chemistry, physics, and environmental science. This year's event featured over 150 student projects, representing months of dedicated research, experimentation, and analysis. Students demonstrated exceptional problem-solving skills while investigating real-world issues ranging from sustainable energy solutions to innovative medical devices. The judges were particularly impressed by the depth of research and the practical applications many students proposed. Notable winners include Sarah Chen's groundbreaking water purification system using locally sourced materials, Marcus Thompson's renewable energy storage prototype, and the collaborative team effort by Emma Rodriguez and James Park on biodegradable plastic alternatives. These projects not only demonstrate academic excellence but also show our students' commitment to addressing global challenges through scientific innovation. The Science Fair continues to be a highlight of our academic calendar, fostering critical thinking, creativity, and scientific literacy among our students.",
+					excerpt:
+						"Congratulations to all Year 9 students who participated in our annual Science Fair. Outstanding projects showcased creativity and scientific thinking across multiple disciplines including biology, chemistry, physics, and environmental science. This year's event featured over 150 student projects, representing months of dedicated research, experimentation, and analysis. Students demonstrated exceptional problem-solving skills while investigating real-world issues ranging from sustainable energy solutions to innovative medical devices. The judges were particularly impressed by the depth of research and the practical applications many students proposed. Notable winners include Sarah Chen's groundbreaking water purification system using locally sourced materials, Marcus Thompson's renewable energy storage prototype, and the collaborative team effort by Emma Rodriguez and James Park on biodegradable plastic alternatives. These projects not only demonstrate academic excellence but also show our students' commitment to addressing global challenges through scientific innovation. The Science Fair continues to be a highlight of our academic calendar, fostering critical thinking, creativity, and scientific literacy among our students.",
 					content: {
 						blocks: [
 							{
 								type: 'paragraph',
-								content: 'We are proud to announce the results of our annual Year 9 Science Fair, which took place last Friday in the school gymnasium.'
+								content:
+									'We are proud to announce the results of our annual Year 9 Science Fair, which took place last Friday in the school gymnasium.'
 							},
 							{
 								type: 'paragraph',
-								content: 'This year\'s theme was "Sustainability and Innovation," and our students rose to the challenge with incredible projects that demonstrated both scientific rigor and creative problem-solving. From renewable energy solutions to biodegradable materials research, the quality of work was exceptional.'
+								content:
+									'This year\'s theme was "Sustainability and Innovation," and our students rose to the challenge with incredible projects that demonstrated both scientific rigor and creative problem-solving. From renewable energy solutions to biodegradable materials research, the quality of work was exceptional.'
 							},
 							{
 								type: 'heading',
@@ -1194,15 +1284,18 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'All participants should be proud of their efforts. The projects will be on display in the Science Lab A for the next two weeks, and we encourage all students and families to visit and see the amazing work our Year 9 students have accomplished.'
+								content:
+									'All participants should be proud of their efforts. The projects will be on display in the Science Lab A for the next two weeks, and we encourage all students and families to visit and see the amazing work our Year 9 students have accomplished.'
 							},
 							{
 								type: 'paragraph',
-								content: 'Special thanks to our Science teachers for their guidance and support, and to the parent volunteers who helped make this event possible.'
+								content:
+									'Special thanks to our Science teachers for their guidance and support, and to the parent volunteers who helped make this event possible.'
 							},
 							{
 								type: 'paragraph',
-								content: 'Next year\'s Science Fair is already in planning, so start thinking about your projects early!'
+								content:
+									"Next year's Science Fair is already in planning, so start thinking about your projects early!"
 							}
 						]
 					},
@@ -1216,20 +1309,23 @@ async function seed() {
 					publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
 					isPinned: false,
 					viewCount: 15,
-					isArchived: false,
+					isArchived: false
 				},
 				{
 					title: 'Basketball Team Wins Regional Championship',
-					excerpt: 'Our senior basketball team has achieved an incredible victory at the Regional Championships, defeating Central High School 78-65 in a thrilling final match.',
+					excerpt:
+						'Our senior basketball team has achieved an incredible victory at the Regional Championships, defeating Central High School 78-65 in a thrilling final match.',
 					content: {
 						blocks: [
 							{
 								type: 'paragraph',
-								content: 'What an amazing weekend for School of eddi Basketball! Our senior team has brought home the Regional Championship trophy after an outstanding tournament performance.'
+								content:
+									'What an amazing weekend for School of eddi Basketball! Our senior team has brought home the Regional Championship trophy after an outstanding tournament performance.'
 							},
 							{
 								type: 'paragraph',
-								content: 'The team showed exceptional teamwork, determination, and sportsmanship throughout the three-day tournament. Captain Sarah Williams led the team with outstanding leadership both on and off the court.'
+								content:
+									'The team showed exceptional teamwork, determination, and sportsmanship throughout the three-day tournament. Captain Sarah Williams led the team with outstanding leadership both on and off the court.'
 							},
 							{
 								type: 'heading',
@@ -1246,15 +1342,18 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'Special mentions go to MVP player Jake Thompson for his consistent scoring, and to Emma Davis for her outstanding defensive plays that secured our victory in the final.'
+								content:
+									'Special mentions go to MVP player Jake Thompson for his consistent scoring, and to Emma Davis for her outstanding defensive plays that secured our victory in the final.'
 							},
 							{
 								type: 'paragraph',
-								content: 'The team will now advance to the State Championships next month. We encourage all students and families to come out and support our champions!'
+								content:
+									'The team will now advance to the State Championships next month. We encourage all students and families to come out and support our champions!'
 							},
 							{
 								type: 'paragraph',
-								content: 'Congratulations to Coach Martinez and the entire basketball program for this fantastic achievement.'
+								content:
+									'Congratulations to Coach Martinez and the entire basketball program for this fantastic achievement.'
 							}
 						]
 					},
@@ -1268,25 +1367,28 @@ async function seed() {
 					publishedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
 					isPinned: true,
 					viewCount: 42,
-					isArchived: false,
+					isArchived: false
 				},
 				{
 					title: 'Library Renovation Project Update',
-					excerpt: 'The much-anticipated library renovation is progressing well, with new study spaces, technology upgrades, and improved accessibility features set to be completed by the end of March.',
+					excerpt:
+						'The much-anticipated library renovation is progressing well, with new study spaces, technology upgrades, and improved accessibility features set to be completed by the end of March.',
 					content: {
 						blocks: [
 							{
 								type: 'paragraph',
-								content: 'We are excited to provide an update on our library renovation project, which has been progressing smoothly since construction began in January.'
+								content:
+									'We are excited to provide an update on our library renovation project, which has been progressing smoothly since construction began in January.'
 							},
 							{
 								type: 'paragraph',
-								content: 'The renovation includes modern study pods, updated computer stations, improved lighting, and enhanced accessibility features to serve all members of our school community better.'
+								content:
+									'The renovation includes modern study pods, updated computer stations, improved lighting, and enhanced accessibility features to serve all members of our school community better.'
 							},
 							{
 								type: 'heading',
 								level: 3,
-								content: 'What\'s New:'
+								content: "What's New:"
 							},
 							{
 								type: 'list',
@@ -1301,11 +1403,13 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'During the renovation period, library services are available in the temporary location in Building C. Students can still access online resources and request book loans through the school portal.'
+								content:
+									'During the renovation period, library services are available in the temporary location in Building C. Students can still access online resources and request book loans through the school portal.'
 							},
 							{
 								type: 'paragraph',
-								content: 'We expect the renovation to be completed by late March, with a grand reopening celebration planned for early April. Thank you for your patience during this exciting upgrade!'
+								content:
+									'We expect the renovation to be completed by late March, with a grand reopening celebration planned for early April. Thank you for your patience during this exciting upgrade!'
 							}
 						]
 					},
@@ -1319,20 +1423,23 @@ async function seed() {
 					publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
 					isPinned: false,
 					viewCount: 28,
-					isArchived: false,
+					isArchived: false
 				},
 				{
-					title: 'Drama Club Presents: A Midsummer Night\'s Dream',
-					excerpt: 'Join us for our spring theatrical production featuring talented students from Years 8-12 in Shakespeare\'s beloved comedy, running March 15-17 in the school auditorium.',
+					title: "Drama Club Presents: A Midsummer Night's Dream",
+					excerpt:
+						"Join us for our spring theatrical production featuring talented students from Years 8-12 in Shakespeare's beloved comedy, running March 15-17 in the school auditorium.",
 					content: {
 						blocks: [
 							{
 								type: 'paragraph',
-								content: 'The School of eddi Drama Club is thrilled to announce our spring production of William Shakespeare\'s "A Midsummer Night\'s Dream"!'
+								content:
+									'The School of eddi Drama Club is thrilled to announce our spring production of William Shakespeare\'s "A Midsummer Night\'s Dream"!'
 							},
 							{
 								type: 'paragraph',
-								content: 'This enchanting comedy brings together a talented cast of students from Years 8-12, who have been rehearsing since January to bring this magical story to life. The production features beautiful costumes, creative set design, and outstanding performances that promise to captivate audiences of all ages.'
+								content:
+									'This enchanting comedy brings together a talented cast of students from Years 8-12, who have been rehearsing since January to bring this magical story to life. The production features beautiful costumes, creative set design, and outstanding performances that promise to captivate audiences of all ages.'
 							},
 							{
 								type: 'heading',
@@ -1351,15 +1458,18 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'Tickets are available at the school office or online through our website. We encourage families to book early as previous productions have sold out quickly.'
+								content:
+									'Tickets are available at the school office or online through our website. We encourage families to book early as previous productions have sold out quickly.'
 							},
 							{
 								type: 'paragraph',
-								content: 'Special thanks to Ms. Johnson and the Drama Club for their incredible dedication, and to our parent volunteers who have helped with costumes, set construction, and promotion.'
+								content:
+									'Special thanks to Ms. Johnson and the Drama Club for their incredible dedication, and to our parent volunteers who have helped with costumes, set construction, and promotion.'
 							},
 							{
 								type: 'paragraph',
-								content: 'Come and support our talented students in what promises to be a magical theatrical experience!'
+								content:
+									'Come and support our talented students in what promises to be a magical theatrical experience!'
 							}
 						]
 					},
@@ -1373,20 +1483,23 @@ async function seed() {
 					publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
 					isPinned: false,
 					viewCount: 35,
-					isArchived: false,
+					isArchived: false
 				},
 				{
 					title: 'Community Garden Project Launch',
-					excerpt: 'Students, parents, and teachers are invited to participate in our new community garden project, promoting sustainability education and healthy eating habits.',
+					excerpt:
+						'Students, parents, and teachers are invited to participate in our new community garden project, promoting sustainability education and healthy eating habits.',
 					content: {
 						blocks: [
 							{
 								type: 'paragraph',
-								content: 'We are excited to announce the launch of the School of eddi Community Garden Project, a collaborative initiative that brings together students, families, and staff to create a sustainable learning environment.'
+								content:
+									'We are excited to announce the launch of the School of eddi Community Garden Project, a collaborative initiative that brings together students, families, and staff to create a sustainable learning environment.'
 							},
 							{
 								type: 'paragraph',
-								content: 'The garden will serve as an outdoor classroom where students can learn about plant biology, environmental science, nutrition, and sustainable farming practices. It will also provide fresh produce for our school canteen and local food bank donations.'
+								content:
+									'The garden will serve as an outdoor classroom where students can learn about plant biology, environmental science, nutrition, and sustainable farming practices. It will also provide fresh produce for our school canteen and local food bank donations.'
 							},
 							{
 								type: 'heading',
@@ -1404,15 +1517,18 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'Our first community planting day is scheduled for Saturday, March 10th from 9:00 AM to 2:00 PM. We welcome volunteers of all ages and gardening experience levels.'
+								content:
+									'Our first community planting day is scheduled for Saturday, March 10th from 9:00 AM to 2:00 PM. We welcome volunteers of all ages and gardening experience levels.'
 							},
 							{
 								type: 'paragraph',
-								content: 'The project is supported by the local council\'s sustainability grant and has been designed with input from environmental science students and the school\'s eco-committee.'
+								content:
+									"The project is supported by the local council's sustainability grant and has been designed with input from environmental science students and the school's eco-committee."
 							},
 							{
 								type: 'paragraph',
-								content: 'For more information or to volunteer, please contact the school office or email gardens@schoolofeddi.edu.au'
+								content:
+									'For more information or to volunteer, please contact the school office or email gardens@schoolofeddi.edu.au'
 							}
 						]
 					},
@@ -1426,20 +1542,23 @@ async function seed() {
 					publishedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
 					isPinned: false,
 					viewCount: 22,
-					isArchived: false,
+					isArchived: false
 				},
 				{
 					title: 'Parent-Teacher Conference Scheduling Now Open',
-					excerpt: 'Online booking for Term 1 parent-teacher conferences is now available. Conferences will be held during Week 8, with both in-person and virtual options available.',
+					excerpt:
+						'Online booking for Term 1 parent-teacher conferences is now available. Conferences will be held during Week 8, with both in-person and virtual options available.',
 					content: {
 						blocks: [
 							{
 								type: 'paragraph',
-								content: 'We are pleased to announce that online booking for Term 1 parent-teacher conferences is now open through our school portal.'
+								content:
+									'We are pleased to announce that online booking for Term 1 parent-teacher conferences is now open through our school portal.'
 							},
 							{
 								type: 'paragraph',
-								content: 'These conferences provide valuable opportunities for parents and teachers to discuss student progress, address any concerns, and collaborate on strategies to support each student\'s learning journey.'
+								content:
+									"These conferences provide valuable opportunities for parents and teachers to discuss student progress, address any concerns, and collaborate on strategies to support each student's learning journey."
 							},
 							{
 								type: 'heading',
@@ -1458,15 +1577,18 @@ async function seed() {
 							},
 							{
 								type: 'paragraph',
-								content: 'To book your appointments, log in to the school portal using your parent access credentials. You can select your preferred teachers, times, and meeting format (in-person or online).'
+								content:
+									'To book your appointments, log in to the school portal using your parent access credentials. You can select your preferred teachers, times, and meeting format (in-person or online).'
 							},
 							{
 								type: 'paragraph',
-								content: 'We encourage all parents to take advantage of this opportunity to connect with their child\'s teachers. If you need assistance with booking or have technical difficulties, please contact the school office.'
+								content:
+									"We encourage all parents to take advantage of this opportunity to connect with their child's teachers. If you need assistance with booking or have technical difficulties, please contact the school office."
 							},
 							{
 								type: 'paragraph',
-								content: 'Student reports will be available through the portal one week prior to conferences to help guide your discussions.'
+								content:
+									'Student reports will be available through the portal one week prior to conferences to help guide your discussions.'
 							}
 						]
 					},
@@ -1480,12 +1602,14 @@ async function seed() {
 					publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
 					isPinned: false,
 					viewCount: 67,
-					isArchived: false,
+					isArchived: false
 				}
 			])
 			.returning();
 
-		console.log(`📰 Created ${newsCategories.length} news categories and ${newsArticles.length} news articles`);
+		console.log(
+			`📰 Created ${newsCategories.length} news categories and ${newsArticles.length} news articles`
+		);
 
 		console.log('✅ Database seeded successfully!');
 		console.log(`
