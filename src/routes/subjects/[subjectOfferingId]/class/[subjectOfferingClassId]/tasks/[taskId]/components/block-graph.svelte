@@ -176,6 +176,8 @@
 
 			onResponseUpdate({ ...response, studentPlots });
 		}
+
+		updatePlot();
 	}
 
 	$effect(() => {
@@ -185,282 +187,252 @@
 	});
 </script>
 
-<div class="flex w-full flex-col gap-4">
-	{#if viewMode === ViewMode.CONFIGURE}
-		<Card.Root>
-			<Card.Header>
-				<Card.Title class="flex items-center gap-2">
-					<TrendingUpIcon />
-					Configure Graph Block
-				</Card.Title>
-			</Card.Header>
-			<Card.Content class="space-y-6">
-				<!-- Graph Settings -->
-				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<div class="space-y-2 md:col-span-2">
-						<Label for="graph-title">Title</Label>
-						<Input
-							id="graph-title"
-							value={config.title}
-							oninput={(e) =>
-								onConfigUpdate({ ...config, title: (e.target as HTMLInputElement).value })}
-							placeholder="Graph title"
-						/>
-					</div>
+<Card.Root>
+	<Card.Header>
+		<Card.Title class="flex items-center gap-2">
+			<TrendingUpIcon />
+			{#if viewMode === ViewMode.CONFIGURE}Configure Graph Block{:else}{config.title}{/if}
+		</Card.Title>
+	</Card.Header>
 
-					<div class="space-y-2">
-						<Label for="x-axis-label">X-Axis Label</Label>
-						<Input
-							id="x-axis-label"
-							value={config.xAxisLabel}
-							oninput={(e) =>
-								onConfigUpdate({ ...config, xAxisLabel: (e.target as HTMLInputElement).value })}
-							placeholder="x"
-						/>
-					</div>
+	<Card.Content class="space-y-6">
+		<!-- CONFIGURE MODE: Configuration UI -->
+		{#if viewMode === ViewMode.CONFIGURE}
+			<!-- Graph Settings -->
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div class="space-y-2 md:col-span-2">
+					<Label for="graph-title">Title</Label>
+					<Input
+						id="graph-title"
+						value={config.title}
+						oninput={(e) =>
+							onConfigUpdate({ ...config, title: (e.target as HTMLInputElement).value })}
+						placeholder="Graph title"
+					/>
+				</div>
 
-					<div class="space-y-2">
-						<Label for="y-axis-label">Y-Axis Label</Label>
+				<div class="space-y-2">
+					<Label for="x-axis-label">X-Axis Label</Label>
+					<Input
+						id="x-axis-label"
+						value={config.xAxisLabel}
+						oninput={(e) =>
+							onConfigUpdate({ ...config, xAxisLabel: (e.target as HTMLInputElement).value })}
+						placeholder="x"
+					/>
+				</div>
+
+				<div class="space-y-2">
+					<Label for="y-axis-label">Y-Axis Label</Label>
+					<Input
+						id="y-axis-label"
+						value={config.yAxisLabel}
+						oninput={(e) =>
+							onConfigUpdate({ ...config, yAxisLabel: (e.target as HTMLInputElement).value })}
+						placeholder="y"
+					/>
+				</div>
+			</div>
+
+			<!-- Axis Ranges -->
+			<div class="grid grid-cols-2 gap-4">
+				<div class="space-y-2">
+					<Label>X-Axis Range</Label>
+					<div class="flex gap-2">
 						<Input
-							id="y-axis-label"
-							value={config.yAxisLabel}
+							type="number"
+							value={config.xRange.min}
 							oninput={(e) =>
-								onConfigUpdate({ ...config, yAxisLabel: (e.target as HTMLInputElement).value })}
-							placeholder="y"
+								onConfigUpdate({
+									...config,
+									xRange: { ...config.xRange, min: Number((e.target as HTMLInputElement).value) }
+								})}
+							placeholder="Min"
+						/>
+						<Input
+							type="number"
+							value={config.xRange.max}
+							oninput={(e) =>
+								onConfigUpdate({
+									...config,
+									xRange: { ...config.xRange, max: Number((e.target as HTMLInputElement).value) }
+								})}
+							placeholder="Max"
 						/>
 					</div>
 				</div>
 
-				<!-- Axis Ranges -->
-				<div class="grid grid-cols-2 gap-4">
-					<div class="space-y-2">
-						<Label>X-Axis Range</Label>
-						<div class="flex gap-2">
-							<Input
-								type="number"
-								value={config.xRange.min}
-								oninput={(e) =>
-									onConfigUpdate({
-										...config,
-										xRange: { ...config.xRange, min: Number((e.target as HTMLInputElement).value) }
-									})}
-								placeholder="Min"
-							/>
-							<Input
-								type="number"
-								value={config.xRange.max}
-								oninput={(e) =>
-									onConfigUpdate({
-										...config,
-										xRange: { ...config.xRange, max: Number((e.target as HTMLInputElement).value) }
-									})}
-								placeholder="Max"
-							/>
-						</div>
-					</div>
-
-					<div class="space-y-2">
-						<Label>Y-Axis Range</Label>
-						<div class="flex gap-2">
-							<Input
-								type="number"
-								value={config.yRange.min}
-								oninput={(e) =>
-									onConfigUpdate({
-										...config,
-										yRange: { ...config.yRange, min: Number((e.target as HTMLInputElement).value) }
-									})}
-								placeholder="Min"
-							/>
-							<Input
-								type="number"
-								value={config.yRange.max}
-								oninput={(e) =>
-									onConfigUpdate({
-										...config,
-										yRange: { ...config.yRange, max: Number((e.target as HTMLInputElement).value) }
-									})}
-								placeholder="Max"
-							/>
-						</div>
+				<div class="space-y-2">
+					<Label>Y-Axis Range</Label>
+					<div class="flex gap-2">
+						<Input
+							type="number"
+							value={config.yRange.min}
+							oninput={(e) =>
+								onConfigUpdate({
+									...config,
+									yRange: { ...config.yRange, min: Number((e.target as HTMLInputElement).value) }
+								})}
+							placeholder="Min"
+						/>
+						<Input
+							type="number"
+							value={config.yRange.max}
+							oninput={(e) =>
+								onConfigUpdate({
+									...config,
+									yRange: { ...config.yRange, max: Number((e.target as HTMLInputElement).value) }
+								})}
+							placeholder="Max"
+						/>
 					</div>
 				</div>
+			</div>
 
-				<!-- Static Plots Configuration -->
-				<div class="space-y-4">
-					<div class="flex items-center justify-between">
-						<Label class="text-base font-semibold">Static Plots</Label>
-						<Button onclick={() => updatePlots(true, 'add')} variant="outline" size="sm">
-							<PlusIcon class="mr-2" />
-							Add Plot
+			<!-- Static Plots Configuration -->
+			<div class="space-y-4">
+				<div class="flex items-center justify-between">
+					<Label class="text-base font-semibold">Static Plots</Label>
+					<Button onclick={() => updatePlots(true, 'add')} variant="outline" size="sm">
+						<PlusIcon class="mr-2" />
+						Add Plot
+					</Button>
+				</div>
+
+				{#each config.staticPlots as plot, index}
+					<div class="grid grid-cols-[3fr_3fr_3fr_1fr] gap-3">
+						<Input
+							value={plot.equation}
+							oninput={(e) =>
+								updatePlots(
+									true,
+									'update',
+									index,
+									'equation',
+									(e.target as HTMLInputElement).value
+								)}
+							placeholder="e.g., x^2, sin(x), 2*x+1"
+						/>
+
+						<Input
+							type="color"
+							value={plot.color || '#3b82f6'}
+							oninput={(e) =>
+								updatePlots(true, 'update', index, 'color', (e.target as HTMLInputElement).value)}
+						/>
+
+						<Input
+							value={plot.label}
+							oninput={(e) =>
+								updatePlots(true, 'update', index, 'label', (e.target as HTMLInputElement).value)}
+							placeholder="Plot label"
+						/>
+						<Button
+							onclick={() => updatePlots(true, 'remove', index)}
+							variant="destructive"
+							size="sm"
+						>
+							<TrashIcon />
 						</Button>
 					</div>
+				{/each}
 
-					{#each config.staticPlots as plot, index}
-						<div class="grid grid-cols-[3fr_3fr_3fr_1fr] gap-3">
-							<Input
-								value={plot.equation}
-								oninput={(e) =>
-									updatePlots(
-										true,
-										'update',
-										index,
-										'equation',
-										(e.target as HTMLInputElement).value
-									)}
-								placeholder="e.g., x^2, sin(x), 2*x+1"
-							/>
+				{#if config.staticPlots.length === 0}
+					<p class="text-muted-foreground py-4 text-center text-sm">
+						No static plots configured. Add some example equations for students to see.
+					</p>
+				{/if}
+			</div>
+		{/if}
 
-							<Input
-								type="color"
-								value={plot.color || '#3b82f6'}
-								oninput={(e) =>
-									updatePlots(true, 'update', index, 'color', (e.target as HTMLInputElement).value)}
-							/>
+		<!-- PRESENTATION MODE: Clean title -->
+		{#if viewMode === ViewMode.PRESENT}
+			<h3 class="text-lg font-semibold">{config.title}</h3>
+		{/if}
 
-							<Input
-								value={plot.label}
-								oninput={(e) =>
-									updatePlots(true, 'update', index, 'label', (e.target as HTMLInputElement).value)}
-								placeholder="Plot label"
-							/>
-							<Button
-								onclick={() => updatePlots(true, 'remove', index)}
-								variant="destructive"
-								size="sm"
-							>
-								<TrashIcon />
-							</Button>
+		<!-- ANSWER MODE: Student Plot Controls -->
+		{#if viewMode === ViewMode.ANSWER}
+			<div class="space-y-4">
+				<div class="flex items-center justify-between">
+					<Label class="text-base font-semibold">Your Plots</Label>
+					<Button onclick={() => updatePlots(false, 'add')} variant="outline" size="sm">
+						<PlusIcon class="mr-2" />
+						Add Plot
+					</Button>
+				</div>
+
+				{#each response.studentPlots as plot, index}
+					<div class="grid grid-cols-[3fr_3fr_3fr_1fr] gap-3">
+						<Input
+							value={plot.equation}
+							oninput={(e) =>
+								updatePlots(
+									false,
+									'update',
+									index,
+									'equation',
+									(e.target as HTMLInputElement).value
+								)}
+							placeholder="e.g., x^2, sin(x), 2*x+1"
+						/>
+
+						<Input
+							type="color"
+							value={plot.color || '#ef4444'}
+							oninput={(e) =>
+								updatePlots(false, 'update', index, 'color', (e.target as HTMLInputElement).value)}
+						/>
+
+						<Input
+							value={plot.label}
+							oninput={(e) =>
+								updatePlots(false, 'update', index, 'label', (e.target as HTMLInputElement).value)}
+							placeholder="Plot label"
+						/>
+						<Button
+							onclick={() => updatePlots(false, 'remove', index)}
+							variant="destructive"
+							size="sm"
+						>
+							<TrashIcon />
+						</Button>
+					</div>
+				{/each}
+			</div>
+		{/if}
+
+		<!-- REVIEW MODE: Show student's plots -->
+		{#if viewMode === ViewMode.REVIEW}
+			{#if response.studentPlots.length > 0}
+				<div class="space-y-4">
+					<Label class="text-base font-semibold">Student's Plots</Label>
+					{#each response.studentPlots as plot, index}
+						<div class="bg-muted/20 rounded-lg border p-3">
+							<div class="grid grid-cols-3 gap-4 text-sm">
+								<div>
+									<span class="font-medium">Equation:</span>
+									{plot.equation}
+								</div>
+								<div>
+									<span class="font-medium">Color:</span>
+									<span
+										class="ml-1 inline-block h-4 w-4 rounded"
+										style="background-color: {plot.color || '#ef4444'}"
+									></span>
+								</div>
+								<div>
+									<span class="font-medium">Label:</span>
+									{plot.label}
+								</div>
+							</div>
 						</div>
 					{/each}
-
-					{#if config.staticPlots.length === 0}
-						<p class="text-muted-foreground py-4 text-center text-sm">
-							No static plots configured. Add some example equations for students to see.
-						</p>
-					{/if}
 				</div>
+			{:else}
+				<div class="text-muted-foreground py-4 text-center">No student plots submitted.</div>
+			{/if}
+		{/if}
 
-				<!-- Preview -->
-				<div class="space-y-2">
-					<Label class="text-base font-semibold">Preview</Label>
-					<div bind:this={plotContainer} class="h-[500px] rounded-lg border"></div>
-				</div>
-			</Card.Content>
-		</Card.Root>
-	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}
-		<Card.Root>
-			<Card.Header>
-				<Card.Title class="flex items-center gap-2">
-					<TrendingUpIcon />
-					{config.title}
-				</Card.Title>
-			</Card.Header>
-			<Card.Content class="space-y-6">
-				<!-- Graph Display -->
-				<div bind:this={plotContainer} class="h-[500px] rounded-lg border"></div>
-
-				{#if viewMode === ViewMode.ANSWER}
-					<!-- Student Plot Controls -->
-					<div class="space-y-4">
-						<div class="flex items-center justify-between">
-							<Label class="text-base font-semibold">Your Plots</Label>
-							<Button onclick={() => updatePlots(false, 'add')} variant="outline" size="sm">
-								<PlusIcon class="mr-2" />
-								Add Plot
-							</Button>
-						</div>
-
-						{#each response.studentPlots as plot, index}
-							<div class="grid grid-cols-[3fr_3fr_3fr_1fr] gap-3">
-								<Input
-									value={plot.equation}
-									oninput={(e) =>
-										updatePlots(
-											false,
-											'update',
-											index,
-											'equation',
-											(e.target as HTMLInputElement).value
-										)}
-									placeholder="e.g., x^2, sin(x), 2*x+1"
-								/>
-
-								<Input
-									type="color"
-									value={plot.color || '#ef4444'}
-									oninput={(e) =>
-										updatePlots(
-											false,
-											'update',
-											index,
-											'color',
-											(e.target as HTMLInputElement).value
-										)}
-								/>
-
-								<Input
-									value={plot.label}
-									oninput={(e) =>
-										updatePlots(
-											false,
-											'update',
-											index,
-											'label',
-											(e.target as HTMLInputElement).value
-										)}
-									placeholder="Plot label"
-								/>
-								<Button
-									onclick={() => updatePlots(false, 'remove', index)}
-									variant="destructive"
-									size="sm"
-								>
-									<TrashIcon />
-								</Button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-
-				{#if viewMode === ViewMode.REVIEW}
-					<!-- Review Mode: Show student's plots -->
-					{#if response.studentPlots.length > 0}
-						<div class="space-y-4">
-							<Label class="text-base font-semibold">Student's Plots</Label>
-							{#each response.studentPlots as plot, index}
-								<div class="bg-muted/20 rounded-lg border p-3">
-									<div class="grid grid-cols-3 gap-4 text-sm">
-										<div>
-											<span class="font-medium">Equation:</span>
-											{plot.equation}
-										</div>
-										<div>
-											<span class="font-medium">Color:</span>
-											<span
-												class="ml-1 inline-block h-4 w-4 rounded"
-												style="background-color: {plot.color || '#ef4444'}"
-											></span>
-										</div>
-										<div>
-											<span class="font-medium">Label:</span>
-											{plot.label}
-										</div>
-									</div>
-								</div>
-							{/each}
-						</div>
-					{:else}
-						<div class="text-muted-foreground py-4 text-center">No student plots submitted.</div>
-					{/if}
-				{/if}
-			</Card.Content>
-		</Card.Root>
-	{:else}
-		<!-- PRESENTATION MODE: Clean view for presentation -->
-		<div class="space-y-4">
-			<h3 class="text-lg font-semibold">{config.title}</h3>
-			<div bind:this={plotContainer} class="rounded-lg border"></div>
-		</div>
-	{/if}
-</div>
+		<div bind:this={plotContainer}></div>
+	</Card.Content>
+</Card.Root>
