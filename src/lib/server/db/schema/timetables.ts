@@ -152,6 +152,9 @@ export const timetableConstraint = pgTable('tt_constraint', {
 	constraintId: integer('constraint_id')
 		.notNull() // unique identifier for the constraint
 		.references(() => constraint.id, { onDelete: 'cascade' }),
+	active: boolean('active').notNull().default(true),
+	// JSON schema to define the structure of parameters for this constraint
+	parameters: jsonb('parameters').notNull(),
 	...timestamps
 });
 
@@ -164,14 +167,12 @@ export const constraintTypeEnumPg = pgEnum('enum_constraint_type', [
 
 export const constraint = pgTable('constraint', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }), // unique identifier for the constraint
-	name: text('name').notNull(),
+	FETName: text('name').notNull(),
+	friendlyName: text('friendly_name').notNull(),
 	description: text('description').notNull(),
 	type: constraintTypeEnumPg().notNull(), // e.g., 'time', 'space'
-	active: boolean('active').notNull().default(true),
-	// JSON schema to define the structure of parameters for this constraint
-	parameterSchema: jsonb('parameter_schema').notNull(),
-	// Example parameters to help users understand how to configure this constraint
-	exampleParameters: jsonb('example_parameters').notNull(),
+	optional: boolean('optional').notNull(), // whether this constraint is optional or mandatory
+	repeatable: boolean('repeatable').notNull(), // whether this constraint can be added multiple times
 	...timestamps
 });
 

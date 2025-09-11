@@ -17,8 +17,7 @@ import {
 	yearLevelEnum,
 	newsPriorityEnum,
 	newsStatusEnum,
-	newsVisibilityEnum,
-	constraintTypeEnum
+	newsVisibilityEnum
 } from '$lib/enums.js';
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -1051,54 +1050,45 @@ async function seed() {
 			`✅ Created mock timetable with ${timetableDays.length} days, ${timetablePeriods.length} periods, ${timetableGroups.length} groups, and ${timetableActivities.length} activities`
 		);
 
-		console.log(`🕙 Creating mock Constraints for the Timetable...`);
+		console.log(`🕙 Creating comprehensive Constraints catalog...`);
 
-		const constraints = [
-			{
-				name: 'ConstraintBasicCompulsoryTime',
-				description: 'Basic compulsory time constraint for the timetable',
-				type: constraintTypeEnum.time,
-				active: true,
-				parameterSchema: {
-					Weight_Percentage: 100,
-					Active: 'true',
-					Comments: null
-				},
-				exampleParameters: {
-					Weight_Percentage: 100,
-					Active: 'true',
-					Comments: null
-				}
-			},
-			{
-				name: 'ConstraintBasicCompulsorySpace',
-				description: 'Basic compulsory Space constraint for timetable',
-				type: constraintTypeEnum.space,
-				active: true,
-				parameterSchema: {
-					Weight_Percentage: 100,
-					Active: 'true',
-					Comments: null
-				},
-				exampleParameters: {
-					Weight_Percentage: 100,
-					Active: 'true',
-					Comments: null
-				}
-			}
-		];
-		const cons = await db.insert(schema.constraint).values(constraints).returning();
+		// Import the comprehensive constraint definitions
+		const { ALL_CONSTRAINTS } = await import('./data/constraints.js');
 
-		console.log(`✅ Created ${constraints.length} mock Constraints for the Timetable`);
+		// Convert constraint definitions to database format
+		const constraintsToSeed = ALL_CONSTRAINTS.map(constraint => ({
+			FETName: constraint.FETName,
+			friendlyName: constraint.friendlyName,
+			description: constraint.description,
+			type: constraint.type,
+			optional: constraint.optional,
+			repeatable: constraint.repeatable
+		}));
 
-		for (const con of cons) {
+		const allConstraints = await db.insert(schema.constraint).values(constraintsToSeed).returning();
+
+		console.log(`✅ Created ${constraintsToSeed.length} Constraints in the catalog`);
+
+		// Only add the mandatory constraints to the mock timetable
+		const mandatoryConstraints = allConstraints.filter(c => 
+			c.FETName === 'ConstraintBasicCompulsoryTime' || 
+			c.FETName === 'ConstraintBasicCompulsorySpace'
+		);
+
+		for (const con of mandatoryConstraints) {
 			await db.insert(schema.timetableConstraint).values({
 				timetableId: mockTimetable.id,
-				constraintId: con.id
+				constraintId: con.id,
+				active: true,
+				parameters: {
+					"Active": true,
+  					"Comments": "This is a mandatory constraint added by the seeding script.",
+  					"Weight_Percentage": 100
+				}
 			});
 		}
 
-		console.log('🔗 Linked Constraints to the timetable');
+		console.log(`🔗 Linked ${mandatoryConstraints.length} mandatory constraints to the mock timetable`);
 
 		// Calculate the most recent Monday
 		const today = new Date();
