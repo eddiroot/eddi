@@ -11,6 +11,7 @@
 	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
 	import DoorOpenIcon from '@lucide/svelte/icons/door-open';
 	import { BusIcon } from '@lucide/svelte';
+	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 
 	const { data } = $props();
 
@@ -68,6 +69,12 @@
 			description: 'Create and manage school, campus, subject, and class-level events',
 			icon: BusIcon,
 			href: '/admin/events'
+		},
+		{
+			title: 'Interviews',
+			description: 'Configure and manage parent-teacher interview sessions',
+			icon: MessageSquareIcon,
+			href: '/admin/interviews'
 		}
 	];
 

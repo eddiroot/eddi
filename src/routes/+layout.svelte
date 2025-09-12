@@ -15,7 +15,7 @@
 
 	let { children, data } = $props();
 
-	const user = $derived(() => data?.user);
+	const user = $derived(() => data?.user || null);
 
 	// Extract subjectOfferingId from URL if on a subject-specific page
 	const currentSubjectOfferingId = $derived(() => {
@@ -142,10 +142,11 @@
 <Sidebar.Provider class="h-full" leftOpen={false} rightOpen={false}>
 	{#if user()}
 		<AppSidebar
-			subjects={data.subjects}
+			subjects={data?.subjects || []}
 			user={user()}
-			school={data.school}
-			campuses={data.campuses ?? []}
+			school={data?.school || null}
+			campuses={data?.campuses ?? []}
+			hasInterviewSlots={data?.hasInterviewSlots ?? false}
 		/>
 	{/if}
 	<div class="relative flex h-full w-full flex-col">

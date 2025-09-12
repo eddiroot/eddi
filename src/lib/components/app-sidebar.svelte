@@ -32,6 +32,28 @@
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import NewsPaper from '@lucide/svelte/icons/newspaper';
 
+	let {
+		subjects,
+		user,
+		school,
+		campuses,
+		hasInterviewSlots = false
+	}: {
+		subjects: Array<{
+			subject: Subject;
+			subjectOffering: SubjectOffering;
+			classes: Array<{
+				id: number;
+				name: string;
+				subOfferingId: number;
+			}>;
+		}>;
+		user: any;
+		school: School | null;
+		campuses: Campus[];
+		hasInterviewSlots?: boolean;
+	} = $props();
+
 	const items = [
 		{
 			title: 'Dashboard',
@@ -56,12 +78,6 @@
 			url: '/attendance',
 			icon: UsersIcon,
 			requiredPermission: userPermissions.viewGuardianAttendance
-		},
-		{
-			title: 'News',
-			url: '/news',
-			icon: NewsPaper,
-			requiredPermission: userPermissions.viewNews
 		}
 	];
 
@@ -137,25 +153,6 @@
 		return FileQuestionIcon;
 	};
 
-	let {
-		subjects,
-		user,
-		school,
-		campuses
-	}: {
-		subjects: Array<{
-			subject: Subject;
-			subjectOffering: SubjectOffering;
-			classes: Array<{
-				id: number;
-				name: string;
-				subOfferingId: number;
-			}>;
-		}>;
-		user: any;
-		school: School | null;
-		campuses: Campus[];
-	} = $props();
 	const sidebar = Sidebar.useSidebar();
 	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
 	let form: HTMLFormElement | null = $state(null);
@@ -315,7 +312,7 @@
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					{#each items as item}
-						{#if permissions.includes(item.requiredPermission)}
+						{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
 									side="left"
