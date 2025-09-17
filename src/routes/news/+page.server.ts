@@ -1,4 +1,4 @@
-import { getPublishedNewsBySchoolId, getNewsResources } from '$lib/server/db/service/news';
+import { getNewsResources, getPublishedNewsBySchoolId } from '$lib/server/db/service/news';
 import { getCampusesByUserId } from '$lib/server/db/service/schools';
 
 export const load = async ({ locals: { security } }) => {

@@ -1,6 +1,6 @@
-import { fail, redirect } from '@sveltejs/kit';
-import { sendEmailVerification } from '$lib/server/email';
 import { getUserById, setUserVerified, updateUserVerificationCode } from '$lib/server/db/service';
+import { sendEmailVerification } from '$lib/server/email';
+import { fail, redirect } from '@sveltejs/kit';
 import { randomInt } from 'crypto';
 
 export const actions = {

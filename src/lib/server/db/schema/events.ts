@@ -1,8 +1,8 @@
-import { pgTable, text, integer, boolean, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
-import { timestamps } from './utils';
+import { boolean, integer, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { campus, school } from './schools';
 import { subjectOffering, subjectOfferingClass } from './subjects';
 import { user } from './user';
+import { timestamps } from './utils';
 
 // Things like whole school assemblies, school fairs etc
 export const schoolEvent = pgTable('sch_evt', {

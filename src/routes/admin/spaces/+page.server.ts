@@ -1,16 +1,16 @@
-import { getSpacesBySchoolId, getBuildingsBySchoolId } from '$lib/server/db/service';
-import { superValidate, withFiles, fail } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { validateCSVFile, parseCSVData } from '$lib/utils.js';
+import { schoolSpaceTypeEnum } from '$lib/enums.js';
 import { db } from '$lib/server/db/index.js';
 import { schoolSpace } from '$lib/server/db/schema';
-import { schoolSpaceTypeEnum } from '$lib/enums.js';
-import { optionalColumns, requiredColumns, locationsImportSchema } from './schema.js';
+import { getBuildingsBySchoolId, getSpacesBySchoolId } from '$lib/server/db/service';
+import { parseCSVData, validateCSVFile } from '$lib/utils.js';
+import { fail, superValidate, withFiles } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { locationsimportSchema, optionalColumns, requiredColumns } from './schema.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const spaces = await getSpacesBySchoolId(user.schoolId);
-	const form = await superValidate(zod4(locationsImportSchema));
+	const form = await superValidate(zod4(locationsimportSchema));
 	return { spaces, form };
 };
 
@@ -19,7 +19,7 @@ export const actions = {
 		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod4(locationsImportSchema));
+		const form = await superValidate(formData, zod4(locationsimportSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

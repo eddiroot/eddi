@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db/index.js';
 import { subject } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types.js';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		{ id: 8, firstName: 'Ashley', lastName: 'Taylor', avatarUrl: '/avatars/ashley.jpg' }
 	];
 
-	const mockStudent = mockStudents.find(s => s.id === studentId) || {
+	const mockStudent = mockStudents.find((s) => s.id === studentId) || {
 		id: studentId,
 		firstName: 'Student',
 		lastName: `${studentId}`,
@@ -54,4 +54,4 @@ export const load: PageServerLoad = async ({ params }) => {
 		studentId,
 		student: mockStudent
 	};
-}; 
+};

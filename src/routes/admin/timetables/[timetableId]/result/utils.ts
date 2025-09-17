@@ -1,13 +1,13 @@
 import {
 	TimetableHtmlParser,
+	type GroupStatistic,
+	type StudentOverallStatistics,
+	type StudentStatisticsReport,
+	type SubgroupStatistic,
 	type TeacherStatistics,
 	type TeacherStatisticsReport,
-	type StudentStatisticsReport,
-	type StudentOverallStatistics,
-	type YearLevelStatistic,
-	type GroupStatistic,
-	type SubgroupStatistic,
-	type TimetableMetadata
+	type TimetableMetadata,
+	type YearLevelStatistic
 } from './timetable';
 
 /**

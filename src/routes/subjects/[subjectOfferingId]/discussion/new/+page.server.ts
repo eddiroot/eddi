@@ -1,6 +1,6 @@
 import { createSubjectThread } from '$lib/server/db/service';
 import { redirect } from '@sveltejs/kit';
-import { superValidate, fail } from 'sveltekit-superforms';
+import { fail, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 

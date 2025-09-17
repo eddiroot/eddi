@@ -1,6 +1,6 @@
-import { pgTable, text, integer, boolean, pgEnum } from 'drizzle-orm/pg-core';
-import { timestamps } from './utils';
+import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
 import { yearLevelEnum } from '../../../enums';
+import { timestamps } from './utils';
 
 export const curriculum = pgTable('crclm', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

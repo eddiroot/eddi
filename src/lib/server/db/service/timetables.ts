@@ -1,9 +1,9 @@
-import * as table from '$lib/server/db/schema';
-import { db } from '$lib/server/db';
-import { eq, and, asc, count, inArray } from 'drizzle-orm';
-import { days } from '$lib/utils';
-import { queueStatusEnum, userTypeEnum, yearLevelEnum, constraintTypeEnum } from '$lib/enums.js';
+import { constraintTypeEnum, queueStatusEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 import type { FETActivity } from '$lib/schemas/fetSchema';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { days } from '$lib/utils';
+import { and, asc, count, eq, inArray } from 'drizzle-orm';
 
 export async function getSchoolTimetablesBySchoolId(
 	schoolId: number,
@@ -470,10 +470,10 @@ export async function createConstraint(data: {
 }
 
 export async function createTimetableConstriant(data: {
-	timetableId: number, 
-	constraintId: number, 
-	active: boolean, 
-	parameters: Record<string, unknown>
+	timetableId: number;
+	constraintId: number;
+	active: boolean;
+	parameters: Record<string, unknown>;
 }) {
 	const [constraint] = await db
 		.insert(table.timetableConstraint)
@@ -481,7 +481,7 @@ export async function createTimetableConstriant(data: {
 			timetableId: data.timetableId,
 			constraintId: data.constraintId,
 			active: data.active,
-			parameters: data.parameters,
+			parameters: data.parameters
 		})
 		.returning();
 
@@ -499,7 +499,7 @@ export async function getAllConstraintsByTimetableId(timetableId: number) {
 			active: table.timetableConstraint.active,
 			parameters: table.timetableConstraint.parameters,
 			createdAt: table.timetableConstraint.createdAt,
-			updatedAt: table.timetableConstraint.updatedAt,
+			updatedAt: table.timetableConstraint.updatedAt
 		})
 		.from(table.timetableConstraint)
 		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))

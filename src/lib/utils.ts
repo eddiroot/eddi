@@ -29,7 +29,7 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewDashboard,
 				userPermissions.viewTimetable,
 				userPermissions.viewClassAttendance,
-				userPermissions.viewNews,
+				userPermissions.viewNews
 			];
 		case 'teacher':
 			return [

@@ -1,15 +1,15 @@
-import { getBuildingsBySchoolId, getCampusesBySchoolId } from '$lib/server/db/service';
-import { superValidate, withFiles, fail } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { validateCSVFile, parseCSVData } from '$lib/utils.js';
 import { db } from '$lib/server/db/index.js';
 import { schoolBuilding } from '$lib/server/db/schema';
-import { optionalColumns, requiredColumns, buildingsImportSchema } from './schema';
+import { getBuildingsBySchoolId, getCampusesBySchoolId } from '$lib/server/db/service';
+import { parseCSVData, validateCSVFile } from '$lib/utils.js';
+import { fail, superValidate, withFiles } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { buildingsimportSchema, optionalColumns, requiredColumns } from './schema';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const buildings = await getBuildingsBySchoolId(user.schoolId);
-	const form = await superValidate(zod4(buildingsImportSchema));
+	const form = await superValidate(zod4(buildingsimportSchema));
 	return { buildings, form };
 };
 
@@ -18,7 +18,7 @@ export const actions = {
 		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod4(buildingsImportSchema));
+		const form = await superValidate(formData, zod4(buildingsimportSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from '@sveltejs/kit';
 import { getResourceById } from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
+import type { RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, locals: { security } }) => {
 	security.isAuthenticated();

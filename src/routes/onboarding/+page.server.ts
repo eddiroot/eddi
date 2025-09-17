@@ -1,15 +1,15 @@
+import { userTypeEnum, yearLevelEnum } from '$lib/enums';
 import {
 	checkSchoolExistence,
+	checkUserExistence,
 	createSchool,
-	createUser,
-	checkUserExistence
+	createUser
 } from '$lib/server/db/service';
-import { userTypeEnum, yearLevelEnum } from '$lib/enums';
-import { superValidate, fail, setError } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { redirect } from '@sveltejs/kit';
-import { formSchema } from './schema';
 import { sendEmailVerification } from '$lib/server/email';
+import { redirect } from '@sveltejs/kit';
+import { fail, setError, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 
 export const load = async () => {
 	return {

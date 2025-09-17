@@ -1,6 +1,6 @@
-import type { RequestHandler } from './$types';
-import { json } from '@sveltejs/kit';
 import { updateTaskOrder } from '$lib/server/db/service';
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
 export const PATCH: RequestHandler = async ({ request, locals: { security } }) => {
 	security.isAuthenticated();

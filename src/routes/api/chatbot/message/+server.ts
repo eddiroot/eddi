@@ -1,12 +1,12 @@
 import { geminiConversation } from '$lib/server/ai';
-import { json, type RequestHandler } from '@sveltejs/kit';
-import { createContextualSystemInstruction, type SubjectContextData } from '../constants.js';
 import {
 	createChatbotMessage,
 	getChatbotChatById,
 	getChatbotMessagesByChatId,
 	getSubjectOfferingContextForChatbot
 } from '$lib/server/db/service';
+import { json, type RequestHandler } from '@sveltejs/kit';
+import { createContextualSystemInstruction, type SubjectContextData } from '../constants.js';
 
 // This endpoint handles creating a new message in a chat.
 export const POST: RequestHandler = async (event) => {

@@ -1,24 +1,24 @@
 import {
+	boolean,
+	check,
+	foreignKey,
+	integer,
+	pgEnum,
 	pgTable,
 	text,
-	integer,
-	type AnyPgColumn,
-	foreignKey,
-	boolean,
-	pgEnum,
+	timestamp,
 	unique,
-	check,
 	uuid,
-	timestamp
+	type AnyPgColumn
 } from 'drizzle-orm/pg-core';
-import { timestamps } from './utils';
-import { campus, school, schoolSpace } from './schools';
-import { user } from './user';
 import { sql } from 'drizzle-orm/sql';
+import { subjectThreadResponseTypeEnum, subjectThreadTypeEnum } from '../../../enums';
 import { courseMapItem } from './coursemap';
 import { curriculumSubject, yearLevelEnumPg } from './curriculum';
 import { resource } from './resource';
-import { subjectThreadResponseTypeEnum, subjectThreadTypeEnum } from '../../../enums';
+import { campus, school, schoolSpace } from './schools';
+import { user } from './user';
+import { timestamps } from './utils';
 
 export const coreSubject = pgTable('sub_core', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

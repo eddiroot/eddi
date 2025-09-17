@@ -1,17 +1,17 @@
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
+import type { FETActivity, FETOutput } from '$lib/schemas/fetSchema';
 import {
+	getBuildingsBySchoolId,
+	getSchoolById,
+	getSpacesBySchoolId,
+	getSubjectsBySchoolId,
+	getTimetableActivitiesByTimetableId,
 	getTimetableDays,
 	getTimetablePeriods,
 	getTimetableStudentGroupsWithCountsByTimetableId,
-	getTimetableActivitiesByTimetableId,
-	getBuildingsBySchoolId,
-	getSpacesBySchoolId,
-	getUsersBySchoolIdAndType,
-	getSubjectsBySchoolId,
-	getSchoolById
+	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
-import type { FETActivity, FETOutput } from '$lib/schemas/fetSchema';
 
 export type TimetableData = {
 	timetableDays: Awaited<ReturnType<typeof getTimetableDays>>;

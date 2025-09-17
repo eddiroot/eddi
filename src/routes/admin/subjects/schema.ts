@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 export const requiredColumns = ['name', 'yearLevel'];
 export const optionalColumns: string[] = ['description'];
 
-export const subjectsImportSchema = z.object({
+export const subjectsimportSchema = z.object({
 	file: z
 		.instanceof(File)
 		.refine((file) => file.size > 0, 'Please select a CSV file')
@@ -14,4 +14,4 @@ export const subjectsImportSchema = z.object({
 		)
 });
 
-export type SubjectsImportSchema = typeof subjectsImportSchema;
+export type SubjectsimportSchema = typeof subjectsimportSchema;

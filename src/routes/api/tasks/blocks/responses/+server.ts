@@ -1,5 +1,5 @@
-import { json } from '@sveltejs/kit';
 import { upsertClassTaskBlockResponse, upsertClassTaskResponse } from '$lib/server/db/service';
+import { json } from '@sveltejs/kit';
 
 export async function POST({ request, locals: { security } }) {
 	try {

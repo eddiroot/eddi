@@ -3,14 +3,13 @@
  * Maps FET constraint names to their corresponding custom form components
  */
 
-// Import form components
-import SubjectPreferredRoomsForm from '$lib/components/constraints/subject-preferred-rooms-form.svelte';
-import RoomNotAvailableTimesForm from '$lib/components/constraints/room-not-available-times-form.svelte';
-import TeachersMaxGapsForm from '$lib/components/constraints/teachers-max-gaps-form.svelte';
-import MinDaysBetweenActivitiesForm from '$lib/components/constraints/min-days-between-activities-form.svelte';
-import BasicCompulsoryTimeForm from '$lib/components/constraints/basic-compulsory-time-form.svelte';
+// import form components
 import BasicCompulsorySpaceForm from '$lib/components/constraints/basic-compulsory-space-form.svelte';
-
+import BasicCompulsoryTimeForm from '$lib/components/constraints/basic-compulsory-time-form.svelte';
+import MinDaysBetweenActivitiesForm from '$lib/components/constraints/min-days-between-activities-form.svelte';
+import RoomNotAvailableTimesForm from '$lib/components/constraints/room-not-available-times-form.svelte';
+import SubjectPreferredRoomsForm from '$lib/components/constraints/subject-preferred-rooms-form.svelte';
+import TeachersMaxGapsForm from '$lib/components/constraints/teachers-max-gaps-form.svelte';
 
 // List of FET constraint names that have custom forms implemented
 export const implementedConstraints = [

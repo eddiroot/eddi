@@ -1,9 +1,8 @@
-import { redirect } from '@sveltejs/kit';
+import { createCampusEvent } from '$lib/server/db/service/events';
+import { fail, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { fail } from '@sveltejs/kit';
 import { createCampusEventSchema } from '../schemas';
-import { createCampusEvent } from '$lib/server/db/service/events';
 
 export const load = async ({ locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();

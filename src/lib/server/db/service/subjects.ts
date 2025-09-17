@@ -1,12 +1,12 @@
-import * as table from '$lib/server/db/schema';
-import { db } from '$lib/server/db';
-import { desc, eq, and, gte, lt, inArray, asc } from 'drizzle-orm';
 import {
 	subjectThreadResponseTypeEnum,
 	subjectThreadTypeEnum,
 	taskTypeEnum,
 	userTypeEnum
 } from '$lib/enums.js';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { and, asc, desc, eq, gte, inArray, lt } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db

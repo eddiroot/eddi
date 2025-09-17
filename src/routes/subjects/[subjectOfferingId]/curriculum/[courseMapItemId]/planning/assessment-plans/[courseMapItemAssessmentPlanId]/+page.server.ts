@@ -1,7 +1,7 @@
 import {
+	getAssessmentPlanLearningAreaStandards,
 	getCourseMapItemById,
-	getCoursemapItemAssessmentPlan,
-	getAssessmentPlanLearningAreaStandards
+	getCoursemapItemAssessmentPlan
 } from '$lib/server/db/service/coursemap';
 import { getRubricWithRowsAndCells } from '$lib/server/db/service/task';
 import { redirect } from '@sveltejs/kit';
