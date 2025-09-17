@@ -1023,9 +1023,6 @@
 		});
 
 		canvas.on('mouse:move', (opt) => {
-			const pointer = canvas.getScenePoint(opt.e);
-			currentMousePos = { x: pointer.x, y: pointer.y };
-
 			if (isPanMode) {
 				const e = opt.e;
 				const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || 0;
