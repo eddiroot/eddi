@@ -1,5 +1,5 @@
-import { createWhiteboard } from '$lib/server/db/service';
 import { json } from '@sveltejs/kit';
+import { createWhiteboard } from '$lib/server/db/service';
 import type { RequestHandler } from './$types.js';
 
 export const POST: RequestHandler = async ({ request }) => {

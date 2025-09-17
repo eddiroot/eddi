@@ -1,6 +1,6 @@
-import { boolean, integer, pgEnum, pgTable, text, unique } from 'drizzle-orm/pg-core';
-import { schoolSpaceTypeEnum } from '../../../enums';
+import { pgTable, text, integer, boolean, pgEnum, unique } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
+import { schoolSpaceTypeEnum } from '../../../enums';
 
 export const school = pgTable('sch', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

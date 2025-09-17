@@ -1,18 +1,11 @@
 import { db } from '$lib/server/db/index.js';
 import { subject, subjectOfferingClass } from '$lib/server/db/schema';
-import {
-	getStudentsBySubjectOfferingClassId,
-	getTasksBySubjectOfferingClassId,
-	getTeachersBySubjectOfferingClassId
-} from '$lib/server/db/service';
+import { eq, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
-import { and, eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types.js';
+import { getTeachersBySubjectOfferingClassId, getStudentsBySubjectOfferingClassId, getTasksBySubjectOfferingClassId } from '$lib/server/db/service';
 
-export const load: PageServerLoad = async ({
-	locals,
-	params: { subjectOfferingId, subjectOfferingClassId }
-}) => {
+export const load: PageServerLoad = async ({ locals, params: { subjectOfferingId, subjectOfferingClassId } }) => {
 	const user = locals.user;
 	if (!user) throw error(401, 'Unauthorized');
 	const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
@@ -21,9 +14,7 @@ export const load: PageServerLoad = async ({
 		throw error(400, 'Invalid subject offering or class ID');
 	}
 
-	const subjectData = await db.query.subject.findFirst({
-		where: eq(subject.id, subjectOfferingIdInt)
-	});
+	const subjectData = await db.query.subject.findFirst({ where: eq(subject.id, subjectOfferingIdInt) });
 	if (!subjectData) throw error(404, 'Subject not found');
 
 	// Ensure class belongs to offering
@@ -78,9 +69,7 @@ export const load: PageServerLoad = async ({
 		gradeCount: 0,
 		averageTime: '—',
 		weight: 0,
-		dueDate: t.subjectOfferingClassTask.dueDate
-			? t.subjectOfferingClassTask.dueDate.toISOString().slice(0, 10)
-			: new Date().toISOString().slice(0, 10),
+		dueDate: t.subjectOfferingClassTask.dueDate ? t.subjectOfferingClassTask.dueDate.toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
 		status: 'due'
 	}));
 
@@ -118,166 +107,14 @@ export const load: PageServerLoad = async ({
 			currentAverage: 65,
 			currentAverageChange: 3,
 			students: [
-				{
-					id: '1',
-					firstName: 'Sam',
-					lastName: 'Smith',
-					avatarUrl: '/avatars/sam.jpg',
-					participation: 82,
-					participationCompletedCount: 8,
-					participationTotal: 10,
-					assignmentsCompleted: 75,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 3,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 75,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 3,
-					lastActive: '< 1 day',
-					grade: 85
-				},
-				{
-					id: '2',
-					firstName: 'Emma',
-					lastName: 'Johnson',
-					avatarUrl: '/avatars/emma.jpg',
-					participation: 95,
-					participationCompletedCount: 10,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 100,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 4,
-					lastActive: '2 hours ago',
-					grade: 92
-				},
-				{
-					id: '3',
-					firstName: 'Michael',
-					lastName: 'Chen',
-					avatarUrl: '/avatars/michael.jpg',
-					participation: 60,
-					participationCompletedCount: 6,
-					participationTotal: 10,
-					assignmentsCompleted: 50,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 2,
-					lessonsCompleted: 83,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 5,
-					homeworkCompleted: 25,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 1,
-					lastActive: '3 days ago',
-					grade: 68
-				},
-				{
-					id: '4',
-					firstName: 'Sarah',
-					lastName: 'Davis',
-					avatarUrl: '/avatars/sarah.jpg',
-					participation: 88,
-					participationCompletedCount: 9,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 75,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 3,
-					lastActive: '1 day ago',
-					grade: 88
-				},
-				{
-					id: '5',
-					firstName: 'David',
-					lastName: 'Wilson',
-					avatarUrl: '/avatars/david.jpg',
-					participation: 40,
-					participationCompletedCount: 4,
-					participationTotal: 10,
-					assignmentsCompleted: 25,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 1,
-					lessonsCompleted: 67,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 4,
-					homeworkCompleted: 0,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 0,
-					lastActive: '1 week ago',
-					grade: 45
-				},
-				{
-					id: '6',
-					firstName: 'Lisa',
-					lastName: 'Martinez',
-					avatarUrl: '/avatars/lisa.jpg',
-					participation: 97,
-					participationCompletedCount: 10,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 100,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 4,
-					lastActive: '3 hours ago',
-					grade: 95
-				},
-				{
-					id: '7',
-					firstName: 'James',
-					lastName: 'Brown',
-					avatarUrl: '/avatars/james.jpg',
-					participation: 70,
-					participationCompletedCount: 7,
-					participationTotal: 10,
-					assignmentsCompleted: 75,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 3,
-					lessonsCompleted: 83,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 5,
-					homeworkCompleted: 50,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 2,
-					lastActive: '2 days ago',
-					grade: 73
-				},
-				{
-					id: '8',
-					firstName: 'Ashley',
-					lastName: 'Taylor',
-					avatarUrl: '/avatars/ashley.jpg',
-					participation: 92,
-					participationCompletedCount: 9,
-					participationTotal: 10,
-					assignmentsCompleted: 100,
-					assignmentsTotal: 4,
-					assignmentsCompletedCount: 4,
-					lessonsCompleted: 100,
-					lessonsTotal: 6,
-					lessonsCompletedCount: 6,
-					homeworkCompleted: 100,
-					homeworkTotal: 4,
-					homeworkCompletedCount: 4,
-					lastActive: '5 hours ago',
-					grade: 90
-				}
+				{ id: '1', firstName: 'Sam', lastName: 'Smith', avatarUrl: '/avatars/sam.jpg', participation: 82, participationCompletedCount: 8, participationTotal: 10, assignmentsCompleted: 75, assignmentsTotal: 4, assignmentsCompletedCount: 3, lessonsCompleted: 100, lessonsTotal: 6, lessonsCompletedCount: 6, homeworkCompleted: 75, homeworkTotal: 4, homeworkCompletedCount: 3, lastActive: '< 1 day', grade: 85 },
+				{ id: '2', firstName: 'Emma', lastName: 'Johnson', avatarUrl: '/avatars/emma.jpg', participation: 95, participationCompletedCount: 10, participationTotal: 10, assignmentsCompleted: 100, assignmentsTotal: 4, assignmentsCompletedCount: 4, lessonsCompleted: 100, lessonsTotal: 6, lessonsCompletedCount: 6, homeworkCompleted: 100, homeworkTotal: 4, homeworkCompletedCount: 4, lastActive: '2 hours ago', grade: 92 },
+				{ id: '3', firstName: 'Michael', lastName: 'Chen', avatarUrl: '/avatars/michael.jpg', participation: 60, participationCompletedCount: 6, participationTotal: 10, assignmentsCompleted: 50, assignmentsTotal: 4, assignmentsCompletedCount: 2, lessonsCompleted: 83, lessonsTotal: 6, lessonsCompletedCount: 5, homeworkCompleted: 25, homeworkTotal: 4, homeworkCompletedCount: 1, lastActive: '3 days ago', grade: 68 },
+				{ id: '4', firstName: 'Sarah', lastName: 'Davis', avatarUrl: '/avatars/sarah.jpg', participation: 88, participationCompletedCount: 9, participationTotal: 10, assignmentsCompleted: 100, assignmentsTotal: 4, assignmentsCompletedCount: 4, lessonsCompleted: 100, lessonsTotal: 6, lessonsCompletedCount: 6, homeworkCompleted: 75, homeworkTotal: 4, homeworkCompletedCount: 3, lastActive: '1 day ago', grade: 88 },
+				{ id: '5', firstName: 'David', lastName: 'Wilson', avatarUrl: '/avatars/david.jpg', participation: 40, participationCompletedCount: 4, participationTotal: 10, assignmentsCompleted: 25, assignmentsTotal: 4, assignmentsCompletedCount: 1, lessonsCompleted: 67, lessonsTotal: 6, lessonsCompletedCount: 4, homeworkCompleted: 0, homeworkTotal: 4, homeworkCompletedCount: 0, lastActive: '1 week ago', grade: 45 },
+				{ id: '6', firstName: 'Lisa', lastName: 'Martinez', avatarUrl: '/avatars/lisa.jpg', participation: 97, participationCompletedCount: 10, participationTotal: 10, assignmentsCompleted: 100, assignmentsTotal: 4, assignmentsCompletedCount: 4, lessonsCompleted: 100, lessonsTotal: 6, lessonsCompletedCount: 6, homeworkCompleted: 100, homeworkTotal: 4, homeworkCompletedCount: 4, lastActive: '3 hours ago', grade: 95 },
+				{ id: '7', firstName: 'James', lastName: 'Brown', avatarUrl: '/avatars/james.jpg', participation: 70, participationCompletedCount: 7, participationTotal: 10, assignmentsCompleted: 75, assignmentsTotal: 4, assignmentsCompletedCount: 3, lessonsCompleted: 83, lessonsTotal: 6, lessonsCompletedCount: 5, homeworkCompleted: 50, homeworkTotal: 4, homeworkCompletedCount: 2, lastActive: '2 days ago', grade: 73 },
+				{ id: '8', firstName: 'Ashley', lastName: 'Taylor', avatarUrl: '/avatars/ashley.jpg', participation: 92, participationCompletedCount: 9, participationTotal: 10, assignmentsCompleted: 100, assignmentsTotal: 4, assignmentsCompletedCount: 4, lessonsCompleted: 100, lessonsTotal: 6, lessonsCompletedCount: 6, homeworkCompleted: 100, homeworkTotal: 4, homeworkCompletedCount: 4, lastActive: '5 hours ago', grade: 90 }
 			]
 		},
 		taskAnalytics: {
@@ -301,111 +138,13 @@ export const load: PageServerLoad = async ({
 				{ lesson: 'Week 12', grade: 88 }
 			],
 			tasks: [
-				{
-					id: 'assignment-1',
-					name: 'Assignment 1',
-					type: 'assessment',
-					studentsCompleted: 100,
-					totalStudents: 21,
-					completedCount: 21,
-					averageGrade: 65,
-					totalGrade: 40,
-					gradeCount: 26,
-					averageTime: '58 Minutes',
-					weight: 10,
-					dueDate: '2025-08-17',
-					status: 'completed'
-				},
-				{
-					id: 'lesson-1',
-					name: 'Lesson 1',
-					type: 'lesson',
-					studentsCompleted: 67,
-					totalStudents: 21,
-					completedCount: 14,
-					averageGrade: 83,
-					totalGrade: 40,
-					gradeCount: 33,
-					averageTime: '22 Minutes',
-					weight: 5,
-					dueDate: '2025-08-25',
-					status: 'due'
-				},
-				{
-					id: 'quiz-1',
-					name: 'Quiz 1',
-					type: 'assessment',
-					studentsCompleted: 95,
-					totalStudents: 21,
-					completedCount: 20,
-					averageGrade: 78,
-					totalGrade: 40,
-					gradeCount: 31,
-					averageTime: '15 Minutes',
-					weight: 15,
-					dueDate: '2025-08-21',
-					status: 'completed'
-				},
-				{
-					id: 'assignment-2',
-					name: 'Assignment 2',
-					type: 'assessment',
-					studentsCompleted: 81,
-					totalStudents: 21,
-					completedCount: 17,
-					averageGrade: 72,
-					totalGrade: 40,
-					gradeCount: 29,
-					averageTime: '45 Minutes',
-					weight: 12,
-					dueDate: '2025-08-27',
-					status: 'due'
-				},
-				{
-					id: 'lesson-2',
-					name: 'Lesson 2',
-					type: 'lesson',
-					studentsCompleted: 76,
-					totalStudents: 21,
-					completedCount: 16,
-					averageGrade: 85,
-					totalGrade: 40,
-					gradeCount: 34,
-					averageTime: '28 Minutes',
-					weight: 5,
-					dueDate: '2025-08-22',
-					status: 'completed'
-				},
-				{
-					id: 'homework-1',
-					name: 'Homework 1',
-					type: 'homework',
-					studentsCompleted: 54,
-					totalStudents: 21,
-					completedCount: 11,
-					averageGrade: 74,
-					totalGrade: 40,
-					gradeCount: 30,
-					averageTime: '35 Minutes',
-					weight: 8,
-					dueDate: '2025-12-24',
-					status: 'due'
-				},
-				{
-					id: 'project-proposal',
-					name: 'Project Proposal',
-					type: 'assessment',
-					studentsCompleted: 38,
-					totalStudents: 21,
-					completedCount: 8,
-					averageGrade: 88,
-					totalGrade: 40,
-					gradeCount: 35,
-					averageTime: '2 Hours',
-					weight: 25,
-					dueDate: '2026-08-31',
-					status: 'due'
-				}
+				{ id: 'assignment-1', name: 'Assignment 1', type: 'assessment', studentsCompleted: 100, totalStudents: 21, completedCount: 21, averageGrade: 65, totalGrade: 40, gradeCount: 26, averageTime: '58 Minutes', weight: 10, dueDate: '2025-08-17', status: 'completed' },
+				{ id: 'lesson-1', name: 'Lesson 1', type: 'lesson', studentsCompleted: 67, totalStudents: 21, completedCount: 14, averageGrade: 83, totalGrade: 40, gradeCount: 33, averageTime: '22 Minutes', weight: 5, dueDate: '2025-08-25', status: 'due' },
+				{ id: 'quiz-1', name: 'Quiz 1', type: 'assessment', studentsCompleted: 95, totalStudents: 21, completedCount: 20, averageGrade: 78, totalGrade: 40, gradeCount: 31, averageTime: '15 Minutes', weight: 15, dueDate: '2025-08-21', status: 'completed' },
+				{ id: 'assignment-2', name: 'Assignment 2', type: 'assessment', studentsCompleted: 81, totalStudents: 21, completedCount: 17, averageGrade: 72, totalGrade: 40, gradeCount: 29, averageTime: '45 Minutes', weight: 12, dueDate: '2025-08-27', status: 'due' },
+				{ id: 'lesson-2', name: 'Lesson 2', type: 'lesson', studentsCompleted: 76, totalStudents: 21, completedCount: 16, averageGrade: 85, totalGrade: 40, gradeCount: 34, averageTime: '28 Minutes', weight: 5, dueDate: '2025-08-22', status: 'completed' },
+				{ id: 'homework-1', name: 'Homework 1', type: 'homework', studentsCompleted: 54, totalStudents: 21, completedCount: 11, averageGrade: 74, totalGrade: 40, gradeCount: 30, averageTime: '35 Minutes', weight: 8, dueDate: '2025-12-24', status: 'due' },
+				{ id: 'project-proposal', name: 'Project Proposal', type: 'assessment', studentsCompleted: 38, totalStudents: 21, completedCount: 8, averageGrade: 88, totalGrade: 40, gradeCount: 35, averageTime: '2 Hours', weight: 25, dueDate: '2026-08-31', status: 'due' }
 			]
 		},
 		discussionAnalytics: {
@@ -433,86 +172,14 @@ export const load: PageServerLoad = async ({
 				{ week: 'Apr W4', posts: 48 }
 			],
 			students: [
-				{
-					id: '1',
-					firstName: 'Sam',
-					lastName: 'Smith',
-					avatarUrl: '/avatars/sam.jpg',
-					questionsPosted: 7,
-					questionsAnswered: 15,
-					totalContributions: 22,
-					lastActive: '< 1 day'
-				},
-				{
-					id: '2',
-					firstName: 'Emma',
-					lastName: 'Johnson',
-					avatarUrl: '/avatars/emma.jpg',
-					questionsPosted: 12,
-					questionsAnswered: 23,
-					totalContributions: 35,
-					lastActive: '2 hours ago'
-				},
-				{
-					id: '3',
-					firstName: 'Michael',
-					lastName: 'Chen',
-					avatarUrl: '/avatars/michael.jpg',
-					questionsPosted: 3,
-					questionsAnswered: 8,
-					totalContributions: 11,
-					lastActive: '3 days ago'
-				},
-				{
-					id: '4',
-					firstName: 'Sarah',
-					lastName: 'Davis',
-					avatarUrl: '/avatars/sarah.jpg',
-					questionsPosted: 9,
-					questionsAnswered: 18,
-					totalContributions: 27,
-					lastActive: '1 day ago'
-				},
-				{
-					id: '5',
-					firstName: 'David',
-					lastName: 'Wilson',
-					avatarUrl: '/avatars/david.jpg',
-					questionsPosted: 1,
-					questionsAnswered: 2,
-					totalContributions: 3,
-					lastActive: '1 week ago'
-				},
-				{
-					id: '6',
-					firstName: 'Lisa',
-					lastName: 'Martinez',
-					avatarUrl: '/avatars/lisa.jpg',
-					questionsPosted: 15,
-					questionsAnswered: 28,
-					totalContributions: 43,
-					lastActive: '3 hours ago'
-				},
-				{
-					id: '7',
-					firstName: 'James',
-					lastName: 'Brown',
-					avatarUrl: '/avatars/james.jpg',
-					questionsPosted: 5,
-					questionsAnswered: 12,
-					totalContributions: 17,
-					lastActive: '2 days ago'
-				},
-				{
-					id: '8',
-					firstName: 'Ashley',
-					lastName: 'Taylor',
-					avatarUrl: '/avatars/ashley.jpg',
-					questionsPosted: 8,
-					questionsAnswered: 20,
-					totalContributions: 28,
-					lastActive: '5 hours ago'
-				}
+				{ id: '1', firstName: 'Sam', lastName: 'Smith', avatarUrl: '/avatars/sam.jpg', questionsPosted: 7, questionsAnswered: 15, totalContributions: 22, lastActive: '< 1 day' },
+				{ id: '2', firstName: 'Emma', lastName: 'Johnson', avatarUrl: '/avatars/emma.jpg', questionsPosted: 12, questionsAnswered: 23, totalContributions: 35, lastActive: '2 hours ago' },
+				{ id: '3', firstName: 'Michael', lastName: 'Chen', avatarUrl: '/avatars/michael.jpg', questionsPosted: 3, questionsAnswered: 8, totalContributions: 11, lastActive: '3 days ago' },
+				{ id: '4', firstName: 'Sarah', lastName: 'Davis', avatarUrl: '/avatars/sarah.jpg', questionsPosted: 9, questionsAnswered: 18, totalContributions: 27, lastActive: '1 day ago' },
+				{ id: '5', firstName: 'David', lastName: 'Wilson', avatarUrl: '/avatars/david.jpg', questionsPosted: 1, questionsAnswered: 2, totalContributions: 3, lastActive: '1 week ago' },
+				{ id: '6', firstName: 'Lisa', lastName: 'Martinez', avatarUrl: '/avatars/lisa.jpg', questionsPosted: 15, questionsAnswered: 28, totalContributions: 43, lastActive: '3 hours ago' },
+				{ id: '7', firstName: 'James', lastName: 'Brown', avatarUrl: '/avatars/james.jpg', questionsPosted: 5, questionsAnswered: 12, totalContributions: 17, lastActive: '2 days ago' },
+				{ id: '8', firstName: 'Ashley', lastName: 'Taylor', avatarUrl: '/avatars/ashley.jpg', questionsPosted: 8, questionsAnswered: 20, totalContributions: 28, lastActive: '5 hours ago' }
 			]
 		}
 	};
@@ -522,9 +189,7 @@ export const load: PageServerLoad = async ({
 		subject: subjectData,
 		subjectOfferingId: subjectOfferingIdInt,
 		subjectOfferingClassId: subjectOfferingClassIdInt,
-		primaryTeacher: primaryTeacher
-			? `${primaryTeacher.firstName} ${primaryTeacher.lastName}`
-			: null,
+		primaryTeacher: primaryTeacher ? `${primaryTeacher.firstName} ${primaryTeacher.lastName}` : null,
 		analyticsData,
 		mockData
 	};

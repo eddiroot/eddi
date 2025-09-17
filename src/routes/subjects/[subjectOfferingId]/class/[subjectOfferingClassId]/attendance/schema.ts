@@ -1,5 +1,5 @@
-import type { SubjectClassAllocationAttendance } from '$lib/server/db/schema';
 import { z } from 'zod/v4';
+import type { SubjectClassAllocationAttendance } from '$lib/server/db/schema';
 
 export const attendanceSchema = z.object({
 	subjectClassAllocationId: z.number(),

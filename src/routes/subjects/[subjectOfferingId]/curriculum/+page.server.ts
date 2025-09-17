@@ -1,16 +1,16 @@
-import { db } from '$lib/server/db';
-import * as schema from '$lib/server/db/schema';
+import { error, fail } from '@sveltejs/kit';
+import type { Actions } from '@sveltejs/kit';
 import {
-	createCourseMapItem,
-	deleteCoursemapItemAssessmentPlan,
 	getCourseMapItemsBySubjectOfferingId,
 	getSubjectOfferingLearningAreas,
 	setCourseMapItemAreasOfStudy,
-	upsertCoursemapItemAssessmentPlan
+	upsertCoursemapItemAssessmentPlan,
+	deleteCoursemapItemAssessmentPlan,
+	createCourseMapItem
 } from '$lib/server/db/service/coursemap';
 import { getSubjectOfferingById } from '$lib/server/db/service/subjects';
-import type { Actions } from '@sveltejs/kit';
-import { error, fail } from '@sveltejs/kit';
+import { db } from '$lib/server/db';
+import * as schema from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 
 export const load = async ({ params }: { params: { subjectOfferingId: string } }) => {

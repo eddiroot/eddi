@@ -1,13 +1,14 @@
 <script lang="ts">
+	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import FileIcon from '@lucide/svelte/icons/file';
-	import FileAudioIcon from '@lucide/svelte/icons/file-audio';
 	import FileImageIcon from '@lucide/svelte/icons/file-image';
-	import FileTextIcon from '@lucide/svelte/icons/file-text';
 	import FileVideoIcon from '@lucide/svelte/icons/file-video';
+	import FileAudioIcon from '@lucide/svelte/icons/file-audio';
+	import FileTextIcon from '@lucide/svelte/icons/file-text';
 	import LinkIcon from '@lucide/svelte/icons/link';
 	import StickyNoteIcon from '@lucide/svelte/icons/sticky-note';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 
 	interface ResourceInfo {
 		id?: number;
@@ -122,32 +123,30 @@
 	};
 </script>
 
-<button
-	class="hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors {variantClasses[
-		variant
-	]} {className}"
+<button 
+	class="flex items-center gap-3 p-3 border rounded-lg transition-colors hover:bg-muted/50 text-left w-full {variantClasses[variant]} {className}" 
 	onclick={handleOpen}
 	type="button"
 >
 	<!-- Resource Icon -->
 	<div class="flex-shrink-0">
-		<div class="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-			<IconComponent class="h-5 w-5 {iconClasses[variant]}" />
+		<div class="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+			<IconComponent class="w-5 h-5 {iconClasses[variant]}" />
 		</div>
 	</div>
-
+	
 	<!-- Resource Info -->
-	<div class="min-w-0 flex-1">
-		<div class="mb-1 flex items-center gap-2">
-			<h4 class="truncate text-sm font-medium">
+	<div class="flex-1 min-w-0">
+		<div class="flex items-center gap-2 mb-1">
+			<h4 class="font-medium text-sm truncate">
 				{resource.fileName}
 			</h4>
 		</div>
-		<div class="text-muted-foreground flex items-center gap-3 text-xs">
+		<div class="flex items-center gap-3 text-xs text-muted-foreground">
 			<span>{formatFileSize(resource.fileSize)}</span>
 		</div>
 	</div>
-
+	
 	<!-- Remove Button -->
 	{#if showRemoveButton && onRemove}
 		<div class="flex-shrink-0">
@@ -155,7 +154,7 @@
 				type="button"
 				variant="ghost"
 				size="sm"
-				class="text-muted-foreground h-8 w-8 p-0 transition-colors hover:bg-red-500/20 hover:text-red-600"
+				class="w-8 h-8 p-0 hover:bg-red-500/20 text-muted-foreground hover:text-red-600 transition-colors"
 				onclick={(e) => {
 					e.stopPropagation(); // Prevent triggering the card click
 					onRemove?.(resource.id);
@@ -163,7 +162,7 @@
 				title="Remove resource"
 				aria-label="Remove resource"
 			>
-				<Trash2Icon class="h-4 w-4" />
+				<Trash2Icon class="w-4 h-4" />
 			</Button>
 		</div>
 	{/if}

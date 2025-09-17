@@ -1,7 +1,7 @@
-import type { yearLevelEnum } from '$lib/enums.js';
-import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, asc, eq, inArray, max } from 'drizzle-orm';
+import { db } from '$lib/server/db';
+import { eq, and, inArray, asc, max } from 'drizzle-orm';
+import type { yearLevelEnum } from '$lib/enums.js';
 
 export async function getLatestVersionForCourseMapItemBySubjectOfferingId(
 	subjectOfferingId: number

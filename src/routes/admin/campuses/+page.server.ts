@@ -1,9 +1,9 @@
 import {
+	getCampusesBySchoolId,
+	updateCampus,
 	archiveCampus,
 	createCampus,
-	getCampusesBySchoolId,
-	unarchiveCampus,
-	updateCampus
+	unarchiveCampus
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 import { z } from 'zod/v4';

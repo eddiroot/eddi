@@ -1,13 +1,13 @@
 // need to change over to ussing subjectOffering class instead
 
 import {
-	getAnnouncementsBySubjectOfferingClassId,
-	getAssessmentsBySubjectOfferingClassId,
-	getClassById,
-	getLessonsAndHomeworkBySubjectOfferingClassId,
-	getResourcesBySubjectOfferingClassId,
 	getSubjectBySubjectOfferingClassId,
-	getTeachersBySubjectOfferingClassId
+	getClassById,
+	getTeachersBySubjectOfferingClassId,
+	getAssessmentsBySubjectOfferingClassId,
+	getResourcesBySubjectOfferingClassId,
+	getAnnouncementsBySubjectOfferingClassId,
+	getLessonsAndHomeworkBySubjectOfferingClassId
 } from '$lib/server/db/service';
 import { getPresignedUrl } from '$lib/server/obj';
 

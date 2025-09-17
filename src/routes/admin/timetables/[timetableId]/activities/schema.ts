@@ -1,5 +1,5 @@
-import { yearLevelEnum } from '$lib/enums';
 import { z } from 'zod/v4';
+import { yearLevelEnum } from '$lib/enums';
 
 export const activityFormSchema = z.object({
 	yearLevel: z.enum(yearLevelEnum),

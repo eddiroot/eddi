@@ -1,9 +1,9 @@
+import { json, type RequestHandler } from '@sveltejs/kit';
 import {
 	createChatbotChat,
 	getChatbotChatById,
 	getChatbotChatsWithFirstMessageByUserId
 } from '$lib/server/db/service';
-import { json, type RequestHandler } from '@sveltejs/kit';
 
 // This endpoint handles creating a new chat session.
 export const POST: RequestHandler = async (event) => {

@@ -1,5 +1,5 @@
-import { userTypeEnum } from '$lib/enums';
 import { getUserProfileById /*, getStudentGrades */ } from '$lib/server/db/service';
+import { userTypeEnum } from '$lib/enums';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

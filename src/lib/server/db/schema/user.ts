@@ -1,23 +1,23 @@
 import {
-	boolean,
-	integer,
-	pgEnum,
 	pgTable,
 	text,
+	integer,
 	timestamp,
-	unique,
-	uuid
+	boolean,
+	pgEnum,
+	uuid,
+	unique
 } from 'drizzle-orm/pg-core';
+import { timestamps } from './utils';
+import { campus, school } from './schools';
+import { yearLevelEnumPg } from './curriculum';
 import {
 	relationshipTypeEnum,
 	userGenderEnum,
 	userHonorificEnum,
 	userTypeEnum
 } from '../../../enums';
-import { yearLevelEnumPg } from './curriculum';
-import { campus, school } from './schools';
 import { subjectOffering, subjectOfferingClass } from './subjects';
-import { timestamps } from './utils';
 
 export const userTypeEnumPg = pgEnum('enum_user_type', [
 	userTypeEnum.none,

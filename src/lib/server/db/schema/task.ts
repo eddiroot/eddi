@@ -1,28 +1,28 @@
 import {
-	boolean,
-	doublePrecision,
-	foreignKey,
-	integer,
-	jsonb,
-	pgEnum,
 	pgTable,
 	text,
-	timestamp,
+	integer,
+	boolean,
+	jsonb,
+	pgEnum,
+	foreignKey,
 	unique,
-	uuid
+	uuid,
+	timestamp
 } from 'drizzle-orm/pg-core';
+import { timestamps } from './utils';
+import { subjectOffering, subjectOfferingClass } from './subjects';
+import { user } from './user';
+import { courseMapItem } from './coursemap';
+import { doublePrecision } from 'drizzle-orm/pg-core';
+import { learningAreaStandard } from './curriculum';
+import { resource } from './resource';
 import {
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
 	whiteboardObjectTypeEnum
 } from '../../../enums';
-import { courseMapItem } from './coursemap';
-import { learningAreaStandard } from './curriculum';
-import { resource } from './resource';
-import { subjectOffering, subjectOfferingClass } from './subjects';
-import { user } from './user';
-import { timestamps } from './utils';
 
 export const taskTypeEnumPg = pgEnum('enum_task_type', [
 	taskTypeEnum.lesson,

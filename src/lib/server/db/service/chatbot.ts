@@ -1,18 +1,18 @@
-import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { db } from '$lib/server/db';
+import { eq, and, asc, desc } from 'drizzle-orm';
+import { getTasksBySubjectOfferingClassId } from './task';
+import { verifyUserAccessToClass, verifyUserAccessToSubjectOffering } from './user';
+import {
+	getCourseMapItemAndLearningAreaByVersionAndBySubjectOfferingId,
+	getLatestVersionForCourseMapItemBySubjectOfferingId
+} from './coursemap';
 import type { SubjectContextData } from '../../../../routes/api/chatbot/constants';
 import {
 	getSubjectOfferingById,
 	getSubjectOfferingClassDetailsById,
 	getTasksBySubjectOfferingId
 } from './';
-import {
-	getCourseMapItemAndLearningAreaByVersionAndBySubjectOfferingId,
-	getLatestVersionForCourseMapItemBySubjectOfferingId
-} from './coursemap';
-import { getTasksBySubjectOfferingClassId } from './task';
-import { verifyUserAccessToClass, verifyUserAccessToSubjectOffering } from './user';
 
 // For simplicity, we will grab all of the coursemap topics and descriptions as well as the lesson names and descriptions to
 // provide context for the subject offering. This will be used to answer questions about the subject offering in the chatbot.

@@ -1,15 +1,15 @@
-import { userTypeEnum } from '$lib/enums.js';
-import {
-	createUserSubjectOfferingClass,
-	deleteUserSubjectOfferingClass,
-	getAllocationsBySchoolId,
-	getSubjectOfferingClassesBySchoolId,
-	getUsersBySchoolIdAndTypes
-} from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
+import {
+	getAllocationsBySchoolId,
+	createUserSubjectOfferingClass,
+	deleteUserSubjectOfferingClass,
+	getUsersBySchoolIdAndTypes,
+	getSubjectOfferingClassesBySchoolId
+} from '$lib/server/db/service';
 import { createAllocationSchema } from './schema.js';
+import { userTypeEnum } from '$lib/enums.js';
 
 export const load = async ({ locals }) => {
 	const user = locals.security.isAuthenticated().isSchoolAdmin().getUser();

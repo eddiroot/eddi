@@ -1,8 +1,8 @@
-import { createSchoolTimetable, getSchoolTimetablesBySchoolId } from '$lib/server/db/service';
+import { getSchoolTimetablesBySchoolId, createSchoolTimetable } from '$lib/server/db/service';
+import { createTimetableSchema } from './schema.js';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import type { Actions, PageServerLoad } from './$types.js';
-import { createTimetableSchema } from './schema.js';
+import type { PageServerLoad, Actions } from './$types.js';
 
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

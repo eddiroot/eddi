@@ -1,5 +1,5 @@
-import { updateTaskTitle } from '$lib/server/db/service';
 import { json } from '@sveltejs/kit';
+import { updateTaskTitle } from '$lib/server/db/service';
 
 export async function PATCH({ request }: { request: Request }) {
 	try {

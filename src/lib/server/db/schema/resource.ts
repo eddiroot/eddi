@@ -1,6 +1,6 @@
-import { boolean, integer, pgTable, text, uuid } from 'drizzle-orm/pg-core';
-import { user } from './user';
+import { pgTable, text, integer, boolean, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './utils';
+import { user } from './user';
 
 export const resource = pgTable('res', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

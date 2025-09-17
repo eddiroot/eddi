@@ -1,9 +1,9 @@
 import {
-	getCampusEventsForWeekByUserId,
-	getSchoolEventsForWeekBySchoolId,
 	getSubjectClassAllocationsByUserIdForWeek,
-	getSubjectOfferingClassEventsForWeekByUserId,
+	getSchoolEventsForWeekBySchoolId,
+	getCampusEventsForWeekByUserId,
 	getSubjectOfferingEventsForWeekByUserId,
+	getSubjectOfferingClassEventsForWeekByUserId,
 	getUserEventRSVPs
 } from '$lib/server/db/service';
 

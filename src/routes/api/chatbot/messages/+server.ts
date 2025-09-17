@@ -1,5 +1,5 @@
-import { getChatbotChatById, getChatbotMessagesByChatId } from '$lib/server/db/service';
 import { json, type RequestHandler } from '@sveltejs/kit';
+import { getChatbotChatById, getChatbotMessagesByChatId } from '$lib/server/db/service';
 
 // This endpoint handles retrieving all messages for a chat.
 export const GET: RequestHandler = async (event) => {

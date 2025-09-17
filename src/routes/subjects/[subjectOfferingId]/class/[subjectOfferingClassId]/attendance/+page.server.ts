@@ -1,15 +1,15 @@
 import {
-	getGuardiansForStudent,
 	getSubjectClassAllocationAndStudentAttendancesByClassIdForToday,
+	upsertSubjectClassAllocationAttendance,
 	getSubjectOfferingClassByAllocationId,
-	upsertSubjectClassAllocationAttendance
+	getGuardiansForStudent
 } from '$lib/server/db/service';
-import { sendAbsenceEmail } from '$lib/server/email.js';
-import { convertToFullName } from '$lib/utils.js';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { attendanceSchema } from './schema.js';
+import { sendAbsenceEmail } from '$lib/server/email.js';
+import { convertToFullName } from '$lib/utils.js';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
 	security.isAuthenticated();

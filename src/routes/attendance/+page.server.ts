@@ -1,19 +1,19 @@
-import type {
-	Subject,
-	SubjectClassAllocation,
-	SubjectClassAllocationAttendance,
-	SubjectOfferingClass,
-	User
-} from '$lib/server/db/schema';
+import { fail } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { markAbsentSchema } from './schema.js';
 import { getGuardiansChildrensScheduleWithAttendanceByUserId } from '$lib/server/db/service';
 import {
 	getSubjectClassAllocationsByUserIdForDate,
 	upsertSubjectClassAllocationAttendance
 } from '$lib/server/db/service/subjects';
-import { fail } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { markAbsentSchema } from './schema.js';
+import type {
+	User,
+	Subject,
+	SubjectOfferingClass,
+	SubjectClassAllocation,
+	SubjectClassAllocationAttendance
+} from '$lib/server/db/schema';
 
 export type ScheduleWithAttendanceRecord = {
 	user: Pick<User, 'id' | 'firstName' | 'middleName' | 'lastName' | 'avatarUrl'>;

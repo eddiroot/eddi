@@ -1,11 +1,11 @@
 import { geminiCompletion } from '$lib/server/ai';
+import { json, type RequestHandler } from '@sveltejs/kit';
+import { systemInstructionChatbot } from './constants';
 import {
 	createChatbotMessage,
 	getChatbotChatById,
 	getLatestChatbotMessageByChatId
 } from '$lib/server/db/service';
-import { json, type RequestHandler } from '@sveltejs/kit';
-import { systemInstructionChatbot } from './constants';
 
 // This endpoint handles chat messages sent to the AI tutor.
 export const POST: RequestHandler = async (event) => {

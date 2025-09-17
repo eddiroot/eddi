@@ -1,6 +1,6 @@
+import type { PageServerLoad, Actions } from './$types';
 import { InterviewService } from '$lib/server/db/service/interviews';
 import { fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

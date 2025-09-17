@@ -1,9 +1,9 @@
-import { userGenderEnum, userHonorificEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
-import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { db } from '$lib/server/db';
+import { eq, and } from 'drizzle-orm';
 import { hash } from '@node-rs/argon2';
 import { randomInt } from 'crypto';
-import { and, eq } from 'drizzle-orm';
+import { userGenderEnum, userHonorificEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 
 export async function createUser({
 	email,

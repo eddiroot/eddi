@@ -1,5 +1,5 @@
+import { generateState, generateCodeVerifier } from 'arctic';
 import { google } from '$lib/server/oauth';
-import { generateCodeVerifier, generateState } from 'arctic';
 
 export async function GET(event): Promise<Response> {
 	const state = generateState();

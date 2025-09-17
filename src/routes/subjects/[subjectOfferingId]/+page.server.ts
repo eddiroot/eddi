@@ -1,5 +1,5 @@
-import { getSubjectsWithClassesByUserId } from '$lib/server/db/service';
 import { redirect } from '@sveltejs/kit';
+import { getSubjectsWithClassesByUserId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
@@ -11,7 +11,7 @@ export const load = async ({ locals: { security }, params: { subjectOfferingId }
 	// Find the subject offering that matches our parameter
 	const subjectOfferingIdInt = Number(subjectOfferingId);
 	const targetSubject = subjectsWithClasses.find(
-		(subject) => subject.subjectOffering.id === subjectOfferingIdInt
+		subject => subject.subjectOffering.id === subjectOfferingIdInt
 	);
 
 	// If subject not found or no classes, redirect to dashboard

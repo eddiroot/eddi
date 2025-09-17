@@ -1,4 +1,7 @@
-import { queueStatusEnum } from '$lib/enums.js';
+import { promises as fs } from 'fs';
+import { join } from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import {
 	createTimetableFETActivitiesFromFETExport,
 	getInProgressTimetableQueues,
@@ -6,10 +9,7 @@ import {
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/timetables.js';
 import { getFileFromStorage } from '$lib/server/obj.js';
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { promisify } from 'util';
+import { queueStatusEnum } from '$lib/enums.js';
 import { processFETOutput } from '../routes/admin/timetables/[timetableId]/generate/utils';
 
 const execAsync = promisify(exec);

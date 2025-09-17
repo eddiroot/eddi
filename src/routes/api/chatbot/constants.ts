@@ -66,7 +66,7 @@ export function createContextualSystemInstruction(
 	) {
 		contextInfo += "\n\n=== STUDENT'S CURRENT SUBJECT CONTENT ===\n";
 		contextInfo +=
-			'importANT: Use this information to help students find relevant tasks and topics!\n\n';
+			'IMPORTANT: Use this information to help students find relevant tasks and topics!\n\n';
 
 		// Subject Information
 		contextInfo += `SUBJECT: ${subjectContext.subjectInfo.name}\n`;

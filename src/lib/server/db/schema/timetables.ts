@@ -1,20 +1,20 @@
 import {
-	boolean,
-	integer,
-	jsonb,
-	pgEnum,
 	pgTable,
 	text,
-	time,
+	integer,
+	boolean,
 	unique,
-	uuid
+	uuid,
+	time,
+	pgEnum,
+	jsonb
 } from 'drizzle-orm/pg-core';
-import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
-import { yearLevelEnumPg } from './curriculum';
-import { school } from './schools';
-import { subject } from './subjects';
-import { user } from './user';
 import { timestamps } from './utils';
+import { user } from './user';
+import { yearLevelEnumPg } from './curriculum';
+import { subject } from './subjects';
+import { school } from './schools';
+import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 
 export const timetable = pgTable(
 	'tt',

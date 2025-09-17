@@ -1,7 +1,7 @@
-import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema';
 import { type RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
 
 export const sessionCookieName = 'session_token';
 const inactivityTimeoutSeconds = 60 * 60 * 24 * 1; // 1 day

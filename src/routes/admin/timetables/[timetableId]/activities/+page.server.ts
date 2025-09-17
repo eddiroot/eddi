@@ -1,16 +1,16 @@
-import { userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 import {
-	createTimetableActivity,
-	deleteTimetableActivitiesByGroupId,
 	getSubjectsBySchoolIdAndYearLevel,
-	getTimetableActivitiesByTimetableId,
+	getUsersBySchoolIdAndType,
 	getTimetableStudentGroupsByTimetableId,
-	getUsersBySchoolIdAndType
+	getTimetableActivitiesByTimetableId,
+	createTimetableActivity,
+	deleteTimetableActivitiesByGroupId
 } from '$lib/server/db/service';
-import { fail } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
 import { activityFormSchema } from './schema.js';
+import { superValidate, message } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { fail } from '@sveltejs/kit';
+import { yearLevelEnum, userTypeEnum } from '$lib/enums.js';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

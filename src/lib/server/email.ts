@@ -1,5 +1,5 @@
-import { env } from '$env/dynamic/private';
 import nodemailer from 'nodemailer';
+import { env } from '$env/dynamic/private';
 
 if (!env.EMAIL_HOST) throw new Error('EMAIL_HOST is not set');
 if (!env.EMAIL_PORT) throw new Error('EMAIL_PORT is not set');

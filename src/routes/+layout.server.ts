@@ -1,6 +1,6 @@
 import {
-	getCampusesByUserId,
 	getSchoolById,
+	getCampusesByUserId,
 	getSubjectsWithClassesByUserId
 } from '$lib/server/db/service';
 import { InterviewService } from '$lib/server/db/service/interviews';

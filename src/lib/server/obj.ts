@@ -1,5 +1,5 @@
-import { env } from '$env/dynamic/private';
 import * as Minio from 'minio';
+import { env } from '$env/dynamic/private';
 
 if (!env.OBJ_ENDPOINT) throw new Error('OBJ_ENDPOINT is not set');
 if (!env.OBJ_PORT) throw new Error('OBJ_PORT is not set');

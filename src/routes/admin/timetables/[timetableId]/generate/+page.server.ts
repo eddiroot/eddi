@@ -1,19 +1,19 @@
-import { userTypeEnum } from '$lib/enums.js';
+import { fail } from '@sveltejs/kit';
 import {
-	createTimetableQueueEntry,
-	getBuildingsBySchoolId,
-	getSchoolById,
-	getSpacesBySchoolId,
-	getSubjectsBySchoolId,
-	getTimetableActivitiesByTimetableId,
 	getTimetableDays,
 	getTimetablePeriods,
 	getTimetableStudentGroupsWithCountsByTimetableId,
-	getUsersBySchoolIdAndType
+	getTimetableActivitiesByTimetableId,
+	getBuildingsBySchoolId,
+	getSpacesBySchoolId,
+	getUsersBySchoolIdAndType,
+	getSubjectsBySchoolId,
+	getSchoolById,
+	createTimetableQueueEntry
 } from '$lib/server/db/service';
-import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
-import { fail } from '@sveltejs/kit';
+import { userTypeEnum } from '$lib/enums.js';
 import { buildFETInput } from './utils.js';
+import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 
 export const actions = {
 	generateTimetable: async ({ params, locals: { security } }) => {

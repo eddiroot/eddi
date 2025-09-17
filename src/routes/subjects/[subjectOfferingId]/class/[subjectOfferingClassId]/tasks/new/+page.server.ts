@@ -1,24 +1,24 @@
-import { taskTypeEnum } from '$lib/enums';
-import { taskCreationPrompts, taskSchema as taskGenerationSchema } from '$lib/schemas/taskSchema';
-import { geminiCompletion } from '$lib/server/ai';
-import {
-	createCourseMapItem,
-	createSubjectOfferingClassTask,
-	createTask,
-	createTaskBlock,
-	getCurriculumLearningAreaWithStandards,
-	getLearningAreaStandardWithElaborationsByIds,
-	getSubjectYearLevelBySubjectOfferingId,
-	getTopics,
-	type CurriculumStandardWithElaborations
-} from '$lib/server/db/service';
 import { redirect } from '@sveltejs/kit';
-import { promises as fsPromises } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
+import { geminiCompletion } from '$lib/server/ai';
+import { taskSchema as taskGenerationSchema, taskCreationPrompts } from '$lib/schemas/taskSchema';
+import {
+	createTask,
+	createTaskBlock,
+	getTopics,
+	createCourseMapItem,
+	getLearningAreaStandardWithElaborationsByIds,
+	createSubjectOfferingClassTask,
+	getCurriculumLearningAreaWithStandards,
+	type CurriculumStandardWithElaborations,
+	getSubjectYearLevelBySubjectOfferingId
+} from '$lib/server/db/service';
+import { promises as fsPromises } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { taskTypeEnum } from '$lib/enums';
 
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();

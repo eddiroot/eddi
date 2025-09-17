@@ -1,17 +1,17 @@
-import type { yearLevelEnum } from '$lib/enums.js';
-import { db } from '$lib/server/db/index.js';
-import { subject } from '$lib/server/db/schema';
 import { getSubjectsBySchoolId } from '$lib/server/db/service';
-import { parseCSVData, validateCSVFile } from '$lib/utils.js';
 import { fail } from '@sveltejs/kit';
 import { superValidate, withFiles } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { optionalColumns, requiredColumns, subjectsimportSchema } from './schema.js';
+import { validateCSVFile, parseCSVData } from '$lib/utils.js';
+import { db } from '$lib/server/db/index.js';
+import { subject } from '$lib/server/db/schema';
+import { optionalColumns, requiredColumns, subjectsImportSchema } from './schema.js';
+import type { yearLevelEnum } from '$lib/enums.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const subjects = await getSubjectsBySchoolId(user.schoolId);
-	const form = await superValidate(zod4(subjectsimportSchema));
+	const form = await superValidate(zod4(subjectsImportSchema));
 	return { subjects, form };
 };
 
@@ -20,7 +20,7 @@ export const actions = {
 		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
 		const formData = await request.formData();
-		const form = await superValidate(formData, zod4(subjectsimportSchema));
+		const form = await superValidate(formData, zod4(subjectsImportSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });

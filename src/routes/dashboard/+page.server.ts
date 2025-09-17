@@ -1,7 +1,7 @@
 import {
+	getSubjectsByUserId,
 	getRecentAnnouncementsByUserId,
-	getSubjectClassAllocationsByUserIdForToday,
-	getSubjectsByUserId
+	getSubjectClassAllocationsByUserIdForToday
 } from '$lib/server/db/service';
 import { getPublishedNewsBySchoolId } from '$lib/server/db/service/news';
 import { getCampusesByUserId } from '$lib/server/db/service/schools';

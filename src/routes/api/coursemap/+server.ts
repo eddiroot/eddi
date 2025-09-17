@@ -1,13 +1,13 @@
-import { yearLevelEnum } from '$lib/enums';
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import {
 	getCourseMapItemLearningAreas,
 	getCoursemapItemAssessmentPlans,
 	getCoursemapItemLessonPlans,
-	getLearningAreaStandardByLearningAreaId,
-	getTasksByCourseMapItemId
+	getTasksByCourseMapItemId,
+	getLearningAreaStandardByLearningAreaId
 } from '$lib/server/db/service/coursemap';
-import type { RequestHandler } from '@sveltejs/kit';
-import { json } from '@sveltejs/kit';
+import { yearLevelEnum } from '$lib/enums';
 
 export const GET: RequestHandler = async ({ url }) => {
 	const action = url.searchParams.get('action');

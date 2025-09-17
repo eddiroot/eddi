@@ -1,3 +1,7 @@
+import * as table from '$lib/server/db/schema';
+import { db } from '$lib/server/db';
+import { desc, eq, and, or, gte, inArray, asc, sql } from 'drizzle-orm';
+import { verifyUserAccessToClass } from './user';
 import {
 	taskBlockTypeEnum,
 	taskStatusEnum,
@@ -5,10 +9,6 @@ import {
 	userTypeEnum,
 	whiteboardObjectTypeEnum
 } from '$lib/enums.js';
-import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema';
-import { and, asc, desc, eq, gte, inArray, or, sql } from 'drizzle-orm';
-import { verifyUserAccessToClass } from './user';
 
 export async function addTasksToClass(
 	taskIds: number[],

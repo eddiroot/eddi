@@ -1,9 +1,9 @@
 import { error } from '@sveltejs/kit';
 import { readFile } from 'fs/promises';
-import type { PageServerLoad } from './$types';
-import type { StudentStatisticsReport, TeacherStatisticsReport } from './timetable';
 import { TimetableHtmlParser } from './timetable';
 import { StudentStatisticsParser } from './utils';
+import type { PageServerLoad } from './$types';
+import type { TeacherStatisticsReport, StudentStatisticsReport } from './timetable';
 
 export const load: PageServerLoad = async ({ params }) => {
 	try {
