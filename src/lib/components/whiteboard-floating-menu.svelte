@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
-	import TypeIcon from '@lucide/svelte/icons/type';
-	import PaletteIcon from '@lucide/svelte/icons/palette';
-	import SlidersIcon from '@lucide/svelte/icons/sliders';
-	import MinusIcon from '@lucide/svelte/icons/minus';
 	import Heading1Icon from '@lucide/svelte/icons/heading-1';
 	import Heading2Icon from '@lucide/svelte/icons/heading-2';
 	import Heading3Icon from '@lucide/svelte/icons/heading-3';
 	import Heading4Icon from '@lucide/svelte/icons/heading-4';
+	import MinusIcon from '@lucide/svelte/icons/minus';
+	import PaletteIcon from '@lucide/svelte/icons/palette';
+	import SlidersIcon from '@lucide/svelte/icons/sliders';
+	import TypeIcon from '@lucide/svelte/icons/type';
 
 	interface Props {
 		selectedTool: string;

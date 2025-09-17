@@ -1,5 +1,5 @@
-import { json } from '@sveltejs/kit';
 import { updateTaskBlocksOrder } from '$lib/server/db/service';
+import { json } from '@sveltejs/kit';
 
 export async function PUT({ request }: { request: Request }) {
 	try {

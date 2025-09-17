@@ -26,19 +26,16 @@
 	}
 
 	// Validation
-	let isValid = $derived(
-		weightPercentage >= 1 && 
-		weightPercentage <= 100
-	);
+	let isValid = $derived(weightPercentage >= 1 && weightPercentage <= 100);
 </script>
 
 <div class="space-y-6">
 	<div class="space-y-4">
-		<div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-			<h3 class="font-semibold text-blue-900 mb-2">Mandatory Constraint</h3>
+		<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+			<h3 class="mb-2 font-semibold text-blue-900">Mandatory Constraint</h3>
 			<p class="text-sm text-blue-800">
-				This constraint ensures all activities are assigned to appropriate spaces. 
-				It is required for the timetabling system to function properly.
+				This constraint ensures all activities are assigned to appropriate spaces. It is required
+				for the timetabling system to function properly.
 			</p>
 		</div>
 
@@ -53,7 +50,7 @@
 				bind:value={weightPercentage}
 				placeholder="100"
 			/>
-			<p class="text-sm text-muted-foreground">
+			<p class="text-muted-foreground text-sm">
 				For mandatory constraints, this should typically be set to 100%.
 			</p>
 		</div>
@@ -72,11 +69,7 @@
 
 	<!-- Form Actions -->
 	<div class="flex justify-end gap-3">
-		<Button variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button onclick={handleSubmit} disabled={!isValid}>
-			Add Constraint
-		</Button>
+		<Button variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button onclick={handleSubmit} disabled={!isValid}>Add Constraint</Button>
 	</div>
 </div>

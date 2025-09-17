@@ -3,9 +3,9 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import { formSchema, type FormSchema } from './schema';
-	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
+	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { formSchema, type FormSchema } from './schema';
 
 	let { data }: { data: { form: SuperValidated<Infer<FormSchema>> } } = $props();
 

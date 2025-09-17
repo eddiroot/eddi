@@ -1,12 +1,12 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import { goto } from '$app/navigation';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { Badge, type BadgeVariant } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import { convertToFullName, formatTimestampAsDate, formatTimestampAsTime } from '$lib/utils';
-	import { ArrowLeft, Calendar, Clock, MapPin, FileText, Check, X, Minus } from '@lucide/svelte';
-	import { goto } from '$app/navigation';
+	import { ArrowLeft, Calendar, Check, Clock, FileText, MapPin, Minus, X } from '@lucide/svelte';
 	import type { Component } from 'svelte';
 
 	const { data } = $props();

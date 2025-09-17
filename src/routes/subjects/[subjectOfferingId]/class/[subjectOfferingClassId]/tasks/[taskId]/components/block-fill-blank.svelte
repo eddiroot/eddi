@@ -1,16 +1,16 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
-	import XIcon from '@lucide/svelte/icons/x';
 	import {
 		ViewMode,
 		type BlockFillBlankConfig,
 		type FillBlankBlockProps
 	} from '$lib/schemas/taskSchema';
+	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+	import XIcon from '@lucide/svelte/icons/x';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: FillBlankBlockProps =
 		$props();

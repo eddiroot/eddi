@@ -1,6 +1,6 @@
 import {
-	getSubjectOfferingClassDetailsById,
 	getStudentAttendanceHistoryForClass,
+	getSubjectOfferingClassDetailsById,
 	getUserById
 } from '$lib/server/db/service';
 import type { PageServerLoad } from './$types';

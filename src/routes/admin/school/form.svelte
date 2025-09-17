@@ -1,10 +1,10 @@
 <script lang="ts">
+	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import * as Avatar from '$lib/components/ui/avatar/index.js';
-	import { schoolFormSchema, type SchoolFormSchema } from './schema';
-	import { type SuperValidated, type Infer, superForm, fileProxy } from 'sveltekit-superforms';
+	import { fileProxy, type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { schoolFormSchema, type SchoolFormSchema } from './schema';
 
 	// If we want to add a file preview in future, refer to the on:input section
 	// of this documentation: https://superforms.rocks/concepts/files#returning-files-in-form-actions

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import { Button } from '$lib/components/ui/button';
-	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import { ResourceCard } from '$lib/components/ui/resource-card';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import type { Resource } from '$lib/server/db/schema';
-	
 	// Icons
 	import File from '@lucide/svelte/icons/file';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -12,7 +11,7 @@
 	let {
 		resources = [],
 		onAddResource,
-		onRemoveResource,
+		onRemoveResource
 	}: {
 		resources: Resource[];
 		onAddResource?: () => void;
@@ -22,25 +21,25 @@
 
 <Popover>
 	<PopoverTrigger>
-		<span class="text-white hover:text-white/80 underline text-sm transition-colors cursor-pointer">
+		<span class="cursor-pointer text-sm text-white underline transition-colors hover:text-white/80">
 			{resources.length} Resources
 		</span>
 	</PopoverTrigger>
 	<PopoverContent class="w-96 p-0" align="end">
 		<div class="p-4">
-			<div class="flex items-center justify-between mb-4">
-				<h3 class="font-semibold text-lg">Resources</h3>
+			<div class="mb-4 flex items-center justify-between">
+				<h3 class="text-lg font-semibold">Resources</h3>
 				{#if onAddResource}
 					<Button size="sm" onclick={onAddResource} class="gap-2">
-						<Plus class="w-4 h-4" />
+						<Plus class="h-4 w-4" />
 						Add Resource
 					</Button>
 				{/if}
 			</div>
-			
+
 			{#if resources.length === 0}
-				<div class="text-center py-8 text-muted-foreground">
-					<File class="w-8 h-8 mx-auto mb-2 opacity-50" />
+				<div class="text-muted-foreground py-8 text-center">
+					<File class="mx-auto mb-2 h-8 w-8 opacity-50" />
 					<p class="text-sm">No resources added yet</p>
 				</div>
 			{:else}

@@ -1,7 +1,6 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
 	import {
 		Card,
 		CardContent,
@@ -9,10 +8,11 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { enhance } from '$app/forms';
-	import Lock from '@lucide/svelte/icons/lock';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import Eye from '@lucide/svelte/icons/eye';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
+	import Lock from '@lucide/svelte/icons/lock';
 
 	let {
 		form,

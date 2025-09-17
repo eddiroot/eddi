@@ -29,10 +29,7 @@
 
 	// Validation
 	let isValid = $derived(
-		maxGaps >= 0 && 
-		maxGaps <= 20 &&
-		weightPercentage >= 1 && 
-		weightPercentage <= 100
+		maxGaps >= 0 && maxGaps <= 20 && weightPercentage >= 1 && weightPercentage <= 100
 	);
 </script>
 
@@ -54,16 +51,10 @@
 		<!-- Max Gaps -->
 		<div class="space-y-2">
 			<Label for="maxGaps">Maximum Gaps Per Week (0-20)</Label>
-			<Input
-				id="maxGaps"
-				type="number"
-				min="0"
-				max="20"
-				bind:value={maxGaps}
-				placeholder="3"
-			/>
-			<p class="text-sm text-muted-foreground">
-				Maximum number of free periods (gaps) teachers can have in their weekly schedule. Lower values create more compact schedules.
+			<Input id="maxGaps" type="number" min="0" max="20" bind:value={maxGaps} placeholder="3" />
+			<p class="text-muted-foreground text-sm">
+				Maximum number of free periods (gaps) teachers can have in their weekly schedule. Lower
+				values create more compact schedules.
 			</p>
 		</div>
 
@@ -81,11 +72,7 @@
 
 	<!-- Form Actions -->
 	<div class="flex justify-end gap-3">
-		<Button variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button onclick={handleSubmit} disabled={!isValid}>
-			Add Constraint
-		</Button>
+		<Button variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button onclick={handleSubmit} disabled={!isValid}>Add Constraint</Button>
 	</div>
 </div>

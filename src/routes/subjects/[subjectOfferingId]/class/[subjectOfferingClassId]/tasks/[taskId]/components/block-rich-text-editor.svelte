@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { ViewMode, type RichTextBlockProps } from '$lib/schemas/taskSchema';
-	import { onMount, onDestroy } from 'svelte';
-	import { Editor } from '@tiptap/core';
-	import StarterKit from '@tiptap/starter-kit';
 	import { Button } from '$lib/components/ui/button';
+	import { ViewMode, type RichTextBlockProps } from '$lib/schemas/taskSchema';
 	import {
 		BoldIcon,
-		ItalicIcon,
 		CodeIcon,
-		QuoteIcon,
-		PilcrowIcon,
+		ItalicIcon,
 		ListIcon,
-		ListOrderedIcon
+		ListOrderedIcon,
+		PilcrowIcon,
+		QuoteIcon
 	} from '@lucide/svelte';
+	import { Editor } from '@tiptap/core';
+	import StarterKit from '@tiptap/starter-kit';
+	import { onDestroy, onMount } from 'svelte';
 
 	let { config, onConfigUpdate, viewMode }: RichTextBlockProps = $props();
 

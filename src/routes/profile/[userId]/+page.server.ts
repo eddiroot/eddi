@@ -1,10 +1,10 @@
-import { getUserProfileById, updateUserPassword } from '$lib/server/db/service';
-import { verify } from '@node-rs/argon2';
-import { fail, error } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { userTypeEnum } from '$lib/enums';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { userTypeEnum } from '$lib/enums';
+import { getUserProfileById, updateUserPassword } from '$lib/server/db/service';
+import { verify } from '@node-rs/argon2';
+import { error, fail } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 
 export const load = async ({ params, locals: { security } }) => {
 	const currentUser = security.isAuthenticated().getUser();

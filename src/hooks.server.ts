@@ -1,7 +1,7 @@
-import type { Handle } from '@sveltejs/kit';
+import { building } from '$app/environment';
 import * as auth from '$lib/server/auth.js';
 import { Security } from '$lib/server/security';
-import { building } from '$app/environment';
+import type { Handle } from '@sveltejs/kit';
 // import cron from 'node-cron';
 // import { processTimetableQueue } from './scripts/processTimetable';
 

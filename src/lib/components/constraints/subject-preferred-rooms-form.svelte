@@ -3,7 +3,6 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import * as Select from '$lib/components/ui/select';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 
@@ -49,7 +48,7 @@
 			Weight_Percentage: weightPercentage,
 			Subject: subject,
 			Number_of_Preferred_Rooms: numberOfRooms,
-			Preferred_Room: preferredRooms.filter(room => room.trim() !== ''),
+			Preferred_Room: preferredRooms.filter((room) => room.trim() !== ''),
 			Active: true,
 			Comments: comments || null
 		};
@@ -58,10 +57,10 @@
 
 	// Validation
 	let isValid = $derived(
-		subject.trim() !== '' && 
-		preferredRooms.some(room => room.trim() !== '') &&
-		weightPercentage >= 1 && 
-		weightPercentage <= 100
+		subject.trim() !== '' &&
+			preferredRooms.some((room) => room.trim() !== '') &&
+			weightPercentage >= 1 &&
+			weightPercentage <= 100
 	);
 </script>
 
@@ -97,37 +96,23 @@
 			<div class="space-y-3">
 				{#each preferredRooms as room, index}
 					<div class="flex gap-2">
-						<Input
-							bind:value={preferredRooms[index]}
-							placeholder="Room name"
-							class="flex-1"
-						/>
+						<Input bind:value={preferredRooms[index]} placeholder="Room name" class="flex-1" />
 						{#if preferredRooms.length > 1}
-							<Button
-								variant="outline"
-								size="sm"
-								onclick={() => removeRoom(index)}
-								type="button"
-							>
+							<Button variant="outline" size="sm" onclick={() => removeRoom(index)} type="button">
 								<TrashIcon class="h-4 w-4" />
 							</Button>
 						{/if}
 					</div>
 				{/each}
-				
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={addRoom}
-					type="button"
-					class="w-full"
-				>
-					<PlusIcon class="h-4 w-4 mr-2" />
+
+				<Button variant="outline" size="sm" onclick={addRoom} type="button" class="w-full">
+					<PlusIcon class="mr-2 h-4 w-4" />
 					Add Room
 				</Button>
 			</div>
-			<p class="text-sm text-muted-foreground">
-				Add multiple rooms that can be used for this subject. The system will prefer these rooms when scheduling.
+			<p class="text-muted-foreground text-sm">
+				Add multiple rooms that can be used for this subject. The system will prefer these rooms
+				when scheduling.
 			</p>
 		</div>
 
@@ -145,11 +130,7 @@
 
 	<!-- Form Actions -->
 	<div class="flex justify-end gap-3">
-		<Button variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button onclick={handleSubmit} disabled={!isValid}>
-			Add Constraint
-		</Button>
+		<Button variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button onclick={handleSubmit} disabled={!isValid}>Add Constraint</Button>
 	</div>
 </div>

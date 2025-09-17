@@ -1,11 +1,11 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { convertToFullName, formatTimestamp } from '$lib/utils';
+	import Reply from '@lucide/svelte/icons/reply';
 	import ResponseForm from './form.svelte';
 	import Self from './response-item.svelte';
-	import Reply from '@lucide/svelte/icons/reply';
 
 	let {
 		response,

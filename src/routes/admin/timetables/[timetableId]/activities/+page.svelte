@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import { Card } from '$lib/components/ui/card';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import { Card } from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { convertToFullName, yearLevelToLabel } from '$lib/utils';
+	import { DotIcon } from '@lucide/svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { activityFormSchema } from './schema.js';
-	import { yearLevelToLabel, convertToFullName } from '$lib/utils';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import { DotIcon } from '@lucide/svelte';
 
 	let { data } = $props();
 

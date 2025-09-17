@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
-	import Calendar from '@lucide/svelte/icons/calendar';
-	import CourseMapItemTableCell from './CourseMapItemTableCell.svelte';
 	import type { CourseMapItem } from '$lib/server/db/schema';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import Plus from '@lucide/svelte/icons/plus';
+	import CourseMapItemTableCell from './CourseMapItemTableCell.svelte';
 
 	let {
 		courseMapItems,

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import MinusIcon from '@lucide/svelte/icons/minus';
-	import TableIcon from '@lucide/svelte/icons/table';
 	import { ViewMode, type TableBlockProps } from '$lib/schemas/taskSchema';
+	import MinusIcon from '@lucide/svelte/icons/minus';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import TableIcon from '@lucide/svelte/icons/table';
 
 	let { config, onConfigUpdate, viewMode }: TableBlockProps = $props();
 

@@ -1,9 +1,8 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import MailIcon from '@lucide/svelte/icons/mail';
 	import SendIcon from '@lucide/svelte/icons/send';
-	import UsersIcon from '@lucide/svelte/icons/users';
 	import type { PageData } from './$types';
 	let { data }: { data: PageData } = $props();
 </script>
@@ -24,7 +23,11 @@
 			<Card.Content>
 				<p class="text-yellow-700">
 					You need to activate your interview configuration before sending notifications.
-					<Button variant="link" href="/admin/interviews/overview" class="p-0 h-auto text-yellow-600 underline">Go to overview</Button>
+					<Button
+						variant="link"
+						href="/admin/interviews/overview"
+						class="h-auto p-0 text-yellow-600 underline">Go to overview</Button
+					>
 				</p>
 			</Card.Content>
 		</Card.Root>

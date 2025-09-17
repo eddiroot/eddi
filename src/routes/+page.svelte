@@ -1,15 +1,15 @@
 <script>
 	import Button from '$lib/components/ui/button/button.svelte';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import FileTextIcon from '@lucide/svelte/icons/file-text';
+	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
-	import ThumbsUpIcon from '@lucide/svelte/icons/thumbs-up';
+	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
+	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 	import TagIcon from '@lucide/svelte/icons/tag';
 	import TargetIcon from '@lucide/svelte/icons/target';
-	import FileTextIcon from '@lucide/svelte/icons/file-text';
-	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
-	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
-	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import ThumbsUpIcon from '@lucide/svelte/icons/thumbs-up';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 </script>
 

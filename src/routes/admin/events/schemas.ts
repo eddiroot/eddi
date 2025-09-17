@@ -6,7 +6,8 @@ const eventNameSchema = z
 	.min(1, 'Event name is required')
 	.max(255, 'Event name cannot exceed 255 characters');
 
-const eventTimestampSchema = z.iso.datetime({ local: true })
+const eventTimestampSchema = z.iso
+	.datetime({ local: true })
 	.min(1, 'Please provide a valid date and time');
 
 export const createSchoolEventSchema = z

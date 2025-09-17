@@ -1,7 +1,7 @@
 import Root from './dropzone.svelte';
 
 export {
-	Root,
 	//
-	Root as Dropzone
+	Root as Dropzone,
+	Root
 };

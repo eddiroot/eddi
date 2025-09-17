@@ -1,8 +1,8 @@
 import { createSession, setSessionTokenCookie } from '$lib/server/auth';
-import { google } from '$lib/server/oauth';
-import { decodeIdToken } from 'arctic';
-import type { OAuth2Tokens } from 'arctic';
 import { createGoogleUser, getUserByGoogleId } from '$lib/server/db/service';
+import { google } from '$lib/server/oauth';
+import type { OAuth2Tokens } from 'arctic';
+import { decodeIdToken } from 'arctic';
 
 export async function GET(event): Promise<Response> {
 	const code = event.url.searchParams.get('code');

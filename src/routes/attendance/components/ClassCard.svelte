@@ -1,9 +1,9 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import XIcon from '@lucide/svelte/icons/x';
-	import ClockIcon from '@lucide/svelte/icons/clock';
 	import { formatTimestampAsTime } from '$lib/utils';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import XIcon from '@lucide/svelte/icons/x';
 	import type { ScheduleWithAttendanceRecord } from '../utils.js';
 
 	let { record }: { record: ScheduleWithAttendanceRecord } = $props();

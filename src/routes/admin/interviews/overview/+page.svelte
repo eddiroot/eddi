@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import UsersIcon from '@lucide/svelte/icons/users';
@@ -36,7 +36,11 @@
 			<Card.Content>
 				<p class="text-red-700">
 					You need to set up your interview configuration first.
-					<Button variant="link" href="/admin/interviews/setup" class="p-0 h-auto text-red-600 underline">Go to setup</Button>
+					<Button
+						variant="link"
+						href="/admin/interviews/setup"
+						class="h-auto p-0 text-red-600 underline">Go to setup</Button
+					>
 				</p>
 			</Card.Content>
 		</Card.Root>
@@ -64,8 +68,10 @@
 							<UsersIcon class="text-muted-foreground" />
 							<span class="text-sm font-medium">Scope</span>
 						</div>
-						<p class="text-sm text-muted-foreground">
-							{data.config.wholeSchool ? 'Whole School' : `Year Levels: ${Array.isArray(data.config.yearLevels) ? data.config.yearLevels.join(', ') : 'None'}`}
+						<p class="text-muted-foreground text-sm">
+							{data.config.wholeSchool
+								? 'Whole School'
+								: `Year Levels: ${Array.isArray(data.config.yearLevels) ? data.config.yearLevels.join(', ') : 'None'}`}
 						</p>
 					</div>
 					<div class="space-y-2">
@@ -73,14 +79,16 @@
 							<ClockIcon class="text-muted-foreground" />
 							<span class="text-sm font-medium">Duration</span>
 						</div>
-						<p class="text-sm text-muted-foreground">{data.config.durationMinutes} minutes</p>
+						<p class="text-muted-foreground text-sm">{data.config.durationMinutes} minutes</p>
 					</div>
 					<div class="space-y-2">
 						<div class="flex items-center gap-2">
 							<CalendarDaysIcon class="text-muted-foreground" />
 							<span class="text-sm font-medium">Dates</span>
 						</div>
-						<p class="text-sm text-muted-foreground">{Array.isArray(data.config.interviewDates) ? data.config.interviewDates.length : 0} date(s)</p>
+						<p class="text-muted-foreground text-sm">
+							{Array.isArray(data.config.interviewDates) ? data.config.interviewDates.length : 0} date(s)
+						</p>
 					</div>
 				</div>
 				{#if Array.isArray(data.config.interviewDates) && data.config.interviewDates.length > 0}
@@ -103,28 +111,28 @@
 				<Card.Content>
 					<div class="grid gap-4 md:grid-cols-3">
 						<div class="text-center">
-							<div class="text-2xl font-bold text-primary">{data.stats.totalSlots}</div>
-							<p class="text-sm text-muted-foreground">Total Slots</p>
+							<div class="text-primary text-2xl font-bold">{data.stats.totalSlots}</div>
+							<p class="text-muted-foreground text-sm">Total Slots</p>
 						</div>
 						<div class="text-center">
 							<div class="text-2xl font-bold text-green-600">{data.stats.availableSlots}</div>
-							<p class="text-sm text-muted-foreground">Available</p>
+							<p class="text-muted-foreground text-sm">Available</p>
 						</div>
 						<div class="text-center">
 							<div class="text-2xl font-bold text-blue-600">{data.stats.bookedSlots}</div>
-							<p class="text-sm text-muted-foreground">Booked</p>
+							<p class="text-muted-foreground text-sm">Booked</p>
 						</div>
 					</div>
 				</Card.Content>
 			</Card.Root>
 		{/if}
-		
+
 		{#if data.teacherSlots && data.teacherSlots.length > 0}
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>Generated Slots by Date</Card.Title>
 					<Card.Description>
-						Interview slots organized by date and teacher 
+						Interview slots organized by date and teacher
 						{#if data.teacherSlots}
 							({data.teacherSlots.length} date{data.teacherSlots.length !== 1 ? 's' : ''})
 						{/if}
@@ -134,18 +142,18 @@
 					<div class="space-y-6">
 						{#each data.teacherSlots as dateGroup}
 							<div class="space-y-3">
-								<h3 class="text-lg font-semibold text-primary border-b pb-2">
-									{new Date(dateGroup.date).toLocaleDateString('en-AU', { 
-										weekday: 'long', 
-										year: 'numeric', 
-										month: 'long', 
-										day: 'numeric' 
+								<h3 class="text-primary border-b pb-2 text-lg font-semibold">
+									{new Date(dateGroup.date).toLocaleDateString('en-AU', {
+										weekday: 'long',
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric'
 									})}
 								</h3>
 								<div class="space-y-4">
 									{#each dateGroup.teachers as teacherGroup}
-										<div class="border rounded-lg p-4 bg-gray-50">
-											<div class="flex items-center justify-between mb-3">
+										<div class="rounded-lg border bg-gray-50 p-4">
+											<div class="mb-3 flex items-center justify-between">
 												<div>
 													<h4 class="font-medium text-gray-900">{teacherGroup.teacher.name}</h4>
 													<p class="text-sm text-gray-600">{teacherGroup.teacher.email}</p>
@@ -154,18 +162,18 @@
 											</div>
 											<div class="grid gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
 												{#each teacherGroup.slots as slot}
-													<div class="text-xs p-2 border rounded bg-white shadow-sm text-center">
+													<div class="rounded border bg-white p-2 text-center text-xs shadow-sm">
 														<div class="font-medium text-gray-900">
 															{slot.startTime}-{slot.endTime}
 														</div>
 														{#if slot.classId}
-															<div class="text-xs text-blue-600 mt-1">
+															<div class="mt-1 text-xs text-blue-600">
 																C{slot.classId}
 															</div>
 														{/if}
 														{#if slot.status !== 'available'}
 															<div class="mt-1">
-																<Badge variant="secondary" class="text-xs px-1 py-0">
+																<Badge variant="secondary" class="px-1 py-0 text-xs">
 																	{slot.status}
 																</Badge>
 															</div>

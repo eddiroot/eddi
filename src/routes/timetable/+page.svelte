@@ -1,11 +1,11 @@
 <script lang="ts">
-	import TimetableCard from '$lib/components/timetable-card.svelte';
-	import EventCard from '$lib/components/event-card.svelte';
-	import { days } from '$lib/utils';
-	import { generateTimeslots, getClassPosition, getEventPosition } from './utils.js';
-	import * as Button from '$lib/components/ui/button';
-	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
+	import EventCard from '$lib/components/event-card.svelte';
+	import TimetableCard from '$lib/components/timetable-card.svelte';
+	import * as Button from '$lib/components/ui/button';
+	import { days } from '$lib/utils';
+	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
+	import { generateTimeslots, getClassPosition, getEventPosition } from './utils.js';
 
 	let { data, form } = $props();
 

@@ -1,19 +1,18 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { Badge } from '$lib/components/ui/badge';
+	import TypeBadge from '$lib/components/type-badge.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Table from '$lib/components/ui/table';
+	import { convertToFullName } from '$lib/utils.js';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createAllocationSchema } from './schema.js';
-	import { convertToFullName } from '$lib/utils.js';
-	import TypeBadge from '$lib/components/type-badge.svelte';
 
 	let { data } = $props();
 

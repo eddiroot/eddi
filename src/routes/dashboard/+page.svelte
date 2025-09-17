@@ -1,10 +1,9 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
 	import TimetableCard from '$lib/components/timetable-card.svelte';
-	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Badge } from '$lib/components/ui/badge';
-	import { formatTimestamp, formatTimestampAsTime } from '$lib/utils';
-	import { generateSubjectColors } from '../timetable/utils';
+	import * as Card from '$lib/components/ui/card';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import { formatTimestamp } from '$lib/utils';
 	import Pin from '@lucide/svelte/icons/pin';
 
 	interface NewsItem {

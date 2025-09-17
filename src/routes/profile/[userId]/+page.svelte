@@ -1,15 +1,15 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import ChangePasswordForm from '$lib/components/change-password-form.svelte';
 	import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
-	import { toast } from 'svelte-sonner';
-	import ChangePasswordForm from '$lib/components/change-password-form.svelte';
-	import Mail from '@lucide/svelte/icons/mail';
-	import Calendar from '@lucide/svelte/icons/calendar';
-	import User from '@lucide/svelte/icons/user';
-	import Lock from '@lucide/svelte/icons/lock';
 	import BookOpen from '@lucide/svelte/icons/book-open';
-	import { goto } from '$app/navigation';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import Lock from '@lucide/svelte/icons/lock';
+	import Mail from '@lucide/svelte/icons/mail';
+	import User from '@lucide/svelte/icons/user';
+	import { toast } from 'svelte-sonner';
 
 	let { data, form } = $props();
 	let showChangePasswordForm = $state(false);

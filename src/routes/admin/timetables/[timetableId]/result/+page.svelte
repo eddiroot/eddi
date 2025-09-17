@@ -1,28 +1,27 @@
 <script lang="ts">
+	import { Badge } from '$lib/components/ui/badge';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import {
 		Table,
-		TableHead,
 		TableBody,
 		TableCell,
+		TableHead,
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import {
+		AlertTriangleIcon,
+		CalendarIcon,
 		CheckCircleIcon,
 		DownloadIcon,
-		CalendarIcon,
-		UsersIcon,
 		GraduationCapIcon,
 		UserIcon,
-		AlertTriangleIcon,
-		ClockIcon
+		UsersIcon
 	} from '@lucide/svelte';
-	import type { TeacherStatistics, TimetableMetadata, StudentStatisticsReport } from './timetable';
 	import type { PageData } from './$types';
+	import type { StudentStatisticsReport, TeacherStatistics, TimetableMetadata } from './timetable';
 
 	// Receive data from the server
 	let { data }: { data: PageData } = $props();

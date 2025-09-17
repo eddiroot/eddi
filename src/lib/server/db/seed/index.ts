@@ -1,24 +1,24 @@
-import * as schema from '../schema';
-import { hash } from '@node-rs/argon2';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import type { VCAACurriculumData } from './data/types';
-import { eq, and } from 'drizzle-orm';
-import { reset } from 'drizzle-seed';
 import {
+	newsPriorityEnum,
+	newsStatusEnum,
+	newsVisibilityEnum,
 	relationshipTypeEnum,
 	schoolSpaceTypeEnum,
 	userGenderEnum,
 	userHonorificEnum,
 	userTypeEnum,
-	yearLevelEnum,
-	newsPriorityEnum,
-	newsStatusEnum,
-	newsVisibilityEnum
+	yearLevelEnum
 } from '$lib/enums.js';
+import { hash } from '@node-rs/argon2';
+import { and, eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { reset } from 'drizzle-seed';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import postgres from 'postgres';
+import { fileURLToPath } from 'url';
+import * as schema from '../schema';
+import type { VCAACurriculumData } from './data/types';
 
 const databaseUrl = process.env.DATABASE_URL;
 

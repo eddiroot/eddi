@@ -1,59 +1,56 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { type TaskBlock } from '$lib/server/db/schema';
-	import { draggable, droppable, type DragDropState, dndState } from '@thisux/sveltednd';
-
+	import { dndState, draggable, droppable, type DragDropState } from '@thisux/sveltednd';
 	// UI Components
+	import { Badge } from '$lib/components/ui/badge';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
-	import { Badge } from '$lib/components/ui/badge';
-
 	// Block Components
-	import BlockHeading from './components/block-heading.svelte';
-	import BlockRichText from './components/block-rich-text-editor.svelte';
-	import BlockWhiteboard from './components/block-whiteboard.svelte';
 	import BlockChoice from './components/block-choice.svelte';
-	import BlockFillBlank from './components/block-fill-blank.svelte';
-	import BlockMatching from './components/block-matching.svelte';
-	import BlockShortAnswer from './components/block-short-answer.svelte';
 	import BlockClose from './components/block-close.svelte';
-	import BlockHighlightText from './components/block-highlight-text.svelte';
-	import BlockTable from './components/block-table.svelte';
+	import BlockFillBlank from './components/block-fill-blank.svelte';
 	import BlockGraph from './components/block-graph.svelte';
-
+	import BlockHeading from './components/block-heading.svelte';
+	import BlockHighlightText from './components/block-highlight-text.svelte';
+	import BlockMatching from './components/block-matching.svelte';
+	import BlockRichText from './components/block-rich-text-editor.svelte';
+	import BlockShortAnswer from './components/block-short-answer.svelte';
+	import BlockTable from './components/block-table.svelte';
+	import BlockWhiteboard from './components/block-whiteboard.svelte';
 	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import WrenchIcon from '@lucide/svelte/icons/wrench';
 	import EyeIcon from '@lucide/svelte/icons/eye';
+	import WrenchIcon from '@lucide/svelte/icons/wrench';
 
 	import {
 		createBlock,
 		deleteBlock,
 		updateBlock,
-		updateTaskTitle,
 		updateBlockOrder,
+		updateTaskTitle,
 		upsertBlockResponse
 	} from './client';
 
+	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
 	import {
 		blockTypes,
 		ViewMode,
 		type BlockChoiceConfig,
+		type BlockCloseConfig,
 		type BlockFillBlankConfig,
+		type BlockGraphConfig,
 		type BlockHeadingConfig,
+		type BlockHighlightTextConfig,
 		type BlockMatchingConfig,
 		type BlockRichTextConfig,
 		type BlockShortAnswerConfig,
-		type BlockWhiteboardConfig,
-		type BlockCloseConfig,
-		type BlockHighlightTextConfig,
 		type BlockTableConfig,
-		type BlockGraphConfig
+		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
-	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
-	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
 	import { PresentationIcon } from '@lucide/svelte';
+	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 
 	let { data } = $props();
 

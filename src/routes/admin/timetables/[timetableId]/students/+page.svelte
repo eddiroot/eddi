@@ -1,26 +1,26 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import {
 		Table,
-		TableHead,
 		TableBody,
 		TableCell,
+		TableHead,
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
+	import { yearLevelEnum } from '$lib/enums';
 	import { convertToFullName, yearLevelToLabel } from '$lib/utils';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { ShuffleIcon, UsersIcon } from '@lucide/svelte';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createGroupSchema, randomlyAssignSchema } from './schema';
-	import { invalidateAll } from '$app/navigation';
-	import { yearLevelEnum } from '$lib/enums';
 
 	let { data } = $props();
 

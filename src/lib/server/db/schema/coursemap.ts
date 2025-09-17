@@ -1,9 +1,9 @@
-import { pgTable, text, integer, foreignKey, boolean, unique } from 'drizzle-orm/pg-core';
-import { timestamps } from './utils';
-import { subjectOffering } from './subjects';
+import { boolean, foreignKey, integer, pgTable, text, unique } from 'drizzle-orm/pg-core';
 import { learningArea, learningAreaStandard } from './curriculum';
-import { rubric } from './task';
 import { resource } from './resource';
+import { subjectOffering } from './subjects';
+import { rubric } from './task';
+import { timestamps } from './utils';
 
 export const courseMapItem = pgTable(
 	'cm_itm',

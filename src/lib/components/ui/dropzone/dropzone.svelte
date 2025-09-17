@@ -1,8 +1,7 @@
 <script lang="ts">
+	import { ResourceCard } from '$lib/components/ui/resource-card';
 	import { cn } from '$lib/utils';
 	import CloudUploadIcon from '@lucide/svelte/icons/cloud-upload';
-	import Button from '../button/button.svelte';
-	import { ResourceCard } from '$lib/components/ui/resource-card';
 
 	let dragover = $state(false);
 	let fileInput: HTMLInputElement;
@@ -74,7 +73,10 @@
 	}
 
 	// Map File to ResourceInfo for the ResourceCard
-	function mapFileToResourceInfo(file: File, index?: number): {
+	function mapFileToResourceInfo(
+		file: File,
+		index?: number
+	): {
 		id?: number;
 		name?: string;
 		fileName: string;

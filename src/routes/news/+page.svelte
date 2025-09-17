@@ -1,22 +1,22 @@
 <!-- +page.svelte -->
 <script lang="ts">
-	import { Badge } from '$lib/components/ui/badge';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { page } from '$app/state';
 	import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
+	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-	import Calendar from '@lucide/svelte/icons/calendar';
-	import Pin from '@lucide/svelte/icons/pin';
-	import MapPin from '@lucide/svelte/icons/map-pin';
+	import { getPermissions, userPermissions } from '$lib/utils';
 	import AlertCircle from '@lucide/svelte/icons/alert-circle';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import FileText from '@lucide/svelte/icons/file-text';
 	import Filter from '@lucide/svelte/icons/filter';
+	import MapPin from '@lucide/svelte/icons/map-pin';
+	import Pin from '@lucide/svelte/icons/pin';
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
-	import FileText from '@lucide/svelte/icons/file-text';
-	import { userPermissions, getPermissions } from '$lib/utils';
-	import { page } from '$app/state';
 
 	interface NewsItem {
 		news: {

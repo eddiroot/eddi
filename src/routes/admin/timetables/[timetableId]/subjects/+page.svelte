@@ -1,9 +1,9 @@
 <script>
 	import {
 		Table,
-		TableHead,
 		TableBody,
 		TableCell,
+		TableHead,
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';

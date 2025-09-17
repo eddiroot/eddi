@@ -1,8 +1,7 @@
 <script lang="ts">
+	import { ResourceCard } from '$lib/components/ui/resource-card';
 	import { cn } from '$lib/utils';
 	import CloudUploadIcon from '@lucide/svelte/icons/cloud-upload';
-	import Button from '../button/button.svelte';
-	import { ResourceCard } from '$lib/components/ui/resource-card';
 
 	interface ExistingFile {
 		id: number;
@@ -15,14 +14,14 @@
 	let dragover = $state(false);
 	let fileInput: HTMLInputElement;
 
-	let { 
-		files = $bindable(), 
-		existingFiles = [], 
+	let {
+		files = $bindable(),
+		existingFiles = [],
 		onRemoveExisting,
-		accept = '', 
-		multiple = false, 
-		className = '', 
-		id = '' 
+		accept = '',
+		multiple = false,
+		className = '',
+		id = ''
 	}: {
 		files?: FileList | null;
 		existingFiles?: ExistingFile[];
@@ -98,7 +97,10 @@
 	}
 
 	// Map File to ResourceInfo for the ResourceCard
-	function mapFileToResourceInfo(file: File, index?: number): {
+	function mapFileToResourceInfo(
+		file: File,
+		index?: number
+	): {
 		id?: number;
 		name: string;
 		fileName: string;
@@ -115,7 +117,7 @@
 		};
 	}
 
-	// Map ExistingFile to ResourceInfo for the ResourceCard  
+	// Map ExistingFile to ResourceInfo for the ResourceCard
 	function mapExistingFileToResourceInfo(file: ExistingFile): {
 		id?: number;
 		name: string;

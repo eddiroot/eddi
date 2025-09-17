@@ -1,15 +1,15 @@
 <script lang="ts">
-	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { Textarea } from '$lib/components/ui/textarea';
+	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Switch from '$lib/components/ui/switch';
-	import HighlighterIcon from '@lucide/svelte/icons/highlighter';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import { Textarea } from '$lib/components/ui/textarea';
 	import {
 		ViewMode,
 		type BlockHighlightTextConfig,
 		type HighlightTextBlockProps
 	} from '$lib/schemas/taskSchema';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import HighlighterIcon from '@lucide/svelte/icons/highlighter';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: HighlightTextBlockProps =
 		$props();

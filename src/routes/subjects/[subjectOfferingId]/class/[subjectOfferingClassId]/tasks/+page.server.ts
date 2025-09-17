@@ -1,18 +1,17 @@
 import type { Task } from '$lib/server/db/schema';
 import {
-	getTasksBySubjectOfferingClassId,
-	getResourcesBySubjectOfferingClassId,
-	getTopics,
-	createResource,
 	addResourceToSubjectOfferingClass,
+	createResource,
+	getResourcesBySubjectOfferingClassId,
+	getTasksBySubjectOfferingClassId,
+	getTopics,
 	removeResourceFromSubjectOfferingClass
 } from '$lib/server/db/service';
-import { getPresignedUrl } from '$lib/server/obj';
+import { generateUniqueFileName, getPresignedUrl, uploadBufferHelper } from '$lib/server/obj';
 import { error, fail } from '@sveltejs/kit';
 import { superValidate, withFiles } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod/v4';
-import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
 
 interface ResourceWithUrl {
 	id: number;

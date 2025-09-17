@@ -1,36 +1,34 @@
 <script lang="ts">
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import type { Campus, School, Subject, SubjectOffering } from '$lib/server/db/schema';
+	import { convertToFullName, getPermissions, userPermissions } from '$lib/utils';
+	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
+	import { default as BookOpen, default as BookOpenIcon } from '@lucide/svelte/icons/book-open';
+	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
+	import BookOpenTextIcon from '@lucide/svelte/icons/book-open-text';
+	import BowArrowIcon from '@lucide/svelte/icons/bow-arrow';
+	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
-	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
-	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
-	import PiIcon from '@lucide/svelte/icons/pi';
-	import BookOpenTextIcon from '@lucide/svelte/icons/book-open-text';
-	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
-	import BowArrowIcon from '@lucide/svelte/icons/bow-arrow';
-	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
-	import BookOpenCheckIcon from '@lucide/svelte/icons/book-open-check';
-	import MapIcon from '@lucide/svelte/icons/map';
 	import FileQuestionIcon from '@lucide/svelte/icons/file-question';
-	import LogOutIcon from '@lucide/svelte/icons/log-out';
-	import User from '@lucide/svelte/icons/user';
-	import BookOpen from '@lucide/svelte/icons/book-open';
-	import WrenchIcon from '@lucide/svelte/icons/wrench';
-	import type { School, Campus, Subject, SubjectOffering } from '$lib/server/db/schema';
-	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
-	import { convertToFullName, userPermissions, getPermissions } from '$lib/utils';
-	import { goto } from '$app/navigation';
+	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import HomeIcon from '@lucide/svelte/icons/home';
-	import { page } from '$app/state';
-	import OrbitIcon from '@lucide/svelte/icons/orbit';
+	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import LocationEdit from '@lucide/svelte/icons/location-edit';
-	import UsersIcon from '@lucide/svelte/icons/users';
+	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import MapIcon from '@lucide/svelte/icons/map';
+	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
+	import OrbitIcon from '@lucide/svelte/icons/orbit';
+	import PiIcon from '@lucide/svelte/icons/pi';
 	import RouteIcon from '@lucide/svelte/icons/route';
-	import BookOpenIcon from '@lucide/svelte/icons/book-open';
-	import NewsPaper from '@lucide/svelte/icons/newspaper';
+	import User from '@lucide/svelte/icons/user';
+	import UsersIcon from '@lucide/svelte/icons/users';
+	import WrenchIcon from '@lucide/svelte/icons/wrench';
 
 	let {
 		subjects,

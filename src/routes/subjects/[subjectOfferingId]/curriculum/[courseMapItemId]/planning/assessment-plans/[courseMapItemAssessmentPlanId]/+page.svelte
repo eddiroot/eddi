@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import Rubric from '$lib/components/rubric.svelte';
 	let { data } = $props();
 
@@ -17,11 +16,11 @@
 
 	function handleMouseMove(event: MouseEvent) {
 		if (!isDragging || !containerRef) return;
-		
+
 		const rect = containerRef.getBoundingClientRect();
 		const x = event.clientX - rect.left;
 		const percentage = (x / rect.width) * 100;
-		
+
 		// Constrain between 20% and 80%
 		leftWidth = Math.min(80, Math.max(20, percentage));
 	}
@@ -34,35 +33,37 @@
 </script>
 
 <!-- Hero Section with Assessment Plan Image -->
-<div class="relative h-64 w-full overflow-hidden mb-8">
+<div class="relative mb-8 h-64 w-full overflow-hidden">
 	{#if data.assessmentPlan.imageBase64}
-		<img 
+		<img
 			src={`data:image/png;base64,${data.assessmentPlan.imageBase64}`}
 			alt={data.assessmentPlan.name}
-			class="absolute inset-0 w-full h-full object-cover"
+			class="absolute inset-0 h-full w-full object-cover"
 		/>
 		<div class="absolute inset-0 bg-black/40"></div>
 	{:else if data.courseMapItem.imageBase64}
-		<img 
+		<img
 			src={`data:image/png;base64,${data.courseMapItem.imageBase64}`}
 			alt={data.courseMapItem.topic}
-			class="absolute inset-0 w-full h-full object-cover"
+			class="absolute inset-0 h-full w-full object-cover"
 		/>
 		<div class="absolute inset-0 bg-black/40"></div>
 	{:else}
 		<div class="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-orange-600/10"></div>
 	{/if}
-	
+
 	<!-- Assessment Plan Title Overlay (centered) -->
-	<div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-6">
-		<h1 class="text-4xl font-bold mb-2">{data.assessmentPlan.name}</h1>
+	<div
+		class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-white"
+	>
+		<h1 class="mb-2 text-4xl font-bold">{data.assessmentPlan.name}</h1>
 		<p class="text-lg opacity-90">Topic: {data.courseMapItem.topic}</p>
 	</div>
 </div>
 
-<div class="w-full px-4 sm:px-6 lg:px-8 space-y-8">
+<div class="w-full space-y-8 px-4 sm:px-6 lg:px-8">
 	<!-- Resizable Two Column Layout -->
-	<div bind:this={containerRef} class="hidden lg:flex h-screen-minus-hero relative">
+	<div bind:this={containerRef} class="h-screen-minus-hero relative hidden lg:flex">
 		<!-- Left Column: Information -->
 		<div class="overflow-y-auto pr-4" style="width: {leftWidth}%;">
 			<div class="space-y-8">
@@ -70,7 +71,7 @@
 				{#if data.assessmentPlan.scope?.length}
 					<div class="space-y-4">
 						<h2 class="text-2xl font-semibold">Assessment Scopes</h2>
-						<ul class="list-disc ml-6 space-y-2 text-muted-foreground leading-relaxed">
+						<ul class="text-muted-foreground ml-6 list-disc space-y-2 leading-relaxed">
 							{#each data.assessmentPlan.scope as scope}
 								<li>{scope}</li>
 							{/each}
@@ -82,7 +83,7 @@
 				{#if data.standards.length > 0}
 					<div class="space-y-4">
 						<h2 class="text-2xl font-semibold">Curriculum Standards Assessed</h2>
-						<ul class="list-disc ml-6 space-y-3">
+						<ul class="ml-6 list-disc space-y-3">
 							{#each data.standards as standard}
 								<li>
 									<div class="font-medium">{standard.name}:</div>
@@ -106,19 +107,21 @@
 		</div>
 
 		<!-- Resizable Separator -->
-		<div 
-			class="w-2 bg-border hover:bg-border/80 cursor-col-resize flex items-center justify-center relative group transition-colors"
+		<div
+			class="bg-border hover:bg-border/80 group relative flex w-2 cursor-col-resize items-center justify-center transition-colors"
 			role="button"
 			tabindex="0"
 			onmousedown={handleMouseDown}
 		>
-			<div class="w-1 h-8 bg-muted-foreground/40 rounded-full group-hover:bg-muted-foreground/60 transition-colors"></div>
+			<div
+				class="bg-muted-foreground/40 group-hover:bg-muted-foreground/60 h-8 w-1 rounded-full transition-colors"
+			></div>
 		</div>
 
 		<!-- Right Column: Rubric -->
-		<div class="overflow-y-auto pl-4 flex-1">
+		<div class="flex-1 overflow-y-auto pl-4">
 			{#if data.rubric}
-				<div class="space-y-6 h-full">
+				<div class="h-full space-y-6">
 					<h2 class="text-2xl font-semibold">Assessment Rubric</h2>
 					<div class="w-full">
 						<Rubric rubricData={data.rubric} />
@@ -129,12 +132,12 @@
 	</div>
 
 	<!-- Mobile Layout (Non-resizable) -->
-	<div class="lg:hidden space-y-8">
+	<div class="space-y-8 lg:hidden">
 		<!-- Scopes Section -->
 		{#if data.assessmentPlan.scope?.length}
 			<div class="space-y-4">
 				<h2 class="text-2xl font-semibold">Assessment Scopes</h2>
-				<ul class="list-disc ml-6 space-y-2 text-muted-foreground leading-relaxed">
+				<ul class="text-muted-foreground ml-6 list-disc space-y-2 leading-relaxed">
 					{#each data.assessmentPlan.scope as scope}
 						<li>{scope}</li>
 					{/each}
@@ -146,7 +149,7 @@
 		{#if data.standards.length > 0}
 			<div class="space-y-4">
 				<h2 class="text-2xl font-semibold">Curriculum Standards Assessed</h2>
-				<ul class="list-disc ml-6 space-y-3">
+				<ul class="ml-6 list-disc space-y-3">
 					{#each data.standards as standard}
 						<li>
 							<div class="font-medium">{standard.name}:</div>
@@ -176,5 +179,3 @@
 		{/if}
 	</div>
 </div>
-
-

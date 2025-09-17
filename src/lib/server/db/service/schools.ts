@@ -1,7 +1,7 @@
-import * as table from '$lib/server/db/schema';
-import { db } from '$lib/server/db';
-import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { schoolSpaceTypeEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { and, asc, count, eq, inArray } from 'drizzle-orm';
 
 export async function getUsersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const users = await db

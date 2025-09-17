@@ -1,12 +1,12 @@
+import type { yearLevelEnum } from '$lib/enums.js';
+import { db } from '$lib/server/db/index.js';
+import { subject } from '$lib/server/db/schema';
 import { getSubjectsBySchoolId } from '$lib/server/db/service';
+import { parseCSVData, validateCSVFile } from '$lib/utils.js';
 import { fail } from '@sveltejs/kit';
 import { superValidate, withFiles } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { validateCSVFile, parseCSVData } from '$lib/utils.js';
-import { db } from '$lib/server/db/index.js';
-import { subject } from '$lib/server/db/schema';
 import { optionalColumns, requiredColumns, subjectsImportSchema } from './schema.js';
-import type { yearLevelEnum } from '$lib/enums.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

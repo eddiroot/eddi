@@ -1,14 +1,14 @@
 import {
+	addTimetablePeriod,
+	deleteTimetablePeriod,
 	getTimetableDays,
 	getTimetablePeriods,
-	updateTimetableDays,
-	addTimetablePeriod,
-	deleteTimetablePeriod
+	updateTimetableDays
 } from '$lib/server/db/service';
 import { error, fail } from '@sveltejs/kit';
-import { superValidate, message } from 'sveltekit-superforms';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { updateDaysSchema, addPeriodSchema } from './schema.js';
+import { addPeriodSchema, updateDaysSchema } from './schema.js';
 
 export const load = async ({ params, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();

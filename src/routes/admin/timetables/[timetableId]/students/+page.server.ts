@@ -1,14 +1,14 @@
 import {
-	getTimetableStudentGroupsByTimetableId,
+	assignStudentsToGroupsRandomly,
 	createTimetableStudentGroup,
 	getStudentsWithGroupsByTimetableId,
-	assignStudentsToGroupsRandomly
+	getTimetableStudentGroupsByTimetableId
 } from '$lib/server/db/service';
-import { createGroupSchema, randomlyAssignSchema } from './schema.js';
-import { superValidate, message } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
 import { fail } from '@sveltejs/kit';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types.js';
+import { createGroupSchema, randomlyAssignSchema } from './schema.js';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

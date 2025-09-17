@@ -1,9 +1,9 @@
+import { getSchoolById, updateSchool } from '$lib/server/db/service';
+import { deleteFile, generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj';
 import { error } from '@sveltejs/kit';
-import { superValidate, fail, withFiles } from 'sveltekit-superforms';
+import { fail, superValidate, withFiles } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { schoolFormSchema } from './schema';
-import { getSchoolById, updateSchool } from '$lib/server/db/service';
-import { uploadBufferHelper, deleteFile, generateUniqueFileName } from '$lib/server/obj';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

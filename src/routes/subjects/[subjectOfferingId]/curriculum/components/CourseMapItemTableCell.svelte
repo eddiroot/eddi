@@ -55,11 +55,11 @@
 
 			<!-- Three-dot edit button - top right -->
 			<button
-				class="edit-button absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-white/20"
+				class="edit-button absolute top-1 right-1 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/20"
 				onclick={handleEditClick}
 				aria-label="Edit {item.topic}"
 			>
-				<MoreHorizontal class="w-3 h-3" />
+				<MoreHorizontal class="h-3 w-3" />
 			</button>
 
 			<!-- Week range indicator - bottom right -->

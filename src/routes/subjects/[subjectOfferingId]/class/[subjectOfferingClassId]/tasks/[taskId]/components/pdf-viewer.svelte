@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { ZoomIn, ZoomOut } from '@lucide/svelte/icons';
 	import { Button } from '$lib/components/ui/button';
+	import { ZoomIn, ZoomOut } from '@lucide/svelte/icons';
+	import { onMount } from 'svelte';
 
 	let { url, fileName }: { url: string; fileName?: string } = $props();
 

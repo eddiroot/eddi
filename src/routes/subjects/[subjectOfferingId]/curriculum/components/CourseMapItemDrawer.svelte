@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { Drawer, DrawerContent, DrawerClose } from '$lib/components/ui/drawer';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Textarea } from '$lib/components/ui/textarea';
-	import { Checkbox } from '$lib/components/ui/checkbox';
-	import { Label } from '$lib/components/ui/label';
+	import { Drawer, DrawerContent } from '$lib/components/ui/drawer';
 	import * as HoverCard from '$lib/components/ui/hover-card';
-	import { toast } from 'svelte-sonner';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
+	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Tooltip from '$lib/components/ui/tooltip';
-	import Plus from '@lucide/svelte/icons/plus';
 	import type { CourseMapItem, LearningArea, LearningAreaStandard } from '$lib/server/db/schema';
+	import { toast } from 'svelte-sonner';
 
 	// Use Svelte 5 $props() for component props
 	let {

@@ -55,10 +55,10 @@
 
 	// Validation
 	let isValid = $derived(
-		room.trim() !== '' && 
-		notAvailableTimes.length > 0 &&
-		weightPercentage >= 1 && 
-		weightPercentage <= 100
+		room.trim() !== '' &&
+			notAvailableTimes.length > 0 &&
+			weightPercentage >= 1 &&
+			weightPercentage <= 100
 	);
 </script>
 
@@ -93,24 +93,24 @@
 			<Label>Not Available Times *</Label>
 			<div class="space-y-3">
 				{#each notAvailableTimes as time, index}
-					<div class="flex gap-2 items-end">
+					<div class="flex items-end gap-2">
 						<div class="flex-1 space-y-1">
 							<Label class="text-xs">Day</Label>
-							<select 
+							<select
 								bind:value={time.Day}
-								class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+								class="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{#each DAYS as day}
 									<option value={day}>{day}</option>
 								{/each}
 							</select>
 						</div>
-						
+
 						<div class="flex-1 space-y-1">
 							<Label class="text-xs">Period</Label>
-							<select 
+							<select
 								bind:value={time.Hour}
-								class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+								class="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{#each HOURS as hour}
 									<option value={hour}>Period {hour}</option>
@@ -130,7 +130,7 @@
 						{/if}
 					</div>
 				{/each}
-				
+
 				<Button
 					variant="outline"
 					size="sm"
@@ -138,11 +138,11 @@
 					type="button"
 					class="w-full"
 				>
-					<PlusIcon class="h-4 w-4 mr-2" />
+					<PlusIcon class="mr-2 h-4 w-4" />
 					Add Time Slot
 				</Button>
 			</div>
-			<p class="text-sm text-muted-foreground">
+			<p class="text-muted-foreground text-sm">
 				Specify when this room is not available for scheduling (e.g., maintenance, other bookings).
 			</p>
 		</div>
@@ -161,11 +161,7 @@
 
 	<!-- Form Actions -->
 	<div class="flex justify-end gap-3">
-		<Button variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button onclick={handleSubmit} disabled={!isValid}>
-			Add Constraint
-		</Button>
+		<Button variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button onclick={handleSubmit} disabled={!isValid}>Add Constraint</Button>
 	</div>
 </div>

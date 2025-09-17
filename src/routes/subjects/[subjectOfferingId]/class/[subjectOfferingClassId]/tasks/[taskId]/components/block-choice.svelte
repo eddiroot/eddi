@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import XCircleIcon from '@lucide/svelte/icons/x-circle';
-	import CircleIcon from '@lucide/svelte/icons/circle';
-	import CheckSquareIcon from '@lucide/svelte/icons/check-square';
-	import XSquareIcon from '@lucide/svelte/icons/x-square';
-	import SquareIcon from '@lucide/svelte/icons/square';
 	import { ViewMode, type ChoiceBlockProps } from '$lib/schemas/taskSchema';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import CheckSquareIcon from '@lucide/svelte/icons/check-square';
+	import CircleIcon from '@lucide/svelte/icons/circle';
+	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import SquareIcon from '@lucide/svelte/icons/square';
+	import TrashIcon from '@lucide/svelte/icons/trash-2';
+	import XCircleIcon from '@lucide/svelte/icons/x-circle';
+	import XSquareIcon from '@lucide/svelte/icons/x-square';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: ChoiceBlockProps = $props();
 

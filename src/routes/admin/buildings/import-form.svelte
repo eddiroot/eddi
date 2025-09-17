@@ -1,20 +1,20 @@
 <script lang="ts">
-	import { type SuperValidated, type Infer, superForm, fileProxy } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { validateCSVFile, type CSVValidationResult } from '$lib/utils.js';
-	import {
-		optionalColumns,
-		requiredColumns,
-		buildingsImportSchema,
-		type BuildingsImportSchema
-	} from './schema.js';
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import XIcon from '@lucide/svelte/icons/x';
-	import { invalidateAll } from '$app/navigation';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { validateCSVFile, type CSVValidationResult } from '$lib/utils.js';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import XIcon from '@lucide/svelte/icons/x';
+	import { fileProxy, superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
+	import {
+		buildingsImportSchema,
+		optionalColumns,
+		requiredColumns,
+		type BuildingsImportSchema
+	} from './schema.js';
 
 	type Props = {
 		data: SuperValidated<Infer<BuildingsImportSchema>>;

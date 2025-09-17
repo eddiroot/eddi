@@ -1,20 +1,12 @@
 <script lang="ts">
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { SendIcon, UserIcon, BotIcon, Plus, MessageSquare } from '@lucide/svelte/icons';
-	import type { ChatbotMessage, ChatbotChat } from '$lib/server/db/schema';
-
-	// Extended type for chats with first message
-	type ChatWithFirstMessage = ChatbotChat & {
-		firstMessage?: {
-			content: string;
-			createdAt: string;
-		};
-	};
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import type { ChatbotChat, ChatbotMessage } from '$lib/server/db/schema';
 	import { formatTimestamp } from '$lib/utils';
+	import { BotIcon, MessageSquare, Plus, SendIcon, UserIcon } from '@lucide/svelte/icons';
 	import { onMount } from 'svelte';
 
 	// Props

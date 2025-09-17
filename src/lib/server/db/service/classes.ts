@@ -1,7 +1,7 @@
-import * as table from '$lib/server/db/schema';
-import { db } from '$lib/server/db';
-import { desc, eq, and, gte, lt, asc } from 'drizzle-orm';
 import { userTypeEnum } from '$lib/enums';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { and, asc, desc, eq, gte, lt } from 'drizzle-orm';
 
 export async function getSubjectOfferingClassDetailsById(subjectOfferingClassId: number) {
 	const subjectOfferingClass = await db

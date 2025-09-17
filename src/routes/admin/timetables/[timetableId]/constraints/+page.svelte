@@ -1,18 +1,15 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
-	import XIcon from '@lucide/svelte/icons/x';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import EditIcon from '@lucide/svelte/icons/edit';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
-
 	// Import constraint form mapping utilities
-	import { getConstraintFormComponent, hasCustomForm } from '$lib/constraint-form-mapping';
-
+	import { getConstraintFormComponent } from '$lib/constraint-form-mapping';
 	// Fallback generic form
-	import type { Constraint, TimetableConstraint } from '$lib/server/db/schema/timetables';
+	import type { Constraint } from '$lib/server/db/schema/timetables';
 
 	let { data } = $props();
 	let {

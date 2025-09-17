@@ -1,29 +1,29 @@
 <script lang="ts">
-	import { v4 as uuidv4 } from 'uuid';
-	import { onMount, onDestroy } from 'svelte';
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import * as fabric from 'fabric';
+	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import MousePointerIcon from '@lucide/svelte/icons/mouse-pointer';
-	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
-	import HandIcon from '@lucide/svelte/icons/hand';
-	import CircleIcon from '@lucide/svelte/icons/circle';
-	import SquareIcon from '@lucide/svelte/icons/square';
-	import TriangleIcon from '@lucide/svelte/icons/triangle';
-	import TypeIcon from '@lucide/svelte/icons/type';
-	import EraseIcon from '@lucide/svelte/icons/eraser';
-	import TrashIcon from '@lucide/svelte/icons/trash';
+	import WhiteboardFloatingMenu from '$lib/components/whiteboard-floating-menu.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
-	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
-	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
+	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
+	import CircleIcon from '@lucide/svelte/icons/circle';
+	import EraseIcon from '@lucide/svelte/icons/eraser';
+	import HandIcon from '@lucide/svelte/icons/hand';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import MinusIcon from '@lucide/svelte/icons/minus';
-	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import WhiteboardFloatingMenu from '$lib/components/whiteboard-floating-menu.svelte';
+	import MousePointerIcon from '@lucide/svelte/icons/mouse-pointer';
+	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
+	import SquareIcon from '@lucide/svelte/icons/square';
+	import TrashIcon from '@lucide/svelte/icons/trash';
+	import TriangleIcon from '@lucide/svelte/icons/triangle';
+	import TypeIcon from '@lucide/svelte/icons/type';
+	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
+	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
+	import * as fabric from 'fabric';
+	import { onDestroy, onMount } from 'svelte';
+	import { v4 as uuidv4 } from 'uuid';
 
 	let { data } = $props();
 

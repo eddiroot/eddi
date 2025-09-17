@@ -1,9 +1,9 @@
 <script lang="ts">
-	import ContactIcon from '@lucide/svelte/icons/contact';
-	import SchoolIcon from '@lucide/svelte/icons/school';
-	import MapPinIcon from '@lucide/svelte/icons/map-pin';
-	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import * as Card from '$lib/components/ui/card';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import ContactIcon from '@lucide/svelte/icons/contact';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import SchoolIcon from '@lucide/svelte/icons/school';
 
 	const eventTypes = [
 		{

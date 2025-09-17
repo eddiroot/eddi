@@ -1,6 +1,6 @@
-import { pgTable, text, integer, uuid } from 'drizzle-orm/pg-core';
-import { timestamps } from './utils';
+import { integer, pgTable, text, uuid } from 'drizzle-orm/pg-core';
 import { user } from './user';
+import { timestamps } from './utils';
 
 export const chatbotChat = pgTable('cb_chat', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

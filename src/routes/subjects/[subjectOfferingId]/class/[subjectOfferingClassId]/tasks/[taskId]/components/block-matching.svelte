@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { ViewMode, type MatchingBlockProps } from '$lib/schemas/taskSchema';
+	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import { ViewMode, type MatchingBlockProps } from '$lib/schemas/taskSchema';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: MatchingBlockProps =
 		$props();

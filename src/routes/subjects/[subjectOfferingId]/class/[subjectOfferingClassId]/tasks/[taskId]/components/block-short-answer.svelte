@@ -1,14 +1,14 @@
 <script lang="ts">
-	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import {
 		ViewMode,
 		type BlockShortAnswerConfig,
 		type ShortAnswerBlockProps
 	} from '$lib/schemas/taskSchema';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: ShortAnswerBlockProps =
 		$props();

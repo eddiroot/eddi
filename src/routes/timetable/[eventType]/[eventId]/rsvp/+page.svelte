@@ -1,23 +1,23 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
+	import * as Button from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
+	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as Form from '$lib/components/ui/form';
+	import { Label } from '$lib/components/ui/label';
+	import { formatTimestampAsDate, formatTimestampAsTime } from '$lib/utils';
 	import {
 		ArrowLeft,
+		BookOpen,
 		Calendar,
 		Clock,
-		UserCheck,
-		Users,
-		BookOpen,
+		MapPin,
 		School,
-		MapPin
+		UserCheck,
+		Users
 	} from '@lucide/svelte';
-	import * as Card from '$lib/components/ui/card';
-	import * as Button from '$lib/components/ui/button';
-	import * as Form from '$lib/components/ui/form';
-	import { Checkbox } from '$lib/components/ui/checkbox';
-	import { Label } from '$lib/components/ui/label';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { rsvpSchema } from '../../../schemas';
-	import { formatTimestampAsDate, formatTimestampAsTime } from '$lib/utils';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

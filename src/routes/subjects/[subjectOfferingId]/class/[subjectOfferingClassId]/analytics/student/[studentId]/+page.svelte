@@ -1,13 +1,13 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import * as Table from '$lib/components/ui/table';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Progress } from '$lib/components/ui/progress';
 	import { Button } from '$lib/components/ui/button';
-	import UsersIcon from '@lucide/svelte/icons/users';
+	import * as Card from '$lib/components/ui/card';
+	import { Progress } from '$lib/components/ui/progress';
+	import * as Table from '$lib/components/ui/table';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import MailIcon from '@lucide/svelte/icons/mail';
 	import PhoneIcon from '@lucide/svelte/icons/phone';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	let { data } = $props();
 

@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import * as Resizable from '$lib/components/ui/resizable/index.js';
 	import * as Card from '$lib/components/ui/card';
+	import * as Resizable from '$lib/components/ui/resizable/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { Separator } from '$lib/components/ui/separator';
 	import { convertToFullName } from '$lib/utils';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import type { PaneAPI } from 'paneforge';
-	import { page } from '$app/state';
 
 	let { children, data } = $props();
 

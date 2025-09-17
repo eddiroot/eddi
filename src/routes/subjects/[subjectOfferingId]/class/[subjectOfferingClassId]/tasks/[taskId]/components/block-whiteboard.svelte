@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import { ViewMode, type WhiteboardBlockProps } from '$lib/schemas/taskSchema';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
 
 	let { config, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();
 

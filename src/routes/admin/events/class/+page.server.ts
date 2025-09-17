@@ -1,12 +1,11 @@
-import { redirect } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { fail } from '@sveltejs/kit';
-import { createSubjectOfferingClassEventSchema } from '../schemas';
 import {
 	createSubjectOfferingClassEvent,
 	getSubjectOfferingClassesBySchoolId
 } from '$lib/server/db/service';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { createSubjectOfferingClassEventSchema } from '../schemas';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

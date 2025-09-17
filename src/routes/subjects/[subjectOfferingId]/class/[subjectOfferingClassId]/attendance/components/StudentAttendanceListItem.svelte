@@ -1,24 +1,24 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { page } from '$app/state';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { convertToFullName } from '$lib/utils';
-	import Check from '@lucide/svelte/icons/check';
-	import X from '@lucide/svelte/icons/x';
-	import Clock from '@lucide/svelte/icons/clock';
-	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
-	import History from '@lucide/svelte/icons/history';
-	import { fade } from 'svelte/transition';
-	import type { SuperForm } from 'sveltekit-superforms';
 	import {
 		type SubjectClassAllocation,
 		type SubjectClassAllocationAttendance,
 		type User
 	} from '$lib/server/db/schema';
-	import { PenIcon, MessageCircleWarning } from '@lucide/svelte';
-	import { page } from '$app/state';
+	import { convertToFullName } from '$lib/utils';
+	import { MessageCircleWarning, PenIcon } from '@lucide/svelte';
+	import Check from '@lucide/svelte/icons/check';
+	import Clock from '@lucide/svelte/icons/clock';
+	import History from '@lucide/svelte/icons/history';
+	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
+	import X from '@lucide/svelte/icons/x';
+	import { fade } from 'svelte/transition';
+	import type { SuperForm } from 'sveltekit-superforms';
 
 	type AttendanceRecord = {
 		user: Pick<User, 'id' | 'firstName' | 'middleName' | 'lastName'>;

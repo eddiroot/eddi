@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import CurriculumSingleYearView from './components/CurriculumSingleYearView.svelte';
-	import CourseMapItemDrawer from './components/CourseMapItemDrawer.svelte';
 	import type {
 		CourseMapItem,
+		CourseMapItemAssessmentPlan,
 		LearningArea,
-		LearningAreaStandard,
-		CourseMapItemAssessmentPlan
+		LearningAreaStandard
 	} from '$lib/server/db/schema';
+	import CourseMapItemDrawer from './components/CourseMapItemDrawer.svelte';
+	import CurriculumSingleYearView from './components/CurriculumSingleYearView.svelte';
 
 	let { data, form } = $props();
 

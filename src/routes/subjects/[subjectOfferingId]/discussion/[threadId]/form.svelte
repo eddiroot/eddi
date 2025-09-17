@@ -1,15 +1,15 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { formSchema, type FormSchema } from './schema.js';
-	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
-	import MessageSquare from '@lucide/svelte/icons/message-square';
-	import CheckCircle from '@lucide/svelte/icons/check-circle';
-	import { getResponseTypeDescription } from './utils.js';
 	import { subjectThreadResponseTypeEnum } from '$lib/enums.js';
+	import CheckCircle from '@lucide/svelte/icons/check-circle';
+	import MessageSquare from '@lucide/svelte/icons/message-square';
+	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { formSchema, type FormSchema } from './schema.js';
+	import { getResponseTypeDescription } from './utils.js';
 
 	let {
 		data,

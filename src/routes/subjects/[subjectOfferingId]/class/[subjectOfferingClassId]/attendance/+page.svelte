@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
-	import { Input } from '$lib/components/ui/input/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import { convertToFullName } from '$lib/utils';
+	import { flip } from 'svelte/animate';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { attendanceSchema } from './schema.js';
 	import StudentAttendanceListItem from './components/StudentAttendanceListItem.svelte';
+	import { attendanceSchema } from './schema.js';
 
 	const { data } = $props();
 	const attendances = $derived(data.attendances || []);

@@ -1,6 +1,6 @@
-import type { PageServerLoad, Actions } from './$types';
 import { InterviewService } from '$lib/server/db/service/interviews';
 import { fail, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().getUser();
@@ -12,8 +12,8 @@ export const load: PageServerLoad = async ({ locals: { security } }) => {
 		return { config: null, teacherSlots: [], stats: null, groupedSlots: [] };
 	}
 	const allSlots = await InterviewService.getSlotsByConfig(config.id);
-	const teacherSlots = allSlots.filter(slot => slot.teacherId === user.id);
-	
+	const teacherSlots = allSlots.filter((slot) => slot.teacherId === user.id);
+
 	// Group slots by class or show all if teacher-based
 	const groupedSlots = [];
 	if (teacherSlots.length > 0) {
@@ -31,12 +31,12 @@ export const load: PageServerLoad = async ({ locals: { security } }) => {
 		}
 		groupedSlots.push(...Array.from(slotsByClass.values()));
 	}
-	
+
 	const stats = {
 		totalSlots: teacherSlots.length,
-		availableSlots: teacherSlots.filter(slot => slot.status === 'available').length,
-		bookedSlots: teacherSlots.filter(slot => slot.status === 'booked').length,
-		blockedSlots: teacherSlots.filter(slot => slot.status === 'blocked').length
+		availableSlots: teacherSlots.filter((slot) => slot.status === 'available').length,
+		bookedSlots: teacherSlots.filter((slot) => slot.status === 'booked').length,
+		blockedSlots: teacherSlots.filter((slot) => slot.status === 'blocked').length
 	};
 	return { config, teacherSlots, stats, groupedSlots };
 };
@@ -49,7 +49,7 @@ export const actions: Actions = {
 		const slotId = formData.get('slotId') as string;
 		const currentStatus = formData.get('currentStatus') as string;
 		const newStatus = currentStatus === 'available' ? 'blocked' : 'available';
-		
+
 		await InterviewService.updateSlotStatus(slotId, user.id, newStatus);
 		return { success: true };
 	}

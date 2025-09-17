@@ -1,16 +1,16 @@
 <script lang="ts">
+	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
-	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import ArchiveIcon from '@lucide/svelte/icons/archive';
-	import type { PageData } from './$types.js';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
+	import type { PageData } from './$types.js';
 	import { createTimetableSchema } from './schema.js';
 
 	let { data }: { data: PageData } = $props();

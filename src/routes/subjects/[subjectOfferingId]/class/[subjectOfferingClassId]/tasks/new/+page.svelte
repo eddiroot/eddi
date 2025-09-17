@@ -1,19 +1,18 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import { formSchema, type FormSchema } from './schema';
-	import { filesSchema } from './schema';
-	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { Dropzone } from '$lib/components/ui/dropzone/index.js';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import LoaderIcon from '@lucide/svelte/icons/loader';
-	import BadgeInfo from '@lucide/svelte/icons/badge-info';
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import * as Form from '$lib/components/ui/form/index.js';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { Switch } from '$lib/components/ui/switch';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import BadgeInfo from '@lucide/svelte/icons/badge-info';
+	import LoaderIcon from '@lucide/svelte/icons/loader';
+	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { filesSchema, formSchema, type FormSchema } from './schema';
 
 	import type { curriculumLearningAreaStandard } from '$lib/server/db/service/task.js';
 

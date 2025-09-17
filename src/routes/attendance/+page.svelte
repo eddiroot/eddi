@@ -1,28 +1,27 @@
 <script lang="ts">
-	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { Calendar, Day } from '$lib/components/ui/calendar/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import * as ScrollArea from '$lib/components/ui/scroll-area/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import XCircleIcon from '@lucide/svelte/icons/x-circle';
-	import { convertToFullName } from '$lib/utils';
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { markAbsentSchema } from './schema.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
+	import * as ScrollArea from '$lib/components/ui/scroll-area/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { formatTimestampAsDate } from '$lib/utils';
+	import { convertToFullName, formatTimestampAsDate } from '$lib/utils';
+	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
+	import XCircleIcon from '@lucide/svelte/icons/x-circle';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
+	import ClassCard from './components/ClassCard.svelte';
+	import { markAbsentSchema } from './schema.js';
 	import {
-		getRecordsForDate,
-		hasClassesOnDate,
 		getAttendanceStatusForDay,
 		getAttendanceStyleClasses,
-		type ScheduleWithAttendanceRecord,
+		getRecordsForDate,
+		hasClassesOnDate,
 		isDateInFuture,
-		isDateToday
+		isDateToday,
+		type ScheduleWithAttendanceRecord
 	} from './utils.js';
-	import ClassCard from './components/ClassCard.svelte';
 
 	let { data } = $props();
 	let selectedDate = $state<DateValue>(today(getLocalTimeZone()));

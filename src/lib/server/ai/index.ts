@@ -1,7 +1,7 @@
+import { env } from '$env/dynamic/private';
+import { getMimeType } from '$lib/server/ai/utils';
 import { GoogleGenAI, type Part } from '@google/genai';
 import fs from 'fs';
-import { getMimeType } from '$lib/server/ai/utils';
-import { env } from '$env/dynamic/private';
 
 if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set');
 if (!env.GEMINI_DEFAULT_MODEL) throw new Error('GEMINI_DEFAULT_MODEL is not set');

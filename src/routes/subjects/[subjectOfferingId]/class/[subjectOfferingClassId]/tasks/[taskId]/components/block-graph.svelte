@@ -1,16 +1,16 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import { ViewMode, type GraphBlockProps } from '$lib/schemas/taskSchema';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import { ViewMode, type GraphBlockProps } from '$lib/schemas/taskSchema';
-	import { onMount } from 'svelte';
+	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { evaluate } from 'mathjs';
-	import type { PlotData, Root } from 'plotly.js-dist-min';
 	import { mode } from 'mode-watcher';
+	import type { PlotData, Root } from 'plotly.js-dist-min';
+	import { onMount } from 'svelte';
 
 	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: GraphBlockProps = $props();
 

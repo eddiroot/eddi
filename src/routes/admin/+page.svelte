@@ -1,17 +1,17 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import BuildingIcon from '@lucide/svelte/icons/building';
-	import MapPinIcon from '@lucide/svelte/icons/map-pin';
-	import SchoolIcon from '@lucide/svelte/icons/school';
-	import BookOpenIcon from '@lucide/svelte/icons/book-open';
-	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
-	import UsersIcon from '@lucide/svelte/icons/users';
-	import ContactIcon from '@lucide/svelte/icons/contact';
-	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
-	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
-	import DoorOpenIcon from '@lucide/svelte/icons/door-open';
 	import { BusIcon } from '@lucide/svelte';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import BuildingIcon from '@lucide/svelte/icons/building';
+	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
+	import ContactIcon from '@lucide/svelte/icons/contact';
+	import DoorOpenIcon from '@lucide/svelte/icons/door-open';
+	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
+	import SchoolIcon from '@lucide/svelte/icons/school';
+	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	const { data } = $props();
 

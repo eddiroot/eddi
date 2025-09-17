@@ -1,33 +1,33 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { page } from '$app/state';
+	import VcaaLearningAreaCard from '$lib/components/curriculum-learning-area-card.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import {
 		Sheet,
 		SheetContent,
-		SheetTrigger,
+		SheetHeader,
 		SheetTitle,
-		SheetHeader
+		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Button } from '$lib/components/ui/button';
-	import Calendar from '@lucide/svelte/icons/calendar';
-	import Clock from '@lucide/svelte/icons/clock';
-	import BookTest from '@lucide/svelte/icons/book';
 	import Archive from '@lucide/svelte/icons/archive';
-	import Plus from '@lucide/svelte/icons/plus';
-	import Sparkles from '@lucide/svelte/icons/sparkles';
-	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import { page } from '$app/state';
-	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
-	import LessonPlanCard from './components/LessonPlanCard.svelte';
-	import AssessmentPlanCard from './components/AssessmentPlanCard.svelte';
-	import VcaaLearningAreaCard from '$lib/components/curriculum-learning-area-card.svelte';
-	import ResourcesPopover from './components/ResourcesPopover.svelte';
-	import ResourceFileInput from './components/ResourceFileInput.svelte';
-	import Edit from '@lucide/svelte/icons/edit';
+	import BookTest from '@lucide/svelte/icons/book';
+	import Calendar from '@lucide/svelte/icons/calendar';
 	import Check from '@lucide/svelte/icons/check';
+	import Clock from '@lucide/svelte/icons/clock';
+	import Edit from '@lucide/svelte/icons/edit';
+	import Plus from '@lucide/svelte/icons/plus';
+	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
+	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import X from '@lucide/svelte/icons/x';
+	import AssessmentPlanCard from './components/AssessmentPlanCard.svelte';
+	import LessonPlanCard from './components/LessonPlanCard.svelte';
+	import ResourceFileInput from './components/ResourceFileInput.svelte';
+	import ResourcesPopover from './components/ResourcesPopover.svelte';
 
 	let { data, form } = $props();
 	let lessonPlanDescription = $state('');

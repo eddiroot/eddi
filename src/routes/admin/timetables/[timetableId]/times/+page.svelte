@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
 	import * as Form from '$lib/components/ui/form';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import { days, formatTime } from '$lib/utils.js';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import { superForm } from 'sveltekit-superforms';
-	import { enhance } from '$app/forms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { days, formatTime } from '$lib/utils.js';
-	import { updateDaysSchema, addPeriodSchema } from './schema.js';
+	import { addPeriodSchema, updateDaysSchema } from './schema.js';
 
 	let { data } = $props();
 

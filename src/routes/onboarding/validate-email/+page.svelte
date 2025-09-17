@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
+	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -11,7 +12,6 @@
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import MailIcon from '@lucide/svelte/icons/mail';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
-	import { page } from '$app/state';
 	let verificationCode = '';
 	let isResending = false;
 	let countdown = 0;

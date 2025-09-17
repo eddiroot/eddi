@@ -1,17 +1,17 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
+	import { enhance } from '$app/forms';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { convertToFullName, formatTimestamp } from '$lib/utils';
+	import CheckCircle from '@lucide/svelte/icons/check-circle';
+	import Clock from '@lucide/svelte/icons/clock';
+	import MessageSquare from '@lucide/svelte/icons/message-square';
+	import User from '@lucide/svelte/icons/user';
 	import ResponseForm from './form.svelte';
 	import ResponseItem from './response-item.svelte';
-	import MessageSquare from '@lucide/svelte/icons/message-square';
-	import CheckCircle from '@lucide/svelte/icons/check-circle';
-	import User from '@lucide/svelte/icons/user';
-	import Clock from '@lucide/svelte/icons/clock';
 	import { getThreadTypeDisplay } from './utils';
-	import { enhance } from '$app/forms';
 
 	let { data, form } = $props();
 	const thread = $derived(() => data.thread);

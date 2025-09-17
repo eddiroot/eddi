@@ -1,11 +1,11 @@
-import { error, fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad, Actions } from './$types';
-import { createNews, getNewsCategories, attachResourceToNews } from '$lib/server/db/service/news';
-import { getCampusesByUserId } from '$lib/server/db/service/schools';
-import { getPermissions, userPermissions } from '$lib/utils';
-import { uploadBufferHelper, generateUniqueFileName } from '$lib/server/obj';
-import { createResource } from '$lib/server/db/service/resource';
 import { newsVisibilityEnum } from '$lib/enums';
+import { attachResourceToNews, createNews, getNewsCategories } from '$lib/server/db/service/news';
+import { createResource } from '$lib/server/db/service/resource';
+import { getCampusesByUserId } from '$lib/server/db/service/schools';
+import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj';
+import { getPermissions, userPermissions } from '$lib/utils';
+import { error, fail, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().getUser();

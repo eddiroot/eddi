@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { ArrowLeft, Calendar, Clock, MapPin, UserCheck } from '@lucide/svelte';
-	import * as Card from '$lib/components/ui/card';
 	import * as Button from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { Checkbox } from '$lib/components/ui/checkbox';
+	import { ArrowLeft, Calendar, Clock, UserCheck } from '@lucide/svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createSchoolEventSchema } from '../schemas';
 	import type { PageData } from './$types';
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 
@@ -52,11 +52,11 @@
 
 	// Validation
 	let isValid = $derived(
-		activityIds.length >= 2 && 
-		minDays >= 1 && 
-		minDays <= 6 &&
-		weightPercentage >= 1 && 
-		weightPercentage <= 100
+		activityIds.length >= 2 &&
+			minDays >= 1 &&
+			minDays <= 6 &&
+			weightPercentage >= 1 &&
+			weightPercentage <= 100
 	);
 </script>
 
@@ -78,30 +78,23 @@
 		<!-- Minimum Days -->
 		<div class="space-y-2">
 			<Label for="minDays">Minimum Days Between Activities (1-6)</Label>
-			<Input
-				id="minDays"
-				type="number"
-				min="1"
-				max="6"
-				bind:value={minDays}
-				placeholder="1"
-			/>
-			<p class="text-sm text-muted-foreground">
+			<Input id="minDays" type="number" min="1" max="6" bind:value={minDays} placeholder="1" />
+			<p class="text-muted-foreground text-sm">
 				Minimum number of days that must pass between the specified activities.
 			</p>
 		</div>
 
 		<!-- Consecutive If Same Day -->
 		<div class="flex items-center space-x-2">
-			<Checkbox 
-				id="consecutive" 
-				bind:checked={consecutiveIfSameDay}
-			/>
-			<Label for="consecutive" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+			<Checkbox id="consecutive" bind:checked={consecutiveIfSameDay} />
+			<Label
+				for="consecutive"
+				class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			>
 				Consecutive if same day
 			</Label>
 		</div>
-		<p class="text-sm text-muted-foreground ml-6">
+		<p class="text-muted-foreground ml-6 text-sm">
 			If activities are scheduled on the same day, they should be consecutive periods.
 		</p>
 
@@ -113,12 +106,8 @@
 				{#if activityIds.length > 0}
 					<div class="space-y-2">
 						{#each activityIds as id, index}
-							<div class="flex gap-2 items-center">
-								<Input
-									value={id}
-									readonly
-									class="flex-1"
-								/>
+							<div class="flex items-center gap-2">
+								<Input value={id} readonly class="flex-1" />
 								<Button
 									variant="outline"
 									size="sm"
@@ -157,8 +146,9 @@
 					</Button>
 				</div>
 			</div>
-			<p class="text-sm text-muted-foreground">
-				Specify the activities that should be spaced apart. You need at least 2 activities for this constraint to work.
+			<p class="text-muted-foreground text-sm">
+				Specify the activities that should be spaced apart. You need at least 2 activities for this
+				constraint to work.
 			</p>
 		</div>
 
@@ -176,11 +166,7 @@
 
 	<!-- Form Actions -->
 	<div class="flex justify-end gap-3">
-		<Button variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button onclick={handleSubmit} disabled={!isValid}>
-			Add Constraint
-		</Button>
+		<Button variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button onclick={handleSubmit} disabled={!isValid}>Add Constraint</Button>
 	</div>
 </div>

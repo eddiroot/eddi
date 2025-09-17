@@ -1,6 +1,6 @@
-import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { eq, and, gte, lt, desc, asc } from 'drizzle-orm';
+import * as table from '$lib/server/db/schema';
+import { and, asc, desc, eq, gte, lt } from 'drizzle-orm';
 
 // School Event Functions
 export async function createSchoolEvent(
@@ -577,10 +577,7 @@ export async function getEventRSVP(
 }
 
 export async function getUserEventRSVPs(userId: string) {
-	const rsvps = await db
-		.select()
-		.from(table.eventRSVP)
-		.where(eq(table.eventRSVP.userId, userId));
+	const rsvps = await db.select().from(table.eventRSVP).where(eq(table.eventRSVP.userId, userId));
 
 	return rsvps;
 }

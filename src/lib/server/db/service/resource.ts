@@ -1,6 +1,6 @@
-import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { eq, and } from 'drizzle-orm';
+import * as table from '$lib/server/db/schema';
+import { and, eq } from 'drizzle-orm';
 
 export async function createResource(
 	name: string,

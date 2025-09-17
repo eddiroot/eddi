@@ -1,13 +1,13 @@
-import type { PageServerLoad, Actions } from './$types';
+import { newsStatusEnum } from '$lib/enums';
 import {
+	deleteNews,
 	getNewsDraftsByAuthor,
 	getNewsResources,
-	updateNews,
-	deleteNews
+	updateNews
 } from '$lib/server/db/service/news';
-import { error, fail, redirect } from '@sveltejs/kit';
 import { getPermissions, userPermissions } from '$lib/utils';
-import { newsStatusEnum } from '$lib/enums';
+import { error, fail, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().getUser();

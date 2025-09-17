@@ -1,23 +1,23 @@
 <script lang="ts">
-	import * as Table from '$lib/components/ui/table';
-	import * as Card from '$lib/components/ui/card';
+	import { page } from '$app/state';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import {
 		DropdownMenu,
-		DropdownMenuTrigger,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuLabel,
-		DropdownMenuSeparator
+		DropdownMenuSeparator,
+		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import ListFilter from '@lucide/svelte/icons/list-filter';
-	import Check from '@lucide/svelte/icons/check';
-	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
-	import ArrowUp from '@lucide/svelte/icons/arrow-up';
-	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import * as Table from '$lib/components/ui/table';
 	import { formatTimestampAsDate } from '$lib/utils';
-	import { page } from '$app/state';
+	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import ArrowUp from '@lucide/svelte/icons/arrow-up';
+	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
+	import Check from '@lucide/svelte/icons/check';
+	import ListFilter from '@lucide/svelte/icons/list-filter';
 
 	interface Task {
 		id: number;

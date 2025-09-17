@@ -1,11 +1,11 @@
-import { getSpacesBySchoolId, getBuildingsBySchoolId } from '$lib/server/db/service';
-import { superValidate, withFiles, fail } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { validateCSVFile, parseCSVData } from '$lib/utils.js';
+import { schoolSpaceTypeEnum } from '$lib/enums.js';
 import { db } from '$lib/server/db/index.js';
 import { schoolSpace } from '$lib/server/db/schema';
-import { schoolSpaceTypeEnum } from '$lib/enums.js';
-import { optionalColumns, requiredColumns, locationsImportSchema } from './schema.js';
+import { getBuildingsBySchoolId, getSpacesBySchoolId } from '$lib/server/db/service';
+import { parseCSVData, validateCSVFile } from '$lib/utils.js';
+import { fail, superValidate, withFiles } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { locationsImportSchema, optionalColumns, requiredColumns } from './schema.js';
 
 export const load = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();

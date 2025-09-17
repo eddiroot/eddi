@@ -1,13 +1,13 @@
-import type { Socket } from './$types.js';
+import { whiteboardObjectTypeEnum } from '$lib/enums.js';
 import {
-	getWhiteboardObjects,
-	saveWhiteboardObject,
-	updateWhiteboardObject,
+	clearWhiteboard,
 	deleteWhiteboardObject,
 	deleteWhiteboardObjects,
-	clearWhiteboard
+	getWhiteboardObjects,
+	saveWhiteboardObject,
+	updateWhiteboardObject
 } from '$lib/server/db/service';
-import { whiteboardObjectTypeEnum } from '$lib/enums.js';
+import type { Socket } from './$types.js';
 
 // Map Fabric.js object types to our enum values
 function mapFabricTypeToEnum(fabricType: string): whiteboardObjectTypeEnum {

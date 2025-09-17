@@ -1,19 +1,19 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import { formatTimestampAsTime } from '$lib/utils';
-	import { generateSubjectColors } from '../../routes/timetable/utils.js';
-	import SchoolIcon from '@lucide/svelte/icons/school';
-	import MapPinIcon from '@lucide/svelte/icons/map-pin';
-	import BookOpenIcon from '@lucide/svelte/icons/book-open';
-	import ClockIcon from '@lucide/svelte/icons/clock';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import { goto } from '$app/navigation';
+	import * as Card from '$lib/components/ui/card';
 	import type {
-		SchoolEvent,
 		CampusEvent,
-		SubjectOfferingEvent,
-		SubjectOfferingClassEvent
+		SchoolEvent,
+		SubjectOfferingClassEvent,
+		SubjectOfferingEvent
 	} from '$lib/server/db/schema/events';
+	import { formatTimestampAsTime } from '$lib/utils';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import SchoolIcon from '@lucide/svelte/icons/school';
+	import { generateSubjectColors } from '../../routes/timetable/utils.js';
 
 	interface EventCardProps {
 		event: SchoolEvent | CampusEvent | SubjectOfferingEvent | SubjectOfferingClassEvent;

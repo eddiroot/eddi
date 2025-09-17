@@ -1,7 +1,7 @@
-import * as table from '$lib/server/db/schema';
-import { db } from '$lib/server/db';
-import { eq, and, asc, desc, count, isNull, lte, gte, or, sql } from 'drizzle-orm';
 import { newsStatusEnum, newsVisibilityEnum } from '$lib/enums.js';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { and, asc, count, desc, eq, gte, isNull, lte, or, sql } from 'drizzle-orm';
 
 // News CRUD operations
 export async function createNews(
@@ -125,10 +125,7 @@ export async function getArchivedNewsBySchoolId(
 ) {
 	const { campusId, categoryId, limit = 50, offset = 0 } = options;
 
-	const conditions = [
-		eq(table.news.schoolId, schoolId),
-		eq(table.news.isArchived, true)
-	];
+	const conditions = [eq(table.news.schoolId, schoolId), eq(table.news.isArchived, true)];
 
 	if (campusId !== undefined) {
 		conditions.push(eq(table.news.campusId, campusId));
@@ -235,10 +232,7 @@ export async function getPublishedNewsBySchoolId(
 		.leftJoin(table.newsCategory, eq(table.news.categoryId, table.newsCategory.id))
 		.leftJoin(table.campus, eq(table.news.campusId, table.campus.id))
 		.where(whereConditions)
-		.orderBy(
-			desc(table.news.isPinned),
-			desc(table.news.publishedAt)
-		)
+		.orderBy(desc(table.news.isPinned), desc(table.news.publishedAt))
 		.limit(limit)
 		.offset(offset);
 }
@@ -260,9 +254,10 @@ export async function updateNews(
 	}
 ) {
 	// Handle tags serialization
-	const updateDataWithTags = updates.tags !== undefined
-		? { ...updates, tags: updates.tags ? JSON.stringify(updates.tags) : null }
-		: updates;
+	const updateDataWithTags =
+		updates.tags !== undefined
+			? { ...updates, tags: updates.tags ? JSON.stringify(updates.tags) : null }
+			: updates;
 
 	const [updatedNews] = await db
 		.update(table.news)
@@ -364,7 +359,12 @@ export async function archiveNewsCategory(categoryId: number) {
 }
 
 // News Resources
-export async function attachResourceToNews(newsId: number, resourceId: number, authorId: string, displayOrder: number = 0) {
+export async function attachResourceToNews(
+	newsId: number,
+	resourceId: number,
+	authorId: string,
+	displayOrder: number = 0
+) {
 	const [attachment] = await db
 		.insert(table.newsResource)
 		.values({
@@ -378,7 +378,11 @@ export async function attachResourceToNews(newsId: number, resourceId: number, a
 	return attachment;
 }
 
-export async function getNewsResources(newsId: number, schoolId?: number, includeArchived: boolean = false) {
+export async function getNewsResources(
+	newsId: number,
+	schoolId?: number,
+	includeArchived: boolean = false
+) {
 	const resources = await db
 		.select({
 			newsResource: table.newsResource,
@@ -400,35 +404,37 @@ export async function getNewsResources(newsId: number, schoolId?: number, includ
 		.orderBy(asc(table.newsResource.displayOrder));
 
 	// Enhance the resources with actual presigned URLs for direct image access
-	const enhancedResources = await Promise.all(resources.map(async (item) => {
-		let imageUrl = `/api/resources?resourceId=${item.resource.id}&action=download`;
+	const enhancedResources = await Promise.all(
+		resources.map(async (item) => {
+			let imageUrl = `/api/resources?resourceId=${item.resource.id}&action=download`;
 
-		// If schoolId is provided, generate a presigned URL for direct image access
-		if (schoolId) {
-			try {
-				const { getPresignedUrl } = await import('$lib/server/obj');
-				const schoolIdStr = schoolId.toString();
+			// If schoolId is provided, generate a presigned URL for direct image access
+			if (schoolId) {
+				try {
+					const { getPresignedUrl } = await import('$lib/server/obj');
+					const schoolIdStr = schoolId.toString();
 
-				// Object key format: remove schoolId prefix if it exists
-				const objectName = item.resource.objectKey.startsWith(schoolIdStr)
-					? item.resource.objectKey.substring(schoolIdStr.length + 1)
-					: item.resource.objectKey;
+					// Object key format: remove schoolId prefix if it exists
+					const objectName = item.resource.objectKey.startsWith(schoolIdStr)
+						? item.resource.objectKey.substring(schoolIdStr.length + 1)
+						: item.resource.objectKey;
 
-				imageUrl = await getPresignedUrl(schoolIdStr, objectName, 24 * 60 * 60); // 24 hour expiry
-			} catch (error) {
-				console.error('Error generating presigned URL for resource:', item.resource.id, error);
-				// Fallback to API endpoint
+					imageUrl = await getPresignedUrl(schoolIdStr, objectName, 24 * 60 * 60); // 24 hour expiry
+				} catch (error) {
+					console.error('Error generating presigned URL for resource:', item.resource.id, error);
+					// Fallback to API endpoint
+				}
 			}
-		}
 
-		return {
-			...item,
-			resource: {
-				...item.resource,
-				imageUrl
-			}
-		};
-	}));
+			return {
+				...item,
+				resource: {
+					...item.resource,
+					imageUrl
+				}
+			};
+		})
+	);
 
 	return enhancedResources;
 }
@@ -444,16 +450,19 @@ export async function removeResourceFromNews(newsResourceId: number) {
 }
 
 // News Views/Analytics
-export async function incrementNewsViews(newsId: number, viewerId?: string, ipAddress?: string, userAgent?: string) {
+export async function incrementNewsViews(
+	newsId: number,
+	viewerId?: string,
+	ipAddress?: string,
+	userAgent?: string
+) {
 	// Record the view
-	await db
-		.insert(table.newsView)
-		.values({
-			newsId,
-			viewerId,
-			ipAddress,
-			userAgent
-		});
+	await db.insert(table.newsView).values({
+		newsId,
+		viewerId,
+		ipAddress,
+		userAgent
+	});
 
 	// Increment view count on news
 	await db
@@ -485,10 +494,7 @@ export async function getNewsStats(newsId: number) {
 
 // Delete news article
 export async function deleteNews(newsId: number) {
-	const [deletedNews] = await db
-		.delete(table.news)
-		.where(eq(table.news.id, newsId))
-		.returning();
+	const [deletedNews] = await db.delete(table.news).where(eq(table.news.id, newsId)).returning();
 
 	return deletedNews;
 }

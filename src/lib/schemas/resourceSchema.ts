@@ -47,22 +47,41 @@ const ACCEPTED_FILE_TYPES = [
 
 // Human-readable file types for error messages
 const ACCEPTED_FILE_TYPES_HR = [
-	'PNG', 'JPEG', 'JPG', 'GIF', 'BMP', 'WEBP', 'SVG',
-	'MP4', 'MOV', 'AVI', 'MKV', 'WEBM', 'WMV',
-	'MP3', 'WAV', 'OGG', 'FLAC', 'M4A',
-	'PDF', 'DOC', 'DOCX', 'TXT', 'RTF', 'XLS', 'XLSX', 'PPT', 'PPTX',
-	'ZIP', 'RAR', 'CSV', 'JSON'
+	'PNG',
+	'JPEG',
+	'JPG',
+	'GIF',
+	'BMP',
+	'WEBP',
+	'SVG',
+	'MP4',
+	'MOV',
+	'AVI',
+	'MKV',
+	'WEBM',
+	'WMV',
+	'MP3',
+	'WAV',
+	'OGG',
+	'FLAC',
+	'M4A',
+	'PDF',
+	'DOC',
+	'DOCX',
+	'TXT',
+	'RTF',
+	'XLS',
+	'XLSX',
+	'PPT',
+	'PPTX',
+	'ZIP',
+	'RAR',
+	'CSV',
+	'JSON'
 ].join(', ');
 
 // Resource types enum based on the application logic
-const RESOURCE_TYPES = [
-	'image',
-	'video',
-	'audio',
-	'pdf',
-	'document',
-	'file'
-] as const;
+const RESOURCE_TYPES = ['image', 'video', 'audio', 'pdf', 'document', 'file'] as const;
 
 // File schema for single resource upload
 export const resourceFileSchema = z
@@ -106,7 +125,7 @@ export function inferResourceTypeFromMimeType(mimeType: string): string {
 // Function to infer resource type from file extension (fallback)
 export function inferResourceTypeFromFileName(fileName: string): string {
 	const extension = fileName.split('.').pop()?.toLowerCase();
-	
+
 	switch (extension) {
 		case 'jpg':
 		case 'jpeg':
@@ -153,10 +172,7 @@ export const createResourceSchema = z.object({
 		.max(255, 'File name must not exceed 255 characters'),
 	file: resourceFileSchema,
 	resourceType: resourceTypeSchema.optional(), // Will be inferred if not provided
-	description: z
-		.string()
-		.max(500, 'Description cannot exceed 500 characters')
-		.optional()
+	description: z.string().max(500, 'Description cannot exceed 500 characters').optional()
 });
 
 // Schema for updating resource metadata
@@ -167,10 +183,7 @@ export const updateResourceSchema = z.object({
 		.max(255, 'File name must not exceed 255 characters')
 		.optional(),
 	resourceType: resourceTypeSchema.optional(),
-	description: z
-		.string()
-		.max(500, 'Description cannot exceed 500 characters')
-		.optional(),
+	description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
 	isArchived: z.boolean().optional()
 });
 
@@ -178,10 +191,7 @@ export const updateResourceSchema = z.object({
 export const resourceUploadFormSchema = z.object({
 	files: resourceFilesSchema,
 	resourceType: resourceTypeSchema.optional(), // Applied to all files if specified
-	description: z
-		.string()
-		.max(500, 'Description cannot exceed 500 characters')
-		.optional()
+	description: z.string().max(500, 'Description cannot exceed 500 characters').optional()
 });
 
 // Schema for linking resources to entities (course items, lesson plans, etc.)
@@ -190,15 +200,12 @@ export const resourceLinkSchema = z.object({
 	entityId: z.number().positive('Entity ID must be a positive number'),
 	entityType: z.enum([
 		'courseMapItem',
-		'lessonPlan', 
+		'lessonPlan',
 		'assessmentPlan',
 		'subjectOfferingClass',
 		'task'
 	]),
-	description: z
-		.string()
-		.max(250, 'Link description cannot exceed 250 characters')
-		.optional()
+	description: z.string().max(250, 'Link description cannot exceed 250 characters').optional()
 });
 
 // Validation schema for resource queries/filters
@@ -234,9 +241,9 @@ export type ResourceQuery = z.infer<typeof resourceQuerySchema>;
 
 // Export constants for use in other parts of the application
 export {
-	MAX_MB_COUNT,
-	MAX_UPLOAD_SIZE,
 	ACCEPTED_FILE_TYPES,
 	ACCEPTED_FILE_TYPES_HR,
+	MAX_MB_COUNT,
+	MAX_UPLOAD_SIZE,
 	RESOURCE_TYPES
 };

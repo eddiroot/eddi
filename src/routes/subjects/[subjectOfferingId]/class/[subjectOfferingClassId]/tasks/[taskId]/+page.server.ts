@@ -1,14 +1,14 @@
-import {
-	getTaskById,
-	getTaskBlocksByTaskId,
-	getSubjectOfferingClassTaskByTaskId,
-	updateSubjectOfferingClassTaskStatus,
-	getClassTaskResponsesWithStudents,
-	getClassTaskBlockResponsesByClassTaskId,
-	getClassTaskBlockResponsesByAuthorId
-} from '$lib/server/db/service';
-import { redirect, fail } from '@sveltejs/kit';
 import { taskStatusEnum, userTypeEnum } from '$lib/enums';
+import {
+	getClassTaskBlockResponsesByAuthorId,
+	getClassTaskBlockResponsesByClassTaskId,
+	getClassTaskResponsesWithStudents,
+	getSubjectOfferingClassTaskByTaskId,
+	getTaskBlocksByTaskId,
+	getTaskById,
+	updateSubjectOfferingClassTaskStatus
+} from '$lib/server/db/service';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const load = async ({
 	locals: { security },

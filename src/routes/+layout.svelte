@@ -5,13 +5,13 @@
 
 	import { page } from '$app/state';
 
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { Toaster } from '$lib/components/ui/sonner';
-	import ThemeToggle from '$lib/components/theme-toggle.svelte';
-	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import AiSidebar from '$lib/components/ai-sidebar.svelte';
+	import AppSidebar from '$lib/components/app-sidebar.svelte';
+	import ThemeToggle from '$lib/components/theme-toggle.svelte';
+	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let { children, data } = $props();
 
