@@ -28,7 +28,7 @@
 			>
 		</div>
 		<Separator />
-		{#if data?.threads}
+		{#if data?.threads && data.threads.length > 0}
 			<Resizable.PaneGroup direction="vertical">
 				<div
 					class="bg-primary text-primary-foreground flex items-center justify-between border-b px-6"
@@ -141,7 +141,7 @@
 				</Resizable.Pane>
 			</Resizable.PaneGroup>
 		{:else}
-			<p>No discussions available.</p>
+			<p class="px-2 py-4 text-center">No discussions found.</p>
 		{/if}
 	</div>
 	<div class="overflow-y-scroll p-8">
