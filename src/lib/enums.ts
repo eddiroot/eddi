@@ -59,7 +59,8 @@ export enum taskBlockTypeEnum {
 	close = 'close',
 	highlightText = 'highlight_text',
 	table = 'table',
-	graph = 'graph'
+	graph = 'graph',
+	balancingEquations = 'balancing_equations'
 }
 
 export enum taskStatusEnum {

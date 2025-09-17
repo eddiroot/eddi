@@ -469,6 +469,66 @@ export type BlockGraphResponse = {
 	}[];
 };
 
+export const blockBalancingEquations = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.balancingEquations] },
+		config: {
+			type: 'object',
+			properties: {
+				reactants: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							formula: { type: 'string' },
+							coefficient: { type: 'number' },
+							given: { type: 'boolean' }
+						},
+						required: ['formula', 'coefficient', 'given']
+					}
+				},
+				products: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							formula: { type: 'string' },
+							coefficient: { type: 'number' },
+							given: { type: 'boolean' }
+						},
+						required: ['formula', 'coefficient', 'given']
+					}
+				}
+			},
+			required: ['reactants', 'products']
+		},
+		marks: { type: 'number' }
+	},
+	required: ['type', 'config']
+};
+
+export type BlockBalancingEquationsConfig = {
+	question?: string;
+	reactants: Array<{
+		formula: string;
+		coefficient: number;
+		given: boolean;
+	}>;
+	products: Array<{
+		formula: string;
+		coefficient: number;
+		given: boolean;
+	}>;
+};
+
+export type BlockBalancingEquationsResponse = {
+	coefficients: {
+		reactants: number[];
+		products: number[];
+	};
+};
+
 export const taskBlocks = [
 	blockHeading,
 	blockRichText,
@@ -480,7 +540,8 @@ export const taskBlocks = [
 	blockClose,
 	blockHighlightText,
 	blockTable,
-	blockGraph
+	blockGraph,
+	blockBalancingEquations
 ];
 
 export const layoutTwoColumns = {
@@ -532,8 +593,10 @@ export const taskSchema = {
 export type BlockConfig =
 	| BlockHeadingConfig
 	| BlockRichTextConfig
+	| BlockMathInputConfig
 	| BlockChoiceConfig
 	| BlockFillBlankConfig
+	| BlockBalancingEquationsConfig
 	| BlockMatchingConfig
 	| BlockShortAnswerConfig
 	| BlockWhiteboardConfig
@@ -545,6 +608,8 @@ export type BlockConfig =
 export type BlockResponse =
 	| BlockChoiceResponse
 	| BlockFillBlankResponse
+	| BlockMathInputResponse
+	| BlockBalancingEquationsResponse
 	| BlockMatchingResponse
 	| BlockShortAnswerResponse
 	| BlockCloseResponse
@@ -565,8 +630,10 @@ export type BlockProps<T extends BlockConfig = BlockConfig, Q extends BlockRespo
 // Specific prop types for each block type
 export type HeadingBlockProps = BlockProps<BlockHeadingConfig>;
 export type RichTextBlockProps = BlockProps<BlockRichTextConfig>;
+export type MathInputBlockProps = BlockProps<BlockMathInputConfig, BlockMathInputResponse>;
 export type ChoiceBlockProps = BlockProps<BlockChoiceConfig, BlockChoiceResponse>;
 export type FillBlankBlockProps = BlockProps<BlockFillBlankConfig, BlockFillBlankResponse>;
+export type BalancingEquationsBlockProps = BlockProps<BlockBalancingEquationsConfig, BlockBalancingEquationsResponse>;
 export type MatchingBlockProps = BlockProps<BlockMatchingConfig, BlockMatchingResponse>;
 export type ShortAnswerBlockProps = BlockProps<BlockShortAnswerConfig, BlockShortAnswerResponse>;
 export type WhiteboardBlockProps = BlockProps<BlockWhiteboardConfig>;
@@ -593,6 +660,7 @@ import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import TableIcon from '@lucide/svelte/icons/table';
 import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
+import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 
 export enum ViewMode {
 	CONFIGURE = 'configure',
@@ -735,5 +803,18 @@ export const blockTypes: {
 			staticPlots: []
 		},
 		icon: TrendingUpIcon
+	},
+	{
+		type: taskBlockTypeEnum.balancingEquations,
+		name: 'Balancing Equations',
+		initialConfig: {
+			question: 'Balance the following chemical equation:',
+			reactants: [
+				{ formula: 'reactant1', coefficient: 1, given: false },
+				{ formula: 'reactant2', coefficient: 1, given: false }
+			],
+			products: [{ formula: 'product1', coefficient: 1, given: true }]
+		},
+		icon: FlaskConicalIcon
 	}
 ];
