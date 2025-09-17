@@ -9,12 +9,14 @@
 
 	const variant =
 		type === 'teacher'
-			? 'secondary'
+			? 'default'
 			: type === 'student'
-				? 'default'
+				? 'success'
 				: type.toLowerCase().includes('admin')
 					? 'destructive'
-					: 'outline';
+					: 'secondary';
+
+	const spacedType = type.replace(/([a-z])([A-Z])/g, '$1 $2');
 </script>
 
-<Badge {variant} class="capitalize">{type}</Badge>
+<Badge {variant} class="capitalize">{spacedType}</Badge>

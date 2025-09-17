@@ -58,6 +58,8 @@ Lachie
 
 - [ ] Class tests / quizzes
 - [ ] Subject selection
+- [ ] Parent/teacher interviews
+- [ ] Teacher to parent comms (one way)
 
 Bella
 
@@ -67,6 +69,8 @@ Bella
   - Science
     - [ ] Image / Video / Audio
     - [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
+  - Other
+    - [ ] Matching
 
 Max
 
@@ -98,11 +102,6 @@ Raph
 - [x] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
   - fix table width issues
   - admin grade style option (percentage vs 0-8 scale)
-
-Beej
-
-- [ ] Parent/teacher interviews (21/07)
-- [ ] Teacher to parent comms (one way) (28/07)
 
 Blake
 
