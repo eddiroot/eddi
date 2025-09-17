@@ -83,47 +83,12 @@
 	// Learning area content state
 	let learningAreaContents = $state<curriculumLearningAreaStandard[]>([]);
 	let selectedLearningAreaContentIds = $state<string[]>([]);
-	let isLoadingLearningContent = $state(false);
 
 	// Curriculum content dropdown state
-
 	$effect(() => {
 		$formData.creationMethod = creationMethod;
 	});
 
-	// Load learning area content when topic changes
-	$effect(() => {
-		if (selectedTopicId && !isCreatingNewTopic && selectedTopicId !== '') {
-			isLoadingLearningContent = true;
-
-			// Use a separate async function to handle the fetch
-			const loadContent = async () => {
-				try {
-					const response = await fetch(`/api/tasks?courseMapItemId=${selectedTopicId}`);
-					if (response.ok) {
-						const data = await response.json();
-						// API now returns grouped learningAreaWithContents
-						learningAreaContents = data.learningAreaWithContents || [];
-					} else {
-						console.error('Failed to load learning content');
-						learningAreaContents = [];
-					}
-				} catch (error) {
-					console.error('Error loading learning content:', error);
-					learningAreaContents = [];
-				} finally {
-					isLoadingLearningContent = false;
-				}
-			};
-
-			loadContent();
-		} else {
-			learningAreaContents = [];
-			isLoadingLearningContent = false;
-		}
-		// Reset selected content when topic changes
-		selectedLearningAreaContentIds = [];
-	});
 	// Connect selected curriculum content IDs to form data
 	$effect(() => {
 		$formData.selectedLearningAreaContentIds = selectedLearningAreaContentIds.map((id) =>

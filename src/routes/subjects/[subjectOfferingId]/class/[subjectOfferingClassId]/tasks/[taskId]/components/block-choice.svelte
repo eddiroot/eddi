@@ -116,8 +116,10 @@
 										{:else}
 											<CheckSquareIcon />
 										{/if}
-									{:else}
+									{:else if !isMultiAnswer()}
 										<CircleIcon />
+									{:else}
+										<SquareIcon />
 									{/if}
 								</Button>
 
