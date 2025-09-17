@@ -4,10 +4,16 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import type { ChatbotChat, ChatbotMessage } from '$lib/server/db/schema';
+	import type { ChatbotMessage } from '$lib/server/db/schema';
 	import { formatTimestamp } from '$lib/utils';
 	import { BotIcon, MessageSquare, Plus, SendIcon, UserIcon } from '@lucide/svelte/icons';
 	import { onMount } from 'svelte';
+
+	type ChatWithFirstMessage = {
+		id: number;
+		createdAt: Date;
+		firstMessage: ChatbotMessage | null;
+	};
 
 	// Props
 	let { subjectOfferingId = null }: { subjectOfferingId?: number | null } = $props();
