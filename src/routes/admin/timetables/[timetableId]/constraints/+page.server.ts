@@ -16,25 +16,15 @@ export const load = async ({ locals: { security }, params }) => {
 	const allConstraints = await getAllConstraints();
 
 	// Filter to only show constraints that have custom forms
-	const constraintsWithForms = allConstraints.filter((constraint) =>
-		hasCustomForm(constraint.FETName)
-	);
+	const constraintsWithForms = allConstraints.filter((constraint) => hasCustomForm(constraint.FETName));
 
 	// Separate current constraints by type
-	const currentTimeConstraints = assignedConstraints.filter(
-		(con) => con.type === constraintTypeEnum.time
-	);
-	const currentSpaceConstraints = assignedConstraints.filter(
-		(con) => con.type === constraintTypeEnum.space
-	);
+	const currentTimeConstraints = assignedConstraints.filter((con) => con.type === constraintTypeEnum.time);
+	const currentSpaceConstraints = assignedConstraints.filter((con) => con.type === constraintTypeEnum.space);
 
 	// Separate available constraints by type (all constraints with forms)
-	const availableTimeConstraints = constraintsWithForms.filter(
-		(con) => con.type === constraintTypeEnum.time
-	);
-	const availableSpaceConstraints = constraintsWithForms.filter(
-		(con) => con.type === constraintTypeEnum.space
-	);
+	const availableTimeConstraints = constraintsWithForms.filter((con) => con.type === constraintTypeEnum.time);
+	const availableSpaceConstraints = constraintsWithForms.filter((con) => con.type === constraintTypeEnum.space);
 
 	return {
 		user,

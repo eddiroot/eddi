@@ -28,6 +28,7 @@ export const implementedConstraints = [
  */
 export function getConstraintFormComponent(FETName: string) {
 	switch (FETName) {
+		// Time Constraints
 		case 'ConstraintSubjectPreferredRooms':
 			return SubjectPreferredRoomsForm;
 		case 'ConstraintRoomNotAvailableTimes':

@@ -497,6 +497,8 @@ export async function getAllConstraintsByTimetableId(timetableId: number) {
 			description: table.constraint.description,
 			type: table.constraint.type,
 			active: table.timetableConstraint.active,
+			optional: table.constraint.optional,
+			repeatable: table.constraint.repeatable,
 			parameters: table.timetableConstraint.parameters,
 			createdAt: table.timetableConstraint.createdAt,
 			updatedAt: table.timetableConstraint.updatedAt

@@ -116,7 +116,11 @@
 											{constraint.description}
 										</td>
 										<td class="px-4 py-2">
-											<Checkbox checked={constraint.active} onCheckedChange={() => {}} />
+											{#if constraint.optional}
+												<Checkbox checked={constraint.active} onCheckedChange={() => {}} />
+											{:else}
+												<span class="text-muted-foreground text-sm">Mandatory</span>
+											{/if}
 										</td>
 										<td class="px-4 py-2">
 											<div class="flex gap-2">
@@ -207,7 +211,11 @@
 											{constraint.description}
 										</td>
 										<td class="px-4 py-2">
-											<Checkbox checked={constraint.active} onCheckedChange={() => {}} />
+											{#if constraint.optional}
+												<Checkbox checked={constraint.active} onCheckedChange={() => {}} />
+											{:else}
+												<span class="text-muted-foreground text-sm">Mandatory</span>
+											{/if}
 										</td>
 										<td class="px-4 py-2">
 											<div class="flex gap-2">
@@ -277,7 +285,7 @@
 		</Dialog.Header>
 		{#if constraintToAdd}
 			{@const FormComponent = getFormComponent(constraintToAdd)}
-			<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal} />
+			<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal}/>
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>
