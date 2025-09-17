@@ -17,8 +17,11 @@ const config = {
 		// 	}
 		// },
 		csrf: {
-			// enabled by default, but included for clarity
-			checkOrigin: true
+			trustedOrigins: [
+				"http://localhost:5173",
+				"https://eddi.com.au",
+				"https://www.eddi.com.au"
+			]
 		}
 	}
 };

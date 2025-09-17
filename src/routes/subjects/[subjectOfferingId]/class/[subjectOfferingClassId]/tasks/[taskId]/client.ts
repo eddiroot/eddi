@@ -1,6 +1,8 @@
+import type { taskBlockTypeEnum } from '$lib/enums';
+
 const API_BASE = '/api/tasks';
 
-export async function updateTaskTitle(request) {
+export async function updateTaskTitle(request: { taskId: number; title: string }) {
 	const response = await fetch(API_BASE, {
 		method: 'PATCH',
 		headers: {
@@ -18,7 +20,12 @@ export async function updateTaskTitle(request) {
 	return data;
 }
 
-export async function createBlock(request) {
+export async function createBlock(request: {
+	taskId: number;
+	type: taskBlockTypeEnum;
+	config: unknown;
+	index: number;
+}) {
 	const response = await fetch(`${API_BASE}/blocks`, {
 		method: 'POST',
 		headers: {
@@ -36,7 +43,19 @@ export async function createBlock(request) {
 	return data;
 }
 
-export async function updateBlock(request) {
+export async function updateBlock(request: {
+	block: {
+		id: number;
+		createdAt: Date;
+		updatedAt: Date;
+		type: taskBlockTypeEnum;
+		taskId: number;
+		config: unknown;
+		index: number;
+		availableMarks: number | null;
+	};
+	config: unknown;
+}) {
 	const response = await fetch(`${API_BASE}/blocks`, {
 		method: 'PATCH',
 		headers: {
@@ -68,7 +87,7 @@ export async function deleteBlock(blockId: number) {
 	return data;
 }
 
-export async function updateBlockOrder(request) {
+export async function updateBlockOrder(request: { blockOrder: { id: number; index: number }[] }) {
 	const response = await fetch(`${API_BASE}/blocks/order`, {
 		method: 'PUT',
 		headers: {

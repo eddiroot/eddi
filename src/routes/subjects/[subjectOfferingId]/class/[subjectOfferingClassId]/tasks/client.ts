@@ -1,19 +1,16 @@
 // Client-side API helper functions for Tasks ordering
 
-import type {
-	UpdateTaskOrderRequest,
-	UpdateTopicOrderRequest,
-	ApiSuccessResponse
-} from '../../../../../api/tasks/types';
-
 const API_BASE = '/api/tasks';
 
 /**
  * Update task order within topics
  */
-export async function updateTaskOrder(
-	request: UpdateTaskOrderRequest
-): Promise<ApiSuccessResponse> {
+interface TaskOrderRequest {
+	taskIds: string[];
+	topicId: string;
+}
+
+export async function updateTaskOrder(request: TaskOrderRequest) {
 	const response = await fetch(`${API_BASE}/order`, {
 		method: 'PATCH',
 		headers: {
@@ -34,9 +31,11 @@ export async function updateTaskOrder(
 /**
  * Update topic order
  */
-export async function updateTopicOrder(
-	request: UpdateTopicOrderRequest
-): Promise<ApiSuccessResponse> {
+interface TopicOrderRequest {
+	topicIds: string[];
+}
+
+export async function updateTopicOrder(request: TopicOrderRequest) {
 	const response = await fetch(`${API_BASE}/order`, {
 		method: 'PATCH',
 		headers: {
