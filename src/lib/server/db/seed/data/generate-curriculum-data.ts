@@ -78,23 +78,31 @@ const SUBJECTS_TO_SCRAPE = [
 ];
 
 async function generateCurriculumData(): Promise<void> {
-	console.log('🚀 Starting VCAA curriculum data generation...');
-	
 	const scraper = new VCAAF10Scraper();
 	const subjects: VCAASubject[] = [];
-	
+
 	for (const subjectInfo of SUBJECTS_TO_SCRAPE) {
-		console.log(`📖 Scraping ${subjectInfo.name}...`);
-		
 		try {
 			const subjectContent = await scraper.scrapeSubject(subjectInfo.name);
-			
+
 			if (subjectContent) {
 				// Transform the scraped content to match our JSON structure
-				const learningAreaMap = new Map<string, { name: string; description: string; standards: Array<{ name: string; description: string; yearLevel: string; elaborations: string[] }> }>();
-				
+				const learningAreaMap = new Map<
+					string,
+					{
+						name: string;
+						description: string;
+						standards: Array<{
+							name: string;
+							description: string;
+							yearLevel: string;
+							elaborations: string[];
+						}>;
+					}
+				>();
+
 				// Group content by learning area
-				subjectContent.learningAreas.forEach(la => {
+				subjectContent.learningAreas.forEach((la) => {
 					if (!learningAreaMap.has(la.name)) {
 						learningAreaMap.set(la.name, {
 							name: la.name,
@@ -102,55 +110,41 @@ async function generateCurriculumData(): Promise<void> {
 							standards: []
 						});
 					}
-					
-					la.standards.forEach(standard => {
+
+					la.standards.forEach((standard) => {
 						learningAreaMap.get(la.name)!.standards.push({
 							name: standard.name,
 							description: standard.description,
 							yearLevel: standard.yearLevel,
-							elaborations: standard.elaborations.map(elab => elab.standardElaboration)
+							elaborations: standard.elaborations.map((elab) => elab.standardElaboration)
 						});
 					});
 				});
-				
+
 				const subject: VCAASubject = {
 					name: subjectInfo.name,
 					url: subjectInfo.url,
 					learningAreas: Array.from(learningAreaMap.values())
 				};
-				
+
 				subjects.push(subject);
-				console.log(`✅ Completed ${subjectInfo.name} (${subject.learningAreas.length} learning areas)`);
 			} else {
-				console.log(`⚠️  No content found for ${subjectInfo.name}`);
+				console.error(`⚠️ No content found for ${subjectInfo.name}`);
 			}
 		} catch (error) {
 			console.error(`❌ Error scraping ${subjectInfo.name}:`, error);
 		}
 	}
-	
+
 	// Create the final data structure
 	const curriculumData: VCAACurriculumData = {
 		scrapedAt: new Date().toISOString(),
 		subjects
 	};
-	
+
 	// Write to JSON file
 	const outputPath = join(new URL('.', import.meta.url).pathname, 'vcaa-curriculum.json');
 	writeFileSync(outputPath, JSON.stringify(curriculumData, null, 2), 'utf-8');
-	
-	// Generate summary
-	const totalLearningAreas = subjects.reduce((sum, subject) => sum + subject.learningAreas.length, 0);
-	const totalStandards = subjects.reduce((sum, subject) => 
-		sum + subject.learningAreas.reduce((subSum, la) => subSum + la.standards.length, 0), 0
-	);
-	
-	console.log('\n📊 Generation Summary:');
-	console.log(`-- Subjects: ${subjects.length}`);
-	console.log(`-- Learning Areas: ${totalLearningAreas}`);
-	console.log(`-- Standards: ${totalStandards}`);
-	console.log(`-- Output: ${outputPath}`);
-	console.log('\n🎉 VCAA curriculum data generation completed!');
 }
 
 // Run the script

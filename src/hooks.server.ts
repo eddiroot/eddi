@@ -7,7 +7,6 @@ import { building } from '$app/environment';
 
 if (!building) {
 	// cron.schedule('* * * * *', () => {
-	// 	console.log('Running timetable queue processor...');
 	// 	processTimetableQueue();
 	// });
 }

@@ -134,15 +134,6 @@ export const actions: Actions = {
 		const color = formData.get('color') as string;
 		const learningAreaIdsJson = formData.get('learningAreaIds') as string;
 
-		console.log('Server createCourseMapItem - received values:', {
-			subjectOfferingId,
-			topic,
-			semester,
-			startWeek,
-			duration,
-			color
-		});
-
 		if (!subjectOfferingId || !topic) {
 			return fail(400, { message: 'Missing required fields' });
 		}
@@ -155,8 +146,6 @@ export const actions: Actions = {
 				startWeek,
 				description
 			);
-
-			console.log('Server createCourseMapItem - created item:', courseMapItem);
 
 			// Update with additional fields if the item was created successfully
 			if (courseMapItem) {
@@ -179,8 +168,6 @@ export const actions: Actions = {
 					duration,
 					color
 				};
-
-				console.log('Server createCourseMapItem - returning final item:', finalItem);
 
 				// Return the updated item with all fields
 				return {

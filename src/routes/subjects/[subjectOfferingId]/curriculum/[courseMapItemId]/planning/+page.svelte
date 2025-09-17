@@ -600,13 +600,7 @@
 										Generate Different Plan
 									{/if}
 								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									onclick={() => console.log('Create manually')}
-								>
-									Manual
-								</Button>
+								<Button type="button" variant="outline">Manual</Button>
 							{:else}
 								<Button
 									type="submit"
@@ -621,13 +615,7 @@
 										Generate Summary with AI
 									{/if}
 								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									onclick={() => console.log('Create manually')}
-								>
-									Manual
-								</Button>
+								<Button type="button" variant="outline">Manual</Button>
 							{/if}
 						</div>
 
@@ -867,13 +855,7 @@
 										Generate Different Plan
 									{/if}
 								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									onclick={() => console.log('Create manually')}
-								>
-									Manual
-								</Button>
+								<Button type="button" variant="outline">Manual</Button>
 							{:else}
 								<Button
 									type="submit"
@@ -888,13 +870,7 @@
 										Generate Summary with AI
 									{/if}
 								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									onclick={() => console.log('Create manually')}
-								>
-									Manual
-								</Button>
+								<Button type="button" variant="outline">Manual</Button>
 							{/if}
 						</div>
 

@@ -27,18 +27,10 @@ async function ensureTempDir() {
 export async function processTimetableQueue() {
 	try {
 		const inProgressQueues = await getInProgressTimetableQueues();
-
-		if (inProgressQueues.length > 0) {
-			console.log(`${inProgressQueues.length} timetable(s) currently being processed. Skipping...`);
-			return;
-		}
+		if (inProgressQueues.length > 0) return;
 
 		const queueEntry = await getOldestQueuedTimetable();
-
-		if (!queueEntry) {
-			console.log('No timetables in queue to process.');
-			return;
-		}
+		if (!queueEntry) return;
 
 		await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.inProgress);
 

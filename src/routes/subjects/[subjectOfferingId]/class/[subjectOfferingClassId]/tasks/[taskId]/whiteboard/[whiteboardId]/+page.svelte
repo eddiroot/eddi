@@ -1,22 +1,4 @@
 <script lang="ts">
-	// Suppress verbose fabric.js object logging in development
-	if (typeof window !== 'undefined') {
-		const originalLog = console.log;
-		console.log = (...args) => {
-			const message = args.join(' ');
-			// Filter out fabric.js object data logs
-			if (
-				message.includes('originY') &&
-				message.includes('left') &&
-				message.includes('top') &&
-				message.includes('fill')
-			) {
-				return; // Don't log fabric.js object data
-			}
-			originalLog.apply(console, args);
-		};
-	}
-
 	import { v4 as uuidv4 } from 'uuid';
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/state';
@@ -49,7 +31,6 @@
 	let canvas: fabric.Canvas;
 	let selectedTool = $state('select');
 	let whiteboardCanvas = $state<HTMLCanvasElement>();
-	let currentMousePos = $state({ x: 0, y: 0 });
 	let isPanMode = false;
 	let panStartPos = { x: 0, y: 0 };
 	let currentZoom = $state(1);
@@ -199,7 +180,6 @@
 		setSelectTool();
 		selectedTool = 'shapes';
 		showFloatingMenu = true;
-		console.log('addShape - selectedTool:', selectedTool, 'showFloatingMenu:', showFloatingMenu);
 		let shape: fabric.Object;
 		const centerX = canvas.width! / 2;
 		const centerY = canvas.height! / 2;
@@ -267,7 +247,6 @@
 
 		selectedTool = 'text';
 		showFloatingMenu = true;
-		console.log('addText - selectedTool:', selectedTool, 'showFloatingMenu:', showFloatingMenu);
 
 		const text = new fabric.Textbox('Click to edit text', {
 			id: uuidv4(),

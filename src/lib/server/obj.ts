@@ -20,7 +20,6 @@ async function ensureBucketExists(bucketName: string) {
 		const exists = await minioClient.bucketExists(bucketName);
 		if (!exists) {
 			await minioClient.makeBucket(bucketName);
-			console.log(`Bucket ${bucketName} created successfully`);
 		}
 	} catch (error) {
 		console.error(`Error ensuring bucket ${bucketName} exists:`, error);

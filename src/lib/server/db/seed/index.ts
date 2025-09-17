@@ -33,8 +33,6 @@ export const db = drizzle(client, { schema });
 async function seed() {
 	await reset(db, schema);
 	try {
-		console.log('🌱 Starting database seeding...');
-
 		const [schoolRecord] = await db
 			.insert(schema.school)
 			.values({
@@ -251,7 +249,6 @@ async function seed() {
 		});
 
 		// Load pre-scraped VCAA curriculum data from JSON
-		console.log('📚 Loading VCAA F-10 curriculum data from JSON...');
 		const __filename = fileURLToPath(import.meta.url);
 		const __dirname = dirname(__filename);
 		const curriculumDataPath = join(__dirname, 'data', 'vcaa-curriculum.json');
@@ -304,12 +301,14 @@ async function seed() {
 		}
 
 		// Helper function to map year level string to enum values
-		function mapYearLevelToEnum(yearLevelStr: string): (typeof yearLevelEnum)[keyof typeof yearLevelEnum][] {
+		function mapYearLevelToEnum(
+			yearLevelStr: string
+		): (typeof yearLevelEnum)[keyof typeof yearLevelEnum][] {
 			// Handle Foundation-Level 2 case - just map to Foundation
 			if (yearLevelStr.includes('Foundation-Level')) {
 				return [yearLevelEnum.foundation];
 			}
-			
+
 			// Handle single levels
 			if (yearLevelStr === 'Foundation') {
 				return [yearLevelEnum.foundation];
@@ -336,7 +335,7 @@ async function seed() {
 			} else if (yearLevelStr === 'Level 10A') {
 				return [yearLevelEnum.year10A];
 			}
-			
+
 			// Handle ranges
 			if (yearLevelStr === 'Level 1-2') {
 				return [yearLevelEnum.year1, yearLevelEnum.year2];
@@ -349,7 +348,7 @@ async function seed() {
 			} else if (yearLevelStr === 'Level 9-10') {
 				return [yearLevelEnum.year9, yearLevelEnum.year10];
 			}
-			
+
 			// Default fallback
 			return [yearLevelEnum.foundation];
 		}
@@ -368,7 +367,7 @@ async function seed() {
 			for (const yearLevelValue of yearLevels) {
 				// Create unique identifier for this standard + year level combination
 				const standardKey = `${item.vcaaCode}-${yearLevelValue}`;
-				
+
 				// Check if this content already exists to avoid duplicates
 				const existingContent = await db
 					.select()
@@ -405,8 +404,6 @@ async function seed() {
 				}
 			}
 		}
-
-		console.log(`📝 Created ${learningAreaStandardMap.size} learning area content items`);
 
 		// Create 36-week coursemap items for each subject offering (18 weeks per semester)
 		const courseMapItems = [];
@@ -967,9 +964,6 @@ async function seed() {
 			});
 		}
 
-		// Create mock timetable structure
-		console.log('📅 Creating mock timetable...');
-
 		const [mockTimetable] = await db
 			.insert(schema.timetable)
 			.values({
@@ -981,7 +975,7 @@ async function seed() {
 			.returning();
 
 		// Create timetable days (Monday to Friday)
-		const timetableDays = await db
+		await db
 			.insert(schema.timetableDay)
 			.values([
 				{ timetableId: mockTimetable.id, day: 1 }, // Monday
@@ -993,7 +987,7 @@ async function seed() {
 			.returning();
 
 		// Create timetable periods (6 periods from 9:00 to 15:30)
-		const timetablePeriods = await db
+		await db
 			.insert(schema.timetablePeriod)
 			.values([
 				{ timetableId: mockTimetable.id, startTime: '09:00', endTime: '09:50' },
@@ -1046,17 +1040,11 @@ async function seed() {
 
 		await db.insert(schema.timetableActivity).values(timetableActivities);
 
-		console.log(
-			`✅ Created mock timetable with ${timetableDays.length} days, ${timetablePeriods.length} periods, ${timetableGroups.length} groups, and ${timetableActivities.length} activities`
-		);
-
-		console.log(`🕙 Creating comprehensive Constraints catalog...`);
-
 		// Import the comprehensive constraint definitions
 		const { ALL_CONSTRAINTS } = await import('./data/constraints.js');
 
 		// Convert constraint definitions to database format
-		const constraintsToSeed = ALL_CONSTRAINTS.map(constraint => ({
+		const constraintsToSeed = ALL_CONSTRAINTS.map((constraint) => ({
 			FETName: constraint.FETName,
 			friendlyName: constraint.friendlyName,
 			description: constraint.description,
@@ -1067,12 +1055,11 @@ async function seed() {
 
 		const allConstraints = await db.insert(schema.constraint).values(constraintsToSeed).returning();
 
-		console.log(`✅ Created ${constraintsToSeed.length} Constraints in the catalog`);
-
 		// Only add the mandatory constraints to the mock timetable
-		const mandatoryConstraints = allConstraints.filter(c => 
-			c.FETName === 'ConstraintBasicCompulsoryTime' || 
-			c.FETName === 'ConstraintBasicCompulsorySpace'
+		const mandatoryConstraints = allConstraints.filter(
+			(c) =>
+				c.FETName === 'ConstraintBasicCompulsoryTime' ||
+				c.FETName === 'ConstraintBasicCompulsorySpace'
 		);
 
 		for (const con of mandatoryConstraints) {
@@ -1081,14 +1068,12 @@ async function seed() {
 				constraintId: con.id,
 				active: true,
 				parameters: {
-					"Active": true,
-  					"Comments": "This is a mandatory constraint added by the seeding script.",
-  					"Weight_Percentage": 100
+					Active: true,
+					Comments: 'This is a mandatory constraint added by the seeding script.',
+					Weight_Percentage: 100
 				}
 			});
 		}
-
-		console.log(`🔗 Linked ${mandatoryConstraints.length} mandatory constraints to the mock timetable`);
 
 		// Calculate the most recent Monday
 		const today = new Date();
@@ -1099,9 +1084,6 @@ async function seed() {
 		mostRecentMonday.setHours(0, 0, 0, 0); // Set to start of day
 
 		const baseDate = mostRecentMonday;
-		console.log(
-			`📅 Seeding timetable data starting from: ${baseDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
-		);
 
 		// Helper function to create a Date object for a specific day and time
 		const createDateTime = (
@@ -1267,7 +1249,7 @@ async function seed() {
 			.returning();
 
 		// Create news articles
-		const newsArticles = await db
+		await db
 			.insert(schema.news)
 			.values([
 				{
@@ -1680,52 +1662,6 @@ async function seed() {
 				}
 			])
 			.returning();
-
-		console.log(
-			`📰 Created ${newsCategories.length} news categories and ${newsArticles.length} news articles`
-		);
-
-		console.log('✅ Database seeded successfully!');
-		console.log(`
-📊 Summary:
--- School: ${schoolRecord.name}
--- Campus: ${campusRecord.name}
--- Building: ${buildingRecord.name}
--- Spaces: ${spaces.length}
--- Users: ${allUserIds.length} total
-  - System Admin: 1
-  - School Admin: 1  
-  - Students: 3 (enrolled in Year 9 only)
-  - Teachers: 6 (assigned to Year 9 only)
-  - Parents/Guardians: 6 (3 mothers, 3 fathers)
--- User Relationships: 6 (parent-child relationships)
--- Core Subjects: ${coreSubjects.length}
--- Subjects: ${subjects.length} (Foundation to Year 10 for each core subject)
--- Subject Offerings: ${subjectOfferings.length} (F-10 year-long offerings, semester = null)
--- Year 9 Offerings: ${year9Offerings.length} (used for student/teacher assignments)
--- Subject Classes: ${subjectOfferingClasses.length} (Year 9 only)
--- Timetable Entries: ${timetableEntries.length} (4 weeks of data for testing week navigation)
--- VCAA Content Items: ${contentItems.length}
--- Learning Areas: ${learningAreaMap.size}
--- Coursemap Items: ${courseMapItems.length} (36 weeks total, spanning both semesters)
-
-🔐 Default password for all users: password123
-
-📧 User emails:
--- System Admin: root@eddi.com.au
--- School Admin: admin@eddi.edu
--- Students: student001@eddi.edu, student002@eddi.edu, student003@eddi.edu
--- Teachers: m.teacher@eddi.edu, e.teacher@eddi.edu, s.teacher@eddi.edu, pe.teacher@eddi.edu, h.teacher@eddi.edu, g.teacher@eddi.edu
--- Parents: mother001@eddi.edu, father001@eddi.edu, mother002@eddi.edu, father002@eddi.edu, mother003@eddi.edu, father003@eddi.edu
-
-📚 Structure Created:
--- Foundation to Year 10 subjects for Mathematics, English, Science, Physical Education, History, Geography
--- Full F-10 curriculum with year-long subject offerings for 2025 (semester = null)
--- Students and teachers are only assigned to Year 9 offerings
--- Coursemap covers all F-10 subject offerings with 36-week structure (18 weeks per semester)
--- Course map items properly assigned to semester 1 (weeks 1-18) and semester 2 (weeks 19-36)
--- Timetable: Each day has exactly one class of each subject (6 subjects × 5 days × 4 weeks = ${timetableEntries.length} total classes)
-		`);
 	} catch (error) {
 		console.error('❌ Error seeding database:', error);
 		throw error;
@@ -1734,7 +1670,6 @@ async function seed() {
 
 seed()
 	.then(() => {
-		console.log('Seeding completed');
 		process.exit(0);
 	})
 	.catch((error) => {

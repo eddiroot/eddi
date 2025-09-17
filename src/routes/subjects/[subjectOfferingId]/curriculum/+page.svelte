@@ -9,25 +9,12 @@
 		CourseMapItemAssessmentPlan
 	} from '$lib/server/db/schema';
 
-	// Use Svelte 5 $props() for component props
 	let { data, form } = $props();
 
-	// Use Svelte 5 $state rune for reactive course map items
 	let courseMapItems = $state([...(data.courseMapItems || [])]);
 
-	// Use Svelte 5 $effect to sync with new data when the route changes
 	$effect(() => {
 		if (data.courseMapItems) {
-			console.log('Loading courseMapItems from server:', data.courseMapItems);
-			console.log(
-				'Raw semester values:',
-				data.courseMapItems.map((item) => ({
-					id: item.id,
-					topic: item.topic,
-					semester: item.semester,
-					startWeek: item.startWeek
-				}))
-			);
 			courseMapItems = [...data.courseMapItems];
 		}
 	});
@@ -150,14 +137,7 @@
 
 	// Handle new item creation - add to local state immediately
 	function handleItemCreated(newItem: CourseMapItem) {
-		console.log('handleItemCreated called with:', newItem);
-		console.log('Current courseMapItems length before:', courseMapItems.length);
-
-		// Use spread to trigger reactivity in Svelte 5
 		courseMapItems = [...courseMapItems, newItem];
-
-		console.log('New courseMapItems length after:', courseMapItems.length);
-		console.log('Updated courseMapItems:', courseMapItems);
 	}
 
 	// Handle item updates - update local state immediately

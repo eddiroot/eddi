@@ -77,8 +77,6 @@
 		// Handle timetable confirmation logic here
 		// This could submit to a server action or redirect to another page
 		showConfirmDialog = false;
-		// For now, just log the confirmation
-		console.log('Timetable confirmed!');
 	}
 </script>
 

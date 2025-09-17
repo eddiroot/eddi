@@ -241,13 +241,6 @@
 			blocks = blocks.filter((block) => block.id !== draggedItem.id);
 		}
 
-		// Handle drops from two-column layout to palette (deletion)
-		if (sourceContainer.startsWith('two-column-') && targetContainer === 'blockPalette') {
-			// No server action needed since two-column blocks are not persisted individually
-			// The onDragEnd callback in the two-column component will handle removal
-			console.log('Block dragged from two-column to palette for deletion');
-		}
-
 		// Handle drops from main task to two-column layout
 		if (sourceContainer.startsWith('task') && targetContainer.startsWith('two-column-')) {
 			const { success } = await deleteBlock(draggedItem.id);

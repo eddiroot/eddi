@@ -43,17 +43,14 @@
 			// Check if it's AI creation method
 			const method = formData.get('creationMethod');
 			const taskType = formData.get('type');
-			console.log('Form submission:', { method, taskType });
 
 			if (method === 'ai') {
 				isSubmitting = true;
-				console.log('Starting AI task generation...');
 			}
 		},
 		onResult: ({ result }) => {
 			// Reset loading state on any result
 			isSubmitting = false;
-			console.log('Form submission result:', result);
 
 			// Handle error responses from server
 			if (result.type === 'success' && result.data?.error) {
