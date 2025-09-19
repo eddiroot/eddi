@@ -293,7 +293,7 @@
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<Label class="text-base font-semibold">Static Plots</Label>
-					<Button onclick={() => updatePlots(true, 'add')} variant="outline" size="sm">
+					<Button onclick={() => updatePlots(true, 'add')} size="sm">
 						<PlusIcon class="mr-2" />
 						Add Plot
 					</Button>
@@ -355,7 +355,7 @@
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<Label class="text-base font-semibold">Your Plots</Label>
-					<Button onclick={() => updatePlots(false, 'add')} variant="outline" size="sm">
+					<Button onclick={() => updatePlots(false, 'add')} size="sm">
 						<PlusIcon class="mr-2" />
 						Add Plot
 					</Button>

@@ -633,7 +633,10 @@ export type RichTextBlockProps = BlockProps<BlockRichTextConfig>;
 export type MathInputBlockProps = BlockProps<BlockMathInputConfig, BlockMathInputResponse>;
 export type ChoiceBlockProps = BlockProps<BlockChoiceConfig, BlockChoiceResponse>;
 export type FillBlankBlockProps = BlockProps<BlockFillBlankConfig, BlockFillBlankResponse>;
-export type BalancingEquationsBlockProps = BlockProps<BlockBalancingEquationsConfig, BlockBalancingEquationsResponse>;
+export type BalancingEquationsBlockProps = BlockProps<
+	BlockBalancingEquationsConfig,
+	BlockBalancingEquationsResponse
+>;
 export type MatchingBlockProps = BlockProps<BlockMatchingConfig, BlockMatchingResponse>;
 export type ShortAnswerBlockProps = BlockProps<BlockShortAnswerConfig, BlockShortAnswerResponse>;
 export type WhiteboardBlockProps = BlockProps<BlockWhiteboardConfig>;
@@ -646,6 +649,7 @@ export type TableBlockProps = BlockProps<BlockTableConfig>;
 export type GraphBlockProps = BlockProps<BlockGraphConfig, BlockGraphResponse>;
 
 import type { Icon } from '@lucide/svelte';
+import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
 import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
@@ -660,7 +664,6 @@ import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import TableIcon from '@lucide/svelte/icons/table';
 import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
-import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 
 export enum ViewMode {
 	CONFIGURE = 'configure',
@@ -734,7 +737,7 @@ export const blockTypes: {
 		name: 'Fill Blank',
 		initialConfig: {
 			sentence: 'Fill in the _____ and _____.',
-			answers: ['first blank', 'second blank']
+			answers: ['first', 'second']
 		},
 		icon: PenToolIcon
 	},

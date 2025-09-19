@@ -57,9 +57,17 @@ All
 Lachie
 
 - [ ] Class tests / quizzes
+  - Scheduled start time or manual start
+  - Choose when grades are released (instantly or manual)
+  - Timer for the test when students are taking it
+  - Auto submit when timer runs out
 - [ ] Subject selection
 - [ ] Parent/teacher interviews
 - [ ] Teacher to parent comms (one way)
+- [ ] Highlight text (more than one word at once)
+- [ ] Fill blank (partition box into multiple if multi word answer)
+- [ ] On graph block, colour core x/y axis lines differently
+- [ ] Editable table block for students (is editable checkbox) (add questions on top of the table that teacher can add)
 
 Bella
 
