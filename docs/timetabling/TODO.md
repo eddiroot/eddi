@@ -10,3 +10,5 @@
 - [x] Find a way to enable type safety in the forms for each constraint
 - [x] Create seeding data for a timetable and the timetables constraints
   - [ ] maybe add more students, subjects and activities for the school
+- [x] implement handling for whether a constraint can be set as active or not (mandatory)
+- [x] handle the repeatablity of certain constraints
