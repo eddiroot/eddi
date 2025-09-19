@@ -99,12 +99,13 @@
 		});
 
 		try {
-			const response = await fetch(`/admin/timetables/${timetableId}/constraints/${constraintId}`, {
+			const response = await fetch(`/admin/timetables/${timetableId}/constraints`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
+					constraintId: constraintId,
 					active: newActiveState
 				})
 			});
@@ -135,6 +136,38 @@
 				isUpdating: false
 			});
 			console.error('Error updating constraint:', error);
+		}
+	}
+
+	// Handle deleting a constraint from the timetable
+	async function handleDeleteConstraint(constraintId: number) {
+		if (!confirm('Are you sure you want to remove this constraint from the timetable?')) {
+			return;
+		}
+
+		try {
+			const response = await fetch(`/admin/timetables/${timetableId}/constraints`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					constraintId: constraintId
+				})
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				// Refresh the page to show the updated constraints
+				window.location.reload();
+			} else {
+				console.error('Failed to delete constraint:', result.error);
+				alert('Failed to delete constraint. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error deleting constraint:', error);
+			alert('Error deleting constraint. Please try again.');
 		}
 	}
 
@@ -195,9 +228,11 @@
 											<Button variant="ghost" size="sm" onclick={() => {}}>
 												<EditIcon class="h-4 w-4" />
 											</Button>
-											<Button variant="ghost" size="sm" onclick={() => {}}>
-												<TrashIcon class="h-4 w-4" />
-											</Button>
+											{#if constraint.optional}
+												<Button variant="ghost" size="sm" onclick={() => handleDeleteConstraint(constraint.id)}>
+													<TrashIcon class="h-4 w-4" />
+												</Button>
+											{/if}
 										</div>
 									</div>
 								</div>
@@ -247,9 +282,11 @@
 											<Button variant="ghost" size="sm" onclick={() => {}}>
 												<EditIcon class="h-4 w-4" />
 											</Button>
-											<Button variant="ghost" size="sm" onclick={() => {}}>
-												<TrashIcon class="h-4 w-4" />
-											</Button>
+											{#if constraint.optional}
+												<Button variant="ghost" size="sm" onclick={() => handleDeleteConstraint(constraint.id)}>
+													<TrashIcon class="h-4 w-4" />
+												</Button>
+											{/if}
 										</div>
 									</div>
 								</div>
