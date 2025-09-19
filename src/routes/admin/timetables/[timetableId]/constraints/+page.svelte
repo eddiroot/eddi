@@ -161,7 +161,14 @@
 						{#each availableTimeConstraints as constraint}
 							<div class="space-y-3 rounded-lg border p-4">
 								<div>
-									<h3 class="font-semibold">{constraint.friendlyName}</h3>
+									<div class="flex items-center justify-between">
+										<h3 class="font-semibold">{constraint.friendlyName}</h3>
+										{#if !constraint.repeatable}
+											<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
+												One-time
+											</span>
+										{/if}
+									</div>
 									<p class="text-muted-foreground mt-1 text-sm">
 										{constraint.description}
 									</p>
@@ -256,7 +263,14 @@
 						{#each availableSpaceConstraints as constraint}
 							<div class="space-y-3 rounded-lg border p-4">
 								<div>
-									<h3 class="font-semibold">{constraint.friendlyName}</h3>
+									<div class="flex items-center justify-between">
+										<h3 class="font-semibold">{constraint.friendlyName}</h3>
+										{#if !constraint.repeatable}
+											<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
+												One-time
+											</span>
+										{/if}
+									</div>
 									<p class="text-muted-foreground mt-1 text-sm">
 										{constraint.description}
 									</p>
