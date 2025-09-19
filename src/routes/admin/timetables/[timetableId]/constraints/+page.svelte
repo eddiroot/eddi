@@ -21,6 +21,21 @@
 		availableSpaceConstraints
 	} = data;
 
+	// Create reactive state for constraint active status with optimistic updates
+	let constraintStates = $state(new Map());
+
+	// Initialize constraint states
+	$effect(() => {
+		// Initialize states for current constraints
+		[...currentTimeConstraints, ...currentSpaceConstraints].forEach(constraint => {
+			constraintStates.set(`${constraint.id}`, {
+				active: constraint.active,
+				isUpdating: false,
+				originalActive: constraint.active
+			});
+		});
+	});
+
 	// Modal state
 	let addConstraintModalOpen = $state(false);
 	let constraintToAdd = $state<Constraint | null>(null);
@@ -69,6 +84,60 @@
 		}
 	}
 
+	// Handle toggling constraint active status
+	async function handleToggleConstraintActive(constraintId: number, newActiveState: boolean) {
+		const stateKey = `${constraintId}`;
+		const currentState = constraintStates.get(stateKey);
+		
+		if (!currentState || currentState.isUpdating) return;
+
+		// Optimistic update
+		constraintStates.set(stateKey, {
+			...currentState,
+			active: newActiveState,
+			isUpdating: true
+		});
+
+		try {
+			const response = await fetch(`/admin/timetables/${timetableId}/constraints/${constraintId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					active: newActiveState
+				})
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				// Update successful - finalize the state
+				constraintStates.set(stateKey, {
+					active: newActiveState,
+					isUpdating: false,
+					originalActive: newActiveState
+				});
+			} else {
+				// Rollback optimistic update
+				constraintStates.set(stateKey, {
+					...currentState,
+					active: currentState.originalActive,
+					isUpdating: false
+				});
+				console.error('Failed to update constraint:', result.error);
+			}
+		} catch (error) {
+			// Rollback optimistic update
+			constraintStates.set(stateKey, {
+				...currentState,
+				active: currentState.originalActive,
+				isUpdating: false
+			});
+			console.error('Error updating constraint:', error);
+		}
+	}
+
 	// Get the appropriate form component for a constraint using the mapping
 	function getFormComponent(constraint: Constraint) {
 		return getConstraintFormComponent(constraint.FETName);
@@ -83,208 +152,201 @@
 		</div>
 	</div>
 
-	<!-- Assigned Time Constraints Section -->
-	<div class="space-y-4">
-		<div class="flex items-center justify-between">
-			<h2 class="text-xl leading-tight font-bold">Active Time Constraints</h2>
-			<span class="text-muted-foreground text-sm">
-				{currentTimeConstraints.length} constraints assigned
-			</span>
-		</div>
-		<Card.Root>
-			<Card.Content class="p-4">
-				{#if currentTimeConstraints.length === 0}
-					<p class="text-muted-foreground py-8 text-center">
-						No time constraints assigned to this timetable yet.
-					</p>
-				{:else}
-					<div class="overflow-x-auto">
-						<table class="w-full border-collapse">
-							<thead>
-								<tr class="border-b">
-									<th class="px-4 py-2 text-left">Constraint Name</th>
-									<th class="px-4 py-2 text-left">Description</th>
-									<th class="px-4 py-2 text-left">Active</th>
-									<th class="px-4 py-2 text-left">Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each currentTimeConstraints as constraint}
-									<tr class="hover:bg-muted/50 border-b">
-										<td class="px-4 py-2 font-medium">{constraint.friendlyName}</td>
-										<td class="text-muted-foreground max-w-md px-4 py-2 text-sm">
+	<!-- 2x2 Grid Layout -->
+	<div class="grid gap-6 lg:grid-cols-2">
+		<!-- Top Row: Active Constraints -->
+		
+		<!-- Active Time Constraints -->
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<h2 class="text-xl leading-tight font-bold">Active Time Constraints</h2>
+				<span class="text-muted-foreground text-sm">
+					{currentTimeConstraints.length} constraints assigned
+				</span>
+			</div>
+			<Card.Root>
+				<Card.Content class="p-4">
+					{#if currentTimeConstraints.length === 0}
+						<p class="text-muted-foreground py-8 text-center">
+							No time constraints assigned to this timetable yet.
+						</p>
+					{:else}
+						<div class="space-y-3">
+							{#each currentTimeConstraints as constraint}
+								<div class="flex items-center justify-between rounded-lg border p-3">
+									<div class="flex-1">
+										<h3 class="font-medium">{constraint.friendlyName}</h3>
+										<p class="text-muted-foreground text-sm">
 											{constraint.description}
-										</td>
-										<td class="px-4 py-2">
-											{#if constraint.optional}
-												<Checkbox checked={constraint.active} onCheckedChange={() => {}} />
-											{:else}
-												<span class="text-muted-foreground text-sm">Mandatory</span>
-											{/if}
-										</td>
-										<td class="px-4 py-2">
-											<div class="flex gap-2">
-												<Button variant="ghost" size="sm" onclick={() => {}}>
-													<EditIcon class="h-4 w-4" />
-												</Button>
-												<Button variant="ghost" size="sm" onclick={() => {}}>
-													<TrashIcon class="h-4 w-4" />
-												</Button>
-											</div>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div>
-				{/if}
-			</Card.Content>
-		</Card.Root>
-	</div>
-
-	<!-- Available Time Constraints Section -->
-	<div class="space-y-4">
-		<div class="flex items-center justify-between">
-			<h2 class="text-xl leading-tight font-bold">Available Time Constraints</h2>
-			<span class="text-muted-foreground text-sm">
-				{availableTimeConstraints.length} constraints available
-			</span>
-		</div>
-		<Card.Root>
-			<Card.Content class="p-4">
-				{#if availableTimeConstraints.length === 0}
-					<p class="text-muted-foreground py-8 text-center">
-						All time constraints are already assigned to this timetable.
-					</p>
-				{:else}
-					<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						{#each availableTimeConstraints as constraint}
-							<div class="space-y-3 rounded-lg border p-4">
-								<div>
-									<div class="flex items-center justify-between">
-										<h3 class="font-semibold">{constraint.friendlyName}</h3>
-										{#if !constraint.repeatable}
-											<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
-												One-time
-											</span>
-										{/if}
+										</p>
 									</div>
-									<p class="text-muted-foreground mt-1 text-sm">
-										{constraint.description}
-									</p>
+									<div class="flex items-center gap-3">
+										{#if constraint.optional}
+											{@const state = constraintStates.get(`${constraint.id}`)}
+											<Checkbox 
+												checked={state?.active ?? constraint.active} 
+												disabled={state?.isUpdating ?? false}
+												onCheckedChange={(checked) => handleToggleConstraintActive(constraint.id, checked === true)} 
+											/>
+										{:else}
+											<span class="text-muted-foreground text-xs">Mandatory</span>
+										{/if}
+										<div class="flex gap-1">
+											<Button variant="ghost" size="sm" onclick={() => {}}>
+												<EditIcon class="h-4 w-4" />
+											</Button>
+											<Button variant="ghost" size="sm" onclick={() => {}}>
+												<TrashIcon class="h-4 w-4" />
+											</Button>
+										</div>
+									</div>
 								</div>
-								<Button size="sm" class="w-full" onclick={() => openAddConstraintModal(constraint)}>
-									<PlusIcon class="mr-2 h-4 w-4" />
-									Add Constraint
-								</Button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</Card.Content>
-		</Card.Root>
-	</div>
-
-	<!-- Assigned Space Constraints Section -->
-	<div class="space-y-4">
-		<div class="flex items-center justify-between">
-			<h2 class="text-xl leading-tight font-bold">Active Space Constraints</h2>
-			<span class="text-muted-foreground text-sm">
-				{currentSpaceConstraints.length} constraints assigned
-			</span>
+							{/each}
+						</div>
+					{/if}
+				</Card.Content>
+			</Card.Root>
 		</div>
-		<Card.Root>
-			<Card.Content class="p-4">
-				{#if currentSpaceConstraints.length === 0}
-					<p class="text-muted-foreground py-8 text-center">
-						No space constraints assigned to this timetable yet.
-					</p>
-				{:else}
-					<div class="overflow-x-auto">
-						<table class="w-full border-collapse">
-							<thead>
-								<tr class="border-b">
-									<th class="px-4 py-2 text-left">Constraint Name</th>
-									<th class="px-4 py-2 text-left">Description</th>
-									<th class="px-4 py-2 text-left">Active</th>
-									<th class="px-4 py-2 text-left">Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each currentSpaceConstraints as constraint}
-									<tr class="hover:bg-muted/50 border-b">
-										<td class="px-4 py-2 font-medium">{constraint.friendlyName}</td>
-										<td class="text-muted-foreground max-w-md px-4 py-2 text-sm">
+
+		<!-- Active Space Constraints -->
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<h2 class="text-xl leading-tight font-bold">Active Space Constraints</h2>
+				<span class="text-muted-foreground text-sm">
+					{currentSpaceConstraints.length} constraints assigned
+				</span>
+			</div>
+			<Card.Root>
+				<Card.Content class="p-4">
+					{#if currentSpaceConstraints.length === 0}
+						<p class="text-muted-foreground py-8 text-center">
+							No space constraints assigned to this timetable yet.
+						</p>
+					{:else}
+						<div class="space-y-3">
+							{#each currentSpaceConstraints as constraint}
+								<div class="flex items-center justify-between rounded-lg border p-3">
+									<div class="flex-1">
+										<h3 class="font-medium">{constraint.friendlyName}</h3>
+										<p class="text-muted-foreground text-sm">
 											{constraint.description}
-										</td>
-										<td class="px-4 py-2">
-											{#if constraint.optional}
-												<Checkbox checked={constraint.active} onCheckedChange={() => {}} />
-											{:else}
-												<span class="text-muted-foreground text-sm">Mandatory</span>
-											{/if}
-										</td>
-										<td class="px-4 py-2">
-											<div class="flex gap-2">
-												<Button variant="ghost" size="sm" onclick={() => {}}>
-													<EditIcon class="h-4 w-4" />
-												</Button>
-												<Button variant="ghost" size="sm" onclick={() => {}}>
-													<TrashIcon class="h-4 w-4" />
-												</Button>
-											</div>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div>
-				{/if}
-			</Card.Content>
-		</Card.Root>
-	</div>
-
-	<!-- Available Space Constraints Section -->
-	<div class="space-y-4">
-		<div class="flex items-center justify-between">
-			<h2 class="text-xl leading-tight font-bold">Available Space Constraints</h2>
-			<span class="text-muted-foreground text-sm">
-				{availableSpaceConstraints.length} constraints available
-			</span>
-		</div>
-		<Card.Root>
-			<Card.Content class="p-4">
-				{#if availableSpaceConstraints.length === 0}
-					<p class="text-muted-foreground py-8 text-center">
-						All space constraints are already assigned to this timetable.
-					</p>
-				{:else}
-					<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						{#each availableSpaceConstraints as constraint}
-							<div class="space-y-3 rounded-lg border p-4">
-								<div>
-									<div class="flex items-center justify-between">
-										<h3 class="font-semibold">{constraint.friendlyName}</h3>
-										{#if !constraint.repeatable}
-											<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
-												One-time
-											</span>
-										{/if}
+										</p>
 									</div>
-									<p class="text-muted-foreground mt-1 text-sm">
-										{constraint.description}
-									</p>
+									<div class="flex items-center gap-3">
+										{#if constraint.optional}
+											{@const state = constraintStates.get(`${constraint.id}`)}
+											<Checkbox 
+												checked={state?.active ?? constraint.active} 
+												disabled={state?.isUpdating ?? false}
+												onCheckedChange={(checked) => handleToggleConstraintActive(constraint.id, checked === true)} 
+											/>
+										{:else}
+											<span class="text-muted-foreground text-xs">Mandatory</span>
+										{/if}
+										<div class="flex gap-1">
+											<Button variant="ghost" size="sm" onclick={() => {}}>
+												<EditIcon class="h-4 w-4" />
+											</Button>
+											<Button variant="ghost" size="sm" onclick={() => {}}>
+												<TrashIcon class="h-4 w-4" />
+											</Button>
+										</div>
+									</div>
 								</div>
-								<Button size="sm" class="w-full" onclick={() => openAddConstraintModal(constraint)}>
-									<PlusIcon class="mr-2 h-4 w-4" />
-									Add Constraint
-								</Button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</Card.Content>
-		</Card.Root>
+							{/each}
+						</div>
+					{/if}
+				</Card.Content>
+			</Card.Root>
+		</div>
+
+		<!-- Bottom Row: Available Constraints -->
+		
+		<!-- Available Time Constraints -->
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<h2 class="text-xl leading-tight font-bold">Available Time Constraints</h2>
+				<span class="text-muted-foreground text-sm">
+					{availableTimeConstraints.length} constraints available
+				</span>
+			</div>
+			<Card.Root>
+				<Card.Content class="p-4">
+					{#if availableTimeConstraints.length === 0}
+						<p class="text-muted-foreground py-8 text-center">
+							All time constraints are already assigned to this timetable.
+						</p>
+					{:else}
+						<div class="space-y-3">
+							{#each availableTimeConstraints as constraint}
+								<div class="space-y-3 rounded-lg border p-4">
+									<div>
+										<div class="flex items-center justify-between">
+											<h3 class="font-semibold">{constraint.friendlyName}</h3>
+											{#if !constraint.repeatable}
+												<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
+													One-time
+												</span>
+											{/if}
+										</div>
+										<p class="text-muted-foreground mt-1 text-sm">
+											{constraint.description}
+										</p>
+									</div>
+									<Button size="sm" class="w-full" onclick={() => openAddConstraintModal(constraint)}>
+										<PlusIcon class="mr-2 h-4 w-4" />
+										Add Constraint
+									</Button>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</Card.Content>
+			</Card.Root>
+		</div>
+
+		<!-- Available Space Constraints -->
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<h2 class="text-xl leading-tight font-bold">Available Space Constraints</h2>
+				<span class="text-muted-foreground text-sm">
+					{availableSpaceConstraints.length} constraints available
+				</span>
+			</div>
+			<Card.Root>
+				<Card.Content class="p-4">
+					{#if availableSpaceConstraints.length === 0}
+						<p class="text-muted-foreground py-8 text-center">
+							All space constraints are already assigned to this timetable.
+						</p>
+					{:else}
+						<div class="space-y-3">
+							{#each availableSpaceConstraints as constraint}
+								<div class="space-y-3 rounded-lg border p-4">
+									<div>
+										<div class="flex items-center justify-between">
+											<h3 class="font-semibold">{constraint.friendlyName}</h3>
+											{#if !constraint.repeatable}
+												<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
+													One-time
+												</span>
+											{/if}
+										</div>
+										<p class="text-muted-foreground mt-1 text-sm">
+											{constraint.description}
+										</p>
+									</div>
+									<Button size="sm" class="w-full" onclick={() => openAddConstraintModal(constraint)}>
+										<PlusIcon class="mr-2 h-4 w-4" />
+										Add Constraint
+									</Button>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</Card.Content>
+			</Card.Root>
+		</div>
 	</div>
 </div>
 

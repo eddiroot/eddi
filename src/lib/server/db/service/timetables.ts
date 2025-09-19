@@ -582,3 +582,22 @@ export async function deleteTimetableConstraint(timetableId: number, constraintI
 			)
 		);
 }
+
+export async function updateTimetableConstraintActiveStatus(
+	timetableId: number, 
+	constraintId: number, 
+	active: boolean
+) {
+	const result = await db
+		.update(table.timetableConstraint)
+		.set({ active })
+		.where(
+			and(
+				eq(table.timetableConstraint.timetableId, timetableId),
+				eq(table.timetableConstraint.constraintId, constraintId)
+			)
+		)
+		.returning();
+
+	return result[0];
+}
