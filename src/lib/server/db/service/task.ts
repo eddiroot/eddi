@@ -1,4 +1,6 @@
 import {
+	gradeReleaseEnum,
+	quizModeEnum,
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
@@ -924,6 +926,28 @@ export async function updateSubjectOfferingClassTaskStatus(
 		);
 }
 
+export async function updateSubjectOfferingClassTaskQuizSettings(
+	taskId: number,
+	subjectOfferingClassId: number,
+	quizSettings: {
+		quizMode?: quizModeEnum;
+		quizStartTime?: Date | null;
+		quizDurationMinutes?: number | null;
+		gradeRelease?: gradeReleaseEnum;
+		gradeReleaseTime?: Date | null;
+	}
+) {
+	await db
+		.update(table.subjectOfferingClassTask)
+		.set(quizSettings)
+		.where(
+			and(
+				eq(table.subjectOfferingClassTask.taskId, taskId),
+				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId)
+			)
+		);
+}
+
 // Task Block Response functions
 
 export async function upsertClassTaskBlockResponse(
@@ -1059,6 +1083,105 @@ export async function upsertClassTaskResponse(classTaskId: number, authorId: str
 	return response;
 }
 
+// Quiz session management functions
+export async function startQuizSession(classTaskId: number, authorId: string) {
+	const startTime = new Date();
+
+	await db
+		.insert(table.classTaskResponse)
+		.values({
+			classTaskId,
+			authorId,
+			quizStartedAt: startTime,
+			isQuizSubmitted: false,
+			autoSubmitted: false
+		})
+		.onConflictDoUpdate({
+			target: [table.classTaskResponse.classTaskId, table.classTaskResponse.authorId],
+			set: {
+				quizStartedAt: startTime,
+				isQuizSubmitted: false,
+				autoSubmitted: false,
+				updatedAt: new Date()
+			}
+		});
+
+	return startTime;
+}
+
+export async function startQuizSessionForAllStudents(classTaskId: number) {
+	const startTime = new Date();
+
+	// Get all students who have responses for this class task
+	const responses = await getClassTaskResponsesWithStudents(classTaskId);
+
+	// Update quiz session data for all students
+	const studentIds = responses.map((r) => r.student.id);
+
+	if (studentIds.length > 0) {
+		await db
+			.update(table.classTaskResponse)
+			.set({
+				quizStartedAt: startTime,
+				isQuizSubmitted: false,
+				autoSubmitted: false,
+				updatedAt: new Date()
+			})
+			.where(
+				and(
+					eq(table.classTaskResponse.classTaskId, classTaskId),
+					inArray(table.classTaskResponse.authorId, studentIds)
+				)
+			);
+	}
+
+	return startTime;
+}
+
+export async function updateQuizSession(
+	classTaskId: number,
+	authorId: string,
+	updates: {
+		quizEndedAt?: Date;
+		quizTimeRemainingMinutes?: number;
+		isQuizSubmitted?: boolean;
+		autoSubmitted?: boolean;
+	}
+) {
+	await db
+		.update(table.classTaskResponse)
+		.set({
+			...updates,
+			updatedAt: new Date()
+		})
+		.where(
+			and(
+				eq(table.classTaskResponse.classTaskId, classTaskId),
+				eq(table.classTaskResponse.authorId, authorId)
+			)
+		);
+}
+
+export async function getQuizSession(classTaskId: number, authorId: string) {
+	const [session] = await db
+		.select({
+			quizStartedAt: table.classTaskResponse.quizStartedAt,
+			quizEndedAt: table.classTaskResponse.quizEndedAt,
+			quizTimeRemainingMinutes: table.classTaskResponse.quizTimeRemainingMinutes,
+			isQuizSubmitted: table.classTaskResponse.isQuizSubmitted,
+			autoSubmitted: table.classTaskResponse.autoSubmitted
+		})
+		.from(table.classTaskResponse)
+		.where(
+			and(
+				eq(table.classTaskResponse.classTaskId, classTaskId),
+				eq(table.classTaskResponse.authorId, authorId)
+			)
+		);
+
+	return session;
+}
+
 export async function getClassTaskResponse(classTaskId: number, authorId: string) {
 	const response = await db
 		.select()
@@ -1072,6 +1195,22 @@ export async function getClassTaskResponse(classTaskId: number, authorId: string
 		.limit(1);
 
 	return response[0] || null;
+}
+
+export async function hasQuizBeenStarted(classTaskId: number): Promise<boolean> {
+	const [result] = await db
+		.select({
+			count: sql<number>`count(*)`
+		})
+		.from(table.classTaskResponse)
+		.where(
+			and(
+				eq(table.classTaskResponse.classTaskId, classTaskId),
+				sql`${table.classTaskResponse.quizStartedAt} IS NOT NULL`
+			)
+		);
+
+	return (result?.count ?? 0) > 0;
 }
 
 export async function getClassTaskResponseResources(classTaskResponseId: number) {

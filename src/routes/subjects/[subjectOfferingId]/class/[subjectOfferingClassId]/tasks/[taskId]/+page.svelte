@@ -2,12 +2,15 @@
 	import { page } from '$app/state';
 	import { type TaskBlock } from '$lib/server/db/schema';
 	import { dndState, draggable, droppable, type DragDropState } from '@thisux/sveltednd';
-// UI Components
+	// UI Components
 	import { Badge } from '$lib/components/ui/badge';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-// Block Components
+	// Block Components
 	import BlockAudio from './components/block-audio.svelte';
 	import BlockBalancingEquations from './components/block-balancing-equations.svelte';
 	import BlockChoice from './components/block-choice.svelte';
@@ -23,8 +26,9 @@
 	import BlockTable from './components/block-table.svelte';
 	import BlockVideo from './components/block-video.svelte';
 	import BlockWhiteboard from './components/block-whiteboard.svelte';
-// Icons
+	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import ClockIcon from '@lucide/svelte/icons/clock';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
 
@@ -37,7 +41,13 @@
 		upsertBlockResponse
 	} from './client';
 
-	import { taskBlockTypeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
+	import {
+		gradeReleaseEnum,
+		quizModeEnum,
+		taskBlockTypeEnum,
+		taskStatusEnum,
+		userTypeEnum
+	} from '$lib/enums';
 	import {
 		blockTypes,
 		ViewMode,
@@ -57,6 +67,7 @@
 		type BlockVideoConfig,
 		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
+	import { formatTimer } from '$lib/utils';
 	import { PresentationIcon } from '@lucide/svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 
@@ -71,6 +82,159 @@
 	);
 	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 	let selectedStudent = $state<string | null>(null);
+	let statusForm = $state<HTMLFormElement>();
+
+	// Quiz settings state
+	let showQuizSettings = $state(false);
+	let quizMode = $state<quizModeEnum>(data.classTask.quizMode || quizModeEnum.none);
+
+	// Helper function to convert UTC date to local datetime-local format
+	function toLocalDatetimeString(date: Date | string | null): string {
+		if (!date) return '';
+		const d = new Date(date);
+		// Adjust for timezone offset to get local time
+		const offset = d.getTimezoneOffset() * 60000; // offset in milliseconds
+		const localTime = new Date(d.getTime() - offset);
+		return localTime.toISOString().slice(0, 16);
+	}
+
+	let quizStartTime = $state(
+		data.classTask.quizStartTime ? toLocalDatetimeString(data.classTask.quizStartTime) : ''
+	);
+	let quizDurationMinutes = $state<number>(data.classTask.quizDurationMinutes || 60);
+	let gradeRelease = $state<gradeReleaseEnum>(
+		data.classTask.gradeRelease || gradeReleaseEnum.instant
+	);
+	let gradeReleaseTime = $state(
+		data.classTask.gradeReleaseTime ? toLocalDatetimeString(data.classTask.gradeReleaseTime) : ''
+	);
+
+	// Timer state for quiz mode
+	let timeRemaining = $state<number>(0);
+	let timerInterval: ReturnType<typeof setInterval> | null = null;
+	let isQuizActive = $state(false);
+	let quizStarted = $state(false);
+
+	// Check if content should be blocked for students
+	const isContentBlocked = $derived(() => {
+		// Only block for students
+		if (data.user.type !== userTypeEnum.student) return false;
+
+		// Only block for quiz modes
+		if (quizMode === quizModeEnum.none) return false;
+
+		// For manual quiz mode, block until teacher manually starts
+		if (quizMode === quizModeEnum.manual && !quizStarted) return true;
+
+		// For scheduled quiz mode, block until scheduled start time
+		if (quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime) {
+			const scheduleStartTime = new Date(data.classTask.quizStartTime).getTime();
+			const now = Date.now();
+			return now < scheduleStartTime && !quizStarted;
+		}
+
+		return false;
+	});
+
+	// Check if quiz is active for current user (student)
+	$effect(() => {
+		const isStudentInQuizMode =
+			data.user.type === userTypeEnum.student &&
+			(quizMode === quizModeEnum.scheduled || quizMode === quizModeEnum.manual);
+
+		if (isStudentInQuizMode && data.classTask.quizDurationMinutes) {
+			// Check if student has an active quiz session
+			const session = data.quizSession;
+
+			if (session && session.quizStartedAt && !session.isQuizSubmitted) {
+				// Calculate time remaining based on actual start time
+				const startTime = new Date(session.quizStartedAt).getTime();
+				const durationMs = data.classTask.quizDurationMinutes * 60 * 1000;
+				const elapsed = Date.now() - startTime;
+				const remaining = Math.max(0, (durationMs - elapsed) / 1000);
+
+				timeRemaining = remaining;
+				isQuizActive = true;
+				quizStarted = true;
+
+				if (remaining > 0) {
+					startTimer();
+				} else {
+					// Time already up, auto-submit
+					autoSubmitQuiz();
+				}
+			} else if (quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime) {
+				// Check if scheduled start time has passed
+				const scheduleStartTime = new Date(data.classTask.quizStartTime).getTime();
+				const now = Date.now();
+
+				if (now >= scheduleStartTime) {
+					// Auto-start scheduled quiz for students
+					startQuizSession();
+				}
+			}
+		}
+
+		return () => {
+			if (timerInterval) {
+				clearInterval(timerInterval);
+			}
+		};
+	});
+
+	async function startQuizSession() {
+		if (quizStarted || isQuizActive) return;
+
+		try {
+			const response = await fetch(window.location.pathname + '?/startQuiz', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({})
+			});
+
+			if (response.ok) {
+				// Reload page to get updated session data
+				window.location.reload();
+			}
+		} catch (error) {
+			console.error('Failed to start quiz session:', error);
+		}
+	}
+
+	function startTimer() {
+		if (timerInterval) clearInterval(timerInterval);
+
+		timerInterval = setInterval(() => {
+			timeRemaining -= 1;
+
+			if (timeRemaining <= 0) {
+				// Time's up - auto submit
+				autoSubmitQuiz();
+			}
+		}, 1000);
+	}
+
+	async function autoSubmitQuiz() {
+		if (timerInterval) {
+			clearInterval(timerInterval);
+		}
+		isQuizActive = false;
+
+		try {
+			await fetch(window.location.pathname + '?/autoSubmitQuiz', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({})
+			});
+
+			alert('Time is up! Your quiz has been automatically submitted.');
+			// Optionally reload to show submitted state
+			window.location.reload();
+		} catch (error) {
+			console.error('Failed to auto-submit quiz:', error);
+			alert('Time is up! Please submit your quiz manually.');
+		}
+	}
 
 	$effect(() => {
 		blocks.forEach((block) => {
@@ -272,8 +436,18 @@
 	<!-- Contents Pane -->
 	<div class="flex flex-col gap-2">
 		{#if data.user.type !== 'student'}
-			<form method="POST" action="?/status">
-				<Select.Root type="single" name="status" required bind:value={selectedStatus}>
+			<form method="POST" action="?/status" bind:this={statusForm}>
+				<Select.Root
+					type="single"
+					name="status"
+					required
+					bind:value={selectedStatus}
+					onValueChange={(value) => {
+						if (value && statusForm) {
+							setTimeout(() => statusForm?.submit(), 0);
+						}
+					}}
+				>
 					<Select.Trigger class="w-full"
 						>{selectedStatus[0].toUpperCase() + selectedStatus.slice(1)}</Select.Trigger
 					>
@@ -311,6 +485,12 @@
 				<CheckCircleIcon />
 				Review
 			</Button>
+			{#if data.task.type === 'assessment' || data.task.type === 'homework'}
+				<Button variant="outline" onclick={() => (showQuizSettings = true)} size="lg">
+					<ClockIcon />
+					Quiz Settings
+				</Button>
+			{/if}
 		{/if}
 		<Card.Root class="h-full">
 			<Card.Header>
@@ -366,8 +546,34 @@
 							await updateTaskTitle({ taskId: data.task.id, title: config.text })}
 						{viewMode}
 					/>
+
+					<!-- Quiz Timer for Students -->
+					{#if isQuizActive && data.user.type === userTypeEnum.student}
+						<div
+							class="border-warning bg-warning/10 flex items-center gap-2 rounded-lg border px-3 py-2"
+						>
+							<ClockIcon class="text-warning h-5 w-5" />
+							<span class="text-warning font-mono text-lg font-bold">
+								{formatTimer(timeRemaining)}
+							</span>
+							<span class="text-warning text-sm">remaining</span>
+						</div>
+					{/if}
+
+					<!-- Manual Quiz Start Button for Teachers -->
+					{#if data.user.type === userTypeEnum.teacher && quizMode === quizModeEnum.manual && !data.quizGloballyStarted}
+						<Button
+							onclick={startQuizSession}
+							size="lg"
+							class="bg-success text-success-foreground hover:bg-success/90"
+						>
+							<ClockIcon class="mr-2 h-4 w-4" />
+							Start Quiz
+						</Button>
+					{/if}
+
 					<!-- Submit Button for Students -->
-					{#if data.classTask.status === 'published' && data.user.type === userTypeEnum.student}
+					{#if data.classTask.status === 'published' && data.user.type === userTypeEnum.student && (quizMode === quizModeEnum.none || isQuizActive)}
 						<Button
 							href="/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data
 								.task.id}/submit"
@@ -382,7 +588,7 @@
 					<div class="mt-4">
 						<Badge
 							variant="default"
-							class="flex w-fit items-center gap-2 border-green-300 bg-green-100 text-green-800"
+							class="border-success bg-success/10 text-success flex w-fit items-center gap-2"
 						>
 							<CheckCircleIcon />
 							Task submitted successfully!
@@ -391,180 +597,224 @@
 				{/if}
 			</div>
 			<div class="flex h-full flex-col">
-				{#each blocks as block}
-					<div
-						class="ml-[38px] min-h-4 rounded-md {dndState.targetContainer === `task-${block.id}`
-							? 'border-accent-foreground my-2 h-8 border border-dashed'
-							: ''}"
-						use:droppable={{
-							container: `task-${block.id}`,
-							callbacks: {
-								onDrop: handleDrop
-							}
-						}}
-					></div>
+				{#if isContentBlocked()}
+					<!-- Blocked Content Message -->
+					<div class="flex h-full items-center justify-center">
+						<Card.Root class="w-full max-w-md">
+							<Card.Content class="p-8 text-center">
+								<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
+								<h3 class="mb-4 text-xl font-semibold">Quiz Not Available Yet</h3>
+								{#if quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
+									{@const startTime = new Date(data.classTask.quizStartTime)}
+									{@const now = new Date()}
+									{@const timeDiff = startTime.getTime() - now.getTime()}
+									<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
+									<div class="bg-primary/10 mb-4 rounded-lg p-3">
+										<p class="text-primary font-mono text-lg font-bold">
+											{startTime.toLocaleString()}
+										</p>
+									</div>
+									{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
+										<!-- Show countdown if within 24 hours -->
+										{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
+										{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
+										<div class="bg-warning/10 mb-4 rounded-lg p-3">
+											<p class="text-warning text-sm font-medium">
+												Available in: {hours}h {minutes}m
+											</p>
+										</div>
+									{/if}
+									<p class="text-muted-foreground text-sm">
+										The quiz will start automatically at the scheduled time.
+									</p>
+								{:else if quizMode === quizModeEnum.manual}
+									<p class="text-muted-foreground mb-4">
+										This quiz requires manual start by your teacher.
+									</p>
+									<p class="text-muted-foreground text-sm">
+										Your teacher will provide instructions when the quiz is ready to begin.
+									</p>
+								{/if}
+							</Card.Content>
+						</Card.Root>
+					</div>
+				{:else}
+					<!-- Normal Content Rendering -->
+					{#each blocks as block}
+						<div
+							class="ml-[38px] min-h-4 rounded-md {dndState.targetContainer === `task-${block.id}`
+								? 'border-accent-foreground my-2 h-8 border border-dashed'
+								: ''}"
+							use:droppable={{
+								container: `task-${block.id}`,
+								callbacks: {
+									onDrop: handleDrop
+								}
+							}}
+						></div>
 
-					<div
-						class="grid {viewMode === ViewMode.CONFIGURE
-							? 'grid-cols-[30px_1fr]'
-							: 'grid-cols-1'} items-center gap-2"
-						role="group"
-						onmouseover={() => (mouseOverElement = `task-${block.id}`)}
-						onfocus={() => (mouseOverElement = `task-${block.id}`)}
-					>
-						{#if viewMode === ViewMode.CONFIGURE && mouseOverElement === `task-${block.id}`}
-							<div
-								use:draggable={{
-									container: 'task',
-									dragData: block
-								}}
-								class="group hover:bg-muted relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
-							>
-								<GripVerticalIcon
-									class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
-								/>
-							</div>
-						{:else if viewMode === ViewMode.CONFIGURE}
-							<div></div>
-						{/if}
-						<div>
-							{#if block.type === taskBlockTypeEnum.heading}
-								<BlockHeading
-									config={block.config as BlockHeadingConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.richText}
-								<BlockRichText
-									config={block.config as BlockRichTextConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.whiteboard}
-								<BlockWhiteboard
-									config={block.config as BlockWhiteboardConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.choice}
-								<BlockChoice
-									config={block.config as BlockChoiceConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.fillBlank}
-								<BlockFillBlank
-									config={block.config as BlockFillBlankConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.matching}
-								<BlockMatching
-									config={block.config as BlockMatchingConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.shortAnswer}
-								<BlockShortAnswer
-									config={block.config as BlockShortAnswerConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.close}
-								<BlockClose
-									config={block.config as BlockCloseConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.highlightText}
-								<BlockHighlightText
-									config={block.config as BlockHighlightTextConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.table}
-								<BlockTable
-									config={block.config as BlockTableConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.graph}
-								<BlockGraph
-									config={block.config as BlockGraphConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.balancingEquations}
-								<BlockBalancingEquations
-									config={block.config as BlockBalancingEquationsConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									response={getCurrentResponse(block.id, block.type)}
-									onResponseUpdate={async (response) =>
-										await handleResponseUpdate(block.id, response)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.mathInput}
-								<p>Math Input block component is not yet implemented.</p>
-							{:else if block.type === taskBlockTypeEnum.audio}
-								<BlockAudio
-									config={block.config as BlockAudioConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.image}
-								<BlockImage
-									config={block.config as BlockImageConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else if block.type === taskBlockTypeEnum.video}
-								<BlockVideo
-									config={block.config as BlockVideoConfig}
-									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
-									{viewMode}
-								/>
-							{:else}
-								<p>Block of type {block.type} is not yet implemented.</p>
+						<div
+							class="grid {viewMode === ViewMode.CONFIGURE
+								? 'grid-cols-[30px_1fr]'
+								: 'grid-cols-1'} items-center gap-2"
+							role="group"
+							onmouseover={() => (mouseOverElement = `task-${block.id}`)}
+							onfocus={() => (mouseOverElement = `task-${block.id}`)}
+						>
+							{#if viewMode === ViewMode.CONFIGURE && mouseOverElement === `task-${block.id}`}
+								<div
+									use:draggable={{
+										container: 'task',
+										dragData: block
+									}}
+									class="group hover:bg-muted relative flex h-6 w-6 cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing"
+								>
+									<GripVerticalIcon
+										class="text-muted-foreground group-hover:text-foreground h-3 w-3 rounded transition-colors"
+									/>
+								</div>
+							{:else if viewMode === ViewMode.CONFIGURE}
+								<div></div>
 							{/if}
+							<div>
+								{#if block.type === taskBlockTypeEnum.heading}
+									<BlockHeading
+										config={block.config as BlockHeadingConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.richText}
+									<BlockRichText
+										config={block.config as BlockRichTextConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.whiteboard}
+									<BlockWhiteboard
+										config={block.config as BlockWhiteboardConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.choice}
+									<BlockChoice
+										config={block.config as BlockChoiceConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.fillBlank}
+									<BlockFillBlank
+										config={block.config as BlockFillBlankConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.matching}
+									<BlockMatching
+										config={block.config as BlockMatchingConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.shortAnswer}
+									<BlockShortAnswer
+										config={block.config as BlockShortAnswerConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.close}
+									<BlockClose
+										config={block.config as BlockCloseConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.highlightText}
+									<BlockHighlightText
+										config={block.config as BlockHighlightTextConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.table}
+									<BlockTable
+										config={block.config as BlockTableConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.graph}
+									<BlockGraph
+										config={block.config as BlockGraphConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.balancingEquations}
+									<BlockBalancingEquations
+										config={block.config as BlockBalancingEquationsConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.mathInput}
+									<p>Math Input block component is not yet implemented.</p>
+								{:else if block.type === taskBlockTypeEnum.audio}
+									<BlockAudio
+										config={block.config as BlockAudioConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.image}
+									<BlockImage
+										config={block.config as BlockImageConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else if block.type === taskBlockTypeEnum.video}
+									<BlockVideo
+										config={block.config as BlockVideoConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										{viewMode}
+									/>
+								{:else}
+									<p>Block of type {block.type} is not yet implemented.</p>
+								{/if}
+							</div>
 						</div>
-					</div>
-				{/each}
-				{#if viewMode === ViewMode.CONFIGURE}
-					<div
-						use:droppable={{
-							container: `task-bottom`,
-							callbacks: {
-								onDrop: handleDrop
-							}
-						}}
-						class="my-4 ml-[38px] flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
-						'task-bottom'
-							? draggedOverClasses
-							: notDraggedOverClasses}"
-					>
-						<span class="text-muted-foreground text-sm">Add more blocks here</span>
-					</div>
+					{/each}
+					{#if viewMode === ViewMode.CONFIGURE}
+						<div
+							use:droppable={{
+								container: `task-bottom`,
+								callbacks: {
+									onDrop: handleDrop
+								}
+							}}
+							class="my-4 ml-[38px] flex min-h-24 items-center justify-center rounded-lg border border-dashed transition-colors {dndState.targetContainer ===
+							'task-bottom'
+								? draggedOverClasses
+								: notDraggedOverClasses}"
+						>
+							<span class="text-muted-foreground text-sm">Add more blocks here</span>
+						</div>
+					{/if}
 				{/if}
 			</div>
 		</Card.Content>
@@ -618,3 +868,106 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Quiz Settings Dialog -->
+<Dialog.Root bind:open={showQuizSettings}>
+	<Dialog.Content class="max-w-md">
+		<Dialog.Header>
+			<Dialog.Title>Quiz Settings</Dialog.Title>
+			<Dialog.Description>
+				Configure timing and grading settings for this quiz/test.
+			</Dialog.Description>
+		</Dialog.Header>
+
+		<form method="POST" action="?/updateQuizSettings" class="space-y-4">
+			<!-- Quiz Mode -->
+			<div class="space-y-2">
+				<Label for="quizMode">Quiz Mode</Label>
+				<Select.Root type="single" name="quizMode" bind:value={quizMode}>
+					<Select.Trigger>
+						{#if quizMode === quizModeEnum.none}
+							Regular Task
+						{:else if quizMode === quizModeEnum.scheduled}
+							Scheduled Start
+						{:else if quizMode === quizModeEnum.manual}
+							Manual Start
+						{:else}
+							Select quiz mode
+						{/if}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value={quizModeEnum.none}>Regular Task</Select.Item>
+						<Select.Item value={quizModeEnum.scheduled}>Scheduled Start</Select.Item>
+						<Select.Item value={quizModeEnum.manual}>Manual Start</Select.Item>
+					</Select.Content>
+				</Select.Root>
+			</div>
+
+			{#if quizMode === quizModeEnum.scheduled}
+				<!-- Scheduled Start Time -->
+				<div class="space-y-2">
+					<Label for="quizStartTime">Start Time</Label>
+					<Input type="datetime-local" name="quizStartTime" bind:value={quizStartTime} required />
+				</div>
+			{/if}
+
+			{#if quizMode !== quizModeEnum.none}
+				<!-- Quiz Duration -->
+				<div class="space-y-2">
+					<Label for="quizDurationMinutes">Duration (minutes)</Label>
+					<Input
+						type="number"
+						name="quizDurationMinutes"
+						bind:value={quizDurationMinutes}
+						min="1"
+						max="480"
+						required
+					/>
+				</div>
+
+				<!-- Grade Release -->
+				<div class="space-y-2">
+					<Label for="gradeRelease">Grade Release</Label>
+					<Select.Root type="single" name="gradeRelease" bind:value={gradeRelease}>
+						<Select.Trigger>
+							{#if gradeRelease === gradeReleaseEnum.instant}
+								Instant
+							{:else if gradeRelease === gradeReleaseEnum.manual}
+								Manual
+							{:else if gradeRelease === gradeReleaseEnum.scheduled}
+								Scheduled
+							{:else}
+								Select grade release
+							{/if}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Item value={gradeReleaseEnum.instant}>Instant</Select.Item>
+							<Select.Item value={gradeReleaseEnum.manual}>Manual</Select.Item>
+							<Select.Item value={gradeReleaseEnum.scheduled}>Scheduled</Select.Item>
+						</Select.Content>
+					</Select.Root>
+				</div>
+
+				{#if gradeRelease === gradeReleaseEnum.scheduled}
+					<!-- Grade Release Time -->
+					<div class="space-y-2">
+						<Label for="gradeReleaseTime">Grade Release Time</Label>
+						<Input
+							type="datetime-local"
+							name="gradeReleaseTime"
+							bind:value={gradeReleaseTime}
+							required
+						/>
+					</div>
+				{/if}
+			{/if}
+
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (showQuizSettings = false)}>
+					Cancel
+				</Button>
+				<Button type="submit">Save Settings</Button>
+			</Dialog.Footer>
+		</form>
+	</Dialog.Content>
+</Dialog.Root>

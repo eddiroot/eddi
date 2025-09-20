@@ -72,6 +72,18 @@ export enum taskStatusEnum {
 	graded = 'graded' // Assessment/Homework
 }
 
+export enum quizModeEnum {
+	none = 'none', // Regular task
+	scheduled = 'scheduled', // Quiz starts at specific time
+	manual = 'manual' // Teacher manually starts quiz
+}
+
+export enum gradeReleaseEnum {
+	instant = 'instant', // Grades released immediately after submission
+	manual = 'manual', // Teacher manually releases grades
+	scheduled = 'scheduled' // Grades released at specific time
+}
+
 export enum whiteboardObjectTypeEnum {
 	rect = 'Rect',
 	circle = 'Circle',

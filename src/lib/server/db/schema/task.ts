@@ -12,6 +12,8 @@ import {
 	uuid
 } from 'drizzle-orm/pg-core';
 import {
+	gradeReleaseEnum,
+	quizModeEnum,
 	taskBlockTypeEnum,
 	taskStatusEnum,
 	taskTypeEnum,
@@ -28,6 +30,18 @@ export const taskTypeEnumPg = pgEnum('enum_task_type', [
 	taskTypeEnum.lesson,
 	taskTypeEnum.assessment,
 	taskTypeEnum.homework
+]);
+
+export const quizModeEnumPg = pgEnum('enum_quiz_mode', [
+	quizModeEnum.none,
+	quizModeEnum.scheduled,
+	quizModeEnum.manual
+]);
+
+export const gradeReleaseEnumPg = pgEnum('enum_grade_release', [
+	gradeReleaseEnum.instant,
+	gradeReleaseEnum.manual,
+	gradeReleaseEnum.scheduled
 ]);
 
 export const task = pgTable(
@@ -132,6 +146,12 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	dueDate: timestamp({ mode: 'date' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	rubricId: integer('rubric_id').references(() => rubric.id, { onDelete: 'set null' }),
+	// Quiz-specific fields
+	quizMode: quizModeEnumPg().notNull().default(quizModeEnum.none),
+	quizStartTime: timestamp({ mode: 'date' }),
+	quizDurationMinutes: integer('quiz_duration_minutes'),
+	gradeRelease: gradeReleaseEnumPg().notNull().default(gradeReleaseEnum.instant),
+	gradeReleaseTime: timestamp({ mode: 'date' }),
 	...timestamps
 });
 
@@ -174,6 +194,12 @@ export const classTaskResponse = pgTable(
 			.references(() => user.id, { onDelete: 'cascade' }),
 		teacherId: uuid('teacher_id').references(() => user.id, { onDelete: 'cascade' }), // Teacher who graded the task response
 		isArchived: boolean('is_archived').notNull().default(false),
+		// Quiz session fields (moved from studentQuizSession)
+		quizStartedAt: timestamp({ mode: 'date' }), // When student started the quiz
+		quizEndedAt: timestamp({ mode: 'date' }), // When student ended/submitted the quiz
+		quizTimeRemainingMinutes: integer('quiz_time_remaining_minutes'), // For pausing/resuming
+		isQuizSubmitted: boolean('is_quiz_submitted').notNull().default(false),
+		autoSubmitted: boolean('auto_submitted').notNull().default(false), // True if submitted due to timer
 		...timestamps
 	},
 	(self) => [unique().on(self.classTaskId, self.authorId)]
