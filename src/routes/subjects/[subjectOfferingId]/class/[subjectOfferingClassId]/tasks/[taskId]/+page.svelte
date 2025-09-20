@@ -582,7 +582,7 @@
 					<!-- Submit Button for Students -->
 					{#if data.classTask.status === 'published' && data.user.type === userTypeEnum.student && (quizMode === quizModeEnum.none || isQuizActive)}
 						<Button
-							href="/subjects/${data.subjectOfferingId}/class/${data.subjectOfferingClassId}/tasks/${data
+							href="/subjects/{data.subjectOfferingId}/class/{data.subjectOfferingClassId}/tasks/{data
 								.task.id}/submit"
 							size="lg"
 						>
