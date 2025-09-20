@@ -85,7 +85,8 @@ export const taskBlockTypeEnumPg = pgEnum('enum_task_block_type', [
 	taskBlockTypeEnum.close,
 	taskBlockTypeEnum.highlightText,
 	taskBlockTypeEnum.table,
-	taskBlockTypeEnum.graph
+	taskBlockTypeEnum.graph,
+	taskBlockTypeEnum.balancingEquations
 ]);
 
 export const taskBlock = pgTable('task_block', {

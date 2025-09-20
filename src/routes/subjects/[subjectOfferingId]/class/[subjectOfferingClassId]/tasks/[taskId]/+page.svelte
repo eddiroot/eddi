@@ -8,6 +8,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
 // Block Components
+	import BlockBalancingEquations from './components/block-balancing-equations.svelte';
 	import BlockChoice from './components/block-choice.svelte';
 	import BlockClose from './components/block-close.svelte';
 	import BlockFillBlank from './components/block-fill-blank.svelte';
@@ -39,6 +40,7 @@
 	import {
 		blockTypes,
 		ViewMode,
+		type BlockBalancingEquationsConfig,
 		type BlockChoiceConfig,
 		type BlockCloseConfig,
 		type BlockFillBlankConfig,
@@ -92,6 +94,10 @@
 				return { selectedText: [] };
 			case taskBlockTypeEnum.graph:
 				return { studentPlots: [] };
+			case taskBlockTypeEnum.balancingEquations:
+				return { coefficients: { reactants: [], products: [] } };
+			case taskBlockTypeEnum.mathInput:
+				return { answer: '' };
 			default:
 				return {};
 		}
@@ -505,6 +511,17 @@
 										await handleResponseUpdate(block.id, response)}
 									{viewMode}
 								/>
+							{:else if block.type === taskBlockTypeEnum.balancingEquations}
+								<BlockBalancingEquations
+									config={block.config as BlockBalancingEquationsConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									response={getCurrentResponse(block.id, block.type)}
+									onResponseUpdate={async (response) =>
+										await handleResponseUpdate(block.id, response)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.mathInput}
+								<p>Math Input block component is not yet implemented.</p>
 							{:else if block.type === taskBlockTypeEnum.image}
 								<BlockImage
 									config={block.config as BlockImageConfig}

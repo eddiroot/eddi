@@ -863,10 +863,10 @@ export const blockTypes: {
 		initialConfig: {
 			question: 'Balance the following chemical equation:',
 			reactants: [
-				{ formula: 'reactant1', coefficient: 1, given: false },
-				{ formula: 'reactant2', coefficient: 1, given: false }
+				{ formula: 'H2', coefficient: 2, given: false },
+				{ formula: 'O2', coefficient: 1, given: false }
 			],
-			products: [{ formula: 'product1', coefficient: 1, given: true }]
+			products: [{ formula: 'H2O', coefficient: 2, given: true }]
 		},
 		icon: FlaskConicalIcon
 	},
