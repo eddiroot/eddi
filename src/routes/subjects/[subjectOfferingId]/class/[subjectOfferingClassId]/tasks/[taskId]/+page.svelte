@@ -8,6 +8,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
 // Block Components
+	import BlockAudio from './components/block-audio.svelte';
 	import BlockBalancingEquations from './components/block-balancing-equations.svelte';
 	import BlockChoice from './components/block-choice.svelte';
 	import BlockClose from './components/block-close.svelte';
@@ -40,6 +41,7 @@
 	import {
 		blockTypes,
 		ViewMode,
+		type BlockAudioConfig,
 		type BlockBalancingEquationsConfig,
 		type BlockChoiceConfig,
 		type BlockCloseConfig,
@@ -80,6 +82,8 @@
 
 	function getInitialResponse(blockType: string) {
 		switch (blockType) {
+			case taskBlockTypeEnum.audio:
+				return {};
 			case taskBlockTypeEnum.choice:
 				return { answers: [] };
 			case taskBlockTypeEnum.fillBlank:
@@ -522,6 +526,12 @@
 								/>
 							{:else if block.type === taskBlockTypeEnum.mathInput}
 								<p>Math Input block component is not yet implemented.</p>
+							{:else if block.type === taskBlockTypeEnum.audio}
+								<BlockAudio
+									config={block.config as BlockAudioConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									{viewMode}
+								/>
 							{:else if block.type === taskBlockTypeEnum.image}
 								<BlockImage
 									config={block.config as BlockImageConfig}

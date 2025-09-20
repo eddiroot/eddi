@@ -571,6 +571,27 @@ export type BlockVideoConfig = {
 	altText: string;
 };
 
+export const blockAudio = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.audio] },
+		config: {
+			type: 'object',
+			properties: {
+				path: { type: 'string' },
+				altText: { type: 'string' }
+			},
+			required: ['path', 'altText']
+		}
+	},
+	required: ['type', 'config']
+};
+
+export type BlockAudioConfig = {
+	path: string;
+	altText: string;
+};
+
 export const taskBlocks = [
 	blockHeading,
 	blockRichText,
@@ -586,6 +607,7 @@ export const taskBlocks = [
 	blockBalancingEquations,
 	blockImage,
 	blockVideo,
+	blockAudio,
 ];
 
 export const layoutTwoColumns = {
@@ -649,7 +671,8 @@ export type BlockConfig =
 	| BlockTableConfig
 	| BlockGraphConfig
 	| BlockImageConfig
-	| BlockVideoConfig;
+	| BlockVideoConfig
+	| BlockAudioConfig;
 
 export type BlockResponse =
 	| BlockChoiceResponse
@@ -695,8 +718,10 @@ export type ImageBlockProps = BlockProps<BlockImageConfig>;
 export type TableBlockProps = BlockProps<BlockTableConfig>;
 export type GraphBlockProps = BlockProps<BlockGraphConfig, BlockGraphResponse>;
 export type VideoBlockProps = BlockProps<BlockVideoConfig>;
+export type AudioBlockProps = BlockProps<BlockAudioConfig>;
 
 import type { Icon } from '@lucide/svelte';
+import AudioIcon from '@lucide/svelte/icons/audio-lines';
 import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
 import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
@@ -887,5 +912,14 @@ export const blockTypes: {
 			altText: ''
 		},
 		icon: VideoIcon
+	},
+	{
+		type: taskBlockTypeEnum.audio,
+		name: 'Audio',
+		initialConfig: {
+			path: '',
+			altText: ''
+		},
+		icon: AudioIcon
 	}
 ];
