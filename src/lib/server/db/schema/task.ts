@@ -146,7 +146,6 @@ export const subjectOfferingClassTask = pgTable('sub_off_class_task', {
 	dueDate: timestamp({ mode: 'date' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	rubricId: integer('rubric_id').references(() => rubric.id, { onDelete: 'set null' }),
-	// Quiz-specific fields
 	quizMode: quizModeEnumPg().notNull().default(quizModeEnum.none),
 	quizStartTime: timestamp({ mode: 'date' }),
 	quizDurationMinutes: integer('quiz_duration_minutes'),

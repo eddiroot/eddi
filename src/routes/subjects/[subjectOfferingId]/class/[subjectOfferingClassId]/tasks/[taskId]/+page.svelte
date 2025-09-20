@@ -7,6 +7,7 @@
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
@@ -70,6 +71,9 @@
 	import { formatTimer } from '$lib/utils';
 	import { PresentationIcon } from '@lucide/svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
+	import { quizSettingsFormSchema, startQuizFormSchema, statusFormSchema } from './schema';
 
 	let { data } = $props();
 
@@ -80,105 +84,67 @@
 	let viewMode = $state<ViewMode>(
 		data.user.type == userTypeEnum.student ? ViewMode.ANSWER : ViewMode.CONFIGURE
 	);
-	let selectedStatus = $state<taskStatusEnum>(data.classTask.status);
 	let selectedStudent = $state<string | null>(null);
-	let statusForm = $state<HTMLFormElement>();
-
-	// Quiz settings state
 	let showQuizSettings = $state(false);
-	let quizMode = $state<quizModeEnum>(data.classTask.quizMode || quizModeEnum.none);
 
-	// Helper function to convert UTC date to local datetime-local format
-	function toLocalDatetimeString(date: Date | string | null): string {
-		if (!date) return '';
-		const d = new Date(date);
-		// Adjust for timezone offset to get local time
-		const offset = d.getTimezoneOffset() * 60000; // offset in milliseconds
-		const localTime = new Date(d.getTime() - offset);
-		return localTime.toISOString().slice(0, 16);
-	}
-
-	let quizStartTime = $state(
-		data.classTask.quizStartTime ? toLocalDatetimeString(data.classTask.quizStartTime) : ''
-	);
-	let quizDurationMinutes = $state<number>(data.classTask.quizDurationMinutes || 60);
-	let gradeRelease = $state<gradeReleaseEnum>(
-		data.classTask.gradeRelease || gradeReleaseEnum.instant
-	);
-	let gradeReleaseTime = $state(
-		data.classTask.gradeReleaseTime ? toLocalDatetimeString(data.classTask.gradeReleaseTime) : ''
-	);
-
-	// Timer state for quiz mode
 	let timeRemaining = $state<number>(0);
 	let timerInterval: ReturnType<typeof setInterval> | null = null;
-	let isQuizActive = $state(false);
-	let quizStarted = $state(false);
 
-	// Check if content should be blocked for students
+	// Initialize superforms
+	const statusForm = superForm(data.statusForm, {
+		validators: zod4(statusFormSchema),
+		resetForm: false
+	});
+	const { form: statusFormData, enhance: statusEnhance } = statusForm;
+
+	const quizSettingsForm = superForm(data.quizSettingsForm, {
+		validators: zod4(quizSettingsFormSchema),
+		resetForm: false,
+		onUpdated: ({ form }) => {
+			if (form.valid) {
+				showQuizSettings = false;
+			}
+		}
+	});
+	const { form: quizSettingsFormData, enhance: quizSettingsEnhance } = quizSettingsForm;
+
+	const startQuizForm = superForm(data.startQuizForm, {
+		validators: zod4(startQuizFormSchema),
+		resetForm: false
+	});
+	const { enhance: startQuizEnhance } = startQuizForm;
+
 	const isContentBlocked = $derived(() => {
-		// Only block for students
 		if (data.user.type !== userTypeEnum.student) return false;
 
-		// Block students from accessing draft tasks
 		if (data.classTask.status === taskStatusEnum.draft) return true;
 
-		// Only block for quiz modes
-		if (quizMode === quizModeEnum.none) return false;
+		if (data.classTask.quizMode === quizModeEnum.none) return false;
 
-		// For manual quiz mode, block until teacher manually starts globally
-		if (quizMode === quizModeEnum.manual && !data.quizGloballyStarted) return true;
-
-		// For scheduled quiz mode, block until scheduled start time (unless student has active session)
-		if (quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime) {
+		if (data.classTask.quizStartTime) {
 			const scheduleStartTime = new Date(data.classTask.quizStartTime).getTime();
-			const now = Date.now();
-			// Don't block if student has an active quiz session
-			if (data.quizSession && data.quizSession.quizStartedAt && !data.quizSession.isQuizSubmitted) {
-				return false;
-			}
-			return now < scheduleStartTime;
+			return Date.now() < scheduleStartTime;
 		}
 
 		return false;
 	});
 
-	// Check if quiz is active for current user (student)
 	$effect(() => {
 		const isStudentInQuizMode =
 			data.user.type === userTypeEnum.student &&
-			(quizMode === quizModeEnum.scheduled || quizMode === quizModeEnum.manual);
+			(data.classTask.quizMode === quizModeEnum.scheduled ||
+				data.classTask.quizMode === quizModeEnum.manual);
 
-		if (isStudentInQuizMode && data.classTask.quizDurationMinutes) {
-			// Check if student has an active quiz session
-			const session = data.quizSession;
+		if (isStudentInQuizMode && data.classTask.quizDurationMinutes && data.classTask.quizStartTime) {
+			const startTime = new Date(data.classTask.quizStartTime).getTime();
+			const durationMs = data.classTask.quizDurationMinutes * 60 * 1000;
+			const elapsed = Date.now() - startTime;
+			const remaining = Math.max(0, (durationMs - elapsed) / 1000);
 
-			if (session && session.quizStartedAt && !session.isQuizSubmitted) {
-				// Calculate time remaining based on actual start time
-				const startTime = new Date(session.quizStartedAt).getTime();
-				const durationMs = data.classTask.quizDurationMinutes * 60 * 1000;
-				const elapsed = Date.now() - startTime;
-				const remaining = Math.max(0, (durationMs - elapsed) / 1000);
+			timeRemaining = remaining;
 
-				timeRemaining = remaining;
-				isQuizActive = true;
-				quizStarted = true;
-
-				if (remaining > 0) {
-					startTimer();
-				} else {
-					// Time already up, auto-submit
-					autoSubmitQuiz();
-				}
-			} else if (quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime) {
-				// Check if scheduled start time has passed
-				const scheduleStartTime = new Date(data.classTask.quizStartTime).getTime();
-				const now = Date.now();
-
-				if (now >= scheduleStartTime) {
-					// Auto-start scheduled quiz for students
-					startQuizSession();
-				}
+			if (remaining > 0) {
+				startTimer();
 			}
 		}
 
@@ -189,58 +155,12 @@
 		};
 	});
 
-	async function startQuizSession() {
-		if (quizStarted || isQuizActive) return;
-
-		try {
-			const response = await fetch(window.location.pathname + '?/startQuiz', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: new URLSearchParams({})
-			});
-
-			if (response.ok) {
-				// Reload page to get updated session data
-				window.location.reload();
-			}
-		} catch (error) {
-			console.error('Failed to start quiz session:', error);
-		}
-	}
-
 	function startTimer() {
 		if (timerInterval) clearInterval(timerInterval);
 
 		timerInterval = setInterval(() => {
 			timeRemaining -= 1;
-
-			if (timeRemaining <= 0) {
-				// Time's up - auto submit
-				autoSubmitQuiz();
-			}
 		}, 1000);
-	}
-
-	async function autoSubmitQuiz() {
-		if (timerInterval) {
-			clearInterval(timerInterval);
-		}
-		isQuizActive = false;
-
-		try {
-			await fetch(window.location.pathname + '?/autoSubmitQuiz', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: new URLSearchParams({})
-			});
-
-			alert('Time is up! Your quiz has been automatically submitted.');
-			// Optionally reload to show submitted state
-			window.location.reload();
-		} catch (error) {
-			console.error('Failed to auto-submit quiz:', error);
-			alert('Time is up! Please submit your quiz manually.');
-		}
 	}
 
 	$effect(() => {
@@ -280,7 +200,7 @@
 
 	function getCurrentResponse(blockId: number, blockType: string) {
 		if (data.user.type == userTypeEnum.student) {
-			return data.blockResponses![blockId] || getInitialResponse(blockType);
+			return data.blockResponses![blockId]?.response || getInitialResponse(blockType);
 		}
 
 		if (viewMode === ViewMode.REVIEW && selectedStudent) {
@@ -443,26 +363,40 @@
 	<!-- Contents Pane -->
 	<div class="flex flex-col gap-2">
 		{#if data.user.type !== 'student'}
-			<form method="POST" action="?/status" bind:this={statusForm}>
-				<Select.Root
-					type="single"
-					name="status"
-					required
-					bind:value={selectedStatus}
-					onValueChange={(value) => {
-						if (value && statusForm) {
-							setTimeout(() => statusForm?.submit(), 0);
-						}
-					}}
-				>
-					<Select.Trigger class="w-full"
-						>{selectedStatus[0].toUpperCase() + selectedStatus.slice(1)}</Select.Trigger
-					>
-					<Select.Content>
-						<Select.Item value={taskStatusEnum.draft}>Draft</Select.Item>
-						<Select.Item value={taskStatusEnum.published}>Published</Select.Item>
-					</Select.Content>
-				</Select.Root>
+			<form method="POST" action="?/status" use:statusEnhance>
+				<Form.Field form={statusForm} name="status">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Select.Root
+								{...props}
+								type="single"
+								name="status"
+								required
+								bind:value={$statusFormData.status}
+								onValueChange={(value) => {
+									if (value) {
+										$statusFormData.status = value as any;
+										// Auto-submit the form when value changes
+										setTimeout(() => {
+											const form = document.querySelector(
+												'form[action="?/status"]'
+											) as HTMLFormElement;
+											if (form) form.submit();
+										}, 0);
+									}
+								}}
+							>
+								<Select.Trigger class="w-full">
+									{$statusFormData.status[0].toUpperCase() + $statusFormData.status.slice(1)}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Item value={taskStatusEnum.draft}>Draft</Select.Item>
+									<Select.Item value={taskStatusEnum.published}>Published</Select.Item>
+								</Select.Content>
+							</Select.Root>
+						{/snippet}
+					</Form.Control>
+				</Form.Field>
 			</form>
 			<Button
 				variant={viewMode === ViewMode.CONFIGURE ? 'default' : 'outline'}
@@ -554,8 +488,7 @@
 						{viewMode}
 					/>
 
-					<!-- Quiz Timer for Students -->
-					{#if isQuizActive && data.user.type === userTypeEnum.student}
+					{#if data.isQuizStarted && data.user.type === userTypeEnum.student}
 						<div
 							class="border-warning bg-warning/10 flex items-center gap-2 rounded-lg border px-3 py-2"
 						>
@@ -567,27 +500,17 @@
 						</div>
 					{/if}
 
-					<!-- Manual Quiz Start Button for Teachers -->
-					{#if data.user.type === userTypeEnum.teacher && quizMode === quizModeEnum.manual && !data.quizGloballyStarted && data.classTask.status === 'published'}
-						<Button
-							onclick={startQuizSession}
-							size="lg"
-							class="bg-success text-success-foreground hover:bg-success/90"
-						>
-							<ClockIcon class="mr-2 h-4 w-4" />
-							Start Quiz
-						</Button>
-					{/if}
-
-					<!-- Submit Button for Students -->
-					{#if data.classTask.status === 'published' && data.user.type === userTypeEnum.student && (quizMode === quizModeEnum.none || isQuizActive)}
-						<Button
-							href="/subjects/{data.subjectOfferingId}/class/{data.subjectOfferingClassId}/tasks/{data
-								.task.id}/submit"
-							size="lg"
-						>
-							Submit Task
-						</Button>
+					{#if data.user.type === userTypeEnum.teacher && data.classTask.quizMode === quizModeEnum.manual && !data.isQuizStarted && data.classTask.status === 'published'}
+						<form method="POST" action="?/startQuiz" use:startQuizEnhance>
+							<Button
+								type="submit"
+								size="lg"
+								class="bg-success text-success-foreground hover:bg-success/90"
+							>
+								<ClockIcon class="mr-2 h-4 w-4" />
+								Start Quiz
+							</Button>
+						</form>
 					{/if}
 				</div>
 
@@ -605,58 +528,51 @@
 			</div>
 			<div class="flex h-full flex-col">
 				{#if isContentBlocked()}
-					<!-- Blocked Content Message -->
 					<div class="flex h-full items-center justify-center">
-						<Card.Root class="w-full max-w-md">
-							<Card.Content class="p-8 text-center">
-								{#if data.classTask.status === taskStatusEnum.draft}
-									<!-- Draft Task Message -->
-									<WrenchIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-									<h3 class="mb-4 text-xl font-semibold">Task Not Available</h3>
-									<p class="text-muted-foreground mb-4">
-										This task is currently in draft mode and has not been published yet.
+						{#if data.classTask.status === taskStatusEnum.draft}
+							<WrenchIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+							<h3 class="mb-4 text-xl font-semibold">Task Not Available</h3>
+							<p class="text-muted-foreground mb-4">
+								This task is currently in draft mode and has not been published yet.
+							</p>
+							<p class="text-muted-foreground text-sm">
+								Your teacher will make this task available when it's ready.
+							</p>
+						{:else}
+							<!-- Quiz Not Started Message -->
+							<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
+							<h3 class="mb-4 text-xl font-semibold">Quiz Not Available Yet</h3>
+							{#if data.classTask.quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
+								{@const startTime = new Date(data.classTask.quizStartTime)}
+								{@const now = new Date()}
+								{@const timeDiff = startTime.getTime() - now.getTime()}
+								<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
+								<div class="bg-primary/10 mb-4 rounded-lg p-3">
+									<p class="text-primary font-mono text-lg font-bold">
+										{startTime.toLocaleString()}
 									</p>
-									<p class="text-muted-foreground text-sm">
-										Your teacher will make this task available when it's ready.
-									</p>
-								{:else}
-									<!-- Quiz Not Started Message -->
-									<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
-									<h3 class="mb-4 text-xl font-semibold">Quiz Not Available Yet</h3>
-									{#if quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
-										{@const startTime = new Date(data.classTask.quizStartTime)}
-										{@const now = new Date()}
-										{@const timeDiff = startTime.getTime() - now.getTime()}
-										<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
-										<div class="bg-primary/10 mb-4 rounded-lg p-3">
-											<p class="text-primary font-mono text-lg font-bold">
-												{startTime.toLocaleString()}
-											</p>
-										</div>
-										{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
-											<!-- Show countdown if within 24 hours -->
-											{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
-											{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
-											<div class="bg-warning/10 mb-4 rounded-lg p-3">
-												<p class="text-warning text-sm font-medium">
-													Available in: {hours}h {minutes}m
-												</p>
-											</div>
-										{/if}
-										<p class="text-muted-foreground text-sm">
-											The quiz will start automatically at the scheduled time.
+								</div>
+								{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
+									{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
+									{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
+									<div class="bg-warning/10 mb-4 rounded-lg p-3">
+										<p class="text-warning text-sm font-medium">
+											Available in: {hours}h {minutes}m
 										</p>
-									{:else if quizMode === quizModeEnum.manual}
-										<p class="text-muted-foreground mb-4">
-											This quiz requires manual start by your teacher.
-										</p>
-										<p class="text-muted-foreground text-sm">
-											Your teacher will provide instructions when the quiz is ready to begin.
-										</p>
-									{/if}
+									</div>
 								{/if}
-							</Card.Content>
-						</Card.Root>
+								<p class="text-muted-foreground text-sm">
+									The quiz will start automatically at the scheduled time.
+								</p>
+							{:else if data.classTask.quizMode === quizModeEnum.manual}
+								<p class="text-muted-foreground mb-4">
+									This quiz requires manual start by your teacher.
+								</p>
+								<p class="text-muted-foreground text-sm">
+									Your teacher will provide instructions when the quiz is ready to begin.
+								</p>
+							{/if}
+						{/if}
 					</div>
 				{:else}
 					<!-- Normal Content Rendering -->
@@ -899,86 +815,139 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<form method="POST" action="?/updateQuizSettings" class="space-y-4">
+		<form method="POST" action="?/updateQuizSettings" class="space-y-4" use:quizSettingsEnhance>
 			<!-- Quiz Mode -->
-			<div class="space-y-2">
-				<Label for="quizMode">Quiz Mode</Label>
-				<Select.Root type="single" name="quizMode" bind:value={quizMode}>
-					<Select.Trigger>
-						{#if quizMode === quizModeEnum.none}
-							Regular Task
-						{:else if quizMode === quizModeEnum.scheduled}
-							Scheduled Start
-						{:else if quizMode === quizModeEnum.manual}
-							Manual Start
-						{:else}
-							Select quiz mode
-						{/if}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Item value={quizModeEnum.none}>Regular Task</Select.Item>
-						<Select.Item value={quizModeEnum.scheduled}>Scheduled Start</Select.Item>
-						<Select.Item value={quizModeEnum.manual}>Manual Start</Select.Item>
-					</Select.Content>
-				</Select.Root>
-			</div>
+			<Form.Field form={quizSettingsForm} name="quizMode">
+				<Form.Control>
+					{#snippet children({ props })}
+						<div class="space-y-2">
+							<Label for="quizMode">Quiz Mode</Label>
+							<Select.Root
+								{...props}
+								type="single"
+								name="quizMode"
+								bind:value={$quizSettingsFormData.quizMode}
+							>
+								<Select.Trigger>
+									{#if $quizSettingsFormData.quizMode === quizModeEnum.none}
+										Regular Task
+									{:else if $quizSettingsFormData.quizMode === quizModeEnum.scheduled}
+										Scheduled Start
+									{:else if $quizSettingsFormData.quizMode === quizModeEnum.manual}
+										Manual Start
+									{:else}
+										Select quiz mode
+									{/if}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Item value={quizModeEnum.none}>Regular Task</Select.Item>
+									<Select.Item value={quizModeEnum.scheduled}>Scheduled Start</Select.Item>
+									<Select.Item value={quizModeEnum.manual}>Manual Start</Select.Item>
+								</Select.Content>
+							</Select.Root>
+						</div>
+					{/snippet}
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
 
-			{#if quizMode === quizModeEnum.scheduled}
+			{#if $quizSettingsFormData.quizMode === quizModeEnum.scheduled}
 				<!-- Scheduled Start Time -->
-				<div class="space-y-2">
-					<Label for="quizStartTime">Start Time</Label>
-					<Input type="datetime-local" name="quizStartTime" bind:value={quizStartTime} required />
-				</div>
+				<Form.Field form={quizSettingsForm} name="quizStartTime">
+					<Form.Control>
+						{#snippet children({ props })}
+							<div class="space-y-2">
+								<Label for="quizStartTime">Start Time</Label>
+								<Input
+									{...props}
+									type="datetime-local"
+									name="quizStartTime"
+									bind:value={$quizSettingsFormData.quizStartTime}
+									required
+								/>
+							</div>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
 			{/if}
 
-			{#if quizMode !== quizModeEnum.none}
+			{#if $quizSettingsFormData.quizMode !== quizModeEnum.none}
 				<!-- Quiz Duration -->
-				<div class="space-y-2">
-					<Label for="quizDurationMinutes">Duration (minutes)</Label>
-					<Input
-						type="number"
-						name="quizDurationMinutes"
-						bind:value={quizDurationMinutes}
-						min="1"
-						max="480"
-						required
-					/>
-				</div>
+				<Form.Field form={quizSettingsForm} name="quizDurationMinutes">
+					<Form.Control>
+						{#snippet children({ props })}
+							<div class="space-y-2">
+								<Label for="quizDurationMinutes">Duration (minutes)</Label>
+								<Input
+									{...props}
+									type="number"
+									name="quizDurationMinutes"
+									bind:value={$quizSettingsFormData.quizDurationMinutes}
+									min="1"
+									max="480"
+									required
+								/>
+							</div>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
 
 				<!-- Grade Release -->
-				<div class="space-y-2">
-					<Label for="gradeRelease">Grade Release</Label>
-					<Select.Root type="single" name="gradeRelease" bind:value={gradeRelease}>
-						<Select.Trigger>
-							{#if gradeRelease === gradeReleaseEnum.instant}
-								Instant
-							{:else if gradeRelease === gradeReleaseEnum.manual}
-								Manual
-							{:else if gradeRelease === gradeReleaseEnum.scheduled}
-								Scheduled
-							{:else}
-								Select grade release
-							{/if}
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Item value={gradeReleaseEnum.instant}>Instant</Select.Item>
-							<Select.Item value={gradeReleaseEnum.manual}>Manual</Select.Item>
-							<Select.Item value={gradeReleaseEnum.scheduled}>Scheduled</Select.Item>
-						</Select.Content>
-					</Select.Root>
-				</div>
+				<Form.Field form={quizSettingsForm} name="gradeRelease">
+					<Form.Control>
+						{#snippet children({ props })}
+							<div class="space-y-2">
+								<Label for="gradeRelease">Grade Release</Label>
+								<Select.Root
+									{...props}
+									type="single"
+									name="gradeRelease"
+									bind:value={$quizSettingsFormData.gradeRelease}
+								>
+									<Select.Trigger>
+										{#if $quizSettingsFormData.gradeRelease === gradeReleaseEnum.instant}
+											Instant
+										{:else if $quizSettingsFormData.gradeRelease === gradeReleaseEnum.manual}
+											Manual
+										{:else if $quizSettingsFormData.gradeRelease === gradeReleaseEnum.scheduled}
+											Scheduled
+										{:else}
+											Select grade release
+										{/if}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Item value={gradeReleaseEnum.instant}>Instant</Select.Item>
+										<Select.Item value={gradeReleaseEnum.manual}>Manual</Select.Item>
+										<Select.Item value={gradeReleaseEnum.scheduled}>Scheduled</Select.Item>
+									</Select.Content>
+								</Select.Root>
+							</div>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
 
-				{#if gradeRelease === gradeReleaseEnum.scheduled}
+				{#if $quizSettingsFormData.gradeRelease === gradeReleaseEnum.scheduled}
 					<!-- Grade Release Time -->
-					<div class="space-y-2">
-						<Label for="gradeReleaseTime">Grade Release Time</Label>
-						<Input
-							type="datetime-local"
-							name="gradeReleaseTime"
-							bind:value={gradeReleaseTime}
-							required
-						/>
-					</div>
+					<Form.Field form={quizSettingsForm} name="gradeReleaseTime">
+						<Form.Control>
+							{#snippet children({ props })}
+								<div class="space-y-2">
+									<Label for="gradeReleaseTime">Grade Release Time</Label>
+									<Input
+										{...props}
+										type="datetime-local"
+										name="gradeReleaseTime"
+										bind:value={$quizSettingsFormData.gradeReleaseTime}
+										required
+									/>
+								</div>
+							{/snippet}
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
 				{/if}
 			{/if}
 

@@ -1162,26 +1162,6 @@ export async function updateQuizSession(
 		);
 }
 
-export async function getQuizSession(classTaskId: number, authorId: string) {
-	const [session] = await db
-		.select({
-			quizStartedAt: table.classTaskResponse.quizStartedAt,
-			quizEndedAt: table.classTaskResponse.quizEndedAt,
-			quizTimeRemainingMinutes: table.classTaskResponse.quizTimeRemainingMinutes,
-			isQuizSubmitted: table.classTaskResponse.isQuizSubmitted,
-			autoSubmitted: table.classTaskResponse.autoSubmitted
-		})
-		.from(table.classTaskResponse)
-		.where(
-			and(
-				eq(table.classTaskResponse.classTaskId, classTaskId),
-				eq(table.classTaskResponse.authorId, authorId)
-			)
-		);
-
-	return session;
-}
-
 export async function getClassTaskResponse(classTaskId: number, authorId: string) {
 	const response = await db
 		.select()
@@ -1195,22 +1175,6 @@ export async function getClassTaskResponse(classTaskId: number, authorId: string
 		.limit(1);
 
 	return response[0] || null;
-}
-
-export async function hasQuizBeenStarted(classTaskId: number): Promise<boolean> {
-	const [result] = await db
-		.select({
-			count: sql<number>`count(*)`
-		})
-		.from(table.classTaskResponse)
-		.where(
-			and(
-				eq(table.classTaskResponse.classTaskId, classTaskId),
-				sql`${table.classTaskResponse.quizStartedAt} IS NOT NULL`
-			)
-		);
-
-	return (result?.count ?? 0) > 0;
 }
 
 export async function getClassTaskResponseResources(classTaskResponseId: number) {

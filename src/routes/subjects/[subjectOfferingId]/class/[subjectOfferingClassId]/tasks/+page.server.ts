@@ -1,3 +1,4 @@
+import { userTypeEnum } from '$lib/enums.js';
 import type { Task } from '$lib/server/db/schema';
 import {
 	addResourceToSubjectOfferingClass,
@@ -161,6 +162,13 @@ export const load = async ({
 
 	// Add tasks to their respective topics
 	tasks.forEach((task) => {
+		if (
+			user.type === userTypeEnum.student &&
+			task.subjectOfferingClassTask.status !== 'published'
+		) {
+			return;
+		}
+
 		const topicId = task.courseMapItem.id;
 		const topicEntry = topicsWithTasks.find((item) => item.topic.id === topicId);
 		if (topicEntry) {

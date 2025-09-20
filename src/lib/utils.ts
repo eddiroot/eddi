@@ -196,6 +196,15 @@ export function formatTimestampAsTime(timestamp: Date): string {
 		.replace(/\s/g, '');
 }
 
+export function toLocalDatetimeString(date: Date | string | null): string {
+	if (!date) return '';
+	const d = new Date(date);
+	// Adjust for timezone offset to get local time
+	const offset = d.getTimezoneOffset() * 60000; // offset in milliseconds
+	const localTime = new Date(d.getTime() - offset);
+	return localTime.toISOString().slice(0, 16);
+}
+
 export const days = [
 	{ name: 'Monday', shortName: 'Mon', value: 'monday', number: 1 },
 	{ name: 'Tuesday', shortName: 'Tue', value: 'tuesday', number: 2 },
