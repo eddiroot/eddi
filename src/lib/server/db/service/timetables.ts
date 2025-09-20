@@ -553,6 +553,28 @@ export async function getSpaceConstraintsByTimetableId(timetableId: number) {
 		.orderBy(asc(table.constraint.FETName));
 }
 
+export async function getActiveTimetableConstraintsForTimetable(timetableId: number) {
+	return db
+		.select({
+			id: table.constraint.id,
+			FETName: table.constraint.FETName,
+			friendlyName: table.constraint.friendlyName,
+			description: table.constraint.description,
+			type: table.constraint.type,
+			active: table.timetableConstraint.active,
+			parameters: table.timetableConstraint.parameters
+		})
+		.from(table.timetableConstraint)
+		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.where(
+			and(
+				eq(table.timetableConstraint.timetableId, timetableId),
+				eq(table.timetableConstraint.active, true)
+			)
+		)
+		.orderBy(asc(table.constraint.FETName));
+}
+
 export async function getAllConstraints() {
 	const constraints = await db
 		.select()

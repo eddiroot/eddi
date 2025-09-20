@@ -1,6 +1,7 @@
 import { userTypeEnum } from '$lib/enums.js';
 import {
 	createTimetableQueueEntry,
+	getActiveTimetableConstraintsForTimetable,
 	getBuildingsBySchoolId,
 	getSchoolById,
 	getSpacesBySchoolId,
@@ -9,7 +10,7 @@ import {
 	getTimetableDays,
 	getTimetablePeriods,
 	getTimetableStudentGroupsWithCountsByTimetableId,
-	getUsersBySchoolIdAndType
+	getUsersBySchoolIdAndType,
 } from '$lib/server/db/service';
 import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 import { fail } from '@sveltejs/kit';
@@ -35,7 +36,8 @@ export const actions = {
 				spaces,
 				teachers,
 				subjects,
-				school
+				school,
+				activeConstraints 
 			] = await Promise.all([
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId),
@@ -45,7 +47,8 @@ export const actions = {
 				getSpacesBySchoolId(user.schoolId),
 				getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher),
 				getSubjectsBySchoolId(user.schoolId),
-				getSchoolById(user.schoolId)
+				getSchoolById(user.schoolId),
+				getActiveTimetableConstraintsForTimetable(timetableId)
 			]);
 
 			const xmlContent = buildFETInput({
@@ -57,7 +60,8 @@ export const actions = {
 				spaces,
 				teachers,
 				subjects,
-				school
+				school,
+				activeConstraints
 			});
 
 			const uniqueFileName = generateUniqueFileName(`${timetableId}.fet`);

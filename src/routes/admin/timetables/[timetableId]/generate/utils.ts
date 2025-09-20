@@ -2,6 +2,7 @@ import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
 import type { FETActivity, FETOutput } from '$lib/schemas/fetSchema';
 import {
+	getActiveTimetableConstraintsForTimetable,
 	getBuildingsBySchoolId,
 	getSchoolById,
 	getSpacesBySchoolId,
@@ -23,6 +24,7 @@ export type TimetableData = {
 	teachers: Awaited<ReturnType<typeof getUsersBySchoolIdAndType>>;
 	subjects: Awaited<ReturnType<typeof getSubjectsBySchoolId>>;
 	school: Awaited<ReturnType<typeof getSchoolById>>;
+	activeConstraints: Awaited<ReturnType<typeof getActiveTimetableConstraintsForTimetable>>;
 };
 
 export function buildFETInput({
@@ -34,7 +36,8 @@ export function buildFETInput({
 	spaces,
 	teachers,
 	subjects,
-	school
+	school,
+	activeConstraints
 }: TimetableData) {
 	const daysList = timetableDays.map((day) => ({
 		Name: day.id
@@ -108,15 +111,6 @@ export function buildFETInput({
 		}
 	}
 
-	const constraintMinDaysBetweenActivities = activitiesList.map((activities) => ({
-		Weight_Percentage: 100,
-		Consecutive_If_Same_Day: true,
-		Number_of_Activities: activities.length,
-		Activity_Id: activities.map((activity) => activity.Id),
-		MinDays: 1,
-		Active: true
-	}));
-
 	const buildingsList = buildings.map((building) => ({
 		Name: building.id
 	}));
@@ -132,27 +126,42 @@ export function buildFETInput({
 		};
 	});
 
-	const timeConstraints = {
-		ConstraintBasicCompulsoryTime: {
-			Weight_Percentage: 100,
-			Active: true
-		},
-		ConstraintMinDaysBetweenActivities: constraintMinDaysBetweenActivities
-	};
+	
+	// Filter constraints by type
+	const timeConstraints = activeConstraints.filter(c => c.type === 'time');
+	const spaceConstraints = activeConstraints.filter(c => c.type === 'space');
 
-	const spaceConstraints = {
-		ConstraintBasicCompulsorySpace: {
-			Weight_Percentage: 100,
-			Active: true
-		},
-		ConstraintSubjectPreferredRooms: subjects.map((subject) => ({
-			Weight_Percentage: 100,
-			Subject: subject.id,
-			Number_of_Preferred_Rooms: roomsList.length,
-			Preferred_Room: roomsList.map((room) => room.Name),
-			Active: true
-		}))
-	};
+	// Build Time_Constraints_List
+	const timeConstraintsXML: Record<string, unknown> = {};
+	timeConstraints.forEach(constraint => {
+		try {
+			// Parse the JSON parameters
+			const parsedParams = typeof constraint.parameters === 'string' 
+				? JSON.parse(constraint.parameters) 
+				: constraint.parameters;
+			
+			// Add to constraints using FET name
+			timeConstraintsXML[constraint.FETName] = parsedParams;
+		} catch (error) {
+			console.error(`Error parsing time constraint ${constraint.FETName}:`, error);
+		}
+	});
+
+	// Build Space_Constraints_List
+	const spaceConstraintsXML: Record<string, unknown> = {};
+	spaceConstraints.forEach(constraint => {
+		try {
+			// Parse the JSON parameters
+			const parsedParams = typeof constraint.parameters === 'string' 
+				? JSON.parse(constraint.parameters) 
+				: constraint.parameters;
+			
+			// Add to constraints using FET name
+			spaceConstraintsXML[constraint.FETName] = parsedParams;
+		} catch (error) {
+			console.error(`Error parsing space constraint ${constraint.FETName}:`, error);
+		}
+	});
 
 	const xmlData = {
 		'?xml': {
@@ -191,8 +200,8 @@ export function buildFETInput({
 			Rooms_List: {
 				Room: roomsList
 			},
-			Time_Constraints_List: timeConstraints,
-			Space_Constraints_List: spaceConstraints,
+			Time_Constraints_List: timeConstraintsXML,
+			Space_Constraints_List: spaceConstraintsXML,
 			Timetable_Generation_Options_List: {}
 		}
 	};
@@ -205,7 +214,10 @@ export function buildFETInput({
 	};
 
 	const builder = new XMLBuilder(xmlBuilderOptions);
-	return builder.build(xmlData);
+
+	const xmlDataWithConstraints = builder.build(xmlData);
+	
+	return xmlDataWithConstraints;
 }
 
 export function processFETOutput(fetOutput: string): FETActivity[] {
