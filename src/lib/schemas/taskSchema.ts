@@ -529,6 +529,27 @@ export type BlockBalancingEquationsResponse = {
 	};
 };
 
+export const blockImage = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.image] },
+		config: {
+			type: 'object',
+			properties: {
+				path: { type: 'string' },
+				altText: { type: 'string' }
+			},
+			required: ['path', 'altText']
+		}
+	},
+	required: ['type', 'config']
+};
+
+export type BlockImageConfig = {
+	path: string;
+	altText: string;
+};
+
 export const taskBlocks = [
 	blockHeading,
 	blockRichText,
@@ -541,7 +562,8 @@ export const taskBlocks = [
 	blockHighlightText,
 	blockTable,
 	blockGraph,
-	blockBalancingEquations
+	blockBalancingEquations,
+	blockImage,
 ];
 
 export const layoutTwoColumns = {
@@ -603,7 +625,8 @@ export type BlockConfig =
 	| BlockCloseConfig
 	| BlockHighlightTextConfig
 	| BlockTableConfig
-	| BlockGraphConfig;
+	| BlockGraphConfig
+	| BlockImageConfig
 
 export type BlockResponse =
 	| BlockChoiceResponse
@@ -645,6 +668,7 @@ export type HighlightTextBlockProps = BlockProps<
 	BlockHighlightTextConfig,
 	BlockHighlightTextResponse
 >;
+export type ImageBlockProps = BlockProps<BlockImageConfig>;
 export type TableBlockProps = BlockProps<BlockTableConfig>;
 export type GraphBlockProps = BlockProps<BlockGraphConfig, BlockGraphResponse>;
 
@@ -656,6 +680,7 @@ import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
 import HeadingFourIcon from '@lucide/svelte/icons/heading-4';
 import HeadingFiveIcon from '@lucide/svelte/icons/heading-5';
 import HighlighterIcon from '@lucide/svelte/icons/highlighter';
+import ImageIcon from '@lucide/svelte/icons/image';
 import LinkIcon from '@lucide/svelte/icons/link';
 import List from '@lucide/svelte/icons/list';
 import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
@@ -819,5 +844,14 @@ export const blockTypes: {
 			products: [{ formula: 'product1', coefficient: 1, given: true }]
 		},
 		icon: FlaskConicalIcon
+	},
+	{
+		type: taskBlockTypeEnum.image,
+		name: 'Image',
+		initialConfig: {
+			path: '',
+			altText: ''
+		},
+		icon: ImageIcon
 	}
 ];

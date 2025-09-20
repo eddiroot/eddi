@@ -2,24 +2,25 @@
 	import { page } from '$app/state';
 	import { type TaskBlock } from '$lib/server/db/schema';
 	import { dndState, draggable, droppable, type DragDropState } from '@thisux/sveltednd';
-	// UI Components
+// UI Components
 	import { Badge } from '$lib/components/ui/badge';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
-	// Block Components
+// Block Components
 	import BlockChoice from './components/block-choice.svelte';
 	import BlockClose from './components/block-close.svelte';
 	import BlockFillBlank from './components/block-fill-blank.svelte';
 	import BlockGraph from './components/block-graph.svelte';
 	import BlockHeading from './components/block-heading.svelte';
 	import BlockHighlightText from './components/block-highlight-text.svelte';
+	import BlockImage from './components/block-image.svelte';
 	import BlockMatching from './components/block-matching.svelte';
 	import BlockRichText from './components/block-rich-text-editor.svelte';
 	import BlockShortAnswer from './components/block-short-answer.svelte';
 	import BlockTable from './components/block-table.svelte';
 	import BlockWhiteboard from './components/block-whiteboard.svelte';
-	// Icons
+// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import EyeIcon from '@lucide/svelte/icons/eye';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
@@ -43,6 +44,7 @@
 		type BlockGraphConfig,
 		type BlockHeadingConfig,
 		type BlockHighlightTextConfig,
+		type BlockImageConfig,
 		type BlockMatchingConfig,
 		type BlockRichTextConfig,
 		type BlockShortAnswerConfig,
@@ -499,6 +501,12 @@
 									response={getCurrentResponse(block.id, block.type)}
 									onResponseUpdate={async (response) =>
 										await handleResponseUpdate(block.id, response)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.image}
+								<BlockImage
+									config={block.config as BlockImageConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									{viewMode}
 								/>
 							{:else}
