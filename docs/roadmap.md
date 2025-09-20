@@ -100,7 +100,6 @@ Raph
   - add shape roundness option
   - layering options?
   - text with websocket
-  - shape adding mechanics
   - text adding mechanics
 - [x] Student grades (20/08) (use mock data for now - waiting for eddi study)
   - fix scrollbar gutter
