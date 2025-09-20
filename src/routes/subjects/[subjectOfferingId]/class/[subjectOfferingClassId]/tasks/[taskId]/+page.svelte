@@ -19,6 +19,7 @@
 	import BlockRichText from './components/block-rich-text-editor.svelte';
 	import BlockShortAnswer from './components/block-short-answer.svelte';
 	import BlockTable from './components/block-table.svelte';
+	import BlockVideo from './components/block-video.svelte';
 	import BlockWhiteboard from './components/block-whiteboard.svelte';
 // Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
@@ -49,6 +50,7 @@
 		type BlockRichTextConfig,
 		type BlockShortAnswerConfig,
 		type BlockTableConfig,
+		type BlockVideoConfig,
 		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
 	import { PresentationIcon } from '@lucide/svelte';
@@ -506,6 +508,12 @@
 							{:else if block.type === taskBlockTypeEnum.image}
 								<BlockImage
 									config={block.config as BlockImageConfig}
+									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+									{viewMode}
+								/>
+							{:else if block.type === taskBlockTypeEnum.video}
+								<BlockVideo
+									config={block.config as BlockVideoConfig}
 									onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
 									{viewMode}
 								/>

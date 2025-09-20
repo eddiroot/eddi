@@ -550,6 +550,27 @@ export type BlockImageConfig = {
 	altText: string;
 };
 
+export const blockVideo = {
+	type: 'object',
+	properties: {
+		type: { type: 'string', enum: [taskBlockTypeEnum.video] },
+		config: {
+			type: 'object',
+			properties: {
+				url: { type: 'string' },
+				altText: { type: 'string' }
+			},
+			required: ['url', 'altText']
+		}
+	},
+	required: ['type', 'config']
+}
+
+export type BlockVideoConfig = {
+	url: string;
+	altText: string;
+};
+
 export const taskBlocks = [
 	blockHeading,
 	blockRichText,
@@ -564,6 +585,7 @@ export const taskBlocks = [
 	blockGraph,
 	blockBalancingEquations,
 	blockImage,
+	blockVideo,
 ];
 
 export const layoutTwoColumns = {
@@ -627,6 +649,7 @@ export type BlockConfig =
 	| BlockTableConfig
 	| BlockGraphConfig
 	| BlockImageConfig
+	| BlockVideoConfig;
 
 export type BlockResponse =
 	| BlockChoiceResponse
@@ -671,6 +694,7 @@ export type HighlightTextBlockProps = BlockProps<
 export type ImageBlockProps = BlockProps<BlockImageConfig>;
 export type TableBlockProps = BlockProps<BlockTableConfig>;
 export type GraphBlockProps = BlockProps<BlockGraphConfig, BlockGraphResponse>;
+export type VideoBlockProps = BlockProps<BlockVideoConfig>;
 
 import type { Icon } from '@lucide/svelte';
 import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
@@ -689,6 +713,7 @@ import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
 import TableIcon from '@lucide/svelte/icons/table';
 import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
+import VideoIcon from '@lucide/svelte/icons/video';
 
 export enum ViewMode {
 	CONFIGURE = 'configure',
@@ -853,5 +878,14 @@ export const blockTypes: {
 			altText: ''
 		},
 		icon: ImageIcon
+	},
+	{
+		type: taskBlockTypeEnum.video,
+		name: 'Video',
+		initialConfig: {
+			url: '',
+			altText: ''
+		},
+		icon: VideoIcon
 	}
 ];
