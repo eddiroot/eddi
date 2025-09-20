@@ -12,42 +12,16 @@ Example structure:
   </ConstraintBasicCompulsoryTime>
 
 
-ConstraintStudentsEarlyMaxBeginningsAtSecondHour:
--------------------------------------------------
-Parameters: Active, Comments, Max_Beginnings_At_Second_Hour, Weight_Percentage
-Example structure:
-  <ConstraintStudentsEarlyMaxBeginningsAtSecondHour>
-  	<Weight_Percentage>100</Weight_Percentage>
-  	<Max_Beginnings_At_Second_Hour>0</Max_Beginnings_At_Second_Hour>
-  	<Active>true</Active>
-  	<Comments />
-  </ConstraintStudentsEarlyMaxBeginningsAtSecondHour>
-
-
-ConstraintStudentsMaxGapsPerWeek: +
----------------------------------
-Parameters: Active, Comments, Max_Gaps, Weight_Percentage
-Example structure:
-  <ConstraintStudentsMaxGapsPerWeek>
-  	<Weight_Percentage>100</Weight_Percentage>
-  	<Max_Gaps>0</Max_Gaps>
-  	<Active>true</Active>
-  	<Comments />
-  </ConstraintStudentsMaxGapsPerWeek>
-
-
-ConstraintMinDaysBetweenActivities: +
+ConstraintMinDaysBetweenActivities:
 -----------------------------------
 Parameters: Active, Activity_Id, Comments, Consecutive_If_Same_Day, MinDays, Number_of_Activities, Weight_Percentage
 Example structure:
   <ConstraintMinDaysBetweenActivities>
-  	<Weight_Percentage>95</Weight_Percentage>
-  	<Consecutive_If_Same_Day>true</Consecutive_If_Same_Day>
-  	<Number_of_Activities>4</Number_of_Activities>
-  	<Activity_Id>21</Activity_Id>
-  	<Activity_Id>22</Activity_Id>
-  	<Activity_Id>23</Activity_Id>
-  	<Activity_Id>24</Activity_Id>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Consecutive_If_Same_Day>false</Consecutive_If_Same_Day>
+  	<Number_of_Activities>2</Number_of_Activities>
+  	<Activity_Id>1</Activity_Id>
+  	<Activity_Id>2</Activity_Id>
   	<MinDays>1</MinDays>
   	<Active>true</Active>
   	<Comments />
@@ -60,31 +34,75 @@ Parameters: Active, Comments, Not_Available_Time, Number_of_Not_Available_Times,
 Example structure:
   <ConstraintTeacherNotAvailableTimes>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Teacher>Sepp</Teacher>
-  	<Number_of_Not_Available_Times>6</Number_of_Not_Available_Times>
+  	<Teacher>Gilmar</Teacher>
+  	<Number_of_Not_Available_Times>17</Number_of_Not_Available_Times>
   	<Not_Available_Time>
-  		<Day>Monday</Day>
+  		<Day>Luni</Day>
+  		<Hour>0</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Luni</Day>
   		<Hour>1</Hour>
   	</Not_Available_Time>
   	<Not_Available_Time>
-  		<Day>Monday</Day>
+  		<Day>Luni</Day>
   		<Hour>2</Hour>
   	</Not_Available_Time>
   	<Not_Available_Time>
-  		<Day>Monday</Day>
+  		<Day>Luni</Day>
   		<Hour>3</Hour>
   	</Not_Available_Time>
   	<Not_Available_Time>
-  		<Day>Monday</Day>
+  		<Day>Luni</Day>
   		<Hour>4</Hour>
   	</Not_Available_Time>
   	<Not_Available_Time>
-  		<Day>Monday</Day>
-  		<Hour>5</Hour>
+  		<Day>Marti</Day>
+  		<Hour>0</Hour>
   	</Not_Available_Time>
   	<Not_Available_Time>
-  		<Day>Monday</Day>
-  		<Hour>6</Hour>
+  		<Day>Marti</Day>
+  		<Hour>1</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Marti</Day>
+  		<Hour>2</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Marti</Day>
+  		<Hour>3</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Marti</Day>
+  		<Hour>4</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Miercuri</Day>
+  		<Hour>0</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Miercuri</Day>
+  		<Hour>1</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Miercuri</Day>
+  		<Hour>2</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Miercuri</Day>
+  		<Hour>3</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Miercuri</Day>
+  		<Hour>4</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Joi</Day>
+  		<Hour>0</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>Vineri</Day>
+  		<Hour>0</Hour>
   	</Not_Available_Time>
   	<Active>true</Active>
   	<Comments />
@@ -97,11 +115,312 @@ Parameters: Active, Comments, Max_Days_Per_Week, Teacher_Name, Weight_Percentage
 Example structure:
   <ConstraintTeacherMaxDaysPerWeek>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Teacher_Name>Julia</Teacher_Name>
-  	<Max_Days_Per_Week>4</Max_Days_Per_Week>
+  	<Teacher_Name>Gilmar</Teacher_Name>
+  	<Max_Days_Per_Week>2</Max_Days_Per_Week>
   	<Active>true</Active>
   	<Comments />
   </ConstraintTeacherMaxDaysPerWeek>
+
+
+ConstraintTeachersMaxGapsPerWeek:
+---------------------------------
+Parameters: Active, Comments, Max_Gaps, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxGapsPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Gaps>2</Max_Gaps>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxGapsPerWeek>
+
+
+ConstraintTeachersMinHoursDaily:
+--------------------------------
+Parameters: Active, Allow_Empty_Days, Comments, Minimum_Hours_Daily, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMinHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Minimum_Hours_Daily>2</Minimum_Hours_Daily>
+  	<Allow_Empty_Days>true</Allow_Empty_Days>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMinHoursDaily>
+
+
+ConstraintTeachersMaxHoursDaily:
+--------------------------------
+Parameters: Active, Comments, Maximum_Hours_Daily, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Maximum_Hours_Daily>5</Maximum_Hours_Daily>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxHoursDaily>
+
+
+ConstraintStudentsMaxGapsPerWeek:
+---------------------------------
+Parameters: Active, Comments, Max_Gaps, Weight_Percentage
+Example structure:
+  <ConstraintStudentsMaxGapsPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Gaps>0</Max_Gaps>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsMaxGapsPerWeek>
+
+
+ConstraintStudentsEarlyMaxBeginningsAtSecondHour:
+-------------------------------------------------
+Parameters: Active, Comments, Max_Beginnings_At_Second_Hour, Weight_Percentage
+Example structure:
+  <ConstraintStudentsEarlyMaxBeginningsAtSecondHour>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Beginnings_At_Second_Hour>0</Max_Beginnings_At_Second_Hour>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsEarlyMaxBeginningsAtSecondHour>
+
+
+ConstraintActivityPreferredStartingTime:
+----------------------------------------
+Parameters: Active, Activity_Id, Comments, Permanently_Locked, Preferred_Day, Preferred_Hour, Weight_Percentage
+Example structure:
+  <ConstraintActivityPreferredStartingTime>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Id>246</Activity_Id>
+  	<Preferred_Day>Δευτέρα</Preferred_Day>
+  	<Preferred_Hour>1</Preferred_Hour>
+  	<Permanently_Locked>true</Permanently_Locked>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityPreferredStartingTime>
+
+
+ConstraintTeachersMaxGapsPerDay:
+--------------------------------
+Parameters: Active, Comments, Max_Gaps, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxGapsPerDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Gaps>1</Max_Gaps>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxGapsPerDay>
+
+
+ConstraintActivitiesSameStartingDay:
+------------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesSameStartingDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>2</Number_of_Activities>
+  	<Activity_Id>225</Activity_Id>
+  	<Activity_Id>226</Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesSameStartingDay>
+
+
+ConstraintTeacherIntervalMaxDaysPerWeek:
+----------------------------------------
+Parameters: Active, Comments, Interval_End_Hour, Interval_Start_Hour, Max_Days_Per_Week, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherIntervalMaxDaysPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>ΠΕ02 ΑΝΔΡΙΑΝΟΠΟΥΛΟΥ</Teacher_Name>
+  	<Interval_Start_Hour>7</Interval_Start_Hour>
+  	<Interval_End_Hour />
+  	<Max_Days_Per_Week>2</Max_Days_Per_Week>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherIntervalMaxDaysPerWeek>
+
+
+ConstraintTeachersMaxHoursContinuously:
+---------------------------------------
+Parameters: Active, Comments, Maximum_Hours_Continuously, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxHoursContinuously>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Maximum_Hours_Continuously>4</Maximum_Hours_Continuously>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxHoursContinuously>
+
+
+ConstraintTeacherMaxHoursDaily:
+-------------------------------
+Parameters: Active, Comments, Maximum_Hours_Daily, Teacher, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMaxHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>ΠΕ01 ΖΩΓΟΠΟΥΛΟΣ</Teacher_Name>
+  	<Maximum_Hours_Daily>4</Maximum_Hours_Daily>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMaxHoursDaily>
+
+
+ConstraintActivityPreferredTimeSlots:
+-------------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Preferred_Time_Slots, Preferred_Time_Slot, Weight_Percentage
+Example structure:
+  <ConstraintActivityPreferredTimeSlots>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Id>235</Activity_Id>
+  	<Number_of_Preferred_Time_Slots>7</Number_of_Preferred_Time_Slots>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>2</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>3</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>4</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>5</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>6</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>Τρίτη</Preferred_Day>
+  		<Preferred_Hour>7</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityPreferredTimeSlots>
+
+
+ConstraintBreakTimes:
+---------------------
+Parameters: Active, Break_Time, Comments, Number_of_Break_Times, Weight_Percentage
+Example structure:
+  <ConstraintBreakTimes>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Break_Times>10</Number_of_Break_Times>
+  	<Break_Time>
+  		<Day>Monday</Day>
+  		<Hour>10:30-10:35</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Monday</Day>
+  		<Hour>12:35-1:30</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Tuesday</Day>
+  		<Hour>10:30-10:35</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Tuesday</Day>
+  		<Hour>12:35-1:30</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Wednesday</Day>
+  		<Hour>10:30-10:35</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Wednesday</Day>
+  		<Hour>12:35-1:30</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Thursday</Day>
+  		<Hour>10:30-10:35</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Thursday</Day>
+  		<Hour>12:35-1:30</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Friday</Day>
+  		<Hour>10:30-10:35</Hour>
+  	</Break_Time>
+  	<Break_Time>
+  		<Day>Friday</Day>
+  		<Hour>12:35-1:30</Hour>
+  	</Break_Time>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintBreakTimes>
+
+
+ConstraintStudentsMaxHoursContinuously:
+---------------------------------------
+Parameters: Active, Comments, Maximum_Hours_Continuously, Weight_Percentage
+Example structure:
+  <ConstraintStudentsMaxHoursContinuously>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Maximum_Hours_Continuously>6</Maximum_Hours_Continuously>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsMaxHoursContinuously>
+
+
+ConstraintStudentsSetMaxHoursDaily:
+-----------------------------------
+Parameters: Active, Comments, Maximum_Hours_Daily, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetMaxHoursDaily>
+  	<Weight_Percentage>95</Weight_Percentage>
+  	<Maximum_Hours_Daily>3</Maximum_Hours_Daily>
+  	<Students>1ο Έτος</Students>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetMaxHoursDaily>
+
+
+ConstraintActivitiesSameStartingTime:
+-------------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesSameStartingTime>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>2</Number_of_Activities>
+  	<Activity_Id>55</Activity_Id>
+  	<Activity_Id>73</Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesSameStartingTime>
+
+
+ConstraintTwoActivitiesOrdered:
+-------------------------------
+Parameters: Active, Comments, First_Activity_Id, Second_Activity_Id, Weight_Percentage
+Example structure:
+  <ConstraintTwoActivitiesOrdered>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<First_Activity_Id>81</First_Activity_Id>
+  	<Second_Activity_Id>6</Second_Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTwoActivitiesOrdered>
+
+
+ConstraintActivitiesNotOverlapping:
+-----------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesNotOverlapping>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>2</Number_of_Activities>
+  	<Activity_Id>18</Activity_Id>
+  	<Activity_Id>51</Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesNotOverlapping>
 
 
 ConstraintActivitiesPreferredStartingTimes:
@@ -112,73 +431,382 @@ Example structure:
   	<Weight_Percentage>100</Weight_Percentage>
   	<Teacher_Name />
   	<Students_Name />
-  	<Subject_Name />
-  	<Activity_Tag_Name>1,3,5</Activity_Tag_Name>
+  	<Subject_Name>AUD521 - Ηχητική Επεξεργασία</Subject_Name>
+  	<Activity_Tag_Name />
   	<Duration />
-  	<Number_of_Preferred_Starting_Times>15</Number_of_Preferred_Starting_Times>
+  	<Number_of_Preferred_Starting_Times>5</Number_of_Preferred_Starting_Times>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Monday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>1</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Τετάρτη 30/9</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>17:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Tuesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>1</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Τετάρτη 30/9</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>18:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Wednesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>1</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Τετάρτη 30/9</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>19:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Thursday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>1</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Τετάρτη 30/9</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>20:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Friday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>1</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Monday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>3</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Tuesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>3</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Wednesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>3</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Thursday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>3</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Friday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>3</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Monday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>5</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Tuesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>5</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Wednesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>5</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Thursday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>5</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Friday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>5</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Τετάρτη 30/9</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>21:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Active>true</Active>
   	<Comments />
   </ConstraintActivitiesPreferredStartingTimes>
+
+
+ConstraintStudentsMaxHoursDaily:
+--------------------------------
+Parameters: Active, Comments, Maximum_Hours_Daily, Weight_Percentage
+Example structure:
+  <ConstraintStudentsMaxHoursDaily>
+  	<Weight_Percentage>90</Weight_Percentage>
+  	<Maximum_Hours_Daily>3</Maximum_Hours_Daily>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsMaxHoursDaily>
+
+
+ConstraintStudentsSetNotAvailableTimes:
+---------------------------------------
+Parameters: Active, Comments, Not_Available_Time, Number_of_Not_Available_Times, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetNotAvailableTimes>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Students>4</Students>
+  	<Number_of_Not_Available_Times>5</Number_of_Not_Available_Times>
+  	<Not_Available_Time>
+  		<Day>الأحد</Day>
+  		<Hour>pm4</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>الاثنين</Day>
+  		<Hour>pm4</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>الثلاثاء</Day>
+  		<Hour>pm4</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>الأربعاء</Day>
+  		<Hour>pm4</Hour>
+  	</Not_Available_Time>
+  	<Not_Available_Time>
+  		<Day>الخميس</Day>
+  		<Hour>pm4</Hour>
+  	</Not_Available_Time>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetNotAvailableTimes>
+
+
+ConstraintMinGapsBetweenActivities:
+-----------------------------------
+Parameters: Active, Activity_Id, Comments, MinGaps, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintMinGapsBetweenActivities>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>3</Number_of_Activities>
+  	<Activity_Id>542</Activity_Id>
+  	<Activity_Id>543</Activity_Id>
+  	<Activity_Id>544</Activity_Id>
+  	<MinGaps>2</MinGaps>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintMinGapsBetweenActivities>
+
+
+ConstraintTeacherActivityTagMaxHoursDaily:
+------------------------------------------
+Parameters: Active, Activity_Tag_Name, Comments, Maximum_Hours_Daily, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherActivityTagMaxHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>F1</Teacher_Name>
+  	<Activity_Tag_Name>tag</Activity_Tag_Name>
+  	<Maximum_Hours_Daily>6</Maximum_Hours_Daily>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherActivityTagMaxHoursDaily>
+
+
+ConstraintActivitiesOccupyMaxTimeSlotsFromSelection:
+----------------------------------------------------
+Parameters: Active, Activity_Id, Comments, Max_Number_of_Occupied_Time_Slots, Number_of_Activities, Number_of_Selected_Time_Slots, Selected_Time_Slot, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesOccupyMaxTimeSlotsFromSelection>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>18</Number_of_Activities>
+  	<Activity_Id>96</Activity_Id>
+  	<Activity_Id>97</Activity_Id>
+  	<Activity_Id>98</Activity_Id>
+  	<Activity_Id>99</Activity_Id>
+  	<Activity_Id>100</Activity_Id>
+  	<Activity_Id>101</Activity_Id>
+  	<Activity_Id>102</Activity_Id>
+  	<Activity_Id>103</Activity_Id>
+  	<Activity_Id>104</Activity_Id>
+  	<Activity_Id>105</Activity_Id>
+  	<Activity_Id>106</Activity_Id>
+  	<Activity_Id>107</Activity_Id>
+  	<Activity_Id>108</Activity_Id>
+  	<Activity_Id>109</Activity_Id>
+  	<Activity_Id>110</Activity_Id>
+  	<Activity_Id>111</Activity_Id>
+  	<Activity_Id>112</Activity_Id>
+  	<Activity_Id>113</Activity_Id>
+  	<Number_of_Selected_Time_Slots>5</Number_of_Selected_Time_Slots>
+  	<Selected_Time_Slot>
+  		<Selected_Day>الخميس</Selected_Day>
+  		<Selected_Hour>Lu</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>الخميس</Selected_Day>
+  		<Selected_Hour>pm1</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>الخميس</Selected_Day>
+  		<Selected_Hour>pm2</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>الخميس</Selected_Day>
+  		<Selected_Hour>pm3</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>الخميس</Selected_Day>
+  		<Selected_Hour>pm4</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Max_Number_of_Occupied_Time_Slots>18</Max_Number_of_Occupied_Time_Slots>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesOccupyMaxTimeSlotsFromSelection>
+
+
+ConstraintActivitiesPreferredTimeSlots:
+---------------------------------------
+Parameters: Active, Activity_Tag, Activity_Tag_Name, Comments, Duration, Number_of_Preferred_Time_Slots, Preferred_Time_Slot, Students, Students_Name, Subject, Subject_Name, Teacher, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesPreferredTimeSlots>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name />
+  	<Students_Name />
+  	<Subject_Name>   </Subject_Name>
+  	<Activity_Tag_Name />
+  	<Duration />
+  	<Number_of_Preferred_Time_Slots>16</Number_of_Preferred_Time_Slots>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الأحد</Preferred_Day>
+  		<Preferred_Hour>1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الأحد</Preferred_Day>
+  		<Preferred_Hour>4</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الأحد</Preferred_Day>
+  		<Preferred_Hour>pm1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الاثنين</Preferred_Day>
+  		<Preferred_Hour>1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الاثنين</Preferred_Day>
+  		<Preferred_Hour>4</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الاثنين</Preferred_Day>
+  		<Preferred_Hour>pm1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الثلاثاء</Preferred_Day>
+  		<Preferred_Hour>1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الثلاثاء</Preferred_Day>
+  		<Preferred_Hour>4</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الثلاثاء</Preferred_Day>
+  		<Preferred_Hour>pm1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الأربعاء</Preferred_Day>
+  		<Preferred_Hour>1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الأربعاء</Preferred_Day>
+  		<Preferred_Hour>4</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الأربعاء</Preferred_Day>
+  		<Preferred_Hour>pm1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الخميس</Preferred_Day>
+  		<Preferred_Hour>1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الخميس</Preferred_Day>
+  		<Preferred_Hour>4</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الخميس</Preferred_Day>
+  		<Preferred_Hour>pm1</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Preferred_Time_Slot>
+  		<Preferred_Day>الخميس</Preferred_Day>
+  		<Preferred_Hour>pm3</Preferred_Hour>
+  	</Preferred_Time_Slot>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesPreferredTimeSlots>
+
+
+ConstraintTeachersMaxDaysPerWeek:
+---------------------------------
+Parameters: Active, Comments, Max_Days_Per_Week, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxDaysPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Days_Per_Week>5</Max_Days_Per_Week>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxDaysPerWeek>
+
+
+ConstraintActivityEndsStudentsDay:
+----------------------------------
+Parameters: Active, Activity_Id, Comments, Weight_Percentage
+Example structure:
+  <ConstraintActivityEndsStudentsDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Id>614</Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityEndsStudentsDay>
+
+
+ConstraintTwoActivitiesGrouped:
+-------------------------------
+Parameters: Active, Comments, First_Activity_Id, Second_Activity_Id, Weight_Percentage
+Example structure:
+  <ConstraintTwoActivitiesGrouped>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<First_Activity_Id>467</First_Activity_Id>
+  	<Second_Activity_Id>472</Second_Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTwoActivitiesGrouped>
+
+
+ConstraintSubactivitiesPreferredStartingTimes:
+----------------------------------------------
+Parameters: Active, Activity_Tag_Name, Comments, Component_Number, Duration, Number_of_Preferred_Starting_Times, Preferred_Starting_Time, Students_Name, Subject_Name, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintSubactivitiesPreferredStartingTimes>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Component_Number>1</Component_Number>
+  	<Teacher_Name />
+  	<Students_Name />
+  	<Subject_Name>FISICA</Subject_Name>
+  	<Activity_Tag_Name />
+  	<Duration />
+  	<Number_of_Preferred_Starting_Times>18</Number_of_Preferred_Starting_Times>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Lunedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>08:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Lunedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>09:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Lunedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>10:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Martedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>08:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Martedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>09:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Martedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>10:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Mercoledì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>08:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Mercoledì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>09:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Mercoledì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>10:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Giovedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>08:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Giovedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>09:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Giovedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>10:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Venerdì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>08:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Venerdì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>09:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Venerdì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>10:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Sabato</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>08:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Sabato</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>09:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Preferred_Starting_Time>
+  		<Preferred_Starting_Day>Sabato</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>10:00</Preferred_Starting_Hour>
+  	</Preferred_Starting_Time>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintSubactivitiesPreferredStartingTimes>
+
+
+ConstraintTeacherMinHoursDaily:
+-------------------------------
+Parameters: Active, Allow_Empty_Days, Comments, Minimum_Hours_Daily, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMinHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>DE LUCA</Teacher_Name>
+  	<Minimum_Hours_Daily>2</Minimum_Hours_Daily>
+  	<Allow_Empty_Days>true</Allow_Empty_Days>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMinHoursDaily>
 
 
 ConstraintActivityPreferredStartingTimes:
@@ -187,156 +815,620 @@ Parameters: Active, Activity_Id, Comments, Number_of_Preferred_Starting_Times, P
 Example structure:
   <ConstraintActivityPreferredStartingTimes>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Activity_Id>624</Activity_Id>
-  	<Number_of_Preferred_Starting_Times>5</Number_of_Preferred_Starting_Times>
+  	<Activity_Id>631</Activity_Id>
+  	<Number_of_Preferred_Starting_Times>2</Number_of_Preferred_Starting_Times>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Monday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>6</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Martedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>12:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Tuesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>6</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Wednesday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>6</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Thursday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>6</Preferred_Starting_Hour>
-  	</Preferred_Starting_Time>
-  	<Preferred_Starting_Time>
-  		<Preferred_Starting_Day>Friday</Preferred_Starting_Day>
-  		<Preferred_Starting_Hour>6</Preferred_Starting_Hour>
+  		<Preferred_Starting_Day>Giovedì</Preferred_Starting_Day>
+  		<Preferred_Starting_Hour>12:00</Preferred_Starting_Hour>
   	</Preferred_Starting_Time>
   	<Active>true</Active>
   	<Comments />
   </ConstraintActivityPreferredStartingTimes>
 
 
-ConstraintActivityPreferredStartingTime:
-----------------------------------------
-Parameters: Active, Activity_Id, Comments, Permanently_Locked, Preferred_Day, Preferred_Hour, Weight_Percentage
+ConstraintStudentsSetIntervalMaxDaysPerWeek:
+--------------------------------------------
+Parameters: Active, Comments, Interval_End_Hour, Interval_Start_Hour, Max_Days_Per_Week, Students, Weight_Percentage
 Example structure:
-  <ConstraintActivityPreferredStartingTime>
+  <ConstraintStudentsSetIntervalMaxDaysPerWeek>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Activity_Id>478</Activity_Id>
-  	<Preferred_Day>Thursday</Preferred_Day>
-  	<Preferred_Hour>5</Preferred_Hour>
-  	<Permanently_Locked>true</Permanently_Locked>
+  	<Students>1</Students>
+  	<Interval_Start_Hour>13:00</Interval_Start_Hour>
+  	<Interval_End_Hour />
+  	<Max_Days_Per_Week>0</Max_Days_Per_Week>
   	<Active>true</Active>
   	<Comments />
-  </ConstraintActivityPreferredStartingTime>
+  </ConstraintStudentsSetIntervalMaxDaysPerWeek>
 
 
-ConstraintTeachersMaxGapsPerWeek:
+ConstraintStudentsSetMinHoursDaily:
+-----------------------------------
+Parameters: Active, Allow_Empty_Days, Comments, Minimum_Hours_Daily, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetMinHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Minimum_Hours_Daily>2</Minimum_Hours_Daily>
+  	<Students>Lớp 11</Students>
+  	<Allow_Empty_Days>true</Allow_Empty_Days>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetMinHoursDaily>
+
+
+ConstraintStudentsMinHoursDaily:
+--------------------------------
+Parameters: Active, Allow_Empty_Days, Comments, Minimum_Hours_Daily, Weight_Percentage
+Example structure:
+  <ConstraintStudentsMinHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Minimum_Hours_Daily>2</Minimum_Hours_Daily>
+  	<Allow_Empty_Days>true</Allow_Empty_Days>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsMinHoursDaily>
+
+
+ConstraintTeacherMaxGapsPerDay:
+-------------------------------
+Parameters: Active, Comments, Max_Gaps, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMaxGapsPerDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>Griselda Gómez</Teacher_Name>
+  	<Max_Gaps>1</Max_Gaps>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMaxGapsPerDay>
+
+
+ConstraintTeacherMaxGapsPerWeek:
+--------------------------------
+Parameters: Active, Comments, Max_Gaps, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMaxGapsPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>Teacher 25</Teacher_Name>
+  	<Max_Gaps>1</Max_Gaps>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMaxGapsPerWeek>
+
+
+ConstraintTwoActivitiesConsecutive:
+-----------------------------------
+Parameters: Active, Comments, First_Activity_Id, Second_Activity_Id, Weight_Percentage
+Example structure:
+  <ConstraintTwoActivitiesConsecutive>
+  	<Weight_Percentage>99</Weight_Percentage>
+  	<First_Activity_Id>78</First_Activity_Id>
+  	<Second_Activity_Id>79</Second_Activity_Id>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTwoActivitiesConsecutive>
+
+
+ConstraintStudentsSetMaxGapsPerWeek:
+------------------------------------
+Parameters: Active, Comments, Max_Gaps, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetMaxGapsPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Gaps>0</Max_Gaps>
+  	<Students>Lớp 10</Students>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetMaxGapsPerWeek>
+
+
+ConstraintStudentsActivityTagMaxHoursDaily:
+-------------------------------------------
+Parameters: Active, Activity_Tag, Comments, Maximum_Hours_Daily, Weight_Percentage
+Example structure:
+  <ConstraintStudentsActivityTagMaxHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Tag>_فترة_</Activity_Tag>
+  	<Maximum_Hours_Daily>3</Maximum_Hours_Daily>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsActivityTagMaxHoursDaily>
+
+
+ConstraintStudentsSetEarlyMaxBeginningsAtSecondHour:
+----------------------------------------------------
+Parameters: Active, Comments, Max_Beginnings_At_Second_Hour, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetEarlyMaxBeginningsAtSecondHour>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Beginnings_At_Second_Hour>3</Max_Beginnings_At_Second_Hour>
+  	<Students>الفرقة الأولى</Students>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetEarlyMaxBeginningsAtSecondHour>
+
+
+ConstraintTeacherMinDaysPerWeek:
+--------------------------------
+Parameters: Active, Comments, Minimum_Days_Per_Week, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMinDaysPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>f</Teacher_Name>
+  	<Minimum_Days_Per_Week>2</Minimum_Days_Per_Week>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMinDaysPerWeek>
+
+
+ConstraintStudentsActivityTagMaxHoursContinuously:
+--------------------------------------------------
+Parameters: Active, Activity_Tag, Comments, Maximum_Hours_Continuously, Weight_Percentage
+Example structure:
+  <ConstraintStudentsActivityTagMaxHoursContinuously>
+  	<Weight_Percentage>99</Weight_Percentage>
+  	<Activity_Tag>محاضرة عامة</Activity_Tag>
+  	<Maximum_Hours_Continuously>2</Maximum_Hours_Continuously>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsActivityTagMaxHoursContinuously>
+
+
+ConstraintStudentsSetMaxGapsPerDay:
+-----------------------------------
+Parameters: Active, Comments, Max_Gaps, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetMaxGapsPerDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Gaps>1</Max_Gaps>
+  	<Students>الفرقة الأولى</Students>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetMaxGapsPerDay>
+
+
+ConstraintActivityTagsNotOverlapping:
+-------------------------------------
+Parameters: Active, Activity_Tag, Comments, Number_of_Activity_Tags, Weight_Percentage
+Example structure:
+  <ConstraintActivityTagsNotOverlapping>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activity_Tags>14</Number_of_Activity_Tags>
+  	<Activity_Tag>Biology</Activity_Tag>
+  	<Activity_Tag>Chemistry</Activity_Tag>
+  	<Activity_Tag>Economics</Activity_Tag>
+  	<Activity_Tag>English</Activity_Tag>
+  	<Activity_Tag>Film</Activity_Tag>
+  	<Activity_Tag>Geography</Activity_Tag>
+  	<Activity_Tag>History</Activity_Tag>
+  	<Activity_Tag>Languages</Activity_Tag>
+  	<Activity_Tag>Mathematics</Activity_Tag>
+  	<Activity_Tag>Music</Activity_Tag>
+  	<Activity_Tag>Philosophy</Activity_Tag>
+  	<Activity_Tag>Physics</Activity_Tag>
+  	<Activity_Tag>Theatre Arts</Activity_Tag>
+  	<Activity_Tag>Visual Arts</Activity_Tag>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityTagsNotOverlapping>
+
+
+ConstraintActivitiesMaxSimultaneousInSelectedTimeSlots:
+-------------------------------------------------------
+Parameters: Active, Activity_Id, Comments, Max_Number_of_Simultaneous_Activities, Number_of_Activities, Number_of_Selected_Time_Slots, Selected_Time_Slot, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesMaxSimultaneousInSelectedTimeSlots>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>2</Number_of_Activities>
+  	<Activity_Id>1</Activity_Id>
+  	<Activity_Id>485</Activity_Id>
+  	<Number_of_Selected_Time_Slots>4</Number_of_Selected_Time_Slots>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Block D SL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Block E HL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Block F SL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Block G HL/SL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Max_Number_of_Simultaneous_Activities>17</Max_Number_of_Simultaneous_Activities>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesMaxSimultaneousInSelectedTimeSlots>
+
+
+ConstraintActivitiesMinSimultaneousInSelectedTimeSlots:
+-------------------------------------------------------
+Parameters: Active, Activity_Id, Allow_Empty_Slots, Comments, Min_Number_of_Simultaneous_Activities, Number_of_Activities, Number_of_Selected_Time_Slots, Selected_Time_Slot, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesMinSimultaneousInSelectedTimeSlots>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>56</Number_of_Activities>
+  	<Activity_Id>334</Activity_Id>
+  	<Activity_Id>335</Activity_Id>
+  	<Activity_Id>336</Activity_Id>
+  	<Activity_Id>337</Activity_Id>
+  	<Activity_Id>338</Activity_Id>
+  	<Activity_Id>339</Activity_Id>
+  	<Activity_Id>340</Activity_Id>
+  	<Activity_Id>341</Activity_Id>
+  	<Activity_Id>342</Activity_Id>
+  	<Activity_Id>343</Activity_Id>
+  	<Activity_Id>344</Activity_Id>
+  	<Activity_Id>345</Activity_Id>
+  	<Activity_Id>346</Activity_Id>
+  	<Activity_Id>347</Activity_Id>
+  	<Activity_Id>348</Activity_Id>
+  	<Activity_Id>349</Activity_Id>
+  	<Activity_Id>350</Activity_Id>
+  	<Activity_Id>351</Activity_Id>
+  	<Activity_Id>352</Activity_Id>
+  	<Activity_Id>353</Activity_Id>
+  	<Activity_Id>354</Activity_Id>
+  	<Activity_Id>355</Activity_Id>
+  	<Activity_Id>356</Activity_Id>
+  	<Activity_Id>357</Activity_Id>
+  	<Activity_Id>358</Activity_Id>
+  	<Activity_Id>359</Activity_Id>
+  	<Activity_Id>360</Activity_Id>
+  	<Activity_Id>361</Activity_Id>
+  	<Activity_Id>362</Activity_Id>
+  	<Activity_Id>363</Activity_Id>
+  	<Activity_Id>364</Activity_Id>
+  	<Activity_Id>365</Activity_Id>
+  	<Activity_Id>366</Activity_Id>
+  	<Activity_Id>367</Activity_Id>
+  	<Activity_Id>368</Activity_Id>
+  	<Activity_Id>369</Activity_Id>
+  	<Activity_Id>370</Activity_Id>
+  	<Activity_Id>371</Activity_Id>
+  	<Activity_Id>372</Activity_Id>
+  	<Activity_Id>373</Activity_Id>
+  	<Activity_Id>374</Activity_Id>
+  	<Activity_Id>375</Activity_Id>
+  	<Activity_Id>376</Activity_Id>
+  	<Activity_Id>377</Activity_Id>
+  	<Activity_Id>378</Activity_Id>
+  	<Activity_Id>379</Activity_Id>
+  	<Activity_Id>380</Activity_Id>
+  	<Activity_Id>381</Activity_Id>
+  	<Activity_Id>382</Activity_Id>
+  	<Activity_Id>383</Activity_Id>
+  	<Activity_Id>384</Activity_Id>
+  	<Activity_Id>385</Activity_Id>
+  	<Activity_Id>386</Activity_Id>
+  	<Activity_Id>387</Activity_Id>
+  	<Activity_Id>388</Activity_Id>
+  	<Activity_Id>389</Activity_Id>
+  	<Number_of_Selected_Time_Slots>238</Number_of_Selected_Time_Slots>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 1</Selected_Day>
+  		<Selected_Hour>Block A HL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Block F SL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Block G HL/SL</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Min_Number_of_Simultaneous_Activities>10</Min_Number_of_Simultaneous_Activities>
+  	<Allow_Empty_Slots>true</Allow_Empty_Slots>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesMinSimultaneousInSelectedTimeSlots>
+
+
+ConstraintMaxTotalActivitiesFromSetInSelectedTimeSlots:
+-------------------------------------------------------
+Parameters: Active, Activity_Id, Comments, Max_Total_Number_of_Activities, Number_of_Activities, Number_of_Selected_Time_Slots, Selected_Time_Slot, Weight_Percentage
+Example structure:
+  <ConstraintMaxTotalActivitiesFromSetInSelectedTimeSlots>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>4</Number_of_Activities>
+  	<Activity_Id>1</Activity_Id>
+  	<Activity_Id>2</Activity_Id>
+  	<Activity_Id>484</Activity_Id>
+  	<Activity_Id>485</Activity_Id>
+  	<Number_of_Selected_Time_Slots>34</Number_of_Selected_Time_Slots>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 1</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 2</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 3</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 4</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 5</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 6</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 7</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 8</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 9</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 10</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 11</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 12</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 13</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 14</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 15</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 16</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 17</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 18</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 19</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 20</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 21</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 22</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 23</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 24</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 25</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 26</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 27</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 28</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 29</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 30</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 31</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 32</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 33</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Selected_Time_Slot>
+  		<Selected_Day>Teacher 34</Selected_Day>
+  		<Selected_Hour>Overflow</Selected_Hour>
+  	</Selected_Time_Slot>
+  	<Max_Total_Number_of_Activities>8</Max_Total_Number_of_Activities>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintMaxTotalActivitiesFromSetInSelectedTimeSlots>
+
+
+ConstraintTeacherMinRestingHours:
 ---------------------------------
-Parameters: Active, Comments, Max_Gaps, Weight_Percentage
+Parameters: Active, Circular, Comments, Minimum_Resting_Hours, Teacher_Name, Weight_Percentage
 Example structure:
-  <ConstraintTeachersMaxGapsPerWeek>
+  <ConstraintTeacherMinRestingHours>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Max_Gaps>3</Max_Gaps>
+  	<Teacher_Name>Osmar</Teacher_Name>
+  	<Minimum_Resting_Hours>2</Minimum_Resting_Hours>
+  	<Circular>false</Circular>
   	<Active>true</Active>
   	<Comments />
-  </ConstraintTeachersMaxGapsPerWeek>
+  </ConstraintTeacherMinRestingHours>
 
 
-ConstraintSubactivitiesPreferredTimeSlots:
+ConstraintTeachersMaxAfternoonsPerWeek:
+---------------------------------------
+Parameters: Active, Comments, Max_Afternoons_Per_Week, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxAfternoonsPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Afternoons_Per_Week>3</Max_Afternoons_Per_Week>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxAfternoonsPerWeek>
+
+
+ConstraintStudentsMinHoursPerMorning:
+-------------------------------------
+Parameters: Active, Allow_Empty_Mornings, Comments, Minimum_Hours_Per_Morning, Weight_Percentage
+Example structure:
+  <ConstraintStudentsMinHoursPerMorning>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Minimum_Hours_Per_Morning>3</Minimum_Hours_Per_Morning>
+  	<Allow_Empty_Mornings>false</Allow_Empty_Mornings>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsMinHoursPerMorning>
+
+
+ConstraintTeachersMaxZeroGapsPerAfternoon:
 ------------------------------------------
-Parameters: Active, Activity_Tag_Name, Comments, Component_Number, Duration, Number_of_Preferred_Time_Slots, Preferred_Time_Slot, Students_Name, Subject_Name, Teacher_Name, Weight_Percentage
+Parameters: Active, Comments, Weight_Percentage
 Example structure:
-  <ConstraintSubactivitiesPreferredTimeSlots>
+  <ConstraintTeachersMaxZeroGapsPerAfternoon>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Component_Number>1</Component_Number>
-  	<Teacher_Name />
-  	<Students_Name />
-  	<Subject_Name>DE</Subject_Name>
-  	<Activity_Tag_Name />
-  	<Duration />
-  	<Number_of_Preferred_Time_Slots>20</Number_of_Preferred_Time_Slots>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Monday</Preferred_Day>
-  		<Preferred_Hour>1</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Monday</Preferred_Day>
-  		<Preferred_Hour>2</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Monday</Preferred_Day>
-  		<Preferred_Hour>3</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Monday</Preferred_Day>
-  		<Preferred_Hour>4</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Tuesday</Preferred_Day>
-  		<Preferred_Hour>1</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Tuesday</Preferred_Day>
-  		<Preferred_Hour>2</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Tuesday</Preferred_Day>
-  		<Preferred_Hour>3</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Tuesday</Preferred_Day>
-  		<Preferred_Hour>4</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Wednesday</Preferred_Day>
-  		<Preferred_Hour>1</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Wednesday</Preferred_Day>
-  		<Preferred_Hour>2</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Wednesday</Preferred_Day>
-  		<Preferred_Hour>3</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Wednesday</Preferred_Day>
-  		<Preferred_Hour>4</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Thursday</Preferred_Day>
-  		<Preferred_Hour>1</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Thursday</Preferred_Day>
-  		<Preferred_Hour>2</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Thursday</Preferred_Day>
-  		<Preferred_Hour>3</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Thursday</Preferred_Day>
-  		<Preferred_Hour>4</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Friday</Preferred_Day>
-  		<Preferred_Hour>1</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Friday</Preferred_Day>
-  		<Preferred_Hour>2</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Friday</Preferred_Day>
-  		<Preferred_Hour>3</Preferred_Hour>
-  	</Preferred_Time_Slot>
-  	<Preferred_Time_Slot>
-  		<Preferred_Day>Friday</Preferred_Day>
-  		<Preferred_Hour>4</Preferred_Hour>
-  	</Preferred_Time_Slot>
   	<Active>true</Active>
   	<Comments />
-  </ConstraintSubactivitiesPreferredTimeSlots>
+  </ConstraintTeachersMaxZeroGapsPerAfternoon>
+
+
+ConstraintTeacherMaxTwoActivityTagsPerDayFromN1N2N3:
+----------------------------------------------------
+Parameters: Active, Comments, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMaxTwoActivityTagsPerDayFromN1N2N3>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name>G2</Teacher_Name>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMaxTwoActivityTagsPerDayFromN1N2N3>
+
+
+ConstraintActivitiesEndStudentsDay:
+-----------------------------------
+Parameters: Active, Activity_Tag_Name, Comments, Students_Name, Subject_Name, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesEndStudentsDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher_Name />
+  	<Students_Name>4م</Students_Name>
+  	<Subject_Name>ت/بدنية</Subject_Name>
+  	<Activity_Tag_Name />
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesEndStudentsDay>
+
+
+ConstraintTeachersActivityTagMaxHoursContinuously:
+--------------------------------------------------
+Parameters: Active, Activity_Tag_Name, Comments, Maximum_Hours_Continuously, Weight_Percentage
+Example structure:
+  <ConstraintTeachersActivityTagMaxHoursContinuously>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Tag_Name>Class</Activity_Tag_Name>
+  	<Maximum_Hours_Continuously>2</Maximum_Hours_Continuously>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersActivityTagMaxHoursContinuously>
+
+
+ConstraintTeachersActivityTagMaxHoursDaily:
+-------------------------------------------
+Parameters: Active, Activity_Tag_Name, Comments, Maximum_Hours_Daily, Weight_Percentage
+Example structure:
+  <ConstraintTeachersActivityTagMaxHoursDaily>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Tag_Name>Class</Activity_Tag_Name>
+  	<Maximum_Hours_Daily>5</Maximum_Hours_Daily>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersActivityTagMaxHoursDaily>
+
+
+ConstraintTeacherMaxHoursContinuously:
+--------------------------------------
+Parameters: Active, Comments, Maximum_Hours_Continuously, Teacher_Name, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMaxHoursContinuously>
+  	<Weight_Percentage>95</Weight_Percentage>
+  	<Teacher_Name>vj</Teacher_Name>
+  	<Maximum_Hours_Continuously>4</Maximum_Hours_Continuously>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMaxHoursContinuously>
+
+
+ConstraintActivitiesSameStartingHour:
+-------------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesSameStartingHour>
+        <Weight_Percentage>100</Weight_Percentage>
+        <Number_of_Activities>5</Number_of_Activities>
+        <Activity_Id>553</Activity_Id>
+        <Activity_Id>556</Activity_Id>
+        <Activity_Id>559</Activity_Id>
+        <Activity_Id>562</Activity_Id>
+        <Activity_Id>565</Activity_Id>
+        <Active>true</Active>
+        <Comments />
+      </ConstraintActivitiesSameStartingHour>
+
+
+ConstraintStudentsIntervalMaxDaysPerWeek:
+-----------------------------------------
+Parameters: Active, Comments, Interval_End_Hour, Interval_Start_Hour, Max_Days_Per_Week, Weight_Percentage
+Example structure:
+  <ConstraintStudentsIntervalMaxDaysPerWeek>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Interval_Start_Hour>17:00</Interval_Start_Hour>
+  	<Interval_End_Hour />
+  	<Max_Days_Per_Week>5</Max_Days_Per_Week>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsIntervalMaxDaysPerWeek>
 
 
 UNIQUE SPACE CONSTRAINT TYPES:
@@ -353,53 +1445,45 @@ Example structure:
   </ConstraintBasicCompulsorySpace>
 
 
-ConstraintRoomNotAvailableTimes:
---------------------------------
-Parameters: Active, Comments, Not_Available_Time, Number_of_Not_Available_Times, Room, Weight_Percentage
+ConstraintSubjectActivityTagPreferredRooms:
+-------------------------------------------
+Parameters: Active, Activity_Tag, Comments, Number_of_Preferred_Rooms, Preferred_Room, Subject, Weight_Percentage
 Example structure:
-  <ConstraintRoomNotAvailableTimes>
+  <ConstraintSubjectActivityTagPreferredRooms>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Room>H1</Room>
-  	<Number_of_Not_Available_Times>9</Number_of_Not_Available_Times>
-  	<Not_Available_Time>
-  		<Day>Monday</Day>
-  		<Hour>1</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Monday</Day>
-  		<Hour>2</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Monday</Day>
-  		<Hour>3</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Wednesday</Day>
-  		<Hour>5</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Wednesday</Day>
-  		<Hour>6</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Thursday</Day>
-  		<Hour>1</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Thursday</Day>
-  		<Hour>2</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Thursday</Day>
-  		<Hour>3</Hour>
-  	</Not_Available_Time>
-  	<Not_Available_Time>
-  		<Day>Friday</Day>
-  		<Hour>1</Hour>
-  	</Not_Available_Time>
+  	<Subject>TEC822 - Ηλεκτροακουστική &amp; Ακουστική Χώρων</Subject>
+  	<Activity_Tag>[Εργαστήριο]</Activity_Tag>
+  	<Number_of_Preferred_Rooms>2</Number_of_Preferred_Rooms>
+  	<Preferred_Room>Εργαστήριο MAC</Preferred_Room>
+  	<Preferred_Room>Κοινό Εργαστήριο Η/Υ</Preferred_Room>
   	<Active>true</Active>
   	<Comments />
-  </ConstraintRoomNotAvailableTimes>
+  </ConstraintSubjectActivityTagPreferredRooms>
+
+
+ConstraintTeacherHomeRoom:
+--------------------------
+Parameters: Active, Comments, Room, Teacher, Weight_Percentage
+Example structure:
+  <ConstraintTeacherHomeRoom>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher>Στραπατσάκη</Teacher>
+  	<Room>Αίθουσα 3</Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherHomeRoom>
+
+
+ConstraintTeachersMaxBuildingChangesPerDay:
+-------------------------------------------
+Parameters: Active, Comments, Max_Building_Changes_Per_Day, Weight_Percentage
+Example structure:
+  <ConstraintTeachersMaxBuildingChangesPerDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Max_Building_Changes_Per_Day>0</Max_Building_Changes_Per_Day>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeachersMaxBuildingChangesPerDay>
 
 
 ConstraintSubjectPreferredRoom:
@@ -408,11 +1492,38 @@ Parameters: Active, Comments, Room, Subject, Weight_Percentage
 Example structure:
   <ConstraintSubjectPreferredRoom>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Subject>KU</Subject>
-  	<Room>501</Room>
+  	<Subject>VIS230 - Σχέδιο - Χρώμα</Subject>
+  	<Room>Εργαστήριο Σχεδιου</Room>
   	<Active>true</Active>
   	<Comments />
   </ConstraintSubjectPreferredRoom>
+
+
+ConstraintRoomNotAvailableTimes:
+--------------------------------
+Parameters: Active, Comments, Not_Available_Time, Number_of_Not_Available_Times, Room, Weight_Percentage
+Example structure:
+  <ConstraintRoomNotAvailableTimes>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Room>1ος όροφος παλαιό ιστορίας</Room>
+  	<Number_of_Not_Available_Times>0</Number_of_Not_Available_Times>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintRoomNotAvailableTimes>
+
+
+ConstraintActivityPreferredRoom:
+--------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Real_Rooms, Permanently_Locked, Real_Room, Room, Weight_Percentage
+Example structure:
+  <ConstraintActivityPreferredRoom>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Id>55</Activity_Id>
+  	<Room>Κοινό Εργαστήριο Η/Υ</Room>
+  	<Permanently_Locked>true</Permanently_Locked>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityPreferredRoom>
 
 
 ConstraintSubjectPreferredRooms:
@@ -421,11 +1532,266 @@ Parameters: Active, Comments, Number_of_Preferred_Rooms, Preferred_Room, Subject
 Example structure:
   <ConstraintSubjectPreferredRooms>
   	<Weight_Percentage>100</Weight_Percentage>
-  	<Subject>BI</Subject>
-  	<Number_of_Preferred_Rooms>2</Number_of_Preferred_Rooms>
-  	<Preferred_Room>401</Preferred_Room>
-  	<Preferred_Room>403</Preferred_Room>
+  	<Subject>ΤΗΕ120 - Ακουστική &amp; Ψυχοακουστική (Υ)</Subject>
+  	<Number_of_Preferred_Rooms>3</Number_of_Preferred_Rooms>
+  	<Preferred_Room>Αίθουσα 3</Preferred_Room>
+  	<Preferred_Room>Αίθουσα 1</Preferred_Room>
+  	<Preferred_Room>Αίθουσα 2</Preferred_Room>
   	<Active>true</Active>
   	<Comments />
   </ConstraintSubjectPreferredRooms>
+
+
+ConstraintStudentsSetHomeRooms:
+-------------------------------
+Parameters: Active, Comments, Number_of_Preferred_Rooms, Preferred_Room, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetHomeRooms>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Students>Α Εξάμηνο</Students>
+  	<Number_of_Preferred_Rooms>6</Number_of_Preferred_Rooms>
+  	<Preferred_Room>Αίθουσα 3</Preferred_Room>
+  	<Preferred_Room>Αίθουσα 4</Preferred_Room>
+  	<Preferred_Room>Αμφιθέατρο</Preferred_Room>
+  	<Preferred_Room>Αίθουσα 1</Preferred_Room>
+  	<Preferred_Room>Αίθουσα 2</Preferred_Room>
+  	<Preferred_Room>1ος όροφος παλαιό ιστορίας</Preferred_Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetHomeRooms>
+
+
+ConstraintSubjectActivityTagPreferredRoom:
+------------------------------------------
+Parameters: Active, Activity_Tag, Comments, Room, Subject, Weight_Percentage
+Example structure:
+  <ConstraintSubjectActivityTagPreferredRoom>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Subject>TEC210 - Εισαγωγή στην Επιστήμη των Υπολογιστών ΙΙ</Subject>
+  	<Activity_Tag>[Εργαστήριο]</Activity_Tag>
+  	<Room>Κοινό Εργαστήριο Η/Υ</Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintSubjectActivityTagPreferredRoom>
+
+
+ConstraintStudentsSetHomeRoom:
+------------------------------
+Parameters: Active, Comments, Room, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetHomeRoom>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Students>4م1</Students>
+  	<Room>401</Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetHomeRoom>
+
+
+ConstraintTeacherMaxBuildingChangesPerDay:
+------------------------------------------
+Parameters: Active, Comments, Max_Building_Changes_Per_Day, Teacher, Weight_Percentage
+Example structure:
+  <ConstraintTeacherMaxBuildingChangesPerDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher>AAD</Teacher>
+  	<Max_Building_Changes_Per_Day>10</Max_Building_Changes_Per_Day>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherMaxBuildingChangesPerDay>
+
+
+ConstraintActivityPreferredRooms:
+---------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Preferred_Rooms, Preferred_Room, Weight_Percentage
+Example structure:
+  <ConstraintActivityPreferredRooms>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Id>362</Activity_Id>
+  	<Number_of_Preferred_Rooms>21</Number_of_Preferred_Rooms>
+  	<Preferred_Room>A2</Preferred_Room>
+  	<Preferred_Room>A3</Preferred_Room>
+  	<Preferred_Room>A4</Preferred_Room>
+  	<Preferred_Room>A5</Preferred_Room>
+  	<Preferred_Room>B1</Preferred_Room>
+  	<Preferred_Room>B2</Preferred_Room>
+  	<Preferred_Room>B3</Preferred_Room>
+  	<Preferred_Room>B4</Preferred_Room>
+  	<Preferred_Room>B5</Preferred_Room>
+  	<Preferred_Room>D1</Preferred_Room>
+  	<Preferred_Room>D2</Preferred_Room>
+  	<Preferred_Room>D3</Preferred_Room>
+  	<Preferred_Room>D4</Preferred_Room>
+  	<Preferred_Room>E1</Preferred_Room>
+  	<Preferred_Room>E2</Preferred_Room>
+  	<Preferred_Room>E3</Preferred_Room>
+  	<Preferred_Room>G1</Preferred_Room>
+  	<Preferred_Room>G2</Preferred_Room>
+  	<Preferred_Room>G3</Preferred_Room>
+  	<Preferred_Room>G4</Preferred_Room>
+  	<Preferred_Room>G5</Preferred_Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityPreferredRooms>
+
+
+ConstraintActivityTagPreferredRooms:
+------------------------------------
+Parameters: Active, Activity_Tag, Comments, Number_of_Preferred_Rooms, Preferred_Room, Weight_Percentage
+Example structure:
+  <ConstraintActivityTagPreferredRooms>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Tag>محاضرة عامة</Activity_Tag>
+  	<Number_of_Preferred_Rooms>8</Number_of_Preferred_Rooms>
+  	<Preferred_Room>مدرج (1)</Preferred_Room>
+  	<Preferred_Room>مدرج (2)</Preferred_Room>
+  	<Preferred_Room>مدرج (3)</Preferred_Room>
+  	<Preferred_Room>مدرج (4)</Preferred_Room>
+  	<Preferred_Room>قاعة نظري (1)</Preferred_Room>
+  	<Preferred_Room>قاعة نظري (2)</Preferred_Room>
+  	<Preferred_Room>قاعة نظري (3)</Preferred_Room>
+  	<Preferred_Room>قاعة نظري (4)</Preferred_Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityTagPreferredRooms>
+
+
+ConstraintActivityTagPreferredRoom:
+-----------------------------------
+Parameters: Active, Activity_Tag, Comments, Room, Weight_Percentage
+Example structure:
+  <ConstraintActivityTagPreferredRoom>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Activity_Tag>تمرين فيزياء خارجي</Activity_Tag>
+  	<Room>معمل فيزياء(كلية علوم)</Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivityTagPreferredRoom>
+
+
+ConstraintActivitiesOccupyMaxDifferentRooms:
+--------------------------------------------
+Parameters: Active, Activity_Id, Comments, Max_Number_of_Different_Rooms, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesOccupyMaxDifferentRooms>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Number_of_Activities>24</Number_of_Activities>
+  	<Activity_Id>93</Activity_Id>
+  	<Activity_Id>94</Activity_Id>
+  	<Activity_Id>95</Activity_Id>
+  	<Activity_Id>96</Activity_Id>
+  	<Activity_Id>97</Activity_Id>
+  	<Activity_Id>98</Activity_Id>
+  	<Activity_Id>99</Activity_Id>
+  	<Activity_Id>100</Activity_Id>
+  	<Activity_Id>101</Activity_Id>
+  	<Activity_Id>102</Activity_Id>
+  	<Activity_Id>103</Activity_Id>
+  	<Activity_Id>104</Activity_Id>
+  	<Activity_Id>105</Activity_Id>
+  	<Activity_Id>106</Activity_Id>
+  	<Activity_Id>107</Activity_Id>
+  	<Activity_Id>108</Activity_Id>
+  	<Activity_Id>109</Activity_Id>
+  	<Activity_Id>110</Activity_Id>
+  	<Activity_Id>111</Activity_Id>
+  	<Activity_Id>112</Activity_Id>
+  	<Activity_Id>113</Activity_Id>
+  	<Activity_Id>114</Activity_Id>
+  	<Activity_Id>115</Activity_Id>
+  	<Activity_Id>116</Activity_Id>
+  	<Max_Number_of_Different_Rooms>4</Max_Number_of_Different_Rooms>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintActivitiesOccupyMaxDifferentRooms>
+
+
+ConstraintStudentsSetMaxBuildingChangesPerDay:
+----------------------------------------------
+Parameters: Active, Comments, Max_Building_Changes_Per_Day, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetMaxBuildingChangesPerDay>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Students>2م1</Students>
+  	<Max_Building_Changes_Per_Day>1</Max_Building_Changes_Per_Day>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetMaxBuildingChangesPerDay>
+
+
+ConstraintStudentsSetMinGapsBetweenBuildingChanges:
+---------------------------------------------------
+Parameters: Active, Comments, Min_Gaps_Between_Building_Changes, Students, Weight_Percentage
+Example structure:
+  <ConstraintStudentsSetMinGapsBetweenBuildingChanges>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Students>2م1</Students>
+  	<Min_Gaps_Between_Building_Changes>1</Min_Gaps_Between_Building_Changes>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintStudentsSetMinGapsBetweenBuildingChanges>
+
+
+ConstraintActivitiesSameRoomIfConsecutive:
+------------------------------------------
+Parameters: Active, Activity_Id, Comments, Number_of_Activities, Weight_Percentage
+Example structure:
+  <ConstraintActivitiesSameRoomIfConsecutive>
+        <Weight_Percentage>100</Weight_Percentage>
+        <Number_of_Activities>37</Number_of_Activities>
+        <Activity_Id>7</Activity_Id>
+        <Activity_Id>8</Activity_Id>
+        <Activity_Id>9</Activity_Id>
+        <Activity_Id>10</Activity_Id>
+        <Activity_Id>11</Activity_Id>
+        <Activity_Id>12</Activity_Id>
+        <Activity_Id>13</Activity_Id>
+        <Activity_Id>14</Activity_Id>
+        <Activity_Id>15</Activity_Id>
+        <Activity_Id>16</Activity_Id>
+        <Activity_Id>17</Activity_Id>
+        <Activity_Id>18</Activity_Id>
+        <Activity_Id>19</Activity_Id>
+        <Activity_Id>20</Activity_Id>
+        <Activity_Id>21</Activity_Id>
+        <Activity_Id>22</Activity_Id>
+        <Activity_Id>23</Activity_Id>
+        <Activity_Id>24</Activity_Id>
+        <Activity_Id>25</Activity_Id>
+        <Activity_Id>26</Activity_Id>
+        <Activity_Id>27</Activity_Id>
+        <Activity_Id>28</Activity_Id>
+        <Activity_Id>29</Activity_Id>
+        <Activity_Id>30</Activity_Id>
+        <Activity_Id>31</Activity_Id>
+        <Activity_Id>35</Activity_Id>
+        <Activity_Id>36</Activity_Id>
+        <Activity_Id>37</Activity_Id>
+        <Activity_Id>38</Activity_Id>
+        <Activity_Id>39</Activity_Id>
+        <Activity_Id>40</Activity_Id>
+        <Activity_Id>41</Activity_Id>
+        <Activity_Id>42</Activity_Id>
+        <Activity_Id>43</Activity_Id>
+        <Activity_Id>44</Activity_Id>
+        <Activity_Id>45</Activity_Id>
+        <Activity_Id>46</Activity_Id>
+        <Active>true</Active>
+        <Comments />
+      </ConstraintActivitiesSameRoomIfConsecutive>
+
+
+ConstraintTeacherHomeRooms:
+---------------------------
+Parameters: Active, Comments, Number_of_Preferred_Rooms, Preferred_Room, Teacher, Weight_Percentage
+Example structure:
+  <ConstraintTeacherHomeRooms>
+  	<Weight_Percentage>100</Weight_Percentage>
+  	<Teacher>Teacher048</Teacher>
+  	<Number_of_Preferred_Rooms>2</Number_of_Preferred_Rooms>
+  	<Preferred_Room>PSP 1</Preferred_Room>
+  	<Preferred_Room>PSP 2</Preferred_Room>
+  	<Active>true</Active>
+  	<Comments />
+  </ConstraintTeacherHomeRooms>
 
