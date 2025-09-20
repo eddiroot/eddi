@@ -105,12 +105,12 @@
 							<div class="flex items-start gap-3 rounded-lg border p-3">
 								<Button
 									type="button"
-									variant={getCorrectAnswers().includes(option.text) ? 'success' : 'destructive'}
+									variant={getCorrectAnswers()?.includes(option.text) ? 'success' : 'destructive'}
 									size="icon"
 									onclick={() => toggleCorrect(option.text)}
 									disabled={!option.text.trim()}
 								>
-									{#if getCorrectAnswers().includes(option.text)}
+									{#if getCorrectAnswers()?.includes(option.text)}
 										{#if !isMultiAnswer()}
 											<CheckCircleIcon />
 										{:else}
@@ -177,7 +177,7 @@
 
 						<div class="flex flex-col gap-y-3">
 							{#each config.options as option}
-								{@const isSelected = response.answers.includes(option.text)}
+								{@const isSelected = response.answers?.includes(option.text)}
 								{@const isCorrect = isAnswerCorrect(option.text)}
 								<Button
 									variant="outline"

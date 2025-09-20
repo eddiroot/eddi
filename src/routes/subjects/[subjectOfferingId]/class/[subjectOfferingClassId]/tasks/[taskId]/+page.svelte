@@ -120,17 +120,24 @@
 		// Only block for students
 		if (data.user.type !== userTypeEnum.student) return false;
 
+		// Block students from accessing draft tasks
+		if (data.classTask.status === taskStatusEnum.draft) return true;
+
 		// Only block for quiz modes
 		if (quizMode === quizModeEnum.none) return false;
 
-		// For manual quiz mode, block until teacher manually starts
-		if (quizMode === quizModeEnum.manual && !quizStarted) return true;
+		// For manual quiz mode, block until teacher manually starts globally
+		if (quizMode === quizModeEnum.manual && !data.quizGloballyStarted) return true;
 
-		// For scheduled quiz mode, block until scheduled start time
+		// For scheduled quiz mode, block until scheduled start time (unless student has active session)
 		if (quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime) {
 			const scheduleStartTime = new Date(data.classTask.quizStartTime).getTime();
 			const now = Date.now();
-			return now < scheduleStartTime && !quizStarted;
+			// Don't block if student has an active quiz session
+			if (data.quizSession && data.quizSession.quizStartedAt && !data.quizSession.isQuizSubmitted) {
+				return false;
+			}
+			return now < scheduleStartTime;
 		}
 
 		return false;
@@ -561,7 +568,7 @@
 					{/if}
 
 					<!-- Manual Quiz Start Button for Teachers -->
-					{#if data.user.type === userTypeEnum.teacher && quizMode === quizModeEnum.manual && !data.quizGloballyStarted}
+					{#if data.user.type === userTypeEnum.teacher && quizMode === quizModeEnum.manual && !data.quizGloballyStarted && data.classTask.status === 'published'}
 						<Button
 							onclick={startQuizSession}
 							size="lg"
@@ -602,38 +609,51 @@
 					<div class="flex h-full items-center justify-center">
 						<Card.Root class="w-full max-w-md">
 							<Card.Content class="p-8 text-center">
-								<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
-								<h3 class="mb-4 text-xl font-semibold">Quiz Not Available Yet</h3>
-								{#if quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
-									{@const startTime = new Date(data.classTask.quizStartTime)}
-									{@const now = new Date()}
-									{@const timeDiff = startTime.getTime() - now.getTime()}
-									<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
-									<div class="bg-primary/10 mb-4 rounded-lg p-3">
-										<p class="text-primary font-mono text-lg font-bold">
-											{startTime.toLocaleString()}
-										</p>
-									</div>
-									{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
-										<!-- Show countdown if within 24 hours -->
-										{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
-										{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
-										<div class="bg-warning/10 mb-4 rounded-lg p-3">
-											<p class="text-warning text-sm font-medium">
-												Available in: {hours}h {minutes}m
+								{#if data.classTask.status === taskStatusEnum.draft}
+									<!-- Draft Task Message -->
+									<WrenchIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+									<h3 class="mb-4 text-xl font-semibold">Task Not Available</h3>
+									<p class="text-muted-foreground mb-4">
+										This task is currently in draft mode and has not been published yet.
+									</p>
+									<p class="text-muted-foreground text-sm">
+										Your teacher will make this task available when it's ready.
+									</p>
+								{:else}
+									<!-- Quiz Not Started Message -->
+									<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
+									<h3 class="mb-4 text-xl font-semibold">Quiz Not Available Yet</h3>
+									{#if quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
+										{@const startTime = new Date(data.classTask.quizStartTime)}
+										{@const now = new Date()}
+										{@const timeDiff = startTime.getTime() - now.getTime()}
+										<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
+										<div class="bg-primary/10 mb-4 rounded-lg p-3">
+											<p class="text-primary font-mono text-lg font-bold">
+												{startTime.toLocaleString()}
 											</p>
 										</div>
+										{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
+											<!-- Show countdown if within 24 hours -->
+											{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
+											{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
+											<div class="bg-warning/10 mb-4 rounded-lg p-3">
+												<p class="text-warning text-sm font-medium">
+													Available in: {hours}h {minutes}m
+												</p>
+											</div>
+										{/if}
+										<p class="text-muted-foreground text-sm">
+											The quiz will start automatically at the scheduled time.
+										</p>
+									{:else if quizMode === quizModeEnum.manual}
+										<p class="text-muted-foreground mb-4">
+											This quiz requires manual start by your teacher.
+										</p>
+										<p class="text-muted-foreground text-sm">
+											Your teacher will provide instructions when the quiz is ready to begin.
+										</p>
 									{/if}
-									<p class="text-muted-foreground text-sm">
-										The quiz will start automatically at the scheduled time.
-									</p>
-								{:else if quizMode === quizModeEnum.manual}
-									<p class="text-muted-foreground mb-4">
-										This quiz requires manual start by your teacher.
-									</p>
-									<p class="text-muted-foreground text-sm">
-										Your teacher will provide instructions when the quiz is ready to begin.
-									</p>
 								{/if}
 							</Card.Content>
 						</Card.Root>
