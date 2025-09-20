@@ -1,4 +1,4 @@
-import { createTimetableConstriant, deleteTimetableConstraint, updateTimetableConstraintActiveStatus } from '$lib/server/db/service/timetables';
+import { createTimetableConstraint, deleteTimetableConstraint, updateTimetableConstraintActiveStatus } from '$lib/server/db/service';
 import { json } from '@sveltejs/kit';
 
 // Add a constraint to a timetable
@@ -16,7 +16,7 @@ export const POST = async ({ request, params, locals: { security } }) => {
 			parameters
 		};
 
-		const timetableConstraint = await createTimetableConstriant(data);
+		const timetableConstraint = await createTimetableConstraint(data);
 
 		return json({
 			success: true,

@@ -4,7 +4,7 @@ import {
 	getInProgressTimetableQueues,
 	getOldestQueuedTimetable,
 	updateTimetableQueueStatus
-} from '$lib/server/db/service/timetables.js';
+} from '$lib/server/db/service/index.js';
 import { getFileFromStorage } from '$lib/server/obj.js';
 import { exec } from 'child_process';
 import { promises as fs } from 'fs';

@@ -3,52 +3,48 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
+	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
 
-	interface Props {
-		onSubmit: (values: Record<string, any>) => void;
-		onCancel: () => void;
-		initialValues?: Record<string, any>;
-	}
+	let { onSubmit, onCancel, initialValues = {}, formData }: EnhancedConstraintFormProps = $props();
 
-	let { onSubmit, onCancel, initialValues = {} }: Props = $props();
-
-	// Form state
-	let weightPercentage = $state(initialValues.Weight_Percentage || 100);
-	let subject = $state(initialValues.Subject || '');
-	let numberOfRooms = $state(initialValues.Number_of_Preferred_Rooms || 1);
-	let preferredRooms = $state<string[]>(initialValues.Preferred_Room || ['']);
-	let comments = $state(initialValues.Comments || '');
+	// Form state - use IDs instead of names
+	let weightPercentage = $state((initialValues.Weight_Percentage as number) || 100);
+	let subjectId = $state((initialValues.Subject as string) || '');
+	let numberOfRooms = $state((initialValues.Number_of_Preferred_Rooms as number) || 1);
+	let preferredRoomIds = $state<(string | number)[]>((initialValues.Preferred_Room as (string | number)[]) || ['']);
+	let comments = $state((initialValues.Comments as string) || '');
 
 	// Update rooms array when numberOfRooms changes
 	$effect(() => {
-		if (numberOfRooms > preferredRooms.length) {
+		if (numberOfRooms > preferredRoomIds.length) {
 			// Add more rooms
-			const diff = numberOfRooms - preferredRooms.length;
-			preferredRooms = [...preferredRooms, ...Array(diff).fill('')];
-		} else if (numberOfRooms < preferredRooms.length) {
+			const diff = numberOfRooms - preferredRoomIds.length;
+			preferredRoomIds = [...preferredRoomIds, ...Array(diff).fill('')];
+		} else if (numberOfRooms < preferredRoomIds.length) {
 			// Remove excess rooms
-			preferredRooms = preferredRooms.slice(0, numberOfRooms);
+			preferredRoomIds = preferredRoomIds.slice(0, numberOfRooms);
 		}
 	});
 
 	function addRoom() {
-		preferredRooms = [...preferredRooms, ''];
-		numberOfRooms = preferredRooms.length;
+		preferredRoomIds = [...preferredRoomIds, ''];
+		numberOfRooms = preferredRoomIds.length;
 	}
 
 	function removeRoom(index: number) {
-		preferredRooms = preferredRooms.filter((_, i) => i !== index);
-		numberOfRooms = preferredRooms.length;
+		preferredRoomIds = preferredRoomIds.filter((_, i) => i !== index);
+		numberOfRooms = preferredRoomIds.length;
 	}
 
 	function handleSubmit() {
 		const values = {
 			Weight_Percentage: weightPercentage,
-			Subject: subject,
+			Subject: subjectId, // Now using subject ID
 			Number_of_Preferred_Rooms: numberOfRooms,
-			Preferred_Room: preferredRooms.filter((room) => room.trim() !== ''),
+			Preferred_Room: preferredRoomIds.filter((roomId) => roomId !== ''),
 			Active: true,
 			Comments: comments || null
 		};
@@ -57,12 +53,13 @@
 
 	// Validation
 	let isValid = $derived(
-		subject.trim() !== '' &&
-			preferredRooms.some((room) => room.trim() !== '') &&
+		subjectId !== '' &&
+			preferredRoomIds.some((roomId) => roomId !== '') &&
 			weightPercentage >= 1 &&
 			weightPercentage <= 100
 	);
 </script>
+		
 
 <div class="space-y-6">
 	<div class="space-y-4">
@@ -82,11 +79,12 @@
 		<!-- Subject -->
 		<div class="space-y-2">
 			<Label for="subject">Subject *</Label>
-			<Input
-				id="subject"
-				bind:value={subject}
-				placeholder="e.g., Mathematics, Science, English"
-				required
+			<Autocomplete
+				options={formData?.subjects || []}
+				bind:value={subjectId}
+				placeholder="Select a subject..."
+				searchPlaceholder="Search subjects..."
+				emptyText="No subjects found."
 			/>
 		</div>
 
@@ -94,10 +92,17 @@
 		<div class="space-y-2">
 			<Label>Preferred Rooms *</Label>
 			<div class="space-y-3">
-				{#each preferredRooms as room, index}
+				{#each preferredRoomIds as roomId, index}
 					<div class="flex gap-2">
-						<Input bind:value={preferredRooms[index]} placeholder="Room name" class="flex-1" />
-						{#if preferredRooms.length > 1}
+						<Autocomplete
+							options={formData?.spaces || []}
+							bind:value={preferredRoomIds[index]}
+							placeholder="Select a room..."
+							searchPlaceholder="Search rooms..."
+							emptyText="No rooms found."
+							class="flex-1"
+						/>
+						{#if preferredRoomIds.length > 1}
 							<Button variant="outline" size="sm" onclick={() => removeRoom(index)} type="button">
 								<TrashIcon class="h-4 w-4" />
 							</Button>

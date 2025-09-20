@@ -469,7 +469,7 @@ export async function createConstraint(data: {
 	return constraint;
 }
 
-export async function createTimetableConstriant(data: {
+export async function createTimetableConstraint(data: {
 	timetableId: number;
 	constraintId: number;
 	active: boolean;

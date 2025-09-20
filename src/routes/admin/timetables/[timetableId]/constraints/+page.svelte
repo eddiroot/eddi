@@ -7,9 +7,10 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	// Import constraint form mapping utilities
-	import { getConstraintFormComponent } from '$lib/constraint-form-mapping';
+	import { getConstraintFormComponent, requiresEnhancedProps } from '$lib/constraint-form-mapping';
 	// Fallback generic form
 	import type { Constraint } from '$lib/server/db/schema/timetables';
+	import type { ConstraintFormData } from '$lib/types/constraint-form-types';
 
 	let { data } = $props();
 	let {
@@ -18,7 +19,8 @@
 		currentTimeConstraints,
 		currentSpaceConstraints,
 		availableTimeConstraints,
-		availableSpaceConstraints
+		availableSpaceConstraints,
+		formData
 	} = data;
 
 	// Create reactive state for constraint active status with optimistic updates
@@ -398,7 +400,11 @@
 		</Dialog.Header>
 		{#if constraintToAdd}
 			{@const FormComponent = getFormComponent(constraintToAdd)}
-			<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal}/>
+			{#if requiresEnhancedProps(constraintToAdd.FETName)}
+				<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal} {formData}/>
+			{:else}
+				<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal}/>
+			{/if}
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>

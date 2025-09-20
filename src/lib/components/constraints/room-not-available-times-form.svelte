@@ -3,27 +3,29 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
+	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
+	import type { AutocompleteOption } from '$lib/constraint-data-fetchers';
 
-	interface Props {
-		onSubmit: (values: Record<string, any>) => void;
-		onCancel: () => void;
-		initialValues?: Record<string, any>;
-	}
-
-	let { onSubmit, onCancel, initialValues = {} }: Props = $props();
+	let { onSubmit, onCancel, initialValues = {}, formData }: EnhancedConstraintFormProps = $props();
 
 	const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 	const HOURS = Array.from({ length: 10 }, (_, i) => i + 1);
 
 	// Form state
-	let weightPercentage = $state(initialValues.Weight_Percentage || 100);
-	let room = $state(initialValues.Room || '');
+	let weightPercentage = $state((initialValues.Weight_Percentage as number) || 100);
+	let selectedRoomId = $state<string | number>('');
 	let notAvailableTimes = $state<Array<{ Day: string; Hour: number }>>(
-		initialValues.Not_Available_Time || [{ Day: 'Monday', Hour: 1 }]
+		(initialValues.Not_Available_Time as Array<{ Day: string; Hour: number }>) || [{ Day: 'Monday', Hour: 1 }]
 	);
-	let comments = $state(initialValues.Comments || '');
+	let comments = $state((initialValues.Comments as string) || '');
+
+	// Initialize selectedRoomId from initialValues if provided
+	if (initialValues.Room) {
+		selectedRoomId = initialValues.Room as string | number;
+	}
 
 	function addNotAvailableTime() {
 		notAvailableTimes = [...notAvailableTimes, { Day: 'Monday', Hour: 1 }];
@@ -44,7 +46,7 @@
 	function handleSubmit() {
 		const values = {
 			Weight_Percentage: weightPercentage,
-			Room: room,
+			Room: selectedRoomId,
 			Number_of_Not_Available_Times: notAvailableTimes.length,
 			Not_Available_Time: notAvailableTimes,
 			Active: true,
@@ -55,7 +57,7 @@
 
 	// Validation
 	let isValid = $derived(
-		room.trim() !== '' &&
+		selectedRoomId !== '' &&
 			notAvailableTimes.length > 0 &&
 			weightPercentage >= 1 &&
 			weightPercentage <= 100
@@ -80,11 +82,10 @@
 		<!-- Room -->
 		<div class="space-y-2">
 			<Label for="room">Room *</Label>
-			<Input
-				id="room"
-				bind:value={room}
-				placeholder="e.g., Science Lab A, Room 101, Library"
-				required
+			<Autocomplete
+				options={formData?.spaces || []}
+				placeholder="Select a room..."
+				bind:value={selectedRoomId}
 			/>
 		</div>
 

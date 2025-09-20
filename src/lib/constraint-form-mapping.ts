@@ -54,3 +54,16 @@ export function getConstraintFormComponent(FETName: string) {
 export function hasCustomForm(FETName: string): boolean {
 	return implementedConstraints.includes(FETName);
 }
+
+/**
+ * Check if a constraint form requires enhanced props (formData for autocomplete)
+ * @param FETName - The FET constraint name
+ * @returns True if the constraint form needs enhanced props, false otherwise
+ */
+export function requiresEnhancedProps(FETName: string): boolean {
+	return [
+		'ConstraintSubjectPreferredRooms',
+		'ConstraintMinDaysBetweenActivities', 
+		'ConstraintRoomNotAvailableTimes'
+	].includes(FETName);
+}

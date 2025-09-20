@@ -4,40 +4,37 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
+	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
+	import type { AutocompleteOption } from '$lib/constraint-data-fetchers';
 
-	interface Props {
-		onSubmit: (values: Record<string, any>) => void;
-		onCancel: () => void;
-		initialValues?: Record<string, any>;
-	}
-
-	let { onSubmit, onCancel, initialValues = {} }: Props = $props();
+	let { onSubmit, onCancel, initialValues = {}, formData }: EnhancedConstraintFormProps = $props();
 
 	// Form state
-	let weightPercentage = $state(initialValues.Weight_Percentage || 95);
-	let consecutiveIfSameDay = $state(initialValues.Consecutive_If_Same_Day ?? true);
-	let minDays = $state(initialValues.MinDays || 1);
-	let activityIds = $state<number[]>(initialValues.Activity_Id || []);
-	let comments = $state(initialValues.Comments || '');
+	let weightPercentage = $state((initialValues.Weight_Percentage as number) || 95);
+	let consecutiveIfSameDay = $state((initialValues.Consecutive_If_Same_Day as boolean) ?? true);
+	let minDays = $state((initialValues.MinDays as number) || 1);
+	let comments = $state((initialValues.Comments as string) || '');
 
-	// New activity ID input
-	let newActivityId = $state('');
+	// Activity selection state
+	let selectedActivities = $state<AutocompleteOption[]>([]);
+	let selectedActivity = $state<string>('');
 
-	function addActivityId() {
-		const id = parseInt(newActivityId);
-		if (!isNaN(id) && !activityIds.includes(id)) {
-			activityIds = [...activityIds, id];
-			newActivityId = '';
+	function addActivity(option: AutocompleteOption) {
+		if (!selectedActivities.find(a => a.value === option.value)) {
+			selectedActivities = [...selectedActivities, option];
+			selectedActivity = '';
 		}
 	}
 
-	function removeActivityId(index: number) {
-		activityIds = activityIds.filter((_, i) => i !== index);
+	function removeActivity(index: number) {
+		selectedActivities = selectedActivities.filter((_, i) => i !== index);
 	}
 
 	function handleSubmit() {
+		const activityIds = selectedActivities.map(activity => activity.value);
 		const values = {
 			Weight_Percentage: weightPercentage,
 			Consecutive_If_Same_Day: consecutiveIfSameDay,
@@ -52,7 +49,7 @@
 
 	// Validation
 	let isValid = $derived(
-		activityIds.length >= 2 &&
+		selectedActivities.length >= 2 &&
 			minDays >= 1 &&
 			minDays <= 6 &&
 			weightPercentage >= 1 &&
@@ -98,20 +95,20 @@
 			If activities are scheduled on the same day, they should be consecutive periods.
 		</p>
 
-		<!-- Activity IDs -->
+		<!-- Activities -->
 		<div class="space-y-2">
-			<Label>Activity IDs * (minimum 2 required)</Label>
+			<Label>Activities * (minimum 2 required)</Label>
 			<div class="space-y-3">
-				<!-- Existing Activity IDs -->
-				{#if activityIds.length > 0}
+				<!-- Existing Activities -->
+				{#if selectedActivities.length > 0}
 					<div class="space-y-2">
-						{#each activityIds as id, index}
+						{#each selectedActivities as activity, index}
 							<div class="flex items-center gap-2">
-								<Input value={id} readonly class="flex-1" />
+								<Input value={activity.label} readonly class="flex-1" />
 								<Button
 									variant="outline"
 									size="sm"
-									onclick={() => removeActivityId(index)}
+									onclick={() => removeActivity(index)}
 									type="button"
 								>
 									<TrashIcon class="h-4 w-4" />
@@ -121,29 +118,14 @@
 					</div>
 				{/if}
 
-				<!-- Add new Activity ID -->
-				<div class="flex gap-2">
-					<Input
-						bind:value={newActivityId}
-						placeholder="Enter activity ID"
-						type="number"
-						class="flex-1"
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								e.preventDefault();
-								addActivityId();
-							}
-						}}
+				<!-- Add new Activity -->
+				<div class="space-y-2">
+					<Autocomplete
+						options={formData?.timetableActivities || []}
+						placeholder="Select an activity..."
+						bind:value={selectedActivity}
+						onselect={(option) => addActivity(option)}
 					/>
-					<Button
-						variant="outline"
-						size="sm"
-						onclick={addActivityId}
-						type="button"
-						disabled={!newActivityId || isNaN(parseInt(newActivityId))}
-					>
-						<PlusIcon class="h-4 w-4" />
-					</Button>
 				</div>
 			</div>
 			<p class="text-muted-foreground text-sm">

@@ -3,7 +3,8 @@ import { constraintTypeEnum } from '$lib/enums';
 import {
 	getAllConstraints,
 	getAllConstraintsByTimetableId
-} from '$lib/server/db/service/timetables';
+} from '$lib/server/db/service';
+import { buildConstraintFormData } from '$lib/constraint-data-fetchers';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
@@ -39,6 +40,9 @@ export const load = async ({ locals: { security }, params }) => {
 	const availableTimeConstraints = availableConstraints.filter((con) => con.type === constraintTypeEnum.time);
 	const availableSpaceConstraints = availableConstraints.filter((con) => con.type === constraintTypeEnum.space);
 
+	// Build form data for autocomplete components
+	const formData = await buildConstraintFormData(timetableId, user.schoolId);
+
 	return {
 		user,
 		timetableId,
@@ -47,6 +51,8 @@ export const load = async ({ locals: { security }, params }) => {
 		currentSpaceConstraints,
 		// available constraints that can be added (have forms and respect repeatability rules)
 		availableTimeConstraints,
-		availableSpaceConstraints
+		availableSpaceConstraints,
+		// form data for enhanced constraint forms
+		formData
 	};
 };
