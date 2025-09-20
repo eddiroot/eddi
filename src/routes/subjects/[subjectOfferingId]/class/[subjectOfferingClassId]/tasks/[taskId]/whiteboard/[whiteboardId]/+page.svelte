@@ -39,6 +39,7 @@
 	let isDrawingLine = $state(false);
 	let isDrawingArrow = $state(false);
 	let isDrawingShape = $state(false);
+	let isDrawingText = $state(false);
 	let currentShapeType = $state<string>('');
 	let isErasing = $state(false);
 	let eraserTrail = $state<fabric.Object[]>([]);
@@ -48,6 +49,7 @@
 	let startPoint = $state({ x: 0, y: 0 });
 	let tempLine: fabric.Line | null = null;
 	let tempShape: fabric.Object | null = null;
+	let tempText: fabric.Textbox | null = null;
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId ?? '0'));
@@ -114,6 +116,7 @@
 		showFloatingMenu = false;
 		clearEraserState();
 		clearShapeDrawingState();
+		clearTextDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = true;
@@ -126,6 +129,7 @@
 		showFloatingMenu = false;
 		clearEraserState();
 		clearShapeDrawingState();
+		clearTextDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -139,6 +143,7 @@
 		showFloatingMenu = true;
 		clearEraserState();
 		clearShapeDrawingState();
+		clearTextDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = true;
 		canvas.selection = false;
@@ -153,6 +158,7 @@
 		selectedTool = 'eraser';
 		showFloatingMenu = true;
 		clearShapeDrawingState();
+		clearTextDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -190,6 +196,14 @@
 		currentShapeType = '';
 	};
 
+	const clearTextDrawingState = () => {
+		if (tempText) {
+			canvas?.remove(tempText);
+			tempText = null;
+		}
+		isDrawingText = false;
+	};
+
 	const addShape = (shapeType: string) => {
 		if (!canvas) return;
 
@@ -208,29 +222,16 @@
 	const addText = () => {
 		if (!canvas) return;
 
+		// Set up interactive text creation mode
 		selectedTool = 'text';
 		showFloatingMenu = true;
+		clearEraserState();
+		clearShapeDrawingState();
 
-		const text = new fabric.Textbox('Click to edit text', {
-			id: uuidv4(),
-			left: canvas.width! / 2 - 75,
-			top: canvas.height! / 2 - 10,
-			width: 150,
-			fontSize: 16,
-			fontFamily: 'Arial',
-			fill: '#000000',
-			opacity: 1
-		});
-		canvas.add(text);
-		canvas.setActiveObject(text);
-		canvas.renderAll();
-		const objData = text.toObject();
-		// @ts-expect-error
-		objData.id = text.id;
-		sendCanvasUpdate({
-			type: 'add',
-			object: objData
-		});
+		canvas.isDrawingMode = false;
+		canvas.selection = false;
+		canvas.defaultCursor = 'crosshair';
+		canvas.hoverCursor = 'crosshair';
 	};
 
 	const addImage = () => {
@@ -305,6 +306,7 @@
 		showFloatingMenu = true;
 		clearEraserState();
 		clearShapeDrawingState();
+		clearTextDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -317,6 +319,7 @@
 		showFloatingMenu = true;
 		clearEraserState();
 		clearShapeDrawingState();
+		clearTextDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -451,6 +454,31 @@
 		}
 
 		return shape;
+	};
+
+	const createTextFromPoints = (x1: number, y1: number, x2: number, y2: number) => {
+		// Calculate dimensions from the two points
+		const left = Math.min(x1, x2);
+		const top = Math.min(y1, y2);
+		const width = Math.max(Math.abs(x2 - x1), 50); // Minimum width of 50px
+
+		const text = new fabric.Textbox('Click to edit text', {
+			id: uuidv4(),
+			left: left,
+			top: top,
+			width: width,
+			fontSize: 16,
+			fontFamily: 'Arial',
+			fill: '#000000',
+			opacity: 1,
+			// Text wrapping settings
+			splitByGrapheme: false, // Split by words, not characters
+			// Fixed height behavior - let text wrap and expand vertically naturally
+			// but constrain width
+			textAlign: 'left'
+		});
+
+		return text;
 	};
 
 	const clearCanvas = () => {
@@ -882,7 +910,42 @@
 					canvas.setCursor('crosshair');
 				} else if (selectedTool === 'shapes') {
 					canvas.setCursor('crosshair');
+				} else if (selectedTool === 'text') {
+					canvas.setCursor('crosshair');
 				}
+			}
+
+			// Handle text completion
+			if (isDrawingText && tempText) {
+				// Finalize the text
+				tempText.set({ selectable: true });
+				canvas.setActiveObject(tempText);
+
+				// Enter edit mode immediately after creation
+				tempText.enterEditing();
+				tempText.selectAll();
+
+				canvas.renderAll();
+
+				// Send the completed text to other users
+				const objData = tempText.toObject();
+				// @ts-expect-error
+				objData.id = tempText.id;
+				sendCanvasUpdate({
+					type: 'add',
+					object: objData
+				});
+
+				// Auto-switch to selection tool while keeping floating menu open
+				selectedTool = 'select';
+				canvas.isDrawingMode = false;
+				canvas.selection = true;
+				canvas.defaultCursor = 'default';
+				canvas.hoverCursor = 'move';
+
+				// Reset text drawing state
+				isDrawingText = false;
+				tempText = null;
 			}
 
 			// Handle shape completion
@@ -1062,6 +1125,23 @@
 					opt.e.preventDefault();
 					opt.e.stopPropagation();
 				}
+			} else if (selectedTool === 'text') {
+				if (!isDrawingText) {
+					// Start drawing a text box
+					const pointer = canvas.getScenePoint(opt.e);
+					startPoint = { x: pointer.x, y: pointer.y };
+					isDrawingText = true;
+
+					// Create initial text with minimum width
+					tempText = createTextFromPoints(pointer.x, pointer.y, pointer.x + 50, pointer.y);
+					if (tempText) {
+						canvas.add(tempText);
+						canvas.renderAll();
+					}
+
+					opt.e.preventDefault();
+					opt.e.stopPropagation();
+				}
 			} else if (selectedTool === 'line' || selectedTool === 'arrow') {
 				if (!isDrawingLine && !isDrawingArrow) {
 					const pointer = canvas.getScenePoint(opt.e);
@@ -1137,6 +1217,19 @@
 				);
 				if (tempShape) {
 					canvas.add(tempShape);
+					canvas.renderAll();
+				}
+			} else if (isDrawingText && tempText) {
+				// Update the text box being drawn (only horizontally)
+				const pointer = canvas.getScenePoint(opt.e);
+
+				// Remove the old temp text
+				canvas.remove(tempText);
+
+				// Create new text with updated width (only expand horizontally)
+				tempText = createTextFromPoints(startPoint.x, startPoint.y, pointer.x, startPoint.y);
+				if (tempText) {
+					canvas.add(tempText);
 					canvas.renderAll();
 				}
 			} else if ((isDrawingLine || isDrawingArrow) && tempLine) {
