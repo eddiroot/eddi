@@ -43,6 +43,19 @@ export const load = async ({
 
 	const isQuizStarted = classTask.quizStartTime && classTask.quizStartTime < new Date();
 
+	if (user.type === userTypeEnum.student && classTask.quizMode !== quizModeEnum.none) {
+		if (classTask.quizStartTime && classTask.quizDurationMinutes) {
+			const quizEndTime = new Date(
+				classTask.quizStartTime.getTime() + classTask.quizDurationMinutes * 60 * 1000
+			);
+			const currentTime = new Date();
+
+			if (currentTime > quizEndTime) {
+				throw redirect(302, `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks`);
+			}
+		}
+	}
+
 	const blocks = await getTaskBlocksByTaskId(taskIdInt);
 
 	// Initialize superforms

@@ -57,10 +57,7 @@ All
 Lachie
 
 - [ ] Class tests / quizzes
-  - Scheduled start time or manual start
-  - Choose when grades are released (instantly or manual)
-  - Timer for the test when students are taking it
-  - Auto submit when timer runs out
+  - Fix issues with responses not persisted to state once selected
 - [ ] Subject selection
 - [ ] Parent/teacher interviews
 - [ ] Teacher to parent comms (one way)
