@@ -38,6 +38,8 @@
 	let imageInput = $state<HTMLInputElement>();
 	let isDrawingLine = $state(false);
 	let isDrawingArrow = $state(false);
+	let isDrawingShape = $state(false);
+	let currentShapeType = $state<string>('');
 	let isErasing = $state(false);
 	let eraserTrail = $state<fabric.Object[]>([]);
 	let lastEraserPoint = $state<{ x: number; y: number } | null>(null);
@@ -45,9 +47,10 @@
 	let originalOpacities = $state<Map<fabric.Object, number>>(new Map());
 	let startPoint = $state({ x: 0, y: 0 });
 	let tempLine: fabric.Line | null = null;
+	let tempShape: fabric.Object | null = null;
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
-	const whiteboardIdNum = $derived(parseInt(whiteboardId));
+	const whiteboardIdNum = $derived(parseInt(whiteboardId ?? '0'));
 
 	// Throttling mechanism for image updates only
 	let imageUpdateQueue = new Map<string, any>();
@@ -110,6 +113,7 @@
 		selectedTool = 'select';
 		showFloatingMenu = false;
 		clearEraserState();
+		clearShapeDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = true;
@@ -121,6 +125,7 @@
 		selectedTool = 'pan';
 		showFloatingMenu = false;
 		clearEraserState();
+		clearShapeDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -133,6 +138,7 @@
 		selectedTool = 'draw';
 		showFloatingMenu = true;
 		clearEraserState();
+		clearShapeDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = true;
 		canvas.selection = false;
@@ -146,6 +152,7 @@
 	const setEraserTool = () => {
 		selectedTool = 'eraser';
 		showFloatingMenu = true;
+		clearShapeDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -174,72 +181,28 @@
 		canvas?.renderAll();
 	};
 
+	const clearShapeDrawingState = () => {
+		if (tempShape) {
+			canvas?.remove(tempShape);
+			tempShape = null;
+		}
+		isDrawingShape = false;
+		currentShapeType = '';
+	};
+
 	const addShape = (shapeType: string) => {
 		if (!canvas) return;
 
-		setSelectTool();
+		// Set up interactive shape drawing mode
 		selectedTool = 'shapes';
+		currentShapeType = shapeType;
 		showFloatingMenu = true;
-		let shape: fabric.Object;
-		const centerX = canvas.width! / 2;
-		const centerY = canvas.height! / 2;
+		clearEraserState();
 
-		switch (shapeType) {
-			case 'circle':
-				shape = new fabric.Circle({
-					id: uuidv4(),
-					radius: 50,
-					fill: 'transparent',
-					stroke: '#000000',
-					strokeWidth: 2,
-					strokeDashArray: [],
-					opacity: 1,
-					left: centerX - 50,
-					top: centerY - 50
-				});
-				break;
-			case 'rectangle':
-				shape = new fabric.Rect({
-					id: uuidv4(),
-					width: 100,
-					height: 60,
-					fill: 'transparent',
-					stroke: '#000000',
-					strokeWidth: 2,
-					strokeDashArray: [],
-					opacity: 1,
-					left: centerX - 50,
-					top: centerY - 30
-				});
-				break;
-			case 'triangle':
-				shape = new fabric.Triangle({
-					id: uuidv4(),
-					width: 80,
-					height: 80,
-					fill: 'transparent',
-					stroke: '#000000',
-					strokeWidth: 2,
-					strokeDashArray: [],
-					opacity: 1,
-					left: centerX - 40,
-					top: centerY - 40
-				});
-				break;
-			default:
-				return;
-		}
-
-		canvas.add(shape);
-		canvas.setActiveObject(shape);
-		canvas.renderAll();
-		const objData = shape.toObject();
-		// @ts-expect-error
-		objData.id = shape.id;
-		sendCanvasUpdate({
-			type: 'add',
-			object: objData
-		});
+		canvas.isDrawingMode = false;
+		canvas.selection = false;
+		canvas.defaultCursor = 'crosshair';
+		canvas.hoverCursor = 'crosshair';
 	};
 
 	const addText = () => {
@@ -341,6 +304,7 @@
 		selectedTool = 'line';
 		showFloatingMenu = true;
 		clearEraserState();
+		clearShapeDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -352,6 +316,7 @@
 		selectedTool = 'arrow';
 		showFloatingMenu = true;
 		clearEraserState();
+		clearShapeDrawingState();
 		if (!canvas) return;
 		canvas.isDrawingMode = false;
 		canvas.selection = false;
@@ -420,6 +385,72 @@
 		});
 
 		return arrowGroup;
+	};
+
+	const createShapeFromPoints = (
+		shapeType: string,
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number
+	) => {
+		// Calculate dimensions from the two points
+		const left = Math.min(x1, x2);
+		const top = Math.min(y1, y2);
+		const width = Math.abs(x2 - x1);
+		const height = Math.abs(y2 - y1);
+
+		let shape: fabric.Object;
+
+		switch (shapeType) {
+			case 'circle':
+				// For circles, use the larger dimension as diameter
+				const radius = Math.max(width, height) / 2;
+				shape = new fabric.Circle({
+					id: uuidv4(),
+					radius: radius,
+					fill: 'transparent',
+					stroke: '#000000',
+					strokeWidth: 2,
+					strokeDashArray: [],
+					opacity: 1,
+					left: left,
+					top: top
+				});
+				break;
+			case 'rectangle':
+				shape = new fabric.Rect({
+					id: uuidv4(),
+					width: width,
+					height: height,
+					fill: 'transparent',
+					stroke: '#000000',
+					strokeWidth: 2,
+					strokeDashArray: [],
+					opacity: 1,
+					left: left,
+					top: top
+				});
+				break;
+			case 'triangle':
+				shape = new fabric.Triangle({
+					id: uuidv4(),
+					width: width,
+					height: height,
+					fill: 'transparent',
+					stroke: '#000000',
+					strokeWidth: 2,
+					strokeDashArray: [],
+					opacity: 1,
+					left: left,
+					top: top
+				});
+				break;
+			default:
+				return null;
+		}
+
+		return shape;
 	};
 
 	const clearCanvas = () => {
@@ -849,7 +880,38 @@
 					canvas.setCursor('crosshair');
 				} else if (selectedTool === 'line' || selectedTool === 'arrow') {
 					canvas.setCursor('crosshair');
+				} else if (selectedTool === 'shapes') {
+					canvas.setCursor('crosshair');
 				}
+			}
+
+			// Handle shape completion
+			if (isDrawingShape && tempShape) {
+				// Finalize the shape
+				tempShape.set({ selectable: true });
+				canvas.setActiveObject(tempShape);
+				canvas.renderAll();
+
+				// Send the completed shape to other users
+				const objData = tempShape.toObject();
+				// @ts-expect-error
+				objData.id = tempShape.id;
+				sendCanvasUpdate({
+					type: 'add',
+					object: objData
+				});
+
+				// Auto-switch to selection tool while keeping floating menu open
+				selectedTool = 'select';
+				canvas.isDrawingMode = false;
+				canvas.selection = true;
+				canvas.defaultCursor = 'default';
+				canvas.hoverCursor = 'move';
+
+				// Reset shape drawing state
+				isDrawingShape = false;
+				currentShapeType = '';
+				tempShape = null;
 			}
 
 			// Handle line and arrow completion
@@ -977,6 +1039,29 @@
 
 					opt.e.preventDefault();
 				}
+			} else if (selectedTool === 'shapes' && currentShapeType) {
+				if (!isDrawingShape) {
+					// Start drawing a shape
+					const pointer = canvas.getScenePoint(opt.e);
+					startPoint = { x: pointer.x, y: pointer.y };
+					isDrawingShape = true;
+
+					// Create initial shape with zero size
+					tempShape = createShapeFromPoints(
+						currentShapeType,
+						pointer.x,
+						pointer.y,
+						pointer.x,
+						pointer.y
+					);
+					if (tempShape) {
+						canvas.add(tempShape);
+						canvas.renderAll();
+					}
+
+					opt.e.preventDefault();
+					opt.e.stopPropagation();
+				}
 			} else if (selectedTool === 'line' || selectedTool === 'arrow') {
 				if (!isDrawingLine && !isDrawingArrow) {
 					const pointer = canvas.getScenePoint(opt.e);
@@ -1035,6 +1120,25 @@
 				panStartPos = { x: clientX, y: clientY };
 
 				canvas.setCursor('grabbing');
+			} else if (isDrawingShape && tempShape && currentShapeType) {
+				// Update the shape being drawn
+				const pointer = canvas.getScenePoint(opt.e);
+
+				// Remove the old temp shape
+				canvas.remove(tempShape);
+
+				// Create new shape with updated dimensions
+				tempShape = createShapeFromPoints(
+					currentShapeType,
+					startPoint.x,
+					startPoint.y,
+					pointer.x,
+					pointer.y
+				);
+				if (tempShape) {
+					canvas.add(tempShape);
+					canvas.renderAll();
+				}
 			} else if ((isDrawingLine || isDrawingArrow) && tempLine) {
 				// Update the temporary line/arrow while dragging
 				const pointer = canvas.getScenePoint(opt.e);
