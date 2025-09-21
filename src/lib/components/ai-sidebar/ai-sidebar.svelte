@@ -35,7 +35,6 @@
 	if (controller) {
 		sidebarController = controller;
 	} else {
-		console.log('Initializing AI sidebar with context:', context);
 		switch (context) {
 			case 'task':
 				sidebarController = new TaskSidebarController();
