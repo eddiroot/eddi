@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BaseAgent, type AgentContext, type AgentResponse, AgentType } from '../index';
+import { geminiCompletion } from '$lib/server/ai';
+import * as blockSchemas from '../../../schemas/taskSchema';
+import { getInteractiveSchema } from '../../../schemas/taskSchema';
+import { AgentType, BaseAgent, type AgentContext, type AgentResponse } from '../index';
 import { PromptRegistry } from '../prompts/registry';
 import { EducationalVectorStore } from '../retrieval/vector-store';
-import { geminiCompletion } from '$lib/server/ai';
-import * as blockSchemas from '../../../schemas/blockSchema';
-import { getInteractiveSchema } from '../../../schemas/blockSchema';
 
 export class TeachModuleGeneratorAgent extends BaseAgent {
   private vectorStore: EducationalVectorStore;

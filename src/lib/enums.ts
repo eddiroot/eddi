@@ -14,7 +14,8 @@ export enum yearLevelEnum {
 	year10A = '10A',
 	year11 = '11',
 	year12 = '12',
-	year13 = '13'
+	year13 = '13',
+	VCE = 'VCE'
 }
 
 export enum schoolSpaceTypeEnum {

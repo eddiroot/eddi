@@ -1,4 +1,4 @@
-import * as blockSchemas from '../../../schemas/blockSchema';
+import * as blockSchemas from '../../../schemas/taskSchema';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface PromptTemplate {
   id: string;

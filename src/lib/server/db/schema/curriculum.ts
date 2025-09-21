@@ -30,6 +30,7 @@ export const learningArea = pgTable('crclm_sub_la', {
 		.notNull()
 		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
+	abbreviation: text('abbreviation'),
 	description: text('description'),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
@@ -66,7 +67,8 @@ export const yearLevelEnumPg = pgEnum('enum_year_level', [
 	yearLevelEnum.year10A,
 	yearLevelEnum.year11,
 	yearLevelEnum.year12,
-	yearLevelEnum.year13
+	yearLevelEnum.year13,
+	yearLevelEnum.VCE
 ]);
 
 export const learningAreaStandard = pgTable('lrn_a_std', {

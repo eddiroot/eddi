@@ -1,7 +1,7 @@
-import { EducationalVectorStore } from './vector-store.js';
-import { readFileSync, readdirSync, existsSync } from 'fs';
+import * as curriculumService from '$lib/server/db/service';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
-import * as curriculumService from '$lib/server/db/service/curriculum';
+import { EducationalVectorStore } from './vector-store.js';
 
 interface CurriculumDataFile {
   learningActivities?: Array<{

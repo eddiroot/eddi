@@ -13,12 +13,46 @@ import { hash } from '@node-rs/argon2';
 import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { reset } from 'drizzle-seed';
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { dirname, join } from 'path';
 import postgres from 'postgres';
 import { fileURLToPath } from 'url';
 import * as schema from '../schema';
-import type { VCAACurriculumData } from './data/types';
+import type { KeyKnowledgeData, KeySkillData, LearningAreaData, OutcomeData, VCAACurriculumData, VCAAData } from './data/types.js';
+
+// Map JSON filenames to proper subject names
+const subjectNameMap: Record<string, string> = {
+	'accounting12': 'Accounting',
+	'accounting34': 'Accounting',
+	'biology12': 'Biology',
+	'biology34': 'Biology',
+	'busman12': 'Business Management',
+	'busman34': 'Business Management',
+	'chemistry12': 'Chemistry',
+	'chemistry34': 'Chemistry',
+	'economics12': 'Economics',
+	'economics34': 'Economics',
+	'english12': 'English',
+	'english34': 'English',
+	'general12': 'General Mathematics',
+	'general34': 'General Mathematics',
+	'health12': 'Health and Human Development',
+	'health34': 'Health and Human Development',
+	'legal12': 'Legal Studies',
+	'legal34': 'Legal Studies',
+	'literature12': 'Literature',
+	'literature34': 'Literature',
+	'methods12': 'Mathematical Methods',
+	'methods34': 'Mathematical Methods',
+	'pe12': 'Physical Education',
+	'pe34': 'Physical Education',
+	'physics12': 'Physics',
+	'physics34': 'Physics',
+	'psychology12': 'Psychology',
+	'psychology34': 'Psychology',
+	'spec12': 'Specialist Mathematics',
+	'spec34': 'Specialist Mathematics'
+};
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -29,6 +63,38 @@ if (!databaseUrl) {
 const client = postgres(databaseUrl);
 
 export const db = drizzle(client, { schema });
+
+// VCE Helper Functions
+function extractTopicName(item: KeySkillData | KeyKnowledgeData, outcomeTopics?: Array<{ id?: number; name: string; outcomeTopic?: string }>): string | null {
+	// Priority order: outcomeTopic > name > topicName
+	if (item.outcomeTopic) return item.outcomeTopic;
+	if (item.name) return item.name;
+	if (item.topicName) return item.topicName;
+	
+	// Handle outcomeTopicId by looking up the actual topic name
+	if (item.outcomeTopicId !== undefined && outcomeTopics && outcomeTopics.length > 0) {
+		const matchingTopic = outcomeTopics.find(topic => topic.id === item.outcomeTopicId);
+		if (matchingTopic) {
+			return matchingTopic.name;
+		}
+		// Fallback to generic topic name if not found
+		return `Topic ${item.outcomeTopicId}`;
+	}
+	
+	// If we have outcome topics, try to match
+	if (outcomeTopics && outcomeTopics.length > 0) {
+		return outcomeTopics[0].outcomeTopic || outcomeTopics[0].name;
+	}
+	
+	return null;
+}
+
+function parseNumber(value: string | number | undefined): number {
+	if (value === undefined || value === null) return 1;
+	if (typeof value === 'number') return value;
+	const parsed = parseInt(value.toString(), 10);
+	return isNaN(parsed) ? 1 : parsed;
+}
 
 async function seed() {
 	await reset(db, schema);
@@ -591,6 +657,324 @@ async function seed() {
 			])
 			.returning();
 
+		// VCE Curriculum Data Seeding
+
+		// Get or create VCE Curriculum
+		const [vceCurriculum] = await db
+			.insert(schema.curriculum)
+			.values({
+				name: 'Victorian Certificate of Education (VCE)',
+				version: '2024'
+			})
+			.onConflictDoNothing()
+			.returning();
+
+		// Read all JSON files from vcaa-vce-data
+		const dataPath = join(process.cwd(), 'data', 'vcaa-vce-data');
+		let files: string[] = [];
+		const vceClasses: (typeof schema.subjectOfferingClass.$inferSelect)[] = [];
+		
+		try {
+			files = readdirSync(dataPath).filter(f => f.endsWith('.json') && f !== 'default.json');
+		} catch {
+			files = [];
+		}
+
+		if (files.length > 0) {
+
+			// Track created subjects to avoid duplicates
+			const createdVCESubjects = new Map<string, number>();
+
+			// Process each JSON file
+			for (const file of files) {
+				const filePath = join(dataPath, file);
+				const fileBaseName = file.replace('.json', '');
+				const subjectName = subjectNameMap[fileBaseName];
+				
+				if (!subjectName) {
+					continue;
+				}
+
+				// Parse JSON data
+				const rawData: unknown = JSON.parse(readFileSync(filePath, 'utf-8'));
+				
+				// Handle array-wrapped JSON
+				let processedData: unknown = rawData;
+				if (Array.isArray(processedData) && processedData.length > 0) {
+					processedData = processedData[0];
+				}
+				
+				// Type guard to check if processedData has the expected structure
+				if (!processedData || typeof processedData !== 'object') {
+					continue;
+				}
+
+				const typedData = processedData as VCAAData;
+
+				// Handle different JSON structures
+				let subjectData: {
+					name: string;
+					learningAreas: LearningAreaData[];
+					outcomes: OutcomeData[];
+					keySkills: KeySkillData[];
+					keyKnowledge: KeyKnowledgeData[];
+				};
+
+				if (typedData.curriculum?.curriculumSubjects?.[0]) {
+					// Foundation Math structure
+					const curriculumSubject = typedData.curriculum.curriculumSubjects[0];
+					subjectData = {
+						name: curriculumSubject.name,
+						learningAreas: curriculumSubject.learningAreas || [],
+						outcomes: curriculumSubject.outcomes || [],
+						keySkills: [],
+						keyKnowledge: []
+					};
+				} else {
+					// Direct structure
+					subjectData = {
+						name: typedData.name || subjectName,
+						learningAreas: typedData.learningAreas || [],
+						outcomes: typedData.outcomes || [],
+						keySkills: typedData.keySkills || [],
+						keyKnowledge: typedData.keyKnowledge || []
+					};
+				}
+
+				// Get or create curriculum subject
+				let vceSubjectId = createdVCESubjects.get(subjectName);
+				
+				if (!vceSubjectId) {
+					const [subject] = await db
+						.insert(schema.curriculumSubject)
+						.values({
+							name: subjectName,
+							curriculumId: vceCurriculum.id
+						})
+						.onConflictDoNothing()
+						.returning();
+					vceSubjectId = subject.id;
+					createdVCESubjects.set(subjectName, vceSubjectId);
+				}
+
+				// Process learning areas with curriculum subject reference
+				for (const area of subjectData.learningAreas) {
+					// Build description from base description + contents
+					let fullDescription = area.description || '';
+					if (area.contents && area.contents.length > 0) {
+						const contentsText = area.contents
+							.map((content: { description?: string }) => content.description)
+							.join('\n• ');
+						if (contentsText) {
+							fullDescription += fullDescription ? '\n\n• ' + contentsText : '• ' + contentsText;
+						}
+					}
+
+					await db.insert(schema.learningArea).values({
+						curriculumSubjectId: vceSubjectId,
+						name: area.name,
+						abbreviation: area.abbreviation,
+						description: fullDescription || undefined
+					}).onConflictDoNothing();
+				}
+
+				// Process outcomes with curriculum subject reference
+				for (const outcome of subjectData.outcomes) {
+					const outcomeNumber = parseNumber(outcome.number);
+					
+					const [outcomeRecord] = await db.insert(schema.outcome).values({
+						curriculumSubjectId: vceSubjectId,
+						number: outcomeNumber,
+						description: outcome.description
+					}).onConflictDoNothing().returning();
+
+					// Process key skills within outcome
+					if (outcome.keySkills) {
+						for (let i = 0; i < outcome.keySkills.length; i++) {
+							const skill = outcome.keySkills[i];
+							
+							// Skip if description is missing
+							if (!skill.description || skill.description.trim() === '') {
+								continue;
+							}
+							
+							const topicName = extractTopicName(skill, outcome.topics);
+							const skillNumber = skill.number !== undefined ? parseNumber(skill.number) : (i + 1);
+							
+							await db.insert(schema.keySkill).values({
+								curriculumSubjectId: vceSubjectId,
+								outcomeId: outcomeRecord.id,
+								number: skillNumber,
+								description: skill.description.trim(),
+								topicName: topicName
+							}).onConflictDoNothing();
+						}
+					}
+
+					// Process key knowledge within outcome
+					if (outcome.keyKnowledge) {
+						for (let i = 0; i < outcome.keyKnowledge.length; i++) {
+							const knowledge = outcome.keyKnowledge[i];
+							
+							// Skip if description is missing
+							if (!knowledge.description || knowledge.description.trim() === '') {
+								continue;
+							}
+							
+							const topicName = extractTopicName(knowledge, outcome.topics);
+							const knowledgeNumber = knowledge.number !== undefined ? parseNumber(knowledge.number) : (i + 1);
+							
+							await db.insert(schema.keyKnowledge).values({
+								curriculumSubjectId: vceSubjectId,
+								outcomeId: outcomeRecord.id,
+								number: knowledgeNumber,
+								description: knowledge.description.trim(),
+								topicName: topicName
+							}).onConflictDoNothing();
+						}
+					}
+				}
+
+				// Process standalone key skills (not tied to specific outcomes)
+				if (subjectData.keySkills && subjectData.keySkills.length > 0) {
+					for (let i = 0; i < subjectData.keySkills.length; i++) {
+						const skill = subjectData.keySkills[i];
+						
+						// Skip if description is missing
+						if (!skill.description || skill.description.trim() === '') {
+							continue;
+						}
+						
+						const topicName = extractTopicName(skill);
+						const skillNumber = skill.number !== undefined ? parseNumber(skill.number) : (i + 1);
+						
+						await db.insert(schema.keySkill).values({
+							curriculumSubjectId: vceSubjectId,
+							outcomeId: null,
+							number: skillNumber,
+							description: skill.description.trim(),
+							topicName: topicName
+						}).onConflictDoNothing();
+					}
+				}
+
+				// Process standalone key knowledge (not tied to specific outcomes)
+				if (subjectData.keyKnowledge && subjectData.keyKnowledge.length > 0) {
+					for (let i = 0; i < subjectData.keyKnowledge.length; i++) {
+						const knowledge = subjectData.keyKnowledge[i];
+						
+						// Skip if description is missing
+						if (!knowledge.description || knowledge.description.trim() === '') {
+							continue;
+						}
+						
+						const topicName = extractTopicName(knowledge);
+						const knowledgeNumber = knowledge.number !== undefined ? parseNumber(knowledge.number) : (i + 1);
+						
+						await db.insert(schema.keyKnowledge).values({
+							curriculumSubjectId: vceSubjectId,
+							outcomeId: null,
+							number: knowledgeNumber,
+							description: knowledge.description.trim(),
+							topicName: topicName
+						}).onConflictDoNothing();
+					}
+				}
+
+				// Remove the console log here
+			}
+
+			// Create core subjects for each VCE curriculum subject
+			
+			const vceCoreSubjectMap = new Map<string, number>();
+			
+			for (const [subjectName, curriculumSubjectId] of createdVCESubjects) {
+				// Create core subject
+				const [coreSubject] = await db.insert(schema.coreSubject).values({
+					name: subjectName,
+					description: `VCE ${subjectName}`,
+					curriculumSubjectId: curriculumSubjectId,
+					schoolId: schoolRecord.id
+				}).onConflictDoNothing().returning();
+
+				vceCoreSubjectMap.set(subjectName, coreSubject.id);
+			}
+
+			// Create VCE subjects, offerings, and classes
+			
+			for (const [subjectName] of createdVCESubjects) {
+				const coreSubjectId = vceCoreSubjectMap.get(subjectName);
+				if (!coreSubjectId) {
+					continue;
+				}
+
+				// Create VCE subject
+				let vceSubject = await db.insert(schema.subject).values({
+					name: subjectName,
+					schoolId: schoolRecord.id,
+					coreSubjectId: coreSubjectId,
+					yearLevel: yearLevelEnum.VCE // VCE level
+				}).onConflictDoNothing().returning().then(rows => rows[0]);
+
+				// If subject wasn't returned (conflict), fetch existing one
+				if (!vceSubject) {
+					vceSubject = await db.select().from(schema.subject)
+						.where(
+							and(
+								eq(schema.subject.name, subjectName),
+								eq(schema.subject.schoolId, schoolRecord.id),
+								eq(schema.subject.coreSubjectId, coreSubjectId),
+								eq(schema.subject.yearLevel, yearLevelEnum.VCE)
+							)
+						).then(rows => rows[0]);
+				}
+
+				if (!vceSubject) {
+					continue;
+				}
+
+				// Create subject offerings for current year
+				const currentYear = new Date().getFullYear();
+				
+				// Create offerings for both semesters
+				for (const semester of [1, 2]) {
+					// Try to insert, but if it already exists, fetch it
+					let offering = await db.insert(schema.subjectOffering).values({
+						subjectId: vceSubject.id,
+						year: currentYear,
+						semester: semester,
+						campusId: campusRecord.id
+					}).onConflictDoNothing().returning().then(rows => rows[0]);
+
+					// If offering wasn't returned (conflict), fetch existing one
+					if (!offering) {
+						offering = await db.select().from(schema.subjectOffering)
+							.where(
+								and(
+									eq(schema.subjectOffering.subjectId, vceSubject.id),
+									eq(schema.subjectOffering.year, currentYear),
+									eq(schema.subjectOffering.semester, semester),
+									eq(schema.subjectOffering.campusId, campusRecord.id)
+								)
+							).then(rows => rows[0]);
+					}
+
+					// Create a default class for each offering
+					const className = `${subjectName} - Year ${currentYear} Semester ${semester}`;
+					const [vceClass] = await db.insert(schema.subjectOfferingClass).values({
+						name: className,
+						subOfferingId: offering.id
+					}).onConflictDoNothing().returning();
+					
+					if (vceClass) {
+						vceClasses.push(vceClass);
+					}
+				}
+			}
+		}
+
+		// Enroll VCE student in all VCE classes after they are created
+
 		// Create users
 		const passwordHash = await hash('password123');
 
@@ -673,6 +1057,23 @@ async function seed() {
 				firstName: 'Student',
 				lastName: 'Three',
 				dateOfBirth: new Date('2009-11-08'),
+				emailVerified: true
+			})
+			.returning();
+
+		// Create VCE student
+		const [vceStudent] = await db
+			.insert(schema.user)
+			.values({
+				email: 'vcestudent@eddi.edu',
+				passwordHash,
+				schoolId: schoolRecord.id,
+				type: userTypeEnum.student,
+				gender: userGenderEnum.female,
+				yearLevel: yearLevelEnum.VCE,
+				firstName: 'VCE',
+				lastName: 'Student',
+				dateOfBirth: new Date('2007-05-15'),
 				emailVerified: true
 			})
 			.returning();
@@ -861,6 +1262,7 @@ async function seed() {
 			student1.id,
 			student2.id,
 			student3.id,
+			vceStudent.id,
 			mother1.id,
 			father1.id,
 			mother2.id,
@@ -943,6 +1345,14 @@ async function seed() {
 			await db.insert(schema.userSubjectOffering).values({
 				userId: teacherIds[i],
 				subOfferingId: year9Offerings[i].id
+			});
+		}
+
+		// Enroll VCE student in all VCE classes
+		for (const vceClass of vceClasses) {
+			await db.insert(schema.userSubjectOfferingClass).values({
+				userId: vceStudent.id,
+				subOffClassId: vceClass.id
 			});
 		}
 

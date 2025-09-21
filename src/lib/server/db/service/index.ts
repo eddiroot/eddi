@@ -30,3 +30,6 @@ export * from './events.js';
 
 // Module
 export * from './module.js';
+
+// Curriculum
+export * from './curriculum.js';

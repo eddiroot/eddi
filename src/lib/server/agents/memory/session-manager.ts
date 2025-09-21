@@ -1,5 +1,5 @@
-import * as moduleService from '$lib/server/db/service/module';
-import type { ModuleAgentMemory } from '$lib/server/db/service/module';
+import type { ModuleAgentMemory } from '$lib/server/db/service';
+import * as moduleService from '$lib/server/db/service';
 
 // Updated interfaces to match the actual database schema
 interface StudentResponse {

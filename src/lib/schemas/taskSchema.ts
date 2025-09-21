@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { taskBlockTypeEnum } from '$lib/enums';
 
 export const taskCreationPrompts = {
@@ -83,6 +84,27 @@ const criteriaItem = {
 		marks: { type: 'number' }
 	},
 	required: ['description', 'marks']
+};
+
+const difficultyItem = {
+	type: 'string',
+	enum: ['beginner', 'intermediate', 'advanced'],
+	description: 'Difficulty level for the task block'
+};
+
+const hintsItem = {
+	type: 'array',
+	items: { type: 'string' },
+	minItems: 3,
+	maxItems: 3,
+	description: 'Array of exactly 3 progressive hints to help students'
+};
+
+const stepsItem = {
+	type: 'array',
+	items: { type: 'string' },
+	minItems: 1,
+	description: 'Array of step-by-step solution breakdown'
 };
 
 export const blockHeading = {
@@ -923,3 +945,92 @@ export const blockTypes: {
 		icon: AudioIcon
 	}
 ];
+
+
+export const interactiveBlockWithOptionals = (
+    interactiveBlock: any,
+    options: {
+        includeHints?: boolean;
+        includeDifficulty?: boolean;
+        includeSteps?: boolean;
+        makeRequired?: boolean;
+    } = {}
+) => {
+    const {
+        includeHints = true,
+        includeDifficulty = true,
+        includeSteps = true,
+        makeRequired = true
+    } = options;
+
+    const additionalProperties: any = {};
+    const additionalRequired: string[] = [];
+
+    if (includeHints) {
+        additionalProperties.hints = hintsItem;
+        if (makeRequired) additionalRequired.push('hints');
+    }
+
+    if (includeDifficulty) {
+        additionalProperties.difficulty = difficultyItem;
+        if (makeRequired) additionalRequired.push('difficulty');
+    }
+
+    if (includeSteps) {
+        additionalProperties.steps = stepsItem;
+        if (makeRequired) additionalRequired.push('steps');
+    }
+
+    return {
+        ...interactiveBlock,
+        properties: {
+            ...interactiveBlock.properties,
+            ...additionalProperties
+        },
+        required: [...(interactiveBlock.required || []), ...additionalRequired]
+    };
+};
+
+export function getBlockTypesForSubject(subjectType: string): any[] {
+    const typeMap: Record<string, any[]> = {
+      mathematics: [blockChoice, blockShortAnswer, blockFillBlank],
+      science: [blockFillBlank, blockChoice, blockShortAnswer],
+      english: [blockShortAnswer, blockClose, blockHighlightText],
+      default: [blockChoice, blockShortAnswer, blockMatching, blockFillBlank]
+    };
+
+    return typeMap[subjectType.toLowerCase()] || typeMap.default;
+  }
+
+ export function getInteractiveSchema(subjectType: string): any {
+    const blockTypes = getBlockTypesForSubject(subjectType);
+
+    // Use the interactiveBlockWithOptionals helper for consistent schema generation
+    const interactiveBlockSchema = interactiveBlockWithOptionals({
+      type: 'object',
+      properties: {
+        taskBlock: {
+          anyOf: blockTypes
+        }
+      },
+      required: ['taskBlock']
+    }, {
+      includeHints: true,
+      includeDifficulty: true,
+      includeSteps: true,
+      makeRequired: true
+    });
+
+    return {
+      type: 'object',
+      properties: {
+        interactiveBlocks: {
+          type: 'array',
+          items: interactiveBlockSchema,
+          minItems: 1,
+          maxItems: 5
+        }
+      },
+      required: ['interactiveBlocks']
+    };
+  }
