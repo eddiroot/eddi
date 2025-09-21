@@ -41,6 +41,24 @@ services:
       /usr/bin/mc anonymous set public myminio/logos;
       exit 0;
       "
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: eddi-chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+      - ALLOW_RESET=TRUE
+    networks:
+      - eddi-network
+
+networks:
+  eddi-network:
+    driver: bridge
 
 volumes:
   dbdata:

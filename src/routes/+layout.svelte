@@ -5,17 +5,48 @@
 
 	import { page } from '$app/state';
 
-	import AiSidebar from '$lib/components/ai-sidebar.svelte';
+	import { AiSidebar } from '$lib/components/ai-sidebar';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import { Toaster } from '$lib/components/ui/sonner';
 
 	let { children, data } = $props();
 
-	const user = $derived(() => data?.user || null);
+	const user = $derived(() => data?.user);
+
+	// Header element reference for dynamic height calculation
+	let headerElement: HTMLElement;
+	let headerHeight = $state(0);
+
+	// Sidebar state for dynamic resizing
+	let sidebarController: any = $state(null);
+	let sidebarWidth = $state(400);
+	let sidebarOpen = $state(false);
+
+	// Function to handle sidebar state changes
+	function handleSidebarStateChange(controller: any) {
+		sidebarController = controller;
+		if (controller) {
+			const state = controller.getState();
+			sidebarWidth = state.width;
+			sidebarOpen = state.isOpen;
+		}
+	}
+
+	// Determine the sidebar context based on current page
+	const sidebarContext = $derived(() => {
+		const pathname = page.url.pathname;
+		
+		if (pathname.includes('/tasks/')) {
+			return 'task';
+		} else if (pathname.includes('/lessons/') || pathname.includes('/class/')) {
+			return 'lesson';
+		} else {
+			return 'general';
+		}
+	});
 
 	// Extract subjectOfferingId from URL if on a subject-specific page
 	const currentSubjectOfferingId = $derived(() => {
@@ -24,34 +55,6 @@
 		return subjectMatch ? parseInt(subjectMatch[1], 10) : null;
 	});
 
-	// Check if user is on any subjects page
-	const isOnSubjectsPage = $derived(() => {
-		const pathname = page.url.pathname;
-		return pathname.startsWith('/subjects/');
-	});
-
-	// Check if we're on a task page and get the task data
-	const currentTask = $derived(() => {
-		const pathname = page.url.pathname;
-		const taskMatch = pathname.match(/\/tasks\/(\d+)/);
-
-		if (taskMatch && page.data?.task) {
-			return page.data.task;
-		}
-		return null;
-	});
-
-	// Check if AI tutor should be shown
-	const shouldShowAITutor = $derived(() => {
-		const task = currentTask();
-
-		if (task) {
-			const result = task.aiTutorEnabled !== false;
-			return result;
-		}
-
-		return true;
-	});
 
 	const generateBreadcrumbItems = (url: string) => {
 		const segments = url.split('/').filter(Boolean);
@@ -96,29 +99,6 @@
 				const whiteboard =
 					pageData?.whiteboard || pageData?.whiteboards?.find((w: any) => w.id === whiteboardId);
 				label = whiteboard?.title || `Whiteboard ${segment}`;
-			} else if (segments[i - 1] === 'student' && !isNaN(Number(segment))) {
-				const studentId = Number(segment);
-				const pageData = page.data as any;
-				const student =
-					pageData?.student || pageData?.students?.find((s: any) => s.id === studentId);
-				label = student ? `${student.firstName} ${student.lastName}` : `Student ${segment}`;
-			} else if (segments[i - 1] === 'profile') {
-				// This is a user ID in /profile/[userId]
-				const pageData = page.data as any;
-				const profile = pageData?.profile;
-				if (profile) {
-					const fullName = [
-						profile.honorific,
-						profile.firstName,
-						profile.middleName,
-						profile.lastName
-					]
-						.filter(Boolean)
-						.join(' ');
-					label = fullName || `User ${segment}`;
-				} else {
-					label = `User ${segment}`;
-				}
 			} else {
 				label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
 			}
@@ -132,6 +112,20 @@
 
 		return items;
 	};
+
+	// Update header height when component mounts or window resizes
+	function updateHeaderHeight() {
+		if (headerElement) {
+			headerHeight = headerElement.offsetHeight;
+		}
+	}
+
+	// Update header height on mount and resize
+	$effect(() => {
+		updateHeaderHeight();
+		window.addEventListener('resize', updateHeaderHeight);
+		return () => window.removeEventListener('resize', updateHeaderHeight);
+	});
 </script>
 
 <svelte:head>
@@ -151,7 +145,8 @@
 	{/if}
 	<div class="relative flex h-full w-full flex-col">
 		<header
-			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 backdrop-blur"
+			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed top-0 left-0 right-0 z-50 backdrop-blur"
+			bind:this={headerElement}
 		>
 			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
 				<div class="flex items-center gap-x-4">
@@ -180,19 +175,31 @@
 						<Button href="/login">Login</Button>
 					{/if}
 					<ThemeToggle />
-					{#if user() && isOnSubjectsPage() && shouldShowAITutor()}
-						<Sidebar.Trigger name="right" aria-label="Toggle AI Helper" />
-					{/if}
 				</div>
 			</nav>
 		</header>
-		<main class="flex-1 overflow-auto">
-			{@render children()}
-		</main>
+		
+		<!-- Main content area below header -->
+		<div class="flex-1 relative" style="padding-top: {headerHeight}px;">
+			<main 
+				class="h-full overflow-auto transition-all duration-300"
+				style={sidebarOpen ? `margin-right: ${sidebarWidth}px` : ''}
+			>
+				{@render children()}
+			</main>
+			
+			<!-- AI Sidebar Containerm -->
+			<div 
+				class="fixed right-0 bottom-0 pointer-events-none z-40"
+				style="top: {headerHeight}px;"
+			>
+				<AiSidebar 
+					context={sidebarContext()} 
+					enabled={true}
+					subjectOfferingId={user() ? currentSubjectOfferingId() ?? undefined : undefined}
+					onStateChange={handleSidebarStateChange}
+				/>
+			</div>
+		</div>
 	</div>
-	{#if user() && isOnSubjectsPage() && shouldShowAITutor()}
-		<AiSidebar subjectOfferingId={currentSubjectOfferingId()} />
-	{/if}
 </Sidebar.Provider>
-
-<Toaster />
