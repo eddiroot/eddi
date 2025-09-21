@@ -29,7 +29,8 @@ import { timestamps } from './utils';
 export const taskTypeEnumPg = pgEnum('enum_task_type', [
 	taskTypeEnum.lesson,
 	taskTypeEnum.assessment,
-	taskTypeEnum.homework
+	taskTypeEnum.homework,
+	taskTypeEnum.module
 ]);
 
 export const quizModeEnumPg = pgEnum('enum_quiz_mode', [

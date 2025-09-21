@@ -27,3 +27,6 @@ export * from './resource.js';
 
 // Events
 export * from './events.js';
+
+// Module
+export * from './module.js';

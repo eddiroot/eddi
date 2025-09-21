@@ -41,7 +41,8 @@ export enum subjectThreadResponseTypeEnum {
 export enum taskTypeEnum {
 	lesson = 'lesson',
 	assessment = 'assessment',
-	homework = 'homework'
+	homework = 'homework',
+	module = 'module'
 }
 
 export enum taskBlockTypeEnum {
