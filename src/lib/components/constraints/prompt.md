@@ -14,7 +14,12 @@ For the following constraints, i want you to create forms by following the follo
 
 Constraints to Implement:
 Time constraints:
-- [ ] ConstraintBasicCompulsoryTime
+- [x] ConstraintBasicCompulsoryTime
+- [x] ConstraintBasicCompulsorySpace
+- [ ] ConstraintRoomNotAvailableTimes
+- [x] ConstraintMinDaysBetweenActivities
+- [ ] ConstraintRoomNotAvailableTimes
+- [ ] ConstraintSubjectPreferredRooms
+- [ ] ConstraintTeachersMaxGaps
 - [ ] ConstraintStudentsEarlyMaxBeginningsAtSecondHour
 - [ ] ConstraintStudentsMaxGapsPerWeek
-- [ ] ConstraintMinDaysBetweenActivities

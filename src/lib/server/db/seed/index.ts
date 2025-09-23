@@ -1459,8 +1459,8 @@ async function seed() {
 			friendlyName: constraint.friendlyName,
 			description: constraint.description,
 			type: constraint.type,
-			optional: constraint.optional,
-			repeatable: constraint.repeatable
+			optional: constraint.optional ?? true,
+			repeatable: constraint.repeatable ?? true
 		}));
 
 		const allConstraints = await db.insert(schema.constraint).values(constraintsToSeed).returning();

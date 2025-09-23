@@ -6,11 +6,10 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
-	// Import constraint form mapping utilities
+// Import constraint form mapping utilities
 	import { getConstraintFormComponent, requiresEnhancedProps } from '$lib/constraint-form-mapping';
 	// Fallback generic form
 	import type { Constraint } from '$lib/server/db/schema/timetables';
-	import type { ConstraintFormData } from '$lib/types/constraint-form-types';
 
 	let { data } = $props();
 	let {
@@ -184,6 +183,11 @@
 		<h1 class="text-2xl leading-tight font-bold">Timetabling Constraints</h1>
 		<div class="text-muted-foreground text-sm">
 			Timetable ID: {timetableId}
+		</div>
+		<div>
+			<Button href="/admin/constraintinfo" variant="outline">
+				Info & Recommendations
+			</Button>
 		</div>
 	</div>
 

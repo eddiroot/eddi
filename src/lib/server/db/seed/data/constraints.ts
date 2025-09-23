@@ -5,8 +5,8 @@ export interface ConstraintDefinition {
 	friendlyName: string;
 	description: string;
 	type: constraintTypeEnum;
-	optional: boolean | null; // whether this constraint is optional or mandatory, null if uncertain
-	repeatable: boolean | null; // whether this constraint can be added multiple times, null if uncertain
+	optional: boolean; // whether this constraint is optional or mandatory, null if uncertain
+	repeatable: boolean; // whether this constraint can be added multiple times, null if uncertain
 }
 
 export const TIME_CONSTRAINTS: ConstraintDefinition[] = [
@@ -24,7 +24,7 @@ export const TIME_CONSTRAINTS: ConstraintDefinition[] = [
 		description: 'Limits the maximum number of activities that can begin at the second hour for students. Helps manage student schedules to avoid too many early starts.',
 		type: constraintTypeEnum.time,
 		optional: false,
-		repeatable: true
+		repeatable: false
 	},
 	{
 		FETName: 'ConstraintStudentsMaxGapsPerWeek',
@@ -534,7 +534,7 @@ export const SPACE_CONSTRAINTS: ConstraintDefinition[] = [
 		friendlyName: 'Room Not Available Times',
 		description: 'Blocks specific time periods when rooms cannot be used due to maintenance, special events, or shared facilities.',
 		type: constraintTypeEnum.space,
-		optional: false,
+		optional: true,
 		repeatable: true
 	},
 	{

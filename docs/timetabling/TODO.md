@@ -16,4 +16,5 @@
 - [ ] Create forms for all of the constraints
 - [ ] Create an information page for the constraints
 - [ ] fix the mandatory attribute on all the constraints, not right atm
+- [ ] deleting one deletes all fix that
 

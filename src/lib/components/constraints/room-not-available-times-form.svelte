@@ -1,24 +1,20 @@
 <script lang="ts">
+	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
+	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
-	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
-	import type { AutocompleteOption } from '$lib/constraint-data-fetchers';
 
 	let { onSubmit, onCancel, initialValues = {}, formData }: EnhancedConstraintFormProps = $props();
-
-	const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-	const HOURS = Array.from({ length: 10 }, (_, i) => i + 1);
 
 	// Form state
 	let weightPercentage = $state((initialValues.Weight_Percentage as number) || 100);
 	let selectedRoomId = $state<string | number>('');
-	let notAvailableTimes = $state<Array<{ Day: string; Hour: number }>>(
-		(initialValues.Not_Available_Time as Array<{ Day: string; Hour: number }>) || [{ Day: 'Monday', Hour: 1 }]
+	let notAvailableTimes = $state<Array<{ Day: number; Period: number }>>(
+		(initialValues.Not_Available_Time as Array<{ Day: number; Period: number }>) || [{ Day: 0, Period: 0 }]
 	);
 	let comments = $state((initialValues.Comments as string) || '');
 
@@ -27,20 +23,42 @@
 		selectedRoomId = initialValues.Room as string | number;
 	}
 
+	// Validation for duplicate day/period combinations
+	let duplicateTimeError = $derived.by(() => {
+		const timeSlots = new Set();
+		
+		for (const time of notAvailableTimes) {
+			if (time.Day && time.Period) {
+				const timeKey = `${time.Day}-${time.Period}`;
+				if (timeSlots.has(timeKey)) {
+					return `Duplicate time detected`;
+				}
+				timeSlots.add(timeKey);
+			}
+		}
+		
+		return null;
+	});	// Check if all time slots have valid selections
+	let allTimeSlotsValid = $derived.by(() => {
+		return notAvailableTimes.every(time => time.Day !== 0 && time.Period !== 0);
+	});
+
+	// Enhanced validation
+	let isValid = $derived(
+		selectedRoomId !== '' &&
+			notAvailableTimes.length > 0 &&
+			weightPercentage >= 1 &&
+			weightPercentage <= 100 &&
+			duplicateTimeError === null &&
+			allTimeSlotsValid
+	);
+
 	function addNotAvailableTime() {
-		notAvailableTimes = [...notAvailableTimes, { Day: 'Monday', Hour: 1 }];
+		notAvailableTimes = [...notAvailableTimes, { Day: 0, Period: 0 }];
 	}
 
 	function removeNotAvailableTime(index: number) {
 		notAvailableTimes = notAvailableTimes.filter((_, i) => i !== index);
-	}
-
-	function updateDay(index: number, day: string) {
-		notAvailableTimes[index].Day = day;
-	}
-
-	function updateHour(index: number, hour: number) {
-		notAvailableTimes[index].Hour = hour;
 	}
 
 	function handleSubmit() {
@@ -54,14 +72,6 @@
 		};
 		onSubmit(values);
 	}
-
-	// Validation
-	let isValid = $derived(
-		selectedRoomId !== '' &&
-			notAvailableTimes.length > 0 &&
-			weightPercentage >= 1 &&
-			weightPercentage <= 100
-	);
 </script>
 
 <div class="space-y-6">
@@ -87,36 +97,47 @@
 				placeholder="Select a room..."
 				bind:value={selectedRoomId}
 			/>
+			{#if formData?.spaces.length === 0}
+				<p class="text-destructive text-sm">
+					All rooms already have this constraint applied.
+				</p>
+			{/if}
 		</div>
 
 		<!-- Not Available Times -->
 		<div class="space-y-2">
 			<Label>Not Available Times *</Label>
+			{#if duplicateTimeError !== null}
+				<p class="text-destructive text-sm">
+					{duplicateTimeError}
+				</p>
+			{/if}
+			{#if notAvailableTimes.length > 0 && !allTimeSlotsValid}
+				<p class="text-destructive text-sm">
+					All time slots must have both day and period selected.
+				</p>
+			{/if}
 			<div class="space-y-3">
+				<div class="flex gap-2">
+				<Label class="text-xs flex-1">Day</Label>
+				<Label class="text-xs flex-1">Period</Label>
+				</div>
 				{#each notAvailableTimes as time, index}
 					<div class="flex items-end gap-2">
 						<div class="flex-1 space-y-1">
-							<Label class="text-xs">Day</Label>
-							<select
-								bind:value={time.Day}
-								class="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-							>
-								{#each DAYS as day}
-									<option value={day}>{day}</option>
-								{/each}
-							</select>
+							<Autocomplete 
+							options={formData?.timetableDays || []}
+							placeholder="Select a day..."
+							bind:value={time.Day}
+							/>
 						</div>
 
 						<div class="flex-1 space-y-1">
-							<Label class="text-xs">Period</Label>
-							<select
-								bind:value={time.Hour}
-								class="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-							>
-								{#each HOURS as hour}
-									<option value={hour}>Period {hour}</option>
-								{/each}
-							</select>
+							<Autocomplete 
+							options={formData?.timetablePeriods || []}
+							placeholder="Select a period..."
+							bind:value={time.Period}
+							/>
 						</div>
 
 						{#if notAvailableTimes.length > 1}
