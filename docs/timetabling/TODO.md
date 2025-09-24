@@ -17,4 +17,9 @@
 - [ ] Create an information page for the constraints
 - [ ] fix the mandatory attribute on all the constraints, not right atm
 - [ ] deleting one deletes all fix that
+- [x] get a way of calling fet-cl through code
+- [ ] Understand how the api call works with the command line and dockerization
+  - [ ] handle the retrieval of the output for the 
+- [ ] Fix the groups/students page of the timetabling
+- [ ] Create the documentation page for the timetabling process and understandings of how fet works.
 
