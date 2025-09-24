@@ -56,10 +56,6 @@ services:
     networks:
       - eddi-network
 
-networks:
-  eddi-network:
-    driver: bridge
-
   fet:
     build:
       context: ./fet
@@ -71,6 +67,10 @@ networks:
     command: tail -f /dev/null  # Keep container running
     networks:
       - default
+
+networks:
+  eddi-network:
+    driver: bridge
 
 volumes:
   dbdata:
