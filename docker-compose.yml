@@ -60,6 +60,20 @@ networks:
   eddi-network:
     driver: bridge
 
+  fet:
+    build:
+      context: ./fet
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - fet_temp:/timetables
+      - fet_output:/output
+    command: tail -f /dev/null  # Keep container running
+    networks:
+      - default
+
 volumes:
   dbdata:
   objdata:
+  fet_temp:
+  fet_output:

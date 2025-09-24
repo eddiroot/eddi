@@ -5,13 +5,15 @@
 
 	let isGenerating = false;
 
-	function handleGenerate(event: SubmitEvent) {
+	async function handleGenerate(event: SubmitEvent) {
 		event.preventDefault();
+
 		isGenerating = true;
 
 		// Simulate loading for 3 seconds
-		setTimeout(() => {
+		setTimeout(async () => {
 			isGenerating = false;
+
 			// After loading, submit the form
 			(event.target as HTMLFormElement).submit();
 		}, 3000);

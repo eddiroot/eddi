@@ -10,14 +10,14 @@ import {
 	getTimetableDays,
 	getTimetablePeriods,
 	getTimetableStudentGroupsWithCountsByTimetableId,
-	getUsersBySchoolIdAndType,
+	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 import { fail } from '@sveltejs/kit';
 import { buildFETInput } from './utils.js';
 
 export const actions = {
-	generateTimetable: async ({ params, locals: { security } }) => {
+	generateTimetable: async ({ params, locals: { security }, fetch }) => {
 		security.isAuthenticated().isSchoolAdmin();
 		const user = security.getUser();
 
@@ -37,7 +37,7 @@ export const actions = {
 				teachers,
 				subjects,
 				school,
-				activeConstraints 
+				activeConstraints
 			] = await Promise.all([
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId),
@@ -73,10 +73,40 @@ export const actions = {
 				objectKey,
 				'application/xml'
 			);
+			console.log('FET XML uploaded to object storage:', objectKey);
+			// Call the FET API to generate the timetable
+			try {
+				const response = await fetch('/api/timetables/generate', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						timetableId,
+						fileName: uniqueFileName,
+						fetXmlContent: xmlContent
+					})
+				});
 
-			await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.message || 'Failed to generate timetable');
+				}
 
-			return { success: true, message: 'Timetable data queued for processing' };
+				const result = await response.json();
+				return {
+					success: true,
+					message: result.message || 'Timetable generation has been queued successfully'
+				};
+			} catch (apiError) {
+				console.error('Error calling FET API:', apiError);
+				// Fallback to manual queue entry if API call fails
+				await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
+				return {
+					success: true,
+					message: 'Timetable data queued for processing (fallback mode)'
+				};
+			}
 		} catch (error) {
 			console.error('Error generating timetable XML:', error);
 			return fail(500, {

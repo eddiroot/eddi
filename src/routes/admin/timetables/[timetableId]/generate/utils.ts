@@ -126,20 +126,20 @@ export function buildFETInput({
 		};
 	});
 
-	
 	// Filter constraints by type
-	const timeConstraints = activeConstraints.filter(c => c.type === 'time');
-	const spaceConstraints = activeConstraints.filter(c => c.type === 'space');
+	const timeConstraints = activeConstraints.filter((c) => c.type === 'time');
+	const spaceConstraints = activeConstraints.filter((c) => c.type === 'space');
 
 	// Build Time_Constraints_List
 	const timeConstraintsXML: Record<string, unknown> = {};
-	timeConstraints.forEach(constraint => {
+	timeConstraints.forEach((constraint) => {
 		try {
 			// Parse the JSON parameters
-			const parsedParams = typeof constraint.parameters === 'string' 
-				? JSON.parse(constraint.parameters) 
-				: constraint.parameters;
-			
+			const parsedParams =
+				typeof constraint.parameters === 'string'
+					? JSON.parse(constraint.parameters)
+					: constraint.parameters;
+
 			// Add to constraints using FET name
 			timeConstraintsXML[constraint.FETName] = parsedParams;
 		} catch (error) {
@@ -149,13 +149,14 @@ export function buildFETInput({
 
 	// Build Space_Constraints_List
 	const spaceConstraintsXML: Record<string, unknown> = {};
-	spaceConstraints.forEach(constraint => {
+	spaceConstraints.forEach((constraint) => {
 		try {
 			// Parse the JSON parameters
-			const parsedParams = typeof constraint.parameters === 'string' 
-				? JSON.parse(constraint.parameters) 
-				: constraint.parameters;
-			
+			const parsedParams =
+				typeof constraint.parameters === 'string'
+					? JSON.parse(constraint.parameters)
+					: constraint.parameters;
+
 			// Add to constraints using FET name
 			spaceConstraintsXML[constraint.FETName] = parsedParams;
 		} catch (error) {
@@ -216,46 +217,69 @@ export function buildFETInput({
 	const builder = new XMLBuilder(xmlBuilderOptions);
 
 	const xmlDataWithConstraints = builder.build(xmlData);
-	
+
 	return xmlDataWithConstraints;
 }
 
 export function processFETOutput(fetOutput: string): FETActivity[] {
-	const parser = new XMLParser();
-	const fetObj = parser.parse(fetOutput) as FETOutput;
+	try {
+		const parser = new XMLParser();
+		const fetObj = parser.parse(fetOutput) as FETOutput;
 
-	const activities = fetObj.fet.Activities_List.Activity;
-	const timeConstraints =
-		fetObj.fet.Time_Constraints_List.ConstraintActivityPreferredStartingTime || [];
-	const spaceConstraints = fetObj.fet.Space_Constraints_List.ConstraintActivityPreferredRoom || [];
+		// Debug: Log the structure to understand what we're getting
+		console.log('FET Output structure keys:', Object.keys(fetObj));
+		if (fetObj.fet) {
+			console.log('FET object keys:', Object.keys(fetObj.fet));
+		}
 
-	const activityMap = new Map<number, FETActivity>();
-	activities.forEach((activity) => {
-		activityMap.set(activity.Id, {
-			Teacher: activity.Teacher,
-			Subject: activity.Subject,
-			Students: activity.Students,
-			Room: 0,
-			Day: 0,
-			Period: 0,
-			Duration: activity.Duration
+		// Check if the expected structure exists
+		if (!fetObj.fet) {
+			throw new Error('Invalid FET output: missing "fet" root element');
+		}
+
+		if (!fetObj.fet.Activities_List) {
+			throw new Error('Invalid FET output: missing "Activities_List"');
+		}
+
+		const activities = fetObj.fet.Activities_List.Activity;
+		const timeConstraints =
+			fetObj.fet.Time_Constraints_List?.ConstraintActivityPreferredStartingTime || [];
+		const spaceConstraints =
+			fetObj.fet.Space_Constraints_List?.ConstraintActivityPreferredRoom || [];
+
+		const activityMap = new Map<number, FETActivity>();
+		activities.forEach((activity) => {
+			activityMap.set(activity.Id, {
+				Teacher: activity.Teacher,
+				Subject: activity.Subject,
+				Students: activity.Students,
+				Room: 0,
+				Day: 0,
+				Period: 0,
+				Duration: activity.Duration
+			});
 		});
-	});
 
-	timeConstraints.forEach((constraint) => {
-		const activity = activityMap.get(constraint.Activity_Id);
-		if (activity) {
-			activity.Day = constraint.Day;
-			activity.Period = constraint.Hour;
-		}
-	});
+		timeConstraints.forEach((constraint) => {
+			const activity = activityMap.get(constraint.Activity_Id);
+			if (activity) {
+				activity.Day = constraint.Day;
+				activity.Period = constraint.Hour;
+			}
+		});
 
-	spaceConstraints.forEach((constraint) => {
-		const activity = activityMap.get(constraint.Activity_Id);
-		if (activity) {
-			activity.Room = constraint.Room;
-		}
-	});
+		spaceConstraints.forEach((constraint) => {
+			const activity = activityMap.get(constraint.Activity_Id);
+			if (activity) {
+				activity.Room = constraint.Room;
+			}
+		});
 
-	return Array.from(activityMap.values());
+		return Array.from(activityMap.values());
+	} catch (error) {
+		console.error('Error processing FET output:', error);
+		console.error('FET output content preview:', fetOutput.substring(0, 500));
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+		throw new Error(`Failed to process FET output: ${errorMessage}`);
+	}
 }
