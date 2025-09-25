@@ -15,14 +15,14 @@ import {
 } from '$lib/server/db/service/timetables.js';
 import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 import { FETDockerService } from '$lib/server/services/fet-docker.js';
-import { error, json } from '@sveltejs/kit';
+import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { processTimetableQueue } from '../../../../scripts/processTimetable.js';
 import { buildFETInput } from '../../../admin/timetables/[timetableId]/generate/utils.js';
 
-export async function POST({ request, locals }: { request: Request; locals: unknown }) {
+export const POST: RequestHandler = async ({ locals: { security }, request }) => {
+	security.isAuthenticated();
 	try {
 		// Ensure user is authenticated and is a school admin
-		const { security } = locals;
 		security.isAuthenticated().isSchoolAdmin();
 
 		const user = security.getUser();
@@ -123,11 +123,11 @@ export async function POST({ request, locals }: { request: Request; locals: unkn
 			message: 'Failed to queue timetable generation'
 		});
 	}
-}
+};
 
-export async function GET({ locals }: { locals: unknown }) {
+export const GET: RequestHandler = async ({ locals: { security } }) => {
+	security.isAuthenticated();
 	try {
-		const { security } = locals;
 		security.isAuthenticated().isSchoolAdmin();
 
 		const fetService = new FETDockerService();
@@ -143,4 +143,4 @@ export async function GET({ locals }: { locals: unknown }) {
 			message: 'Failed to check service status'
 		});
 	}
-}
+};
