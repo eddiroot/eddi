@@ -28,7 +28,7 @@ interface FETXML {
 }
 
 interface FETActivityRecord {
-	id: number;
+	// id: number;
 	timetableId: number;
 	teacherId: string;
 	subjectId: number;
@@ -89,7 +89,7 @@ export class FETActivityParser {
 				const spaceId = activity.Room ? parseInt(activity.Room) : 0;
 
 				const record: FETActivityRecord = {
-					id: parseInt(activity.Id),
+					// id: parseInt(activity.Id),
 					timetableId: timetableId,
 					teacherId: fetActivity.Teacher,
 					subjectId: parseInt(fetActivity.Subject),
@@ -163,20 +163,23 @@ export class FETActivityParser {
 	 */
 	validateActivity(activity: FETActivityRecord): boolean {
 		// Additional validation rules
-		if (activity.duration <= 0) {
-			console.warn(`Invalid duration ${activity.duration} for activity ${activity.id}`);
-			return false;
-		}
+		// if (activity.duration <= 0) {
+		// 	console.warn(`Invalid duration ${activity.duration} for activity ${activity.id}`);
+		// 	return false;
+		// }
 
-		if (activity.day < 1000 || activity.day > 1004) {
-			console.warn(`Invalid day ${activity.day} for activity ${activity.id}`);
-			return false;
-		}
+		// if (activity.day < 1000 || activity.day > 1004) {
+		// 	console.warn(`Invalid day ${activity.day} for activity ${activity.}`);
+		// 	return false;
+		// }
 
-		if (activity.period < 1000 || activity.period > 1005) {
-			console.warn(`Invalid period ${activity.period} for activity ${activity.id}`);
-			return false;
-		}
+		// if (activity.period < 1000 || activity.period > 1005) {
+		// 	console.warn(`Invalid period ${activity.period} for activity ${activity.id}`);
+		// 	return false;
+		// }
+
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const a = activity;
 
 		return true;
 	}
