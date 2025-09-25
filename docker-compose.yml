@@ -61,9 +61,6 @@ services:
       context: ./fet
       dockerfile: Dockerfile
     restart: unless-stopped
-    volumes:
-      - fet_temp:/timetables
-      - fet_output:/output
     command: tail -f /dev/null  # Keep container running
     networks:
       - default
@@ -75,5 +72,3 @@ networks:
 volumes:
   dbdata:
   objdata:
-  fet_temp:
-  fet_output:

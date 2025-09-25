@@ -1,8 +1,8 @@
 import { exec } from 'child_process';
-import { promisify } from 'util';
-import { writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
 import { randomUUID } from 'crypto';
+import { unlink, writeFile } from 'fs/promises';
+import { join } from 'path';
+import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
@@ -25,6 +25,7 @@ export class FETDockerService {
 		const inputFileName = `input_${jobId}.fet`;
 		const outputDir = `output_${jobId}`;
 
+		console.log(`Starting FET job ${jobId}`);
 		try {
 			// Write input file to container
 			await this.writeFileToContainer(inputFileName, fetXmlContent);
@@ -32,8 +33,49 @@ export class FETDockerService {
 			// Create output directory in container
 			await this.createDirectoryInContainer(outputDir);
 
+			const params = {
+				htmllevel: 7,
+				writetimetableconflicts: true,
+				writetimetablesstatistics: true,
+				writetimetablesxml: true,
+				writetimetablesdayshorizontal: true,
+				writetimetablesdaysvertical: true,
+				writetimetablestimehorizontal: true,
+				writetimetablestimevertical: true,
+				writetimetablessubgroups: true,
+				writetimetablesgroups: true,
+				writetimetablesyears: true,
+				writetimetablesteachers: true,
+				writetimetablesteachersfreeperiods: true,
+				writetimetablesrooms: true,
+				writetimetablessubjects: true,
+				writetimetablesactivitytags: true,
+				writetimetablesactivities: true,
+				exportcsv: true
+			};
+
 			// Execute FET command in container
-			const fetCommand = `fet-cl --inputfile="/timetables/${inputFileName}" --outputdir="/output/${outputDir}" --htmllevel=7`;
+			const fetCommand = `fet-cl 
+				--inputfile="/timetables/${inputFileName}" 
+				--outputdir="/output/${outputDir}" 
+				--htmllevel=${params.htmllevel}
+				--writetimetableconflicts=${params.writetimetableconflicts}
+				--writetimetablesstatistics=${params.writetimetablesstatistics}
+				--writetimetablesxml=${params.writetimetablesxml}
+				--writetimetablesdayshorizontal=${params.writetimetablesxml}
+				--writetimetablesdaysvertical=${params.writetimetablesdaysvertical}
+				--writetimetablestimehorizontal=${params.writetimetablesdaysvertical}
+				--writetimetablestimevertical=${params.writetimetablesdaysvertical}
+				--writetimetablessubgroups=${params.writetimetablesdaysvertical}
+				--writetimetablesgroups=${params.writetimetablesdaysvertical}
+				--writetimetablesyears=${params.writetimetablesdaysvertical}
+				--writetimetablesteachers=${params.writetimetablesdaysvertical}
+				--writetimetablesteachersfreeperiods=${params.writetimetablesdaysvertical}
+				--writetimetablesrooms=${params.writetimetablesdaysvertical}
+				--writetimetablessubjects=${params.writetimetablesdaysvertical}
+				--writetimetablesactivitytags=${params.writetimetablesdaysvertical}
+				--writetimetablesactivities=${params.writetimetablesdaysvertical}
+				--exportcsv=${params.exportcsv}`;
 
 			console.log(`Executing FET command: ${fetCommand}`);
 
