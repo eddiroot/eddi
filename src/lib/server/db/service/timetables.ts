@@ -363,7 +363,8 @@ export async function deleteTimetableActivity(activityId: number) {
 export async function createTimetableQueueEntry(
 	timetableId: number,
 	userId: string,
-	fileName: string
+	fileName: string,
+	generationId: string
 ) {
 	const [entry] = await db
 		.insert(table.timetableQueue)
@@ -371,6 +372,7 @@ export async function createTimetableQueueEntry(
 			timetableId,
 			userId,
 			fileName,
+			generationId,
 			status: queueStatusEnum.queued
 		})
 		.returning();
@@ -394,6 +396,7 @@ export async function getOldestQueuedTimetable() {
 			timetableId: table.timetableQueue.timetableId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
+			generationId: table.timetableQueue.generationId,
 			status: table.timetableQueue.status,
 			createdAt: table.timetableQueue.createdAt,
 			timetable: table.timetable,

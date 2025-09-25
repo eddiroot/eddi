@@ -1,6 +1,5 @@
 import { userTypeEnum } from '$lib/enums.js';
 import {
-	createTimetableQueueEntry,
 	getActiveTimetableConstraintsForTimetable,
 	getBuildingsBySchoolId,
 	getSchoolById,
@@ -12,7 +11,6 @@ import {
 	getTimetableStudentGroupsWithCountsByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
-import { generateUniqueFileName, uploadBufferHelper } from '$lib/server/obj.js';
 import { fail } from '@sveltejs/kit';
 import { buildFETInput } from './utils.js';
 
@@ -64,16 +62,6 @@ export const actions = {
 				activeConstraints
 			});
 
-			const uniqueFileName = generateUniqueFileName(`${timetableId}.fet`);
-			const objectKey = `${user.schoolId}/${uniqueFileName}`;
-
-			await uploadBufferHelper(
-				Buffer.from(xmlContent, 'utf-8'),
-				'schools',
-				objectKey,
-				'application/xml'
-			);
-			console.log('FET XML uploaded to object storage:', objectKey);
 			// Call the FET API to generate the timetable
 			try {
 				const response = await fetch('/api/timetables/generate', {
@@ -83,7 +71,6 @@ export const actions = {
 					},
 					body: JSON.stringify({
 						timetableId,
-						fileName: uniqueFileName,
 						fetXmlContent: xmlContent
 					})
 				});
@@ -101,7 +88,7 @@ export const actions = {
 			} catch (apiError) {
 				console.error('Error calling FET API:', apiError);
 				// Fallback to manual queue entry if API call fails
-				await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
+				// await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
 				return {
 					success: true,
 					message: 'Timetable data queued for processing (fallback mode)'

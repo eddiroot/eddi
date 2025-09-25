@@ -1,4 +1,5 @@
 import { createTimetableQueueEntry } from '$lib/server/db/service/timetables.js';
+import { uploadBufferHelper } from '$lib/server/obj.js';
 import { FETDockerService } from '$lib/server/services/fet-docker.js';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { processTimetableQueue } from '../../../../scripts/processTimetable.js';
@@ -11,11 +12,11 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 
 		const user = security.getUser();
 		const requestData = await request.json();
-		const { timetableId, fileName } = requestData;
+		const { timetableId } = requestData;
 		const { fetXmlContent } = requestData;
 
 		// Validate inputs
-		if (!timetableId || !fileName) {
+		if (!timetableId) {
 			return error(400, {
 				message: 'Missing required fields: timetableId and fileName'
 			});
@@ -39,7 +40,26 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			});
 		}
 
-		await createTimetableQueueEntry(timetableId, user.id, fileName);
+		// Create unique generation identifier using timestamp
+		const generationTimestamp = Date.now();
+		const generationId = `${generationTimestamp}`;
+		
+		console.log('☁️  [TIMETABLE PROCESSOR] Storing input file in new directory structure...');
+		console.log(`   - Generation ID: ${generationId}`);
+		
+		const uniqueFileName = `sch_id${user.schoolId}_tt_id${timetableId}_gen_${generationId}.fet`;
+		const objectKey = `${user.schoolId}/${timetableId}/${generationId}/input/${uniqueFileName}`;
+
+		await uploadBufferHelper(
+			Buffer.from(fetXmlContent, 'utf-8'),
+			'schools',
+			objectKey,
+			'application/xml'
+		);
+		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
+		console.log('FET XML uploaded to object storage:', objectKey);
+
+		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName, generationId);
 
 		// Trigger processing (this will run asynchronously)
 		processTimetableQueue().catch((err: Error) => {
@@ -49,6 +69,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		return json({
 			success: true,
 			message: 'Timetable generation has been queued successfully',
+			generationId: generationId,
 			queuedAt: new Date().toISOString()
 		});
 	} catch (err) {

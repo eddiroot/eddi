@@ -49,6 +49,7 @@ export const timetableQueue = pgTable('tt_queue', {
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	fileName: text('file_name').notNull(),
+	generationId: text('generation_id').notNull(), // Unique identifier for each generation attempt
 	status: timetableQueueStatusEnumPg().notNull().default(queueStatusEnum.queued),
 	...timestamps
 });

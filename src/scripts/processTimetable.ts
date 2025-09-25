@@ -1,16 +1,14 @@
 import { queueStatusEnum } from '$lib/enums.js';
 import {
-	createTimetableFETActivitiesFromFETExport,
 	getInProgressTimetableQueues,
 	getOldestQueuedTimetable,
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/index.js';
-import { generateUniqueFileName, getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
+import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
 import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
-import { processFETOutput } from '../routes/admin/timetables/[timetableId]/generate/utils';
 
 const TEMP_DIR = join(process.cwd(), 'temp');
 
@@ -62,13 +60,15 @@ export async function processTimetableQueue() {
 			console.log('📁 [TIMETABLE PROCESSOR] Temporary directory ensured');
 
 			const schoolId = queueEntry.school.id.toString();
+			const timetableId = queueEntry.timetableId.toString();
 			const fileName = queueEntry.fileName;
 
 			console.log('📥 [TIMETABLE PROCESSOR] Downloading input file from object storage...');
 			console.log(`   - School ID: ${schoolId}`);
+			console.log(`   - Timetable ID: ${timetableId}`);
 			console.log(`   - File name: ${fileName}`);
 
-			const fileBuffer = await getFileFromStorage(schoolId, fileName);
+			const fileBuffer = await getFileFromStorage(schoolId, timetableId, fileName, true);
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] File downloaded successfully - Size: ${fileBuffer.length} bytes`
 			);
@@ -139,91 +139,62 @@ export async function processTimetableQueue() {
 
 			// List output files in container
 			console.log('📋 [TIMETABLE PROCESSOR] Listing generated output files in container...');
-			const listCommand = `docker exec eddi-fet-1 ls -la ${containerOutputDir}`;
+			const listCommand = `docker exec eddi-fet-1 find ${containerOutputDir} -type f`;
 			const listResult = await execAsync(listCommand, { timeout: 60000 });
 			console.log('📋 [TIMETABLE PROCESSOR] Container output files:');
 			console.log(listResult.stdout);
 
-			// Find and process FET output file
-			console.log('🔍 [TIMETABLE PROCESSOR] Searching for FET output file...');
-			const findFetCommand = `docker exec eddi-fet-1 find ${containerOutputDir} -name "*.fet" -type f`;
-			const findResult = await execAsync(findFetCommand, { timeout: 60000 });
-
-			if (!findResult.stdout.trim()) {
-				throw new Error('No FET output file (.fet) found in container output directory');
-			}
-
-			const containerFetFilePath = findResult.stdout.trim().split('\n')[0]; // Take first .fet file
-			console.log(`✅ [TIMETABLE PROCESSOR] Found FET output file: ${containerFetFilePath}`);
-
-			// Copy FET file content from container
-			console.log('📥 [TIMETABLE PROCESSOR] Reading FET output file from container...');
-			const catCommand = `docker exec eddi-fet-1 cat "${containerFetFilePath}"`;
-			const catResult = await execAsync(catCommand, { timeout: 2 * 60 * 1000 });
-			const fetFileContent = catResult.stdout;
-			console.log(
-				`✅ [TIMETABLE PROCESSOR] FET file content read - Length: ${fetFileContent.length} characters`
-			);
-
-			// Store FET output file in object storage
-			console.log('☁️  [TIMETABLE PROCESSOR] Uploading FET output to object storage...');
-			const outputFileName = generateUniqueFileName(`timetable_${queueEntry.id}_output.fet`);
-			const outputObjectKey = `${schoolId}/outputs/${outputFileName}`;
-
-			await uploadBufferHelper(
-				Buffer.from(fetFileContent, 'utf-8'),
-				'schools',
-				outputObjectKey,
-				'application/xml'
-			);
-			console.log(
-				`✅ [TIMETABLE PROCESSOR] FET output uploaded to object storage: ${outputObjectKey}`
-			);
-
-			// Check if there are HTML output files to store
-			console.log('🔍 [TIMETABLE PROCESSOR] Searching for HTML output files...');
-			const findHtmlCommand = `docker exec eddi-fet-1 find ${containerOutputDir} -name "*.html" -type f`;
-			const htmlResult = await execAsync(findHtmlCommand, { timeout: 60000 });
-
-			if (htmlResult.stdout.trim()) {
-				const htmlFiles = htmlResult.stdout.trim().split('\n');
+			// Upload ALL generated files to object storage
+			if (listResult.stdout.trim()) {
+				const allFiles = listResult.stdout.trim().split('\n');
 				console.log(
-					`📄 [TIMETABLE PROCESSOR] Found ${htmlFiles.length} HTML output files, uploading to object storage...`
+					`� [TIMETABLE PROCESSOR] Found ${allFiles.length} output files, uploading ALL to object storage...`
 				);
 
-				for (const htmlFilePath of htmlFiles) {
+				for (const filePath of allFiles) {
 					try {
-						const htmlFileName = htmlFilePath.split('/').pop() || 'unknown.html';
-						const htmlCatCommand = `docker exec eddi-fet-1 cat "${htmlFilePath}"`;
-						const htmlContent = await execAsync(htmlCatCommand, { timeout: 60000 });
+						const fileName = filePath.split('/').pop() || 'unknown';
+						const fileExtension = fileName.split('.').pop()?.toLowerCase() || '';
 
-						const htmlOutputKey = `${schoolId}/outputs/${queueEntry.id}_${htmlFileName}`;
+						console.log(`   📄 Processing file: ${fileName}`);
+
+						// Read file content from container
+						const catCommand = `docker exec eddi-fet-1 cat "${filePath}"`;
+						const fileContent = await execAsync(catCommand, { timeout: 2 * 60 * 1000 });
+
+						// Determine content type based on file extension
+						let contentType = 'application/octet-stream';
+						if (fileExtension === 'html' || fileExtension === 'htm') {
+							contentType = 'text/html';
+						} else if (fileExtension === 'xml' || fileExtension === 'fet') {
+							contentType = 'application/xml';
+						} else if (fileExtension === 'csv') {
+							contentType = 'text/csv';
+						} else if (fileExtension === 'txt') {
+							contentType = 'text/plain';
+						}
+
+						// Upload to new structure: {schoolId}/{timetableId}/output/{fileName}
+						const outputObjectKey = `${schoolId}/${timetableId}/output/${fileName}`;
 						await uploadBufferHelper(
-							Buffer.from(htmlContent.stdout, 'utf-8'),
+							Buffer.from(fileContent.stdout, 'utf-8'),
 							'schools',
-							htmlOutputKey,
-							'text/html'
+							outputObjectKey,
+							contentType
 						);
-						console.log(`   ✅ Uploaded: ${htmlOutputKey}`);
-					} catch (htmlError) {
-						console.warn(`   ⚠️  Failed to upload HTML file ${htmlFilePath}:`, htmlError);
+						console.log(`   ✅ Uploaded: ${outputObjectKey} (${contentType})`);
+					} catch (fileError) {
+						console.warn(`   ⚠️  Failed to upload file ${filePath}:`, fileError);
 					}
 				}
+
+				console.log(
+					`✅ [TIMETABLE PROCESSOR] All ${allFiles.length} output files uploaded to object storage`
+				);
 			} else {
-				console.log('📄 [TIMETABLE PROCESSOR] No HTML output files found');
+				console.log('📄 [TIMETABLE PROCESSOR] No output files found');
+				throw new Error('FET processing completed but no output files were generated');
 			}
-
-			// Process FET output data for database storage
-			console.log('🔄 [TIMETABLE PROCESSOR] Processing FET output data...');
-			const data = processFETOutput(fetFileContent);
-			console.log(
-				`✅ [TIMETABLE PROCESSOR] FET output processed - Found ${data.length} activities`
-			);
-
-			// Store processed data in database
-			console.log('💾 [TIMETABLE PROCESSOR] Storing processed data in database...');
-			await createTimetableFETActivitiesFromFETExport(queueEntry.timetableId, data);
-			console.log('✅ [TIMETABLE PROCESSOR] Data stored in database successfully');
 
 			// Mark task as completed
 			console.log('🎉 [TIMETABLE PROCESSOR] Marking task as completed...');
@@ -243,6 +214,8 @@ export async function processTimetableQueue() {
 				containerTempPath,
 				containerOutputDir
 			);
+
+			console.log('⚙️ [TIMETABLE PROCESSOR] Timetable fet activities being processed in the db...');
 		} catch (processingError) {
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
 			console.error('📊 [TIMETABLE PROCESSOR] Error details:', {
