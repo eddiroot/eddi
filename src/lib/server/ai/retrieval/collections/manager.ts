@@ -12,16 +12,15 @@ export interface CollectionIdentifier {
 }
 
 export class ChromaCollectionManager {
-  private client: ChromaClient;
-  private embeddings: Embeddings;
-  private collections: Map<string, Chroma> = new Map();
-  private chromaUrl: string;
+     private client: ChromaClient;
+    private embeddings: Embeddings;
+    private collections: Map<string, Chroma> = new Map();
+    private chromaUrl: string;
 
   constructor(
-    chromaUrl: string,
   ) {
-    this.chromaUrl = chromaUrl;
-    this.client = new ChromaClient({ path: chromaUrl });
+    this.chromaUrl = process.env.CHROMA_URL as string;
+    this.client = new ChromaClient({ path: this.chromaUrl });
     this.embeddings = new NomicEmbeddings();
   }
 
