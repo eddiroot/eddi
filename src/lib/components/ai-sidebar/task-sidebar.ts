@@ -1,10 +1,7 @@
 import BookOpenIcon from '@lucide/svelte/icons/book-open';
-import ClipboardListIcon from '@lucide/svelte/icons/clipboard-list';
 import ClockIcon from '@lucide/svelte/icons/clock';
-import FileTextIcon from '@lucide/svelte/icons/file-text';
 import MapIcon from '@lucide/svelte/icons/map';
 import MessageSquareIcon from '@lucide/svelte/icons/message-square';
-import PodcastIcon from '@lucide/svelte/icons/podcast';
 import SearchIcon from '@lucide/svelte/icons/search';
 import SparklesIcon from '@lucide/svelte/icons/sparkles';
 import { BaseSidebarController, type SidebarConfig, type SidebarMode, type SidebarTab } from './types';
@@ -33,34 +30,6 @@ export class TaskSidebarController extends BaseSidebarController {
 				enabled: true,
 				order: 1
 			},
-			{
-				id: 'flashcards',
-				label: 'Flashcards',
-				icon: BookOpenIcon,
-				enabled: true,
-				order: 2
-			},
-			{
-				id: 'quizzes',
-				label: 'Quizzes',
-				icon: ClipboardListIcon,
-				enabled: true,
-				order: 3
-			},
-			{
-				id: 'podcast',
-				label: 'Podcast',
-				icon: PodcastIcon,
-				enabled: true,
-				order: 4
-			},
-			{
-				id: 'summary',
-				label: 'Summary',
-				icon: FileTextIcon,
-				enabled: true,
-				order: 5
-			}
 		];
 	}
 

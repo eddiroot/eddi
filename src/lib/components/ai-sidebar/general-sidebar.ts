@@ -1,9 +1,8 @@
-import BookOpenIcon from '@lucide/svelte/icons/book-open';
+
 import BrainIcon from '@lucide/svelte/icons/brain';
 import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 import SearchIcon from '@lucide/svelte/icons/search';
-import SettingsIcon from '@lucide/svelte/icons/settings';
 import type { SidebarMode, SidebarTab } from './types';
 import { BaseSidebarController } from './types';
 
@@ -38,22 +37,6 @@ export class GeneralSidebarController extends BaseSidebarController {
 				icon: MessageSquareIcon as any,
 				enabled: true,
 				order: 1
-			},
-			{
-				id: 'resources',
-				label: 'Resources',
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				icon: BookOpenIcon as any,
-				enabled: true,
-				order: 2
-			},
-			{
-				id: 'settings',
-				label: 'Settings',
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				icon: SettingsIcon as any,
-				enabled: true,
-				order: 3
 			}
 		];
 	}
