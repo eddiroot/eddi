@@ -62,6 +62,7 @@
 		type BlockHighlightTextConfig,
 		type BlockImageConfig,
 		type BlockMatchingConfig,
+		type BlockResponse,
 		type BlockRichTextConfig,
 		type BlockShortAnswerConfig,
 		type BlockTableConfig,
@@ -90,7 +91,6 @@
 	let timeRemaining = $state<number>(0);
 	let timerInterval: ReturnType<typeof setInterval> | null = null;
 
-	// Initialize superforms
 	const statusForm = superForm(data.statusForm, {
 		validators: zod4(statusFormSchema),
 		resetForm: false
@@ -166,15 +166,15 @@
 	$effect(() => {
 		blocks.forEach((block) => {
 			if (!Object.prototype.hasOwnProperty.call(responses, block.id)) {
-				responses[block.id] = getInitialResponse(block.type);
+				const serverResponse =
+					data.user.type === userTypeEnum.student ? data.blockResponses![block.id]?.response : null;
+				responses[block.id] = serverResponse || getInitialResponse(block.type);
 			}
 		});
 	});
 
-	function getInitialResponse(blockType: string) {
+	function getInitialResponse(blockType: taskBlockTypeEnum): BlockResponse | null {
 		switch (blockType) {
-			case taskBlockTypeEnum.audio:
-				return {};
 			case taskBlockTypeEnum.choice:
 				return { answers: [] };
 			case taskBlockTypeEnum.fillBlank:
@@ -194,23 +194,23 @@
 			case taskBlockTypeEnum.mathInput:
 				return { answer: '' };
 			default:
-				return {};
+				return null;
 		}
 	}
 
-	function getCurrentResponse(blockId: number, blockType: string) {
+	function getCurrentResponse(blockId: number, blockType: taskBlockTypeEnum) {
+		const initialResponse = getInitialResponse(blockType);
+		if (!initialResponse) return null;
+
 		if (data.user.type == userTypeEnum.student) {
-			return data.blockResponses![blockId]?.response || getInitialResponse(blockType);
+			return responses[blockId] || data.blockResponses![blockId]?.response || initialResponse;
 		}
 
 		if (viewMode === ViewMode.REVIEW && selectedStudent) {
-			return (
-				data.groupedBlockResponses![selectedStudent]?.[blockId]?.response ||
-				getInitialResponse(blockType)
-			);
+			return data.groupedBlockResponses![selectedStudent]?.[blockId]?.response || initialResponse;
 		}
 
-		return responses[blockId] || getInitialResponse(blockType);
+		return responses[blockId] || initialResponse;
 	}
 
 	async function handleConfigUpdate(block: TaskBlock, config: any) {
@@ -452,16 +452,8 @@
 				{:else}
 					{#each blocks.filter((block) => block.type === taskBlockTypeEnum.heading) as block}
 						{#if block.type === taskBlockTypeEnum.heading}
-							<p
-								class="text-muted-foreground"
-								style="font-size: {1.5 -
-									(block.config as BlockHeadingConfig).size * 0.1}rem; font-weight: {700 -
-									(block.config as BlockHeadingConfig).size * 100}; margin-left: {((
-									block.config as BlockHeadingConfig
-								).size -
-									1) *
-									4}px"
-							>
+							<p class="text-muted-foreground">
+								{'-'.repeat((block.config as BlockHeadingConfig).size - 2 || 0)}
 								{(block.config as BlockHeadingConfig).text}
 							</p>
 						{:else}
