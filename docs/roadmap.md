@@ -43,6 +43,7 @@
 - [x] Basic security research and compliance documentation
 - [x] View students work on tasks
 - [x] Create school news & news feed
+- [x] Class tests / quizzes
 
 ### Doing
 
@@ -56,12 +57,7 @@ All
 
 Lachie
 
-- [ ] Class tests / quizzes
-  - Fix issues with responses not persisted to state once selected
-- [ ] Subject selection
-- [ ] Parent/teacher interviews
-- [ ] Teacher to parent comms (one way)
-- [ ] Highlight text (more than one word at once)
+- [ ] Highlight (more than one word at once)
 - [ ] Fill blank (partition box into multiple if multi word answer)
 - [ ] On graph block, colour core x/y axis lines differently
 - [ ] Editable table block for students (is editable checkbox) (add questions on top of the table that teacher can add)
@@ -109,6 +105,7 @@ Raph
 
 Blake
 
+- [ ] Subject selection
 - [ ] Handling of multiple campuses
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
@@ -116,6 +113,8 @@ Blake
 
 ### To Do
 
+- [ ] Parent/teacher interviews
+- [ ] Teacher to parent comms (one way)
 - [ ] Student note writing
 - [ ] Complete LLM access to discussions + lessons
 - [ ] Lesson plans / teacher notes based on generated lesson

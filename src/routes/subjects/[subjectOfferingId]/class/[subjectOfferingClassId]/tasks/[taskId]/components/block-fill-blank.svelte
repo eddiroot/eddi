@@ -19,7 +19,8 @@
 		if (!response?.answers || !config.answers) return false;
 		if (response.answers.length !== config.answers.length) return false;
 		return response.answers.every(
-			(answer, index) => answer.trim().toLowerCase() === config.answers[index].trim().toLowerCase()
+			(answer, index) =>
+				answer?.trim().toLowerCase() === config.answers[index]?.trim().toLowerCase()
 		);
 	}
 

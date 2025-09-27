@@ -1,21 +1,27 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import {
+		ViewMode,
+		type BalancingEquationsBlockProps,
+		type BlockBalancingEquationsConfig
+	} from '$lib/schemas/taskSchema';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import XCircleIcon from '@lucide/svelte/icons/x-circle';
-	import {
-		ViewMode,
-		type BlockBalancingEquationsConfig,
-		type BalancingEquationsBlockProps
-	} from '$lib/schemas/taskSchema';
 
-	let { config, onConfigUpdate, response, onResponseUpdate, viewMode }: BalancingEquationsBlockProps = $props();
+	let {
+		config,
+		onConfigUpdate,
+		response,
+		onResponseUpdate,
+		viewMode
+	}: BalancingEquationsBlockProps = $props();
 
 	function formatChemical(formula: string): string {
 		// Convert chemical formulas to display format with subscripts
@@ -96,7 +102,7 @@
 			<Card.Header>
 				<Card.Title class="flex items-center gap-2">
 					<FlaskConicalIcon />
-					Configure Balancing Equations Block
+					Configure Balancing Block
 				</Card.Title>
 			</Card.Header>
 			<Card.Content class="space-y-6">
@@ -244,11 +250,11 @@
 				</div>
 
 				<!-- Preview -->
-				{#if config.reactants.some(r => r.formula) && config.products.some(p => p.formula)}
+				{#if config.reactants.some((r) => r.formula) && config.products.some((p) => p.formula)}
 					<div class="space-y-2">
 						<Label>Preview</Label>
-						<div class="rounded-lg border p-4 bg-gray-50">
-							<div class="flex items-center gap-2 text-lg font-mono">
+						<div class="rounded-lg border bg-gray-50 p-4">
+							<div class="flex items-center gap-2 font-mono text-lg">
 								{#each config.reactants as reactant, index}
 									{#if reactant.formula}
 										{#if index > 0}<span class="mx-2">+</span>{/if}
@@ -285,43 +291,47 @@
 					{/if}
 
 					<div class="mb-6">
-						<p class="text-muted-foreground text-sm mb-4">
+						<p class="text-muted-foreground mb-4 text-sm">
 							Balance the chemical equation by entering the correct coefficients:
 						</p>
-						
-						<div class="flex flex-wrap items-center gap-2 text-xl font-mono p-4 bg-gray-50 rounded-lg">
+
+						<div
+							class="flex flex-wrap items-center gap-2 rounded-lg bg-gray-50 p-4 font-mono text-xl"
+						>
 							{#each config.reactants as reactant, index}
 								{#if reactant.formula}
 									{#if index > 0}<span class="mx-2">+</span>{/if}
 									{#if reactant.given}
-										<span class="text-blue-600 font-bold">{reactant.coefficient}</span>
+										<span class="font-bold text-blue-600">{reactant.coefficient}</span>
 									{:else}
 										<Input
 											value={response.coefficients?.reactants[index]?.toString() || ''}
-											oninput={(e) => updateCoefficient('reactants', index, (e.target as HTMLInputElement).value)}
+											oninput={(e) =>
+												updateCoefficient('reactants', index, (e.target as HTMLInputElement).value)}
 											disabled={viewMode === ViewMode.REVIEW}
 											placeholder="?"
-											class="w-12 h-8 text-center font-bold text-blue-600 border-2"
+											class="h-8 w-12 border-2 text-center font-bold text-blue-600"
 										/>
 									{/if}
 									<span class="ml-1">{@html formatChemical(reactant.formula)}</span>
 								{/if}
 							{/each}
-							
+
 							<span class="mx-4 text-3xl font-bold">→</span>
-							
+
 							{#each config.products as product, index}
 								{#if product.formula}
 									{#if index > 0}<span class="mx-2">+</span>{/if}
 									{#if product.given}
-										<span class="text-blue-600 font-bold">{product.coefficient}</span>
+										<span class="font-bold text-blue-600">{product.coefficient}</span>
 									{:else}
 										<Input
 											value={response.coefficients?.products[index]?.toString() || ''}
-											oninput={(e) => updateCoefficient('products', index, (e.target as HTMLInputElement).value)}
+											oninput={(e) =>
+												updateCoefficient('products', index, (e.target as HTMLInputElement).value)}
 											disabled={viewMode === ViewMode.REVIEW}
 											placeholder="?"
-											class="w-12 h-8 text-center font-bold text-blue-600 border-2"
+											class="h-8 w-12 border-2 text-center font-bold text-blue-600"
 										/>
 									{/if}
 									<span class="ml-1">{@html formatChemical(product.formula)}</span>
@@ -332,30 +342,31 @@
 
 					{#if viewMode === ViewMode.ANSWER}
 						{#if isEquationBalanced()}
-							<div class="rounded-lg border p-4 bg-green-50 border-green-200">
+							<div class="rounded-lg border border-green-200 bg-green-50 p-4">
 								<div class="flex items-center gap-2 text-green-700">
 									<CheckCircleIcon class="h-5 w-5" />
 									<span class="font-medium">Equation Balanced!</span>
 								</div>
-								<p class="text-green-600 mt-1 text-sm">
+								<p class="mt-1 text-sm text-green-600">
 									Great job! The chemical equation is now properly balanced.
 								</p>
 							</div>
 						{:else if response.coefficients}
-							<div class="rounded-lg border p-4 bg-orange-50 border-orange-200">
+							<div class="rounded-lg border border-orange-200 bg-orange-50 p-4">
 								<div class="flex items-center gap-2 text-orange-700">
 									<XCircleIcon class="h-5 w-5" />
 									<span class="font-medium">Not Balanced Yet</span>
 								</div>
-								<p class="text-orange-600 mt-1 text-sm">
-									Check your coefficients. Make sure the number of each element is equal on both sides.
+								<p class="mt-1 text-sm text-orange-600">
+									Check your coefficients. Make sure the number of each element is equal on both
+									sides.
 								</p>
 							</div>
 						{/if}
 					{/if}
 
 					{#if viewMode === ViewMode.REVIEW}
-						<div class="rounded-lg border p-4 mt-4">
+						<div class="mt-4 rounded-lg border p-4">
 							<div class="flex items-center gap-2">
 								{#if isEquationBalanced()}
 									<CheckCircleIcon class="h-5 w-5 text-green-600" />
@@ -382,7 +393,7 @@
 					<FlaskConicalIcon class="text-muted-foreground mx-auto h-12 w-12" />
 					<p class="text-muted-foreground mt-2 text-sm">No chemical equation created</p>
 					<p class="text-muted-foreground text-xs">
-						Switch to edit mode to create a balancing equations question
+						Switch to edit mode to create a balancing question
 					</p>
 				</div>
 			</div>

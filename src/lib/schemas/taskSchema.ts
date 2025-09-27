@@ -586,7 +586,7 @@ export const blockVideo = {
 		}
 	},
 	required: ['type', 'config']
-}
+};
 
 export type BlockVideoConfig = {
 	url: string;
@@ -629,7 +629,7 @@ export const taskBlocks = [
 	blockBalancingEquations,
 	blockImage,
 	blockVideo,
-	blockAudio,
+	blockAudio
 ];
 
 export const layoutTwoColumns = {
@@ -856,7 +856,7 @@ export const blockTypes: {
 	},
 	{
 		type: taskBlockTypeEnum.highlightText,
-		name: 'Highlight Text',
+		name: 'Highlight',
 		initialConfig: {
 			text: 'Sample text for students to highlight key concepts and important information.',
 			instructions: 'Highlight the correct information',
@@ -906,7 +906,7 @@ export const blockTypes: {
 	},
 	{
 		type: taskBlockTypeEnum.balancingEquations,
-		name: 'Balancing Equations',
+		name: 'Balancing',
 		initialConfig: {
 			question: 'Balance the following chemical equation:',
 			reactants: [
@@ -946,91 +946,92 @@ export const blockTypes: {
 	}
 ];
 
-
 export const interactiveBlockWithOptionals = (
-    interactiveBlock: any,
-    options: {
-        includeHints?: boolean;
-        includeDifficulty?: boolean;
-        includeSteps?: boolean;
-        makeRequired?: boolean;
-    } = {}
+	interactiveBlock: any,
+	options: {
+		includeHints?: boolean;
+		includeDifficulty?: boolean;
+		includeSteps?: boolean;
+		makeRequired?: boolean;
+	} = {}
 ) => {
-    const {
-        includeHints = true,
-        includeDifficulty = true,
-        includeSteps = true,
-        makeRequired = true
-    } = options;
+	const {
+		includeHints = true,
+		includeDifficulty = true,
+		includeSteps = true,
+		makeRequired = true
+	} = options;
 
-    const additionalProperties: any = {};
-    const additionalRequired: string[] = [];
+	const additionalProperties: any = {};
+	const additionalRequired: string[] = [];
 
-    if (includeHints) {
-        additionalProperties.hints = hintsItem;
-        if (makeRequired) additionalRequired.push('hints');
-    }
+	if (includeHints) {
+		additionalProperties.hints = hintsItem;
+		if (makeRequired) additionalRequired.push('hints');
+	}
 
-    if (includeDifficulty) {
-        additionalProperties.difficulty = difficultyItem;
-        if (makeRequired) additionalRequired.push('difficulty');
-    }
+	if (includeDifficulty) {
+		additionalProperties.difficulty = difficultyItem;
+		if (makeRequired) additionalRequired.push('difficulty');
+	}
 
-    if (includeSteps) {
-        additionalProperties.steps = stepsItem;
-        if (makeRequired) additionalRequired.push('steps');
-    }
+	if (includeSteps) {
+		additionalProperties.steps = stepsItem;
+		if (makeRequired) additionalRequired.push('steps');
+	}
 
-    return {
-        ...interactiveBlock,
-        properties: {
-            ...interactiveBlock.properties,
-            ...additionalProperties
-        },
-        required: [...(interactiveBlock.required || []), ...additionalRequired]
-    };
+	return {
+		...interactiveBlock,
+		properties: {
+			...interactiveBlock.properties,
+			...additionalProperties
+		},
+		required: [...(interactiveBlock.required || []), ...additionalRequired]
+	};
 };
 
 export function getBlockTypesForSubject(subjectType: string): any[] {
-    const typeMap: Record<string, any[]> = {
-      mathematics: [blockChoice, blockShortAnswer, blockFillBlank],
-      science: [blockFillBlank, blockChoice, blockShortAnswer],
-      english: [blockShortAnswer, blockClose, blockHighlightText],
-      default: [blockChoice, blockShortAnswer, blockMatching, blockFillBlank]
-    };
+	const typeMap: Record<string, any[]> = {
+		mathematics: [blockChoice, blockShortAnswer, blockFillBlank],
+		science: [blockFillBlank, blockChoice, blockShortAnswer],
+		english: [blockShortAnswer, blockClose, blockHighlightText],
+		default: [blockChoice, blockShortAnswer, blockMatching, blockFillBlank]
+	};
 
-    return typeMap[subjectType.toLowerCase()] || typeMap.default;
-  }
+	return typeMap[subjectType.toLowerCase()] || typeMap.default;
+}
 
- export function getInteractiveSchema(subjectType: string): any {
-    const blockTypes = getBlockTypesForSubject(subjectType);
+export function getInteractiveSchema(subjectType: string): any {
+	const blockTypes = getBlockTypesForSubject(subjectType);
 
-    // Use the interactiveBlockWithOptionals helper for consistent schema generation
-    const interactiveBlockSchema = interactiveBlockWithOptionals({
-      type: 'object',
-      properties: {
-        taskBlock: {
-          anyOf: blockTypes
-        }
-      },
-      required: ['taskBlock']
-    }, {
-      includeHints: true,
-      includeDifficulty: true,
-      includeSteps: true,
-      makeRequired: true
-    });
+	const interactiveBlockSchema = interactiveBlockWithOptionals(
+		{
+			type: 'object',
+			properties: {
+				taskBlock: {
+					anyOf: blockTypes
+				}
+			},
+			required: ['taskBlock']
+		},
+		{
+			includeHints: true,
+			includeDifficulty: true,
+			includeSteps: true,
+			makeRequired: true
+		}
+	);
 
-    return {
-      type: 'object',
-      properties: {
-        interactiveBlocks: {
-          type: 'array',
-          items: interactiveBlockSchema,
-          minItems: 1,
-          maxItems: 5
-        }
-      },
-      required: ['interactiveBlocks']
-    };
-  }
+	return {
+		type: 'object',
+		properties: {
+			interactiveBlocks: {
+				type: 'array',
+				items: interactiveBlockSchema,
+				minItems: 1,
+				maxItems: 5
+			}
+		},
+		required: ['interactiveBlocks']
+	};
+}
