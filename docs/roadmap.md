@@ -57,6 +57,7 @@ All
 
 Lachie
 
+- [ ] Start the scheduled quiz on load (if within the time)
 - [ ] Highlight (more than one word at once)
 - [ ] Fill blank (partition box into multiple if multi word answer)
 - [ ] On graph block, colour core x/y axis lines differently

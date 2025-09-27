@@ -117,13 +117,10 @@
 	const isContentBlocked = $derived(() => {
 		if (data.user.type !== userTypeEnum.student) return false;
 
-		if (data.classTask.status === taskStatusEnum.draft) return true;
-
 		if (data.classTask.quizMode === quizModeEnum.none) return false;
 
-		if (data.classTask.quizStartTime) {
-			const scheduleStartTime = new Date(data.classTask.quizStartTime).getTime();
-			return Date.now() < scheduleStartTime;
+		if (!data.isQuizStarted) {
+			return true;
 		}
 
 		return false;
@@ -520,50 +517,35 @@
 			</div>
 			<div class="flex h-full flex-col">
 				{#if isContentBlocked()}
-					<div class="flex h-full items-center justify-center">
-						{#if data.classTask.status === taskStatusEnum.draft}
-							<WrenchIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-							<h3 class="mb-4 text-xl font-semibold">Task Not Available</h3>
-							<p class="text-muted-foreground mb-4">
-								This task is currently in draft mode and has not been published yet.
-							</p>
-							<p class="text-muted-foreground text-sm">
-								Your teacher will make this task available when it's ready.
-							</p>
-						{:else}
-							<!-- Quiz Not Started Message -->
-							<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
-							<h3 class="mb-4 text-xl font-semibold">Quiz Not Available Yet</h3>
-							{#if data.classTask.quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
-								{@const startTime = new Date(data.classTask.quizStartTime)}
-								{@const now = new Date()}
-								{@const timeDiff = startTime.getTime() - now.getTime()}
-								<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
-								<div class="bg-primary/10 mb-4 rounded-lg p-3">
-									<p class="text-primary font-mono text-lg font-bold">
-										{startTime.toLocaleString()}
+					<div class="flex h-full flex-col items-center justify-center">
+						<ClockIcon class="text-primary mx-auto mb-4 h-12 w-12" />
+						<h3 class="mb-4 text-xl font-semibold">Quiz Not Available</h3>
+						{#if data.classTask.quizMode === quizModeEnum.scheduled && data.classTask.quizStartTime}
+							{@const startTime = new Date(data.classTask.quizStartTime)}
+							{@const now = new Date()}
+							{@const timeDiff = startTime.getTime() - now.getTime()}
+							<p class="text-muted-foreground mb-4">This quiz will become available at:</p>
+							<div class="bg-primary/10 mb-4 rounded-lg p-3">
+								<p class="text-primary font-mono text-lg font-bold">
+									{startTime.toLocaleString()}
+								</p>
+							</div>
+							{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
+								{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
+								{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
+								<div class="bg-warning/10 mb-4 rounded-lg p-3">
+									<p class="text-warning text-sm font-medium">
+										Available in: {hours}h {minutes}m
 									</p>
 								</div>
-								{#if timeDiff > 0 && timeDiff < 24 * 60 * 60 * 1000}
-									{@const hours = Math.floor(timeDiff / (1000 * 60 * 60))}
-									{@const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))}
-									<div class="bg-warning/10 mb-4 rounded-lg p-3">
-										<p class="text-warning text-sm font-medium">
-											Available in: {hours}h {minutes}m
-										</p>
-									</div>
-								{/if}
-								<p class="text-muted-foreground text-sm">
-									The quiz will start automatically at the scheduled time.
-								</p>
-							{:else if data.classTask.quizMode === quizModeEnum.manual}
-								<p class="text-muted-foreground mb-4">
-									This quiz requires manual start by your teacher.
-								</p>
-								<p class="text-muted-foreground text-sm">
-									Your teacher will provide instructions when the quiz is ready to begin.
-								</p>
 							{/if}
+							<p class="text-muted-foreground text-sm">
+								The quiz will start automatically at the scheduled time.
+							</p>
+						{:else if data.classTask.quizMode === quizModeEnum.manual}
+							<p class="text-muted-foreground text-sm">
+								Please await instructions from your teacher.
+							</p>
 						{/if}
 					</div>
 				{:else}

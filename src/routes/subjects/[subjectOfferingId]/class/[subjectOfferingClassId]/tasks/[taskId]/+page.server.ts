@@ -1,4 +1,4 @@
-import { gradeReleaseEnum, quizModeEnum, userTypeEnum } from '$lib/enums';
+import { gradeReleaseEnum, quizModeEnum, taskStatusEnum, userTypeEnum } from '$lib/enums';
 import {
 	getClassTaskBlockResponsesByAuthorId,
 	getClassTaskBlockResponsesByClassTaskId,
@@ -7,7 +7,6 @@ import {
 	getTaskBlocksByTaskId,
 	getTaskById,
 	startQuizSession,
-	startQuizSessionForAllStudents,
 	updateSubjectOfferingClassTaskQuizSettings,
 	updateSubjectOfferingClassTaskStatus,
 	upsertClassTaskResponse
@@ -56,9 +55,12 @@ export const load = async ({
 		}
 	}
 
+	if (user.type === userTypeEnum.student && classTask.status !== taskStatusEnum.published) {
+		throw redirect(302, `/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks`);
+	}
+
 	const blocks = await getTaskBlocksByTaskId(taskIdInt);
 
-	// Initialize superforms
 	const [statusForm, quizSettingsForm, startQuizForm] = await Promise.all([
 		superValidate({ status: classTask.status }, zod4(statusFormSchema)),
 		superValidate(
@@ -215,42 +217,18 @@ export const actions = {
 			return fail(400, { form });
 		}
 
+		if (user.type !== userTypeEnum.teacher) {
+			return fail(403, { form, message: 'Only teachers can start quizzes' });
+		}
+
+		const classTask = await getSubjectOfferingClassTaskByTaskId(taskIdInt, classIdInt);
+		if (!classTask) {
+			return fail(404, { form, message: 'Class task not found' });
+		}
+
 		try {
-			const classTask = await getSubjectOfferingClassTaskByTaskId(taskIdInt, classIdInt);
-			if (!classTask) {
-				return fail(404, { form, message: 'Class task not found' });
-			}
-
-			if (classTask.quizMode === quizModeEnum.manual) {
-				if (user.type !== userTypeEnum.teacher) {
-					return fail(403, { form, message: 'Only teachers can start manual quizzes' });
-				}
-				const startTime = await startQuizSessionForAllStudents(classTask.id);
-				return { form, success: true, startTime };
-			}
-
-			if (classTask.quizMode === quizModeEnum.scheduled) {
-				if (user.type === userTypeEnum.student) {
-					if (classTask.quizStartTime) {
-						const scheduleStartTime = new Date(classTask.quizStartTime).getTime();
-						const now = Date.now();
-
-						if (now >= scheduleStartTime) {
-							const startTime = await startQuizSession(classTask.id, user.id);
-							return { form, success: true, startTime };
-						} else {
-							return fail(400, { form, message: 'Scheduled quiz has not started yet' });
-						}
-					}
-				}
-
-				return fail(400, {
-					form,
-					message: 'Scheduled quizzes start automatically at their scheduled time'
-				});
-			}
-
-			return fail(400, { form, message: 'Quiz cannot be started in this mode' });
+			await startQuizSession(classTask.id);
+			return { form, success: true };
 		} catch (error) {
 			console.error('Error starting quiz session:', error);
 			return fail(500, { form, message: 'Failed to start quiz session' });

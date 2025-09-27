@@ -1083,83 +1083,13 @@ export async function upsertClassTaskResponse(classTaskId: number, authorId: str
 	return response;
 }
 
-// Quiz session management functions
-export async function startQuizSession(classTaskId: number, authorId: string) {
-	const startTime = new Date();
-
+export async function startQuizSession(classTaskId: number) {
 	await db
-		.insert(table.classTaskResponse)
-		.values({
-			classTaskId,
-			authorId,
-			quizStartedAt: startTime,
-			isQuizSubmitted: false,
-			autoSubmitted: false
-		})
-		.onConflictDoUpdate({
-			target: [table.classTaskResponse.classTaskId, table.classTaskResponse.authorId],
-			set: {
-				quizStartedAt: startTime,
-				isQuizSubmitted: false,
-				autoSubmitted: false,
-				updatedAt: new Date()
-			}
-		});
-
-	return startTime;
-}
-
-export async function startQuizSessionForAllStudents(classTaskId: number) {
-	const startTime = new Date();
-
-	// Get all students who have responses for this class task
-	const responses = await getClassTaskResponsesWithStudents(classTaskId);
-
-	// Update quiz session data for all students
-	const studentIds = responses.map((r) => r.student.id);
-
-	if (studentIds.length > 0) {
-		await db
-			.update(table.classTaskResponse)
-			.set({
-				quizStartedAt: startTime,
-				isQuizSubmitted: false,
-				autoSubmitted: false,
-				updatedAt: new Date()
-			})
-			.where(
-				and(
-					eq(table.classTaskResponse.classTaskId, classTaskId),
-					inArray(table.classTaskResponse.authorId, studentIds)
-				)
-			);
-	}
-
-	return startTime;
-}
-
-export async function updateQuizSession(
-	classTaskId: number,
-	authorId: string,
-	updates: {
-		quizEndedAt?: Date;
-		quizTimeRemainingMinutes?: number;
-		isQuizSubmitted?: boolean;
-		autoSubmitted?: boolean;
-	}
-) {
-	await db
-		.update(table.classTaskResponse)
+		.update(table.subjectOfferingClassTask)
 		.set({
-			...updates,
-			updatedAt: new Date()
+			quizStartTime: new Date()
 		})
-		.where(
-			and(
-				eq(table.classTaskResponse.classTaskId, classTaskId),
-				eq(table.classTaskResponse.authorId, authorId)
-			)
-		);
+		.where(eq(table.subjectOfferingClassTask.id, classTaskId));
 }
 
 export async function getClassTaskResponse(classTaskId: number, authorId: string) {
