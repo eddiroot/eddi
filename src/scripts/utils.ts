@@ -163,23 +163,20 @@ export class FETActivityParser {
 	 */
 	validateActivity(activity: FETActivityRecord): boolean {
 		// Additional validation rules
-		// if (activity.duration <= 0) {
-		// 	console.warn(`Invalid duration ${activity.duration} for activity ${activity.id}`);
-		// 	return false;
-		// }
+		if (activity.duration <= 0) {
+			console.warn(`Invalid duration ${activity.duration} for activity ${activity}`);
+			return false;
+		}
 
-		// if (activity.day < 1000 || activity.day > 1004) {
-		// 	console.warn(`Invalid day ${activity.day} for activity ${activity.}`);
-		// 	return false;
-		// }
+		if (activity.day < 1000 || activity.day > 1004) {
+			console.warn(`Invalid day ${activity.day} for activity ${activity}`);
+			return false;
+		}
 
-		// if (activity.period < 1000 || activity.period > 1005) {
-		// 	console.warn(`Invalid period ${activity.period} for activity ${activity.id}`);
-		// 	return false;
-		// }
-
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const a = activity;
+		if (activity.period < 1000 || activity.period > 1005) {
+			console.warn(`Invalid period ${activity.period} for activity ${activity}`);
+			return false;
+		}
 
 		return true;
 	}

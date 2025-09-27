@@ -61,22 +61,14 @@ export async function processTimetableQueue() {
 
 			const schoolId = queueEntry.school.id.toString();
 			const timetableId = queueEntry.timetableId.toString();
-			const generationId = queueEntry.generationId;
 			const fileName = queueEntry.fileName;
 
 			console.log('📥 [TIMETABLE PROCESSOR] Downloading input file from object storage...');
 			console.log(`   - School ID: ${schoolId}`);
 			console.log(`   - Timetable ID: ${timetableId}`);
-			console.log(`   - Generation ID: ${generationId}`);
 			console.log(`   - File name: ${fileName}`);
 
-			const fileBuffer = await getFileFromStorage(
-				schoolId,
-				timetableId,
-				fileName,
-				true,
-				generationId
-			);
+			const fileBuffer = await getFileFromStorage(schoolId, timetableId, fileName, true);
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] File downloaded successfully - Size: ${fileBuffer.length} bytes`
 			);
@@ -131,8 +123,13 @@ export async function processTimetableQueue() {
 				exportcsv: true
 			};
 
+			// Build command string from params
+			const cmd_str = Object.entries(params)
+				.map(([key, value]) => `--${key}=${value}`)
+				.join(' ');
+
 			console.log('⚙️  [TIMETABLE PROCESSOR] Starting FET processing...');
-			const command = `docker exec eddi-fet-1 fet-cl --inputfile="${containerTempPath}" --outputdir="${containerOutputDir}" --htmllevel=7 --exportcsv=${params.writetimetableconflicts}`;
+			const command = `docker exec eddi-fet-1 fet-cl --inputfile="${containerTempPath}" --outputdir="${containerOutputDir}" ${cmd_str}`;
 
 			console.log(`   - Command: ${command}`);
 
@@ -162,6 +159,7 @@ export async function processTimetableQueue() {
 				// Track specific files for database processing
 				let dataAndTimetableFetContent = '';
 				let activitiesXmlContent = '';
+				let timetableCSV = '';
 
 				for (const filePath of allFiles) {
 					try {
@@ -181,6 +179,9 @@ export async function processTimetableQueue() {
 						} else if (fileName.endsWith('activities.xml')) {
 							activitiesXmlContent = fileContent.stdout;
 							console.log(`   🎯 Found database processing file: ${fileName}`);
+						} else if (fileName.endsWith('timetables.csv')) {
+							timetableCSV = fileContent.stdout;
+							console.log(`   🎯 Found database processing file: ${fileName}`);
 						}
 
 						// Determine content type based on file extension
@@ -195,8 +196,8 @@ export async function processTimetableQueue() {
 							contentType = 'text/plain';
 						}
 
-						// Upload to new structure: {schoolId}/{timetableId}/{generationId}/output/{fileName}
-						const outputObjectKey = `${schoolId}/${timetableId}/${generationId}/output/${fileName}`;
+						// Upload to new structure: {schoolId}/{timetableId}/output/{fileName}
+						const outputObjectKey = `${schoolId}/${timetableId}/output/${fileName}`;
 						await uploadBufferHelper(
 							Buffer.from(fileContent.stdout, 'utf-8'),
 							'schools',
@@ -239,8 +240,7 @@ export async function processTimetableQueue() {
 						console.error('📊 [DATABASE PROCESSOR] Database error details:', {
 							message: dbError instanceof Error ? dbError.message : 'Unknown database error',
 							stack: dbError instanceof Error ? dbError.stack : undefined,
-							timetableId: timetableId,
-							generationId: generationId
+							timetableId: timetableId
 						});
 						// Don't fail the entire process for database errors, just log them
 					}
@@ -256,25 +256,6 @@ export async function processTimetableQueue() {
 				console.log('📄 [TIMETABLE PROCESSOR] No output files found');
 				throw new Error('FET processing completed but no output files were generated');
 			}
-
-			// Mark task as completed
-			console.log('🎉 [TIMETABLE PROCESSOR] Marking task as completed...');
-			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.completed, new Date());
-
-			const totalTime = Date.now() - startTime;
-			console.log(
-				`🎉 [TIMETABLE PROCESSOR] Task ${queueEntry.id} completed successfully in ${(totalTime / 1000).toFixed(2)} seconds`
-			);
-
-			// Cleanup temporary files
-			console.log('🧹 [TIMETABLE PROCESSOR] Starting cleanup...');
-			await performCleanup(
-				queueEntry.id,
-				queueEntry.fileName,
-				tempFilePath,
-				containerTempPath,
-				containerOutputDir
-			);
 		} catch (processingError) {
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
 			console.error('📊 [TIMETABLE PROCESSOR] Error details:', {

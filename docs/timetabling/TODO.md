@@ -22,4 +22,10 @@
   - [ ] handle the retrieval of the output for the 
 - [ ] Fix the groups/students page of the timetabling
 - [ ] Create the documentation page for the timetabling process and understandings of how fet works.
+- [ ] what is the constraint to ensure that activities must be assigned to rooms?
+  - [ ] add fk constraint to the fetActivity table
+- [ ] fix the results page to handle to handle appropriate statistics page
+- [ ] Timetable generation id? 
+  - [ ] can a timetable have multiple generations? 
+  - [ ] I think yes but how do we showcase this.......
 

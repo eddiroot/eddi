@@ -7,8 +7,6 @@ Successfully implemented unique generation identification and database processin
 ## ✨ Key Features Implemented
 
 ### 1. **Unique Generation Identification**
-- **Generation ID**: Each timetable generation attempt now has a unique identifier using timestamp (`Date.now()`)
-- **Database Schema**: Added `generationId` field to `timetableQueue` table
 - **API Integration**: Generation ID is created when API endpoint is called
 - **File Structure**: Object storage now uses `{schoolId}/{timetableId}/{generationId}/input|output/` hierarchy
 
@@ -17,7 +15,6 @@ Successfully implemented unique generation identification and database processin
 schools/
 ├── {schoolId}/
 │   ├── {timetableId}/
-│   │   ├── {generationId_1}/
 │   │   │   ├── input/
 │   │   │   │   └── sch_id{schoolId}_tt_id{timetableId}_gen_{generationId}.fet
 │   │   │   └── output/
@@ -26,7 +23,6 @@ schools/
 │   │   │       ├── *.html
 │   │   │       ├── *.csv
 │   │   │       └── ... (all FET outputs)
-│   │   ├── {generationId_2}/
 │   │   │   ├── input/
 │   │   │   └── output/
 │   │   └── ...
@@ -180,7 +176,7 @@ if (dataAndTimetableFetContent && activitiesXmlContent) {
 ### Accessing Generation-Specific Files
 ```typescript
 // Get all files for a specific generation
-const files = await getTimetableFiles(schoolId, timetableId, generationId);
+const files = await getTimetableFiles(schoolId, timetableId);
 
 // Download specific file
 const fetFile = await getFileFromStorage(
@@ -188,7 +184,6 @@ const fetFile = await getFileFromStorage(
     timetableId, 
     'data_and_timetable.fet', 
     false,  // output file
-    generationId
 );
 ```
 
@@ -198,7 +193,7 @@ const fetFile = await getFileFromStorage(
 const generations = await getGenerationsForTimetable(timetableId);
 
 // Get FET activities for specific generation
-const activities = await getFETActivitiesByGeneration(timetableId, generationId);
+const activities = await getFETActivitiesByGeneration(timetableId);
 ```
 
 ## 🔮 Future Enhancements

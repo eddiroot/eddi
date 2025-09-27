@@ -11,7 +11,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
-import { school } from './schools';
+import { school, schoolSpace } from './schools';
 import { subject } from './subjects';
 import { user } from './user';
 import { timestamps } from './utils';
@@ -49,7 +49,6 @@ export const timetableQueue = pgTable('tt_queue', {
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	fileName: text('file_name').notNull(),
-	generationId: text('generation_id').notNull(), // Unique identifier for each generation attempt
 	status: timetableQueueStatusEnumPg().notNull().default(queueStatusEnum.queued),
 	...timestamps
 });
@@ -129,13 +128,28 @@ export const timetableActivity = pgTable('tt_activity', {
 
 export type TimetableActivity = typeof timetableActivity.$inferSelect;
 
+export const TimetableActivityPreferredSpaces = pgTable('tt_activity_preferred_space', {
+	timetableActivityId: integer('tt_activity_id')
+		.primaryKey()
+		.references(() => timetableActivity.id, { onDelete: 'cascade' }),
+	schoolSpaceId: integer('sch_space_id')
+		.primaryKey()
+		.references(() => schoolSpace.id, { onDelete: 'cascade' })
+});
+
+export type TimetableActivityPreferredSpaces = typeof TimetableActivityPreferredSpaces.$inferSelect;
+
 export const fetActivity = pgTable('fet_activity', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
-	teacherId: text('teacher_id').notNull(),
-	subjectId: integer('subject_id').notNull(),
+	teacherId: uuid('teacher_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	subjectId: integer('subject_id')
+		.notNull()
+		.references(() => subject.id, { onDelete: 'cascade' }),
 	groupId: integer('tt_group_id').notNull(),
 	spaceId: integer('space_id').notNull(),
 	day: integer('tt_day_id').notNull(),

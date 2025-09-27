@@ -40,15 +40,8 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			});
 		}
 
-		// Create unique generation identifier using timestamp
-		const generationTimestamp = Date.now();
-		const generationId = `${generationTimestamp}`;
-		
-		console.log('☁️  [TIMETABLE PROCESSOR] Storing input file in new directory structure...');
-		console.log(`   - Generation ID: ${generationId}`);
-		
-		const uniqueFileName = `sch_id${user.schoolId}_tt_id${timetableId}_gen_${generationId}.fet`;
-		const objectKey = `${user.schoolId}/${timetableId}/${generationId}/input/${uniqueFileName}`;
+		const uniqueFileName = `sch_id${user.schoolId}_tt_id${timetableId}.fet`;
+		const objectKey = `${user.schoolId}/${timetableId}/input/${uniqueFileName}`;
 
 		await uploadBufferHelper(
 			Buffer.from(fetXmlContent, 'utf-8'),
@@ -59,7 +52,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
 		console.log('FET XML uploaded to object storage:', objectKey);
 
-		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName, generationId);
+		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
 
 		// Trigger processing (this will run asynchronously)
 		processTimetableQueue().catch((err: Error) => {
@@ -69,7 +62,6 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		return json({
 			success: true,
 			message: 'Timetable generation has been queued successfully',
-			generationId: generationId,
 			queuedAt: new Date().toISOString()
 		});
 	} catch (err) {

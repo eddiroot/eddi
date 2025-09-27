@@ -143,16 +143,13 @@ export async function getFileFromStorage(
 	schoolId: string,
 	timetableId: string,
 	objectName: string,
-	input: boolean,
-	generationId?: string
+	input: boolean
 ) {
 	const dir = input ? 'input' : 'output';
 	const bucketName = `schools`;
-	
+
 	// Use generation ID structure if provided, otherwise fall back to old structure
-	const fullObjectName = generationId 
-		? `${schoolId}/${timetableId}/${generationId}/${dir}/${objectName}`
-		: `${schoolId}/${timetableId}/${dir}/${objectName}`;
+	const fullObjectName = `${schoolId}/${timetableId}/${dir}/${objectName}`;
 
 	try {
 		const stream = await minioClient.getObject(bucketName, fullObjectName);
