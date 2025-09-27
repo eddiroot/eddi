@@ -3,7 +3,9 @@
 	import { Card } from '$lib/components/ui/card';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { ViewMode, type AudioBlockProps } from '$lib/schemas/taskSchema';
-	import { PauseIcon, PlayIcon, UploadIcon } from '@lucide/svelte';
+	import PauseIcon from '@lucide/svelte/icons/pause';
+	import PlayIcon from '@lucide/svelte/icons/play';
+	import UploadIcon from '@lucide/svelte/icons/upload';
 
 	let { config, onConfigUpdate, viewMode }: AudioBlockProps = $props();
 
@@ -16,7 +18,7 @@
 	function handleFileUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const file = target.files?.[0];
-		
+
 		if (!file) return;
 
 		// Validate file type
@@ -46,7 +48,7 @@
 
 	function togglePlayPause() {
 		if (!audioElement) return;
-		
+
 		if (isPlaying) {
 			audioElement.pause();
 		} else {
@@ -112,10 +114,10 @@
 					{config.path ? 'Replace Audio File' : 'Choose Audio File'}
 				</Button>
 				{#if config.altText}
-					<p class="text-sm text-muted-foreground">Selected: {config.altText}</p>
+					<p class="text-muted-foreground text-sm">Selected: {config.altText}</p>
 				{/if}
 			</div>
-			
+
 			{#if config.path}
 				<div class="space-y-4">
 					<!-- Audio Element for preview -->
@@ -126,7 +128,7 @@
 						onloadedmetadata={handleLoadedMetadata}
 						onplay={handlePlay}
 						onpause={handlePause}
-						onended={() => isPlaying = false}
+						onended={() => (isPlaying = false)}
 						class="hidden"
 					></audio>
 
@@ -148,13 +150,13 @@
 										max={duration}
 										value={currentTime}
 										onchange={handleSeek}
-										class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+										class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
 									/>
 								</div>
 							{/if}
 						</div>
 						{#if duration > 0}
-							<div class="flex justify-between text-sm text-muted-foreground">
+							<div class="text-muted-foreground flex justify-between text-sm">
 								<span>{formatTime(currentTime)}</span>
 								<span>{formatTime(duration)}</span>
 							</div>
@@ -173,7 +175,7 @@
 				onloadedmetadata={handleLoadedMetadata}
 				onplay={handlePlay}
 				onpause={handlePause}
-				onended={() => isPlaying = false}
+				onended={() => (isPlaying = false)}
 				class="hidden"
 			></audio>
 
@@ -195,13 +197,13 @@
 								max={duration}
 								value={currentTime}
 								onchange={handleSeek}
-								class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+								class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
 							/>
 						</div>
 					{/if}
 				</div>
 				{#if duration > 0}
-					<div class="flex justify-between text-sm text-muted-foreground">
+					<div class="text-muted-foreground flex justify-between text-sm">
 						<span>{formatTime(currentTime)}</span>
 						<span>{formatTime(duration)}</span>
 					</div>
@@ -209,7 +211,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="text-center text-muted-foreground">
+		<div class="text-muted-foreground text-center">
 			<p>No audio file uploaded</p>
 		</div>
 	{/if}

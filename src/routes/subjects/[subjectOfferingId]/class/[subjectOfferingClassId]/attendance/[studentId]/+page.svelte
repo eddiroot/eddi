@@ -6,7 +6,14 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { convertToFullName, formatTimestampAsDate, formatTimestampAsTime } from '$lib/utils';
-	import { ArrowLeft, Calendar, Check, Clock, FileText, MapPin, Minus, X } from '@lucide/svelte';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import Check from '@lucide/svelte/icons/check';
+	import Clock from '@lucide/svelte/icons/clock';
+	import FileText from '@lucide/svelte/icons/file-text';
+	import MapPin from '@lucide/svelte/icons/map-pin';
+	import Minus from '@lucide/svelte/icons/minus';
+	import X from '@lucide/svelte/icons/x';
 	import type { Component } from 'svelte';
 
 	const { data } = $props();

@@ -7,7 +7,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { convertToFullName, yearLevelToLabel } from '$lib/utils';
-	import { DotIcon } from '@lucide/svelte';
+	import DotIcon from '@lucide/svelte/icons/dot';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { activityFormSchema } from './schema.js';

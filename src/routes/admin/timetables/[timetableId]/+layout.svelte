@@ -2,7 +2,8 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Progress } from '$lib/components/ui/progress/index.js';
-	import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/svelte';
+	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import { steps } from './constants';
 
 	let { children } = $props();
@@ -37,7 +38,7 @@
 			class="gap-2 px-0 has-[>svg]:px-0"
 			disabled={!currentStep.previous}
 		>
-			<ChevronLeftIcon />
+			<ChevronLeft />
 			Previous
 		</Button>
 
@@ -73,7 +74,7 @@
 			disabled={!currentStep.next}
 		>
 			Next
-			<ChevronRightIcon />
+			<ChevronRight />
 		</Button>
 	</div>
 

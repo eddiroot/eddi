@@ -6,7 +6,11 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-	import { ArrowLeft, Calendar, Clock, UserCheck, Users } from '@lucide/svelte';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import Clock from '@lucide/svelte/icons/clock';
+	import UserCheck from '@lucide/svelte/icons/user-check';
+	import Users from '@lucide/svelte/icons/users';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createSubjectOfferingClassEventSchema } from '../schemas';

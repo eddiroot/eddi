@@ -11,15 +11,13 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import {
-		AlertTriangleIcon,
-		CalendarIcon,
-		CheckCircleIcon,
-		DownloadIcon,
-		GraduationCapIcon,
-		UserIcon,
-		UsersIcon
-	} from '@lucide/svelte';
+	import CalendarIcon from '@lucide/svelte/icons/calendar.svelte';
+	import CheckCircleIcon from '@lucide/svelte/icons/circle-check.svelte';
+	import DownloadIcon from '@lucide/svelte/icons/download.svelte';
+	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap.svelte';
+	import AlertTriangleIcon from '@lucide/svelte/icons/triangle-alert.svelte';
+	import UserIcon from '@lucide/svelte/icons/user.svelte';
+	import UsersIcon from '@lucide/svelte/icons/users.svelte';
 	import type { PageData } from './$types';
 	import type { StudentStatisticsReport, TeacherStatistics, TimetableMetadata } from './timetable';
 

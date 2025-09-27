@@ -2,15 +2,21 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import ClockIcon from '@lucide/svelte/icons/clock';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
+	import LinkIcon from '@lucide/svelte/icons/link';
 	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 	import TagIcon from '@lucide/svelte/icons/tag';
 	import TargetIcon from '@lucide/svelte/icons/target';
 	import ThumbsUpIcon from '@lucide/svelte/icons/thumbs-up';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
+	import UsersIcon from '@lucide/svelte/icons/users';
+	import ZapIcon from '@lucide/svelte/icons/zap';
 </script>
 
 <!-- Main Hero Section -->
@@ -69,7 +75,7 @@
 			<div>
 				<img
 					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
-					src="/hero-discussions.png"
+					src="/screenshots/discussion.png"
 					alt="Discussion interface"
 				/>
 			</div>
@@ -84,7 +90,7 @@
 			<div class="order-last md:order-first">
 				<img
 					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
-					src="/hero-discussions.png"
+					src="/screenshots/task.png"
 					alt="Lesson creation interface"
 				/>
 			</div>
@@ -147,7 +153,7 @@
 			<div>
 				<img
 					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
-					src="/hero-discussions.png"
+					src="/screenshots/task-new.png"
 					alt="Built-in tutor called eddi"
 				/>
 			</div>
@@ -155,15 +161,89 @@
 	</div>
 </section>
 
-<!-- Announcements Section -->
+<!-- Timetable Section -->
 <section class="py-16 md:py-24 lg:py-32">
 	<div class="container mx-auto px-4 lg:px-8">
 		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
 			<div class="order-last md:order-first">
 				<img
 					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
-					src="/hero-discussions.png"
-					alt="Announcements interface"
+					src="/screenshots/timetable-days.png"
+					alt="Timetable creation interface"
+				/>
+			</div>
+			<div class="space-y-6">
+				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
+					Timetabling made easy
+				</h2>
+				<p class="text-muted-foreground text-xl">
+					Schedule your classes and teachers with our intuitive timetable builder.
+				</p>
+				<ul class="space-y-3 text-lg">
+					<li class="flex items-center">
+						<ZapIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Hands-off generation
+					</li>
+					<li class="flex items-center">
+						<UsersIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Involve teachers in the process
+					</li>
+					<li class="flex items-center">
+						<CalendarIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Instantly publish into student and staff calendars
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Calendar Section -->
+<section class="bg-muted/50 py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="space-y-6">
+				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
+					Integrated calendars for classes and events
+				</h2>
+				<p class="text-muted-foreground text-xl">
+					Keep everyone organised with built-in calendars stored in the cloud.
+				</p>
+				<ul class="space-y-3 text-lg">
+					<li class="flex items-center">
+						<CheckIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Classes from your timetable are automatically added
+					</li>
+					<li class="flex items-center">
+						<PlusIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Events can be created for classes, subjects, campuses, and whole schools
+					</li>
+					<li class="flex items-center">
+						<LinkIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Sync with external calendars
+					</li>
+				</ul>
+			</div>
+			<div>
+				<img
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
+					src="/screenshots/calendar.png"
+					alt="Calendar interface"
+				/>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- News Section -->
+<section class="py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="order-last md:order-first">
+				<img
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
+					src="/screenshots/discussion.png"
+					alt="News interface"
 				/>
 			</div>
 			<div class="space-y-6">
@@ -171,7 +251,7 @@
 					Keep everyone informed
 				</h2>
 				<p class="text-muted-foreground text-xl">
-					Share important updates and announcements with your class instantly.
+					Share important updates and news with your class/campus/school instantly.
 				</p>
 				<ul class="space-y-3 text-lg">
 					<li class="flex items-center">
@@ -187,6 +267,44 @@
 						Target specific groups
 					</li>
 				</ul>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Attendance Section -->
+<section class="bg-muted/50 py-16 md:py-24 lg:py-32">
+	<div class="container mx-auto px-4 lg:px-8">
+		<div class="grid gap-8 md:grid-cols-2 md:items-center lg:gap-12 xl:gap-20">
+			<div class="space-y-6">
+				<h2 class="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
+					Track attendance effortlessly
+				</h2>
+				<p class="text-muted-foreground text-xl">
+					eddi gives you tools to mark the roll at the start of each class and automatically handles
+					absences and late arrivals.
+				</p>
+				<ul class="space-y-3 text-lg">
+					<li class="flex items-center">
+						<LinkIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Syncs with guardian-submitted absences/sick days
+					</li>
+					<li class="flex items-center">
+						<ClockIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Keeps track of behaviour and attendance records over time
+					</li>
+					<li class="flex items-center">
+						<MegaphoneIcon class="mr-3 h-5 w-5 flex-shrink-0" />
+						Notifications for unexplained absences
+					</li>
+				</ul>
+			</div>
+			<div>
+				<img
+					class="h-auto w-full rounded-lg shadow-xl dark:shadow-gray-800"
+					src="/screenshots/attendance.png"
+					alt="Attendance interface"
+				/>
 			</div>
 		</div>
 	</div>

@@ -4,7 +4,8 @@
 	import TimetableCard from '$lib/components/timetable-card.svelte';
 	import * as Button from '$lib/components/ui/button';
 	import { days } from '$lib/utils';
-	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
+	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import { generateTimeslots, getClassPosition, getEventPosition } from './utils.js';
 
 	let { data, form } = $props();

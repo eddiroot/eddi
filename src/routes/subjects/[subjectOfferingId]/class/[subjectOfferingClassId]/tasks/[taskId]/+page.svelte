@@ -69,8 +69,8 @@
 		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
 	import { formatTimer } from '$lib/utils';
-	import { PresentationIcon } from '@lucide/svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
+	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { quizSettingsFormSchema, startQuizFormSchema, statusFormSchema } from './schema';

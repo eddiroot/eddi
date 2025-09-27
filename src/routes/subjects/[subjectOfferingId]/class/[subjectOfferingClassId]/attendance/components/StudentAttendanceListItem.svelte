@@ -11,11 +11,12 @@
 		type User
 	} from '$lib/server/db/schema';
 	import { convertToFullName } from '$lib/utils';
-	import { MessageCircleWarning, PenIcon } from '@lucide/svelte';
 	import Check from '@lucide/svelte/icons/check';
 	import Clock from '@lucide/svelte/icons/clock';
 	import History from '@lucide/svelte/icons/history';
+	import MessageCircleWarning from '@lucide/svelte/icons/message-circle-warning';
 	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
+	import PenIcon from '@lucide/svelte/icons/pen';
 	import X from '@lucide/svelte/icons/x';
 	import { fade } from 'svelte/transition';
 	import type { SuperForm } from 'sveltekit-superforms';

@@ -5,7 +5,10 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { ArrowLeft, Calendar, Clock, UserCheck } from '@lucide/svelte';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import Clock from '@lucide/svelte/icons/clock';
+	import UserCheck from '@lucide/svelte/icons/user-check';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createSchoolEventSchema } from '../schemas';

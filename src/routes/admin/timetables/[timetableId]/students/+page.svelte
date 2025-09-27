@@ -16,8 +16,9 @@
 	} from '$lib/components/ui/table';
 	import { yearLevelEnum } from '$lib/enums';
 	import { convertToFullName, yearLevelToLabel } from '$lib/utils';
-	import { ShuffleIcon, UsersIcon } from '@lucide/svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import ShuffleIcon from '@lucide/svelte/icons/shuffle';
+	import UsersIcon from '@lucide/svelte/icons/users';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createGroupSchema, randomlyAssignSchema } from './schema';

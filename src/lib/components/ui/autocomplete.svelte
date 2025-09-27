@@ -1,9 +1,10 @@
 <script lang="ts">
+	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { Check, ChevronsUpDown } from '@lucide/svelte';
 	import { cn } from '$lib/utils';
+	import Check from '@lucide/svelte/icons/check.svelte';
+	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down.svelte';
 
 	interface Option {
 		value: string | number;
@@ -37,14 +38,14 @@
 
 	// Find the selected option's label
 	const selectedLabel = $derived(() => {
-		const selected = options.find(option => option.value === value);
+		const selected = options.find((option) => option.value === value);
 		return selected?.label || placeholder;
 	});
 
 	// Filter options based on search
 	const filteredOptions = $derived(() => {
 		if (!searchValue) return options;
-		return options.filter(option =>
+		return options.filter((option) =>
 			option.label.toLowerCase().includes(searchValue.toLowerCase())
 		);
 	});
@@ -92,10 +93,7 @@
 						class="cursor-pointer"
 					>
 						<Check
-							class={cn(
-								'mr-2 h-4 w-4',
-								value === option.value ? 'opacity-100' : 'opacity-0'
-							)}
+							class={cn('mr-2 h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')}
 						/>
 						{option.label}
 					</Command.Item>

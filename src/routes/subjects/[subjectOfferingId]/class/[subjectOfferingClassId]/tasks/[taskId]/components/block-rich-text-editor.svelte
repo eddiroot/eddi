@@ -1,15 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { ViewMode, type RichTextBlockProps } from '$lib/schemas/taskSchema';
-	import {
-		BoldIcon,
-		CodeIcon,
-		ItalicIcon,
-		ListIcon,
-		ListOrderedIcon,
-		PilcrowIcon,
-		QuoteIcon
-	} from '@lucide/svelte';
+	import BoldIcon from '@lucide/svelte/icons/bold';
+	import CodeIcon from '@lucide/svelte/icons/code';
+	import ItalicIcon from '@lucide/svelte/icons/italic';
+	import ListIcon from '@lucide/svelte/icons/list';
+	import ListOrderedIcon from '@lucide/svelte/icons/list-ordered';
+	import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
+	import QuoteIcon from '@lucide/svelte/icons/quote';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import { onDestroy, onMount } from 'svelte';

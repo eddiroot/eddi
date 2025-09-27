@@ -1,7 +1,10 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { CalendarIcon, CheckCircleIcon, LoaderIcon, LockIcon } from '@lucide/svelte';
+	import Calendar from '@lucide/svelte/icons/calendar.svelte';
+	import CheckCircle from '@lucide/svelte/icons/check.svelte';
+	import Loader from '@lucide/svelte/icons/loader.svelte';
+	import Lock from '@lucide/svelte/icons/lock.svelte';
 
 	let isGenerating = false;
 
@@ -24,7 +27,7 @@
 	<Card.Root class="w-full max-w-2xl border-none shadow-none">
 		<Card.Header class="space-y-4 text-center">
 			<div class="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-				<CheckCircleIcon class="text-primary h-8 w-8" />
+				<CheckCircle class="text-primary h-8 w-8" />
 			</div>
 			<div class="space-y-2">
 				<Card.Title class="text-3xl font-bold">Ready to Generate</Card.Title>
@@ -37,7 +40,7 @@
 		<Card.Content class="space-y-6">
 			<div class="space-y-4">
 				<div class="bg-muted/80 flex items-start gap-3 rounded-lg p-6">
-					<CalendarIcon class="text-primary mt-0.5 h-5 w-5 flex-shrink-0" />
+					<Calendar class="text-primary mt-0.5 h-5 w-5 flex-shrink-0" />
 					<div class="space-y-1">
 						<p class="font-medium">Timetable Generation</p>
 						<p class="text-muted-foreground text-sm">
@@ -48,7 +51,7 @@
 				</div>
 
 				<div class="bg-muted/80 flex items-start gap-3 rounded-lg p-6">
-					<LockIcon class="text-destructive mt-0.5 h-5 w-5 flex-shrink-0" />
+					<Lock class="text-destructive mt-0.5 h-5 w-5 flex-shrink-0" />
 					<div class="space-y-1">
 						<p class="font-medium">Important Notice</p>
 						<p class="text-muted-foreground text-sm">
@@ -67,7 +70,7 @@
 			>
 				<Button type="submit" size="lg" class="px-8 py-3" disabled={isGenerating}>
 					{#if isGenerating}
-						<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+						<Loader class="mr-2 h-4 w-4 animate-spin" />
 						Generating...
 					{:else}
 						Generate Timetable
@@ -84,7 +87,7 @@
 		<div class="mx-4 w-full max-w-sm rounded-lg bg-white p-8 shadow-xl">
 			<div class="space-y-4 text-center">
 				<div class="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-					<LoaderIcon class="text-primary h-8 w-8 animate-spin" />
+					<Loader class="text-primary h-8 w-8 animate-spin" />
 				</div>
 				<div class="space-y-2">
 					<h3 class="text-lg font-semibold">Generating Timetable</h3>

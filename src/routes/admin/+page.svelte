@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { BusIcon } from '@lucide/svelte';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import BuildingIcon from '@lucide/svelte/icons/building';
+	import BusIcon from '@lucide/svelte/icons/bus';
 	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
 	import ContactIcon from '@lucide/svelte/icons/contact';
 	import DoorOpenIcon from '@lucide/svelte/icons/door-open';

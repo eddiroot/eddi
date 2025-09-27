@@ -5,16 +5,14 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Label } from '$lib/components/ui/label';
 	import { formatTimestampAsDate, formatTimestampAsTime } from '$lib/utils';
-	import {
-		ArrowLeft,
-		BookOpen,
-		Calendar,
-		Clock,
-		MapPin,
-		School,
-		UserCheck,
-		Users
-	} from '@lucide/svelte';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import BookOpen from '@lucide/svelte/icons/book-open';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import Clock from '@lucide/svelte/icons/clock';
+	import MapPin from '@lucide/svelte/icons/map-pin';
+	import School from '@lucide/svelte/icons/school';
+	import UserCheck from '@lucide/svelte/icons/user-check';
+	import Users from '@lucide/svelte/icons/users';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { rsvpSchema } from '../../../schemas';
