@@ -41,34 +41,26 @@ services:
       /usr/bin/mc anonymous set public myminio/logos;
       exit 0;
       "
-  chromadb:
+
+  vectordb:
     image: chromadb/chroma:latest
-    container_name: eddi-chromadb
     ports:
-      - "8000:8000"
+      - 8000:8000
     volumes:
-      - ./chroma-data:/chroma/chroma
+      - vectordbdata:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=/chroma/chroma
       - ANONYMIZED_TELEMETRY=FALSE
       - ALLOW_RESET=TRUE
-    networks:
-      - eddi-network
 
   fet:
     build:
       context: ./fet
       dockerfile: Dockerfile
     restart: unless-stopped
-    command: tail -f /dev/null  # Keep container running
-    networks:
-      - default
-
-networks:
-  eddi-network:
-    driver: bridge
 
 volumes:
   dbdata:
   objdata:
+  vectordbdata:
