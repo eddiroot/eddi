@@ -1,4 +1,5 @@
-import { Tool } from "@langchain/core/tools";
+import { Tool, tool } from "@langchain/core/tools";
+import { z } from "zod";
 import { COLLECTION_TYPES } from "../../retrieval/collections/config";
 import { ChromaCollectionManager, type CollectionIdentifier } from "../../retrieval/collections/manager";
 
@@ -191,3 +192,98 @@ export class RetrievalToolFactory {
     });
   }
 }
+
+
+/**
+ * Schema for the collection router tool
+ * This will help the LLM decide which collection group to use based on the query context
+ */
+const collectionRouterSchema = z.object({
+  query: z.string().describe("The user's query or question that needs to be answered."),
+  queryType: z
+    .enum([
+      "curriculum_knowledge", 
+      "assessment_practice", 
+      "misconception_help", 
+      "extra_enrichment", 
+      "comprehensive_search"
+    ])
+    .describe("The type of educational content needed: curriculum_knowledge for learning objectives and content; assessment_practice for exam questions and examples; misconception_help for common errors and hints; extra_enrichment for supplementary materials; comprehensive_search for broad content searches."),
+  subjectId: z.number().describe("The subject ID to search within."),
+  yearLevel: z.number().optional().describe("Optional year level to filter results."),
+  urgency: z
+    .enum(["low", "medium", "high"])
+    .optional()
+    .describe("Priority level - affects number of results returned.")
+});
+
+type CollectionRouterInput = z.infer<typeof collectionRouterSchema>;
+
+export const createCollectionRouterTool = (manager: ChromaCollectionManager) => {
+  const toolFactory = new RetrievalToolFactory(manager);
+
+  return tool(
+    async ({ query, queryType, subjectId, yearLevel, urgency = "medium" }: CollectionRouterInput) => {
+      try {
+        // Determine k value based on urgency
+        const k = urgency === "high" ? 15 : urgency === "medium" ? 10 : 5;
+        
+        let selectedTool;
+        let toolDescription = "";
+
+        // Route to appropriate collection group based on query type
+        switch (queryType) {
+          case "curriculum_knowledge":
+            selectedTool = toolFactory.createCurriculumTool(subjectId, yearLevel);
+            toolDescription = "Searching curriculum content, learning activities, and assessment tasks";
+            break;
+
+          case "assessment_practice":
+            selectedTool = toolFactory.createExamTool(subjectId, yearLevel);
+            toolDescription = "Searching exam questions, practice problems, and detailed examples";
+            break;
+
+          case "misconception_help":
+            selectedTool = toolFactory.createMisconceptionsTool(subjectId, yearLevel);
+            toolDescription = "Searching misconceptions database and helpful hints";
+            break;
+
+          case "extra_enrichment":
+            selectedTool = toolFactory.createExtraContentTool(subjectId, yearLevel);
+            toolDescription = "Searching supplementary and enrichment materials";
+            break;
+
+          case "comprehensive_search":
+            selectedTool = toolFactory.createComprehensiveTool(subjectId, yearLevel);
+            toolDescription = "Performing comprehensive search across all content types";
+            break;
+
+          default:
+            // Fallback to unified tool for unknown query types
+            selectedTool = toolFactory.createUnifiedRetrievalTool(subjectId, yearLevel);
+            toolDescription = "Using unified search across all educational content";
+        }
+
+        // Override the k value if needed
+        if (selectedTool instanceof MultiCollectionRetrievalTool) {
+          selectedTool['k'] = k;
+        }
+
+        // Execute the search
+        const results = await selectedTool._call(query);
+        
+        // Return results with routing information
+        return `${toolDescription} for subject ${subjectId}${yearLevel ? ` (Year ${yearLevel})` : ''}:\n\n${results}`;
+
+      } catch (error) {
+        console.error("Error in collection router tool:", error);
+        return `Error routing query: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    },
+    {
+      name: "route_educational_search",
+      description: "Intelligently routes educational queries to the most appropriate collection groups (curriculum, assessments, misconceptions, enrichment materials) and returns relevant content. Use this tool when you need to search for educational content but want the system to automatically determine the best collection to search based on the query context.",
+      schema: collectionRouterSchema,
+    }
+  );
+};
