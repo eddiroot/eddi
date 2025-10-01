@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
+	import Autocomplete from '$lib/components/autocomplete.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
@@ -14,7 +14,9 @@
 	let weightPercentage = $state((initialValues.Weight_Percentage as number) || 100);
 	let selectedRoomId = $state<string | number>('');
 	let notAvailableTimes = $state<Array<{ Day: number; Period: number }>>(
-		(initialValues.Not_Available_Time as Array<{ Day: number; Period: number }>) || [{ Day: 0, Period: 0 }]
+		(initialValues.Not_Available_Time as Array<{ Day: number; Period: number }>) || [
+			{ Day: 0, Period: 0 }
+		]
 	);
 	let comments = $state((initialValues.Comments as string) || '');
 
@@ -26,7 +28,7 @@
 	// Validation for duplicate day/period combinations
 	let duplicateTimeError = $derived.by(() => {
 		const timeSlots = new Set();
-		
+
 		for (const time of notAvailableTimes) {
 			if (time.Day && time.Period) {
 				const timeKey = `${time.Day}-${time.Period}`;
@@ -36,11 +38,11 @@
 				timeSlots.add(timeKey);
 			}
 		}
-		
+
 		return null;
-	});	// Check if all time slots have valid selections
+	}); // Check if all time slots have valid selections
 	let allTimeSlotsValid = $derived.by(() => {
-		return notAvailableTimes.every(time => time.Day !== 0 && time.Period !== 0);
+		return notAvailableTimes.every((time) => time.Day !== 0 && time.Period !== 0);
 	});
 
 	// Enhanced validation
@@ -98,9 +100,7 @@
 				bind:value={selectedRoomId}
 			/>
 			{#if formData?.spaces.length === 0}
-				<p class="text-destructive text-sm">
-					All rooms already have this constraint applied.
-				</p>
+				<p class="text-destructive text-sm">All rooms already have this constraint applied.</p>
 			{/if}
 		</div>
 
@@ -119,24 +119,24 @@
 			{/if}
 			<div class="space-y-3">
 				<div class="flex gap-2">
-				<Label class="text-xs flex-1">Day</Label>
-				<Label class="text-xs flex-1">Period</Label>
+					<Label class="flex-1 text-xs">Day</Label>
+					<Label class="flex-1 text-xs">Period</Label>
 				</div>
 				{#each notAvailableTimes as time, index}
 					<div class="flex items-end gap-2">
 						<div class="flex-1 space-y-1">
-							<Autocomplete 
-							options={formData?.timetableDays || []}
-							placeholder="Select a day..."
-							bind:value={time.Day}
+							<Autocomplete
+								options={formData?.timetableDays || []}
+								placeholder="Select a day..."
+								bind:value={time.Day}
 							/>
 						</div>
 
 						<div class="flex-1 space-y-1">
-							<Autocomplete 
-							options={formData?.timetablePeriods || []}
-							placeholder="Select a period..."
-							bind:value={time.Period}
+							<Autocomplete
+								options={formData?.timetablePeriods || []}
+								placeholder="Select a period..."
+								bind:value={time.Period}
 							/>
 						</div>
 

@@ -1,12 +1,12 @@
 <script lang="ts">
+	import Autocomplete from '$lib/components/autocomplete.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
+	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
-	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
 
 	let { onSubmit, onCancel, initialValues = {}, formData }: EnhancedConstraintFormProps = $props();
 
@@ -14,7 +14,9 @@
 	let weightPercentage = $state((initialValues.Weight_Percentage as number) || 100);
 	let subjectId = $state((initialValues.Subject as string) || '');
 	let numberOfRooms = $state((initialValues.Number_of_Preferred_Rooms as number) || 1);
-	let preferredRoomIds = $state<(string | number)[]>((initialValues.Preferred_Room as (string | number)[]) || ['']);
+	let preferredRoomIds = $state<(string | number)[]>(
+		(initialValues.Preferred_Room as (string | number)[]) || ['']
+	);
 	let comments = $state((initialValues.Comments as string) || '');
 
 	// Update rooms array when numberOfRooms changes
@@ -59,7 +61,6 @@
 			weightPercentage <= 100
 	);
 </script>
-		
 
 <div class="space-y-6">
 	<div class="space-y-4">

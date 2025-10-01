@@ -1,14 +1,13 @@
 <script lang="ts">
+	import Autocomplete from '$lib/components/autocomplete.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import Autocomplete from '$lib/components/ui/autocomplete.svelte';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash';
-	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
 	import type { AutocompleteOption } from '$lib/constraint-data-fetchers';
+	import type { EnhancedConstraintFormProps } from '$lib/types/constraint-form-types';
+	import TrashIcon from '@lucide/svelte/icons/trash';
 
 	let { onSubmit, onCancel, initialValues = {}, formData }: EnhancedConstraintFormProps = $props();
 
@@ -23,7 +22,7 @@
 	let selectedActivity = $state<string>('');
 
 	function addActivity(option: AutocompleteOption) {
-		if (!selectedActivities.find(a => a.value === option.value)) {
+		if (!selectedActivities.find((a) => a.value === option.value)) {
 			selectedActivities = [...selectedActivities, option];
 			selectedActivity = '';
 		}
@@ -34,7 +33,7 @@
 	}
 
 	function handleSubmit() {
-		const activityIds = selectedActivities.map(activity => activity.value);
+		const activityIds = selectedActivities.map((activity) => activity.value);
 		const values = {
 			Weight_Percentage: weightPercentage,
 			Consecutive_If_Same_Day: consecutiveIfSameDay,

@@ -1,13 +1,13 @@
 import { userTypeEnum } from '$lib/enums';
 import {
-    getBuildingsBySchoolId,
-    getSpacesBySchoolId,
-    getSubjectsBySchoolId,
-    getTimetableActivitiesByTimetableId,
-    getTimetableDays,
-    getTimetablePeriods,
-    getTimetableStudentGroupsWithCountsByTimetableId,
-    getUsersBySchoolIdAndType
+	getBuildingsBySchoolId,
+	getSpacesBySchoolId,
+	getSubjectsBySchoolId,
+	getTimetableActivitiesByTimetableId,
+	getTimetableDays,
+	getTimetablePeriods,
+	getTimetableStudentGroupsWithCountsByTimetableId,
+	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import type { ConstraintFormData } from '$lib/types/constraint-form-types';
 
@@ -21,7 +21,7 @@ export interface AutocompleteOption {
  */
 export async function getTimetableDaysOptions(timetableId: number): Promise<AutocompleteOption[]> {
 	const days = await getTimetableDays(timetableId);
-	return days.map(day => ({
+	return days.map((day) => ({
 		value: day.id,
 		label: `Day ${day.day}` // Assuming day number maps to day name
 	}));
@@ -30,9 +30,11 @@ export async function getTimetableDaysOptions(timetableId: number): Promise<Auto
 /**
  * Fetch timetable periods for autocomplete
  */
-export async function getTimetablePeriodsOptions(timetableId: number): Promise<AutocompleteOption[]> {
+export async function getTimetablePeriodsOptions(
+	timetableId: number
+): Promise<AutocompleteOption[]> {
 	const periods = await getTimetablePeriods(timetableId);
-	return periods.map(period => ({
+	return periods.map((period) => ({
 		value: period.id,
 		label: `${period.startTime} - ${period.endTime}`
 	}));
@@ -43,7 +45,7 @@ export async function getTimetablePeriodsOptions(timetableId: number): Promise<A
  */
 export async function getSubjectsOptions(schoolId: number): Promise<AutocompleteOption[]> {
 	const subjects = await getSubjectsBySchoolId(schoolId);
-	return subjects.map(subject => ({
+	return subjects.map((subject) => ({
 		value: subject.id,
 		label: subject.name
 	}));
@@ -54,7 +56,7 @@ export async function getSubjectsOptions(schoolId: number): Promise<Autocomplete
  */
 export async function getTeachersOptions(schoolId: number): Promise<AutocompleteOption[]> {
 	const teachers = await getUsersBySchoolIdAndType(schoolId, userTypeEnum.teacher);
-	return teachers.map(teacher => ({
+	return teachers.map((teacher) => ({
 		value: teacher.id,
 		label: `${teacher.firstName} ${teacher.lastName}`
 	}));
@@ -65,7 +67,7 @@ export async function getTeachersOptions(schoolId: number): Promise<Autocomplete
  */
 export async function getStudentsOptions(schoolId: number): Promise<AutocompleteOption[]> {
 	const students = await getUsersBySchoolIdAndType(schoolId, userTypeEnum.student);
-	return students.map(student => ({
+	return students.map((student) => ({
 		value: student.id,
 		label: `${student.firstName} ${student.lastName}`
 	}));
@@ -74,9 +76,11 @@ export async function getStudentsOptions(schoolId: number): Promise<Autocomplete
 /**
  * Fetch timetable groups for autocomplete
  */
-export async function getTimetableGroupsOptions(timetableId: number): Promise<AutocompleteOption[]> {
+export async function getTimetableGroupsOptions(
+	timetableId: number
+): Promise<AutocompleteOption[]> {
 	const groups = await getTimetableStudentGroupsWithCountsByTimetableId(timetableId);
-	return groups.map(group => ({
+	return groups.map((group) => ({
 		value: group.id,
 		label: `${group.name} (${group.yearLevel}) - ${group.count} students`
 	}));
@@ -87,7 +91,7 @@ export async function getTimetableGroupsOptions(timetableId: number): Promise<Au
  */
 export async function getBuildingsOptions(schoolId: number): Promise<AutocompleteOption[]> {
 	const buildings = await getBuildingsBySchoolId(schoolId);
-	return buildings.map(building => ({
+	return buildings.map((building) => ({
 		value: building.id,
 		label: building.name
 	}));
@@ -98,7 +102,7 @@ export async function getBuildingsOptions(schoolId: number): Promise<Autocomplet
  */
 export async function getSpacesOptions(schoolId: number): Promise<AutocompleteOption[]> {
 	const spaces = await getSpacesBySchoolId(schoolId);
-	return spaces.map(space => ({
+	return spaces.map((space) => ({
 		value: space.id,
 		label: `${space.name} (${space.type}) - Capacity: ${space.capacity || 'N/A'}`
 	}));
@@ -107,18 +111,23 @@ export async function getSpacesOptions(schoolId: number): Promise<AutocompleteOp
 /**
  * Fetch timetable activities for autocomplete
  */
-export async function getTimetableActivitiesOptions(timetableId: number): Promise<AutocompleteOption[]> {
+export async function getTimetableActivitiesOptions(
+	timetableId: number
+): Promise<AutocompleteOption[]> {
 	const activities = await getTimetableActivitiesByTimetableId(timetableId);
-	return activities.map(activity => ({
-		value: activity.activity.id,
-		label: `${activity.subject.name} - ${activity.teacher.firstName} ${activity.teacher.lastName} (${activity.studentGroup.name})`
+	return activities.map((activity) => ({
+		value: activity.id,
+		label: `${activity.id}`
 	}));
 }
 
 /**
  * Build complete constraint form data for autocomplete components
  */
-export async function buildConstraintFormData(timetableId: number, schoolId: number): Promise<ConstraintFormData> {
+export async function buildConstraintFormData(
+	timetableId: number,
+	schoolId: number
+): Promise<ConstraintFormData> {
 	// In a real implementation, these IDs would come from the current user session/context
 	const [
 		subjects,
