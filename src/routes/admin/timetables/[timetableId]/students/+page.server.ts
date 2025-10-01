@@ -1,7 +1,6 @@
 import { yearLevelEnum } from '$lib/enums';
 import {
 	addStudentToTimetableGroup,
-	assignStudentsToGroupsRandomly,
 	createTimetableStudentGroup,
 	deleteTimetableStudentGroup,
 	getStudentsByGroupId,
@@ -11,10 +10,7 @@ import {
 	removeStudentFromTimetableGroup
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types.js';
-import { createGroupSchema, randomlyAssignSchema } from './schema.js';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
@@ -36,9 +32,7 @@ export const load = async ({ locals: { security }, params }) => {
 		defaultYearLevel,
 		students,
 		groups,
-		studentsByGroupId,
-		createGroupForm: await superValidate(zod4(createGroupSchema)),
-		randomlyAssignForm: await superValidate(zod4(randomlyAssignSchema))
+		studentsByGroupId
 	};
 };
 
@@ -51,47 +45,20 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
-		const form = await superValidate(request, zod4(createGroupSchema));
+		const formData = await request.formData();
+		const name = formData.get('name') as string;
+		const yearLevel = formData.get('yearLevel') as yearLevelEnum;
 
-		if (!form.valid) {
-			return fail(400, { form });
+		if (!name || !yearLevel) {
+			return fail(400, { error: 'Name and year level are required' });
 		}
 
 		try {
-			await createTimetableStudentGroup(timetableId, form.data.yearLevel, form.data.name);
-
-			return message(form, 'Group created successfully!');
+			await createTimetableStudentGroup(timetableId, yearLevel, name);
+			return { success: true };
 		} catch (error) {
 			console.error('Error creating group:', error);
-			return message(form, 'Failed to create group. Please try again.', { status: 500 });
-		}
-	},
-
-	randomlyAssign: async ({ request, params, locals: { security } }) => {
-		const user = security.isAuthenticated().isSchoolAdmin().getUser();
-
-		const timetableId = parseInt(params.timetableId);
-		if (isNaN(timetableId)) {
-			return fail(400, { error: 'Invalid timetable ID' });
-		}
-
-		const form = await superValidate(request, zod4(randomlyAssignSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		try {
-			const assignedCount = await assignStudentsToGroupsRandomly(
-				timetableId,
-				form.data.yearLevel,
-				user.schoolId
-			);
-
-			return message(form, `Successfully assigned ${assignedCount} students to groups randomly!`);
-		} catch (error) {
-			console.error('Error randomly assigning students:', error);
-			return message(form, 'Failed to assign students. Please try again.', { status: 500 });
+			return fail(500, { error: 'Failed to create group. Please try again.' });
 		}
 	},
 

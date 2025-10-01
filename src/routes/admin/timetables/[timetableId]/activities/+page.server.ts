@@ -1,26 +1,41 @@
 import { userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 import {
-	createTimetableActivity,
-	deleteTimetableActivitiesByGroupId,
+	createTimetableActivityWithRelations,
+	deleteTimetableActivity,
+	getSpacesBySchoolId,
+	getStudentsForTimetable,
 	getSubjectsBySchoolIdAndYearLevel,
 	getTimetableActivitiesByTimetableId,
+	getTimetableActivityGroups,
+	getTimetableActivityLocations,
+	getTimetableActivityStudents,
+	getTimetableActivityTeachers,
+	getTimetableActivityYears,
 	getTimetableStudentGroupsByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-import { activityFormSchema } from './schema.js';
+
+type EnrichedActivity = Awaited<ReturnType<typeof getTimetableActivitiesByTimetableId>>[number] & {
+	teacherIds: string[];
+	yearLevels: string[];
+	groupIds: number[];
+	studentIds: string[];
+	locationIds: number[];
+};
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const timetableId = parseInt(params.timetableId);
 
 	const teachers = await getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher);
-	const activities = await getTimetableActivitiesByTimetableId(timetableId);
+	const baseActivities = await getTimetableActivitiesByTimetableId(timetableId);
+	const spaces = await getSpacesBySchoolId(user.schoolId);
+	const students = await getStudentsForTimetable(timetableId, user.schoolId);
 
 	const groups = await getTimetableStudentGroupsByTimetableId(timetableId);
-	const defaultYearLevel = groups.length > 0 ? groups[0].yearLevel : yearLevelEnum.year7;
+
+	const defaultYearLevel = groups.length > 0 ? groups[0].yearLevel : yearLevelEnum.year9;
 
 	const yearLevels = groups
 		.map((group) => group.yearLevel)
@@ -38,41 +53,54 @@ export const load = async ({ locals: { security }, params }) => {
 		);
 	}
 
+	// Enrich activities with all related data
+	const activities: EnrichedActivity[] = await Promise.all(
+		baseActivities.map(async (activity) => {
+			const [teachers, locations, students, groups, years] = await Promise.all([
+				getTimetableActivityTeachers(activity.id),
+				getTimetableActivityLocations(activity.id),
+				getTimetableActivityStudents(activity.id),
+				getTimetableActivityGroups(activity.id),
+				getTimetableActivityYears(activity.id)
+			]);
+
+			return {
+				...activity,
+				teacherIds: teachers.map((t) => t.id),
+				locationIds: locations.map((l) => l.id),
+				studentIds: students.map((s) => s.id),
+				groupIds: groups.map((g) => g.id),
+				yearLevels: years.map((y) => y.yearLevel)
+			};
+		})
+	);
+
 	const activitiesBySubjectId = activities.reduce(
 		(acc, activity) => {
-			if (!acc[activity.subject.id]) {
-				acc[activity.subject.id] = [];
+			if (!acc[activity.subjectId]) {
+				acc[activity.subjectId] = [];
 			}
-			acc[activity.subject.id].push(activity);
+			acc[activity.subjectId].push(activity);
 			return acc;
 		},
 		{} as Record<number, typeof activities>
 	);
 
-	const defaultYearLevelSubjects = subjectsByYearLevel[defaultYearLevel] || [];
-	const initialActivities = defaultYearLevelSubjects.map((subject) => ({
-		subjectId: subject.id,
-		periodsPerInstance: 1,
-		totalPeriods: 5,
-		teacherIds: []
-	}));
-
 	return {
+		timetableId,
 		defaultYearLevel,
 		yearLevels,
 		groups,
 		teachers,
+		students,
+		spaces,
 		activitiesBySubjectId,
-		subjectsByYearLevel,
-		form: await superValidate(
-			{ yearLevel: defaultYearLevel, activities: initialActivities },
-			zod4(activityFormSchema)
-		)
+		subjectsByYearLevel
 	};
 };
 
 export const actions = {
-	createActivities: async ({ request, params, locals: { security } }) => {
+	createActivity: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
 		const timetableId = parseInt(params.timetableId);
@@ -80,64 +108,146 @@ export const actions = {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
-		const form = await superValidate(request, zod4(activityFormSchema));
+		try {
+			const formData = await request.formData();
+			const subjectId = formData.get('subjectId');
+			const teacherIds = formData.getAll('teacherIds');
+			const yearLevels = formData.getAll('yearLevels');
+			const groupIds = formData.getAll('groupIds');
+			const studentIds = formData.getAll('studentIds');
+			const locationIds = formData.getAll('locationIds');
+			const numInstancesPerWeek = formData.get('numInstancesPerWeek');
+			const periodsPerInstance = formData.get('periodsPerInstance');
 
-		if (!form.valid) {
-			return fail(400, { form });
+			// Validate required fields
+			if (!subjectId || !teacherIds || teacherIds.length === 0) {
+				return fail(400, { error: 'Subject and at least one teacher are required' });
+			}
+
+			if (!numInstancesPerWeek || !periodsPerInstance) {
+				return fail(400, { error: 'Instances per week and periods per instance are required' });
+			}
+
+			// Validate that at least one assignment level is specified
+			if (
+				(!yearLevels || yearLevels.length === 0) &&
+				(!groupIds || groupIds.length === 0) &&
+				(!studentIds || studentIds.length === 0)
+			) {
+				return fail(400, {
+					error: 'At least one of year levels, groups, or students must be specified'
+				});
+			}
+
+			// Create the activity with all relations
+			await createTimetableActivityWithRelations({
+				timetableId,
+				subjectId: parseInt(subjectId as string),
+				teacherIds: teacherIds as string[],
+				yearLevels: yearLevels as string[],
+				groupIds: groupIds.map((id) => parseInt(id as string)),
+				studentIds: studentIds as string[],
+				preferredSpaceIds: locationIds.map((id) => parseInt(id as string)),
+				periodsPerInstance: parseInt(periodsPerInstance as string),
+				instancesPerWeek: parseInt(numInstancesPerWeek as string)
+			});
+
+			return { success: true };
+		} catch (error) {
+			console.error('Error creating activity:', error);
+			return fail(500, { error: 'Failed to create activity. Please try again.' });
+		}
+	},
+
+	editActivity: async ({ request, params, locals: { security } }) => {
+		security.isAuthenticated().isSchoolAdmin();
+
+		const timetableId = parseInt(params.timetableId);
+		if (isNaN(timetableId)) {
+			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
 		try {
-			// Get student groups for the selected year level
-			const groups = await getTimetableStudentGroupsByTimetableId(timetableId);
-			const yearLevelGroups = groups.filter((group) => group.yearLevel === form.data.yearLevel);
+			const formData = await request.formData();
+			const activityId = formData.get('activityId');
+			const subjectId = formData.get('subjectId');
+			const teacherIds = formData.getAll('teacherIds');
+			const yearLevels = formData.getAll('yearLevels');
+			const groupIds = formData.getAll('groupIds');
+			const studentIds = formData.getAll('studentIds');
+			const locationIds = formData.getAll('locationIds');
+			const numInstancesPerWeek = formData.get('numInstancesPerWeek');
+			const periodsPerInstance = formData.get('periodsPerInstance');
 
-			if (yearLevelGroups.length === 0) {
-				return message(
-					form,
-					'No student groups found for the selected year level. Please create student groups first.',
-					{ status: 400 }
-				);
+			// Validate required fields
+			if (!activityId) {
+				return fail(400, { error: 'Activity ID is required' });
 			}
 
-			for (const group of yearLevelGroups) {
-				// Delete existing activities for the group
-				await deleteTimetableActivitiesByGroupId(group.id);
+			if (!subjectId || !teacherIds || teacherIds.length === 0) {
+				return fail(400, { error: 'Subject and at least one teacher are required' });
 			}
 
-			let totalActivitiesCreated = 0;
-
-			// Create activities for each subject
-			const activities = form.data.activities as Array<{
-				subjectId: number;
-				periodsPerInstance: number;
-				totalPeriods: number;
-				teacherIds: string[];
-			}>;
-
-			for (const activityData of activities) {
-				// Distribute teachers across groups in round-robin fashion
-				for (let i = 0; i < yearLevelGroups.length; i++) {
-					const group = yearLevelGroups[i];
-					const teacherIndex = i % activityData.teacherIds.length;
-					const teacherId = activityData.teacherIds[teacherIndex];
-
-					await createTimetableActivity({
-						timetableId,
-						subjectId: activityData.subjectId,
-						teacherId,
-						groupId: group.id,
-						periodsPerInstance: activityData.periodsPerInstance,
-						totalPeriods: activityData.totalPeriods
-					});
-
-					totalActivitiesCreated++;
-				}
+			if (!numInstancesPerWeek || !periodsPerInstance) {
+				return fail(400, { error: 'Instances per week and periods per instance are required' });
 			}
 
-			return message(form, `Successfully created ${totalActivitiesCreated} activities!`);
+			// Validate that at least one assignment level is specified
+			if (
+				(!yearLevels || yearLevels.length === 0) &&
+				(!groupIds || groupIds.length === 0) &&
+				(!studentIds || studentIds.length === 0)
+			) {
+				return fail(400, {
+					error: 'At least one of year levels, groups, or students must be specified'
+				});
+			}
+
+			// Delete the old activity (cascading deletes will handle junction tables)
+			await deleteTimetableActivity(parseInt(activityId as string));
+
+			// Create the new activity with updated relations
+			await createTimetableActivityWithRelations({
+				timetableId,
+				subjectId: parseInt(subjectId as string),
+				teacherIds: teacherIds as string[],
+				yearLevels: yearLevels as string[],
+				groupIds: groupIds.map((id) => parseInt(id as string)),
+				studentIds: studentIds as string[],
+				preferredSpaceIds: locationIds.map((id) => parseInt(id as string)),
+				periodsPerInstance: parseInt(periodsPerInstance as string),
+				instancesPerWeek: parseInt(numInstancesPerWeek as string)
+			});
+
+			return { success: true };
 		} catch (error) {
-			console.error('Error creating activities:', error);
-			return message(form, 'Failed to create activities. Please try again.', { status: 500 });
+			console.error('Error editing activity:', error);
+			return fail(500, { error: 'Failed to edit activity. Please try again.' });
+		}
+	},
+
+	deleteActivity: async ({ request, params, locals: { security } }) => {
+		security.isAuthenticated().isSchoolAdmin();
+
+		const timetableId = parseInt(params.timetableId);
+		if (isNaN(timetableId)) {
+			return fail(400, { error: 'Invalid timetable ID' });
+		}
+
+		try {
+			const formData = await request.formData();
+			const activityId = formData.get('activityId');
+
+			if (!activityId) {
+				return fail(400, { error: 'Activity ID is required' });
+			}
+
+			await deleteTimetableActivity(parseInt(activityId as string));
+
+			return { success: true };
+		} catch (error) {
+			console.error('Error deleting activity:', error);
+			return fail(500, { error: 'Failed to delete activity. Please try again.' });
 		}
 	}
 };

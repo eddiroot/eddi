@@ -4,11 +4,11 @@ import {
 	jsonb,
 	pgEnum,
 	pgTable,
+	primaryKey,
 	text,
 	time,
 	unique,
-	uuid,
-	primaryKey
+	uuid
 } from 'drizzle-orm/pg-core';
 import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
@@ -116,12 +116,6 @@ export const timetableActivity = pgTable('tt_activity', {
 	subjectId: integer('subject_id')
 		.notNull()
 		.references(() => subject.id, { onDelete: 'cascade' }),
-	teacherId: uuid('teacher_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	groupId: integer('tt_group_id')
-		.notNull()
-		.references(() => timetableGroup.id, { onDelete: 'cascade' }),
 	periodsPerInstance: integer('periods_per_instance').notNull().default(1),
 	totalPeriods: integer('total_periods').notNull(),
 	...timestamps
@@ -129,7 +123,31 @@ export const timetableActivity = pgTable('tt_activity', {
 
 export type TimetableActivity = typeof timetableActivity.$inferSelect;
 
-export const TimetableActivityPreferredSpaces = pgTable(
+export const timetableActivityTeacherPreference = pgTable(
+	'tt_activity_teacher_pref',
+	{
+		timetableActivityId: integer('tt_activity_id')
+			.references(() => timetableActivity.id, { onDelete: 'cascade' })
+			.notNull(),
+		teacherId: uuid('teacher_id')
+			.references(() => user.id, { onDelete: 'cascade' })
+			.notNull(),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'tt_activity_teacher_pref_pkey',
+				columns: [table.timetableActivityId, table.teacherId]
+			})
+		};
+	}
+);
+
+export type TimetableActivityTeacherPreferences =
+	typeof timetableActivityTeacherPreference.$inferSelect;
+
+export const timetableActivityPreferredSpace = pgTable(
 	'tt_activity_preferred_space',
 	{
 		timetableActivityId: integer('tt_activity_id')
@@ -150,7 +168,75 @@ export const TimetableActivityPreferredSpaces = pgTable(
 	}
 );
 
-export type TimetableActivityPreferredSpaces = typeof TimetableActivityPreferredSpaces.$inferSelect;
+export type TimetableActivityPreferredSpaces = typeof timetableActivityPreferredSpace.$inferSelect;
+
+export const timetableActivityAssignedStudent = pgTable(
+	'tt_activity_assign_stu',
+	{
+		timetableActivityId: integer('tt_activity_id')
+			.references(() => timetableActivity.id, { onDelete: 'cascade' })
+			.notNull(),
+		userId: uuid('user_id')
+			.references(() => user.id, { onDelete: 'cascade' })
+			.notNull(),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'tt_activity_assign_stu_pkey',
+				columns: [table.timetableActivityId, table.userId]
+			})
+		};
+	}
+);
+
+export type TimetableActivityAssignedStudents =
+	typeof timetableActivityAssignedStudent.$inferSelect;
+
+export const timetableActivityAssignedGroup = pgTable(
+	'tt_activity_assign_grp',
+	{
+		timetableActivityId: integer('tt_activity_id')
+			.references(() => timetableActivity.id, { onDelete: 'cascade' })
+			.notNull(),
+		ttGroupId: integer('tt_group_id')
+			.references(() => timetableGroup.id, { onDelete: 'cascade' })
+			.notNull(),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'tt_activity_assign_grp_pkey',
+				columns: [table.timetableActivityId, table.ttGroupId]
+			})
+		};
+	}
+);
+
+export type TimetableActivityAssignedGroup = typeof timetableActivityAssignedGroup.$inferSelect;
+
+export const timetableActivityAssignedYear = pgTable(
+	'tt_activity_assign_yr',
+	{
+		timetableActivityId: integer('tt_activity_id')
+			.references(() => timetableActivity.id, { onDelete: 'cascade' })
+			.notNull(),
+		yearlevel: yearLevelEnumPg().notNull(),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'tt_activity_assign_yr_pkey',
+				columns: [table.timetableActivityId, table.yearlevel]
+			})
+		};
+	}
+);
+
+export type TimetableActivityAssignedYear = typeof timetableActivityAssignedYear.$inferSelect;
 
 export const fetActivity = pgTable('fet_activity', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

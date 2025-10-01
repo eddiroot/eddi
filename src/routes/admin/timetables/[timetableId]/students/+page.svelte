@@ -16,9 +16,6 @@
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import WandSparkles from '@lucide/svelte/icons/wand-sparkles';
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { createGroupSchema, randomlyAssignSchema } from './schema';
 
 	let { data } = $props();
 
@@ -31,10 +28,10 @@
 
 	let yearLevel = $state(data.defaultYearLevel);
 	let createDialogOpen = $state(false);
-	let randomAssignDialogOpen = $state(false);
 	let infoDialogOpen = $state(false);
-	let pageInfo = $state('');
 	let autoCreating = $state(false);
+	let groupName = $state('');
+	let creatingGroup = $state(false);
 
 	let filteredGroups = $derived(() => {
 		if (!yearLevel) return [];
@@ -49,59 +46,52 @@
 	// Get student options for a specific group (exclude students already in that group)
 	function getStudentOptionsForGroup(groupId: number) {
 		if (!yearLevel) return [];
-		
+
 		const studentsInGroup = data.studentsByGroupId[groupId] || [];
-		const studentIdsInGroup = new Set(studentsInGroup.map(s => s.id));
-		
+		const studentIdsInGroup = new Set(studentsInGroup.map((s) => s.id));
+
 		// Get all students for the year level, excluding those already in this specific group
 		const availableStudents = data.students.filter(
 			(student) => student.yearLevel === yearLevel && !studentIdsInGroup.has(student.id)
 		);
-		
+
 		return availableStudents.map((student) => ({
 			value: student.id,
 			label: convertToFullName(student.firstName, student.middleName, student.lastName)
 		}));
 	}
 
-	const form = superForm(data.createGroupForm, {
-		validators: zod4(createGroupSchema),
-		onResult: ({ result }) => {
-			if (result.type === 'success') {
-				createDialogOpen = false;
-				invalidateAll();
-			}
-		}
-	});
-
-	const { form: formData, enhance } = form;
-
-	const randomAssignForm = superForm(data.randomlyAssignForm, {
-		validators: zod4(randomlyAssignSchema),
-		onResult: ({ result }) => {
-			if (result.type === 'success') {
-				randomAssignDialogOpen = false;
-				invalidateAll();
-			}
-		}
-	});
-
-	const { form: randomAssignFormData, enhance: randomAssignEnhance } = randomAssignForm;
-
 	// Set the year level when opening the dialog
 	function openCreateDialog() {
-		if (yearLevel) {
-			$formData.yearLevel = yearLevel as yearLevelEnum;
-		}
+		groupName = '';
 		createDialogOpen = true;
 	}
 
-	// Set the year level when opening the random assign dialog
-	function openRandomAssignDialog() {
-		if (yearLevel) {
-			$randomAssignFormData.yearLevel = yearLevel as yearLevelEnum;
+	// Create group
+	async function createGroup() {
+		if (!yearLevel || !groupName.trim()) return;
+
+		creatingGroup = true;
+		try {
+			const formData = new FormData();
+			formData.append('yearLevel', yearLevel);
+			formData.append('name', groupName);
+
+			const response = await fetch('?/createGroup', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				createDialogOpen = false;
+				groupName = '';
+				await invalidateAll();
+			}
+		} catch (error) {
+			console.error('Error creating group:', error);
+		} finally {
+			creatingGroup = false;
 		}
-		randomAssignDialogOpen = true;
 	}
 
 	// Auto-create groups based on subjects
@@ -190,8 +180,10 @@
 			console.error('Error deleting group:', error);
 		}
 	}
-</script><div class="space-y-8">
-	<div class="flex justify-between items-start mb-4">
+</script>
+
+<div class="space-y-8">
+	<div class="mb-4 flex items-start justify-between">
 		<div></div>
 		<div class="flex gap-2">
 			<Button
@@ -200,7 +192,7 @@
 				onclick={autoCreateGroups}
 				disabled={!yearLevel || autoCreating}
 			>
-				<WandSparkles class="h-4 w-4 mr-2" />
+				<WandSparkles class="mr-2 h-4 w-4" />
 				{autoCreating ? 'Creating...' : 'Auto Create Groups'}
 			</Button>
 			<Button
@@ -286,7 +278,11 @@
 												class="bg-background flex items-center justify-between rounded-lg border p-3"
 											>
 												<span class="font-medium">
-													{convertToFullName(student.firstName, student.middleName, student.lastName)}
+													{convertToFullName(
+														student.firstName,
+														student.middleName,
+														student.lastName
+													)}
 												</span>
 												<Button
 													variant="ghost"
@@ -338,58 +334,31 @@
 		<Dialog.Header>
 			<Dialog.Title>Create New Group</Dialog.Title>
 		</Dialog.Header>
-		<form method="POST" action="?/createGroup" use:enhance>
-			<div class="grid gap-4 py-4">
-				<div class="grid gap-2">
-					<Label for="create-name">Group Name</Label>
-					<Input
-						id="create-name"
-						name="name"
-						bind:value={$formData.name}
-						placeholder="Enter group name"
-						required
-					/>
-				</div>
-
-				<!-- Hidden field for year level -->
-				<input type="hidden" name="yearLevel" bind:value={$formData.yearLevel} />
+		<div class="grid gap-4 py-4">
+			<div class="grid gap-2">
+				<Label for="create-name">Group Name</Label>
+				<Input
+					id="create-name"
+					bind:value={groupName}
+					placeholder="Enter group name"
+					required
+				/>
 			</div>
-			<Dialog.Footer>
-				<Button type="button" variant="outline" onclick={() => (createDialogOpen = false)}>
-					Cancel
-				</Button>
-				<Button type="submit">Create Group</Button>
-			</Dialog.Footer>
-		</form>
-	</Dialog.Content>
-</Dialog.Root>
-
-<!-- Random Assignment Dialog -->
-<Dialog.Root bind:open={randomAssignDialogOpen}>
-	<Dialog.Content class="sm:max-w-[425px]">
-		<Dialog.Header>
-			<Dialog.Title>Randomly Assign Students</Dialog.Title>
-			<Dialog.Description>
-				This will randomly assign the {data.students.length} students in {yearLevelToLabel(
-					yearLevel
-				)} to the {filteredGroups().length} groups as evenly as possible.
-			</Dialog.Description>
-		</Dialog.Header>
-		<form method="POST" action="?/randomlyAssign" use:randomAssignEnhance>
-			<input type="hidden" name="yearLevel" bind:value={$randomAssignFormData.yearLevel} />
-			<Dialog.Footer>
-				<Button type="button" variant="outline" onclick={() => (randomAssignDialogOpen = false)}>
-					Cancel
-				</Button>
-				<Button type="submit">Randomly Assign</Button>
-			</Dialog.Footer>
-		</form>
+		</div>
+		<Dialog.Footer>
+			<Button type="button" variant="outline" onclick={() => (createDialogOpen = false)}>
+				Cancel
+			</Button>
+			<Button type="button" onclick={createGroup} disabled={!groupName.trim() || creatingGroup}>
+				{creatingGroup ? 'Creating...' : 'Create Group'}
+			</Button>
+		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
 
 <!-- Page Information Dialog -->
 <Dialog.Root bind:open={infoDialogOpen}>
-	<Dialog.Content class="sm:max-w-[1000px] sm:max-h-[1000px]">
+	<Dialog.Content class="sm:max-h-[1000px] sm:max-w-[1000px]">
 		<Dialog.Header>
 			<Dialog.Title>Page Information</Dialog.Title>
 			<Dialog.Description>
@@ -400,20 +369,22 @@
 			<div class="grid gap-2">
 				<Label for="page-info">Information</Label>
 				<p
-					class="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring min-h-[200px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 					placeholder="Type important information about this page here..."
 				>
-			For a highschool model where there are no groupings of students and hence why no shared classes, its important to follow the following structure for grouping the students:
-			1. Create groups that represent the classes or subjects that students will be attending. 
-				- For example, if there is a Year 10 English class, create a group named "Year 10 English".
-			2. Assign students to these groups based on the classes they are enrolled in. 
-				- A student taking Year 10 English and Year 10 Math would be assigned to both the "Year 10 English" and "Year 10 Math" groups.
-			3. When creating activities, link them to the appropriate groups.
-				- For instance, the activity for the Year 10 English class should be associated with the "Year 10 English" group.
-			
-			NOTE: The more groups the better, so if you have 60 students that need to do english, however you can only have 30 studnets per class then you should
-			have 2 groups of "Year 10 English A" and "Year 10 English B" to ensure the students can be split into different classes.
-			</p>
+					For a highschool model where there are no groupings of students and hence why no shared
+					classes, its important to follow the following structure for grouping the students: 1.
+					Create groups that represent the classes or subjects that students will be attending. -
+					For example, if there is a Year 10 English class, create a group named "Year 10 English".
+					2. Assign students to these groups based on the classes they are enrolled in. - A student
+					taking Year 10 English and Year 10 Math would be assigned to both the "Year 10 English"
+					and "Year 10 Math" groups. 3. When creating activities, link them to the appropriate
+					groups. - For instance, the activity for the Year 10 English class should be associated
+					with the "Year 10 English" group. NOTE: The more groups the better, so if you have 60
+					students that need to do english, however you can only have 30 studnets per class then you
+					should have 2 groups of "Year 10 English A" and "Year 10 English B" to ensure the students
+					can be split into different classes.
+				</p>
 			</div>
 		</div>
 	</Dialog.Content>
