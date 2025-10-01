@@ -171,6 +171,16 @@ export async function createTimetableStudentGroup(
 	return group;
 }
 
+export async function deleteTimetableStudentGroup(groupId: number) {
+	// First, delete all group members
+	await db
+		.delete(table.timetableGroupMember)
+		.where(eq(table.timetableGroupMember.groupId, groupId));
+
+	// Then delete the group itself
+	await db.delete(table.timetableGroup).where(eq(table.timetableGroup.id, groupId));
+}
+
 export async function assignStudentsToGroupsRandomly(
 	timetableId: number,
 	yearLevel: yearLevelEnum,
@@ -244,6 +254,30 @@ export async function assignStudentsToGroupsRandomly(
 	return assignments.length;
 }
 
+export async function addStudentToTimetableGroup(groupId: number, userId: string) {
+	const [member] = await db
+		.insert(table.timetableGroupMember)
+		.values({
+			groupId,
+			userId
+		})
+		.onConflictDoNothing()
+		.returning();
+
+	return member;
+}
+
+export async function removeStudentFromTimetableGroup(groupId: number, userId: string) {
+	await db
+		.delete(table.timetableGroupMember)
+		.where(
+			and(
+				eq(table.timetableGroupMember.groupId, groupId),
+				eq(table.timetableGroupMember.userId, userId)
+			)
+		);
+}
+
 export async function getStudentsWithGroupsByTimetableId(timetableId: number, schoolId: number) {
 	const timetable = await db
 		.select()
@@ -291,6 +325,63 @@ export async function getStudentsWithGroupsByTimetableId(timetableId: number, sc
 			asc(table.user.middleName),
 			asc(table.user.firstName)
 		);
+
+	return students;
+}
+
+export async function getStudentsByGroupId(groupId: number) {
+	const students = await db
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			avatarUrl: table.user.avatarUrl,
+			yearLevel: table.user.yearLevel
+		})
+		.from(table.timetableGroupMember)
+		.innerJoin(table.user, eq(table.timetableGroupMember.userId, table.user.id))
+		.where(eq(table.timetableGroupMember.groupId, groupId))
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+
+	return students;
+}
+
+export async function getStudentsForTimetable(timetableId: number, schoolId: number) {
+	// Verify timetable belongs to school
+	const timetable = await db
+		.select()
+		.from(table.timetable)
+		.where(and(eq(table.timetable.id, timetableId), eq(table.timetable.schoolId, schoolId)))
+		.limit(1);
+
+	if (timetable.length === 0) {
+		throw new Error(
+			`Timetable with ID ${timetableId} does not belong to school with ID ${schoolId}`
+		);
+	}
+
+	// Get all students for the school
+	const students = await db
+		.select({
+			id: table.user.id,
+			email: table.user.email,
+			firstName: table.user.firstName,
+			middleName: table.user.middleName,
+			lastName: table.user.lastName,
+			avatarUrl: table.user.avatarUrl,
+			yearLevel: table.user.yearLevel
+		})
+		.from(table.user)
+		.where(
+			and(
+				eq(table.user.schoolId, schoolId),
+				eq(table.user.type, userTypeEnum.student),
+				eq(table.user.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.user.yearLevel), asc(table.user.lastName), asc(table.user.firstName));
 
 	return students;
 }

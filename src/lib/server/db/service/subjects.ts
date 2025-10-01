@@ -2,7 +2,8 @@ import {
 	subjectThreadResponseTypeEnum,
 	subjectThreadTypeEnum,
 	taskTypeEnum,
-	userTypeEnum
+	userTypeEnum,
+	yearLevelEnum
 } from '$lib/enums.js';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
@@ -405,6 +406,33 @@ export async function getSubjectsBySchoolId(schoolId: number, includeArchived: b
 			)
 		)
 		.orderBy(asc(table.subject.yearLevel), asc(table.subject.name));
+
+	return subjects;
+}
+
+export async function getSubjectsByYearLevel(
+	schoolId: number,
+	yearLevel: yearLevelEnum,
+	includeArchived: boolean = false
+) {
+	const subjects = await db
+		.select({
+			id: table.subject.id,
+			name: table.subject.name,
+			schoolId: table.subject.schoolId,
+			yearLevel: table.subject.yearLevel,
+			createdAt: table.subject.createdAt,
+			updatedAt: table.subject.updatedAt
+		})
+		.from(table.subject)
+		.where(
+			and(
+				eq(table.subject.schoolId, schoolId),
+				eq(table.subject.yearLevel, yearLevel),
+				includeArchived ? undefined : eq(table.subject.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.subject.name));
 
 	return subjects;
 }

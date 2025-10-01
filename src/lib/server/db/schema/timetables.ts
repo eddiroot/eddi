@@ -7,7 +7,8 @@ import {
 	text,
 	time,
 	unique,
-	uuid
+	uuid,
+	primaryKey
 } from 'drizzle-orm/pg-core';
 import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
@@ -128,14 +129,26 @@ export const timetableActivity = pgTable('tt_activity', {
 
 export type TimetableActivity = typeof timetableActivity.$inferSelect;
 
-export const TimetableActivityPreferredSpaces = pgTable('tt_activity_preferred_space', {
-	timetableActivityId: integer('tt_activity_id')
-		.primaryKey()
-		.references(() => timetableActivity.id, { onDelete: 'cascade' }),
-	schoolSpaceId: integer('sch_space_id')
-		.primaryKey()
-		.references(() => schoolSpace.id, { onDelete: 'cascade' })
-});
+export const TimetableActivityPreferredSpaces = pgTable(
+	'tt_activity_preferred_space',
+	{
+		timetableActivityId: integer('tt_activity_id')
+			.references(() => timetableActivity.id, { onDelete: 'cascade' })
+			.notNull(),
+		schoolSpaceId: integer('sch_space_id')
+			.references(() => schoolSpace.id, { onDelete: 'cascade' })
+			.notNull(),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'tt_activity_preferred_space_pkey',
+				columns: [table.timetableActivityId, table.schoolSpaceId]
+			})
+		};
+	}
+);
 
 export type TimetableActivityPreferredSpaces = typeof TimetableActivityPreferredSpaces.$inferSelect;
 

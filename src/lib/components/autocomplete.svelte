@@ -3,8 +3,8 @@
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
 	import { cn } from '$lib/utils';
-	import Check from '@lucide/svelte/icons/check.svelte';
-	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down.svelte';
+	import { Check } from '@lucide/svelte';
+	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 
 	interface Option {
 		value: string | number;
