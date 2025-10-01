@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import Calendar from '@lucide/svelte/icons/calendar.svelte';
-	import CheckCircle from '@lucide/svelte/icons/check.svelte';
-	import Loader from '@lucide/svelte/icons/loader.svelte';
-	import Lock from '@lucide/svelte/icons/lock.svelte';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import CheckCircle from '@lucide/svelte/icons/check';
+	import Loader from '@lucide/svelte/icons/loader';
+	import Lock from '@lucide/svelte/icons/lock';
 
 	let isGenerating = false;
 
