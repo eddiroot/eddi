@@ -815,3 +815,175 @@ export async function getSubjectClassAllocationsByUserIdForWeek(
 
 	return classAllocations;
 }
+
+// ============================================================================
+// SUBJECT SELECTION CONSTRAINT METHODS
+// ============================================================================
+
+/**
+ * Get all subject selection constraints for a school and year level
+ */
+export async function getSubjectSelectionConstraints(
+	schoolId: number,
+	yearLevel: yearLevelEnum,
+	year: number
+) {
+	const constraints = await db
+		.select({
+			constraint: table.subjectSelectionConstraint,
+			subjects: table.subjectSelectionConstraintSubject
+		})
+		.from(table.subjectSelectionConstraint)
+		.leftJoin(
+			table.subjectSelectionConstraintSubject,
+			eq(
+				table.subjectSelectionConstraintSubject.constraintId,
+				table.subjectSelectionConstraint.id
+			)
+		)
+		.where(
+			and(
+				eq(table.subjectSelectionConstraint.schoolId, schoolId),
+				eq(table.subjectSelectionConstraint.yearLevel, yearLevel),
+				eq(table.subjectSelectionConstraint.year, year)
+			)
+		)
+		.orderBy(asc(table.subjectSelectionConstraint.createdAt));
+
+	// Group subjects by constraint
+	const constraintMap = new Map<
+		number,
+		{
+			constraint: typeof table.subjectSelectionConstraint.$inferSelect;
+			subjects: Array<typeof table.subjectSelectionConstraintSubject.$inferSelect>;
+		}
+	>();
+
+	for (const row of constraints) {
+		if (!constraintMap.has(row.constraint.id)) {
+			constraintMap.set(row.constraint.id, {
+				constraint: row.constraint,
+				subjects: []
+			});
+		}
+		if (row.subjects) {
+			constraintMap.get(row.constraint.id)!.subjects.push(row.subjects);
+		}
+	}
+
+	return Array.from(constraintMap.values());
+}
+
+/**
+ * Get a single subject selection constraint by ID
+ */
+export async function getSubjectSelectionConstraintById(constraintId: number) {
+	const [constraint] = await db
+		.select()
+		.from(table.subjectSelectionConstraint)
+		.where(eq(table.subjectSelectionConstraint.id, constraintId))
+		.limit(1);
+
+	if (!constraint) {
+		return null;
+	}
+
+	const subjects = await db
+		.select()
+		.from(table.subjectSelectionConstraintSubject)
+		.where(eq(table.subjectSelectionConstraintSubject.constraintId, constraintId));
+
+	return {
+		constraint,
+		subjects
+	};
+}
+
+/**
+ * Create a new subject selection constraint
+ */
+export async function createSubjectSelectionConstraint(
+	schoolId: number,
+	yearLevel: yearLevelEnum,
+	year: number,
+	name: string,
+	description: string | null,
+	min: number,
+	max: number | null,
+	subjectIds: number[]
+) {
+	const [constraint] = await db
+		.insert(table.subjectSelectionConstraint)
+		.values({
+			schoolId,
+			yearLevel,
+			year,
+			name,
+			description,
+			min,
+			max
+		})
+		.returning();
+
+	if (subjectIds.length > 0) {
+		await db.insert(table.subjectSelectionConstraintSubject).values(
+			subjectIds.map((subjectId) => ({
+				constraintId: constraint.id,
+				subjectId
+			}))
+		);
+	}
+
+	return constraint;
+}
+
+/**
+ * Update a subject selection constraint
+ */
+export async function updateSubjectSelectionConstraint(
+	constraintId: number,
+	name: string,
+	description: string | null,
+	min: number,
+	max: number | null,
+	subjectIds: number[]
+) {
+	// Update the constraint
+	const [constraint] = await db
+		.update(table.subjectSelectionConstraint)
+		.set({
+			name,
+			description,
+			min,
+			max,
+			updatedAt: new Date()
+		})
+		.where(eq(table.subjectSelectionConstraint.id, constraintId))
+		.returning();
+
+	// Delete existing subject associations
+	await db
+		.delete(table.subjectSelectionConstraintSubject)
+		.where(eq(table.subjectSelectionConstraintSubject.constraintId, constraintId));
+
+	// Insert new subject associations
+	if (subjectIds.length > 0) {
+		await db.insert(table.subjectSelectionConstraintSubject).values(
+			subjectIds.map((subjectId) => ({
+				constraintId: constraint.id,
+				subjectId
+			}))
+		);
+	}
+
+	return constraint;
+}
+
+/**
+ * Delete a subject selection constraint
+ */
+export async function deleteSubjectSelectionConstraint(constraintId: number) {
+	await db
+		.delete(table.subjectSelectionConstraint)
+		.where(eq(table.subjectSelectionConstraint.id, constraintId));
+}

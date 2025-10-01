@@ -222,3 +222,34 @@ export const subjectOfferingClassResource = pgTable('sub_off_cls_res', {
 });
 
 export type SubjectOfferingClassResource = typeof subjectOfferingClassResource.$inferSelect;
+
+export const subjectSelectionConstraint = pgTable('sub_sel_constraint', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	schoolId: integer('school_id')
+		.notNull()
+		.references(() => school.id, { onDelete: 'cascade' }),
+	yearLevel: yearLevelEnumPg().notNull(),
+	year: integer('year').notNull(),
+	name: text('name').notNull(), // e.g., "Language requirement", "Science elective"
+	description: text('description'),
+	min: integer('min').notNull().default(0),
+	max: integer('max'),
+	...timestamps
+});
+
+export type SubjectSelectionConstraint = typeof subjectSelectionConstraint.$inferSelect;
+
+export const subjectSelectionConstraintSubject = pgTable('constraint_subject', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	constraintId: integer('constraint_id')
+		.notNull()
+		.references(() => subjectSelectionConstraint.id, { onDelete: 'cascade' }),
+	subjectId: integer('subject_id')
+		.notNull()
+		.references(() => subject.id, { onDelete: 'cascade' }),
+	// Optional: add a tag field for grouping on-the-fly
+	//tag: text('tag'), // e.g., "language", "science", null
+	...timestamps
+});
+
+export type SubjectSelectionConstraintSubject = typeof subjectSelectionConstraintSubject.$inferSelect;
