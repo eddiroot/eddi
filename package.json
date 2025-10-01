@@ -86,6 +86,7 @@
 		"fast-xml-parser": "^5.2.5",
 		"jsdom": "^26.1.0",
 		"mathjs": "^14.7.0",
+		"mathlive": "^0.107.0",
 		"minio": "^8.0.5",
 		"mode-watcher": "^1.0.7",
 		"node-cron": "^4.2.1",

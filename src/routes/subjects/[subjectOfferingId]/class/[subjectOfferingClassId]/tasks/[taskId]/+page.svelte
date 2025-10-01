@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { type TaskBlock } from '$lib/server/db/schema';
 	import { dndState, draggable, droppable, type DragDropState } from '@thisux/sveltednd';
-	// UI Components
+// UI Components
 	import { Badge } from '$lib/components/ui/badge';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
@@ -11,7 +11,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-	// Block Components
+// Block Components
 	import BlockAudio from './components/block-audio.svelte';
 	import BlockBalancingEquations from './components/block-balancing-equations.svelte';
 	import BlockChoice from './components/block-choice.svelte';
@@ -22,12 +22,13 @@
 	import BlockHighlightText from './components/block-highlight-text.svelte';
 	import BlockImage from './components/block-image.svelte';
 	import BlockMatching from './components/block-matching.svelte';
+	import BlockMathInput from './components/block-math-input.svelte';
 	import BlockRichText from './components/block-rich-text-editor.svelte';
 	import BlockShortAnswer from './components/block-short-answer.svelte';
 	import BlockTable from './components/block-table.svelte';
 	import BlockVideo from './components/block-video.svelte';
 	import BlockWhiteboard from './components/block-whiteboard.svelte';
-	// Icons
+// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import EyeIcon from '@lucide/svelte/icons/eye';
@@ -62,6 +63,7 @@
 		type BlockHighlightTextConfig,
 		type BlockImageConfig,
 		type BlockMatchingConfig,
+		type BlockMathInputConfig,
 		type BlockResponse,
 		type BlockRichTextConfig,
 		type BlockShortAnswerConfig,
@@ -684,7 +686,14 @@
 										{viewMode}
 									/>
 								{:else if block.type === taskBlockTypeEnum.mathInput}
-									<p>Math Input block component is not yet implemented.</p>
+									<BlockMathInput
+										config={block.config as BlockMathInputConfig}
+										onConfigUpdate={async (config) => await handleConfigUpdate(block, config)}
+										response={getCurrentResponse(block.id, block.type)}
+										onResponseUpdate={async (response) =>
+											await handleResponseUpdate(block.id, response)}
+										{viewMode}
+									/>
 								{:else if block.type === taskBlockTypeEnum.audio}
 									<BlockAudio
 										config={block.config as BlockAudioConfig}

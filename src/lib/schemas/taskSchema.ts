@@ -154,10 +154,11 @@ export const blockMathInput = {
 		config: {
 			type: 'object',
 			properties: {
+				text: { type: 'string' },
 				question: { type: 'string' },
-				answer: { type: 'string' }
+				answer: { type: 'string' },
 			},
-			required: ['question', 'answer']
+			required: ['text', 'question', 'answer']
 		},
 		criteria: {
 			type: 'array',
@@ -170,6 +171,7 @@ export const blockMathInput = {
 };
 
 export type BlockMathInputConfig = {
+	text: string;
 	question: string;
 	answer: string;
 };
@@ -758,6 +760,7 @@ import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
 import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
 import PresentationIcon from '@lucide/svelte/icons/presentation';
+import MathIcon from '@lucide/svelte/icons/sigma';
 import TableIcon from '@lucide/svelte/icons/table';
 import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 import VideoIcon from '@lucide/svelte/icons/video';
@@ -943,6 +946,16 @@ export const blockTypes: {
 			altText: ''
 		},
 		icon: AudioIcon
+	},
+	{
+		type: taskBlockTypeEnum.mathInput,
+		name: 'Math Input',
+		initialConfig: {
+			text: 'Solve this equation',
+			question: '2x+7=11',
+			answer: '2'
+		},
+		icon: MathIcon
 	}
 ];
 
