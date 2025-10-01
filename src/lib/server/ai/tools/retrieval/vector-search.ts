@@ -162,19 +162,6 @@ export class RetrievalToolFactory {
   }
 
   /**
-   * Create multiple tools for an agent - following LangGraph patterns
-   * Returns an array of tools that can be used with ToolNode
-   */
-  createToolsForSubject(subjectId: number, yearLevel?: number) {
-    return [
-      this.createCurriculumTool(subjectId, yearLevel),
-      this.createExamTool(subjectId, yearLevel),
-      this.createMisconceptionsTool(subjectId, yearLevel),
-      this.createExtraContentTool(subjectId, yearLevel)
-    ];
-  }
-
-  /**
    * Create a single unified retrieval tool that can handle different query types
    * This is more flexible and follows the LangGraph single-tool pattern
    */
@@ -193,7 +180,6 @@ export class RetrievalToolFactory {
   }
 }
 
-
 /**
  * Schema for the collection router tool
  * This will help the LLM decide which collection group to use based on the query context
@@ -210,11 +196,7 @@ const collectionRouterSchema = z.object({
     ])
     .describe("The type of educational content needed: curriculum_knowledge for learning objectives and content; assessment_practice for exam questions and examples; misconception_help for common errors and hints; extra_enrichment for supplementary materials; comprehensive_search for broad content searches."),
   subjectId: z.number().describe("The subject ID to search within."),
-  yearLevel: z.number().optional().describe("Optional year level to filter results."),
-  urgency: z
-    .enum(["low", "medium", "high"])
-    .optional()
-    .describe("Priority level - affects number of results returned.")
+  yearLevel: z.number().optional().describe("Optional year level to filter results.")
 });
 
 type CollectionRouterInput = z.infer<typeof collectionRouterSchema>;
@@ -223,11 +205,8 @@ export const createCollectionRouterTool = (manager: ChromaCollectionManager) => 
   const toolFactory = new RetrievalToolFactory(manager);
 
   return tool(
-    async ({ query, queryType, subjectId, yearLevel, urgency = "medium" }: CollectionRouterInput) => {
+    async ({ query, queryType, subjectId, yearLevel }: CollectionRouterInput) => {
       try {
-        // Determine k value based on urgency
-        const k = urgency === "high" ? 15 : urgency === "medium" ? 10 : 5;
-        
         let selectedTool;
         let toolDescription = "";
 
@@ -262,11 +241,6 @@ export const createCollectionRouterTool = (manager: ChromaCollectionManager) => 
             // Fallback to unified tool for unknown query types
             selectedTool = toolFactory.createUnifiedRetrievalTool(subjectId, yearLevel);
             toolDescription = "Using unified search across all educational content";
-        }
-
-        // Override the k value if needed
-        if (selectedTool instanceof MultiCollectionRetrievalTool) {
-          selectedTool['k'] = k;
         }
 
         // Execute the search

@@ -158,3 +158,10 @@ export enum newsVisibilityEnum {
 	staff = 'staff',
 	students = 'students'
 }
+
+export enum subjectGroupEnum {
+	maths = 'maths',
+	science = 'science',
+	english = 'english'
+}
+
