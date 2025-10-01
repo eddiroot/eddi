@@ -44,11 +44,12 @@
 - [x] View students work on tasks
 - [x] Create school news & news feed
 - [x] Class tests / quizzes
+- [x] Arithmetic/formula (handling maths in a friendly way)
+- [x] Image / Video / Audio
 
 ### Doing
 
 All
-
 - [ ] Security review e.g. prompt injection (Late October)
 - [ ] Content security policy in `svelte.config.js`
 - [ ] Check uniqueness rules on tables (Late October)
@@ -56,7 +57,6 @@ All
 - [ ] Shift away from static school id for OAuth (search TODO)
 
 Lachie
-
 - [ ] Start the scheduled quiz on load (if within the time)
 - [ ] Highlight (more than one word at once)
 - [ ] Fill blank (partition box into multiple if multi word answer)
@@ -64,15 +64,16 @@ Lachie
 - [ ] Editable table block for students (is editable checkbox) (add questions on top of the table that teacher can add)
 
 Bella
+- [ ] Subject selection
+- [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
 
-- [ ] Add/refine current task blocks
-  - Maths
-    - [ ] Arithmetic/formula (handling maths in a friendly way)
-  - Science
-    - [ ] Image / Video / Audio
-    - [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
-  - Other
-    - [ ] Matching
+Jack
+- [ ] Refactoring Task Blocks to lang 
+- [ ] Improved lesson generation
+- [ ] Improved lesson/assessment plan
+- [ ] Chatbot
+  - [ ] Hints 
+  - [ ] Generate example
 
 Max
 
@@ -105,8 +106,6 @@ Raph
   - admin grade style option (percentage vs 0-8 scale)
 
 Blake
-
-- [ ] Subject selection
 - [ ] Handling of multiple campuses
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
