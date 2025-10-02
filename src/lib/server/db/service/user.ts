@@ -246,3 +246,16 @@ export async function getUserProfileById(userId: string) {
 		.limit(1);
 	return user.length > 0 ? user[0] : null;
 }
+
+export async function getTeacherSpecializationsByTeacherId(teacherId: string) {
+	const specializations = await db
+		.select({
+			subjectId: table.userTeacherSpecialization.subjectId,
+			subjectName: table.subject.name
+		})
+		.from(table.userTeacherSpecialization)
+		.innerJoin(table.subject, eq(table.subject.id, table.userTeacherSpecialization.subjectId))
+		.where(eq(table.userTeacherSpecialization.teacherId, teacherId));
+
+	return specializations;
+}

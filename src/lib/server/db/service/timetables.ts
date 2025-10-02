@@ -154,6 +154,116 @@ export async function getTimetableStudentGroupsWithCountsByTimetableId(timetable
 	return groups;
 }
 
+/**
+ * Get all student groups organized by year level with individual student subgroups
+ * for FET timetable generation
+ */
+export async function getStudentGroupsByTimetableId(timetableId: number) {
+	// Get all groups with their members
+	const groupsWithMembers = await db
+		.select({
+			groupId: table.timetableGroup.id,
+			groupName: table.timetableGroup.name,
+			yearLevel: table.timetableGroup.yearLevel,
+			userId: table.timetableGroupMember.userId,
+			userFirstName: table.user.firstName,
+			userLastName: table.user.lastName
+		})
+		.from(table.timetableGroup)
+		.leftJoin(
+			table.timetableGroupMember,
+			eq(table.timetableGroup.id, table.timetableGroupMember.groupId)
+		)
+		.leftJoin(table.user, eq(table.timetableGroupMember.userId, table.user.id))
+		.where(eq(table.timetableGroup.timetableId, timetableId))
+		.orderBy(
+			asc(table.timetableGroup.yearLevel),
+			asc(table.timetableGroup.name),
+			asc(table.user.firstName)
+		);
+
+	// Organize data by year level
+	const yearLevelMap = new Map<
+		string,
+		{
+			totalStudents: Set<string>;
+			groups: Map<
+				number,
+				{
+					name: string;
+					students: Array<{ id: string; name: string }>;
+				}
+			>;
+		}
+	>();
+
+	// Process all rows
+	for (const row of groupsWithMembers) {
+		const yearLevel = row.yearLevel;
+
+		if (!yearLevelMap.has(yearLevel)) {
+			yearLevelMap.set(yearLevel, {
+				totalStudents: new Set(),
+				groups: new Map()
+			});
+		}
+
+		const yearData = yearLevelMap.get(yearLevel)!;
+
+		// Track group - use group ID as the name for FET
+		if (!yearData.groups.has(row.groupId)) {
+			yearData.groups.set(row.groupId, {
+				name: row.groupId.toString(),
+				students: []
+			});
+		}
+
+		// Track student if present
+		if (row.userId) {
+			yearData.totalStudents.add(row.userId);
+			// Use user ID as the name for FET
+			yearData.groups.get(row.groupId)!.students.push({
+				id: row.userId,
+				name: row.userId
+			});
+		}
+	}
+
+	// Convert to FET-compatible flat structure
+	const years: Array<{ Name: string; Number_of_Students: number }> = [];
+	const groups: Array<{ Name: string; Number_of_Students: number }> = [];
+	const allStudentsGlobal = new Map<string, string>();
+
+	for (const [yearLevel, data] of yearLevelMap.entries()) {
+		// Add year entry
+		years.push({
+			Name: yearLevel,
+			Number_of_Students: data.totalStudents.size
+		});
+
+		// Add all groups from this year
+		for (const group of data.groups.values()) {
+			groups.push({
+				Name: group.name,
+				Number_of_Students: group.students.length
+			});
+
+			// Collect all students globally
+			for (const student of group.students) {
+				allStudentsGlobal.set(student.id, student.name);
+			}
+		}
+	}
+
+	// Create subgroups from all unique students
+	const subgroups = Array.from(allStudentsGlobal.entries()).map(([studentId]) => ({
+		Name: studentId,
+		Number_of_Students: 1
+	}));
+
+	return { years, groups, subgroups };
+}
+
 export async function createTimetableStudentGroup(
 	timetableId: number,
 	yearLevel: yearLevelEnum,
@@ -394,6 +504,33 @@ export async function getTimetableActivitiesByTimetableId(timetableId: number) {
 		.from(table.timetableActivity)
 		.where(eq(table.timetableActivity.timetableId, timetableId))
 		.orderBy(asc(table.timetableActivity.subjectId));
+
+	return activities;
+}
+
+export async function getEnhancedTimetableActivitiesByTimetableId(timetableId: number) {
+	const baseActivities = await getTimetableActivitiesByTimetableId(timetableId);
+
+	const activities = await Promise.all(
+		baseActivities.map(async (activity) => {
+			const [teachers, locations, students, groups, years] = await Promise.all([
+				getTimetableActivityTeachers(activity.id),
+				getTimetableActivityLocations(activity.id),
+				getTimetableActivityStudents(activity.id),
+				getTimetableActivityGroups(activity.id),
+				getTimetableActivityYears(activity.id)
+			]);
+
+			return {
+				...activity,
+				teacherIds: teachers.map((t) => t.id),
+				locationIds: locations.map((l) => l.id),
+				studentIds: students.map((s) => s.id),
+				groupIds: groups.map((g) => g.id),
+				yearLevels: years.map((y) => y.yearLevel)
+			};
+		})
+	);
 
 	return activities;
 }

@@ -19,13 +19,14 @@
 - [ ] deleting one deletes all fix that
 - [x] get a way of calling fet-cl through code
 - [ ] Understand how the api call works with the command line and dockerization
-  - [ ] handle the retrieval of the output for the 
-- [ ] Fix the groups/students page of the timetabling
+  - [ ] handle the retrieval of the output for the results page
+- [x] Fix the groups/students page of the timetabling
 - [ ] Create the documentation page for the timetabling process and understandings of how fet works.
-- [ ] what is the constraint to ensure that activities must be assigned to rooms?
-  - [ ] add fk constraint to the fetActivity table
+- [x] what is the constraint to ensure that activities must be assigned to rooms?
+  - [x] add fk constraint to the fetActivity table
 - [ ] fix the results page to handle to handle appropriate statistics page
-- [ ] Timetable generation id? 
-  - [ ] can a timetable have multiple generations? 
+- [ ] Timetable generation id?
+  - [ ] can a timetable have multiple generations?
   - [ ] I think yes but how do we showcase this.......
-
+- [ ] Fix the fet generation to handle the new groups accurately.
+- [ ]

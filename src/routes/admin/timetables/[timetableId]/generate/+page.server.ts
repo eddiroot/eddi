@@ -2,13 +2,13 @@ import { userTypeEnum } from '$lib/enums.js';
 import {
 	getActiveTimetableConstraintsForTimetable,
 	getBuildingsBySchoolId,
+	getEnhancedTimetableActivitiesByTimetableId,
 	getSchoolById,
 	getSpacesBySchoolId,
+	getStudentGroupsByTimetableId,
 	getSubjectsBySchoolId,
-	getTimetableActivitiesByTimetableId,
 	getTimetableDays,
 	getTimetablePeriods,
-	getTimetableStudentGroupsWithCountsByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
@@ -39,8 +39,8 @@ export const actions = {
 			] = await Promise.all([
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId),
-				getTimetableStudentGroupsWithCountsByTimetableId(timetableId),
-				getTimetableActivitiesByTimetableId(timetableId),
+				getStudentGroupsByTimetableId(timetableId),
+				getEnhancedTimetableActivitiesByTimetableId(timetableId),
 				getBuildingsBySchoolId(user.schoolId),
 				getSpacesBySchoolId(user.schoolId),
 				getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher),
@@ -49,7 +49,7 @@ export const actions = {
 				getActiveTimetableConstraintsForTimetable(timetableId)
 			]);
 
-			const xmlContent = buildFETInput({
+			const xmlContent = await buildFETInput({
 				timetableDays,
 				timetablePeriods,
 				studentGroups,
@@ -61,6 +61,8 @@ export const actions = {
 				school,
 				activeConstraints
 			});
+
+			// console.log('FET XML generation successful.', (await xmlContent).substring(0, 500)); // Log first 500 characters
 
 			// Call the FET API to generate the timetable
 			try {

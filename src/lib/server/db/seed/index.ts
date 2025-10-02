@@ -1309,6 +1309,68 @@ async function seed() {
 			teacherIds.push(newTeacher.id);
 		}
 
+		// Add teacher specializations - match teachers to their core subjects
+		const teacherSpecializations = [];
+
+		// Math Teacher (index 0) - specializes in Mathematics subjects
+		const mathSubjects = subjects.filter((s) => s.name.includes('Mathematics'));
+		for (const subject of mathSubjects) {
+			teacherSpecializations.push({
+				teacherId: teacherIds[0],
+				subjectId: subject.id
+			});
+		}
+
+		// English Teacher (index 1) - specializes in English subjects
+		const englishSubjects = subjects.filter((s) => s.name.includes('English'));
+		for (const subject of englishSubjects) {
+			teacherSpecializations.push({
+				teacherId: teacherIds[1],
+				subjectId: subject.id
+			});
+		}
+
+		// Science Teacher (index 2) - specializes in Science subjects
+		const scienceSubjects = subjects.filter((s) => s.name.includes('Science'));
+		for (const subject of scienceSubjects) {
+			teacherSpecializations.push({
+				teacherId: teacherIds[2],
+				subjectId: subject.id
+			});
+		}
+
+		// PE Teacher (index 3) - specializes in Physical Education subjects
+		const peSubjects = subjects.filter((s) => s.name.includes('Physical Education'));
+		for (const subject of peSubjects) {
+			teacherSpecializations.push({
+				teacherId: teacherIds[3],
+				subjectId: subject.id
+			});
+		}
+
+		// History Teacher (index 4) - specializes in History subjects
+		const historySubjects = subjects.filter((s) => s.name.includes('History'));
+		for (const subject of historySubjects) {
+			teacherSpecializations.push({
+				teacherId: teacherIds[4],
+				subjectId: subject.id
+			});
+		}
+
+		// Geography Teacher (index 5) - specializes in Geography subjects
+		const geographySubjects = subjects.filter((s) => s.name.includes('Geography'));
+		for (const subject of geographySubjects) {
+			teacherSpecializations.push({
+				teacherId: teacherIds[5],
+				subjectId: subject.id
+			});
+		}
+
+		// Insert all teacher specializations
+		if (teacherSpecializations.length > 0) {
+			await db.insert(schema.userTeacherSpecialization).values(teacherSpecializations);
+		}
+
 		// Assign users to campus
 		const allUserIds = [
 			systemAdmin.id,

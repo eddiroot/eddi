@@ -4,21 +4,22 @@ import type { FETActivity, FETOutput } from '$lib/schemas/fetSchema';
 import {
 	getActiveTimetableConstraintsForTimetable,
 	getBuildingsBySchoolId,
+	getEnhancedTimetableActivitiesByTimetableId,
 	getSchoolById,
 	getSpacesBySchoolId,
+	getStudentGroupsByTimetableId,
 	getSubjectsBySchoolId,
-	getTimetableActivitiesByTimetableId,
+	getTeacherSpecializationsByTeacherId,
 	getTimetableDays,
 	getTimetablePeriods,
-	getTimetableStudentGroupsWithCountsByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 
 export type TimetableData = {
 	timetableDays: Awaited<ReturnType<typeof getTimetableDays>>;
 	timetablePeriods: Awaited<ReturnType<typeof getTimetablePeriods>>;
-	studentGroups: Awaited<ReturnType<typeof getTimetableStudentGroupsWithCountsByTimetableId>>;
-	activities: Awaited<ReturnType<typeof getTimetableActivitiesByTimetableId>>;
+	studentGroups: Awaited<ReturnType<typeof getStudentGroupsByTimetableId>>;
+	activities: Awaited<ReturnType<typeof getEnhancedTimetableActivitiesByTimetableId>>;
 	buildings: Awaited<ReturnType<typeof getBuildingsBySchoolId>>;
 	spaces: Awaited<ReturnType<typeof getSpacesBySchoolId>>;
 	teachers: Awaited<ReturnType<typeof getUsersBySchoolIdAndType>>;
@@ -27,7 +28,7 @@ export type TimetableData = {
 	activeConstraints: Awaited<ReturnType<typeof getActiveTimetableConstraintsForTimetable>>;
 };
 
-export function buildFETInput({
+export async function buildFETInput({
 	timetableDays,
 	timetablePeriods,
 	studentGroups,
@@ -51,65 +52,84 @@ export function buildFETInput({
 		Name: subject.id
 	}));
 
-	const teachersList = teachers.map((teacher) => {
-		const teacherActivities = activities.filter((activity) => activity.teacher.id === teacher.id);
-		const qualifiedSubjects = [
-			...new Set(teacherActivities.map((activity) => activity.subject.id))
-		];
+	// Use Promise.all to await all teacher specialization queries
+	const teachersList = await Promise.all(
+		teachers.map(async (teacher) => {
+			const qualifiedSubjects = await getTeacherSpecializationsByTeacherId(teacher.id);
+			console.log(`Teacher ${teacher.id} qualified subjects:`, qualifiedSubjects);
+			const subjectIds = qualifiedSubjects.map((qs) => qs.subjectId);
 
-		return {
-			Name: teacher.id,
-			Target_Number_of_Hours: '',
-			Qualified_Subjects:
-				qualifiedSubjects.length > 0
-					? {
-							Qualified_Subject: qualifiedSubjects
-						}
-					: undefined
-		};
-	});
-
-	const groupsByYearLevel = studentGroups.reduce(
-		(acc, group) => {
-			if (!acc[group.yearLevel]) {
-				acc[group.yearLevel] = [];
-			}
-			acc[group.yearLevel].push(group);
-			return acc;
-		},
-		{} as Record<string, typeof studentGroups>
+			return {
+				Name: teacher.id,
+				Target_Number_of_Hours: '',
+				Qualified_Subjects:
+					subjectIds.length > 0
+						? {
+								Number_of_Qualified_Subjects: subjectIds.length,
+								Qualified_Subject: subjectIds
+							}
+						: undefined
+			};
+		})
 	);
 
-	const studentsList = Object.entries(groupsByYearLevel).map(([yearLevel, groups]) => ({
-		Name: yearLevel,
-		Number_of_Students: groups.reduce((sum, group) => sum + group.count, 0),
-		Group: groups.map((group) => ({
-			Name: group.id,
-			Number_of_Students: group.count
-		}))
-	}));
+	// studentGroups now has flat structure: { years: [...], groups: [...], subgroups: [...] }
+	// Combine all into a single flat Students_List structure
+	const studentsList = {
+		Year: studentGroups.years,
+		Group: studentGroups.groups,
+		Subgroup: studentGroups.subgroups
+	};
 
-	const activitiesList = activities.map((activity) => {
+	const activitiesList = activities.flatMap((activity) => {
+		// Collect all teacher IDs
+		const teacherIds = activity.teacherIds;
+
+		// Collect all student identifiers (groups, year levels, and individual students)
+		const studentIdentifiers: string[] = [];
+
+		// Add group IDs
+		if (activity.groupIds.length > 0) {
+			studentIdentifiers.push(...activity.groupIds.map((id) => id.toString()));
+		}
+
+		// Add year levels
+		if (activity.yearLevels.length > 0) {
+			studentIdentifiers.push(...activity.yearLevels.map((yl) => yl.toString()));
+		}
+
+		// Add individual student IDs
+		if (activity.studentIds.length > 0) {
+			studentIdentifiers.push(...activity.studentIds.map((id) => id.toString()));
+		}
+
+		// If no teachers or students assigned, skip this activity
+		if (teacherIds.length === 0 || studentIdentifiers.length === 0) {
+			console.warn(`Activity ${activity.id} skipped: missing teachers or students`);
+			return [];
+		}
+
+		// Create activity template with multiple Teachers and Students entries
 		const activityTemplate = {
-			Teacher: activity.teacher.id,
-			Subject: activity.subject.id,
-			Students: activity.studentGroup.id,
-			Duration: activity.activity.periodsPerInstance,
-			Total_Duration: activity.activity.totalPeriods,
+			Teacher: teacherIds, // Array of teacher IDs
+			Subject: activity.subjectId.toString(),
+			Students: studentIdentifiers.toString(), // Array of student identifiers
+			Duration: activity.periodsPerInstance,
+			Total_Duration: activity.totalPeriods,
 			Activity_Group_Id: 0,
 			Active: true,
 			Id: 0 // Placeholder for later assignment
 		};
 
-		return Array.from({ length: activity.activity.totalPeriods }, () => ({ ...activityTemplate }));
+		// Create multiple instances based on totalPeriods / periodsPerInstance
+		const numberOfInstances = Math.ceil(activity.totalPeriods / activity.periodsPerInstance);
+		return Array.from({ length: numberOfInstances }, () => ({ ...activityTemplate }));
 	});
 
-	// For loop over the nested array structure to add IDs to each activity
-	for (let i = 0; i < activitiesList.length; i++) {
-		for (let j = 0; j < activitiesList[i].length; j++) {
-			activitiesList[i][j].Id = i * activitiesList[i].length + j;
-		}
-	}
+	// Assign unique IDs to each activity
+	activitiesList.forEach((activity, index) => {
+		activity.Id = index + 1; // FET IDs typically start at 1
+	});
 
 	const buildingsList = buildings.map((building) => ({
 		Name: building.id
@@ -164,6 +184,45 @@ export function buildFETInput({
 		}
 	});
 
+	// Generate ConstraintActivityPreferredRooms for activities with preferred spaces
+	const preferredRoomsConstraints: Array<{
+		Weight_Percentage: number;
+		Activity_Id: number;
+		Number_of_Preferred_Rooms: number;
+		Preferred_Room: string[];
+		Permanently_Locked: boolean;
+		Active: boolean;
+		Comments: string;
+	}> = [];
+
+	// Group activities by their location preferences
+	const activitiesWithLocations = activities.filter((activity) => activity.locationIds.length > 0);
+
+	activitiesWithLocations.forEach((activity) => {
+		// Find all activity instances for this activity in the activitiesList
+		const activityInstances = activitiesList.filter(
+			(act) => act.Subject === activity.subjectId.toString()
+		);
+
+		// For each instance, add a constraint with the preferred rooms
+		activityInstances.forEach((activityInstance) => {
+			preferredRoomsConstraints.push({
+				Weight_Percentage: 95,
+				Activity_Id: activityInstance.Id,
+				Number_of_Preferred_Rooms: activity.locationIds.length,
+				Preferred_Room: activity.locationIds.map((id) => id.toString()),
+				Permanently_Locked: false,
+				Active: true,
+				Comments: `Preferred rooms for activity ${activity.id}`
+			});
+		});
+	});
+
+	// Add the preferred rooms constraints to the space constraints
+	if (preferredRoomsConstraints.length > 0) {
+		spaceConstraintsXML['ConstraintActivityPreferredRooms'] = preferredRoomsConstraints;
+	}
+
 	const xmlData = {
 		'?xml': {
 			'@_version': '1.0',
@@ -189,11 +248,9 @@ export function buildFETInput({
 			Teachers_List: {
 				Teacher: teachersList
 			},
-			Students_List: {
-				Year: studentsList
-			},
+			Students_List: studentsList,
 			Activities_List: {
-				Activity: activitiesList.flatMap((activity) => activity)
+				Activity: activitiesList
 			},
 			Buildings_List: {
 				Building: buildingsList
@@ -218,6 +275,7 @@ export function buildFETInput({
 
 	const xmlDataWithConstraints = builder.build(xmlData);
 
+	// console.log(xmlDataWithConstraints);
 	return xmlDataWithConstraints;
 }
 

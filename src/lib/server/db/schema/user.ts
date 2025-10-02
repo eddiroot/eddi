@@ -3,6 +3,7 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
+	primaryKey,
 	text,
 	timestamp,
 	unique,
@@ -16,7 +17,7 @@ import {
 } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
 import { campus, school } from './schools';
-import { subjectOffering, subjectOfferingClass } from './subjects';
+import { subject, subjectOffering, subjectOfferingClass } from './subjects';
 import { timestamps } from './utils';
 
 export const userTypeEnumPg = pgEnum('enum_user_type', [
@@ -149,3 +150,26 @@ export const session = pgTable('session', {
 });
 
 export type Session = typeof session.$inferSelect;
+
+export const userTeacherSpecialization = pgTable(
+	'user_teacher_specialization',
+	{
+		teacherId: uuid('teacher_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		subjectId: integer('subject_id')
+			.notNull()
+			.references(() => subject.id, { onDelete: 'cascade' }),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'teacher_spec_pkey',
+				columns: [table.teacherId, table.subjectId]
+			})
+		};
+	}
+);
+
+export type TeacherSpecialization = typeof userTeacherSpecialization.$inferSelect;
