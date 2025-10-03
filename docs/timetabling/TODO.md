@@ -3,6 +3,7 @@
 ## Checks
 
 - [ ] ensure that all rooms, teachers and students that are in the timetable actually exist in the database and havent been deleted
+  - [ ] NOTE: FET will give an error message on return so this can be used and passed back to the user whilst the timetable is being generated
 - [x] Allow the created constraints to be checked or not if they want to include them in the timetable generation
 - [x] Create backend operations to ensure that constraints can be stored in the database against the timetable
 - [x] Enable a way to decode the constraints in the timetable to then allow them to be included into the fet file generation
@@ -10,6 +11,7 @@
 - [x] Find a way to enable type safety in the forms for each constraint
 - [x] Create seeding data for a timetable and the timetables constraints
   - [ ] maybe add more students, subjects and activities for the school
+  - [ ] maybe find a fake dataset that has all of the classrooms, their capacities, then the number of students for each year and their respective subjects etc
 - [x] implement handling for whether a constraint can be set as active or not (mandatory)
 - [x] handle the repeatablity of certain constraints
 - [ ] Add ALL of the constraints to the seed data
@@ -20,6 +22,8 @@
 - [x] get a way of calling fet-cl through code
 - [ ] Understand how the api call works with the command line and dockerization
   - [ ] handle the retrieval of the output for the results page
+  - [ ] clean up what currently isnt being used.
+  - [ ] I want a full day of updating the code to be clean and efficient
 - [x] Fix the groups/students page of the timetabling
 - [ ] Create the documentation page for the timetabling process and understandings of how fet works.
 - [x] what is the constraint to ensure that activities must be assigned to rooms?
@@ -28,5 +32,5 @@
 - [ ] Timetable generation id?
   - [ ] can a timetable have multiple generations?
   - [ ] I think yes but how do we showcase this.......
-- [ ] Fix the fet generation to handle the new groups accurately.
-- [ ]
+- [ ] fix the fet activity table to handle years, groups (already done) and then subgroups.
+  - [ ] then depending on the student grouping, ensure that every student is assigned a fetactivity for that grouping
