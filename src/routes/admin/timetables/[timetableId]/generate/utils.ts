@@ -65,7 +65,6 @@ export async function buildFETInput({
 				Qualified_Subjects:
 					subjectIds.length > 0
 						? {
-								Number_of_Qualified_Subjects: subjectIds.length,
 								Qualified_Subject: subjectIds
 							}
 						: undefined
@@ -73,13 +72,9 @@ export async function buildFETInput({
 		})
 	);
 
-	// studentGroups now has flat structure: { years: [...], groups: [...], subgroups: [...] }
-	// Combine all into a single flat Students_List structure
-	const studentsList = {
-		Year: studentGroups.years,
-		Group: studentGroups.groups,
-		Subgroup: studentGroups.subgroups
-	};
+	// studentGroups is now nested: Year -> Group -> Subgroup
+	// It's already in the correct FET format from getStudentGroupsByTimetableId
+	const studentsList = studentGroups;
 
 	const activitiesList = activities.flatMap((activity) => {
 		// Collect all teacher IDs
@@ -111,9 +106,9 @@ export async function buildFETInput({
 
 		// Create activity template with multiple Teachers and Students entries
 		const activityTemplate = {
-			Teacher: teacherIds, // Array of teacher IDs
+			Teacher: teacherIds, // Array of teacher IDs - XML builder will create multiple <Teacher> tags
 			Subject: activity.subjectId.toString(),
-			Students: studentIdentifiers.toString(), // Array of student identifiers
+			Students: studentIdentifiers, // Array of student identifiers - XML builder will create multiple <Students> tags
 			Duration: activity.periodsPerInstance,
 			Total_Duration: activity.totalPeriods,
 			Activity_Group_Id: 0,
@@ -122,7 +117,8 @@ export async function buildFETInput({
 		};
 
 		// Create multiple instances based on totalPeriods / periodsPerInstance
-		const numberOfInstances = Math.ceil(activity.totalPeriods / activity.periodsPerInstance);
+		// const numberOfInstances = Math.ceil(activity.totalPeriods / activity.periodsPerInstance);
+		const numberOfInstances = 1;
 		return Array.from({ length: numberOfInstances }, () => ({ ...activityTemplate }));
 	});
 
@@ -190,7 +186,6 @@ export async function buildFETInput({
 		Activity_Id: number;
 		Number_of_Preferred_Rooms: number;
 		Preferred_Room: string[];
-		Permanently_Locked: boolean;
 		Active: boolean;
 		Comments: string;
 	}> = [];
@@ -211,7 +206,6 @@ export async function buildFETInput({
 				Activity_Id: activityInstance.Id,
 				Number_of_Preferred_Rooms: activity.locationIds.length,
 				Preferred_Room: activity.locationIds.map((id) => id.toString()),
-				Permanently_Locked: false,
 				Active: true,
 				Comments: `Preferred rooms for activity ${activity.id}`
 			});
@@ -248,7 +242,9 @@ export async function buildFETInput({
 			Teachers_List: {
 				Teacher: teachersList
 			},
-			Students_List: studentsList,
+			Students_List: {
+				Year: studentsList
+			},
 			Activities_List: {
 				Activity: activitiesList
 			},

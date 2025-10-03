@@ -229,39 +229,32 @@ export async function getStudentGroupsByTimetableId(timetableId: number) {
 		}
 	}
 
-	// Convert to FET-compatible flat structure
-	const years: Array<{ Name: string; Number_of_Students: number }> = [];
-	const groups: Array<{ Name: string; Number_of_Students: number }> = [];
-	const allStudentsGlobal = new Map<string, string>();
+	// Convert to FET-compatible nested structure
+	const result = [];
 
 	for (const [yearLevel, data] of yearLevelMap.entries()) {
-		// Add year entry
-		years.push({
+		// Build groups for this year with their subgroups
+		const groupsForYear = Array.from(data.groups.values()).map((group) => ({
+			Name: group.name,
+			Number_of_Students: group.students.length,
+			// Only include Subgroup array if there are students
+			...(group.students.length > 0 && {
+				Subgroup: group.students.map((student) => ({
+					Name: student.id,
+					Number_of_Students: 1
+				}))
+			})
+		}));
+
+		// Add year entry with nested groups
+		result.push({
 			Name: yearLevel,
-			Number_of_Students: data.totalStudents.size
+			Number_of_Students: data.totalStudents.size,
+			...(groupsForYear.length > 0 && { Group: groupsForYear })
 		});
-
-		// Add all groups from this year
-		for (const group of data.groups.values()) {
-			groups.push({
-				Name: group.name,
-				Number_of_Students: group.students.length
-			});
-
-			// Collect all students globally
-			for (const student of group.students) {
-				allStudentsGlobal.set(student.id, student.name);
-			}
-		}
 	}
 
-	// Create subgroups from all unique students
-	const subgroups = Array.from(allStudentsGlobal.entries()).map(([studentId]) => ({
-		Name: studentId,
-		Number_of_Students: 1
-	}));
-
-	return { years, groups, subgroups };
+	return result;
 }
 
 export async function createTimetableStudentGroup(
