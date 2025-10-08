@@ -76,6 +76,9 @@ export async function buildFETInput({
 	// It's already in the correct FET format from getStudentGroupsByTimetableId
 	const studentsList = studentGroups;
 
+	// Track the next Activity_Group_Id to use
+	let nextActivityGroupId = 1;
+
 	const activitiesList = activities.flatMap((activity) => {
 		// Collect all teacher IDs
 		const teacherIds = activity.teacherIds;
@@ -104,22 +107,29 @@ export async function buildFETInput({
 			return [];
 		}
 
-		// Create activity template with multiple Teachers and Students entries
-		const activityTemplate = {
-			Teacher: teacherIds, // Array of teacher IDs - XML builder will create multiple <Teacher> tags
-			Subject: activity.subjectId.toString(),
-			Students: studentIdentifiers, // Array of student identifiers - XML builder will create multiple <Students> tags
-			Duration: activity.periodsPerInstance,
-			Total_Duration: activity.totalPeriods,
-			Activity_Group_Id: 0,
-			Active: true,
-			Id: 0 // Placeholder for later assignment
-		};
+		// Assign a unique Activity_Group_Id for this logical activity
+		const activityGroupId = nextActivityGroupId++;
 
-		// Create multiple instances based on totalPeriods / periodsPerInstance
-		// const numberOfInstances = Math.ceil(activity.totalPeriods / activity.periodsPerInstance);
-		const numberOfInstances = 1;
-		return Array.from({ length: numberOfInstances }, () => ({ ...activityTemplate }));
+		// Calculate how many split activities we need
+		// If totalPeriods > periodsPerInstance, we create multiple activities (splits)
+		const numberOfSplits = Math.ceil(activity.totalPeriods / activity.periodsPerInstance);
+
+		// Create split activities
+		const splitActivities = [];
+		for (let i = 0; i < numberOfSplits; i++) {
+			splitActivities.push({
+				Teacher: teacherIds, // Array of teacher IDs - XML builder will create multiple <Teacher> tags
+				Subject: activity.subjectId.toString(),
+				Students: studentIdentifiers, // Array of student identifiers - XML builder will create multiple <Students> tags
+				Duration: activity.periodsPerInstance, // Duration of this split
+				Total_Duration: activity.totalPeriods, // Total duration across all splits
+				Activity_Group_Id: activityGroupId, // Links all splits together
+				Active: true,
+				Id: 0 // Placeholder - will be assigned later
+			});
+		}
+
+		return splitActivities;
 	});
 
 	// Assign unique IDs to each activity
