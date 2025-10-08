@@ -1,5 +1,6 @@
 import { queueStatusEnum } from '$lib/enums.js';
 import {
+	deleteTimetableIteration,
 	getInProgressTimetableQueues,
 	getOldestQueuedTimetable,
 	updateTimetableQueueStatus
@@ -61,14 +62,22 @@ export async function processTimetableQueue() {
 
 			const schoolId = queueEntry.school.id.toString();
 			const timetableId = queueEntry.timetableId.toString();
+			const iterationId = queueEntry.iterationId.toString();
 			const fileName = queueEntry.fileName;
 
 			console.log('📥 [TIMETABLE PROCESSOR] Downloading input file from object storage...');
 			console.log(`   - School ID: ${schoolId}`);
 			console.log(`   - Timetable ID: ${timetableId}`);
+			console.log(`   - Iteration ID: ${iterationId}`);
 			console.log(`   - File name: ${fileName}`);
 
-			const fileBuffer = await getFileFromStorage(schoolId, timetableId, fileName, true);
+			const fileBuffer = await getFileFromStorage(
+				schoolId,
+				timetableId,
+				fileName,
+				true,
+				iterationId
+			);
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] File downloaded successfully - Size: ${fileBuffer.length} bytes`
 			);
@@ -157,9 +166,9 @@ export async function processTimetableQueue() {
 				);
 
 				// Track specific files for database processing
-				let dataAndTimetableFetContent = '';
-				let activitiesXmlContent = '';
-				let timetableCSV = '';
+				// const dataAndTimetableFetContent = '';
+				// const activitiesXmlContent = '';
+				// const timetableCSV = '';
 
 				for (const filePath of allFiles) {
 					try {
@@ -173,16 +182,16 @@ export async function processTimetableQueue() {
 						const fileContent = await execAsync(catCommand, { timeout: 2 * 60 * 1000 });
 
 						// Check for specific files needed for database processing (suffix match)
-						if (fileName.endsWith('data_and_timetable.fet')) {
-							dataAndTimetableFetContent = fileContent.stdout;
-							console.log(`   🎯 Found database processing file: ${fileName}`);
-						} else if (fileName.endsWith('activities.xml')) {
-							activitiesXmlContent = fileContent.stdout;
-							console.log(`   🎯 Found database processing file: ${fileName}`);
-						} else if (fileName.endsWith('timetables.csv')) {
-							timetableCSV = fileContent.stdout;
-							console.log(`   🎯 Found database processing file: ${fileName}`);
-						}
+						// if (fileName.endsWith('data_and_timetable.fet')) {
+						// 	dataAndTimetableFetContent = fileContent.stdout;
+						// 	console.log(`   🎯 Found database processing file: ${fileName}`);
+						// } else if (fileName.endsWith('activities.xml')) {
+						// 	activitiesXmlContent = fileContent.stdout;
+						// 	console.log(`   🎯 Found database processing file: ${fileName}`);
+						// } else if (fileName.endsWith('timetables.csv')) {
+						// 	timetableCSV = fileContent.stdout;
+						// 	console.log(`   🎯 Found database processing file: ${fileName}`);
+						// }
 
 						// Determine content type based on file extension
 						let contentType = 'application/octet-stream';
@@ -196,8 +205,8 @@ export async function processTimetableQueue() {
 							contentType = 'text/plain';
 						}
 
-						// Upload to new structure: {schoolId}/{timetableId}/output/{fileName}
-						const outputObjectKey = `${schoolId}/${timetableId}/output/${fileName}`;
+						// Upload with iteration structure: {schoolId}/{timetableId}/{iterationId}/output/{fileName}
+						const outputObjectKey = `${schoolId}/${timetableId}/${iterationId}/output/${fileName}`;
 						await uploadBufferHelper(
 							Buffer.from(fileContent.stdout, 'utf-8'),
 							'schools',
@@ -209,49 +218,50 @@ export async function processTimetableQueue() {
 						console.warn(`   ⚠️  Failed to upload file ${filePath}:`, fileError);
 					}
 				}
-
 				console.log(
 					`✅ [TIMETABLE PROCESSOR] All ${allFiles.length} output files uploaded to object storage`
 				);
 
-				// Process database files if both are available
-				if (dataAndTimetableFetContent && activitiesXmlContent) {
-					console.log('🔄 [DATABASE PROCESSOR] Processing FET output files for database...');
-					try {
-						// Import the FETActivityParser from utils
-						const { FETActivityParser } = await import('./utils.js');
-						const parser = new FETActivityParser();
+				await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.completed);
 
-						console.log('📋 [DATABASE PROCESSOR] Starting XML parsing and validation...');
-						await parser.parseAndPopulate(
-							activitiesXmlContent,
-							dataAndTimetableFetContent,
-							parseInt(timetableId)
-						);
+				// // Process database files if both are available
+				// if (dataAndTimetableFetContent && activitiesXmlContent) {
+				// 	console.log('🔄 [DATABASE PROCESSOR] Processing FET output files for database...');
+				// 	try {
+				// 		// Import the FETActivityParser from utils
+				// 		const { FETActivityParser } = await import('./utils.js');
+				// 		const parser = new FETActivityParser();
 
-						console.log(
-							'✅ [DATABASE PROCESSOR] FET activities successfully processed and stored in database'
-						);
-					} catch (dbError) {
-						console.error(
-							'❌ [DATABASE PROCESSOR] Error processing FET files for database:',
-							dbError
-						);
-						console.error('📊 [DATABASE PROCESSOR] Database error details:', {
-							message: dbError instanceof Error ? dbError.message : 'Unknown database error',
-							stack: dbError instanceof Error ? dbError.stack : undefined,
-							timetableId: timetableId
-						});
-						// Don't fail the entire process for database errors, just log them
-					}
-				} else {
-					console.warn('⚠️  [DATABASE PROCESSOR] Missing required files for database processing:');
-					console.warn(
-						`   - data_and_timetable.fet: ${dataAndTimetableFetContent ? '✅ Found' : '❌ Missing'}`
-					);
-					console.warn(`   - activities.xml: ${activitiesXmlContent ? '✅ Found' : '❌ Missing'}`);
-					console.warn('   Database processing will be skipped for this generation.');
-				}
+				// 		console.log('📋 [DATABASE PROCESSOR] Starting XML parsing and validation...');
+				// 		await parser.parseAndPopulate(
+				// 			activitiesXmlContent,
+				// 			dataAndTimetableFetContent,
+				// 			parseInt(timetableId)
+				// 		);
+
+				// 		console.log(
+				// 			'✅ [DATABASE PROCESSOR] FET activities successfully processed and stored in database'
+				// 		);
+				// 	} catch (dbError) {
+				// 		console.error(
+				// 			'❌ [DATABASE PROCESSOR] Error processing FET files for database:',
+				// 			dbError
+				// 		);
+				// 		console.error('📊 [DATABASE PROCESSOR] Database error details:', {
+				// 			message: dbError instanceof Error ? dbError.message : 'Unknown database error',
+				// 			stack: dbError instanceof Error ? dbError.stack : undefined,
+				// 			timetableId: timetableId
+				// 		});
+				// 		// Don't fail the entire process for database errors, just log them
+				// 	}
+				// } else {
+				// 	console.warn('⚠️  [DATABASE PROCESSOR] Missing required files for database processing:');
+				// 	console.warn(
+				// 		`   - data_and_timetable.fet: ${dataAndTimetableFetContent ? '✅ Found' : '❌ Missing'}`
+				// 	);
+				// 	console.warn(`   - activities.xml: ${activitiesXmlContent ? '✅ Found' : '❌ Missing'}`);
+				// 	console.warn('   Database processing will be skipped for this generation.');
+				// }
 			} else {
 				console.log('📄 [TIMETABLE PROCESSOR] No output files found');
 				throw new Error('FET processing completed but no output files were generated');
@@ -263,12 +273,27 @@ export async function processTimetableQueue() {
 				stack: processingError instanceof Error ? processingError.stack : undefined,
 				queueEntryId: queueEntry.id,
 				schoolId: queueEntry.school.id,
+				timetableId: queueEntry.timetableId,
+				iterationId: queueEntry.iterationId,
 				fileName: queueEntry.fileName
 			});
 
 			// Mark task as failed
 			console.log('💥 [TIMETABLE PROCESSOR] Marking task as failed...');
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed, new Date());
+
+			// Delete the iteration since the generation failed
+			console.log(
+				`🗑️  [TIMETABLE PROCESSOR] Deleting failed iteration ${queueEntry.iterationId}...`
+			);
+			try {
+				await deleteTimetableIteration(queueEntry.iterationId);
+				console.log(
+					`✅ [TIMETABLE PROCESSOR] Iteration ${queueEntry.iterationId} deleted successfully`
+				);
+			} catch (deleteError) {
+				console.error('❌ [TIMETABLE PROCESSOR] Failed to delete iteration:', deleteError);
+			}
 
 			// Attempt cleanup even on failure
 			try {

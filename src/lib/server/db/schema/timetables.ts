@@ -34,6 +34,16 @@ export const timetable = pgTable(
 
 export type Timetable = typeof timetable.$inferSelect;
 
+export const timetableIteration = pgTable('tt_iteration', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableId: integer('tt_id')
+		.notNull()
+		.references(() => timetable.id, { onDelete: 'cascade' }),
+	...timestamps
+});
+
+export type TimetableIteration = typeof timetableIteration.$inferSelect;
+
 export const timetableQueueStatusEnumPg = pgEnum('enum_tt_queue_status', [
 	queueStatusEnum.queued,
 	queueStatusEnum.inProgress,
@@ -46,6 +56,9 @@ export const timetableQueue = pgTable('tt_queue', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
+	iterationId: integer('tt_iteration_id')
+		.notNull()
+		.references(() => timetableIteration.id, { onDelete: 'cascade' }),
 	userId: uuid('user_id')
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
@@ -249,7 +262,6 @@ export const fetActivity = pgTable('fet_activity', {
 	subjectId: integer('subject_id')
 		.notNull()
 		.references(() => subject.id, { onDelete: 'cascade' }),
-	groupId: integer('tt_group_id').notNull(),
 	spaceId: integer('space_id').notNull(),
 	day: integer('tt_day_id').notNull(),
 	period: integer('tt_period_id').notNull(),
@@ -257,6 +269,29 @@ export const fetActivity = pgTable('fet_activity', {
 });
 
 export type FETDBActivity = typeof fetActivity.$inferSelect;
+
+export const userFetActivity = pgTable(
+	'fet_activity_user',
+	{
+		fetActivityId: integer('tt_activity_id')
+			.notNull()
+			.references(() => fetActivity.id, { onDelete: 'cascade' }),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		...timestamps
+	},
+	(table) => {
+		return {
+			pk: primaryKey({
+				name: 'user_feet_activity_pkey',
+				columns: [table.fetActivityId, table.userId]
+			})
+		};
+	}
+);
+
+export type UserFETActivity = typeof userFetActivity.$inferSelect;
 
 export const timetableConstraint = pgTable('tt_constraint', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),

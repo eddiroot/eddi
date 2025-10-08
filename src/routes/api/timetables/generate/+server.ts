@@ -1,4 +1,7 @@
-import { createTimetableQueueEntry } from '$lib/server/db/service/timetables.js';
+import {
+	createTimetableIteration,
+	createTimetableQueueEntry
+} from '$lib/server/db/service/timetables.js';
 import { uploadBufferHelper } from '$lib/server/obj.js';
 import { FETDockerService } from '$lib/server/services/fet-docker.js';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
@@ -12,8 +15,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 
 		const user = security.getUser();
 		const requestData = await request.json();
-		const { timetableId } = requestData;
-		const { fetXmlContent } = requestData;
+		const { timetableId, fetXmlContent } = requestData;
 
 		// Validate inputs
 		if (!timetableId) {
@@ -40,8 +42,14 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			});
 		}
 
-		const uniqueFileName = `sch_id${user.schoolId}_tt_id${timetableId}.fet`;
-		const objectKey = `${user.schoolId}/${timetableId}/input/${uniqueFileName}`;
+		// Create a new timetable iteration
+		const iteration = await createTimetableIteration(timetableId);
+		console.log(`✅ [TIMETABLE PROCESSOR] Created iteration ${iteration.id} for timetable ${timetableId}`);
+
+		const uniqueFileName = `tt_id${timetableId}.fet`;
+
+		// Updated path: school_id/timetable_id/iteration_id/input/filename
+		const objectKey = `${user.schoolId}/${timetableId}/${iteration.id}/input/${uniqueFileName}`;
 
 		await uploadBufferHelper(
 			Buffer.from(fetXmlContent, 'utf-8'),
@@ -52,7 +60,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
 		console.log('FET XML uploaded to object storage:', objectKey);
 
-		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName);
+		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName, iteration.id);
 
 		// Trigger processing (this will run asynchronously)
 		processTimetableQueue().catch((err: Error) => {
@@ -62,6 +70,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		return json({
 			success: true,
 			message: 'Timetable generation has been queued successfully',
+			iterationId: iteration.id,
 			queuedAt: new Date().toISOString()
 		});
 	} catch (err) {

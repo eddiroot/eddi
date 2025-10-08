@@ -56,7 +56,7 @@ export async function buildFETInput({
 	const teachersList = await Promise.all(
 		teachers.map(async (teacher) => {
 			const qualifiedSubjects = await getTeacherSpecializationsByTeacherId(teacher.id);
-			console.log(`Teacher ${teacher.id} qualified subjects:`, qualifiedSubjects);
+			// console.log(`Teacher ${teacher.id} qualified subjects:`, qualifiedSubjects);
 			const subjectIds = qualifiedSubjects.map((qs) => qs.subjectId);
 
 			return {
@@ -77,7 +77,7 @@ export async function buildFETInput({
 	const studentsList = studentGroups;
 
 	// Track the next Activity_Group_Id to use
-	let nextActivityGroupId = 1;
+	// let nextActivityGroupId = 1;
 
 	const activitiesList = activities.flatMap((activity) => {
 		// Collect all teacher IDs
@@ -107,9 +107,6 @@ export async function buildFETInput({
 			return [];
 		}
 
-		// Assign a unique Activity_Group_Id for this logical activity
-		const activityGroupId = nextActivityGroupId++;
-
 		// Calculate how many split activities we need
 		// If totalPeriods > periodsPerInstance, we create multiple activities (splits)
 		const numberOfSplits = Math.ceil(activity.totalPeriods / activity.periodsPerInstance);
@@ -123,7 +120,7 @@ export async function buildFETInput({
 				Students: studentIdentifiers, // Array of student identifiers - XML builder will create multiple <Students> tags
 				Duration: activity.periodsPerInstance, // Duration of this split
 				Total_Duration: activity.totalPeriods, // Total duration across all splits
-				Activity_Group_Id: activityGroupId, // Links all splits together
+				Activity_Group_Id: activity.id, // Links all splits together by the same unique activity ID
 				Active: true,
 				Id: 0 // Placeholder - will be assigned later
 			});

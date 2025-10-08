@@ -3,6 +3,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Select from '$lib/components/ui/select';
 	import {
 		Table,
 		TableBody,
@@ -11,34 +12,46 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import CalendarIcon from '@lucide/svelte/icons/calendar.svelte';
-	import CheckCircleIcon from '@lucide/svelte/icons/circle-check.svelte';
-	import DownloadIcon from '@lucide/svelte/icons/download.svelte';
-	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap.svelte';
-	import AlertTriangleIcon from '@lucide/svelte/icons/triangle-alert.svelte';
-	import UserIcon from '@lucide/svelte/icons/user.svelte';
-	import UsersIcon from '@lucide/svelte/icons/users.svelte';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CheckCircleIcon from '@lucide/svelte/icons/circle-check';
+	import DownloadIcon from '@lucide/svelte/icons/download';
+	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
+	import AlertTriangleIcon from '@lucide/svelte/icons/triangle-alert';
+	import UserIcon from '@lucide/svelte/icons/user';
+	import UsersIcon from '@lucide/svelte/icons/users';
+	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 	import type { StudentStatisticsReport, TeacherStatistics, TimetableMetadata } from './timetable';
 
 	// Receive data from the server
-	let { data }: { data: PageData } = $props();
+	let { data, form } = $props();
 
-	// Extract data from server response
-	const timetableData: TimetableMetadata = data.teacherStatisticsReport.metadata;
-	const teacherStatistics: TeacherStatistics = data.teacherStatisticsReport.teachers;
+	// Extract data from server response or form action response
+	let teacherStatisticsReport = $state(
+		form?.teacherStatisticsReport || data.teacherStatisticsReport
+	);
+	let studentStatisticsReport = $state(
+		form?.studentStatisticsReport || data.studentStatisticsReport
+	);
+	let completedIterations = $state(form?.completedIterations || data.completedIterations);
+	let selectedIterationId = $state(form?.selectedIterationId || data.selectedIterationId);
+
+	// Derived values
+	const timetableData: TimetableMetadata = $derived(teacherStatisticsReport.metadata);
+	const teacherStatistics: TeacherStatistics = $derived(teacherStatisticsReport.teachers);
 
 	// Parse student statistics from server data (if available)
-	const studentStatisticsReport: StudentStatisticsReport | undefined = data.studentStatisticsReport;
-	const parsedStudentStatistics = studentStatisticsReport
-		? {
-				metadata: studentStatisticsReport.metadata,
-				overall: studentStatisticsReport.overall,
-				yearLevels: studentStatisticsReport.yearLevels,
-				groups: studentStatisticsReport.groups,
-				subgroups: studentStatisticsReport.subgroups
-			}
-		: null;
+	const parsedStudentStatistics = $derived(
+		studentStatisticsReport
+			? {
+					metadata: studentStatisticsReport.metadata,
+					overall: studentStatisticsReport.overall,
+					yearLevels: studentStatisticsReport.yearLevels,
+					groups: studentStatisticsReport.groups,
+					subgroups: studentStatisticsReport.subgroups
+				}
+			: null
+	);
 
 	const brokenConstraints = [
 		{
@@ -75,6 +88,10 @@
 		// This could submit to a server action or redirect to another page
 		showConfirmDialog = false;
 	}
+
+	function formatDate(date: Date | string) {
+		return new Date(date).toLocaleString();
+	}
 </script>
 
 {#snippet iconComponent(IconComponent: any)}
@@ -90,17 +107,62 @@
 					<CheckCircleIcon class="h-6 w-6 text-green-600" />
 				</div>
 				<div>
-					<h1 class="text-3xl font-bold">Timetable Generation Complete!</h1>
+					<h1 class="text-3xl font-bold">Timetable Generation Results!</h1>
 					<p class="text-muted-foreground">
 						{timetableData.institutionName} • Generated on {timetableData.generatedAt}
 					</p>
 				</div>
 			</div>
 		</div>
-		<Button size="lg" class="gap-2">
-			<DownloadIcon />
-			Download Timetable
-		</Button>
+		<div class="flex items-center gap-4">
+			<!-- Iteration Selector -->
+			{#if completedIterations && completedIterations.length > 1}
+				<form
+					method="POST"
+					action="?/changeIteration"
+					use:enhance={() => {
+						return async ({ result }) => {
+							if (
+								result.type === 'success' &&
+								result.data &&
+								typeof result.data === 'object' &&
+								'teacherStatisticsReport' in result.data &&
+								'studentStatisticsReport' in result.data
+							) {
+								teacherStatisticsReport = result.data.teacherStatisticsReport as typeof teacherStatisticsReport;
+								studentStatisticsReport = result.data.studentStatisticsReport as typeof studentStatisticsReport;
+								completedIterations = result.data.completedIterations as typeof completedIterations;
+								selectedIterationId = result.data.selectedIterationId as number;
+							}
+						};
+					}}
+				>
+					<div class="flex items-center gap-2">
+						<span class="text-muted-foreground text-sm font-medium">Iteration:</span>
+						<select
+							name="iterationId"
+							class="flex h-10 w-[200px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+							onchange={(e) => {
+								e.currentTarget.form?.requestSubmit();
+							}}
+						>
+							{#each completedIterations as iteration}
+								<option
+									value={iteration.iterationId.toString()}
+									selected={iteration.iterationId === selectedIterationId}
+								>
+									Iteration #{iteration.iterationId} ({formatDate(iteration.createdAt)})
+								</option>
+							{/each}
+						</select>
+					</div>
+				</form>
+			{/if}
+			<Button size="lg" class="gap-2">
+				<DownloadIcon />
+				Download Timetable
+			</Button>
+		</div>
 	</div>
 
 	<!-- Navigation Cards -->

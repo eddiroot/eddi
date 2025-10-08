@@ -23,6 +23,20 @@ export async function getSchoolTimetablesBySchoolId(
 	return timetables;
 }
 
+export async function getTimetableWithSchool(timetableId: number) {
+	const [result] = await db
+		.select({
+			timetable: table.timetable,
+			school: table.school
+		})
+		.from(table.timetable)
+		.innerJoin(table.school, eq(table.timetable.schoolId, table.school.id))
+		.where(eq(table.timetable.id, timetableId))
+		.limit(1);
+
+	return result;
+}
+
 export async function createSchoolTimetable(data: {
 	schoolId: number;
 	name: string;
@@ -783,10 +797,26 @@ export async function deleteTimetableActivity(activityId: number) {
 	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.id, activityId));
 }
 
+export async function createTimetableIteration(timetableId: number) {
+	const [iteration] = await db
+		.insert(table.timetableIteration)
+		.values({
+			timetableId
+		})
+		.returning();
+
+	return iteration;
+}
+
+export async function deleteTimetableIteration(iterationId: number) {
+	await db.delete(table.timetableIteration).where(eq(table.timetableIteration.id, iterationId));
+}
+
 export async function createTimetableQueueEntry(
 	timetableId: number,
 	userId: string,
-	fileName: string
+	fileName: string,
+	iterationId: number
 ) {
 	const [entry] = await db
 		.insert(table.timetableQueue)
@@ -794,6 +824,7 @@ export async function createTimetableQueueEntry(
 			timetableId,
 			userId,
 			fileName,
+			iterationId,
 			status: queueStatusEnum.queued
 		})
 		.returning();
@@ -810,11 +841,55 @@ export async function getInProgressTimetableQueues() {
 	return entries;
 }
 
+export async function getTimetableQueueByTimetableId(timetableId: number) {
+	const entries = await db
+		.select({
+			id: table.timetableQueue.id,
+			timetableId: table.timetableQueue.timetableId,
+			iterationId: table.timetableQueue.iterationId,
+			userId: table.timetableQueue.userId,
+			fileName: table.timetableQueue.fileName,
+			status: table.timetableQueue.status,
+			createdAt: table.timetableQueue.createdAt,
+			updatedAt: table.timetableQueue.updatedAt
+		})
+		.from(table.timetableQueue)
+		.where(eq(table.timetableQueue.timetableId, timetableId))
+		.orderBy(asc(table.timetableQueue.createdAt));
+
+	return entries;
+}
+
+export async function getCompletedIterationsByTimetableId(timetableId: number) {
+	const entries = await db
+		.select({
+			id: table.timetableQueue.id,
+			timetableId: table.timetableQueue.timetableId,
+			iterationId: table.timetableQueue.iterationId,
+			userId: table.timetableQueue.userId,
+			fileName: table.timetableQueue.fileName,
+			status: table.timetableQueue.status,
+			createdAt: table.timetableQueue.createdAt,
+			updatedAt: table.timetableQueue.updatedAt
+		})
+		.from(table.timetableQueue)
+		.where(
+			and(
+				eq(table.timetableQueue.timetableId, timetableId),
+				eq(table.timetableQueue.status, queueStatusEnum.completed)
+			)
+		)
+		.orderBy(asc(table.timetableQueue.createdAt));
+
+	return entries;
+}
+
 export async function getOldestQueuedTimetable() {
 	const [entry] = await db
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
+			iterationId: table.timetableQueue.iterationId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,

@@ -9,10 +9,28 @@ import {
 	getSubjectsBySchoolId,
 	getTimetableDays,
 	getTimetablePeriods,
+	getTimetableQueueByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 import { buildFETInput } from './utils.js';
+import { processTimetableQueue } from '../../../../../scripts/processTimetable.js';
+
+export const load = async ({ params, locals: { security }, depends }) => {
+	security.isAuthenticated().isSchoolAdmin();
+
+	const timetableId = parseInt(params.timetableId);
+	if (isNaN(timetableId)) {
+		return fail(400, { error: 'Invalid timetable ID' });
+	}
+
+	depends('app:queue');
+	const queueEntries = await getTimetableQueueByTimetableId(timetableId);
+
+	return {
+		queueEntries
+	};
+};
 
 export const actions = {
 	generateTimetable: async ({ params, locals: { security }, fetch }) => {
@@ -100,6 +118,26 @@ export const actions = {
 			console.error('Error generating timetable XML:', error);
 			return fail(500, {
 				error: 'Failed to generate timetable. Please ensure all required data is configured.'
+			});
+		}
+	},
+	processQueue: async ({ locals: { security } }) => {
+		security.isAuthenticated().isSchoolAdmin();
+
+		try {
+			// Trigger the queue processor
+			processTimetableQueue().catch((err: Error) => {
+				console.error('Background processing error:', err);
+			});
+
+			return {
+				success: true,
+				message: 'Queue processing started'
+			};
+		} catch (error) {
+			console.error('Error starting queue processor:', error);
+			return fail(500, {
+				error: 'Failed to start queue processing'
 			});
 		}
 	}
