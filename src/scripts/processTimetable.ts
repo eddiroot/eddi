@@ -3,6 +3,7 @@ import {
 	getInProgressTimetableQueues,
 	getOldestQueuedTimetable,
 	updateTimetableIterationError,
+	updateTimetableIterationFetResponse,
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/index.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
@@ -145,7 +146,7 @@ export async function processTimetableQueue() {
 
 			const fetStartTime = Date.now();
 
-			await execAsync(command, {
+			const fetResult = await execAsync(command, {
 				timeout: 20 * 60 * 1000 // 20 minutes
 			});
 
@@ -153,6 +154,16 @@ export async function processTimetableQueue() {
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] FET processing completed in ${(fetEndTime - fetStartTime) / 1000} seconds`
 			);
+
+			// Store FET response (stdout) in the iteration for successful generations
+			if (fetResult.stdout) {
+				try {
+					await updateTimetableIterationFetResponse(queueEntry.iterationId, fetResult.stdout);
+					console.log('✅ [TIMETABLE PROCESSOR] FET response stored in iteration');
+				} catch (responseError) {
+					console.warn('⚠️  [TIMETABLE PROCESSOR] Failed to store FET response:', responseError);
+				}
+			}
 
 			// List output files in container
 			console.log('📋 [TIMETABLE PROCESSOR] Listing generated output files in container...');

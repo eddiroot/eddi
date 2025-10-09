@@ -8,6 +8,7 @@
 	import AlertCircle from '@lucide/svelte/icons/alert-circle';
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import CheckCircle from '@lucide/svelte/icons/check';
+	import Info from '@lucide/svelte/icons/info';
 	import Loader from '@lucide/svelte/icons/loader';
 	import Lock from '@lucide/svelte/icons/lock';
 	import PlayCircle from '@lucide/svelte/icons/play-circle';
@@ -19,7 +20,9 @@
 	let isProcessing = $state(false);
 	let pollInterval: ReturnType<typeof setInterval> | null = null;
 	let selectedError = $state<{ iterationId: number; message: string } | null>(null);
+	let selectedResponse = $state<{ iterationId: number; message: string } | null>(null);
 	let showErrorDialog = $state(false);
+	let showResponseDialog = $state(false);
 
 	// Check if there are any active queue entries (queued or in_progress)
 	let hasActiveEntries = $derived(
@@ -57,6 +60,11 @@
 	function showError(iterationId: number, message: string) {
 		selectedError = { iterationId, message };
 		showErrorDialog = true;
+	}
+
+	function showResponse(iterationId: number, message: string) {
+		selectedResponse = { iterationId, message };
+		showResponseDialog = true;
 	}
 
 	async function handleGenerate(event: SubmitEvent) {
@@ -228,6 +236,16 @@
 											>
 												<AlertCircle class="h-4 w-4 text-red-500" />
 											</Button>
+										{:else if entry.status === 'completed' && entry.fetResponse}
+											<Button
+												variant="ghost"
+												size="icon"
+												class="h-6 w-6"
+												onclick={() => showResponse(entry.iterationId, entry.fetResponse!)}
+												title="View FET response"
+											>
+												<Info class="h-4 w-4 text-green-500" />
+											</Button>
 										{/if}
 									</div>
 								</div>
@@ -315,6 +333,31 @@
 		</div>
 		<Dialog.Footer class="mt-6">
 			<Button variant="outline" onclick={() => (showErrorDialog = false)}>Close</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
+
+<!-- FET Response Dialog -->
+<Dialog.Root bind:open={showResponseDialog}>
+	<Dialog.Content class="flex max-h-[80vh] !max-w-5xl flex-col">
+		<Dialog.Header>
+			<Dialog.Title class="flex items-center gap-2">
+				<Info class="h-5 w-5 text-green-500" />
+				FET Response - Iteration #{selectedResponse?.iterationId}
+			</Dialog.Title>
+			<Dialog.Description>
+				The output from the timetable generation process:
+			</Dialog.Description>
+		</Dialog.Header>
+		<div class="mt-4 flex-1 overflow-y-auto">
+			<div class="rounded-lg border border-green-200 bg-green-50 p-4">
+				<p class="font-mono text-sm break-words whitespace-pre-wrap text-green-800">
+					{selectedResponse?.message || 'No response available'}
+				</p>
+			</div>
+		</div>
+		<Dialog.Footer class="mt-6">
+			<Button variant="outline" onclick={() => (showResponseDialog = false)}>Close</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

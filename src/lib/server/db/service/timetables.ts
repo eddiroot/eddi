@@ -821,6 +821,15 @@ export async function updateTimetableIterationError(iterationId: number, errorMe
 		.where(eq(table.timetableIteration.id, iterationId));
 }
 
+export async function updateTimetableIterationFetResponse(iterationId: number, fetResponse: string) {
+	await db
+		.update(table.timetableIteration)
+		.set({
+			fetResponse
+		})
+		.where(eq(table.timetableIteration.id, iterationId));
+}
+
 export async function createTimetableQueueEntry(
 	timetableId: number,
 	userId: string,
@@ -861,7 +870,8 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 			status: table.timetableQueue.status,
 			createdAt: table.timetableQueue.createdAt,
 			updatedAt: table.timetableQueue.updatedAt,
-			errorMessage: table.timetableIteration.errorMessage
+			errorMessage: table.timetableIteration.errorMessage,
+			fetResponse: table.timetableIteration.fetResponse
 		})
 		.from(table.timetableQueue)
 		.innerJoin(
