@@ -812,6 +812,15 @@ export async function deleteTimetableIteration(iterationId: number) {
 	await db.delete(table.timetableIteration).where(eq(table.timetableIteration.id, iterationId));
 }
 
+export async function updateTimetableIterationError(iterationId: number, errorMessage: string) {
+	await db
+		.update(table.timetableIteration)
+		.set({
+			errorMessage
+		})
+		.where(eq(table.timetableIteration.id, iterationId));
+}
+
 export async function createTimetableQueueEntry(
 	timetableId: number,
 	userId: string,
@@ -851,9 +860,14 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
 			createdAt: table.timetableQueue.createdAt,
-			updatedAt: table.timetableQueue.updatedAt
+			updatedAt: table.timetableQueue.updatedAt,
+			errorMessage: table.timetableIteration.errorMessage
 		})
 		.from(table.timetableQueue)
+		.innerJoin(
+			table.timetableIteration,
+			eq(table.timetableQueue.iterationId, table.timetableIteration.id)
+		)
 		.where(eq(table.timetableQueue.timetableId, timetableId))
 		.orderBy(asc(table.timetableQueue.createdAt));
 

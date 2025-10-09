@@ -39,6 +39,8 @@ export const timetableIteration = pgTable('tt_iteration', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
+	fetResponse: text('fet_response'),
+	errorMessage: text('error_message'), // null if successful
 	...timestamps
 });
 

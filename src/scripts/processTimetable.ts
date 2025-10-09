@@ -1,8 +1,8 @@
 import { queueStatusEnum } from '$lib/enums.js';
 import {
-	deleteTimetableIteration,
 	getInProgressTimetableQueues,
 	getOldestQueuedTimetable,
+	updateTimetableIterationError,
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/index.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
@@ -144,9 +144,11 @@ export async function processTimetableQueue() {
 			console.log(`   - Command: ${command}`);
 
 			const fetStartTime = Date.now();
+
 			await execAsync(command, {
 				timeout: 20 * 60 * 1000 // 20 minutes
 			});
+
 			const fetEndTime = Date.now();
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] FET processing completed in ${(fetEndTime - fetStartTime) / 1000} seconds`
@@ -157,6 +159,7 @@ export async function processTimetableQueue() {
 			const listCommand = `docker exec eddi-fet-1 find ${containerOutputDir} -type f`;
 			const listResult = await execAsync(listCommand, { timeout: 60000 });
 			console.log('📋 [TIMETABLE PROCESSOR] Container output files:');
+			console.log('--&*-');
 			console.log(listResult.stdout);
 
 			// Upload ALL generated files to object storage
@@ -253,10 +256,22 @@ export async function processTimetableQueue() {
 				throw new Error('FET processing completed but no output files were generated');
 			}
 		} catch (processingError) {
+			// Capture and store the error message in the iteration
+			const errorMessage =
+				processingError instanceof Error ? processingError.message : 'Unknown error';
+
+			// Store error message in iteration if not already stored
+
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed);
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
+
+			await updateTimetableIterationError(
+				queueEntry.iterationId,
+				processingError.stdout.toString()
+			);
+
 			console.error('📊 [TIMETABLE PROCESSOR] Error details:', {
-				message: processingError instanceof Error ? processingError.message : 'Unknown error',
+				message: errorMessage,
 				stack: processingError instanceof Error ? processingError.stack : undefined,
 				queueEntryId: queueEntry.id,
 				schoolId: queueEntry.school.id,
@@ -268,19 +283,6 @@ export async function processTimetableQueue() {
 			// Mark task as failed
 			console.log('💥 [TIMETABLE PROCESSOR] Marking task as failed...');
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed, new Date());
-
-			// Delete the iteration since the generation failed
-			console.log(
-				`🗑️  [TIMETABLE PROCESSOR] Deleting failed iteration ${queueEntry.iterationId}...`
-			);
-			try {
-				await deleteTimetableIteration(queueEntry.iterationId);
-				console.log(
-					`✅ [TIMETABLE PROCESSOR] Iteration ${queueEntry.iterationId} deleted successfully`
-				);
-			} catch (deleteError) {
-				console.error('❌ [TIMETABLE PROCESSOR] Failed to delete iteration:', deleteError);
-			}
 
 			// Attempt cleanup even on failure
 			try {
