@@ -256,16 +256,17 @@ export const fetActivity = pgTable('fet_activity', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
-	teacherId: uuid('teacher_id')
+	iterationId: integer('tt_iteration_id')
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
+		.references(() => timetableIteration.id, { onDelete: 'cascade' }),
 	subjectId: integer('subject_id')
 		.notNull()
 		.references(() => subject.id, { onDelete: 'cascade' }),
 	spaceId: integer('space_id').notNull(),
 	day: integer('tt_day_id').notNull(),
 	period: integer('tt_period_id').notNull(),
-	duration: integer('duration').notNull()
+	duration: integer('duration').notNull(),
+	...timestamps
 });
 
 export type FETDBActivity = typeof fetActivity.$inferSelect;

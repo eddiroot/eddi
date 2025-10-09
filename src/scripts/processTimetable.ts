@@ -10,6 +10,7 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
+import { parseTimetableCSVAndPopulate } from './utils';
 
 const TEMP_DIR = join(process.cwd(), 'temp');
 
@@ -166,9 +167,7 @@ export async function processTimetableQueue() {
 				);
 
 				// Track specific files for database processing
-				// const dataAndTimetableFetContent = '';
-				// const activitiesXmlContent = '';
-				// const timetableCSV = '';
+				let timetableCSV = '';
 
 				for (const filePath of allFiles) {
 					try {
@@ -182,16 +181,10 @@ export async function processTimetableQueue() {
 						const fileContent = await execAsync(catCommand, { timeout: 2 * 60 * 1000 });
 
 						// Check for specific files needed for database processing (suffix match)
-						// if (fileName.endsWith('data_and_timetable.fet')) {
-						// 	dataAndTimetableFetContent = fileContent.stdout;
-						// 	console.log(`   🎯 Found database processing file: ${fileName}`);
-						// } else if (fileName.endsWith('activities.xml')) {
-						// 	activitiesXmlContent = fileContent.stdout;
-						// 	console.log(`   🎯 Found database processing file: ${fileName}`);
-						// } else if (fileName.endsWith('timetables.csv')) {
-						// 	timetableCSV = fileContent.stdout;
-						// 	console.log(`   🎯 Found database processing file: ${fileName}`);
-						// }
+						if (fileName.endsWith('timetable.csv')) {
+							timetableCSV = fileContent.stdout;
+							console.log(`   🎯 Found database processing file: ${fileName}`);
+						}
 
 						// Determine content type based on file extension
 						let contentType = 'application/octet-stream';
@@ -222,51 +215,45 @@ export async function processTimetableQueue() {
 					`✅ [TIMETABLE PROCESSOR] All ${allFiles.length} output files uploaded to object storage`
 				);
 
-				await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.completed);
+				// Process database files if both are available
+				if (timetableCSV) {
+					console.log('🔄 [DATABASE PROCESSOR] Processing FET output files for database...');
+					try {
+						console.log('📋 [DATABASE PROCESSOR] Starting CSV parsing and validation...');
+						await parseTimetableCSVAndPopulate(
+							timetableCSV,
+							queueEntry.timetableId,
+							queueEntry.iterationId
+						);
 
-				// // Process database files if both are available
-				// if (dataAndTimetableFetContent && activitiesXmlContent) {
-				// 	console.log('🔄 [DATABASE PROCESSOR] Processing FET output files for database...');
-				// 	try {
-				// 		// Import the FETActivityParser from utils
-				// 		const { FETActivityParser } = await import('./utils.js');
-				// 		const parser = new FETActivityParser();
+						console.log(
+							'✅ [DATABASE PROCESSOR] FET activities successfully processed and stored in database'
+						);
 
-				// 		console.log('📋 [DATABASE PROCESSOR] Starting XML parsing and validation...');
-				// 		await parser.parseAndPopulate(
-				// 			activitiesXmlContent,
-				// 			dataAndTimetableFetContent,
-				// 			parseInt(timetableId)
-				// 		);
-
-				// 		console.log(
-				// 			'✅ [DATABASE PROCESSOR] FET activities successfully processed and stored in database'
-				// 		);
-				// 	} catch (dbError) {
-				// 		console.error(
-				// 			'❌ [DATABASE PROCESSOR] Error processing FET files for database:',
-				// 			dbError
-				// 		);
-				// 		console.error('📊 [DATABASE PROCESSOR] Database error details:', {
-				// 			message: dbError instanceof Error ? dbError.message : 'Unknown database error',
-				// 			stack: dbError instanceof Error ? dbError.stack : undefined,
-				// 			timetableId: timetableId
-				// 		});
-				// 		// Don't fail the entire process for database errors, just log them
-				// 	}
-				// } else {
-				// 	console.warn('⚠️  [DATABASE PROCESSOR] Missing required files for database processing:');
-				// 	console.warn(
-				// 		`   - data_and_timetable.fet: ${dataAndTimetableFetContent ? '✅ Found' : '❌ Missing'}`
-				// 	);
-				// 	console.warn(`   - activities.xml: ${activitiesXmlContent ? '✅ Found' : '❌ Missing'}`);
-				// 	console.warn('   Database processing will be skipped for this generation.');
-				// }
+						await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.completed);
+					} catch (dbError) {
+						console.error(
+							'❌ [DATABASE PROCESSOR] Error processing FET files for database:',
+							dbError
+						);
+						console.error('📊 [DATABASE PROCESSOR] Database error details:', {
+							message: dbError instanceof Error ? dbError.message : 'Unknown database error',
+							stack: dbError instanceof Error ? dbError.stack : undefined,
+							timetableId: timetableId
+						});
+						// Don't fail the entire process for database errors, just log them
+					}
+				} else {
+					console.warn('⚠️  [DATABASE PROCESSOR] Missing required files for database processing:');
+					console.warn(`   - timetable.fet: ${timetableCSV ? '✅ Found' : '❌ Missing'}`);
+					throw new Error('FET processing completed but no output files were generated');
+				}
 			} else {
 				console.log('📄 [TIMETABLE PROCESSOR] No output files found');
 				throw new Error('FET processing completed but no output files were generated');
 			}
 		} catch (processingError) {
+			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed);
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
 			console.error('📊 [TIMETABLE PROCESSOR] Error details:', {
 				message: processingError instanceof Error ? processingError.message : 'Unknown error',

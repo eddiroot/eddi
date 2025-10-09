@@ -249,12 +249,12 @@ export async function getStudentGroupsByTimetableId(timetableId: number) {
 	for (const [yearLevel, data] of yearLevelMap.entries()) {
 		// Build groups for this year with their subgroups
 		const groupsForYear = Array.from(data.groups.values()).map((group) => ({
-			Name: group.name,
+			Name: 'G' + group.name,
 			Number_of_Students: group.students.length,
 			// Only include Subgroup array if there are students
 			...(group.students.length > 0 && {
 				Subgroup: group.students.map((student) => ({
-					Name: student.id,
+					Name: 'S' + student.id,
 					Number_of_Students: 1
 				}))
 			})
@@ -262,7 +262,7 @@ export async function getStudentGroupsByTimetableId(timetableId: number) {
 
 		// Add year entry with nested groups
 		result.push({
-			Name: yearLevel,
+			Name: 'Y' + yearLevel,
 			Number_of_Students: data.totalStudents.size,
 			...(groupsForYear.length > 0 && { Group: groupsForYear })
 		});

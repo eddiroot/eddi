@@ -88,17 +88,17 @@ export async function buildFETInput({
 
 		// Add group IDs
 		if (activity.groupIds.length > 0) {
-			studentIdentifiers.push(...activity.groupIds.map((id) => id.toString()));
+			studentIdentifiers.push(...activity.groupIds.map((id) => 'G' + id.toString()));
 		}
 
 		// Add year levels
 		if (activity.yearLevels.length > 0) {
-			studentIdentifiers.push(...activity.yearLevels.map((yl) => yl.toString()));
+			studentIdentifiers.push(...activity.yearLevels.map((yl) => 'Y' + yl.toString()));
 		}
 
 		// Add individual student IDs
 		if (activity.studentIds.length > 0) {
-			studentIdentifiers.push(...activity.studentIds.map((id) => id.toString()));
+			studentIdentifiers.push(...activity.studentIds.map((id) => 'S' + id.toString()));
 		}
 
 		// If no teachers or students assigned, skip this activity
