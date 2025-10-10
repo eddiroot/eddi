@@ -871,6 +871,7 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 			createdAt: table.timetableQueue.createdAt,
 			updatedAt: table.timetableQueue.updatedAt,
 			errorMessage: table.timetableIteration.errorMessage,
+			translatedErrorMessage: table.timetableIteration.translatedErrorMessage,
 			fetResponse: table.timetableIteration.fetResponse
 		})
 		.from(table.timetableQueue)
@@ -945,6 +946,19 @@ export async function updateTimetableQueueStatus(
 		.update(table.timetableQueue)
 		.set(updateData)
 		.where(eq(table.timetableQueue.id, queueId))
+		.returning();
+
+	return entry;
+}
+
+export async function updateTimetableIterationTranslatedError(
+	iterationId: number,
+	translatedErrorMessage: string
+) {
+	const [entry] = await db
+		.update(table.timetableIteration)
+		.set({ translatedErrorMessage })
+		.where(eq(table.timetableIteration.id, iterationId))
 		.returning();
 
 	return entry;

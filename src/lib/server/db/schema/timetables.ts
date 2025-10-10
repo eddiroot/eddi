@@ -40,7 +40,8 @@ export const timetableIteration = pgTable('tt_iteration', {
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
 	fetResponse: text('fet_response'),
-	errorMessage: text('error_message'), // null if successful
+	errorMessage: text('error_message'), // null if successful, stores raw error
+	translatedErrorMessage: text('translated_error_message'), // null if successful or not yet translated
 	...timestamps
 });
 

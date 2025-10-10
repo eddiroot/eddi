@@ -19,10 +19,16 @@
 	let isGenerating = $state(false);
 	let isProcessing = $state(false);
 	let pollInterval: ReturnType<typeof setInterval> | null = null;
-	let selectedError = $state<{ iterationId: number; message: string } | null>(null);
+	let selectedError = $state<{
+		iterationId: number;
+		message: string;
+		translatedMessage: string | null;
+	} | null>(null);
 	let selectedResponse = $state<{ iterationId: number; message: string } | null>(null);
 	let showErrorDialog = $state(false);
 	let showResponseDialog = $state(false);
+	let showTranslated = $state(false);
+	let isTranslating = $state(false);
 
 	// Check if there are any active queue entries (queued or in_progress)
 	let hasActiveEntries = $derived(
@@ -57,14 +63,89 @@
 		return new Date(date).toLocaleString();
 	}
 
-	function showError(iterationId: number, message: string) {
-		selectedError = { iterationId, message };
+	function showError(
+		iterationId: number,
+		message: string,
+		translatedMessage: string | null | undefined
+	) {
+		selectedError = { iterationId, message, translatedMessage: translatedMessage || null };
+		showTranslated = false;
+		isTranslating = false;
 		showErrorDialog = true;
 	}
 
 	function showResponse(iterationId: number, message: string) {
 		selectedResponse = { iterationId, message };
 		showResponseDialog = true;
+	}
+
+	function closeErrorDialog() {
+		showErrorDialog = false;
+		showTranslated = false;
+		isTranslating = false;
+	}
+
+	// Simple markdown-to-HTML converter
+	function markdownToHtml(text: string): string {
+		return text
+			.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+			.replace(/\*(.*?)\*/g, '<em>$1</em>')
+			.replace(/`(.*?)`/g, '<code class="bg-blue-100 px-1 rounded">$1</code>')
+			.replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
+			.replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mt-6 mb-3">$1</h2>')
+			.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-8 mb-4">$1</h1>')
+			.replace(/^- (.*$)/gim, '<li class="ml-6 mb-1">• $1</li>')
+			.replace(/^\d+\. (.*$)/gim, '<li class="ml-6 mb-1 list-decimal">$1</li>')
+			.replace(/\n\n/g, '<br/>')
+			.replace(/\n/g, '<br/>');
+	}
+
+	async function handleTranslateError(forceRetranslate = false) {
+		if (!selectedError || isTranslating) return;
+
+		// If we already have a translated message and not forcing, just toggle to it
+		if (selectedError.translatedMessage && !forceRetranslate) {
+			showTranslated = true;
+			return;
+		}
+
+		isTranslating = true;
+
+		try {
+			const response = await fetch('/api/timetables/translate-error', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					iterationId: selectedError.iterationId,
+					errorMessage: selectedError.message,
+					forceRetranslate
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to translate error message');
+			}
+
+			const data = await response.json();
+
+			// Update the selected error with the translated message
+			selectedError = {
+				...selectedError,
+				translatedMessage: data.translatedMessage
+			};
+
+			// Refresh the queue data to get the updated translated message from the database
+			await invalidate('app:queue');
+
+			showTranslated = true;
+		} catch (error) {
+			console.error('Failed to translate error:', error);
+			alert('Failed to translate error message. Please try again.');
+		} finally {
+			isTranslating = false;
+		}
 	}
 
 	async function handleGenerate(event: SubmitEvent) {
@@ -231,7 +312,12 @@
 												variant="ghost"
 												size="icon"
 												class="h-6 w-6"
-												onclick={() => showError(entry.iterationId, entry.errorMessage!)}
+												onclick={() =>
+													showError(
+														entry.iterationId,
+														entry.errorMessage!,
+														entry.translatedErrorMessage
+													)}
 												title="View error details"
 											>
 												<AlertCircle class="h-4 w-4 text-red-500" />
@@ -324,15 +410,79 @@
 				The timetable generation process encountered the following error:
 			</Dialog.Description>
 		</Dialog.Header>
-		<div class="mt-4 flex-1 overflow-y-auto">
-			<div class="rounded-lg border border-red-200 bg-red-50 p-4">
-				<p class="font-mono text-sm break-words whitespace-pre-wrap text-red-800">
-					{selectedError?.message || 'No error message available'}
-				</p>
-			</div>
+
+		<!-- Toggle Buttons -->
+		<div class="mt-4 flex items-center gap-2">
+			<Button
+				variant={!showTranslated ? 'default' : 'outline'}
+				size="sm"
+				onclick={() => (showTranslated = false)}
+			>
+				Raw Message
+			</Button>
+			<Button
+				variant={showTranslated ? 'default' : 'outline'}
+				size="sm"
+				onclick={() => handleTranslateError(false)}
+				disabled={isTranslating}
+			>
+				{#if isTranslating}
+					<Loader class="mr-2 h-3 w-3 animate-spin" />
+					Translating...
+				{:else}
+					Translated Message
+				{/if}
+			</Button>
+			{#if selectedError?.translatedMessage && !isTranslating}
+				<Button
+					variant="ghost"
+					size="sm"
+					onclick={() => handleTranslateError(true)}
+					title="Generate a new translation"
+				>
+					<RefreshCw class="mr-2 h-3 w-3" />
+					Re-translate
+				</Button>
+			{/if}
 		</div>
+
+		<div class="mt-4 flex-1 overflow-y-auto">
+			{#if isTranslating}
+				<!-- Loading State -->
+				<div class="flex h-64 items-center justify-center">
+					<div class="space-y-4 text-center">
+						<div
+							class="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full"
+						>
+							<Loader class="text-primary h-8 w-8 animate-spin" />
+						</div>
+						<div class="space-y-2">
+							<p class="font-medium">Translating Error Message</p>
+							<p class="text-muted-foreground text-sm">
+								Using AI to provide a user-friendly explanation (this may take a while)...
+							</p>
+						</div>
+					</div>
+				</div>
+			{:else if showTranslated && selectedError?.translatedMessage}
+				<!-- Translated Message -->
+				<div class="rounded-lg border border-blue-200 bg-blue-50 p-6">
+					<div class="prose prose-sm max-w-none text-blue-900">
+						{@html markdownToHtml(selectedError.translatedMessage)}
+					</div>
+				</div>
+			{:else}
+				<!-- Raw Message -->
+				<div class="rounded-lg border border-red-200 bg-red-50 p-4">
+					<p class="font-mono text-sm break-words whitespace-pre-wrap text-red-800">
+						{selectedError?.message || 'No error message available'}
+					</p>
+				</div>
+			{/if}
+		</div>
+
 		<Dialog.Footer class="mt-6">
-			<Button variant="outline" onclick={() => (showErrorDialog = false)}>Close</Button>
+			<Button variant="outline" onclick={closeErrorDialog}>Close</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
@@ -345,9 +495,7 @@
 				<Info class="h-5 w-5 text-green-500" />
 				FET Response - Iteration #{selectedResponse?.iterationId}
 			</Dialog.Title>
-			<Dialog.Description>
-				The output from the timetable generation process:
-			</Dialog.Description>
+			<Dialog.Description>The output from the timetable generation process:</Dialog.Description>
 		</Dialog.Header>
 		<div class="mt-4 flex-1 overflow-y-auto">
 			<div class="rounded-lg border border-green-200 bg-green-50 p-4">

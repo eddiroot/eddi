@@ -2,8 +2,8 @@ import { queueStatusEnum } from '$lib/enums.js';
 import {
 	getInProgressTimetableQueues,
 	getOldestQueuedTimetable,
-	updateTimetableIterationError,
 	updateTimetableIterationFetResponse,
+	updateTimetableIterationError as updateTimetableIterationRawError,
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/index.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
@@ -276,7 +276,7 @@ export async function processTimetableQueue() {
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed);
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
 
-			await updateTimetableIterationError(
+			await updateTimetableIterationRawError(
 				queueEntry.iterationId,
 				processingError.stdout.toString()
 			);
