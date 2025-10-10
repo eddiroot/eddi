@@ -29,8 +29,12 @@
 
 <div class="mb-6 flex items-center justify-between">
 	<div>
-		<h1 class="text-2xl font-bold">Timetables</h1>
-		<p class="text-muted-foreground mt-1">Manage your school timetables</p>
+		<h1 class="text-2xl font-bold">Timetabling</h1>
+		<p class="text-muted-foreground mt-1">
+			Welcome to eddi-Timetabling. This is your one-stop solution for managing school timetables
+			efficiently. The platform uses the latest software technologies from FET to help allocate all
+			your classes for a seamless timetable experience.
+		</p>
 	</div>
 	<Dialog.Root bind:open={dialogOpen}>
 		<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>

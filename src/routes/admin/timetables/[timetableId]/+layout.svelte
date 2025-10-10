@@ -54,7 +54,7 @@
 			<div class="invisible grid grid-cols-10 items-center gap-2 text-xs lg:visible">
 				{#each Object.entries(steps) as [_, step]}
 					<a
-						href={buildStepUrl(step.label.toLowerCase())}
+						href={buildStepUrl(step.url.toLowerCase())}
 						class="block text-center leading-tight font-medium transition-colors duration-300 {step.percentage <=
 						currentStep.percentage
 							? 'text-primary'

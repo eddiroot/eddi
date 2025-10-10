@@ -418,3 +418,254 @@ export class TeacherStatisticsService {
 		};
 	}
 }
+
+// Transform processStatistics output to report formats
+interface UserStatistics {
+	userId: string;
+	userName: string;
+	userType: string;
+	totalHoursPerCycle: number;
+	averageHoursPerDay: number;
+	maxHoursPerDay: number;
+	minHoursPerDay: number;
+	numberOfFreeDays: number;
+	dailyHours: Map<number, number>;
+}
+
+interface TimetableStatistics {
+	timetableId: number;
+	iterationId: number;
+	totalDays: number;
+	totalPeriods: number;
+	userStatistics: UserStatistics[];
+	generatedAt: Date;
+}
+
+export function transformToTeacherStatisticsReport(
+	statistics: TimetableStatistics,
+	timetableName: string
+): TeacherStatisticsReport {
+	// Filter teacher statistics
+	const teacherStats = statistics.userStatistics.filter((u) => u.userType === 'teacher');
+
+	// Transform to TeacherStatistic format
+	const teachers: TeacherStatistics = teacherStats.map((t) => ({
+		id: t.userId,
+		name: t.userName,
+		hoursPerWeek: t.totalHoursPerCycle,
+		freeDays: t.numberOfFreeDays,
+		totalGaps: 0, // Not calculated in processStatistics yet
+		minGapsPerDay: 0, // Not calculated in processStatistics yet
+		maxGapsPerDay: 0, // Not calculated in processStatistics yet
+		minHoursPerDay: t.minHoursPerDay,
+		maxHoursPerDay: t.maxHoursPerDay
+	}));
+
+	// Calculate overall statistics
+	const overall = calculateTeacherOverallStatistics(teachers);
+
+	// Create metadata
+	const metadata: TimetableMetadata = {
+		institutionName: timetableName,
+		comments: 'Statistics generated from database',
+		generatedWith: 'EDDI Timetabling System',
+		generatedAt: statistics.generatedAt.toISOString()
+	};
+
+	return {
+		metadata,
+		overall,
+		teachers
+	};
+}
+
+export function transformToStudentStatisticsReport(
+	statistics: TimetableStatistics,
+	timetableName: string
+): StudentStatisticsReport {
+	// Filter student statistics
+	const studentStats = statistics.userStatistics.filter((u) => u.userType === 'student');
+
+	// Calculate overall statistics
+	const overall = calculateStudentOverallStatistics(studentStats);
+
+	// Group by year level (extract from userId - assuming format like S1234 where S is year)
+	const yearLevelMap = new Map<string, UserStatistics[]>();
+	const groupMap = new Map<string, UserStatistics[]>();
+
+	for (const student of studentStats) {
+		// Extract year from userId (e.g., Y10_S1234 -> Y10)
+		const yearMatch = student.userId.match(/^Y(\d+)/);
+		if (yearMatch) {
+			const year = `Y${yearMatch[1]}`;
+			if (!yearLevelMap.has(year)) {
+				yearLevelMap.set(year, []);
+			}
+			yearLevelMap.get(year)!.push(student);
+		}
+
+		// Extract group from userId (e.g., G1A_S1234 -> 1A)
+		const groupMatch = student.userId.match(/^G([^_]+)/);
+		if (groupMatch) {
+			const group = groupMatch[1];
+			if (!groupMap.has(group)) {
+				groupMap.set(group, []);
+			}
+			groupMap.get(group)!.push(student);
+		}
+	}
+
+	// Calculate year level statistics
+	const yearLevels: YearLevelStatistic[] = Array.from(yearLevelMap.entries()).map(
+		([year, students]) => {
+			const hoursPerWeek = students.map((s) => s.totalHoursPerCycle);
+			const freeDays = students.map((s) => s.numberOfFreeDays);
+			const hoursPerDay = students.map((s) => s.maxHoursPerDay);
+
+			return {
+				year,
+				minHoursPerWeek: Math.min(...hoursPerWeek),
+				maxHoursPerWeek: Math.max(...hoursPerWeek),
+				minFreeDays: Math.min(...freeDays),
+				maxFreeDays: Math.max(...freeDays),
+				minHoursPerDay: Math.min(...students.map((s) => s.minHoursPerDay)),
+				maxHoursPerDay: Math.max(...hoursPerDay),
+				minGapsPerWeek: 0, // Not calculated yet
+				maxGapsPerWeek: 0, // Not calculated yet
+				minGapsPerDay: 0, // Not calculated yet
+				maxGapsPerDay: 0 // Not calculated yet
+			};
+		}
+	);
+
+	// Calculate group statistics
+	const groups: GroupStatistic[] = Array.from(groupMap.entries()).map(([group, students]) => {
+		const hoursPerWeek = students.map((s) => s.totalHoursPerCycle);
+		const freeDays = students.map((s) => s.numberOfFreeDays);
+		const hoursPerDay = students.map((s) => s.maxHoursPerDay);
+
+		return {
+			group,
+			minHoursPerWeek: Math.min(...hoursPerWeek),
+			maxHoursPerWeek: Math.max(...hoursPerWeek),
+			minFreeDays: Math.min(...freeDays),
+			maxFreeDays: Math.max(...freeDays),
+			minHoursPerDay: Math.min(...students.map((s) => s.minHoursPerDay)),
+			maxHoursPerDay: Math.max(...hoursPerDay),
+			minGapsPerWeek: 0, // Not calculated yet
+			maxGapsPerWeek: 0, // Not calculated yet
+			minGapsPerDay: 0, // Not calculated yet
+			maxGapsPerDay: 0 // Not calculated yet
+		};
+	});
+
+	// For subgroups, treat each student as a subgroup for now
+	const subgroups: SubgroupStatistic[] = studentStats.map((s) => ({
+		subgroup: s.userId,
+		hoursPerWeek: s.totalHoursPerCycle,
+		freeDays: s.numberOfFreeDays,
+		totalGaps: 0, // Not calculated yet
+		minGapsPerDay: 0, // Not calculated yet
+		maxGapsPerDay: 0, // Not calculated yet
+		minHoursPerDay: s.minHoursPerDay,
+		maxHoursPerDay: s.maxHoursPerDay
+	}));
+
+	// Create metadata
+	const metadata: TimetableMetadata = {
+		institutionName: timetableName,
+		comments: 'Statistics generated from database',
+		generatedWith: 'EDDI Timetabling System',
+		generatedAt: statistics.generatedAt.toISOString()
+	};
+
+	return {
+		metadata,
+		overall,
+		yearLevels,
+		groups,
+		subgroups
+	};
+}
+
+function calculateTeacherOverallStatistics(teachers: TeacherStatistics) {
+	if (teachers.length === 0) {
+		return {
+			sum: { hoursPerWeek: 0, freeDays: 0, gaps: 0 },
+			average: { hoursPerWeek: 0, freeDays: 0, gaps: 0 },
+			min: { hoursPerWeek: 0, freeDays: 0, gaps: 0, gapsPerDay: 0, hoursPerDay: 0 },
+			max: { hoursPerWeek: 0, freeDays: 0, gaps: 0, gapsPerDay: 0, hoursPerDay: 0 }
+		};
+	}
+
+	const sum = {
+		hoursPerWeek: teachers.reduce((acc, t) => acc + t.hoursPerWeek, 0),
+		freeDays: teachers.reduce((acc, t) => acc + t.freeDays, 0),
+		gaps: teachers.reduce((acc, t) => acc + t.totalGaps, 0)
+	};
+
+	const average = {
+		hoursPerWeek: sum.hoursPerWeek / teachers.length,
+		freeDays: sum.freeDays / teachers.length,
+		gaps: sum.gaps / teachers.length
+	};
+
+	const min = {
+		hoursPerWeek: Math.min(...teachers.map((t) => t.hoursPerWeek)),
+		freeDays: Math.min(...teachers.map((t) => t.freeDays)),
+		gaps: Math.min(...teachers.map((t) => t.totalGaps)),
+		gapsPerDay: Math.min(...teachers.map((t) => t.minGapsPerDay)),
+		hoursPerDay: Math.min(...teachers.map((t) => t.minHoursPerDay))
+	};
+
+	const max = {
+		hoursPerWeek: Math.max(...teachers.map((t) => t.hoursPerWeek)),
+		freeDays: Math.max(...teachers.map((t) => t.freeDays)),
+		gaps: Math.max(...teachers.map((t) => t.totalGaps)),
+		gapsPerDay: Math.max(...teachers.map((t) => t.maxGapsPerDay)),
+		hoursPerDay: Math.max(...teachers.map((t) => t.maxHoursPerDay))
+	};
+
+	return { sum, average, min, max };
+}
+
+function calculateStudentOverallStatistics(students: UserStatistics[]): StudentOverallStatistics {
+	if (students.length === 0) {
+		return {
+			sum: { hoursPerWeek: 0, freeDays: 0, gaps: 0 },
+			average: { hoursPerWeek: 0, freeDays: 0, gaps: 0 },
+			min: { hoursPerWeek: 0, freeDays: 0, gaps: 0, gapsPerDay: 0, hoursPerDay: 0 },
+			max: { hoursPerWeek: 0, freeDays: 0, gaps: 0, gapsPerDay: 0, hoursPerDay: 0 }
+		};
+	}
+
+	const sum = {
+		hoursPerWeek: students.reduce((acc, s) => acc + s.totalHoursPerCycle, 0),
+		freeDays: students.reduce((acc, s) => acc + s.numberOfFreeDays, 0),
+		gaps: 0 // Not calculated yet
+	};
+
+	const average = {
+		hoursPerWeek: sum.hoursPerWeek / students.length,
+		freeDays: sum.freeDays / students.length,
+		gaps: 0 // Not calculated yet
+	};
+
+	const min = {
+		hoursPerWeek: Math.min(...students.map((s) => s.totalHoursPerCycle)),
+		freeDays: Math.min(...students.map((s) => s.numberOfFreeDays)),
+		gaps: 0, // Not calculated yet
+		gapsPerDay: 0, // Not calculated yet
+		hoursPerDay: Math.min(...students.map((s) => s.minHoursPerDay))
+	};
+
+	const max = {
+		hoursPerWeek: Math.max(...students.map((s) => s.totalHoursPerCycle)),
+		freeDays: Math.max(...students.map((s) => s.numberOfFreeDays)),
+		gaps: 0, // Not calculated yet
+		gapsPerDay: 0, // Not calculated yet
+		hoursPerDay: Math.max(...students.map((s) => s.maxHoursPerDay))
+	};
+
+	return { sum, average, min, max };
+}

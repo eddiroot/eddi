@@ -2,12 +2,10 @@ import {
 	getCompletedIterationsByTimetableId,
 	getTimetableWithSchool
 } from '$lib/server/db/service';
-import { getFileFromStorage } from '$lib/server/obj';
 import { error } from '@sveltejs/kit';
+import { processStatistics } from '../../../../../scripts/processStatistics';
 import type { PageServerLoad } from './$types';
-import type { StudentStatisticsReport, TeacherStatisticsReport } from './timetable';
-import { TimetableHtmlParser } from './timetable';
-import { StudentStatisticsParser } from './utils';
+import { transformToStudentStatisticsReport, transformToTeacherStatisticsReport } from './utils';
 
 export const load: PageServerLoad = async ({ params, url, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();
@@ -18,13 +16,20 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 	}
 
 	try {
+		// Get timetable with school info first to verify it exists
+		const timetableWithSchool = await getTimetableWithSchool(timetableId);
+		if (!timetableWithSchool) {
+			throw error(404, 'Timetable not found');
+		}
+
 		// Get completed iterations for this timetable
 		const completedIterations = await getCompletedIterationsByTimetableId(timetableId);
 
 		if (completedIterations.length === 0) {
-			throw error(404, {
-				message: 'No completed timetable iterations found'
-			});
+			throw error(
+				404,
+				`No generated timetables found. The timetable "${timetableWithSchool.timetable.name}" has not been generated yet. Please generate the timetable first before viewing results.`
+			);
 		}
 
 		// Get iteration ID from URL or use the most recent one
@@ -34,53 +39,25 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 			: completedIterations[completedIterations.length - 1]; // Most recent
 
 		if (!selectedIteration) {
-			throw error(404, {
-				message: 'Selected iteration not found'
-			});
+			throw error(404, 'Selected iteration not found');
 		}
 
-		// Get timetable with school info
-		const timetableWithSchool = await getTimetableWithSchool(timetableId);
-		if (!timetableWithSchool) {
-			throw error(404, 'Timetable not found');
-		}
-
-		const { school } = timetableWithSchool;
 		const iterationId = selectedIteration.iterationId;
 
-		// Construct file names based on the pattern: {iteration_id}_tt_{timetable_id}_*.html
-		const teacherStatsFileName = `${iterationId}_tt_id${timetableId}_teachers_statistics.html`;
-		const studentStatsFileName = `${iterationId}_tt_id${timetableId}_students_statistics.html`;
-
 		try {
-			// Fetch files from object storage
-			const [teacherHtmlBuffer, studentHtmlBuffer] = await Promise.all([
-				getFileFromStorage(
-					school.id.toString(),
-					timetableId.toString(),
-					teacherStatsFileName,
-					false, // output directory
-					iterationId.toString()
-				),
-				getFileFromStorage(
-					school.id.toString(),
-					timetableId.toString(),
-					studentStatsFileName,
-					false, // output directory
-					iterationId.toString()
-				)
-			]);
+			// Process statistics from database
+			const statistics = await processStatistics(timetableId, iterationId);
 
-			// Convert buffers to strings
-			const teacherHtmlContent = teacherHtmlBuffer.toString('utf-8');
-			const studentHtmlContent = studentHtmlBuffer.toString('utf-8');
+			// Transform to report formats
+			const teacherStatisticsReport = transformToTeacherStatisticsReport(
+				statistics,
+				timetableWithSchool.timetable.name
+			);
 
-			// Parse both HTML files using their respective parsers
-			const teacherStatisticsReport: TeacherStatisticsReport =
-				await TimetableHtmlParser.parseTeacherStatisticsReport(teacherHtmlContent);
-
-			const studentStatisticsReport: StudentStatisticsReport =
-				await StudentStatisticsParser.parseStudentStatisticsReport(studentHtmlContent);
+			const studentStatisticsReport = transformToStudentStatisticsReport(
+				statistics,
+				timetableWithSchool.timetable.name
+			);
 
 			return {
 				timetableId: params.timetableId,
@@ -89,10 +66,10 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 				completedIterations,
 				selectedIterationId: iterationId
 			};
-		} catch (fileError) {
-			console.error('Failed to load statistics files from object storage:', fileError);
+		} catch (statisticsError) {
+			console.error('Failed to process statistics from database:', statisticsError);
 			throw error(500, {
-				message: 'Failed to load statistics files. The timetable may not have been fully generated.'
+				message: 'Failed to process statistics. The timetable may not have been fully generated.'
 			});
 		}
 	} catch (err) {
@@ -116,8 +93,21 @@ export const actions = {
 		}
 
 		try {
+			// Get timetable with school info first
+			const timetableWithSchool = await getTimetableWithSchool(timetableId);
+			if (!timetableWithSchool) {
+				throw error(404, 'Timetable not found');
+			}
+
 			// Get completed iterations for this timetable
 			const completedIterations = await getCompletedIterationsByTimetableId(timetableId);
+
+			if (completedIterations.length === 0) {
+				throw error(
+					404,
+					`No generated timetables found. The timetable "${timetableWithSchool.timetable.name}" has not been generated yet. Please generate the timetable first before viewing results.`
+				);
+			}
 
 			// Find the selected iteration
 			const selectedIteration = completedIterations.find((i) => i.iterationId === iterationId);
@@ -126,46 +116,19 @@ export const actions = {
 				throw error(404, 'Iteration not found');
 			}
 
-			// Get timetable with school info
-			const timetableWithSchool = await getTimetableWithSchool(timetableId);
-			if (!timetableWithSchool) {
-				throw error(404, 'Timetable not found');
-			}
+			// Process statistics from database
+			const statistics = await processStatistics(timetableId, iterationId);
 
-			const { school } = timetableWithSchool;
+			// Transform to report formats
+			const teacherStatisticsReport = transformToTeacherStatisticsReport(
+				statistics,
+				timetableWithSchool.timetable.name
+			);
 
-			// Construct file names
-			const teacherStatsFileName = `${iterationId}_tt_id${timetableId}_teachers_statistics.html`;
-			const studentStatsFileName = `${iterationId}_tt_id${timetableId}_students_statistics.html`;
-
-			// Fetch files from object storage
-			const [teacherHtmlBuffer, studentHtmlBuffer] = await Promise.all([
-				getFileFromStorage(
-					school.id.toString(),
-					timetableId.toString(),
-					teacherStatsFileName,
-					false,
-					iterationId.toString()
-				),
-				getFileFromStorage(
-					school.id.toString(),
-					timetableId.toString(),
-					studentStatsFileName,
-					false,
-					iterationId.toString()
-				)
-			]);
-
-			// Convert buffers to strings
-			const teacherHtmlContent = teacherHtmlBuffer.toString('utf-8');
-			const studentHtmlContent = studentHtmlBuffer.toString('utf-8');
-
-			// Parse both HTML files
-			const teacherStatisticsReport: TeacherStatisticsReport =
-				await TimetableHtmlParser.parseTeacherStatisticsReport(teacherHtmlContent);
-
-			const studentStatisticsReport: StudentStatisticsReport =
-				await StudentStatisticsParser.parseStudentStatisticsReport(studentHtmlContent);
+			const studentStatisticsReport = transformToStudentStatisticsReport(
+				statistics,
+				timetableWithSchool.timetable.name
+			);
 
 			return {
 				success: true,
@@ -176,9 +139,7 @@ export const actions = {
 			};
 		} catch (err) {
 			console.error('Failed to load statistics for iteration:', err);
-			throw error(500, {
-				message: 'Failed to load statistics files'
-			});
+			throw error(500, 'Failed to process statistics for the selected iteration');
 		}
 	}
 };

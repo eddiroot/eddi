@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { Badge } from '$lib/components/ui/badge';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Select from '$lib/components/ui/select';
 	import {
 		Table,
 		TableBody,
@@ -19,9 +19,7 @@
 	import AlertTriangleIcon from '@lucide/svelte/icons/triangle-alert';
 	import UserIcon from '@lucide/svelte/icons/user';
 	import UsersIcon from '@lucide/svelte/icons/users';
-	import { enhance } from '$app/forms';
-	import type { PageData } from './$types';
-	import type { StudentStatisticsReport, TeacherStatistics, TimetableMetadata } from './timetable';
+	import type { TeacherStatistics, TimetableMetadata } from './timetable';
 
 	// Receive data from the server
 	let { data, form } = $props();
@@ -76,11 +74,11 @@
 	let showConfirmDialog = $state(false);
 
 	const viewOptions = [
-		{ id: 'entire-timetable', label: 'View Entire Timetable', icon: CalendarIcon },
 		{ id: 'student-statistics', label: 'Student Statistics', icon: GraduationCapIcon },
 		{ id: 'teacher-statistics', label: 'Teacher Statistics', icon: UserIcon },
 		{ id: 'broken-constraints', label: 'View Broken Constraints', icon: AlertTriangleIcon },
-		{ id: 'user-timetable', label: 'View Timetable for a given User', icon: UsersIcon }
+		{ id: 'user-timetable', label: 'View Timetable for a given User', icon: UsersIcon },
+		{ id: 'space-timetable', label: 'View Timetable for a given Space', icon: CalendarIcon }
 	];
 
 	function handleConfirmTimetable() {
@@ -129,8 +127,10 @@
 								'teacherStatisticsReport' in result.data &&
 								'studentStatisticsReport' in result.data
 							) {
-								teacherStatisticsReport = result.data.teacherStatisticsReport as typeof teacherStatisticsReport;
-								studentStatisticsReport = result.data.studentStatisticsReport as typeof studentStatisticsReport;
+								teacherStatisticsReport = result.data
+									.teacherStatisticsReport as typeof teacherStatisticsReport;
+								studentStatisticsReport = result.data
+									.studentStatisticsReport as typeof studentStatisticsReport;
 								completedIterations = result.data.completedIterations as typeof completedIterations;
 								selectedIterationId = result.data.selectedIterationId as number;
 							}
@@ -141,7 +141,7 @@
 						<span class="text-muted-foreground text-sm font-medium">Iteration:</span>
 						<select
 							name="iterationId"
-							class="flex h-10 w-[200px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-10 w-[200px] items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							onchange={(e) => {
 								e.currentTarget.form?.requestSubmit();
 							}}
@@ -194,15 +194,15 @@
 				{:else if selectedView === 'student-statistics'}
 					<GraduationCapIcon class="h-5 w-5" />
 					Student Statistics
-				{:else if selectedView === 'entire-timetable'}
-					<CalendarIcon class="h-5 w-5" />
-					Entire Timetable
 				{:else if selectedView === 'broken-constraints'}
 					<AlertTriangleIcon class="h-5 w-5" />
 					Broken Constraints
 				{:else if selectedView === 'user-timetable'}
 					<UsersIcon class="h-5 w-5" />
 					User Timetable
+				{:else if selectedView === 'space-timetable'}
+					<CalendarIcon class="h-5 w-5" />
+					Space Timetable
 				{/if}
 			</Card.Title>
 		</Card.Header>
@@ -559,11 +559,11 @@
 						</div>
 					{/if}
 				</div>
-			{:else if selectedView === 'entire-timetable'}
+			{:else if selectedView === 'space-timetable'}
 				<div class="py-8 text-center">
 					<CalendarIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-					<h3 class="text-lg font-semibold">Timetable View</h3>
-					<p class="text-muted-foreground">Full timetable view will be implemented here.</p>
+					<h3 class="text-lg font-semibold">Space Timetable</h3>
+					<p class="text-muted-foreground">Timetable for a selected room.</p>
 				</div>
 			{:else if selectedView === 'user-timetable'}
 				<div class="py-8 text-center">

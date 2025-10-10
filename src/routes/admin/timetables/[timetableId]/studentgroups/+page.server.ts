@@ -10,7 +10,6 @@ import {
 	removeStudentFromTimetableGroup
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
-import type { Actions } from './$types.js';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
@@ -36,7 +35,7 @@ export const load = async ({ locals: { security }, params }) => {
 	};
 };
 
-export const actions: Actions = {
+export const actions = {
 	createGroup: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
