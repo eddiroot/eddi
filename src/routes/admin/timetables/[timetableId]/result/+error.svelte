@@ -49,12 +49,7 @@
 			</div>
 
 			<div class="flex flex-col gap-3 sm:flex-row">
-				<Button
-					href="/admin/timetables/{timetableId}"
-					variant="outline"
-					size="lg"
-					class="flex-1 gap-2"
-				>
+				<Button href="/admin/timetables" variant="outline" size="lg" class="flex-1 gap-2">
 					<ArrowLeftIcon class="h-4 w-4" />
 					Back to Timetable
 				</Button>
