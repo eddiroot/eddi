@@ -400,7 +400,8 @@
 								aria-label="Toggle expanded colour palette"
 							>
 								<div
-									class="h-full w-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"
+									class="h-full w-full rounded-sm"
+									style="background-color: {textOptions.colour}"
 								></div>
 							</button>
 						</div>
@@ -560,7 +561,8 @@
 								aria-label="Toggle expanded colour palette"
 							>
 								<div
-									class="h-full w-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"
+									class="h-full w-full rounded-sm"
+									style="background-color: {shapeOptions.strokeColour}"
 								></div>
 							</button>
 						</div>
@@ -616,7 +618,8 @@
 								aria-label="Toggle expanded colour palette"
 							>
 								<div
-									class="h-full w-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"
+									class="h-full w-full rounded-sm"
+									style="background-color: {shapeOptions.fillColour}"
 								></div>
 							</button>
 						</div>
@@ -719,7 +722,8 @@
 								aria-label="Toggle expanded colour palette"
 							>
 								<div
-									class="h-full w-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"
+									class="h-full w-full rounded-sm"
+									style="background-color: {drawOptions.brushColour}"
 								></div>
 							</button>
 						</div>
@@ -838,7 +842,8 @@
 								aria-label="Toggle expanded colour palette"
 							>
 								<div
-									class="h-full w-full rounded-sm bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500"
+									class="h-full w-full rounded-sm"
+									style="background-color: {lineArrowOptions.strokeColour}"
 								></div>
 							</button>
 						</div>
