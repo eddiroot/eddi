@@ -1061,6 +1061,71 @@
 			});
 		});
 
+		// Handle object selection - automatically open appropriate menu
+		canvas.on('selection:created', ({ selected }) => {
+			if (selected && selected.length === 1) {
+				const obj = selected[0];
+
+				// Determine which tool/menu to activate based on object type
+				if (obj.type === 'textbox') {
+					selectedTool = 'text';
+					showFloatingMenu = true;
+				} else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
+					selectedTool = 'shapes';
+					showFloatingMenu = true;
+				} else if (obj.type === 'line') {
+					selectedTool = 'line';
+					showFloatingMenu = true;
+				} else if (obj.type === 'group') {
+					// Arrows are groups
+					selectedTool = 'arrow';
+					showFloatingMenu = true;
+				} else if (obj.type === 'path') {
+					// Drawn paths (freehand drawing)
+					selectedTool = 'draw';
+					showFloatingMenu = true;
+				} else if (obj.type === 'image') {
+					selectedTool = 'shapes';
+					showFloatingMenu = true;
+				}
+			}
+		});
+
+		// Also handle when selection is updated (different object selected)
+		canvas.on('selection:updated', ({ selected }) => {
+			if (selected && selected.length === 1) {
+				const obj = selected[0];
+
+				// Determine which tool/menu to activate based on object type
+				if (obj.type === 'textbox') {
+					selectedTool = 'text';
+					showFloatingMenu = true;
+				} else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
+					selectedTool = 'shapes';
+					showFloatingMenu = true;
+				} else if (obj.type === 'line') {
+					selectedTool = 'line';
+					showFloatingMenu = true;
+				} else if (obj.type === 'group') {
+					// Arrows are groups
+					selectedTool = 'arrow';
+					showFloatingMenu = true;
+				} else if (obj.type === 'path') {
+					// Drawn paths (freehand drawing)
+					selectedTool = 'draw';
+					showFloatingMenu = true;
+				} else if (obj.type === 'image') {
+					selectedTool = 'shapes';
+					showFloatingMenu = true;
+				}
+			}
+		});
+
+		// Handle object deselection - keep menu open unless switching to select tool manually
+		canvas.on('selection:cleared', () => {
+			// Don't close menu automatically, let user close it or switch tools
+		});
+
 		canvas.on('mouse:wheel', (opt) => {
 			const delta = opt.e.deltaY;
 
