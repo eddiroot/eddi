@@ -50,44 +50,37 @@
 ### Doing
 
 All
-- [ ] Security review e.g. prompt injection (Late October)
+- [ ] Security review e.g. prompt injection
 - [ ] Content security policy in `svelte.config.js`
-- [ ] Check uniqueness rules on tables (Late October)
+- [ ] Check uniqueness rules on tables
 - [ ] Home pages and feature pages
 - [ ] Shift away from static school id for OAuth (search TODO)
 
 Lachie
 - [ ] Start the scheduled quiz on load (if within the time)
-- [ ] Highlight (more than one word at once)
-- [ ] Fill blank (partition box into multiple if multi word answer)
-- [ ] On graph block, colour core x/y axis lines differently
-- [ ] Editable table block for students (is editable checkbox) (add questions on top of the table that teacher can add)
+- [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 
 Bella
 - [ ] Subject selection
-- [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
 
 Jack
-- [ ] Refactoring Task Blocks to lang 
+- [ ] Refactoring Task Blocks to lang
+- [ ] Move away from ChromaDB to pgvector
 - [ ] Improved lesson generation
 - [ ] Improved lesson/assessment plan
 - [ ] Chatbot
-  - [ ] Hints 
+  - [ ] Hints
   - [ ] Generate example
 
 Max
-
 - [ ] Advanced timetabling (30/08)
   - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
   - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
   - [ ] Checkbox to add a recess and lunchtime period post timetable generation in first and second gap respectively (or allow them to set specific time)
 - [ ] Class space shifts (21/08)
   - [ ] Changing spaces and handling of this
-- [ ] Student reports live throughout semester (10/08)
-  - [ ] Creating a profile page for the students
 
 Raph
-
 - [ ] Better whiteboard (20/07)
   - undo/redo
   - Fix colour options/view + tooltip, colour options popout instead of in menu?
@@ -96,23 +89,29 @@ Raph
   - layering options?
   - text with websocket
   - text adding mechanics
-- [x] Student grades (20/08) (use mock data for now - waiting for eddi study)
+
+Blake
+- [ ] Handling of multiple campuses
+
+### To Do
+
+- [x] Student grades (20/08)
   - fix scrollbar gutter
   - fix filters and sorts
   - full width, remove fixed-table
   - remove and fix showFeedback
-- [x] Teacher Lesson Analytics (use mock data for now - waiting for eddi study)
+- [x] Teacher Lesson Analytics
   - fix table width issues
   - admin grade style option (percentage vs 0-8 scale)
-
-Blake
-- [ ] Handling of multiple campuses
-- [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 - [ ] A what to do button to generate study ideas (04/08)
 - [ ] Fleshed out behavioural reporting (see toddle) (new incident button on attendance page)
-
-### To Do
-
+- [ ] Student reports live throughout semester (10/08)
+  - [ ] Creating a profile page for the students
+- [ ] Diagram (with movable input boxes) (pair with Lachie to sync on matching)
+- [ ] Highlight (more than one word at once)
+- [ ] Fill blank (partition box into multiple if multi word answer)
+- [ ] On graph block, colour core x/y axis lines differently
+- [ ] Editable table block for students (is editable checkbox) (add questions on top of the table that teacher can add)
 - [ ] Parent/teacher interviews
 - [ ] Teacher to parent comms (one way)
 - [ ] Student note writing
