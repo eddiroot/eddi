@@ -608,6 +608,26 @@
 
 	const handleDrawOptionsChange = (options: any) => {
 		if (!canvas) return;
+
+		// First, check if there's an active path object selected and update it
+		const activeObject = canvas.getActiveObject();
+		if (activeObject && activeObject.type === 'path') {
+			activeObject.set({
+				strokeWidth: options.brushSize,
+				stroke: options.brushColour,
+				opacity: options.opacity
+			});
+			canvas.renderAll();
+			const objData = activeObject.toObject();
+			// @ts-expect-error
+			objData.id = activeObject.id;
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objData
+			});
+		}
+
+		// Also update the brush for future drawing
 		if (canvas.freeDrawingBrush) {
 			canvas.freeDrawingBrush.width = options.brushSize;
 
