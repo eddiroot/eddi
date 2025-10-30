@@ -99,6 +99,9 @@
 		opacity: 1
 	});
 
+	// Flag to prevent triggering onChange handlers during sync
+	let isSyncingFromObject = $state(false);
+
 	let fontSizeValue = $state(16);
 	let strokeWidthValue = $state(2);
 	let brushSizeValue = $state(6);
@@ -248,31 +251,68 @@
 		expandedColoursFor = null;
 	}
 
+	// Functions to update options from selected objects
+	export function updateTextOptions(options: Partial<TextOptions>) {
+		isSyncingFromObject = true;
+		textOptions = { ...textOptions, ...options };
+		if (options.fontSize !== undefined) fontSizeValue = options.fontSize;
+		if (options.opacity !== undefined) textOpacityValue = options.opacity;
+		setTimeout(() => (isSyncingFromObject = false), 0);
+	}
+
+	export function updateShapeOptions(options: Partial<ShapeOptions>) {
+		isSyncingFromObject = true;
+		shapeOptions = { ...shapeOptions, ...options };
+		if (options.strokeWidth !== undefined) strokeWidthValue = options.strokeWidth;
+		if (options.opacity !== undefined) shapeOpacityValue = options.opacity;
+		setTimeout(() => (isSyncingFromObject = false), 0);
+	}
+
+	export function updateDrawOptions(options: Partial<DrawOptions>) {
+		isSyncingFromObject = true;
+		drawOptions = { ...drawOptions, ...options };
+		if (options.brushSize !== undefined) brushSizeValue = options.brushSize;
+		if (options.opacity !== undefined) drawOpacityValue = options.opacity;
+		setTimeout(() => (isSyncingFromObject = false), 0);
+	}
+
+	export function updateLineArrowOptions(options: Partial<LineArrowOptions>) {
+		isSyncingFromObject = true;
+		lineArrowOptions = { ...lineArrowOptions, ...options };
+		if (options.strokeWidth !== undefined) lineArrowStrokeWidthValue = options.strokeWidth;
+		if (options.opacity !== undefined) lineArrowOpacityValue = options.opacity;
+		setTimeout(() => (isSyncingFromObject = false), 0);
+	}
+
 	// Reactive updates
 	$effect(() => {
-		if (selectedTool === 'text' && onTextOptionsChange) {
+		if (!isSyncingFromObject && selectedTool === 'text' && onTextOptionsChange) {
 			onTextOptionsChange(textOptions);
 		}
 	});
 
 	$effect(() => {
-		if (selectedTool === 'shapes' && onShapeOptionsChange) {
+		if (!isSyncingFromObject && selectedTool === 'shapes' && onShapeOptionsChange) {
 			onShapeOptionsChange(shapeOptions);
 		}
 	});
 
 	$effect(() => {
-		if (selectedTool === 'draw' && onDrawOptionsChange) {
+		if (!isSyncingFromObject && selectedTool === 'draw' && onDrawOptionsChange) {
 			onDrawOptionsChange(drawOptions);
 		}
 
-		if (selectedTool === 'eraser' && onDrawOptionsChange) {
+		if (!isSyncingFromObject && selectedTool === 'eraser' && onDrawOptionsChange) {
 			onDrawOptionsChange(drawOptions);
 		}
 	});
 
 	$effect(() => {
-		if ((selectedTool === 'line' || selectedTool === 'arrow') && onLineArrowOptionsChange) {
+		if (
+			!isSyncingFromObject &&
+			(selectedTool === 'line' || selectedTool === 'arrow') &&
+			onLineArrowOptionsChange
+		) {
 			onLineArrowOptionsChange(lineArrowOptions);
 		}
 	});

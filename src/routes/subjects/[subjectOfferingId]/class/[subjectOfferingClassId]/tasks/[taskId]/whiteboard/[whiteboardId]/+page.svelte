@@ -1064,29 +1064,74 @@
 		// Handle object selection - automatically open appropriate menu
 		canvas.on('selection:created', ({ selected }) => {
 			if (selected && selected.length === 1) {
-				const obj = selected[0];
+				const obj = selected[0] as any;
 
-				// Determine which tool/menu to activate based on object type
+				// Determine which tool/menu to activate based on object type and sync properties
 				if (obj.type === 'textbox') {
 					selectedTool = 'text';
 					showFloatingMenu = true;
+					// Sync text properties to menu
+					floatingMenuRef?.updateTextOptions({
+						fontSize: obj.fontSize || 16,
+						fontFamily: obj.fontFamily || 'Arial',
+						fontWeight: obj.fontWeight || 'normal',
+						colour: obj.fill?.toString() || '#4A5568',
+						textAlign: obj.textAlign || 'left',
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
 					selectedTool = 'shapes';
 					showFloatingMenu = true;
+					// Sync shape properties to menu
+					floatingMenuRef?.updateShapeOptions({
+						strokeWidth: obj.strokeWidth || 2,
+						strokeColour: obj.stroke?.toString() || '#4A5568',
+						fillColour: obj.fill?.toString() || 'transparent',
+						strokeDashArray: obj.strokeDashArray || [],
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'line') {
 					selectedTool = 'line';
 					showFloatingMenu = true;
+					// Sync line properties to menu
+					floatingMenuRef?.updateLineArrowOptions({
+						strokeWidth: obj.strokeWidth || 2,
+						strokeColour: obj.stroke?.toString() || '#4A5568',
+						strokeDashArray: obj.strokeDashArray || [],
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'group') {
 					// Arrows are groups
 					selectedTool = 'arrow';
 					showFloatingMenu = true;
+					// Sync arrow properties from the line in the group
+					const groupObj = obj as fabric.Group;
+					const lineObj = groupObj.getObjects().find((o: any) => o.type === 'line');
+					if (lineObj) {
+						floatingMenuRef?.updateLineArrowOptions({
+							strokeWidth: lineObj.strokeWidth || 2,
+							strokeColour: lineObj.stroke?.toString() || '#4A5568',
+							strokeDashArray: lineObj.strokeDashArray || [],
+							opacity: lineObj.opacity ?? 1
+						});
+					}
 				} else if (obj.type === 'path') {
 					// Drawn paths (freehand drawing)
 					selectedTool = 'draw';
 					showFloatingMenu = true;
+					// Sync path properties to menu
+					floatingMenuRef?.updateDrawOptions({
+						brushSize: obj.strokeWidth || 6,
+						brushColour: obj.stroke?.toString() || '#4A5568',
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'image') {
 					selectedTool = 'shapes';
 					showFloatingMenu = true;
+					// Sync image properties to menu (only opacity makes sense)
+					floatingMenuRef?.updateShapeOptions({
+						opacity: obj.opacity ?? 1
+					});
 				}
 			}
 		});
@@ -1094,29 +1139,74 @@
 		// Also handle when selection is updated (different object selected)
 		canvas.on('selection:updated', ({ selected }) => {
 			if (selected && selected.length === 1) {
-				const obj = selected[0];
+				const obj = selected[0] as any;
 
-				// Determine which tool/menu to activate based on object type
+				// Determine which tool/menu to activate based on object type and sync properties
 				if (obj.type === 'textbox') {
 					selectedTool = 'text';
 					showFloatingMenu = true;
+					// Sync text properties to menu
+					floatingMenuRef?.updateTextOptions({
+						fontSize: obj.fontSize || 16,
+						fontFamily: obj.fontFamily || 'Arial',
+						fontWeight: obj.fontWeight || 'normal',
+						colour: obj.fill?.toString() || '#4A5568',
+						textAlign: obj.textAlign || 'left',
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
 					selectedTool = 'shapes';
 					showFloatingMenu = true;
+					// Sync shape properties to menu
+					floatingMenuRef?.updateShapeOptions({
+						strokeWidth: obj.strokeWidth || 2,
+						strokeColour: obj.stroke?.toString() || '#4A5568',
+						fillColour: obj.fill?.toString() || 'transparent',
+						strokeDashArray: obj.strokeDashArray || [],
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'line') {
 					selectedTool = 'line';
 					showFloatingMenu = true;
+					// Sync line properties to menu
+					floatingMenuRef?.updateLineArrowOptions({
+						strokeWidth: obj.strokeWidth || 2,
+						strokeColour: obj.stroke?.toString() || '#4A5568',
+						strokeDashArray: obj.strokeDashArray || [],
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'group') {
 					// Arrows are groups
 					selectedTool = 'arrow';
 					showFloatingMenu = true;
+					// Sync arrow properties from the line in the group
+					const groupObj = obj as fabric.Group;
+					const lineObj = groupObj.getObjects().find((o: any) => o.type === 'line');
+					if (lineObj) {
+						floatingMenuRef?.updateLineArrowOptions({
+							strokeWidth: lineObj.strokeWidth || 2,
+							strokeColour: lineObj.stroke?.toString() || '#4A5568',
+							strokeDashArray: lineObj.strokeDashArray || [],
+							opacity: lineObj.opacity ?? 1
+						});
+					}
 				} else if (obj.type === 'path') {
 					// Drawn paths (freehand drawing)
 					selectedTool = 'draw';
 					showFloatingMenu = true;
+					// Sync path properties to menu
+					floatingMenuRef?.updateDrawOptions({
+						brushSize: obj.strokeWidth || 6,
+						brushColour: obj.stroke?.toString() || '#4A5568',
+						opacity: obj.opacity ?? 1
+					});
 				} else if (obj.type === 'image') {
 					selectedTool = 'shapes';
 					showFloatingMenu = true;
+					// Sync image properties to menu (only opacity makes sense)
+					floatingMenuRef?.updateShapeOptions({
+						opacity: obj.opacity ?? 1
+					});
 				}
 			}
 		});
