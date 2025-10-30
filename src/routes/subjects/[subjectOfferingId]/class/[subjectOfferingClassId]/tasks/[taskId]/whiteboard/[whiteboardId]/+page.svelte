@@ -52,6 +52,38 @@
 	let tempText: fabric.Textbox | null = null;
 	let floatingMenuRef: WhiteboardFloatingMenu;
 
+	// Current tool options - updated when menu changes
+	let currentTextOptions = $state({
+		fontSize: 16,
+		fontFamily: 'Arial',
+		fontWeight: 'normal',
+		colour: '#4A5568',
+		textAlign: 'left',
+		opacity: 1
+	});
+
+	let currentShapeOptions = $state({
+		strokeWidth: 2,
+		strokeColour: '#4A5568',
+		fillColour: 'transparent',
+		strokeDashArray: [] as number[],
+		opacity: 1
+	});
+
+	let currentDrawOptions = $state({
+		brushSize: 6,
+		brushColour: '#4A5568',
+		brushType: 'pencil',
+		opacity: 1
+	});
+
+	let currentLineArrowOptions = $state({
+		strokeWidth: 2,
+		strokeColour: '#4A5568',
+		strokeDashArray: [] as number[],
+		opacity: 1
+	});
+
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId ?? '0'));
 
@@ -355,10 +387,10 @@
 	const createLine = (x1: number, y1: number, x2: number, y2: number) => {
 		return new fabric.Line([x1, y1, x2, y2], {
 			id: uuidv4(),
-			stroke: '#000000',
-			strokeWidth: 2,
-			strokeDashArray: [],
-			opacity: 1,
+			stroke: currentLineArrowOptions.strokeColour,
+			strokeWidth: currentLineArrowOptions.strokeWidth,
+			strokeDashArray: currentLineArrowOptions.strokeDashArray,
+			opacity: currentLineArrowOptions.opacity,
 			selectable: true
 		});
 	};
@@ -368,18 +400,18 @@
 		const arrowHeadPoints = createArrowHead(x1, y1, x2, y2);
 
 		const arrowHead1 = new fabric.Line([x2, y2, arrowHeadPoints[0].x, arrowHeadPoints[0].y], {
-			stroke: '#000000',
-			strokeWidth: 2,
-			strokeDashArray: [],
-			opacity: 1,
+			stroke: currentLineArrowOptions.strokeColour,
+			strokeWidth: currentLineArrowOptions.strokeWidth,
+			strokeDashArray: currentLineArrowOptions.strokeDashArray,
+			opacity: currentLineArrowOptions.opacity,
 			selectable: false
 		});
 
 		const arrowHead2 = new fabric.Line([x2, y2, arrowHeadPoints[1].x, arrowHeadPoints[1].y], {
-			stroke: '#000000',
-			strokeWidth: 2,
-			strokeDashArray: [],
-			opacity: 1,
+			stroke: currentLineArrowOptions.strokeColour,
+			strokeWidth: currentLineArrowOptions.strokeWidth,
+			strokeDashArray: currentLineArrowOptions.strokeDashArray,
+			opacity: currentLineArrowOptions.opacity,
 			selectable: false
 		});
 
@@ -413,11 +445,11 @@
 				shape = new fabric.Circle({
 					id: uuidv4(),
 					radius: radius,
-					fill: 'transparent',
-					stroke: '#000000',
-					strokeWidth: 2,
-					strokeDashArray: [],
-					opacity: 1,
+					fill: currentShapeOptions.fillColour,
+					stroke: currentShapeOptions.strokeColour,
+					strokeWidth: currentShapeOptions.strokeWidth,
+					strokeDashArray: currentShapeOptions.strokeDashArray,
+					opacity: currentShapeOptions.opacity,
 					left: left,
 					top: top
 				});
@@ -427,11 +459,11 @@
 					id: uuidv4(),
 					width: width,
 					height: height,
-					fill: 'transparent',
-					stroke: '#000000',
-					strokeWidth: 2,
-					strokeDashArray: [],
-					opacity: 1,
+					fill: currentShapeOptions.fillColour,
+					stroke: currentShapeOptions.strokeColour,
+					strokeWidth: currentShapeOptions.strokeWidth,
+					strokeDashArray: currentShapeOptions.strokeDashArray,
+					opacity: currentShapeOptions.opacity,
 					left: left,
 					top: top
 				});
@@ -441,11 +473,11 @@
 					id: uuidv4(),
 					width: width,
 					height: height,
-					fill: 'transparent',
-					stroke: '#000000',
-					strokeWidth: 2,
-					strokeDashArray: [],
-					opacity: 1,
+					fill: currentShapeOptions.fillColour,
+					stroke: currentShapeOptions.strokeColour,
+					strokeWidth: currentShapeOptions.strokeWidth,
+					strokeDashArray: currentShapeOptions.strokeDashArray,
+					opacity: currentShapeOptions.opacity,
 					left: left,
 					top: top
 				});
@@ -468,15 +500,16 @@
 			left: left,
 			top: top,
 			width: width,
-			fontSize: 16,
-			fontFamily: 'Arial',
-			fill: '#000000',
-			opacity: 1,
+			fontSize: currentTextOptions.fontSize,
+			fontFamily: currentTextOptions.fontFamily,
+			fontWeight: currentTextOptions.fontWeight,
+			fill: currentTextOptions.colour,
+			opacity: currentTextOptions.opacity,
 			// Text wrapping settings
 			splitByGrapheme: false, // Split by words, not characters
 			// Fixed height behavior - let text wrap and expand vertically naturally
 			// but constrain width
-			textAlign: 'left'
+			textAlign: currentTextOptions.textAlign
 		});
 
 		return text;
@@ -549,6 +582,9 @@
 
 	// Handle floating menu option changes
 	const handleTextOptionsChange = (options: any) => {
+		// Update current options for new objects
+		currentTextOptions = { ...options };
+
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
 		if (activeObject && activeObject.type === 'textbox') {
@@ -572,6 +608,9 @@
 	};
 
 	const handleShapeOptionsChange = (options: any) => {
+		// Update current options for new objects
+		currentShapeOptions = { ...options };
+
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
 		if (
@@ -607,6 +646,9 @@
 	};
 
 	const handleDrawOptionsChange = (options: any) => {
+		// Update current options for new objects
+		currentDrawOptions = { ...options };
+
 		if (!canvas) return;
 
 		// First, check if there's an active path object selected and update it
@@ -659,6 +701,9 @@
 	};
 
 	const handleLineArrowOptionsChange = (options: any) => {
+		// Update current options for new objects
+		currentLineArrowOptions = { ...options };
+
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
 		if (activeObject && (activeObject.type === 'line' || activeObject.type === 'group')) {
@@ -1324,7 +1369,9 @@
 					opt.e.stopPropagation();
 				}
 			} else if (selectedTool === 'line' || selectedTool === 'arrow') {
-				if (!isDrawingLine && !isDrawingArrow) {
+				// Don't start drawing if we're clicking on an existing object
+				const target = canvas.findTarget(opt.e);
+				if (!target && !isDrawingLine && !isDrawingArrow) {
 					const pointer = canvas.getScenePoint(opt.e);
 					startPoint = { x: pointer.x, y: pointer.y };
 
