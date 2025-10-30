@@ -50,6 +50,7 @@
 	let tempLine: fabric.Line | null = null;
 	let tempShape: fabric.Object | null = null;
 	let tempText: fabric.Textbox | null = null;
+	let floatingMenuRef: WhiteboardFloatingMenu;
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId ?? '0'));
@@ -1078,6 +1079,11 @@
 		canvas.on('mouse:down', (opt) => {
 			const evt = opt.e;
 
+			// Close the expanded colors panel when user starts interacting
+			if (floatingMenuRef) {
+				floatingMenuRef.closeExpandedColors();
+			}
+
 			if (selectedTool === 'pan') {
 				isPanMode = true;
 				canvas.selection = false;
@@ -1604,6 +1610,7 @@
 
 			<!-- Floating Menu -->
 			<WhiteboardFloatingMenu
+				bind:this={floatingMenuRef}
 				{selectedTool}
 				visible={showFloatingMenu}
 				onTextOptionsChange={handleTextOptionsChange}

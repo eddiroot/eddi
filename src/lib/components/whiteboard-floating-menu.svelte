@@ -21,6 +21,7 @@
 		onShapeOptionsChange?: (options: ShapeOptions) => void;
 		onDrawOptionsChange?: (options: DrawOptions) => void;
 		onLineArrowOptionsChange?: (options: LineArrowOptions) => void;
+		onCanvasInteraction?: () => void;
 	}
 
 	interface TextOptions {
@@ -61,7 +62,8 @@
 		onTextOptionsChange,
 		onShapeOptionsChange,
 		onDrawOptionsChange,
-		onLineArrowOptionsChange
+		onLineArrowOptionsChange,
+		onCanvasInteraction
 	}: Props = $props();
 
 	// Default options
@@ -239,6 +241,12 @@
 	let selectedColourFamily = $state<ColourFamily>('#1E1E1E'); // Default to black
 	let showExpandedColours = $state(false); // Toggle for expanded colour palette
 	let expandedColoursFor = $state<'text' | 'stroke' | 'fill' | 'brush' | 'line' | null>(null); // Track which colour picker opened the expanded palette
+
+	// Function to close the expanded colors panel
+	export function closeExpandedColors() {
+		showExpandedColours = false;
+		expandedColoursFor = null;
+	}
 
 	// Reactive updates
 	$effect(() => {
