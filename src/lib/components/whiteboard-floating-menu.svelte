@@ -531,6 +531,8 @@
 						</div>
 					</div>
 
+					<Separator />
+
 					<!-- Stroke Colour -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Stroke Colour</Label>
@@ -692,6 +694,8 @@
 						</div>
 					</div>
 
+					<Separator />
+
 					<!-- Brush Colour -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Brush Colour</Label>
@@ -737,6 +741,8 @@
 						</div>
 					</div>
 
+					<Separator />
+
 					<!-- Opacity -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Opacity</Label>
@@ -764,6 +770,8 @@
 						{:else}
 							<!-- Using arrow right icon for arrow tool -->
 							<svg
+								width="24"
+								height="24"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -812,6 +820,8 @@
 						</div>
 					</div>
 
+					<Separator />
+
 					<!-- Stroke Colour -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Colour</Label>
@@ -857,6 +867,8 @@
 						</div>
 					</div>
 
+					<Separator />
+
 					<!-- Line Style -->
 					<div class="space-y-2">
 						<Label class="text-xs font-medium">Line Style</Label>
@@ -879,6 +891,8 @@
 							</Button>
 						</div>
 					</div>
+
+					<Separator />
 
 					<!-- Opacity -->
 					<div class="space-y-2">
