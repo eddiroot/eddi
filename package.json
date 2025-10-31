@@ -95,7 +95,7 @@
 		"plotly.js-dist-min": "^3.1.0",
 		"postgres": "^3.4.5",
 		"uuid": "^11.1.0",
-		"zod": "^3.25.76"
+		"zod": "^4.1.12"
 	},
 	"description": "`npx shadcn-svelte@latest add component-name-here`",
 	"main": "eslint.config.js",

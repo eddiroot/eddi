@@ -1,5 +1,5 @@
 import { taskTypeEnum } from '$lib/enums';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 const MAX_MB_COUNT = 5;
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB_COUNT;

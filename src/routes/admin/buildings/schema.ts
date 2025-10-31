@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const requiredColumns = ['name', 'campusName'];
 export const optionalColumns: string[] = ['description'];

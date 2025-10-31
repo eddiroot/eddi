@@ -1,5 +1,5 @@
 import { subjectThreadTypeEnum } from '$lib/enums';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const formSchema = z.object({
 	type: z.enum(subjectThreadTypeEnum),

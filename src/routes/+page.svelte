@@ -31,7 +31,7 @@
 					with a <strong>modern</strong> approach to education
 				</p>
 				<div class="flex flex-col gap-3 sm:flex-row">
-					<Button size="lg" variant="outline">Watch the demo</Button>
+					<Button size="lg" variant="outline">Watch the video</Button>
 					<Button href="/onboarding" size="lg">Get started</Button>
 				</div>
 			</div>

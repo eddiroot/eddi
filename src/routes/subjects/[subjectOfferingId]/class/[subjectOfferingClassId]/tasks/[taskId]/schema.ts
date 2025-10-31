@@ -1,5 +1,5 @@
 import { gradeReleaseEnum, quizModeEnum, taskStatusEnum } from '$lib/enums';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const statusFormSchema = z.object({
 	status: z.enum(taskStatusEnum)

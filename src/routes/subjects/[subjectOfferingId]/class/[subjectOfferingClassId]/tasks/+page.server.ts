@@ -12,7 +12,7 @@ import { generateUniqueFileName, getPresignedUrl, uploadBufferHelper } from '$li
 import { error, fail } from '@sveltejs/kit';
 import { superValidate, withFiles } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 interface ResourceWithUrl {
 	id: number;
