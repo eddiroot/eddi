@@ -42,6 +42,31 @@
 </script>
 
 <div class="grid h-full grid-cols-1 gap-6 overflow-y-auto p-8 xl:grid-cols-[1fr_1fr_1fr]">
+	<!-- Today's Events -->
+	<Card.Root class="h-full overflow-hidden shadow-none">
+		<Card.Header>
+			<Card.Title class="text-xl">Today's Events</Card.Title>
+		</Card.Header>
+		<Card.Content class="h-full overflow-hidden">
+			{#if data.userClasses && data.userClasses.length > 0}
+				<ScrollArea class="h-full">
+					<div class="space-y-3 pr-4">
+						{#each data.userClasses as cls (cls.classAllocation.id)}
+							<TimetableCard
+								{cls}
+								href="/subjects/{cls.subjectOffering.id}"
+								showTime={true}
+								showRoom={true}
+							/>
+						{/each}
+					</div>
+				</ScrollArea>
+			{:else}
+				<p class="text-muted-foreground text-center">No classes scheduled for today.</p>
+			{/if}
+		</Card.Content>
+	</Card.Root>
+
 	<!-- Recent Forum Announcements -->
 	<Card.Root class="h-full overflow-hidden shadow-none">
 		<Card.Header>
@@ -51,7 +76,7 @@
 			{#if data.announcements && data.announcements.length > 0}
 				<ScrollArea class="h-full">
 					<div class="space-y-4 pr-4">
-						{#each data.announcements as announcement (announcement.id)}
+						{#each data.announcements as announcement (announcement.announcement.id)}
 							<a
 								href="/subjects/{announcement.subjectOffering.id}/discussion/{announcement
 									.announcement.id}"
@@ -155,31 +180,6 @@
 						Check for updates
 					</a>
 				</div>
-			{/if}
-		</Card.Content>
-	</Card.Root>
-
-	<!-- Right Sidebar - Today's Timetable -->
-	<Card.Root class="h-full overflow-hidden shadow-none">
-		<Card.Header>
-			<Card.Title class="text-xl">Today's Timetable</Card.Title>
-		</Card.Header>
-		<Card.Content class="h-full overflow-hidden">
-			{#if data.userClasses && data.userClasses.length > 0}
-				<ScrollArea class="h-full">
-					<div class="space-y-3 pr-4">
-						{#each data.userClasses as cls (cls.classAllocation.id)}
-							<TimetableCard
-								{cls}
-								href="/subjects/{cls.subjectOffering.id}"
-								showTime={true}
-								showRoom={true}
-							/>
-						{/each}
-					</div>
-				</ScrollArea>
-			{:else}
-				<p class="text-muted-foreground text-center">No classes scheduled for today.</p>
 			{/if}
 		</Card.Content>
 	</Card.Root>
