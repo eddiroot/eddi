@@ -2,23 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard/whiteboard-floating-menu.svelte';
+	import WhiteboardToolbar from '$lib/components/whiteboard/whiteboard-toolbar.svelte';
 	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-zoom-controls.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
-	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import CircleIcon from '@lucide/svelte/icons/circle';
-	import EraseIcon from '@lucide/svelte/icons/eraser';
-	import HandIcon from '@lucide/svelte/icons/hand';
-	import ImageIcon from '@lucide/svelte/icons/image';
-	import MinusIcon from '@lucide/svelte/icons/minus';
-	import MousePointerIcon from '@lucide/svelte/icons/mouse-pointer';
-	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
-	import SquareIcon from '@lucide/svelte/icons/square';
-	import TrashIcon from '@lucide/svelte/icons/trash';
-	import TriangleIcon from '@lucide/svelte/icons/triangle';
-	import TypeIcon from '@lucide/svelte/icons/type';
 	import * as fabric from 'fabric';
 	import { onDestroy, onMount } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
@@ -1654,166 +1642,19 @@
 		<!-- Whiteboard Canvas -->
 		<main class="relative flex flex-1 items-center justify-center overflow-hidden p-4">
 			<!-- Floating Toolbar -->
-			<div class="absolute top-8 left-1/2 z-10 -translate-x-1/2 transform">
-				<div
-					class="bg-background/95 supports-[backdrop-filter]:bg-background/60 rounded-md border shadow-sm backdrop-blur"
-				>
-					<div class="flex items-center gap-1 px-4 py-2">
-						<!-- Selection Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button
-									variant={selectedTool === 'select' ? 'default' : 'ghost'}
-									size="icon"
-									onclick={setSelectTool}
-									class="h-9 w-9"
-								>
-									<MousePointerIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Select</Tooltip.Content>
-						</Tooltip.Root>
-
-						<!-- Pan Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button
-									variant={selectedTool === 'pan' ? 'default' : 'ghost'}
-									size="icon"
-									onclick={setPanTool}
-									class="h-9 w-9"
-								>
-									<HandIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Pan</Tooltip.Content>
-						</Tooltip.Root>
-
-						<div class="bg-border mx-1 h-6 w-px"></div>
-
-						<!-- Draw Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button
-									variant={selectedTool === 'draw' ? 'default' : 'ghost'}
-									size="icon"
-									onclick={setDrawTool}
-									class="h-9 w-9"
-								>
-									<PenToolIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Draw</Tooltip.Content>
-						</Tooltip.Root>
-
-						<!-- Line Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button
-									variant={selectedTool === 'line' ? 'default' : 'ghost'}
-									size="icon"
-									onclick={setLineTool}
-									class="h-9 w-9"
-								>
-									<MinusIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Draw Line</Tooltip.Content>
-						</Tooltip.Root>
-
-						<!-- Arrow Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button
-									variant={selectedTool === 'arrow' ? 'default' : 'ghost'}
-									size="icon"
-									onclick={setArrowTool}
-									class="h-9 w-9"
-								>
-									<ArrowRightIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Draw Arrow</Tooltip.Content>
-						</Tooltip.Root>
-
-						<!-- Shapes Dropdown -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger>
-										{#snippet child({ props })}
-											<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
-												<SquareIcon />
-											</Button>
-										{/snippet}
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content>
-										<DropdownMenu.Item onclick={() => addShape('rectangle')}>
-											<SquareIcon />
-											Rectangle
-										</DropdownMenu.Item>
-										<DropdownMenu.Item onclick={() => addShape('circle')}>
-											<CircleIcon />
-											Circle
-										</DropdownMenu.Item>
-										<DropdownMenu.Item onclick={() => addShape('triangle')}>
-											<TriangleIcon />
-											Triangle
-										</DropdownMenu.Item>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Add Shapes</Tooltip.Content>
-						</Tooltip.Root>
-						<!-- Text Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button variant="ghost" size="icon" onclick={addText} class="h-9 w-9">
-									<TypeIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Add Text</Tooltip.Content>
-						</Tooltip.Root>
-
-						<!-- Image Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button variant="ghost" size="icon" onclick={addImage} class="h-9 w-9">
-									<ImageIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Upload Image</Tooltip.Content>
-						</Tooltip.Root>
-
-						<div class="bg-border mx-1 h-6 w-px"></div>
-
-						<!-- Eraser Tool -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button
-									variant={selectedTool === 'eraser' ? 'default' : 'ghost'}
-									size="icon"
-									onclick={setEraserTool}
-									class="h-9 w-9"
-								>
-									<EraseIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Eraser</Tooltip.Content>
-						</Tooltip.Root>
-
-						<!-- Clear Canvas -->
-						<Tooltip.Root>
-							<Tooltip.Trigger>
-								<Button variant="ghost" size="icon" onclick={clearCanvas} class="h-9 w-9">
-									<TrashIcon />
-								</Button>
-							</Tooltip.Trigger>
-							<Tooltip.Content>Clear All</Tooltip.Content>
-						</Tooltip.Root>
-					</div>
-				</div>
-			</div>
+			<WhiteboardToolbar
+				{selectedTool}
+				onSelectTool={setSelectTool}
+				onPanTool={setPanTool}
+				onDrawTool={setDrawTool}
+				onLineTool={setLineTool}
+				onArrowTool={setArrowTool}
+				onAddShape={addShape}
+				onAddText={addText}
+				onAddImage={addImage}
+				onEraserTool={setEraserTool}
+				onClearCanvas={clearCanvas}
+			/>
 
 			<div class="flex h-full w-full rounded-lg border-2 bg-white shadow-lg dark:bg-neutral-700">
 				<canvas bind:this={whiteboardCanvas} class="h-full w-full"></canvas>
