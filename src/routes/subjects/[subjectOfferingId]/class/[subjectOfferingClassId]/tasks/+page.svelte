@@ -137,7 +137,7 @@
 					<UploadIcon />
 					Upload Resource
 				</Button>
-				<Button href={`${page.url.pathname}/new`} variant="outline">
+				<Button href={`${page.url.pathname}/new`}>
 					<PlusIcon />
 					New Task
 				</Button>

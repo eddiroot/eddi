@@ -21,18 +21,15 @@
 <div class="grid h-full grid-cols-[300px_1fr] overflow-y-hidden">
 	<div class="h-full border-r border-b">
 		<div class="p-2">
-			<Button
-				href="/subjects/{data.subjectOfferingIdInt}/discussion/new"
-				variant="outline"
-				class="w-full">New Post <PlusIcon /></Button
-			>
+			<Button href="/subjects/{data.subjectOfferingIdInt}/discussion/new" class="w-full">
+				<PlusIcon />
+				New Post
+			</Button>
 		</div>
 		<Separator />
 		{#if data?.threads && data.threads.length > 0}
 			<Resizable.PaneGroup direction="vertical">
-				<div
-					class="bg-primary text-primary-foreground flex items-center justify-between border-b px-6"
-				>
+				<div class="flex items-center justify-between border-b px-6">
 					<h3 class="text-sm font-medium">Announcements</h3>
 					<Button
 						onclick={() => {
@@ -51,7 +48,10 @@
 					</Button>
 				</div>
 				<Resizable.Pane
-					defaultSize={data.threads.length > 0 ? 30 : 0}
+					defaultSize={data.threads.filter((thread) => thread.thread.type == 'announcement')
+						.length > 0
+						? 30
+						: 0}
 					collapsible
 					collapsedSize={0}
 					bind:this={announcementsPane}
@@ -60,7 +60,7 @@
 				>
 					<ScrollArea type="always" class="h-full">
 						<div>
-							{#each data.threads.filter((thread) => thread.thread.type == 'announcement') as thread}
+							{#each data.threads.filter((thread) => thread.thread.type == 'announcement') as thread (thread.thread.id)}
 								<a
 									href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}"
 									class="block"
@@ -97,13 +97,13 @@
 					</ScrollArea>
 				</Resizable.Pane>
 				<Resizable.Handle withHandle />
-				<div class="bg-primary text-primary-foreground border-b px-6 py-2">
+				<div class="border-b px-6 py-2">
 					<h3 class="text-sm font-medium">Other</h3>
 				</div>
 				<Resizable.Pane defaultSize={70}>
 					<ScrollArea type="always" class="h-full">
 						<div>
-							{#each data.threads.filter((thread) => thread.thread.type != 'announcement') as thread}
+							{#each data.threads.filter((thread) => thread.thread.type != 'announcement') as thread (thread.thread.id)}
 								<a
 									href="/subjects/{data.subjectOfferingIdInt}/discussion/{thread.thread.id}"
 									class="block"
