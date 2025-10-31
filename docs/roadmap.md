@@ -56,14 +56,11 @@ All
 - [ ] Home pages and feature pages
 - [ ] Shift away from static school id for OAuth (search TODO)
 
-Lachie
+Lachie & Bella
 - [ ] Start the scheduled quiz on load (if within the time)
-- [ ] Post summaries (include nested comments but pass them in a structure to gemini)
+- [ ] UI fixes / code cleanup
 
-Bella
-- [ ] Subject selection
-
-Jack
+Jack & Raph
 - [ ] Refactoring Task Blocks to lang
 - [ ] Move away from ChromaDB to pgvector
 - [ ] Improved lesson generation
@@ -71,17 +68,13 @@ Jack
 - [ ] Chatbot
   - [ ] Hints
   - [ ] Generate example
+- [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 
 Max
-- [ ] Advanced timetabling (30/08)
-  - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
-  - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
-  - [ ] Checkbox to add a recess and lunchtime period post timetable generation in first and second gap respectively (or allow them to set specific time)
-- [ ] Class space shifts (21/08)
-  - [ ] Changing spaces and handling of this
+- [ ] Get timetabling demoable
 
 Raph
-- [ ] Better whiteboard (20/07)
+- [ ] Whiteboard (20/07)
   - undo/redo
   - Fix colour options/view + tooltip, colour options popout instead of in menu?
   - shape border width change issues
@@ -90,11 +83,16 @@ Raph
   - text with websocket
   - text adding mechanics
 
-Blake
-- [ ] Handling of multiple campuses
-
 ### To Do
 
+- [ ] Subject selection
+- [ ] Handling of multiple campuses
+- [ ] Advanced timetabling (30/08)
+  - [ ] Timetable constraint handling (e.g. preferred lab space for science subject)
+  - [ ] When transitioning from grouped by classes to grouped by preferences, we need to create groups for all of the students with the same preferences for efficiency and to ensure their classes are scheduled at the same time.
+  - [ ] Checkbox to add a recess and lunchtime period post timetable generation in first and second gap respectively (or allow them to set specific time)
+- [ ] Class space shifts (21/08)
+  - [ ] Changing spaces and handling of this
 - [x] Student grades (20/08)
   - fix scrollbar gutter
   - fix filters and sorts
