@@ -34,8 +34,7 @@
 		subjects,
 		user,
 		school,
-		campuses,
-		hasInterviewSlots = false
+		campuses
 	}: {
 		subjects: Array<{
 			subject: Subject;
@@ -49,7 +48,6 @@
 		user: any;
 		school: School | null;
 		campuses: Campus[];
-		hasInterviewSlots?: boolean;
 	} = $props();
 
 	const items = [
@@ -208,46 +206,7 @@
 		}
 	}
 
-	// Track the open state of each collapsible (subjects and classes when multiple)
-	let collapsibleStates = $state(
-		subjects.reduce(
-			(acc, subject) => {
-				// Don't auto-open, start with all collapsed
-				acc[`subject-${subject.subject.id}`] = false;
-				// Add states for each class if there are multiple classes
-				if (subject.classes.length > 1) {
-					subject.classes.forEach((cls) => {
-						acc[`class-${cls.id}`] = false;
-					});
-				}
-				return acc;
-			},
-			{} as Record<string, boolean>
-		)
-	);
-
-	// Watch for sidebar state changes and close all collapsibles when sidebar closes
-	$effect(() => {
-		if (!sidebar.leftOpen) {
-			// Close all collapsibles when sidebar is collapsed
-			collapsibleStates = subjects.reduce(
-				(acc, subject) => {
-					acc[`subject-${subject.subject.id}`] = false;
-					// Add states for each class if there are multiple classes
-					if (subject.classes.length > 1) {
-						subject.classes.forEach((cls) => {
-							acc[`class-${cls.id}`] = false;
-						});
-					}
-					return acc;
-				},
-				{} as Record<string, boolean>
-			);
-		}
-	});
-
 	let current_campus = $state(campuses.length > 0 ? campuses[0] : null);
-
 	const permissions = $state(getPermissions(user?.type || ''));
 </script>
 
@@ -279,7 +238,7 @@
 												<LocationEdit class="ml-auto size-4 transition-transform" />
 											</DropdownMenu.Trigger>
 											<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
-												{#each campuses as campus}
+												{#each campuses as campus (campus.id)}
 													<DropdownMenu.Item
 														class="cursor-pointer"
 														onclick={() => {
@@ -310,7 +269,7 @@
 		<Sidebar.Group>
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
-					{#each items as item}
+					{#each items as item (item.url)}
 						{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
@@ -335,9 +294,9 @@
 			<Sidebar.Group>
 				<Sidebar.GroupContent>
 					<Sidebar.Menu>
-						{#each subjectItems as item}
+						{#each subjectItems as item (item.url)}
 							{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
-								{#each subjects.filter((subject) => subject.classes.length > 1) as subject}
+								{#each subjects.filter((subject) => subject.classes.length > 1) as subject (subject.subject.id)}
 									<Sidebar.MenuItem>
 										<Sidebar.MenuButton
 											side="left"
@@ -369,17 +328,12 @@
 				</Sidebar.GroupLabel>
 
 				<Sidebar.Menu>
-					{#each subjects as subject}
+					{#each subjects as subject (subject.subject.id)}
 						<Collapsible.Root
-							bind:open={collapsibleStates[`subject-${subject.subject.id}`]}
 							class="group/collapsible"
+							open={isSubjectActive(subject.subjectOffering.id.toString())}
 						>
 							<Collapsible.Trigger>
-								onclick={() => {
-									if (!sidebar.leftOpen) {
-										sidebar.setLeftOpen(true);
-									}
-								}}
 								{#snippet child({ props })}
 									{#if sidebar.leftOpen == false}
 										<a
@@ -428,7 +382,7 @@
 									{#if subject.classes.length === 1}
 										<!-- Single class: show ALL nested items under the subject dropdown -->
 										{@const singleClass = subject.classes[0]}
-										{#each nestedItems as item}
+										{#each nestedItems as item (item.url)}
 											{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
 												<Sidebar.MenuSubItem>
 													<Sidebar.MenuSubButton
@@ -460,10 +414,10 @@
 										{/each}
 									{:else}
 										<!-- Multiple classes: show collapsible classes with only class-level items -->
-										{#each subject.classes as classItem}
+										{#each subject.classes as classItem (classItem.id)}
 											<Collapsible.Root
-												bind:open={collapsibleStates[`class-${classItem.id}`]}
 												class="group/collapsible-class"
+												open={isSubjectActive(subject.subjectOffering.id.toString())}
 											>
 												<Collapsible.Trigger>
 													{#snippet child({ props })}
@@ -484,7 +438,7 @@
 												</Collapsible.Trigger>
 												<Collapsible.Content>
 													<Sidebar.MenuSub>
-														{#each classItems as item}
+														{#each classItems as item (item.url)}
 															{#if !item.requiredPermission || permissions.includes(item.requiredPermission)}
 																<Sidebar.MenuSubItem>
 																	<Sidebar.MenuSubButton
