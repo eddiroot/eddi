@@ -11,6 +11,7 @@
 		IMAGE_THROTTLE_MS,
 		ZOOM_LIMITS
 	} from '$lib/components/whiteboard/constants';
+	import * as Shapes from '$lib/components/whiteboard/shapes';
 	import type { ToolState } from '$lib/components/whiteboard/tools';
 	import * as Tools from '$lib/components/whiteboard/tools';
 	import type {
@@ -319,161 +320,6 @@
 
 		// Reset the input value so the same file can be selected again
 		target.value = '';
-	};
-
-	const createArrowHead = (
-		x1: number,
-		y1: number,
-		x2: number,
-		y2: number,
-		arrowLength = 15,
-		arrowAngle = Math.PI / 6
-	) => {
-		const angle = Math.atan2(y2 - y1, x2 - x1);
-
-		// Calculate the two points of the arrowhead
-		const arrowPoint1 = {
-			x: x2 - arrowLength * Math.cos(angle - arrowAngle),
-			y: y2 - arrowLength * Math.sin(angle - arrowAngle)
-		};
-
-		const arrowPoint2 = {
-			x: x2 - arrowLength * Math.cos(angle + arrowAngle),
-			y: y2 - arrowLength * Math.sin(angle + arrowAngle)
-		};
-
-		return [arrowPoint1, arrowPoint2];
-	};
-
-	const createLine = (x1: number, y1: number, x2: number, y2: number) => {
-		return new fabric.Line([x1, y1, x2, y2], {
-			id: uuidv4(),
-			stroke: currentLineArrowOptions.strokeColour,
-			strokeWidth: currentLineArrowOptions.strokeWidth,
-			strokeDashArray: currentLineArrowOptions.strokeDashArray,
-			opacity: currentLineArrowOptions.opacity,
-			selectable: true
-		});
-	};
-
-	const createArrow = (x1: number, y1: number, x2: number, y2: number) => {
-		const line = createLine(x1, y1, x2, y2);
-		const arrowHeadPoints = createArrowHead(x1, y1, x2, y2);
-
-		const arrowHead1 = new fabric.Line([x2, y2, arrowHeadPoints[0].x, arrowHeadPoints[0].y], {
-			stroke: currentLineArrowOptions.strokeColour,
-			strokeWidth: currentLineArrowOptions.strokeWidth,
-			strokeDashArray: currentLineArrowOptions.strokeDashArray,
-			opacity: currentLineArrowOptions.opacity,
-			selectable: false
-		});
-
-		const arrowHead2 = new fabric.Line([x2, y2, arrowHeadPoints[1].x, arrowHeadPoints[1].y], {
-			stroke: currentLineArrowOptions.strokeColour,
-			strokeWidth: currentLineArrowOptions.strokeWidth,
-			strokeDashArray: currentLineArrowOptions.strokeDashArray,
-			opacity: currentLineArrowOptions.opacity,
-			selectable: false
-		});
-
-		// Group the line and arrowhead together
-		const arrowGroup = new fabric.Group([line, arrowHead1, arrowHead2], {
-			selectable: true
-		});
-
-		return arrowGroup;
-	};
-
-	const createShapeFromPoints = (
-		shapeType: string,
-		x1: number,
-		y1: number,
-		x2: number,
-		y2: number
-	) => {
-		// Calculate dimensions from the two points
-		const left = Math.min(x1, x2);
-		const top = Math.min(y1, y2);
-		const width = Math.abs(x2 - x1);
-		const height = Math.abs(y2 - y1);
-
-		let shape: fabric.Object;
-
-		switch (shapeType) {
-			case 'circle':
-				// For circles, use the larger dimension as diameter
-				const radius = Math.max(width, height) / 2;
-				shape = new fabric.Circle({
-					id: uuidv4(),
-					radius: radius,
-					fill: currentShapeOptions.fillColour,
-					stroke: currentShapeOptions.strokeColour,
-					strokeWidth: currentShapeOptions.strokeWidth,
-					strokeDashArray: currentShapeOptions.strokeDashArray,
-					opacity: currentShapeOptions.opacity,
-					left: left,
-					top: top
-				});
-				break;
-			case 'rectangle':
-				shape = new fabric.Rect({
-					id: uuidv4(),
-					width: width,
-					height: height,
-					fill: currentShapeOptions.fillColour,
-					stroke: currentShapeOptions.strokeColour,
-					strokeWidth: currentShapeOptions.strokeWidth,
-					strokeDashArray: currentShapeOptions.strokeDashArray,
-					opacity: currentShapeOptions.opacity,
-					left: left,
-					top: top
-				});
-				break;
-			case 'triangle':
-				shape = new fabric.Triangle({
-					id: uuidv4(),
-					width: width,
-					height: height,
-					fill: currentShapeOptions.fillColour,
-					stroke: currentShapeOptions.strokeColour,
-					strokeWidth: currentShapeOptions.strokeWidth,
-					strokeDashArray: currentShapeOptions.strokeDashArray,
-					opacity: currentShapeOptions.opacity,
-					left: left,
-					top: top
-				});
-				break;
-			default:
-				return null;
-		}
-
-		return shape;
-	};
-
-	const createTextFromPoints = (x1: number, y1: number, x2: number, y2: number) => {
-		// Calculate dimensions from the two points
-		const left = Math.min(x1, x2);
-		const top = Math.min(y1, y2);
-		const width = Math.max(Math.abs(x2 - x1), 50); // Minimum width of 50px
-
-		const text = new fabric.Textbox('Click to edit text', {
-			id: uuidv4(),
-			left: left,
-			top: top,
-			width: width,
-			fontSize: currentTextOptions.fontSize,
-			fontFamily: currentTextOptions.fontFamily,
-			fontWeight: currentTextOptions.fontWeight,
-			fill: currentTextOptions.colour,
-			opacity: currentTextOptions.opacity,
-			// Text wrapping settings
-			splitByGrapheme: false, // Split by words, not characters
-			// Fixed height behavior - let text wrap and expand vertically naturally
-			// but constrain width
-			textAlign: currentTextOptions.textAlign
-		});
-
-		return text;
 	};
 
 	const clearCanvas = () => {
@@ -1289,12 +1135,13 @@
 					isDrawingShape = true;
 
 					// Create initial shape with zero size
-					tempShape = createShapeFromPoints(
+					tempShape = Shapes.createShapeFromPoints(
 						currentShapeType,
 						pointer.x,
 						pointer.y,
 						pointer.x,
-						pointer.y
+						pointer.y,
+						currentShapeOptions
 					);
 					if (tempShape) {
 						canvas.add(tempShape);
@@ -1312,7 +1159,13 @@
 					isDrawingText = true;
 
 					// Create initial text with minimum width
-					tempText = createTextFromPoints(pointer.x, pointer.y, pointer.x + 50, pointer.y);
+					tempText = Shapes.createTextFromPoints(
+						pointer.x,
+						pointer.y,
+						pointer.x + 50,
+						pointer.y,
+						currentTextOptions
+					);
 					if (tempText) {
 						canvas.add(tempText);
 						canvas.renderAll();
@@ -1330,10 +1183,22 @@
 
 					if (selectedTool === 'line') {
 						isDrawingLine = true;
-						tempLine = createLine(startPoint.x, startPoint.y, startPoint.x, startPoint.y);
+						tempLine = Shapes.createLine(
+							startPoint.x,
+							startPoint.y,
+							startPoint.x,
+							startPoint.y,
+							currentLineArrowOptions
+						);
 					} else {
 						isDrawingArrow = true;
-						tempLine = createArrow(startPoint.x, startPoint.y, startPoint.x, startPoint.y) as any;
+						tempLine = Shapes.createArrow(
+							startPoint.x,
+							startPoint.y,
+							startPoint.x,
+							startPoint.y,
+							currentLineArrowOptions
+						) as any;
 					}
 
 					if (tempLine) {
@@ -1389,12 +1254,13 @@
 				canvas.remove(tempShape);
 
 				// Create new shape with updated dimensions
-				tempShape = createShapeFromPoints(
+				tempShape = Shapes.createShapeFromPoints(
 					currentShapeType,
 					startPoint.x,
 					startPoint.y,
 					pointer.x,
-					pointer.y
+					pointer.y,
+					currentShapeOptions
 				);
 				if (tempShape) {
 					canvas.add(tempShape);
@@ -1408,7 +1274,13 @@
 				canvas.remove(tempText);
 
 				// Create new text with updated width (only expand horizontally)
-				tempText = createTextFromPoints(startPoint.x, startPoint.y, pointer.x, startPoint.y);
+				tempText = Shapes.createTextFromPoints(
+					startPoint.x,
+					startPoint.y,
+					pointer.x,
+					startPoint.y,
+					currentTextOptions
+				);
 				if (tempText) {
 					canvas.add(tempText);
 					canvas.renderAll();
@@ -1428,7 +1300,13 @@
 					if (tempLine) {
 						canvas.remove(tempLine);
 					}
-					tempLine = createArrow(startPoint.x, startPoint.y, pointer.x, pointer.y) as any;
+					tempLine = Shapes.createArrow(
+						startPoint.x,
+						startPoint.y,
+						pointer.x,
+						pointer.y,
+						currentLineArrowOptions
+					) as any;
 					if (tempLine) {
 						canvas.add(tempLine);
 					}
