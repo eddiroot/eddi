@@ -21,13 +21,11 @@
 	let headerHeight = $state(0);
 
 	// Sidebar state for dynamic resizing
-	let sidebarController: any = $state(null);
 	let sidebarWidth = $state(400);
 	let sidebarOpen = $state(false);
 
 	// Function to handle sidebar state changes
 	function handleSidebarStateChange(controller: any) {
-		sidebarController = controller;
 		if (controller) {
 			const state = controller.getState();
 			sidebarWidth = state.width;
@@ -38,7 +36,7 @@
 	// Determine the sidebar context based on current page
 	const sidebarContext = $derived(() => {
 		const pathname = page.url.pathname;
-		
+
 		if (pathname.includes('/tasks/')) {
 			return 'task';
 		} else if (pathname.includes('/lessons/') || pathname.includes('/class/')) {
@@ -54,7 +52,6 @@
 		const subjectMatch = pathname.match(/^\/subjects\/(\d+)/);
 		return subjectMatch ? parseInt(subjectMatch[1], 10) : null;
 	});
-
 
 	const generateBreadcrumbItems = (url: string) => {
 		const segments = url.split('/').filter(Boolean);
@@ -145,7 +142,7 @@
 	{/if}
 	<div class="relative flex h-full w-full flex-col">
 		<header
-			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed top-0 left-0 right-0 z-50 backdrop-blur"
+			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed top-0 right-0 left-0 z-50 backdrop-blur"
 			bind:this={headerElement}
 		>
 			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
@@ -155,7 +152,13 @@
 					{/if}
 					<Breadcrumb.Root>
 						<Breadcrumb.List>
-							{#each generateBreadcrumbItems(page.url.pathname) as item}
+							<Breadcrumb.Item>
+								<Breadcrumb.Page class="font-bold">eddi</Breadcrumb.Page>
+							</Breadcrumb.Item>
+							{#if generateBreadcrumbItems(page.url.pathname).length > 0}
+								<Breadcrumb.Separator />
+							{/if}
+							{#each generateBreadcrumbItems(page.url.pathname) as item (item.href)}
 								<Breadcrumb.Item>
 									{#if item.isLast}
 										<Breadcrumb.Page>{item.label}</Breadcrumb.Page>
@@ -178,25 +181,22 @@
 				</div>
 			</nav>
 		</header>
-		
+
 		<!-- Main content area below header -->
-		<div class="flex-1 relative" style="padding-top: {headerHeight}px;">
-			<main 
+		<div class="relative flex-1" style="padding-top: {headerHeight}px;">
+			<main
 				class="h-full overflow-auto transition-all duration-300"
 				style={sidebarOpen ? `margin-right: ${sidebarWidth}px` : ''}
 			>
 				{@render children()}
 			</main>
-			
+
 			<!-- AI Sidebar Containerm -->
-			<div 
-				class="fixed right-0 bottom-0 pointer-events-none z-40"
-				style="top: {headerHeight}px;"
-			>
-				<AiSidebar 
-					context={sidebarContext()} 
+			<div class="pointer-events-none fixed right-0 bottom-0 z-40" style="top: {headerHeight}px;">
+				<AiSidebar
+					context={sidebarContext()}
 					enabled={true}
-					subjectOfferingId={user() ? currentSubjectOfferingId() ?? undefined : undefined}
+					subjectOfferingId={user() ? (currentSubjectOfferingId() ?? undefined) : undefined}
 					onStateChange={handleSidebarStateChange}
 				/>
 			</div>
