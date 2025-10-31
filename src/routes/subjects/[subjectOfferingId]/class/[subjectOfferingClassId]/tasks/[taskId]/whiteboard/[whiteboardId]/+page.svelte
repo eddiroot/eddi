@@ -3,6 +3,22 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import {
+		DEFAULT_DRAW_OPTIONS,
+		DEFAULT_LINE_ARROW_OPTIONS,
+		DEFAULT_SHAPE_OPTIONS,
+		DEFAULT_TEXT_OPTIONS,
+		IMAGE_THROTTLE_MS,
+		ZOOM_LIMITS
+	} from '$lib/components/whiteboard/constants';
+	import type {
+		DrawOptions,
+		LineArrowOptions,
+		ShapeOptions,
+		TextOptions,
+		WhiteboardTool
+	} from '$lib/components/whiteboard/types';
+	import { hexToRgba } from '$lib/components/whiteboard/utils';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard/whiteboard-floating-menu.svelte';
 	import WhiteboardToolbar from '$lib/components/whiteboard/whiteboard-toolbar.svelte';
 	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-zoom-controls.svelte';
@@ -15,7 +31,7 @@
 
 	let socket = $state() as WebSocket;
 	let canvas: fabric.Canvas;
-	let selectedTool = $state('select');
+	let selectedTool = $state<WhiteboardTool>('select');
 	let whiteboardCanvas = $state<HTMLCanvasElement>();
 	let isPanMode = false;
 	let panStartPos = { x: 0, y: 0 };
@@ -39,36 +55,10 @@
 	let floatingMenuRef: WhiteboardFloatingMenu;
 
 	// Current tool options - updated when menu changes
-	let currentTextOptions = $state({
-		fontSize: 16,
-		fontFamily: 'Arial',
-		fontWeight: 'normal',
-		colour: '#4A5568',
-		textAlign: 'left',
-		opacity: 1
-	});
-
-	let currentShapeOptions = $state({
-		strokeWidth: 2,
-		strokeColour: '#4A5568',
-		fillColour: 'transparent',
-		strokeDashArray: [] as number[],
-		opacity: 1
-	});
-
-	let currentDrawOptions = $state({
-		brushSize: 6,
-		brushColour: '#4A5568',
-		brushType: 'pencil',
-		opacity: 1
-	});
-
-	let currentLineArrowOptions = $state({
-		strokeWidth: 2,
-		strokeColour: '#4A5568',
-		strokeDashArray: [] as number[],
-		opacity: 1
-	});
+	let currentTextOptions = $state<TextOptions>({ ...DEFAULT_TEXT_OPTIONS });
+	let currentShapeOptions = $state<ShapeOptions>({ ...DEFAULT_SHAPE_OPTIONS });
+	let currentDrawOptions = $state<DrawOptions>({ ...DEFAULT_DRAW_OPTIONS });
+	let currentLineArrowOptions = $state<LineArrowOptions>({ ...DEFAULT_LINE_ARROW_OPTIONS });
 
 	const { whiteboardId, taskId, subjectOfferingId, subjectOfferingClassId } = $derived(page.params);
 	const whiteboardIdNum = $derived(parseInt(whiteboardId ?? '0'));
@@ -128,7 +118,7 @@
 			});
 			imageUpdateQueue.clear();
 			imageThrottleTimeout = null;
-		}, 100); // 100ms throttle for images
+		}, IMAGE_THROTTLE_MS);
 	};
 	const setSelectTool = () => {
 		selectedTool = 'select';
@@ -533,7 +523,7 @@
 
 	const zoomIn = () => {
 		if (!canvas) return;
-		const newZoom = Math.min(canvas.getZoom() * 1.2, 10);
+		const newZoom = Math.min(canvas.getZoom() * ZOOM_LIMITS.step, ZOOM_LIMITS.max);
 		const center = new fabric.Point(canvas.width! / 2, canvas.height! / 2);
 		canvas.zoomToPoint(center, newZoom);
 		currentZoom = newZoom;
@@ -541,7 +531,7 @@
 
 	const zoomOut = () => {
 		if (!canvas) return;
-		const newZoom = Math.max(canvas.getZoom() / 1.2, 0.1);
+		const newZoom = Math.max(canvas.getZoom() / ZOOM_LIMITS.step, ZOOM_LIMITS.min);
 		const center = new fabric.Point(canvas.width! / 2, canvas.height! / 2);
 		canvas.zoomToPoint(center, newZoom);
 		currentZoom = newZoom;
@@ -662,14 +652,6 @@
 			// Apply opacity to the colour by converting to rgba format
 			const colour = options.brushColour;
 			const opacity = options.opacity;
-
-			// Convert hex colour to rgba with opacity
-			const hexToRgba = (hex: string, alpha: number) => {
-				const r = parseInt(hex.slice(1, 3), 16);
-				const g = parseInt(hex.slice(3, 5), 16);
-				const b = parseInt(hex.slice(5, 7), 16);
-				return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-			};
 
 			canvas.freeDrawingBrush.color = hexToRgba(colour, opacity);
 
@@ -1272,8 +1254,8 @@
 
 			let zoom = canvas.getZoom();
 			zoom *= 0.99 ** delta;
-			if (zoom > 10) zoom = 10;
-			if (zoom < 0.1) zoom = 0.1;
+			if (zoom > ZOOM_LIMITS.max) zoom = ZOOM_LIMITS.max;
+			if (zoom < ZOOM_LIMITS.min) zoom = ZOOM_LIMITS.min;
 
 			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
 			canvas.zoomToPoint(point, zoom);
