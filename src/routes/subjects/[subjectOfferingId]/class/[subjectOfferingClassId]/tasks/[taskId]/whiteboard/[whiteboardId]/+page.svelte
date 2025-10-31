@@ -11,6 +11,8 @@
 		IMAGE_THROTTLE_MS,
 		ZOOM_LIMITS
 	} from '$lib/components/whiteboard/constants';
+	import type { ToolState } from '$lib/components/whiteboard/tools';
+	import * as Tools from '$lib/components/whiteboard/tools';
 	import type {
 		DrawOptions,
 		LineArrowOptions,
@@ -120,132 +122,141 @@
 			imageThrottleTimeout = null;
 		}, IMAGE_THROTTLE_MS);
 	};
-	const setSelectTool = () => {
-		selectedTool = 'select';
-		showFloatingMenu = false;
-		clearEraserState();
-		clearShapeDrawingState();
-		clearTextDrawingState();
-		if (!canvas) return;
-		canvas.isDrawingMode = false;
-		canvas.selection = true;
-		canvas.defaultCursor = 'default';
-		canvas.hoverCursor = 'move';
-	};
 
-	const setPanTool = () => {
-		selectedTool = 'pan';
-		showFloatingMenu = false;
-		clearEraserState();
-		clearShapeDrawingState();
-		clearTextDrawingState();
-		if (!canvas) return;
-		canvas.isDrawingMode = false;
-		canvas.selection = false;
-		canvas.discardActiveObject();
-		canvas.defaultCursor = 'grab';
-		canvas.hoverCursor = 'grab';
-	};
+	// Helper to get mutable tool state
+	const getToolState = (): ToolState => ({
+		selectedTool,
+		showFloatingMenu,
+		isDrawingShape,
+		isDrawingText,
+		currentShapeType,
+		eraserTrail,
+		lastEraserPoint,
+		hoveredObjectsForDeletion,
+		originalOpacities,
+		tempShape,
+		tempText
+	});
 
-	const setDrawTool = () => {
-		selectedTool = 'draw';
-		showFloatingMenu = true;
-		clearEraserState();
-		clearShapeDrawingState();
-		clearTextDrawingState();
-		if (!canvas) return;
-		canvas.isDrawingMode = true;
-		canvas.selection = false;
-		canvas.defaultCursor = 'crosshair';
-
-		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-		canvas.freeDrawingBrush.width = 2;
-		canvas.freeDrawingBrush.color = '#000000';
-	};
-
-	const setEraserTool = () => {
-		selectedTool = 'eraser';
-		showFloatingMenu = true;
-		clearShapeDrawingState();
-		clearTextDrawingState();
-		if (!canvas) return;
-		canvas.isDrawingMode = false;
-		canvas.selection = false;
-		canvas.defaultCursor = 'crosshair';
-
-		// Clear any existing eraser state
-		clearEraserState();
+	// Helper to apply tool state updates
+	const applyToolState = (state: ToolState) => {
+		selectedTool = state.selectedTool;
+		showFloatingMenu = state.showFloatingMenu;
+		isDrawingShape = state.isDrawingShape;
+		isDrawingText = state.isDrawingText;
+		currentShapeType = state.currentShapeType;
+		eraserTrail = state.eraserTrail;
+		lastEraserPoint = state.lastEraserPoint;
+		hoveredObjectsForDeletion = state.hoveredObjectsForDeletion;
+		originalOpacities = state.originalOpacities;
+		tempShape = state.tempShape;
+		tempText = state.tempText;
 	};
 
 	const clearEraserState = () => {
-		// Remove eraser trail
-		eraserTrail.forEach((trail) => canvas?.remove(trail));
-		eraserTrail = [];
-		lastEraserPoint = null;
-
-		// Restore original opacities of hovered objects
-		hoveredObjectsForDeletion.forEach((obj) => {
-			const originalOpacity = originalOpacities.get(obj);
-			if (originalOpacity !== undefined) {
-				obj.set({ opacity: originalOpacity });
-			}
-		});
-		hoveredObjectsForDeletion = [];
-		originalOpacities.clear();
-
-		canvas?.renderAll();
+		const state = getToolState();
+		Tools.clearEraserState(canvas, state);
+		applyToolState(state);
 	};
 
 	const clearShapeDrawingState = () => {
-		if (tempShape) {
-			canvas?.remove(tempShape);
-			tempShape = null;
-		}
-		isDrawingShape = false;
-		currentShapeType = '';
+		const state = getToolState();
+		Tools.clearShapeDrawingState(canvas, state);
+		applyToolState(state);
 	};
 
 	const clearTextDrawingState = () => {
-		if (tempText) {
-			canvas?.remove(tempText);
-			tempText = null;
-		}
-		isDrawingText = false;
+		const state = getToolState();
+		Tools.clearTextDrawingState(canvas, state);
+		applyToolState(state);
+	};
+
+	const setSelectTool = () => {
+		const state = getToolState();
+		Tools.setSelectTool(
+			canvas,
+			state,
+			clearEraserState,
+			clearShapeDrawingState,
+			clearTextDrawingState
+		);
+		applyToolState(state);
+	};
+
+	const setPanTool = () => {
+		const state = getToolState();
+		Tools.setPanTool(
+			canvas,
+			state,
+			clearEraserState,
+			clearShapeDrawingState,
+			clearTextDrawingState
+		);
+		applyToolState(state);
+	};
+
+	const setDrawTool = () => {
+		const state = getToolState();
+		Tools.setDrawTool(
+			canvas,
+			state,
+			clearEraserState,
+			clearShapeDrawingState,
+			clearTextDrawingState
+		);
+		applyToolState(state);
+	};
+
+	const setEraserTool = () => {
+		const state = getToolState();
+		Tools.setEraserTool(
+			canvas,
+			state,
+			clearShapeDrawingState,
+			clearTextDrawingState,
+			clearEraserState
+		);
+		applyToolState(state);
+	};
+
+	const setLineTool = () => {
+		const state = getToolState();
+		Tools.setLineTool(
+			canvas,
+			state,
+			clearEraserState,
+			clearShapeDrawingState,
+			clearTextDrawingState
+		);
+		applyToolState(state);
+	};
+
+	const setArrowTool = () => {
+		const state = getToolState();
+		Tools.setArrowTool(
+			canvas,
+			state,
+			clearEraserState,
+			clearShapeDrawingState,
+			clearTextDrawingState
+		);
+		applyToolState(state);
 	};
 
 	const addShape = (shapeType: string) => {
-		if (!canvas) return;
-
-		// Set up interactive shape drawing mode
-		selectedTool = 'shapes';
-		currentShapeType = shapeType;
-		showFloatingMenu = true;
-		clearEraserState();
-
-		canvas.isDrawingMode = false;
-		canvas.selection = false;
-		canvas.defaultCursor = 'crosshair';
-		canvas.hoverCursor = 'crosshair';
+		const state = getToolState();
+		Tools.addShape(canvas, shapeType, state, clearEraserState);
+		applyToolState(state);
 	};
 
 	const addText = () => {
-		if (!canvas) return;
-
-		// Set up interactive text creation mode
-		selectedTool = 'text';
-		showFloatingMenu = true;
-		clearEraserState();
-		clearShapeDrawingState();
-
-		canvas.isDrawingMode = false;
-		canvas.selection = false;
-		canvas.defaultCursor = 'crosshair';
-		canvas.hoverCursor = 'crosshair';
+		const state = getToolState();
+		Tools.addText(canvas, state, clearEraserState, clearShapeDrawingState);
+		applyToolState(state);
 	};
 
 	const addImage = () => {
-		if (!imageInput) return;
-		imageInput.click();
+		Tools.addImage(imageInput);
 	};
 
 	const handleImageUpload = (event: Event) => {
@@ -308,32 +319,6 @@
 
 		// Reset the input value so the same file can be selected again
 		target.value = '';
-	};
-
-	const setLineTool = () => {
-		selectedTool = 'line';
-		showFloatingMenu = true;
-		clearEraserState();
-		clearShapeDrawingState();
-		clearTextDrawingState();
-		if (!canvas) return;
-		canvas.isDrawingMode = false;
-		canvas.selection = false;
-		canvas.defaultCursor = 'crosshair';
-		canvas.hoverCursor = 'crosshair';
-	};
-
-	const setArrowTool = () => {
-		selectedTool = 'arrow';
-		showFloatingMenu = true;
-		clearEraserState();
-		clearShapeDrawingState();
-		clearTextDrawingState();
-		if (!canvas) return;
-		canvas.isDrawingMode = false;
-		canvas.selection = false;
-		canvas.defaultCursor = 'crosshair';
-		canvas.hoverCursor = 'crosshair';
 	};
 
 	const createArrowHead = (
