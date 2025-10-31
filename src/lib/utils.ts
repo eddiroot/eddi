@@ -28,7 +28,6 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewLessons,
 				userPermissions.viewDashboard,
 				userPermissions.viewTimetable,
-				userPermissions.viewClassAttendance,
 				userPermissions.viewNews
 			];
 		case 'teacher':
