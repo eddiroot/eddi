@@ -59,6 +59,10 @@ All
 Lachie & Bella
 - [ ] Start the scheduled quiz on load (if within the time)
 - [ ] UI fixes / code cleanup
+- [ ] Split quizzes and assignments into two types
+- [ ] One component for headings
+- [ ] Block palette should be scrollable. Fix scrolling on tasks page in general.
+- [ ] Task block button consistency
 
 Jack & Raph
 - [ ] Refactoring Task Blocks to lang
