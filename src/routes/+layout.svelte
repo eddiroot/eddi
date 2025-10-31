@@ -153,7 +153,7 @@
 					<Breadcrumb.Root>
 						<Breadcrumb.List>
 							<Breadcrumb.Item>
-								<Breadcrumb.Page class="font-bold">eddi</Breadcrumb.Page>
+								<Breadcrumb.Page class="font-bold">{data?.school?.name || 'eddi'}</Breadcrumb.Page>
 							</Breadcrumb.Item>
 							{#if generateBreadcrumbItems(page.url.pathname).length > 0}
 								<Breadcrumb.Separator />
