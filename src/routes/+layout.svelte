@@ -183,7 +183,7 @@
 		</header>
 
 		<!-- Main content area below header -->
-		<div class="relative flex-1" style="padding-top: {headerHeight}px;">
+		<div class="relative flex-1">
 			<main
 				class="h-full overflow-auto transition-all duration-300"
 				style={sidebarOpen ? `margin-right: ${sidebarWidth}px` : ''}
