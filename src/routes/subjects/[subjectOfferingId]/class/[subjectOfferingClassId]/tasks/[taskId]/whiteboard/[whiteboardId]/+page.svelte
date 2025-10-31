@@ -4,13 +4,13 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import WhiteboardFloatingMenu from '$lib/components/whiteboard-floating-menu.svelte';
+	import WhiteboardFloatingMenu from '$lib/components/whiteboard/whiteboard-floating-menu.svelte';
+	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-zoom-controls.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import CircleIcon from '@lucide/svelte/icons/circle';
 	import EraseIcon from '@lucide/svelte/icons/eraser';
 	import HandIcon from '@lucide/svelte/icons/hand';
-	import HomeIcon from '@lucide/svelte/icons/home';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import MousePointerIcon from '@lucide/svelte/icons/mouse-pointer';
@@ -19,8 +19,6 @@
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import TriangleIcon from '@lucide/svelte/icons/triangle';
 	import TypeIcon from '@lucide/svelte/icons/type';
-	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
-	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
 	import * as fabric from 'fabric';
 	import { onDestroy, onMount } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
@@ -1842,42 +1840,13 @@
 			/>
 
 			<!-- Zoom Controls -->
-			<div class="absolute bottom-8 left-8">
-				<div class="bg-background flex items-center gap-1 rounded-md border px-2 py-1 shadow-sm">
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={zoomOut} class="h-8 w-8">
-								<ZoomOutIcon />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Zoom Out</Tooltip.Content>
-					</Tooltip.Root>
-
-					<Button variant="ghost" size="sm" onclick={resetZoom} class="h-8 px-2 font-mono text-xs">
-						{Math.round(currentZoom * 100)}%
-					</Button>
-
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={zoomIn} class="h-8 w-8">
-								<ZoomInIcon />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Zoom In</Tooltip.Content>
-					</Tooltip.Root>
-
-					<div class="bg-border mx-1 h-6 w-px"></div>
-
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button variant="ghost" size="icon" onclick={recenterView} class="h-8 w-8">
-								<HomeIcon />
-							</Button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>Recenter View</Tooltip.Content>
-					</Tooltip.Root>
-				</div>
-			</div>
+			<WhiteboardZoomControls
+				{currentZoom}
+				onZoomIn={zoomIn}
+				onZoomOut={zoomOut}
+				onResetZoom={resetZoom}
+				onRecenterView={recenterView}
+			/>
 		</main>
 	</div>
 </Tooltip.Provider>
