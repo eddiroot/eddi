@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { formatTimestampAsTime } from '$lib/utils';
-	import { generateSubjectColors } from '../../routes/timetable/utils.js';
+	import { generateSubjectColors } from '../../routes/calendar/utils.js';
 
 	interface Props {
 		cls: any;

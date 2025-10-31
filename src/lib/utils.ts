@@ -14,11 +14,12 @@ export enum userPermissions {
 	viewChildGrades = 'view_child_grades',
 	viewDashboard = 'view_dashboard',
 	viewAdmin = 'view_admin',
-	viewTimetable = 'view_timetable',
+	viewCalendar = 'view_calendar',
 	viewClassAttendance = 'view_class_attendance',
 	viewGuardianAttendance = 'view_guardian_attendance',
 	viewNews = 'view_news',
-	createNews = 'create_news'
+	createNews = 'create_news',
+	viewCourseMap = 'view_course_map'
 }
 
 export function getPermissions(userType: string): string[] {
@@ -27,7 +28,7 @@ export function getPermissions(userType: string): string[] {
 			return [
 				userPermissions.viewLessons,
 				userPermissions.viewDashboard,
-				userPermissions.viewTimetable,
+				userPermissions.viewCalendar,
 				userPermissions.viewNews
 			];
 		case 'teacher':
@@ -35,17 +36,18 @@ export function getPermissions(userType: string): string[] {
 				userPermissions.viewLessons,
 				userPermissions.createTasks,
 				userPermissions.viewAnalytics,
-				userPermissions.viewTimetable,
+				userPermissions.viewCalendar,
 				userPermissions.viewDashboard,
 				userPermissions.viewClassAttendance,
 				userPermissions.viewNews,
-				userPermissions.createNews
+				userPermissions.createNews,
+				userPermissions.viewCourseMap
 			];
 		case 'guardian':
 			return [
 				userPermissions.viewChildGrades,
 				userPermissions.viewLessons,
-				userPermissions.viewTimetable,
+				userPermissions.viewCalendar,
 				userPermissions.viewDashboard,
 				userPermissions.viewGuardianAttendance,
 				userPermissions.viewNews
@@ -54,34 +56,38 @@ export function getPermissions(userType: string): string[] {
 			return [
 				userPermissions.manageTeachers,
 				userPermissions.viewAnalytics,
-				userPermissions.viewTimetable,
+				userPermissions.viewCalendar,
 				userPermissions.viewDashboard,
 				userPermissions.viewClassAttendance,
 				userPermissions.viewNews,
-				userPermissions.createNews
+				userPermissions.createNews,
+				userPermissions.viewCourseMap
 			];
 		case 'schoolAdmin':
 			return [
 				userPermissions.viewAdmin,
 				userPermissions.viewDashboard,
-				userPermissions.viewTimetable,
+				userPermissions.viewCalendar,
 				userPermissions.viewAnalytics,
 				userPermissions.manageTeachers,
 				userPermissions.viewLessons,
 				userPermissions.viewClassAttendance,
 				userPermissions.viewNews,
-				userPermissions.createNews
+				userPermissions.createNews,
+				userPermissions.viewCourseMap
 			];
 		case 'systemAdmin':
 			return [
 				userPermissions.viewAdmin,
 				userPermissions.viewDashboard,
-				userPermissions.viewTimetable,
+				userPermissions.viewCalendar,
 				userPermissions.viewAnalytics,
 				userPermissions.manageTeachers,
 				userPermissions.viewLessons,
 				userPermissions.viewClassAttendance,
-				userPermissions.viewNews
+				userPermissions.viewNews,
+				userPermissions.createNews,
+				userPermissions.viewCourseMap
 			];
 		default:
 			return [];

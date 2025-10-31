@@ -66,10 +66,10 @@
 			requiredPermission: userPermissions.viewAdmin
 		},
 		{
-			title: 'Timetable',
-			url: '/timetable',
+			title: 'Calendar',
+			url: '/calendar',
 			icon: CalendarDaysIcon,
-			requiredPermission: userPermissions.viewTimetable
+			requiredPermission: userPermissions.viewCalendar
 		},
 		{
 			title: 'Attendance',
@@ -109,7 +109,8 @@
 			title: 'Course Map',
 			url: 'curriculum',
 			icon: RouteIcon,
-			classLevel: false
+			classLevel: false,
+			requiredPermission: userPermissions.viewCourseMap
 		},
 		{
 			title: 'Analytics',
