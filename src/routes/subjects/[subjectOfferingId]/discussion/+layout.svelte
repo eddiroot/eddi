@@ -34,7 +34,7 @@
 					<Button
 						onclick={() => {
 							if (announcementsPane) {
-								if (isAnnouncementsCollapsed) {
+								if (isAnnouncementsCollapsed || announcementsPane.getSize() === 0) {
 									announcementsPane.expand();
 								} else {
 									announcementsPane.collapse();

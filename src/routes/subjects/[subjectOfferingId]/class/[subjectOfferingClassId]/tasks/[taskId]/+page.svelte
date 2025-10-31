@@ -32,7 +32,6 @@
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import EyeIcon from '@lucide/svelte/icons/eye';
-	import WrenchIcon from '@lucide/svelte/icons/wrench';
 
 	import {
 		createBlock,
@@ -72,6 +71,7 @@
 		type BlockWhiteboardConfig
 	} from '$lib/schemas/taskSchema';
 	import { formatTimer } from '$lib/utils';
+	import { PencilIcon, SettingsIcon } from '@lucide/svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 	import { superForm } from 'sveltekit-superforms';
@@ -398,19 +398,19 @@
 				</Form.Field>
 			</form>
 			<Button
-				variant={viewMode === ViewMode.CONFIGURE ? 'default' : 'outline'}
+				variant={viewMode === ViewMode.CONFIGURE ? 'secondary' : 'outline'}
 				onclick={() => (viewMode = ViewMode.CONFIGURE)}
 				size="lg"
 			>
-				<WrenchIcon />
-				Configure
+				<PencilIcon />
+				Edit
 			</Button>
 			<Button variant="outline" disabled onclick={() => (viewMode = ViewMode.PRESENT)} size="lg">
 				<PresentationIcon />
 				Present
 			</Button>
 			<Button
-				variant={viewMode === ViewMode.ANSWER ? 'default' : 'outline'}
+				variant={viewMode === ViewMode.ANSWER ? 'secondary' : 'outline'}
 				onclick={() => (viewMode = ViewMode.ANSWER)}
 				size="lg"
 			>
@@ -418,7 +418,7 @@
 				Preview
 			</Button>
 			<Button
-				variant={viewMode === ViewMode.REVIEW ? 'default' : 'outline'}
+				variant={viewMode === ViewMode.REVIEW ? 'secondary' : 'outline'}
 				onclick={() => (viewMode = ViewMode.REVIEW)}
 				size="lg"
 			>
@@ -427,7 +427,7 @@
 			</Button>
 			{#if data.task.type === 'assessment' || data.task.type === 'homework'}
 				<Button variant="outline" onclick={() => (showQuizSettings = true)} size="lg">
-					<ClockIcon />
+					<SettingsIcon />
 					Quiz Settings
 				</Button>
 			{/if}
