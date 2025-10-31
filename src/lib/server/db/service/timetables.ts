@@ -3,7 +3,7 @@ import type { FETActivity } from '$lib/schemas/fetSchema';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { days } from '$lib/utils';
-import { and, asc, count, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, eq, ilike, inArray, or } from 'drizzle-orm';
 
 export async function getSchoolTimetablesBySchoolId(
 	schoolId: number,
@@ -777,23 +777,6 @@ export async function updateTimetableActivity(
 }
 
 export async function deleteTimetableActivity(activityId: number) {
-	// await db
-	// 	.delete(table.timetableActivityAssignedGroup)
-	// 	.where(eq(table.timetableActivityAssignedGroup.timetableActivityId, activityId));
-	// await db
-	// 	.delete(table.timetableActivityAssignedStudent)
-	// 	.where(eq(table.timetableActivityAssignedStudent.timetableActivityId, activityId));
-	// await db
-	// 	.delete(table.timetableActivityAssignedYear)
-	// 	.where(eq(table.timetableActivityAssignedYear.timetableActivityId, activityId));
-	// await db
-	// 	.delete(table.timetableActivityPreferredSpace)
-	// 	.where(eq(table.timetableActivityPreferredSpace.timetableActivityId, activityId));
-	// await db
-	// 	.delete(table.timetableActivityTeacherPreference)
-	// 	.where(eq(table.timetableActivityTeacherPreference.timetableActivityId, activityId));
-
-	// Finally, delete the activity itself
 	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.id, activityId));
 }
 
@@ -821,7 +804,10 @@ export async function updateTimetableIterationError(iterationId: number, errorMe
 		.where(eq(table.timetableIteration.id, iterationId));
 }
 
-export async function updateTimetableIterationFetResponse(iterationId: number, fetResponse: string) {
+export async function updateTimetableIterationFetResponse(
+	iterationId: number,
+	fetResponse: string
+) {
 	await db
 		.update(table.timetableIteration)
 		.set({
@@ -1158,4 +1144,93 @@ export async function updateTimetableConstraintActiveStatus(
 		.returning();
 
 	return result[0];
+}
+
+export async function getUserFETActivitiesByIterationId(userId: string, iterationId: number) {
+	const activities = await db
+		.select({
+			id: table.fetActivity.id,
+			day: table.fetActivity.day,
+			period: table.fetActivity.period,
+			duration: table.fetActivity.duration,
+			subjectId: table.fetActivity.subjectId,
+			subjectName: table.subject.name,
+			spaceId: table.fetActivity.spaceId,
+			spaceName: table.schoolSpace.name
+		})
+		.from(table.userFetActivity)
+		.innerJoin(table.fetActivity, eq(table.userFetActivity.fetActivityId, table.fetActivity.id))
+		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
+		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
+		.where(
+			and(eq(table.userFetActivity.userId, userId), eq(table.fetActivity.iterationId, iterationId))
+		)
+		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
+
+	return activities;
+}
+
+export async function searchUsersBySchoolId(schoolId: number, searchTerm: string, limit = 20) {
+	const searchPattern = `%${searchTerm}%`;
+
+	return db
+		.select({
+			id: table.user.id,
+			firstName: table.user.firstName,
+			lastName: table.user.lastName,
+			email: table.user.email,
+			type: table.user.type
+		})
+		.from(table.user)
+		.where(
+			and(
+				eq(table.user.schoolId, schoolId),
+				eq(table.user.isArchived, false),
+				or(
+					ilike(table.user.firstName, searchPattern),
+					ilike(table.user.lastName, searchPattern),
+					ilike(table.user.email, searchPattern)
+				)
+			)
+		)
+		.limit(limit)
+		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
+}
+
+export async function getSpacesBySchoolId(schoolId: number) {
+	return db
+		.select({
+			id: table.schoolSpace.id,
+			name: table.schoolSpace.name,
+			capacity: table.schoolSpace.capacity,
+			buildingName: table.schoolBuilding.name
+		})
+		.from(table.schoolSpace)
+		.innerJoin(table.schoolBuilding, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
+		.innerJoin(table.campus, eq(table.schoolBuilding.campusId, table.campus.id))
+		.where(eq(table.campus.schoolId, schoolId))
+		.orderBy(asc(table.schoolSpace.name));
+}
+
+export async function getSpaceFETActivitiesByIterationId(spaceId: number, iterationId: number) {
+	const activities = await db
+		.select({
+			id: table.fetActivity.id,
+			day: table.fetActivity.day,
+			period: table.fetActivity.period,
+			duration: table.fetActivity.duration,
+			subjectId: table.fetActivity.subjectId,
+			subjectName: table.subject.name,
+			spaceId: table.fetActivity.spaceId,
+			spaceName: table.schoolSpace.name
+		})
+		.from(table.fetActivity)
+		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
+		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
+		.where(
+			and(eq(table.fetActivity.spaceId, spaceId), eq(table.fetActivity.iterationId, iterationId))
+		)
+		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
+
+	return activities;
 }

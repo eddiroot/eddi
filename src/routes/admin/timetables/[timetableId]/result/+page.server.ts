@@ -1,6 +1,12 @@
 import {
 	getCompletedIterationsByTimetableId,
-	getTimetableWithSchool
+	getSpaceFETActivitiesByIterationId,
+	getSpacesBySchoolId,
+	getTimetableDays,
+	getTimetablePeriods,
+	getTimetableWithSchool,
+	getUserFETActivitiesByIterationId,
+	getUsersBySchoolId
 } from '$lib/server/db/service';
 import { error } from '@sveltejs/kit';
 import { processStatistics } from '../../../../../scripts/processStatistics';
@@ -9,6 +15,7 @@ import { transformToStudentStatisticsReport, transformToTeacherStatisticsReport 
 
 export const load: PageServerLoad = async ({ params, url, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();
+	const user = security.getUser();
 
 	const timetableId = parseInt(params.timetableId);
 	if (isNaN(timetableId)) {
@@ -59,12 +66,20 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 				timetableWithSchool.timetable.name
 			);
 
+			// Get all users for the school for the autocomplete
+			const allUsers = await getUsersBySchoolId(user.schoolId);
+
+			// Get all spaces for the school
+			const allSpaces = await getSpacesBySchoolId(user.schoolId);
+
 			return {
 				timetableId: params.timetableId,
 				teacherStatisticsReport,
 				studentStatisticsReport,
 				completedIterations,
-				selectedIterationId: iterationId
+				selectedIterationId: iterationId,
+				allUsers,
+				allSpaces
 			};
 		} catch (statisticsError) {
 			console.error('Failed to process statistics from database:', statisticsError);
@@ -140,6 +155,70 @@ export const actions = {
 		} catch (err) {
 			console.error('Failed to load statistics for iteration:', err);
 			throw error(500, 'Failed to process statistics for the selected iteration');
+		}
+	},
+
+	getUserTimetable: async ({ params, request, locals: { security } }) => {
+		security.isAuthenticated().isSchoolAdmin();
+
+		const timetableId = parseInt(params.timetableId);
+		const formData = await request.formData();
+		const userId = formData.get('userId') as string;
+		const iterationId = parseInt(formData.get('iterationId') as string);
+
+		if (isNaN(timetableId) || !userId || isNaN(iterationId)) {
+			throw error(400, 'Invalid parameters');
+		}
+
+		try {
+			const [activities, timetableDays, timetablePeriods] = await Promise.all([
+				getUserFETActivitiesByIterationId(userId, iterationId),
+				getTimetableDays(timetableId),
+				getTimetablePeriods(timetableId)
+			]);
+
+			return {
+				success: true,
+				userActivities: activities,
+				selectedUserId: userId,
+				timetableDays,
+				timetablePeriods
+			};
+		} catch (err) {
+			console.error('Failed to load user timetable:', err);
+			throw error(500, 'Failed to load user timetable');
+		}
+	},
+
+	getSpaceTimetable: async ({ params, request, locals: { security } }) => {
+		security.isAuthenticated().isSchoolAdmin();
+
+		const timetableId = parseInt(params.timetableId);
+		const formData = await request.formData();
+		const spaceId = parseInt(formData.get('spaceId') as string);
+		const iterationId = parseInt(formData.get('iterationId') as string);
+
+		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(iterationId)) {
+			throw error(400, 'Invalid parameters');
+		}
+
+		try {
+			const [activities, timetableDays, timetablePeriods] = await Promise.all([
+				getSpaceFETActivitiesByIterationId(spaceId, iterationId),
+				getTimetableDays(timetableId),
+				getTimetablePeriods(timetableId)
+			]);
+
+			return {
+				success: true,
+				spaceActivities: activities,
+				selectedSpaceId: spaceId,
+				timetableDays,
+				timetablePeriods
+			};
+		} catch (err) {
+			console.error('Failed to load space timetable:', err);
+			throw error(500, 'Failed to load space timetable');
 		}
 	}
 };
