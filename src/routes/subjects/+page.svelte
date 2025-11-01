@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { generateSubjectColors } from '../timetable/utils';
+	import { generateSubjectColors } from '../calendar/utils';
 
 	let { data } = $props();
 </script>

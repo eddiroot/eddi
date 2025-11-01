@@ -13,7 +13,7 @@
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 	import SchoolIcon from '@lucide/svelte/icons/school';
-	import { generateSubjectColors } from '../../routes/timetable/utils.js';
+	import { generateSubjectColors } from '../../routes/calendar/utils.js';
 
 	interface EventCardProps {
 		event: SchoolEvent | CampusEvent | SubjectOfferingEvent | SubjectOfferingClassEvent;
