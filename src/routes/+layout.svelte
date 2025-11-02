@@ -131,10 +131,10 @@
 				/>
 			{/if}
 
-			<Sidebar.Inset>
-				<main class="h-[calc(100svh-var(--header-height))]! overflow-auto">
-					{@render children()}
-				</main>
+			<Sidebar.Inset
+				class="h-[calc(100svh-var(--header-height)-1rem)]! overflow-auto md:h-[calc(100svh-var(--header-height)-1rem)]!"
+			>
+				{@render children()}
 			</Sidebar.Inset>
 
 			{#if user()}
