@@ -156,7 +156,7 @@ export const blockMathInput = {
 			properties: {
 				text: { type: 'string' },
 				question: { type: 'string' },
-				answer: { type: 'string' },
+				answer: { type: 'string' }
 			},
 			required: ['text', 'question', 'answer']
 		},
@@ -747,11 +747,7 @@ export type AudioBlockProps = BlockProps<BlockAudioConfig>;
 import type { Icon } from '@lucide/svelte';
 import AudioIcon from '@lucide/svelte/icons/audio-lines';
 import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
-import HeadingOneIcon from '@lucide/svelte/icons/heading-1';
-import HeadingTwoIcon from '@lucide/svelte/icons/heading-2';
-import HeadingThreeIcon from '@lucide/svelte/icons/heading-3';
-import HeadingFourIcon from '@lucide/svelte/icons/heading-4';
-import HeadingFiveIcon from '@lucide/svelte/icons/heading-5';
+import HeadingIcon from '@lucide/svelte/icons/heading';
 import HighlighterIcon from '@lucide/svelte/icons/highlighter';
 import ImageIcon from '@lucide/svelte/icons/image';
 import LinkIcon from '@lucide/svelte/icons/link';
@@ -780,33 +776,9 @@ export const blockTypes: {
 }[] = [
 	{
 		type: taskBlockTypeEnum.heading,
-		name: 'Heading 1',
-		initialConfig: { text: 'Heading 1', size: 2 },
-		icon: HeadingOneIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 2',
-		initialConfig: { text: 'Heading 2', size: 3 },
-		icon: HeadingTwoIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 3',
-		initialConfig: { text: 'Heading 3', size: 4 },
-		icon: HeadingThreeIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 4',
-		initialConfig: { text: 'Heading 4', size: 5 },
-		icon: HeadingFourIcon
-	},
-	{
-		type: taskBlockTypeEnum.heading,
-		name: 'Heading 5',
-		initialConfig: { text: 'Heading 5', size: 6 },
-		icon: HeadingFiveIcon
+		name: 'Heading',
+		initialConfig: { text: 'Heading', size: 2 },
+		icon: HeadingIcon
 	},
 	{
 		type: taskBlockTypeEnum.richText,
