@@ -23,6 +23,7 @@
 		WhiteboardTool
 	} from '$lib/components/whiteboard/types';
 	import { hexToRgba } from '$lib/components/whiteboard/utils';
+	import * as WebSocketHandler from '$lib/components/whiteboard/websocket';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard/whiteboard-floating-menu.svelte';
 	import WhiteboardToolbar from '$lib/components/whiteboard/whiteboard-toolbar.svelte';
 	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-zoom-controls.svelte';
@@ -586,102 +587,12 @@
 
 		setSelectTool();
 
-		socket = new WebSocket(
-			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`
+		// Setup WebSocket connection for real-time collaboration
+		socket = WebSocketHandler.setupWebSocket(
+			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`,
+			canvas,
+			whiteboardIdNum
 		);
-
-		socket.addEventListener('open', () => {
-			if (socket && socket.readyState === WebSocket.OPEN) {
-				socket.send(
-					JSON.stringify({
-						type: 'init',
-						whiteboardId: whiteboardIdNum
-					})
-				);
-			}
-		});
-
-		socket.addEventListener('message', async (event) => {
-			try {
-				const messageData = JSON.parse(event.data);
-				if (messageData.whiteboardId !== whiteboardIdNum) return;
-
-				if (messageData.type === 'load') {
-					if (messageData.whiteboard.objects.length > 0) {
-						const objects = await fabric.util.enlivenObjects(messageData.whiteboard.objects);
-						canvas.clear();
-						objects.forEach((obj: any) => {
-							// Preserve the custom id property
-							if (
-								messageData.whiteboard.objects.find(
-									(o: any) => o.id && o.left === obj.left && o.top === obj.top
-								)
-							) {
-								const originalObj = messageData.whiteboard.objects.find(
-									(o: any) => o.id && o.left === obj.left && o.top === obj.top
-								);
-								obj.id = originalObj.id;
-							}
-
-							if (obj && typeof obj.addTo === 'function') {
-								obj.addTo(canvas);
-							} else {
-								canvas.add(obj);
-							}
-						});
-						canvas.renderAll();
-					}
-				} else if (messageData.type === 'add') {
-					const objects = await fabric.util.enlivenObjects([messageData.object]);
-					if (objects.length > 0) {
-						const obj = objects[0];
-						// Preserve the custom id property
-						// @ts-expect-error
-						obj.id = messageData.object.id;
-						canvas.add(obj as fabric.FabricObject);
-						canvas.renderAll();
-					}
-				} else if (messageData.type === 'modify' || messageData.type === 'update') {
-					const objects = canvas.getObjects();
-					// @ts-expect-error
-					const obj = objects.find((o) => o.id === messageData.object.id);
-					if (obj) {
-						// For live image updates, only update the essential properties to reduce lag
-						const isLiveUpdate = messageData.live || false;
-						if (isLiveUpdate && messageData.object.type === 'image') {
-							// Only update positioning and transformation properties for live image updates
-							obj.set({
-								left: messageData.object.left,
-								top: messageData.object.top,
-								scaleX: messageData.object.scaleX,
-								scaleY: messageData.object.scaleY,
-								angle: messageData.object.angle,
-								opacity: messageData.object.opacity
-							});
-						} else {
-							// Full update for final modifications or non-image objects
-							obj.set(messageData.object);
-						}
-						canvas.renderAll();
-					}
-				} else if (messageData.type === 'delete' || messageData.type === 'remove') {
-					const objects = canvas.getObjects();
-					const objectsToRemove = messageData.objects || [messageData.object];
-					objectsToRemove.forEach((objData: any) => {
-						// @ts-expect-error
-						const obj = objects.find((o) => o.id === objData.id);
-						if (obj) {
-							canvas.remove(obj);
-						}
-					});
-					canvas.renderAll();
-				} else if (messageData.type === 'clear') {
-					canvas.clear();
-				}
-			} catch (e) {
-				console.error('Error parsing JSON:', e);
-			}
-		});
 
 		// Setup all canvas event handlers using the extracted module
 		const canvasEventContext: CanvasEventContext = {
@@ -853,9 +764,7 @@
 			clearTimeout(imageThrottleTimeout);
 		}
 
-		if (socket) {
-			socket.close();
-		}
+		WebSocketHandler.closeWebSocket(socket);
 		if (canvas) {
 			canvas.dispose();
 		}
