@@ -3,6 +3,8 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import type { CanvasEventContext } from '$lib/components/whiteboard/canvas-events';
+	import * as CanvasEvents from '$lib/components/whiteboard/canvas-events';
 	import {
 		DEFAULT_DRAW_OPTIONS,
 		DEFAULT_LINE_ARROW_OPTIONS,
@@ -11,7 +13,6 @@
 		IMAGE_THROTTLE_MS,
 		ZOOM_LIMITS
 	} from '$lib/components/whiteboard/constants';
-	import * as Shapes from '$lib/components/whiteboard/shapes';
 	import type { ToolState } from '$lib/components/whiteboard/tools';
 	import * as Tools from '$lib/components/whiteboard/tools';
 	import type {
@@ -682,705 +683,104 @@
 			}
 		});
 
-		canvas.on('object:moving', ({ target }) => {
-			const objData = target.toObject();
-			// @ts-expect-error
-			objData.id = target.id;
-
-			// Only throttle image movements, send immediate updates for other objects
-			if (target.type === 'image') {
-				isMovingImage = true;
-				// @ts-expect-error
-				sendImageUpdate(target.id, objData, false);
-			} else {
-				// Immediate updates for non-image objects
-				sendCanvasUpdate({
-					type: 'modify',
-					object: objData
-				});
-			}
-		});
-
-		canvas.on('object:scaling', ({ target }) => {
-			const objData = target.toObject();
-			// @ts-expect-error
-			objData.id = target.id;
-
-			// Only throttle image scaling, send immediate updates for other objects
-			if (target.type === 'image') {
-				isMovingImage = true;
-				// @ts-expect-error
-				sendImageUpdate(target.id, objData, false);
-			} else {
-				// Immediate updates for non-image objects
-				sendCanvasUpdate({
-					type: 'modify',
-					object: objData
-				});
-			}
-		});
-
-		canvas.on('object:rotating', ({ target }) => {
-			const objData = target.toObject();
-			// @ts-expect-error
-			objData.id = target.id;
-
-			// Only throttle image rotation, send immediate updates for other objects
-			if (target.type === 'image') {
-				isMovingImage = true;
-				// @ts-expect-error
-				sendImageUpdate(target.id, objData, false);
-			} else {
-				// Immediate updates for non-image objects
-				sendCanvasUpdate({
-					type: 'modify',
-					object: objData
-				});
-			}
-		});
-
-		canvas.on('object:modified', ({ target }) => {
-			// This handles final modifications - always send immediately for persistence
-			const objData = target.toObject();
-			// @ts-expect-error
-			objData.id = target.id;
-
-			if (target.type === 'image') {
-				// @ts-expect-error
-				sendImageUpdate(target.id, objData, true);
-				isMovingImage = false;
-			} else {
-				// Immediate updates for non-image objects
-				sendCanvasUpdate({
-					type: 'modify',
-					object: objData
-				});
-			}
-		});
-
-		// Add mouse up event to ensure final position is saved for images
-		canvas.on('mouse:up', (opt) => {
-			if (isPanMode) {
-				isPanMode = false;
-				canvas.selection = selectedTool === 'select';
-
-				// Set cursor based on current tool
-				if (selectedTool === 'pan') {
-					canvas.setCursor('grab');
-				} else if (selectedTool === 'select') {
-					canvas.setCursor('default');
-				} else if (selectedTool === 'draw') {
-					canvas.setCursor('crosshair');
-				} else if (selectedTool === 'line' || selectedTool === 'arrow') {
-					canvas.setCursor('crosshair');
-				} else if (selectedTool === 'shapes') {
-					canvas.setCursor('crosshair');
-				} else if (selectedTool === 'text') {
-					canvas.setCursor('crosshair');
-				}
-			}
-
-			// Handle text completion
-			if (isDrawingText && tempText) {
-				// Finalize the text
-				tempText.set({ selectable: true });
-				canvas.setActiveObject(tempText);
-
-				// Enter edit mode immediately after creation
-				tempText.enterEditing();
-				tempText.selectAll();
-
-				canvas.renderAll();
-
-				// Send the completed text to other users
-				const objData = tempText.toObject();
-				// @ts-expect-error
-				objData.id = tempText.id;
-				sendCanvasUpdate({
-					type: 'add',
-					object: objData
-				});
-
-				// Auto-switch to selection tool while keeping floating menu open
-				selectedTool = 'select';
-				canvas.isDrawingMode = false;
-				canvas.selection = true;
-				canvas.defaultCursor = 'default';
-				canvas.hoverCursor = 'move';
-
-				// Reset text drawing state
-				isDrawingText = false;
-				tempText = null;
-			}
-
-			// Handle shape completion
-			if (isDrawingShape && tempShape) {
-				// Finalize the shape
-				tempShape.set({ selectable: true });
-				canvas.setActiveObject(tempShape);
-				canvas.renderAll();
-
-				// Send the completed shape to other users
-				const objData = tempShape.toObject();
-				// @ts-expect-error
-				objData.id = tempShape.id;
-				sendCanvasUpdate({
-					type: 'add',
-					object: objData
-				});
-
-				// Auto-switch to selection tool while keeping floating menu open
-				selectedTool = 'select';
-				canvas.isDrawingMode = false;
-				canvas.selection = true;
-				canvas.defaultCursor = 'default';
-				canvas.hoverCursor = 'move';
-
-				// Reset shape drawing state
-				isDrawingShape = false;
-				currentShapeType = '';
-				tempShape = null;
-			}
-
-			// Handle line and arrow completion
-			if ((isDrawingLine || isDrawingArrow) && tempLine) {
-				// Set the object as selectable and finish the drawing
-				tempLine.set({ selectable: true });
-				canvas.setActiveObject(tempLine);
-				canvas.renderAll();
-
-				// Send the completed line/arrow to other users
-				const objData = tempLine.toObject();
-				// @ts-expect-error
-				objData.id = tempLine.id;
-				sendCanvasUpdate({
-					type: 'add',
-					object: objData
-				});
-
-				// Auto-switch to selection tool while keeping floating menu open
-				selectedTool = 'select';
-				canvas.isDrawingMode = false;
-				canvas.selection = true;
-				canvas.defaultCursor = 'default';
-				canvas.hoverCursor = 'move';
-
-				// Reset drawing state
-				isDrawingLine = false;
-				isDrawingArrow = false;
-				tempLine = null;
-			}
-
-			// Handle eraser completion
-			if (isErasing) {
-				isErasing = false;
-
-				// Delete all objects that were marked for deletion
-				hoveredObjectsForDeletion.forEach((obj) => {
-					canvas.remove(obj);
-					// Send delete message to other users
-					sendCanvasUpdate({
-						type: 'delete',
-						object: { id: (obj as any).id }
-					});
-				});
-
-				// Clear eraser state
-				clearEraserState();
-			}
-
-			// If we were moving an image, ensure final position is sent
-			if (isMovingImage) {
-				const activeObject = canvas.getActiveObject();
-				if (activeObject && activeObject.type === 'image') {
-					const objData = activeObject.toObject();
-					// @ts-expect-error
-					objData.id = activeObject.id;
-					// @ts-expect-error
-					sendImageUpdate(activeObject.id, objData, true);
-				}
-				isMovingImage = false;
-			}
-		});
-
-		canvas.on('path:created', ({ path }) => {
-			// @ts-expect-error
-			path.id = uuidv4();
-			const objData = path.toObject();
-			// @ts-expect-error
-			objData.id = path.id;
-			sendCanvasUpdate({
-				type: 'add',
-				object: objData
-			});
-		});
-
-		canvas.on('text:changed', ({ target }) => {
-			const objData = target.toObject();
-			// @ts-expect-error
-			objData.id = target.id;
-			sendCanvasUpdate({
-				type: 'modify',
-				object: objData
-			});
-		});
-
-		// Handle object selection - automatically open appropriate menu
-		canvas.on('selection:created', ({ selected }) => {
-			if (selected && selected.length === 1) {
-				const obj = selected[0] as any;
-
-				// Determine which tool/menu to activate based on object type and sync properties
-				if (obj.type === 'textbox') {
-					selectedTool = 'text';
-					showFloatingMenu = true;
-					// Sync text properties to menu
-					floatingMenuRef?.updateTextOptions({
-						fontSize: obj.fontSize || 16,
-						fontFamily: obj.fontFamily || 'Arial',
-						fontWeight: obj.fontWeight || 'normal',
-						colour: obj.fill?.toString() || '#4A5568',
-						textAlign: obj.textAlign || 'left',
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
-					selectedTool = 'shapes';
-					showFloatingMenu = true;
-					// Sync shape properties to menu
-					floatingMenuRef?.updateShapeOptions({
-						strokeWidth: obj.strokeWidth || 2,
-						strokeColour: obj.stroke?.toString() || '#4A5568',
-						fillColour: obj.fill?.toString() || 'transparent',
-						strokeDashArray: obj.strokeDashArray || [],
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'line') {
-					selectedTool = 'line';
-					showFloatingMenu = true;
-					// Sync line properties to menu
-					floatingMenuRef?.updateLineArrowOptions({
-						strokeWidth: obj.strokeWidth || 2,
-						strokeColour: obj.stroke?.toString() || '#4A5568',
-						strokeDashArray: obj.strokeDashArray || [],
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'group') {
-					// Arrows are groups
-					selectedTool = 'arrow';
-					showFloatingMenu = true;
-					// Sync arrow properties from the line in the group
-					const groupObj = obj as fabric.Group;
-					const lineObj = groupObj.getObjects().find((o: any) => o.type === 'line');
-					if (lineObj) {
-						floatingMenuRef?.updateLineArrowOptions({
-							strokeWidth: lineObj.strokeWidth || 2,
-							strokeColour: lineObj.stroke?.toString() || '#4A5568',
-							strokeDashArray: lineObj.strokeDashArray || [],
-							opacity: lineObj.opacity ?? 1
-						});
-					}
-				} else if (obj.type === 'path') {
-					// Drawn paths (freehand drawing)
-					selectedTool = 'draw';
-					showFloatingMenu = true;
-					// Sync path properties to menu
-					floatingMenuRef?.updateDrawOptions({
-						brushSize: obj.strokeWidth || 6,
-						brushColour: obj.stroke?.toString() || '#4A5568',
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'image') {
-					selectedTool = 'shapes';
-					showFloatingMenu = true;
-					// Sync image properties to menu (only opacity makes sense)
-					floatingMenuRef?.updateShapeOptions({
-						opacity: obj.opacity ?? 1
-					});
-				}
-			}
-		});
-
-		// Also handle when selection is updated (different object selected)
-		canvas.on('selection:updated', ({ selected }) => {
-			if (selected && selected.length === 1) {
-				const obj = selected[0] as any;
-
-				// Determine which tool/menu to activate based on object type and sync properties
-				if (obj.type === 'textbox') {
-					selectedTool = 'text';
-					showFloatingMenu = true;
-					// Sync text properties to menu
-					floatingMenuRef?.updateTextOptions({
-						fontSize: obj.fontSize || 16,
-						fontFamily: obj.fontFamily || 'Arial',
-						fontWeight: obj.fontWeight || 'normal',
-						colour: obj.fill?.toString() || '#4A5568',
-						textAlign: obj.textAlign || 'left',
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
-					selectedTool = 'shapes';
-					showFloatingMenu = true;
-					// Sync shape properties to menu
-					floatingMenuRef?.updateShapeOptions({
-						strokeWidth: obj.strokeWidth || 2,
-						strokeColour: obj.stroke?.toString() || '#4A5568',
-						fillColour: obj.fill?.toString() || 'transparent',
-						strokeDashArray: obj.strokeDashArray || [],
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'line') {
-					selectedTool = 'line';
-					showFloatingMenu = true;
-					// Sync line properties to menu
-					floatingMenuRef?.updateLineArrowOptions({
-						strokeWidth: obj.strokeWidth || 2,
-						strokeColour: obj.stroke?.toString() || '#4A5568',
-						strokeDashArray: obj.strokeDashArray || [],
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'group') {
-					// Arrows are groups
-					selectedTool = 'arrow';
-					showFloatingMenu = true;
-					// Sync arrow properties from the line in the group
-					const groupObj = obj as fabric.Group;
-					const lineObj = groupObj.getObjects().find((o: any) => o.type === 'line');
-					if (lineObj) {
-						floatingMenuRef?.updateLineArrowOptions({
-							strokeWidth: lineObj.strokeWidth || 2,
-							strokeColour: lineObj.stroke?.toString() || '#4A5568',
-							strokeDashArray: lineObj.strokeDashArray || [],
-							opacity: lineObj.opacity ?? 1
-						});
-					}
-				} else if (obj.type === 'path') {
-					// Drawn paths (freehand drawing)
-					selectedTool = 'draw';
-					showFloatingMenu = true;
-					// Sync path properties to menu
-					floatingMenuRef?.updateDrawOptions({
-						brushSize: obj.strokeWidth || 6,
-						brushColour: obj.stroke?.toString() || '#4A5568',
-						opacity: obj.opacity ?? 1
-					});
-				} else if (obj.type === 'image') {
-					selectedTool = 'shapes';
-					showFloatingMenu = true;
-					// Sync image properties to menu (only opacity makes sense)
-					floatingMenuRef?.updateShapeOptions({
-						opacity: obj.opacity ?? 1
-					});
-				}
-			}
-		});
-
-		// Handle object deselection - keep menu open unless switching to select tool manually
-		canvas.on('selection:cleared', () => {
-			// Don't close menu automatically, let user close it or switch tools
-		});
-
-		canvas.on('mouse:wheel', (opt) => {
-			const delta = opt.e.deltaY;
-
-			let zoom = canvas.getZoom();
-			zoom *= 0.99 ** delta;
-			if (zoom > ZOOM_LIMITS.max) zoom = ZOOM_LIMITS.max;
-			if (zoom < ZOOM_LIMITS.min) zoom = ZOOM_LIMITS.min;
-
-			const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
-			canvas.zoomToPoint(point, zoom);
-			currentZoom = zoom;
-			opt.e.preventDefault();
-			opt.e.stopPropagation();
-		});
-
-		canvas.on('mouse:down', (opt) => {
-			const evt = opt.e;
-
-			// Close the expanded colors panel when user starts interacting
-			if (floatingMenuRef) {
-				floatingMenuRef.closeExpandedColors();
-			}
-
-			if (selectedTool === 'pan') {
-				isPanMode = true;
-				canvas.selection = false;
-				canvas.discardActiveObject();
-				canvas.setCursor('grabbing');
-
-				const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
-				const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
-				panStartPos = { x: clientX, y: clientY };
-
-				opt.e.preventDefault();
-				opt.e.stopPropagation();
-			} else if (selectedTool === 'select') {
-				if (!canvas.getActiveObject() && !canvas.findTarget(evt)) {
-					isPanMode = true;
-					canvas.selection = false;
-					canvas.setCursor('grab');
-
-					const clientX = 'clientX' in evt ? evt.clientX : evt.touches?.[0]?.clientX || 0;
-					const clientY = 'clientY' in evt ? evt.clientY : evt.touches?.[0]?.clientY || 0;
-					panStartPos = { x: clientX, y: clientY };
-
-					opt.e.preventDefault();
-				}
-			} else if (selectedTool === 'shapes' && currentShapeType) {
-				if (!isDrawingShape) {
-					// Start drawing a shape
-					const pointer = canvas.getScenePoint(opt.e);
-					startPoint = { x: pointer.x, y: pointer.y };
-					isDrawingShape = true;
-
-					// Create initial shape with zero size
-					tempShape = Shapes.createShapeFromPoints(
-						currentShapeType,
-						pointer.x,
-						pointer.y,
-						pointer.x,
-						pointer.y,
-						currentShapeOptions
-					);
-					if (tempShape) {
-						canvas.add(tempShape);
-						canvas.renderAll();
-					}
-
-					opt.e.preventDefault();
-					opt.e.stopPropagation();
-				}
-			} else if (selectedTool === 'text') {
-				if (!isDrawingText) {
-					// Start drawing a text box
-					const pointer = canvas.getScenePoint(opt.e);
-					startPoint = { x: pointer.x, y: pointer.y };
-					isDrawingText = true;
-
-					// Create initial text with minimum width
-					tempText = Shapes.createTextFromPoints(
-						pointer.x,
-						pointer.y,
-						pointer.x + 50,
-						pointer.y,
-						currentTextOptions
-					);
-					if (tempText) {
-						canvas.add(tempText);
-						canvas.renderAll();
-					}
-
-					opt.e.preventDefault();
-					opt.e.stopPropagation();
-				}
-			} else if (selectedTool === 'line' || selectedTool === 'arrow') {
-				// Don't start drawing if we're clicking on an existing object
-				const target = canvas.findTarget(opt.e);
-				if (!target && !isDrawingLine && !isDrawingArrow) {
-					const pointer = canvas.getScenePoint(opt.e);
-					startPoint = { x: pointer.x, y: pointer.y };
-
-					if (selectedTool === 'line') {
-						isDrawingLine = true;
-						tempLine = Shapes.createLine(
-							startPoint.x,
-							startPoint.y,
-							startPoint.x,
-							startPoint.y,
-							currentLineArrowOptions
-						);
-					} else {
-						isDrawingArrow = true;
-						tempLine = Shapes.createArrow(
-							startPoint.x,
-							startPoint.y,
-							startPoint.x,
-							startPoint.y,
-							currentLineArrowOptions
-						) as any;
-					}
-
-					if (tempLine) {
-						canvas.add(tempLine);
-						canvas.renderAll();
-					}
-
-					opt.e.preventDefault();
-					opt.e.stopPropagation();
-				}
-			} else if (selectedTool === 'eraser') {
-				isErasing = true;
-				const pointer = canvas.getScenePoint(opt.e);
-				startPoint = { x: pointer.x, y: pointer.y };
-				lastEraserPoint = { x: pointer.x, y: pointer.y };
-
-				// Find objects under the eraser and make them transparent
-				canvas.forEachObject((obj) => {
-					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
-						if (!hoveredObjectsForDeletion.includes(obj)) {
-							// Store original opacity and make transparent
-							originalOpacities.set(obj, obj.opacity || 1);
-							obj.set({ opacity: 0.3 });
-							hoveredObjectsForDeletion.push(obj);
-						}
-					}
-				});
-
-				canvas.renderAll();
-				opt.e.preventDefault();
-				opt.e.stopPropagation();
-			}
-		});
-
-		canvas.on('mouse:move', (opt) => {
-			if (isPanMode) {
-				const e = opt.e;
-				const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || 0;
-				const clientY = 'clientY' in e ? e.clientY : e.touches?.[0]?.clientY || 0;
-
-				const deltaX = clientX - panStartPos.x;
-				const deltaY = clientY - panStartPos.y;
-
-				canvas.relativePan(new fabric.Point(deltaX, deltaY));
-				panStartPos = { x: clientX, y: clientY };
-
-				canvas.setCursor('grabbing');
-			} else if (isDrawingShape && tempShape && currentShapeType) {
-				// Update the shape being drawn
-				const pointer = canvas.getScenePoint(opt.e);
-
-				// Remove the old temp shape
-				canvas.remove(tempShape);
-
-				// Create new shape with updated dimensions
-				tempShape = Shapes.createShapeFromPoints(
-					currentShapeType,
-					startPoint.x,
-					startPoint.y,
-					pointer.x,
-					pointer.y,
-					currentShapeOptions
-				);
-				if (tempShape) {
-					canvas.add(tempShape);
-					canvas.renderAll();
-				}
-			} else if (isDrawingText && tempText) {
-				// Update the text box being drawn (only horizontally)
-				const pointer = canvas.getScenePoint(opt.e);
-
-				// Remove the old temp text
-				canvas.remove(tempText);
-
-				// Create new text with updated width (only expand horizontally)
-				tempText = Shapes.createTextFromPoints(
-					startPoint.x,
-					startPoint.y,
-					pointer.x,
-					startPoint.y,
-					currentTextOptions
-				);
-				if (tempText) {
-					canvas.add(tempText);
-					canvas.renderAll();
-				}
-			} else if ((isDrawingLine || isDrawingArrow) && tempLine) {
-				// Update the temporary line/arrow while dragging
-				const pointer = canvas.getScenePoint(opt.e);
-
-				if (isDrawingLine) {
-					// Update line coordinates
-					tempLine.set({
-						x2: pointer.x,
-						y2: pointer.y
-					});
-				} else if (isDrawingArrow) {
-					// Remove the temp arrow and create a new one
-					if (tempLine) {
-						canvas.remove(tempLine);
-					}
-					tempLine = Shapes.createArrow(
-						startPoint.x,
-						startPoint.y,
-						pointer.x,
-						pointer.y,
-						currentLineArrowOptions
-					) as any;
-					if (tempLine) {
-						canvas.add(tempLine);
-					}
-				}
-
-				canvas.renderAll();
-			} else if (isErasing && selectedTool === 'eraser') {
-				// Create visual eraser trail as a solid line
-				const pointer = canvas.getScenePoint(opt.e);
-
-				// Create a line segment from the last point to current point
-				if (lastEraserPoint) {
-					const trailLine = new fabric.Line(
-						[lastEraserPoint.x, lastEraserPoint.y, pointer.x, pointer.y],
-						{
-							stroke: 'rgba(170, 170, 170, 0.4)',
-							strokeWidth: 5,
-							selectable: false,
-							evented: false,
-							excludeFromExport: true
-						}
-					);
-
-					canvas.add(trailLine);
-					eraserTrail.push(trailLine);
-
-					// Limit trail length for performance
-					if (eraserTrail.length > 15) {
-						const oldTrail = eraserTrail.shift();
-						if (oldTrail) canvas.remove(oldTrail);
-					}
-				}
-
-				lastEraserPoint = { x: pointer.x, y: pointer.y };
-
-				// Find objects under the eraser and make them transparent
-				canvas.forEachObject((obj) => {
-					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
-						if (!hoveredObjectsForDeletion.includes(obj)) {
-							// Store original opacity and make transparent
-							originalOpacities.set(obj, obj.opacity || 1);
-							obj.set({ opacity: 0.3 });
-							hoveredObjectsForDeletion.push(obj);
-						}
-					}
-				});
-
-				canvas.renderAll();
-			} else if (selectedTool === 'eraser' && !isErasing) {
-				// Show hover preview when not actively erasing
-				const pointer = canvas.getScenePoint(opt.e);
-
-				// Reset any previously hovered objects
-				hoveredObjectsForDeletion.forEach((obj) => {
-					const originalOpacity = originalOpacities.get(obj);
-					if (originalOpacity !== undefined) {
-						obj.set({ opacity: originalOpacity });
-					}
-				});
-				hoveredObjectsForDeletion = [];
-				originalOpacities.clear();
-
-				// Find and highlight objects under cursor
-				canvas.forEachObject((obj) => {
-					if (obj.containsPoint(pointer) && !eraserTrail.includes(obj)) {
-						originalOpacities.set(obj, obj.opacity || 1);
-						obj.set({ opacity: 0.5 });
-						hoveredObjectsForDeletion.push(obj);
-					}
-				});
-
-				canvas.renderAll();
-			}
-		});
+		// Setup all canvas event handlers using the extracted module
+		const canvasEventContext: CanvasEventContext = {
+			// State getters
+			getSelectedTool: () => selectedTool,
+			getIsPanMode: () => isPanMode,
+			getIsDrawingText: () => isDrawingText,
+			getIsDrawingShape: () => isDrawingShape,
+			getIsDrawingLine: () => isDrawingLine,
+			getIsDrawingArrow: () => isDrawingArrow,
+			getIsErasing: () => isErasing,
+			getIsMovingImage: () => isMovingImage,
+			getTempText: () => tempText,
+			getTempShape: () => tempShape,
+			getTempLine: () => tempLine,
+			getStartPoint: () => startPoint,
+			getPanStartPos: () => panStartPos,
+			getLastEraserPoint: () => lastEraserPoint,
+			getHoveredObjectsForDeletion: () => hoveredObjectsForDeletion,
+			getEraserTrail: () => eraserTrail,
+			getOriginalOpacities: () => originalOpacities,
+			getCurrentShapeType: () => currentShapeType,
+			getCurrentZoom: () => currentZoom,
+
+			// State setters
+			setSelectedTool: (value) => {
+				selectedTool = value;
+			},
+			setIsPanMode: (value) => {
+				isPanMode = value;
+			},
+			setIsDrawingText: (value) => {
+				isDrawingText = value;
+			},
+			setIsDrawingShape: (value) => {
+				isDrawingShape = value;
+			},
+			setIsDrawingLine: (value) => {
+				isDrawingLine = value;
+			},
+			setIsDrawingArrow: (value) => {
+				isDrawingArrow = value;
+			},
+			setIsErasing: (value) => {
+				isErasing = value;
+			},
+			setIsMovingImage: (value) => {
+				isMovingImage = value;
+			},
+			setTempText: (value) => {
+				tempText = value;
+			},
+			setTempShape: (value) => {
+				tempShape = value;
+			},
+			setTempLine: (value) => {
+				tempLine = value as fabric.Line | null;
+			},
+			setStartPoint: (value) => {
+				startPoint = value;
+			},
+			setPanStartPos: (value) => {
+				panStartPos = value;
+			},
+			setLastEraserPoint: (value) => {
+				lastEraserPoint = value;
+			},
+			setHoveredObjectsForDeletion: (value) => {
+				hoveredObjectsForDeletion = value;
+			},
+			setEraserTrail: (value) => {
+				eraserTrail = value;
+			},
+			setOriginalOpacities: (value) => {
+				originalOpacities = value;
+			},
+			setCurrentShapeType: (value) => {
+				currentShapeType = value;
+			},
+			setCurrentZoom: (value) => {
+				currentZoom = value;
+			},
+
+			// Options getters
+			getCurrentTextOptions: () => currentTextOptions,
+			getCurrentShapeOptions: () => currentShapeOptions,
+			getCurrentDrawOptions: () => currentDrawOptions,
+			getCurrentLineArrowOptions: () => currentLineArrowOptions,
+
+			// Callbacks
+			sendCanvasUpdate,
+			sendImageUpdate,
+			clearEraserState,
+
+			// Refs
+			floatingMenuRef: floatingMenuRef || undefined
+		};
+
+		CanvasEvents.setupCanvasEvents(canvas, canvasEventContext);
 
 		window.addEventListener('keydown', handleKeyDown);
 
