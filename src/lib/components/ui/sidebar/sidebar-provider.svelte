@@ -12,8 +12,8 @@
 
 	let {
 		ref = $bindable(null),
-		leftOpen = $bindable(true),
-		rightOpen = $bindable(true),
+		leftOpen = $bindable(false),
+		rightOpen = $bindable(false),
 		onLeftOpenChange = () => {},
 		onRightOpenChange = () => {},
 		class: className,
