@@ -83,7 +83,7 @@
 <div class="[--header-height:calc(--spacing(14))]">
 	<Sidebar.Provider class="flex flex-col">
 		<header class="bg-background sticky top-0 z-50 h-14">
-			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
+			<nav class="mx-auto flex items-center justify-between border-b p-2">
 				<div class="flex items-center gap-x-4">
 					{#if user()}
 						<Sidebar.Trigger name="left" aria-label="Toggle Navigation Sidebar" />
