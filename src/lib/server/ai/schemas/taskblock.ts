@@ -1,4 +1,4 @@
-import { subjectGroupEnum, taskBlockTypeEnum, yearLevelEnum } from '$lib/enums';
+import { subjectGroupEnum, taskBlockTypeEnum, taskTypeEnum } from '$lib/enums';
 import { z } from 'zod';
 
 
@@ -319,11 +319,11 @@ export function getBlocksForSubjectGroup(subjectGroup: subjectGroupEnum): z.ZodS
 /**
  * Dynamically extend a block schema with assessment fields
  * @param baseSchema - The base block schema to extend
- * @param fields - Which fields to include
+ * @param requirements - Which fields to include
  */
 export function extendBlockSchema<T extends z.ZodTypeAny>(
     baseSchema: T, 
-    fields: {
+    requirements: {
         includeMarks?: boolean,
         IncludCriteria?: boolean,
         IncludeDifficulty?: boolean,
@@ -337,43 +337,83 @@ export function extendBlockSchema<T extends z.ZodTypeAny>(
         IncludeDifficulty = false,
         IncludeHints = false,
         IncludeSteps = false
-    } = fields;
+    } = requirements;
 
-    const extensionFields = {}
+    const extensionRequirements = {}
 
     if (includeMarks) {
-        Object.assign(extensionFields, { marks: markSchema });
+        Object.assign(extensionRequirements, { marks: markSchema });
     }
 
     if (IncludCriteria) {
-        Object.assign(extensionFields, { criteria: z.array(criteriaItemSchema).min(1) });
+        Object.assign(extensionRequirements, { criteria: z.array(criteriaItemSchema).min(1) });
     }
 
     if (IncludeDifficulty) {
-        Object.assign(extensionFields, { difficulty: difficultySchema });
+        Object.assign(extensionRequirements, { difficulty: difficultySchema });
     }
 
     if (IncludeHints) {
-        Object.assign(extensionFields, { hints: hintsSchema });
+        Object.assign(extensionRequirements, { hints: hintsSchema });
     }
 
     if (IncludeSteps) {
-        Object.assign(extensionFields, { steps: stepsSchema });
+        Object.assign(extensionRequirements, { steps: stepsSchema });
     }
 
-    if (Object.keys(extensionFields).length === 0) {
+    if (Object.keys(extensionRequirements).length === 0) {
         return baseSchema;
     }
 
     const parsed = baseSchema._def;
     const shape = parsed.shape();
 
-    const extendConfig = shape.config.extend(extensionFields);
+    const extendConfig = shape.config.extend(extensionRequirements);
 
     return z.object({
         type: shape.type,
         config: extendConfig
     });
+}
+
+  /**
+   * Helper to determine requirements based on task type
+   */
+export function getRequirementsForTaskType(taskType: taskTypeEnum) {
+switch (taskType) {
+    case taskTypeEnum.assessment:
+    return {
+        includeMarks: true,
+        includeCriteria: true,
+        includeDifficulty: true,
+        includeHints: false,
+        includeSteps: false
+    };
+    case taskTypeEnum.homework:
+    return {
+        includeMarks: true,
+        includeCriteria: false,
+        includeDifficulty: true,
+        includeHints: true,
+        includeSteps: true
+    };
+    case taskTypeEnum.lesson:
+    return {
+        includeMarks: false,
+        includeCriteria: false,
+        includeDifficulty: true,
+        includeHints: true,
+        includeSteps: false
+    };
+    default:
+    return {
+        includeMarks: false,
+        includeCriteria: false,
+        includeDifficulty: false,
+        includeHints: false,
+        includeSteps: false
+    };
+}
 }
 
 
@@ -389,9 +429,8 @@ export function extendBlockSchema<T extends z.ZodTypeAny>(
 
 export const generateSingleBlockInputSchema = z.object({
     blockType: z.nativeEnum(taskBlockTypeEnum),
-    subjectGroup: z.nativeEnum(subjectGroupEnum),
-    yearLevel: z.nativeEnum(yearLevelEnum),
-    sectionContent: z.string().describe('The content of the section the block will be part of. This can help provide context for generating the block.'),
+    taskType: z.nativeEnum(taskTypeEnum),
+    content: z.string().describe('The content of the section the block will be part of. This can help provide context for generating the block.'),
     requirements: z.object({
         includeMarks: z.boolean().optional().default(false),
         IncludCriteria: z.boolean().optional().default(false),
@@ -408,7 +447,7 @@ export const generateSingleBlockInputSchema = z.object({
 
 export const generateMultipleBlocksInputSchema = z.object({
     subjectGroup: z.nativeEnum(subjectGroupEnum),
-    yearLevel: z.nativeEnum(yearLevelEnum),
+    taskType: z.nativeEnum(taskTypeEnum),
     sectionContent: z.string().describe('The content of the section the blocks will be part of. This can help provide context for generating the blocks.'),
     sectionConcept: z.string().optional().describe('The main concept or topic of the section, to help guide block generation.'),
 }).describe('Input schema for generating multiple task blocks for a section.');

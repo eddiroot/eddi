@@ -1,7 +1,9 @@
 import { createTaskBlock } from "$lib/server/db/service/task";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { taskBlockSchema } from "../../schemas/taskblock";
+import { getBaseLLM } from "../../models/llm-models";
+import { buildBlockPrompt } from "../../prompts/taskblock";
+import { extendBlockSchema, generateSingleBlockInputSchema, getBlockSchema, taskBlockSchema } from "../../schemas/taskblock";
 
 
 /**
@@ -49,5 +51,35 @@ export const saveBlocksToDbTool = tool(
         taskId: z.number(),
         blocks: z.array(taskBlockSchema)
     })
+    }
+);
+
+export const generateSingleBlockTool = tool(
+    async ({ blockType, content, taskType, requirements }) => {
+        
+        const model = getBaseLLM({ temperature: 0.7, maxTokens: 1500 });
+        
+        // Get the schema for the block type
+        const schema = getBlockSchema(blockType);
+        if (!schema) {
+            return JSON.stringify({
+                success: false,
+                error: `Invalid block type: ${blockType}`
+            });
+        }
+        const schemaWithRequirements = extendBlockSchema(schema, requirements);
+
+        // Create a structured model with the extended schema
+        const structuredModel = model.withStructuredOutput(schemaWithRequirements);
+        const prompt = buildBlockPrompt(blockType, content, taskType, requirements);
+
+        const block = await structuredModel.invoke(prompt);
+
+        return JSON.stringify(block);
+    },
+    {
+        name: "generate_single_block",
+        description: "Generate a single task block with a specific type and content. Returns the generated block schema.",
+        schema: generateSingleBlockInputSchema
     }
 );
