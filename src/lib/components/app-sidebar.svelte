@@ -5,6 +5,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import type { userTypeEnum } from '$lib/enums';
 	import type { Campus, School, Subject, SubjectOffering } from '$lib/server/db/schema';
 	import { convertToFullName, getPermissions, userPermissions } from '$lib/utils';
 	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
@@ -19,14 +20,13 @@
 	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
-	import LocationEdit from '@lucide/svelte/icons/location-edit';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import MapIcon from '@lucide/svelte/icons/map';
 	import MessagesSquareIcon from '@lucide/svelte/icons/messages-square';
 	import OrbitIcon from '@lucide/svelte/icons/orbit';
 	import PiIcon from '@lucide/svelte/icons/pi';
 	import RouteIcon from '@lucide/svelte/icons/route';
-	import User from '@lucide/svelte/icons/user';
+	import UserIcon from '@lucide/svelte/icons/user';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
 
@@ -45,7 +45,14 @@
 				subOfferingId: number;
 			}>;
 		}>;
-		user: any;
+		user: {
+			id: string;
+			email: string;
+			type: userTypeEnum;
+			firstName: string;
+			middleName: string | null;
+			lastName: string;
+		} | null;
 		school: School | null;
 		campuses: Campus[];
 	} = $props();
@@ -151,44 +158,34 @@
 	};
 
 	const sidebar = Sidebar.useSidebar();
-	const fullName = convertToFullName(user.firstName, user.middleName, user.lastName);
+	const fullName = convertToFullName(user?.firstName, user?.middleName, user?.lastName);
 	let form: HTMLFormElement | null = $state(null);
 
-	// Helper function to get user initials
 	function getInitials(firstName: string | null, lastName: string | null): string {
 		return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
 	}
 
-	// Helper function to check if a main menu item is active
 	function isMainItemActive(itemUrl: string): boolean {
 		return page.url.pathname === itemUrl;
 	}
 
-	// Helper function to check if a subject is active (any of its sub-pages are active)
 	function isSubjectActive(subjectId: string): boolean {
 		return page.url.pathname.startsWith(`/subjects/${subjectId}`);
 	}
 
-	// Helper function to check if a class is active
 	function isClassActive(subjectOfferingId: string, classId: string): boolean {
 		return page.url.pathname.startsWith(`/subjects/${subjectOfferingId}/class/${classId}`);
 	}
 
-	// Helper function to check if a subject sub-item is active
 	function isSubjectSubItemActive(subjectId: string, subUrl: string): boolean {
 		const subjectBasePath = `/subjects/${subjectId}`;
 
-		if (subUrl === '') {
-			// For home (empty subUrl), only match the exact base path
-			return page.url.pathname === subjectBasePath;
-		} else {
-			// For other sub-items, check if current path starts with the expected path
-			const expectedPath = `${subjectBasePath}/${subUrl}`;
-			return page.url.pathname === expectedPath || page.url.pathname.startsWith(expectedPath + '/');
-		}
+		if (subUrl === '') return page.url.pathname === subjectBasePath;
+
+		const expectedPath = `${subjectBasePath}/${subUrl}`;
+		return page.url.pathname === expectedPath || page.url.pathname.startsWith(expectedPath + '/');
 	}
 
-	// Helper function to check if a class sub-item is active
 	function isClassSubItemActive(
 		subjectOfferingId: string,
 		classId: string,
@@ -196,69 +193,62 @@
 	): boolean {
 		const classBasePath = `/subjects/${subjectOfferingId}/class/${classId}`;
 
-		if (subUrl === '') {
-			// For home (empty subUrl), only match the exact base path
-			return page.url.pathname === classBasePath;
-		} else {
-			// For other sub-items, check if current path starts with the expected path
-			const expectedPath = `${classBasePath}/${subUrl}`;
-			return page.url.pathname === expectedPath || page.url.pathname.startsWith(expectedPath + '/');
-		}
+		if (subUrl === '') return page.url.pathname === classBasePath;
+
+		const expectedPath = `${classBasePath}/${subUrl}`;
+		return page.url.pathname === expectedPath || page.url.pathname.startsWith(expectedPath + '/');
 	}
 
-	let current_campus = $state(campuses.length > 0 ? campuses[0] : null);
+	let currentCampus = $state(campuses.length > 0 ? campuses[0] : null);
 	const permissions = $state(getPermissions(user?.type || ''));
 </script>
 
-<Sidebar.Root collapsible="icon" class="h-full">
-	<Sidebar.Header>
+<Sidebar.Root collapsible="icon" class="h-full" side="left" variant="inset">
+	<Sidebar.Header class="p-0">
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg" side="left" class="hover:bg-sidebar active:bg-sidebar">
 					{#snippet child({ props })}
-						<a href="/" {...props}>
-							<div
-								class="bg-sidebar-accent dark:bg-sidebar-primary text-sidebar-accent-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
-							>
-								<img src={school?.logoUrl} alt="{school?.name || 'school'} logo" class="size-5" />
-							</div>
-							{#if campuses.length >= 1}
-								<div class="grid flex-1 text-left text-sm leading-tight">
-									<span class="truncate font-medium">{school?.name}</span>
-									{#if campuses.length >= 1 && current_campus}
-										<span class="truncate text-xs">{current_campus.name}</span>
-									{:else if campuses.length === 0}
-										<span class="truncate text-xs">No campuses</span>
-									{/if}
-								</div>
-								{#if campuses.length > 1}
-									{#if sidebar.leftOpen}
-										<DropdownMenu.Root>
-											<DropdownMenu.Trigger>
-												<LocationEdit class="ml-auto size-4 transition-transform" />
-											</DropdownMenu.Trigger>
-											<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
-												{#each campuses as campus (campus.id)}
-													<DropdownMenu.Item
-														class="cursor-pointer"
-														onclick={() => {
-															current_campus = campus;
-														}}
-													>
-														<span>{campus.name}</span>
-													</DropdownMenu.Item>
-												{/each}
-											</DropdownMenu.Content>
-										</DropdownMenu.Root>
-									{:else}
-										<LocationEdit class="ml-auto size-4 transition-transform" />
-									{/if}
-								{/if}
-							{:else}
-								<div class="grid flex-1 text-left text-sm leading-tight">
-									<span class="truncate font-medium">{school?.name}</span>
-								</div>
-							{/if}
+						<a href="/dashboard" {...props}>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props })}
+										<Sidebar.MenuButton
+											side="left"
+											size="lg"
+											class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+											{...props}
+										>
+											<Avatar.Root class="h-8 w-8 rounded-lg">
+												<Avatar.Image
+													src={school?.logoUrl || '/favicon.png'}
+													alt="{school?.name || 'school'} logo"
+												/>
+											</Avatar.Root>
+											<div class="grid flex-1 text-left text-sm leading-tight">
+												<span class="truncate font-medium">{school?.name || 'No school found'}</span
+												>
+												<span class="truncate text-xs"
+													>{currentCampus?.name || 'No campus selected'}</span
+												>
+											</div>
+											<ChevronsUpDownIcon className="ml-auto size-4" />
+										</Sidebar.MenuButton>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content side="bottom">
+									{#each campuses as campus (campus.id)}
+										<DropdownMenu.Item
+											class="cursor-pointer"
+											onclick={() => {
+												currentCampus = campus;
+											}}
+										>
+											<span>{campus.name}</span>
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
@@ -487,46 +477,26 @@
 								{...props}
 							>
 								<Avatar.Root class="h-8 w-8 rounded-lg">
-									<Avatar.Image src={user.avatarUrl} alt={fullName} />
+									<Avatar.Image alt={fullName} />
 									<Avatar.Fallback class="rounded-lg"
-										>{getInitials(user.firstName, user.lastName)}</Avatar.Fallback
+										>{getInitials(user?.firstName || '?', user?.lastName || '?')}</Avatar.Fallback
 									>
 								</Avatar.Root>
 								<div class="grid flex-1 text-left text-sm leading-tight">
 									<span class="truncate font-medium">{fullName}</span>
-									<span class="truncate text-xs">{user.email}</span>
+									<span class="truncate text-xs">{user?.email}</span>
 								</div>
 								<ChevronsUpDownIcon className="ml-auto size-4" />
 							</Sidebar.MenuButton>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content
-						class="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-						side={sidebar.isMobile ? 'bottom' : 'right'}
-						align="end"
-						sideOffset={4}
-					>
-						<DropdownMenu.Label class="p-0 font-normal">
-							<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-								<Avatar.Root class="h-8 w-8 rounded-lg">
-									<Avatar.Image src={user.avatarUrl} alt={fullName} />
-									<Avatar.Fallback class="rounded-lg"
-										>{getInitials(user.firstName, user.lastName)}</Avatar.Fallback
-									>
-								</Avatar.Root>
-								<div class="grid flex-1 text-left text-sm leading-tight">
-									<span class="truncate font-medium">{fullName}</span>
-									<span class="truncate text-xs">{user.email}</span>
-								</div>
-							</div>
-						</DropdownMenu.Label>
-						<DropdownMenu.Separator />
-						<DropdownMenu.Item class="cursor-pointer" onclick={() => goto(`/profile/${user.id}`)}>
-							<User />
+					<DropdownMenu.Content side={sidebar.isMobile ? 'bottom' : 'right'} align="end">
+						<DropdownMenu.Item class="cursor-pointer" onclick={() => goto(`/profile/${user?.id}`)}>
+							<UserIcon />
 							Profile
 						</DropdownMenu.Item>
-						{#if user.type === 'student' || user.type === 'teacher'}
-							<DropdownMenu.Item class="cursor-pointer" onclick={() => goto(`/grades/${user.id}`)}>
+						{#if user?.type === 'student'}
+							<DropdownMenu.Item class="cursor-pointer" onclick={() => goto(`/grades/${user?.id}`)}>
 								<BookOpen />
 								Grades
 							</DropdownMenu.Item>
