@@ -203,55 +203,52 @@
 	const permissions = $state(getPermissions(user?.type || ''));
 </script>
 
-<Sidebar.Root collapsible="icon" class="h-full" side="left" variant="inset">
-	<Sidebar.Header class="p-0">
+<Sidebar.Root
+	collapsible="icon"
+	class="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+	side="left"
+	variant="inset"
+>
+	<Sidebar.Header>
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
-				<Sidebar.MenuButton size="lg" side="left" class="hover:bg-sidebar active:bg-sidebar">
-					{#snippet child({ props })}
-						<a href="/dashboard" {...props}>
-							<DropdownMenu.Root>
-								<DropdownMenu.Trigger>
-									{#snippet child({ props })}
-										<Sidebar.MenuButton
-											side="left"
-											size="lg"
-											class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-											{...props}
-										>
-											<Avatar.Root class="h-8 w-8 rounded-lg">
-												<Avatar.Image
-													src={school?.logoUrl || '/favicon.png'}
-													alt="{school?.name || 'school'} logo"
-												/>
-											</Avatar.Root>
-											<div class="grid flex-1 text-left text-sm leading-tight">
-												<span class="truncate font-medium">{school?.name || 'No school found'}</span
-												>
-												<span class="truncate text-xs"
-													>{currentCampus?.name || 'No campus selected'}</span
-												>
-											</div>
-											<ChevronsUpDownIcon className="ml-auto size-4" />
-										</Sidebar.MenuButton>
-									{/snippet}
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Content side="bottom">
-									{#each campuses as campus (campus.id)}
-										<DropdownMenu.Item
-											class="cursor-pointer"
-											onclick={() => {
-												currentCampus = campus;
-											}}
-										>
-											<span>{campus.name}</span>
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Content>
-							</DropdownMenu.Root>
-						</a>
-					{/snippet}
-				</Sidebar.MenuButton>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Sidebar.MenuButton
+								side="left"
+								size="lg"
+								class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+								{...props}
+							>
+								<Avatar.Root class="h-8 w-8 rounded-lg">
+									<Avatar.Image
+										src={school?.logoUrl || '/favicon.png'}
+										alt="{school?.name || 'school'} logo"
+									/>
+								</Avatar.Root>
+								<div class="grid flex-1 text-left text-sm leading-tight">
+									<span class="truncate font-medium">{school?.name || 'No school found'}</span>
+									<span class="truncate text-xs">{currentCampus?.name || 'No campus selected'}</span
+									>
+								</div>
+								<ChevronsUpDownIcon className="ml-auto size-4" />
+							</Sidebar.MenuButton>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content side="bottom">
+						{#each campuses as campus (campus.id)}
+							<DropdownMenu.Item
+								class="cursor-pointer"
+								onclick={() => {
+									currentCampus = campus;
+								}}
+							>
+								<span>{campus.name}</span>
+							</DropdownMenu.Item>
+						{/each}
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>

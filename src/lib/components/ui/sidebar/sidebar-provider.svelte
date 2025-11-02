@@ -12,7 +12,7 @@
 
 	let {
 		ref = $bindable(null),
-		leftOpen = $bindable(false),
+		leftOpen = $bindable(true),
 		rightOpen = $bindable(false),
 		onLeftOpenChange = () => {},
 		onRightOpenChange = () => {},

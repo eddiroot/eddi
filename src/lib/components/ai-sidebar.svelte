@@ -1,15 +1,10 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import ArrowUp from '@lucide/svelte/icons/arrow-up';
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import MessageCircle from '@lucide/svelte/icons/message-circle';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import Textarea from './ui/textarea/textarea.svelte';
-	import { SendIcon } from '@lucide/svelte';
+	import SendIcon from '@lucide/svelte/icons/send';
 
 	interface Props {
 		pathname: string;
@@ -33,9 +28,8 @@
 		];
 	};
 
-	let isLoading: boolean = $state(false);
 	let availableTabs: Tab[] = $state(getAvailableTabs());
-	let messages: { id: string; role: string; content: string; timestamp: Date }[] = $state([]);
+	// let messages: { id: string; role: string; content: string; timestamp: Date }[] = $state([]);
 	let message: string = $state('');
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -52,7 +46,12 @@
 	}
 </script>
 
-<Sidebar.Root collapsible="offcanvas" class="h-full" side="right" variant="inset">
+<Sidebar.Root
+	collapsible="offcanvas"
+	class="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+	side="right"
+	variant="inset"
+>
 	<Sidebar.Content>
 		<Tabs.Root class="flex-1 pr-2 pb-2" value="chat">
 			<Tabs.List class="bg-sidebar w-full">

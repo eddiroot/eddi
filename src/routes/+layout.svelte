@@ -80,18 +80,9 @@
 	<!-- <meta name="description" content="" /> -->
 </svelte:head>
 <ModeWatcher />
-<Sidebar.Provider>
-	{#if user()}
-		<AppSidebar
-			subjects={data?.subjects || []}
-			user={user()}
-			school={data?.school || null}
-			campuses={data?.campuses ?? []}
-		/>
-	{/if}
-
-	<Sidebar.Inset>
-		<header>
+<div class="[--header-height:calc(--spacing(14))]">
+	<Sidebar.Provider class="flex flex-col">
+		<header class="bg-background sticky top-0 z-50 h-14">
 			<nav class="mx-auto flex items-center justify-between border-b px-4 py-2">
 				<div class="flex items-center gap-x-4">
 					{#if user()}
@@ -130,12 +121,25 @@
 				</div>
 			</nav>
 		</header>
-		<main class="h-full overflow-auto transition-all duration-300">
-			{@render children()}
-		</main>
-	</Sidebar.Inset>
+		<div class="flex flex-1">
+			{#if user()}
+				<AppSidebar
+					subjects={data?.subjects || []}
+					user={user()}
+					school={data?.school || null}
+					campuses={data?.campuses ?? []}
+				/>
+			{/if}
 
-	{#if user()}
-		<AiSidebar pathname={page.url.pathname} />
-	{/if}
-</Sidebar.Provider>
+			<Sidebar.Inset>
+				<main class="h-[calc(100svh-var(--header-height))]! overflow-auto">
+					{@render children()}
+				</main>
+			</Sidebar.Inset>
+
+			{#if user()}
+				<AiSidebar pathname={page.url.pathname} />
+			{/if}
+		</div>
+	</Sidebar.Provider>
+</div>
