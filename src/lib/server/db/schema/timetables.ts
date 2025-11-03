@@ -12,7 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
-import { school, schoolSpace } from './schools';
+import { school, schoolSemester, schoolSpace } from './schools';
 import { subject } from './subjects';
 import { user } from './user';
 import { timestamps } from './utils';
@@ -25,6 +25,9 @@ export const timetable = pgTable(
 			.notNull()
 			.references(() => school.id, { onDelete: 'cascade' }),
 		schoolYear: integer('sch_year').notNull(),
+		schoolSemesterId: integer('sch_semester_id').references(() => schoolSemester.id, {
+			onDelete: 'set null'
+		}),
 		name: text('name').notNull(),
 		isArchived: boolean('is_archived').notNull().default(false),
 		...timestamps
