@@ -3,6 +3,7 @@
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import BuildingIcon from '@lucide/svelte/icons/building';
 	import BusIcon from '@lucide/svelte/icons/bus';
+	import Calendar1 from '@lucide/svelte/icons/calendar';
 	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
 	import ContactIcon from '@lucide/svelte/icons/contact';
 	import DoorOpenIcon from '@lucide/svelte/icons/door-open';
@@ -11,7 +12,7 @@
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import SchoolIcon from '@lucide/svelte/icons/school';
 	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
-	import UsersIcon from '@lucide/svelte/icons/users';
+	import { default as UsersIcon } from '@lucide/svelte/icons/users';
 
 	const { data } = $props();
 
@@ -27,6 +28,12 @@
 			description: 'Manage campuses and their associated contact information',
 			icon: MapPinIcon,
 			href: '/admin/campuses'
+		},
+		{
+			title: 'Terms',
+			description: 'Setup Terms/Semesters for your school year',
+			icon: Calendar1,
+			href: '/admin/terms'
 		},
 		{
 			title: 'Buildings',
