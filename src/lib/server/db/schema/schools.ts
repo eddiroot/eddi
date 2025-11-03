@@ -1,4 +1,4 @@
-import { boolean, integer, pgEnum, pgTable, text, unique } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgEnum, pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
 import { schoolSpaceTypeEnum } from '../../../enums';
 import { timestamps } from './utils';
 
@@ -69,3 +69,30 @@ export const schoolSpace = pgTable(
 );
 
 export type SchoolSpace = typeof schoolSpace.$inferSelect;
+
+export const schoolSemester = pgTable('sch_sem', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	schoolId: integer('sch_id').notNull(),
+	schoolYear: integer('sch_year_id').notNull(),
+	name: text('name').notNull(),
+	startDate: text('start_date').notNull(),
+	endDate: text('end_date').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type SchoolSemester = typeof schoolSemester.$inferSelect;
+
+export const schoolTerm = pgTable('sch_term', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	shcoolSemesterId: integer('sch_sem_id')
+		.notNull()
+		.references(() => schoolSemester.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	startDate: timestamp('sch_term_start_date', { withTimezone: true, mode: 'date' }).notNull(),
+	endDate: timestamp('sch_term_end_date', { withTimezone: true, mode: 'date' }).notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type SchoolTerm = typeof schoolTerm.$inferSelect;

@@ -436,3 +436,43 @@ export async function getSubjectsBySchoolIdAndYearLevel(
 
 	return subjects;
 }
+
+export async function getSemestersWithTermsBySchoolIdForYear(
+	schoolId: number,
+	year: number,
+	includeArchived: boolean = false
+) {
+	const semesters = await db
+		.select()
+		.from(table.schoolSemester)
+		.where(
+			and(
+				eq(table.schoolSemester.schoolId, schoolId),
+				eq(table.schoolSemester.schoolYear, year),
+				includeArchived ? undefined : eq(table.schoolSemester.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.schoolSemester.schoolYear), asc(table.schoolSemester.startDate));
+
+	const semesterIds = semesters.map((semester) => semester.id);
+
+	if (semesterIds.length === 0) {
+		return [];
+	}
+
+	const terms = await db
+		.select()
+		.from(table.schoolTerm)
+		.where(
+			and(
+				inArray(table.schoolTerm.shcoolSemesterId, semesterIds),
+				includeArchived ? undefined : eq(table.schoolTerm.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.schoolTerm.startDate));
+
+	return semesters.map((semester) => ({
+		...semester,
+		terms: terms.filter((term) => term.shcoolSemesterId === semester.id)
+	}));
+}
