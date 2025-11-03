@@ -476,3 +476,59 @@ export async function getSemestersWithTermsBySchoolIdForYear(
 		terms: terms.filter((term) => term.shcoolSemesterId === semester.id)
 	}));
 }
+
+export async function createSchoolTerm(
+	semesterId: number,
+	name: string,
+	startDate: Date,
+	endDate: Date
+) {
+	const [term] = await db
+		.insert(table.schoolTerm)
+		.values({
+			shcoolSemesterId: semesterId,
+			name,
+			startDate,
+			endDate,
+			isArchived: false
+		})
+		.returning();
+
+	return term;
+}
+
+export async function updateSchoolTerm(
+	termId: number,
+	updates: {
+		name?: string;
+		startDate?: Date;
+		endDate?: Date;
+	}
+) {
+	const [term] = await db
+		.update(table.schoolTerm)
+		.set(updates)
+		.where(eq(table.schoolTerm.id, termId))
+		.returning();
+
+	return term;
+}
+
+export async function deleteSchoolTerm(termId: number) {
+	const [term] = await db
+		.delete(table.schoolTerm)
+		.where(eq(table.schoolTerm.id, termId))
+		.returning();
+
+	return term;
+}
+
+export async function getSchoolTermById(termId: number) {
+	const terms = await db
+		.select()
+		.from(table.schoolTerm)
+		.where(eq(table.schoolTerm.id, termId))
+		.limit(1);
+
+	return terms.length > 0 ? terms[0] : null;
+}
