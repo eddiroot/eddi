@@ -31,9 +31,8 @@
 	<div>
 		<h1 class="text-2xl font-bold">Timetabling</h1>
 		<p class="text-muted-foreground mt-1">
-			Welcome to eddi-Timetabling. This is your one-stop solution for managing school timetables
-			efficiently. The platform uses the latest software technologies from FET to help allocate all
-			your classes for a seamless timetable experience.
+			Welcome to eddi-Timetabling, your one-stop solution for managing your school timetables
+			efficiently.
 		</p>
 	</div>
 	<Dialog.Root bind:open={dialogOpen}>
@@ -126,3 +125,5 @@
 		{/each}
 	</div>
 {/if}
+
+<div class="text-muted-foreground mt-8 border-t pt-4 text-center text-sm">Powered by FET</div>
