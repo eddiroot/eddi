@@ -9,6 +9,7 @@ import {
 	userTypeEnum,
 	yearLevelEnum
 } from '$lib/enums.js';
+import { getTermsByYear } from '$lib/server/services/vic-school-terms';
 import { hash } from '@node-rs/argon2';
 import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -190,6 +191,78 @@ async function seed() {
 				}
 			])
 			.returning();
+
+		// Create semesters and terms using Victorian school term dates
+		const currentYear = new Date().getFullYear();
+		const victorianTerms = getTermsByYear(currentYear);
+
+		if (victorianTerms) {
+			// Determine semester 1 (terms 1 and 2) and semester 2 (terms 3 and 4)
+			const semester1Terms = victorianTerms.filter((t) => t.term === 1 || t.term === 2);
+			const semester2Terms = victorianTerms.filter((t) => t.term === 3 || t.term === 4);
+
+			// Create Semester 1
+			if (semester1Terms.length > 0) {
+				const semester1StartDate = semester1Terms[0].startDate.toISOString().split('T')[0];
+				const semester1EndDate = semester1Terms[semester1Terms.length - 1].endDate
+					.toISOString()
+					.split('T')[0];
+
+				const [semester1] = await db
+					.insert(schema.schoolSemester)
+					.values({
+						schoolId: schoolRecord.id,
+						schoolYear: currentYear,
+						name: 'Semester 1',
+						startDate: semester1StartDate,
+						endDate: semester1EndDate,
+						isArchived: false
+					})
+					.returning();
+
+				// Create terms for semester 1
+				for (const term of semester1Terms) {
+					await db.insert(schema.schoolTerm).values({
+						shcoolSemesterId: semester1.id,
+						name: `Term ${term.term}`,
+						startDate: term.startDate,
+						endDate: term.endDate,
+						isArchived: false
+					});
+				}
+			}
+
+			// Create Semester 2
+			if (semester2Terms.length > 0) {
+				const semester2StartDate = semester2Terms[0].startDate.toISOString().split('T')[0];
+				const semester2EndDate = semester2Terms[semester2Terms.length - 1].endDate
+					.toISOString()
+					.split('T')[0];
+
+				const [semester2] = await db
+					.insert(schema.schoolSemester)
+					.values({
+						schoolId: schoolRecord.id,
+						schoolYear: currentYear,
+						name: 'Semester 2',
+						startDate: semester2StartDate,
+						endDate: semester2EndDate,
+						isArchived: false
+					})
+					.returning();
+
+				// Create terms for semester 2
+				for (const term of semester2Terms) {
+					await db.insert(schema.schoolTerm).values({
+						shcoolSemesterId: semester2.id,
+						name: `Term ${term.term}`,
+						startDate: term.startDate,
+						endDate: term.endDate,
+						isArchived: false
+					});
+				}
+			}
+		}
 
 		const [curriculumRecord] = await db
 			.insert(schema.curriculum)
