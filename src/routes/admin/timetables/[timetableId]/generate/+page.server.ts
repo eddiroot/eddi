@@ -19,7 +19,7 @@ import { processTimetableQueue } from '../../../../../scripts/processTimetable.j
 export const load = async ({ params, locals: { security }, depends }) => {
 	security.isAuthenticated().isSchoolAdmin();
 
-	const timetableId = parseInt(params.timetableId);
+	const timetableId = parseInt(params.timetableId, 10);
 	if (isNaN(timetableId)) {
 		return fail(400, { error: 'Invalid timetable ID' });
 	}
@@ -37,7 +37,7 @@ export const actions = {
 		security.isAuthenticated().isSchoolAdmin();
 		const user = security.getUser();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}

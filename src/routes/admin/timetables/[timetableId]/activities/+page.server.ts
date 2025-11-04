@@ -26,7 +26,7 @@ type EnrichedActivity = Awaited<ReturnType<typeof getTimetableActivitiesByTimeta
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
-	const timetableId = parseInt(params.timetableId);
+	const timetableId = parseInt(params.timetableId, 10);
 
 	const teachers = await getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher);
 	const baseActivities = await getTimetableActivitiesByTimetableId(timetableId);
@@ -103,7 +103,7 @@ export const actions = {
 	createActivity: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -142,12 +142,12 @@ export const actions = {
 			// Create the activity with all relations
 			await createTimetableActivityWithRelations({
 				timetableId,
-				subjectId: parseInt(subjectId as string),
+				subjectId: parseInt(subjectId as string, 10),
 				teacherIds: teacherIds as string[],
 				yearLevels: yearLevels as string[],
-				groupIds: groupIds.map((id) => parseInt(id as string)),
+				groupIds: groupIds.map((id) => parseInt(id as string, 10)),
 				studentIds: studentIds as string[],
-				preferredSpaceIds: locationIds.map((id) => parseInt(id as string)),
+				preferredSpaceIds: locationIds.map((id) => parseInt(id as string, 10)),
 				periodsPerInstance: parseInt(periodsPerInstance as string),
 				instancesPerWeek: parseInt(numInstancesPerWeek as string)
 			});
@@ -204,7 +204,7 @@ export const actions = {
 			}
 
 			// Delete the old activity (cascading deletes will handle junction tables)
-			await deleteTimetableActivity(parseInt(activityId as string));
+			await deleteTimetableActivity(parseInt(activityId as string, 10));
 
 			// Create the new activity with updated relations
 			await createTimetableActivityWithRelations({
@@ -212,9 +212,9 @@ export const actions = {
 				subjectId: parseInt(subjectId as string),
 				teacherIds: teacherIds as string[],
 				yearLevels: yearLevels as string[],
-				groupIds: groupIds.map((id) => parseInt(id as string)),
+				groupIds: groupIds.map((id) => parseInt(id as string, 10)),
 				studentIds: studentIds as string[],
-				preferredSpaceIds: locationIds.map((id) => parseInt(id as string)),
+				preferredSpaceIds: locationIds.map((id) => parseInt(id as string, 10)),
 				periodsPerInstance: parseInt(periodsPerInstance as string),
 				instancesPerWeek: parseInt(numInstancesPerWeek as string)
 			});
@@ -229,7 +229,7 @@ export const actions = {
 	deleteActivity: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -242,7 +242,7 @@ export const actions = {
 				return fail(400, { error: 'Activity ID is required' });
 			}
 
-			await deleteTimetableActivity(parseInt(activityId as string));
+			await deleteTimetableActivity(parseInt(activityId as string, 10));
 
 			return { success: true };
 		} catch (error) {

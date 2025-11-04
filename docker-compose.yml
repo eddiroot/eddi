@@ -42,25 +42,12 @@ services:
       exit 0;
       "
 
-  vectordb:
-    image: chromadb/chroma:latest
-    ports:
-      - 8000:8000
-    volumes:
-      - vectordbdata:/chroma/chroma
-    environment:
-      - IS_PERSISTENT=TRUE
-      - PERSIST_DIRECTORY=/chroma/chroma
-      - ANONYMIZED_TELEMETRY=FALSE
-      - ALLOW_RESET=TRUE
-
   fet:
     build:
-      context: ./fet
+      context: ./infra/fet
       dockerfile: Dockerfile
     restart: unless-stopped
 
 volumes:
   dbdata:
   objdata:
-  vectordbdata:

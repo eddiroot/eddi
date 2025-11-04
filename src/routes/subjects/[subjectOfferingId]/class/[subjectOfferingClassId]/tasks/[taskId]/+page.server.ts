@@ -22,14 +22,12 @@ export const load = async ({
 }) => {
 	const user = security.isAuthenticated().getUser();
 
-	let taskIdInt;
-	try {
-		taskIdInt = parseInt(taskId, 10);
-	} catch {
+	let taskIdInt = parseInt(taskId, 10);
+	if (isNaN(taskIdInt)) {
 		throw redirect(302, '/dashboard');
 	}
 
-	const classIdInt = parseInt(subjectOfferingClassId, 10);
+	let classIdInt = parseInt(subjectOfferingClassId, 10);
 	if (isNaN(classIdInt)) {
 		throw redirect(302, '/dashboard');
 	}
@@ -66,13 +64,11 @@ export const load = async ({
 		superValidate(
 			{
 				quizMode: classTask.quizMode || quizModeEnum.none,
-				quizStartTime: classTask.quizStartTime
-					? classTask.quizStartTime.toISOString().slice(0, 16)
-					: undefined,
+				quizStartTime: classTask.quizStartTime ? classTask.quizStartTime.toISOString() : undefined,
 				quizDurationMinutes: classTask.quizDurationMinutes || undefined,
 				gradeRelease: classTask.gradeRelease || undefined,
 				gradeReleaseTime: classTask.gradeReleaseTime
-					? classTask.gradeReleaseTime.toISOString().slice(0, 16)
+					? classTask.gradeReleaseTime.toISOString()
 					: undefined
 			},
 			zod4(quizSettingsFormSchema)

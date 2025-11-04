@@ -21,8 +21,8 @@ export const load = async ({
 }) => {
 	security.isAuthenticated();
 
-	const cmId = parseInt(courseMapItemId);
-	const planId = parseInt(courseMapItemLessonPlanId);
+	const cmId = parseInt(courseMapItemId, 10);
+	const planId = parseInt(courseMapItemLessonPlanId, 10);
 
 	const [courseMapItem, lessonPlan, standards, learningAreas, resources] = await Promise.all([
 		getCourseMapItemById(cmId),
@@ -44,7 +44,7 @@ export const load = async ({
 	);
 
 	return {
-		subjectOfferingId: parseInt(subjectOfferingId),
+		subjectOfferingId: parseInt(subjectOfferingId, 10),
 		courseMapItem,
 		lessonPlan,
 		standards,
@@ -58,7 +58,7 @@ export const actions = {
 	updateLessonPlan: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated();
 
-		const lessonPlanId = parseInt(params.courseMapItemLessonPlanId);
+		const lessonPlanId = parseInt(params.courseMapItemLessonPlanId, 10);
 		const formData = await request.formData();
 		const name = formData.get('name') as string;
 		const description = formData.get('description') as string;
@@ -90,7 +90,7 @@ export const actions = {
 	uploadResource: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated();
 
-		const lessonPlanId = parseInt(params.courseMapItemLessonPlanId);
+		const lessonPlanId = parseInt(params.courseMapItemLessonPlanId, 10);
 		const formData = await request.formData();
 		const file = formData.get('file') as File;
 
@@ -186,9 +186,9 @@ export const actions = {
 	removeResource: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated();
 
-		const lessonPlanId = parseInt(params.courseMapItemLessonPlanId);
+		const lessonPlanId = parseInt(params.courseMapItemLessonPlanId, 10);
 		const formData = await request.formData();
-		const resourceId = parseInt(formData.get('resourceId') as string);
+		const resourceId = parseInt(formData.get('resourceId') as string, 10);
 
 		try {
 			await removeResourceFromLessonPlan(lessonPlanId, resourceId);

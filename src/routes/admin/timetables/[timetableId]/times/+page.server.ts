@@ -13,7 +13,7 @@ import { addPeriodSchema, updateDaysSchema } from './schema.js';
 export const load = async ({ params, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();
 
-	const timetableId = parseInt(params.timetableId);
+	const timetableId = parseInt(params.timetableId, 10);
 
 	if (isNaN(timetableId)) {
 		error(400, 'Invalid timetable ID');
@@ -47,7 +47,7 @@ export const actions = {
 	updateDays: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -72,7 +72,7 @@ export const actions = {
 	updatePeriods: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -95,13 +95,13 @@ export const actions = {
 	deletePeriod: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
 		const formData = await request.formData();
-		const periodId = parseInt(formData.get('periodId') as string);
+		const periodId = parseInt(formData.get('periodId') as string, 10);
 		if (isNaN(periodId)) {
 			return fail(400, { error: 'Invalid period ID' });
 		}

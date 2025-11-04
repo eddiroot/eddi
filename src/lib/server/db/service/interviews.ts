@@ -81,7 +81,7 @@ export const InterviewService = {
 		const slotRecords = slots.map((slot) => ({
 			configId,
 			teacherId,
-			classId: classId ? parseInt(classId) : null,
+			classId: classId ? parseInt(classId, 10) : null,
 			date: slot.date,
 			startTime: slot.start,
 			endTime: slot.end,

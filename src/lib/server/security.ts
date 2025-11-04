@@ -1,3 +1,4 @@
+import { userTypeEnum } from '$lib/enums';
 import { error, type RequestEvent } from '@sveltejs/kit';
 
 export class Security {
@@ -15,42 +16,42 @@ export class Security {
 	}
 
 	isStudent() {
-		if (!this.user?.type || this.user.type !== 'student') {
+		if (!this.user?.type || this.user.type !== userTypeEnum.student) {
 			error(403, 'not student');
 		}
 		return this;
 	}
 
 	isTeacher() {
-		if (!this.user?.type || this.user.type !== 'teacher') {
+		if (!this.user?.type || this.user.type !== userTypeEnum.teacher) {
 			error(403, 'not teacher');
 		}
 		return this;
 	}
 
 	isGuardian() {
-		if (!this.user?.type || this.user.type !== 'guardian') {
+		if (!this.user?.type || this.user.type !== userTypeEnum.guardian) {
 			error(403, 'not guardian');
 		}
 		return this;
 	}
 
 	isPrincipal() {
-		if (!this.user?.type || this.user.type !== 'principal') {
+		if (!this.user?.type || this.user.type !== userTypeEnum.principal) {
 			error(403, 'not principal');
 		}
 		return this;
 	}
 
 	isSchoolAdmin() {
-		if (!this.user?.type || this.user.type !== 'schoolAdmin') {
+		if (!this.user?.type || this.user.type !== userTypeEnum.schoolAdmin) {
 			error(403, 'not school admin');
 		}
 		return this;
 	}
 
 	isSystemAdmin() {
-		if (!this.user?.type || this.user.type !== 'systemAdmin') {
+		if (!this.user?.type || this.user.type !== userTypeEnum.systemAdmin) {
 			error(403, 'not system admin');
 		}
 		return this;

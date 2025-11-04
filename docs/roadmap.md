@@ -46,6 +46,7 @@
 - [x] Class tests / quizzes
 - [x] Arithmetic/formula (handling maths in a friendly way)
 - [x] Image / Video / Audio
+- [x] Move away from ChromaDB to pgvector
 
 ### Doing
 
@@ -57,16 +58,13 @@ All
 - [ ] Shift away from static school id for OAuth (search TODO)
 
 Lachie & Bella
-- [ ] Start the scheduled quiz on load (if within the time)
+- [ ] Confirm scheduled quiz starts on load (if within the time)
 - [ ] UI fixes / code cleanup
 - [ ] Split quizzes and assignments into two types
-- [ ] One component for headings
-- [ ] Block palette should be scrollable. Fix scrolling on tasks page in general.
 - [ ] Task block button consistency
 
 Jack & Raph
 - [ ] Refactoring Task Blocks to lang
-- [ ] Move away from ChromaDB to pgvector
 - [ ] Improved lesson generation
 - [ ] Improved lesson/assessment plan
 - [ ] Chatbot

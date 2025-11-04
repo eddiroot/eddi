@@ -6,7 +6,7 @@ import { json } from '@sveltejs/kit';
 export const GET: RequestHandler = async ({ url, locals: { security } }) => {
 	security.isAuthenticated();
 
-	const resourceId = parseInt(url.searchParams.get('resourceId') || '');
+	const resourceId = parseInt(url.searchParams.get('resourceId') || '', 10);
 	const action = url.searchParams.get('action');
 
 	if (isNaN(resourceId)) {

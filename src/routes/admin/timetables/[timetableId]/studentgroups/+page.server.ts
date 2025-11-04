@@ -39,7 +39,7 @@ export const actions = {
 	createGroup: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -64,7 +64,7 @@ export const actions = {
 	autoCreateGroups: async ({ request, params, locals: { security } }) => {
 		const user = security.isAuthenticated().isSchoolAdmin().getUser();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -96,7 +96,7 @@ export const actions = {
 	addStudent: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -110,7 +110,7 @@ export const actions = {
 		}
 
 		try {
-			await addStudentToTimetableGroup(parseInt(groupId as string), userId as string);
+			await addStudentToTimetableGroup(parseInt(groupId as string, 10), userId as string);
 			return { success: true };
 		} catch (error) {
 			console.error('Error adding student to group:', error);
@@ -121,7 +121,7 @@ export const actions = {
 	removeStudent: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -135,7 +135,7 @@ export const actions = {
 		}
 
 		try {
-			await removeStudentFromTimetableGroup(parseInt(groupId as string), userId as string);
+			await removeStudentFromTimetableGroup(parseInt(groupId as string, 10), userId as string);
 			return { success: true };
 		} catch (error) {
 			console.error('Error removing student from group:', error);
@@ -146,7 +146,7 @@ export const actions = {
 	deleteGroup: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -159,7 +159,7 @@ export const actions = {
 		}
 
 		try {
-			await deleteTimetableStudentGroup(parseInt(groupId as string));
+			await deleteTimetableStudentGroup(parseInt(groupId as string, 10));
 			return { success: true };
 		} catch (error) {
 			console.error('Error deleting group:', error);

@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'Task ID is required' }, { status: 400 });
 		}
 
-		const newWhiteboard = await createWhiteboard(parseInt(taskId), title);
+		const newWhiteboard = await createWhiteboard(parseInt(taskId, 10), title);
 
 		return json({
 			whiteboardId: newWhiteboard.id,

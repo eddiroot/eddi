@@ -2,8 +2,8 @@ import { getWhiteboardWithTask } from '$lib/server/db/service';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params }: { params: { whiteboardId: string; taskId: string } }) => {
-	const whiteboardId = parseInt(params.whiteboardId);
-	const taskId = parseInt(params.taskId);
+	const whiteboardId = parseInt(params.whiteboardId, 10);
+	const taskId = parseInt(params.taskId, 10);
 
 	if (!whiteboardId || !taskId) {
 		throw error(404, 'Whiteboard or task not found');

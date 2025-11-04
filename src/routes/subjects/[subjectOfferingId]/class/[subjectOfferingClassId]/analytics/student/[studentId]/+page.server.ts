@@ -5,9 +5,9 @@ import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types.js';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const subjectOfferingId = parseInt(params.subjectOfferingId);
-	const subjectOfferingClassId = parseInt(params.subjectOfferingClassId);
-	const studentId = parseInt(params.studentId);
+	const subjectOfferingId = parseInt(params.subjectOfferingId, 10);
+	const subjectOfferingClassId = parseInt(params.subjectOfferingClassId, 10);
+	const studentId = parseInt(params.studentId, 10);
 
 	if (isNaN(subjectOfferingId)) {
 		throw error(400, 'Invalid subject offering ID');

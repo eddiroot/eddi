@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 	security.isAuthenticated().isSchoolAdmin();
 	const user = security.getUser();
 
-	const timetableId = parseInt(params.timetableId);
+	const timetableId = parseInt(params.timetableId, 10);
 	if (isNaN(timetableId)) {
 		throw error(400, 'Invalid timetable ID');
 	}
@@ -99,9 +99,9 @@ export const actions = {
 	changeIteration: async ({ params, request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
-		const iterationId = parseInt(formData.get('iterationId') as string);
+		const iterationId = parseInt(formData.get('iterationId') as string, 10);
 
 		if (isNaN(timetableId) || isNaN(iterationId)) {
 			throw error(400, 'Invalid parameters');
@@ -161,10 +161,10 @@ export const actions = {
 	getUserTimetable: async ({ params, request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
 		const userId = formData.get('userId') as string;
-		const iterationId = parseInt(formData.get('iterationId') as string);
+		const iterationId = parseInt(formData.get('iterationId') as string, 10);
 
 		if (isNaN(timetableId) || !userId || isNaN(iterationId)) {
 			throw error(400, 'Invalid parameters');
@@ -193,10 +193,10 @@ export const actions = {
 	getSpaceTimetable: async ({ params, request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
+		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
-		const spaceId = parseInt(formData.get('spaceId') as string);
-		const iterationId = parseInt(formData.get('iterationId') as string);
+		const spaceId = parseInt(formData.get('spaceId') as string, 10);
+		const iterationId = parseInt(formData.get('iterationId') as string, 10);
 
 		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(iterationId)) {
 			throw error(400, 'Invalid parameters');

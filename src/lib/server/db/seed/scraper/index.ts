@@ -361,15 +361,15 @@ export class VCAAF10Scraper {
 					}
 
 					// Handle numeric ranges like "3–4"
-					if (!isNaN(parseInt(start)) && !isNaN(parseInt(end))) {
+					if (!isNaN(parseInt(start, 10)) && !isNaN(parseInt(end, 10))) {
 						return `Level ${start}-${end}`;
 					}
 				}
 			}
 
 			// Single numeric levels
-			if (!isNaN(parseInt(id))) {
-				const levelNum = parseInt(id);
+			if (!isNaN(parseInt(id, 10))) {
+				const levelNum = parseInt(id, 10);
 				return `Level ${levelNum}`;
 			}
 		}
@@ -1525,7 +1525,7 @@ export class VCAAF10Scraper {
 			// Handle Foundation ranges like "F-2"
 			if (start.toLowerCase() === 'f') {
 				const result = ['F'];
-				const endNum = parseInt(end);
+				const endNum = parseInt(end, 10);
 				for (let i = 1; i <= endNum; i++) {
 					result.push(i.toString());
 				}
@@ -1533,8 +1533,8 @@ export class VCAAF10Scraper {
 			}
 
 			// Handle numeric ranges
-			const startNum = parseInt(start);
-			const endNum = parseInt(end);
+			const startNum = parseInt(start, 10);
+			const endNum = parseInt(end, 10);
 			const result = [];
 			for (let i = startNum; i <= endNum; i++) {
 				result.push(i.toString());
