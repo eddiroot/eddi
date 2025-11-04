@@ -1,10 +1,29 @@
 import { env } from '$env/dynamic/private';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as schema from './schema';
 
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
-const client = postgres(env.DATABASE_URL);
+export const pool = new Pool({
+	connectionString: env.DATABASE_URL,
+	max: 20, 
+	idleTimeoutMillis: 30000,
+	connectionTimeoutMillis: 2000
+});
 
-export const db = drizzle(client, { schema });
+// Drizzle instance using the pool
+export const db = drizzle(pool, { schema });
+
+// Graceful shutdown
+if (typeof process !== 'undefined') {
+	process.on('SIGINT', async () => {
+		await pool.end();
+		process.exit(0);
+	});
+
+	process.on('SIGTERM', async () => {
+		await pool.end();
+		process.exit(0);
+	});
+}

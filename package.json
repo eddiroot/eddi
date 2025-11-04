@@ -78,6 +78,7 @@
 		"@tiptap/core": "^3.1.0",
 		"@tiptap/pm": "^3.1.0",
 		"@tiptap/starter-kit": "^3.1.0",
+		"@types/pg": "^8.15.6",
 		"arctic": "^3.7.0",
 		"chromadb": "^3.0.15",
 		"date-fns": "^4.1.0",
@@ -93,8 +94,8 @@
 		"node-cron": "^4.2.1",
 		"nodemailer": "^7.0.5",
 		"pdfjs-dist": "^5.3.93",
+		"pg": "^8.16.3",
 		"plotly.js-dist-min": "^3.1.0",
-		"postgres": "^3.4.5",
 		"uuid": "^11.1.0",
 		"zod": "^4.1.12"
 	},
