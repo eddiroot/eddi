@@ -159,3 +159,21 @@ export enum newsVisibilityEnum {
 	staff = 'staff',
 	students = 'students'
 }
+
+export enum subjectGroupEnum {
+	mathematics = 'mathematics',
+	science = 'science',
+	english = 'english',
+}
+
+export enum collectionTypeEnum {
+	private = 'private',
+	public = 'public',
+	shared = 'shared'
+}
+
+export enum difficultyLevelEnum {
+	easy = 'easy',
+	medium = 'medium',
+	hard = 'hard'
+}
