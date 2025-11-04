@@ -11,11 +11,15 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import * as Resizable from '$lib/components/ui/resizable';
 	import type { Task } from '$lib/server/db/schema';
+	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 
 	let { children, data } = $props();
 
 	const user = $derived(() => data?.user);
+	let isMobile = new IsMobile();
+	let aiSidebarPane: ReturnType<typeof Resizable.Pane> | undefined = $state();
 
 	const generateBreadcrumbItems = (url: string) => {
 		const segments = url.split('/').filter(Boolean);
@@ -116,11 +120,24 @@
 					{/if}
 					<ThemeToggle />
 					{#if user()}
-						<Sidebar.Trigger name="right" aria-label="Toggle AI Sidebar" />
+						<Sidebar.Trigger
+							name="right"
+							aria-label="Toggle AI Sidebar"
+							onclick={() => {
+								if (isMobile.current.valueOf()) return;
+								if (aiSidebarPane && aiSidebarPane.getSize() > 0) {
+									aiSidebarPane?.collapse();
+								} else if (aiSidebarPane && aiSidebarPane.getSize() == 0) {
+									aiSidebarPane?.resize(30);
+									aiSidebarPane?.expand();
+								}
+							}}
+						/>
 					{/if}
 				</div>
 			</nav>
 		</header>
+
 		<div class="flex flex-1">
 			{#if user()}
 				<AppSidebar
@@ -130,16 +147,22 @@
 					campuses={data?.campuses ?? []}
 				/>
 			{/if}
+			<Resizable.PaneGroup direction="horizontal">
+				<Resizable.Pane defaultSize={100}>
+					<Sidebar.Inset
+						class="h-[calc(100svh-var(--header-height)-1rem)]! overflow-auto md:h-[calc(100svh-var(--header-height)-1rem)]!"
+					>
+						{@render children()}
+					</Sidebar.Inset>
+				</Resizable.Pane>
 
-			<Sidebar.Inset
-				class="h-[calc(100svh-var(--header-height)-1rem)]! overflow-auto md:h-[calc(100svh-var(--header-height)-1rem)]!"
-			>
-				{@render children()}
-			</Sidebar.Inset>
-
-			{#if user()}
-				<AiSidebar pathname={page.url.pathname} />
-			{/if}
+				{#if user()}
+					<Resizable.Handle withHandle class="hidden md:flex" />
+					<Resizable.Pane defaultSize={0} collapsible={true} bind:this={aiSidebarPane}>
+						<AiSidebar pathname={page.url.pathname} />
+					</Resizable.Pane>
+				{/if}
+			</Resizable.PaneGroup>
 		</div>
 	</Sidebar.Provider>
 </div>

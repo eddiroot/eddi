@@ -48,7 +48,7 @@
 
 <Sidebar.Root
 	collapsible="offcanvas"
-	class="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+	class="static! top-(--header-height) h-[calc(100svh-var(--header-height))]! w-full!"
 	side="right"
 	variant="inset"
 >
