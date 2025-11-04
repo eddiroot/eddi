@@ -13,7 +13,7 @@
 	],
 	"languages": {
 		"TypeScript": {
-			"language_servers": ["tsgo", "vtsls"]
+			"language_servers": ["tsgo"]
 		}
 	}
 }
