@@ -177,3 +177,16 @@ export enum difficultyLevelEnum {
 	medium = 'medium',
 	hard = 'hard'
 }
+
+export enum contentTypeEnum {
+	resource = 'resource',
+	questionBank = 'question_bank',
+	scaffold = 'scaffold',
+	activities = 'activities',
+	rubricCriteria = 'rubric_criteria',
+	feedback = 'feedback',
+	guidance = 'guidance',
+	misconception = 'misconception',
+	studentArtifact = 'student_artifact',
+	tempWorkspace = 'temp_workspace'
+}

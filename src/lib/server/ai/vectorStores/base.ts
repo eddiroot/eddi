@@ -1,9 +1,10 @@
 import { PGVectorStore, type DistanceStrategy } from "@langchain/community/vectorstores/pgvector";
+import { contentTypeEnum } from "../../../enums";
 import { pool } from "../../db/index";
 import { defaultEmbeddings } from "../embeddings";
 
 export interface VectorStoreConfig {
-  collectionName: string;
+  collectionName: contentTypeEnum;
 }
 
 export async function createVectorStore(config: VectorStoreConfig) {
