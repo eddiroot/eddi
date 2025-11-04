@@ -15,7 +15,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals: { security } }) => {
 	const user = security.isAuthenticated().getUser();
-	const newsId = parseInt(params.id);
+	const newsId = parseInt(params.id, 10);
 
 	if (isNaN(newsId)) {
 		throw error(400, 'Invalid news ID');
@@ -62,7 +62,7 @@ export const load: PageServerLoad = async ({ params, locals: { security } }) => 
 export const actions: Actions = {
 	default: async ({ params, request, locals: { security } }) => {
 		const user = security.isAuthenticated().getUser();
-		const newsId = parseInt(params.id);
+		const newsId = parseInt(params.id, 10);
 
 		if (isNaN(newsId)) {
 			throw error(400, 'Invalid news ID');

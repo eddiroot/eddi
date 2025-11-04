@@ -21,7 +21,7 @@ export const actions: Actions = {
 		const yearLevels = formData.getAll('yearLevels') as string[];
 		const selectedDates = JSON.parse((formData.get('selectedDates') as string) || '[]');
 		const dateTimeRanges = JSON.parse((formData.get('dateTimeRanges') as string) || '{}');
-		const duration = parseInt(formData.get('duration') as string) || 15;
+		const duration = parseInt(formData.get('duration') as string, 10) || 15;
 		const autoAssign = formData.get('autoAssign') === 'true';
 		const slotGenerationMode = (formData.get('slotGenerationMode') as string) || 'teacher';
 

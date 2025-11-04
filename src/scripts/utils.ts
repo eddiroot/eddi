@@ -86,12 +86,12 @@ export async function parseTimetableCSVAndPopulate(
 			// Create new activity entry
 			activityMap.set(activityId, {
 				activityId,
-				day: parseInt(values[dayIdx]),
-				hour: parseInt(values[hourIdx]),
+				day: parseInt(values[dayIdx], 10),
+				hour: parseInt(values[hourIdx], 10),
 				students: values[studentsIdx],
-				subject: parseInt(values[subjectIdx]),
+				subject: parseInt(values[subjectIdx], 10),
 				teacher: values[teachersIdx],
-				room: parseInt(values[roomIdx]) || 0,
+				room: parseInt(values[roomIdx], 10) || 0,
 				occurrences: 1
 			});
 		}
@@ -184,7 +184,7 @@ export async function parseTimetableCSVAndPopulate(
 				studentsInYear.forEach((userId) => userIds.add(userId));
 			} else if (identifier.startsWith('G')) {
 				// Group - remove 'G' prefix
-				const groupId = parseInt(identifier.substring(1));
+				const groupId = parseInt(identifier.substring(1), 10);
 				const studentsInGroup = groupToUsersMap.get(groupId) || [];
 				studentsInGroup.forEach((userId) => userIds.add(userId));
 			} else if (identifier.startsWith('S')) {

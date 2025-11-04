@@ -14,7 +14,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	switch (action) {
 		case 'learning-areas': {
-			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '');
+			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '', 10);
 
 			if (isNaN(courseMapItemId)) {
 				return json({ error: 'Invalid course map item ID' }, { status: 400 });
@@ -30,7 +30,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		case 'assessment-plans': {
-			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '');
+			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '', 10);
 
 			if (isNaN(courseMapItemId)) {
 				return json({ error: 'Invalid course map item ID' }, { status: 400 });
@@ -46,7 +46,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		case 'learning-area-content': {
-			const learningAreaId = parseInt(url.searchParams.get('learningAreaId') || '');
+			const learningAreaId = parseInt(url.searchParams.get('learningAreaId') || '', 10);
 			const yearLevelParam = url.searchParams.get('yearLevel') || '';
 
 			if (isNaN(learningAreaId)) {
@@ -118,7 +118,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		case 'lesson-plans': {
-			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '');
+			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '', 10);
 
 			if (isNaN(courseMapItemId)) {
 				return json({ error: 'Invalid course map item ID' }, { status: 400 });
@@ -134,7 +134,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		case 'tasks': {
-			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '');
+			const courseMapItemId = parseInt(url.searchParams.get('courseMapItemId') || '', 10);
 
 			if (isNaN(courseMapItemId)) {
 				return json({ error: 'Invalid course map item ID' }, { status: 400 });

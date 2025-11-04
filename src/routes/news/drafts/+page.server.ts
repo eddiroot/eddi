@@ -43,7 +43,7 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const newsId = parseInt(formData.get('newsId') as string);
+		const newsId = parseInt(formData.get('newsId') as string, 10);
 
 		if (isNaN(newsId)) {
 			return fail(400, { error: 'Invalid news ID' });
@@ -77,7 +77,7 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const newsId = parseInt(formData.get('newsId') as string);
+		const newsId = parseInt(formData.get('newsId') as string, 10);
 
 		if (isNaN(newsId)) {
 			return fail(400, { error: 'Invalid news ID' });

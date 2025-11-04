@@ -14,7 +14,7 @@ import { error, fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 
 export const load = async ({ params }: { params: { subjectOfferingId: string } }) => {
-	const subjectOfferingId = parseInt(params.subjectOfferingId);
+	const subjectOfferingId = parseInt(params.subjectOfferingId, 10);
 
 	if (isNaN(subjectOfferingId)) {
 		throw error(400, 'Invalid subject offering ID');
@@ -44,11 +44,11 @@ export const load = async ({ params }: { params: { subjectOfferingId: string } }
 export const actions: Actions = {
 	updateCourseMapItem: async ({ request }) => {
 		const formData = await request.formData();
-		const courseMapItemId = parseInt(formData.get('courseMapItemId') as string);
+		const courseMapItemId = parseInt(formData.get('courseMapItemId') as string, 10);
 		const topic = formData.get('topic') as string;
 		const description = formData.get('description') as string;
-		const startWeek = parseInt(formData.get('startWeek') as string);
-		const duration = parseInt(formData.get('duration') as string);
+		const startWeek = parseInt(formData.get('startWeek') as string, 10);
+		const duration = parseInt(formData.get('duration') as string, 10);
 		const color = formData.get('color') as string;
 		const learningAreaIdsJson = formData.get('learningAreaIds') as string;
 
@@ -89,7 +89,7 @@ export const actions: Actions = {
 
 	addAssessmentPlan: async ({ request }) => {
 		const formData = await request.formData();
-		const courseMapItemId = parseInt(formData.get('courseMapItemId') as string);
+		const courseMapItemId = parseInt(formData.get('courseMapItemId') as string, 10);
 		const name = formData.get('name') as string;
 		const description = formData.get('description') as string;
 
@@ -108,7 +108,7 @@ export const actions: Actions = {
 
 	deleteAssessmentPlan: async ({ request }) => {
 		const formData = await request.formData();
-		const assessmentPlanId = parseInt(formData.get('assessmentPlanId') as string);
+		const assessmentPlanId = parseInt(formData.get('assessmentPlanId') as string, 10);
 
 		if (!assessmentPlanId) {
 			return fail(400, { message: 'Missing assessment plan ID' });
@@ -125,12 +125,12 @@ export const actions: Actions = {
 
 	createCourseMapItem: async ({ request, params }) => {
 		const formData = await request.formData();
-		const subjectOfferingId = parseInt(params.subjectOfferingId!);
+		const subjectOfferingId = parseInt(params.subjectOfferingId!, 10);
 		const topic = formData.get('topic') as string;
 		const description = formData.get('description') as string;
-		const startWeek = parseInt(formData.get('startWeek') as string);
-		const duration = parseInt(formData.get('duration') as string);
-		const semester = parseInt(formData.get('semester') as string);
+		const startWeek = parseInt(formData.get('startWeek') as string, 10);
+		const duration = parseInt(formData.get('duration') as string, 10);
+		const semester = parseInt(formData.get('semester') as string, 10);
 		const color = formData.get('color') as string;
 		const learningAreaIdsJson = formData.get('learningAreaIds') as string;
 

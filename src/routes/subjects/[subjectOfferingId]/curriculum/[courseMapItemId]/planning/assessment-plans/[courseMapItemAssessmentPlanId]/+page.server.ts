@@ -12,8 +12,8 @@ export const load = async ({
 }) => {
 	security.isAuthenticated();
 
-	const cmId = parseInt(courseMapItemId);
-	const planId = parseInt(courseMapItemAssessmentPlanId);
+	const cmId = parseInt(courseMapItemId, 10);
+	const planId = parseInt(courseMapItemAssessmentPlanId, 10);
 
 	const [courseMapItem, assessmentPlan] = await Promise.all([
 		getCourseMapItemById(cmId),
@@ -30,7 +30,7 @@ export const load = async ({
 	]);
 
 	return {
-		subjectOfferingId: parseInt(subjectOfferingId),
+		subjectOfferingId: parseInt(subjectOfferingId, 10),
 		courseMapItem,
 		assessmentPlan,
 		standards,

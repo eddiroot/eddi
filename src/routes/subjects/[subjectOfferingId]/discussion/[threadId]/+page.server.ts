@@ -13,10 +13,8 @@ import { getNestedResponses } from './utils.js';
 export const load = async ({ locals: { security }, params: { threadId } }) => {
 	security.isAuthenticated();
 
-	let threadIdInt;
-	try {
-		threadIdInt = parseInt(threadId, 10);
-	} catch {
+	let threadIdInt = parseInt(threadId, 10);
+	if (isNaN(threadIdInt)) {
 		return { thread: null, responses: [], form: null };
 	}
 
@@ -41,10 +39,8 @@ export const actions = {
 	addResponse: async ({ request, locals: { security }, params: { threadId } }) => {
 		const user = security.isAuthenticated().getUser();
 
-		let threadIdInt;
-		try {
-			threadIdInt = parseInt(threadId, 10);
-		} catch {
+		let threadIdInt = parseInt(threadId, 10);
+		if (isNaN(threadIdInt)) {
 			return fail(400, { message: 'Invalid thread ID' });
 		}
 
@@ -72,6 +68,10 @@ export const actions = {
 		const user = security.isAuthenticated().getUser();
 
 		const threadIdInt = parseInt(threadId, 10);
+		if (isNaN(threadIdInt)) {
+			return fail(400, { message: 'Invalid thread id' });
+		}
+
 		const thread = await getSubjectThreadById(threadIdInt)!;
 		if (!thread) {
 			return fail(404, { message: 'Thread not found' });

@@ -12,7 +12,7 @@ import {
 	getTopics,
 	type CurriculumStandardWithElaborations
 } from '$lib/server/db/service';
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { promises as fsPromises } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -23,11 +23,9 @@ import { formSchema } from './schema';
 export const load = async ({ locals: { security }, params: { subjectOfferingId } }) => {
 	security.isAuthenticated();
 
-	let subjectOfferingIdInt;
-	try {
-		subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
-	} catch {
-		throw new Error('Invalid subject offering ID or class ID');
+	let subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
+	if (isNaN(subjectOfferingIdInt)) {
+		throw new Error('Invalid subject offering ID');
 	}
 
 	const [form, taskTopics, learningAreaWithContents] = await Promise.all([
@@ -75,6 +73,10 @@ export const actions = {
 			const user = security.isAuthenticated().getUser();
 			const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
 			const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
+
+			if (isNaN(subjectOfferingIdInt) || isNaN(subjectOfferingClassIdInt)) {
+				throw error(400, 'One of the ids was invalid');
+			}
 
 			const formData = await request.formData();
 			const form = await superValidate(formData, zod4(formSchema));

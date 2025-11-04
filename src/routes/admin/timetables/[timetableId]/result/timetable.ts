@@ -191,13 +191,13 @@ export class TimetableHtmlParser {
 				const teacher: TeacherStatistic = {
 					id: teacherId,
 					name: `Teacher ${teacherId.substring(1).padStart(3, '0')}`, // Generate name from ID
-					hoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0'),
-					freeDays: parseInt(cells[2]?.textContent?.trim() || '0'),
-					totalGaps: parseInt(cells[3]?.textContent?.trim() || '0'),
-					minGapsPerDay: parseInt(cells[4]?.textContent?.trim() || '0'),
-					maxGapsPerDay: parseInt(cells[5]?.textContent?.trim() || '0'),
-					minHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0'),
-					maxHoursPerDay: parseInt(cells[7]?.textContent?.trim() || '0')
+					hoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0', 10),
+					freeDays: parseInt(cells[2]?.textContent?.trim() || '0', 10),
+					totalGaps: parseInt(cells[3]?.textContent?.trim() || '0', 10),
+					minGapsPerDay: parseInt(cells[4]?.textContent?.trim() || '0', 10),
+					maxGapsPerDay: parseInt(cells[5]?.textContent?.trim() || '0', 10),
+					minHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0', 10),
+					maxHoursPerDay: parseInt(cells[7]?.textContent?.trim() || '0', 10)
 				};
 
 				teachers.push(teacher);

@@ -1083,15 +1083,6 @@ export async function upsertClassTaskResponse(classTaskId: number, authorId: str
 	return response;
 }
 
-export async function startQuizSession(classTaskId: number) {
-	await db
-		.update(table.subjectOfferingClassTask)
-		.set({
-			quizStartTime: new Date()
-		})
-		.where(eq(table.subjectOfferingClassTask.id, classTaskId));
-}
-
 export async function getClassTaskResponse(classTaskId: number, authorId: string) {
 	const response = await db
 		.select()

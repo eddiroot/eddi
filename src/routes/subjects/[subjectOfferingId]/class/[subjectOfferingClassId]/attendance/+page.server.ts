@@ -6,7 +6,7 @@ import {
 } from '$lib/server/db/service';
 import { sendAbsenceEmail } from '$lib/server/email.js';
 import { convertToFullName } from '$lib/utils.js';
-import { fail } from '@sveltejs/kit';
+import { redirect, fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { attendanceSchema } from './schema.js';
@@ -14,11 +14,9 @@ import { attendanceSchema } from './schema.js';
 export const load = async ({ locals: { security }, params: { subjectOfferingClassId } }) => {
 	security.isAuthenticated();
 
-	let subjectOfferingClassIdInt;
-	try {
-		subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
-	} catch {
-		return { subject: null };
+	let subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
+	if (isNaN(subjectOfferingClassIdInt)) {
+		throw redirect(302, '/dashboard');
 	}
 
 	const attendances =

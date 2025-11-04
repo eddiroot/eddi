@@ -7,6 +7,9 @@ export const load = async ({ locals: { security }, params: { subjectOfferingClas
 	security.isAuthenticated();
 
 	const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
+	if (isNaN(subjectOfferingClassIdInt)) {
+		throw new Error('Invalid subject offering class id');
+	}
 
 	const classDetails = await getSubjectOfferingClassDetailsById(subjectOfferingClassIdInt);
 	if (!classDetails) {

@@ -133,16 +133,16 @@ export class StudentStatisticsParser {
 			try {
 				const yearLevel: YearLevelStatistic = {
 					year: yearId,
-					minHoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0'),
-					maxHoursPerWeek: parseInt(cells[2]?.textContent?.trim() || '0'),
-					minFreeDays: parseInt(cells[3]?.textContent?.trim() || '0'),
-					maxFreeDays: parseInt(cells[4]?.textContent?.trim() || '0'),
-					minHoursPerDay: parseInt(cells[5]?.textContent?.trim() || '0'),
-					maxHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0'),
-					minGapsPerWeek: parseInt(cells[7]?.textContent?.trim() || '0'),
-					maxGapsPerWeek: parseInt(cells[8]?.textContent?.trim() || '0'),
-					minGapsPerDay: parseInt(cells[9]?.textContent?.trim() || '0'),
-					maxGapsPerDay: parseInt(cells[10]?.textContent?.trim() || '0')
+					minHoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0', 10),
+					maxHoursPerWeek: parseInt(cells[2]?.textContent?.trim() || '0', 10),
+					minFreeDays: parseInt(cells[3]?.textContent?.trim() || '0', 10),
+					maxFreeDays: parseInt(cells[4]?.textContent?.trim() || '0', 10),
+					minHoursPerDay: parseInt(cells[5]?.textContent?.trim() || '0', 10),
+					maxHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0', 10),
+					minGapsPerWeek: parseInt(cells[7]?.textContent?.trim() || '0', 10),
+					maxGapsPerWeek: parseInt(cells[8]?.textContent?.trim() || '0', 10),
+					minGapsPerDay: parseInt(cells[9]?.textContent?.trim() || '0', 10),
+					maxGapsPerDay: parseInt(cells[10]?.textContent?.trim() || '0', 10)
 				};
 
 				yearLevels.push(yearLevel);
@@ -191,16 +191,16 @@ export class StudentStatisticsParser {
 			try {
 				const group: GroupStatistic = {
 					group: groupId,
-					minHoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0'),
-					maxHoursPerWeek: parseInt(cells[2]?.textContent?.trim() || '0'),
-					minFreeDays: parseInt(cells[3]?.textContent?.trim() || '0'),
-					maxFreeDays: parseInt(cells[4]?.textContent?.trim() || '0'),
-					minHoursPerDay: parseInt(cells[5]?.textContent?.trim() || '0'),
-					maxHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0'),
-					minGapsPerWeek: parseInt(cells[7]?.textContent?.trim() || '0'),
-					maxGapsPerWeek: parseInt(cells[8]?.textContent?.trim() || '0'),
-					minGapsPerDay: parseInt(cells[9]?.textContent?.trim() || '0'),
-					maxGapsPerDay: parseInt(cells[10]?.textContent?.trim() || '0')
+					minHoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0', 10),
+					maxHoursPerWeek: parseInt(cells[2]?.textContent?.trim() || '0', 10),
+					minFreeDays: parseInt(cells[3]?.textContent?.trim() || '0', 10),
+					maxFreeDays: parseInt(cells[4]?.textContent?.trim() || '0', 10),
+					minHoursPerDay: parseInt(cells[5]?.textContent?.trim() || '0', 10),
+					maxHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0', 10),
+					minGapsPerWeek: parseInt(cells[7]?.textContent?.trim() || '0', 10),
+					maxGapsPerWeek: parseInt(cells[8]?.textContent?.trim() || '0', 10),
+					minGapsPerDay: parseInt(cells[9]?.textContent?.trim() || '0', 10),
+					maxGapsPerDay: parseInt(cells[10]?.textContent?.trim() || '0', 10)
 				};
 
 				groups.push(group);
@@ -249,13 +249,13 @@ export class StudentStatisticsParser {
 			try {
 				const subgroup: SubgroupStatistic = {
 					subgroup: subgroupId,
-					hoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0'),
-					freeDays: parseInt(cells[2]?.textContent?.trim() || '0'),
-					totalGaps: parseInt(cells[3]?.textContent?.trim() || '0'),
-					minGapsPerDay: parseInt(cells[4]?.textContent?.trim() || '0'),
-					maxGapsPerDay: parseInt(cells[5]?.textContent?.trim() || '0'),
-					minHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0'),
-					maxHoursPerDay: parseInt(cells[7]?.textContent?.trim() || '0')
+					hoursPerWeek: parseInt(cells[1]?.textContent?.trim() || '0', 10),
+					freeDays: parseInt(cells[2]?.textContent?.trim() || '0', 10),
+					totalGaps: parseInt(cells[3]?.textContent?.trim() || '0', 10),
+					minGapsPerDay: parseInt(cells[4]?.textContent?.trim() || '0', 10),
+					maxGapsPerDay: parseInt(cells[5]?.textContent?.trim() || '0', 10),
+					minHoursPerDay: parseInt(cells[6]?.textContent?.trim() || '0', 10),
+					maxHoursPerDay: parseInt(cells[7]?.textContent?.trim() || '0', 10)
 				};
 
 				subgroups.push(subgroup);

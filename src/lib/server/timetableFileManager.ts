@@ -57,7 +57,7 @@ export async function processTimetableOutputFiles(
 
 		// Store in database
 		console.log('💾 [OUTPUT PROCESSOR] Storing processed data in database...');
-		await createTimetableFETActivitiesFromFETExport(parseInt(timetableId), processedData);
+		await createTimetableFETActivitiesFromFETExport(parseInt(timetableId, 10), processedData);
 		console.log('✅ [OUTPUT PROCESSOR] Data stored in database successfully');
 
 		return {

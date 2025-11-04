@@ -146,7 +146,7 @@ if (dataAndTimetableFetContent && activitiesXmlContent) {
     await parser.parseAndPopulateWithValidation(
         activitiesXmlContent,
         dataAndTimetableFetContent,
-        parseInt(timetableId)
+        parseInt(timetableId, 10)
     );
 }
 ```
@@ -180,9 +180,9 @@ const files = await getTimetableFiles(schoolId, timetableId);
 
 // Download specific file
 const fetFile = await getFileFromStorage(
-    schoolId, 
-    timetableId, 
-    'data_and_timetable.fet', 
+    schoolId,
+    timetableId,
+    'data_and_timetable.fet',
     false,  // output file
 );
 ```

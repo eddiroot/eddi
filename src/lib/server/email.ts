@@ -8,7 +8,7 @@ if (!env.EMAIL_PASS) throw new Error('EMAIL_PASS is not set');
 
 const transporter = nodemailer.createTransport({
 	host: env.EMAIL_HOST,
-	port: parseInt(env.EMAIL_PORT),
+	port: parseInt(env.EMAIL_PORT, 10),
 	secure: true,
 	auth: {
 		user: env.EMAIL_USER,

@@ -44,7 +44,7 @@ export const actions = {
 		try {
 			await createUserSubjectOfferingClass(
 				form.data.userId,
-				parseInt(form.data.subjectOfferingClassId)
+				parseInt(form.data.subjectOfferingClassId, 10)
 			);
 
 			return { form, success: true };
@@ -58,7 +58,7 @@ export const actions = {
 		locals.security.isAuthenticated().isSchoolAdmin();
 
 		const formData = await request.formData();
-		const allocationId = parseInt(formData.get('id') as string);
+		const allocationId = parseInt(formData.get('id') as string, 10);
 
 		if (!allocationId) {
 			return fail(400, { error: 'Invalid allocation ID' });
