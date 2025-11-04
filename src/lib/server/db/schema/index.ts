@@ -39,3 +39,6 @@ export * from './news';
 
 // Module schemas
 export * from './module';
+
+// Vector schemas
+export * from './vector';

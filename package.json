@@ -73,6 +73,8 @@
 	},
 	"dependencies": {
 		"@google/genai": "^1.5.1",
+		"@langchain/community": "^1.0.0",
+		"@langchain/core": "^1.0.2",
 		"@node-rs/argon2": "^2.0.2",
 		"@thisux/sveltednd": "^0.0.20",
 		"@tiptap/core": "^3.1.0",

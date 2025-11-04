@@ -22,14 +22,14 @@ export const vectorCollections = pgTable('vector_collections', {
     name: text('name').notNull(),
     type: collectionTypeEnumPg('type').notNull(),
     content_type: contentTypeEnumPg('content_type').notNull(),
-    dimensions: integer('dimensions').notNull(), // default once we decide on embedding model
+    dimensions: integer('dimensions').notNull().default(768),
 });
 
 export const vectorEmbeddings = pgTable('vector_embeddings', 
     {
         id: integer('id').primaryKey(), // UUID for LangChain compatibility
         collection_id: integer('collection_id').references(() => vectorCollections.id),
-        embedding: vector('embedding', { dimensions: 1536 }).notNull(), // adjust dimensions as needed
+        embedding: vector('embedding', { dimensions: 768 }).notNull(),
         content: text('content').notNull(),
 
         // Comprehensive metadata fields
@@ -65,3 +65,6 @@ export const vectorEmbeddings = pgTable('vector_embeddings',
         index('metadata_idx').using('gin', table.metadata),
     ]
 );
+
+export type VectorCollection = typeof vectorCollections.$inferSelect;
+export type VectorEmbedding = typeof vectorEmbeddings.$inferSelect;
