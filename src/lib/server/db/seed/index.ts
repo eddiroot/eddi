@@ -113,7 +113,9 @@ async function seed() {
 		const [schoolRecord] = await db
 			.insert(schema.school)
 			.values({
-				name: 'School of eddi'
+				name: 'School of eddi',
+				countryCode: 'AU',
+				stateCode: 'VIC'
 			})
 			.returning();
 
@@ -223,7 +225,7 @@ async function seed() {
 				// Create terms for semester 1
 				for (const term of semester1Terms) {
 					await db.insert(schema.schoolTerm).values({
-						shcoolSemesterId: semester1.id,
+						schoolSemesterId: semester1.id,
 						name: `Term ${term.term}`,
 						startDate: term.startDate,
 						endDate: term.endDate,
@@ -254,7 +256,7 @@ async function seed() {
 				// Create terms for semester 2
 				for (const term of semester2Terms) {
 					await db.insert(schema.schoolTerm).values({
-						shcoolSemesterId: semester2.id,
+						schoolSemesterId: semester2.id,
 						name: `Term ${term.term}`,
 						startDate: term.startDate,
 						endDate: term.endDate,

@@ -146,11 +146,13 @@ export async function getSchoolStatsById(schoolId: number) {
 	};
 }
 
-export async function createSchool(name: string) {
+export async function createSchool(name: string, countryCode: string, stateCode: string) {
 	const [newSchool] = await db
 		.insert(table.school)
 		.values({
-			name
+			name,
+			countryCode,
+			stateCode
 		})
 		.returning();
 
@@ -465,7 +467,7 @@ export async function getSemestersWithTermsBySchoolIdForYear(
 		.from(table.schoolTerm)
 		.where(
 			and(
-				inArray(table.schoolTerm.shcoolSemesterId, semesterIds),
+				inArray(table.schoolTerm.schoolSemesterId, semesterIds),
 				includeArchived ? undefined : eq(table.schoolTerm.isArchived, false)
 			)
 		)
@@ -473,7 +475,7 @@ export async function getSemestersWithTermsBySchoolIdForYear(
 
 	return semesters.map((semester) => ({
 		...semester,
-		terms: terms.filter((term) => term.shcoolSemesterId === semester.id)
+		terms: terms.filter((term) => term.schoolSemesterId === semester.id)
 	}));
 }
 
@@ -486,7 +488,7 @@ export async function createSchoolTerm(
 	const [term] = await db
 		.insert(table.schoolTerm)
 		.values({
-			shcoolSemesterId: semesterId,
+			schoolSemesterId: semesterId,
 			name,
 			startDate,
 			endDate,

@@ -82,6 +82,26 @@
 						<Form.FieldErrors />
 					</Form.Field>
 
+					<Form.Field {form} name="countryCode">
+						<Form.Control>
+							{#snippet children({ props })}
+								<Form.Label>Schools Country Code</Form.Label>
+								<Input {...props} bind:value={$formData.countryCode} placeholder="AU" />
+							{/snippet}
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
+
+					<Form.Field {form} name="stateCode">
+						<Form.Control>
+							{#snippet children({ props })}
+								<Form.Label>Schools State Code</Form.Label>
+								<Input {...props} bind:value={$formData.stateCode} placeholder="VIC" />
+							{/snippet}
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
+
 					<Form.Field {form} name="password">
 						<Form.Control>
 							{#snippet children({ props })}

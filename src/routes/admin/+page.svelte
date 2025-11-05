@@ -31,7 +31,7 @@
 		},
 		{
 			title: 'Terms',
-			description: 'Setup Terms/Semesters for your school year',
+			description: 'Set up terms and semesters for the school year',
 			icon: Calendar1,
 			href: '/admin/terms'
 		},

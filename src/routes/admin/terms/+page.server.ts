@@ -1,11 +1,14 @@
 import {
 	createSchoolTerm,
 	deleteSchoolTerm,
+	getSchoolById,
 	getSemestersWithTermsBySchoolIdForYear,
 	updateSchoolTerm
 } from '$lib/server/db/service/schools';
-import { fail } from '@sveltejs/kit';
 import Holidays from 'date-holidays';
+import { fail, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { changeYearSchema, createTermSchema, deleteTermSchema, updateTermSchema } from './schema';
 
 export const load = async ({ locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();
@@ -15,8 +18,8 @@ export const load = async ({ locals: { security } }) => {
 		new Date().getFullYear()
 	);
 
-	// Get Victoria public holidays
-	const hd = new Holidays('AU', 'VIC');
+	const school = await getSchoolById(security.getUser().schoolId);
+	const hd = new Holidays(school?.countryCode || 'AU', school?.stateCode || 'VIC');
 	const currentYear = new Date().getFullYear();
 
 	// Get holidays for current year and next year to cover all potential terms
@@ -40,8 +43,13 @@ export const actions = {
 	changeYear: async ({ locals: { security }, request }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const formData = await request.formData();
-		const year = parseInt(formData.get('year') as string);
+		const form = await superValidate(request, zod4(changeYearSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const { year } = form.data;
 
 		// Get semesters and terms for the selected year
 		const semestersWithTerms = await getSemestersWithTermsBySchoolIdForYear(
@@ -49,8 +57,8 @@ export const actions = {
 			year
 		);
 
-		// Get Victoria public holidays for the selected year
-		const hd = new Holidays('AU', 'VIC');
+		const school = await getSchoolById(security.getUser().schoolId);
+		const hd = new Holidays(school?.countryCode || 'AU', school?.stateCode || 'VIC');
 		const holidays = hd.getHolidays(year);
 
 		const publicHolidays = holidays.map((holiday) => ({
@@ -70,17 +78,19 @@ export const actions = {
 	createTerm: async ({ locals: { security }, request }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const formData = await request.formData();
-		const semesterId = parseInt(formData.get('semesterId') as string);
-		const name = formData.get('name') as string;
-		const startDate = new Date(formData.get('startDate') as string);
-		const endDate = new Date(formData.get('endDate') as string);
-		const currentYear = parseInt(formData.get('currentYear') as string);
+		const form = await superValidate(request, zod4(createTermSchema));
 
-		// Validate dates
-		if (startDate >= endDate) {
-			return fail(400, { error: 'End date must be after start date' });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
+
+		const { semesterId, name, startDate, endDate, currentYear } = form.data as {
+			semesterId: number;
+			name: string;
+			startDate: Date;
+			endDate: Date;
+			currentYear: number;
+		};
 
 		try {
 			await createSchoolTerm(semesterId, name, startDate, endDate);
@@ -91,7 +101,8 @@ export const actions = {
 				currentYear
 			);
 
-			const hd = new Holidays('AU', 'VIC');
+			const school = await getSchoolById(security.getUser().schoolId);
+			const hd = new Holidays(school?.countryCode || 'AU', school?.stateCode || 'VIC');
 			const holidays = hd.getHolidays(currentYear);
 			const publicHolidays = holidays.map((holiday) => ({
 				date: holiday.date,
@@ -114,17 +125,19 @@ export const actions = {
 	updateTerm: async ({ locals: { security }, request }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const formData = await request.formData();
-		const termId = parseInt(formData.get('termId') as string);
-		const name = formData.get('name') as string;
-		const startDate = new Date(formData.get('startDate') as string);
-		const endDate = new Date(formData.get('endDate') as string);
-		const currentYear = parseInt(formData.get('currentYear') as string);
+		const form = await superValidate(request, zod4(updateTermSchema));
 
-		// Validate dates
-		if (startDate >= endDate) {
-			return fail(400, { error: 'End date must be after start date' });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
+
+		const { termId, name, startDate, endDate, currentYear } = form.data as {
+			termId: number;
+			name: string;
+			startDate: Date;
+			endDate: Date;
+			currentYear: number;
+		};
 
 		try {
 			await updateSchoolTerm(termId, { name, startDate, endDate });
@@ -135,7 +148,8 @@ export const actions = {
 				currentYear
 			);
 
-			const hd = new Holidays('AU', 'VIC');
+			const school = await getSchoolById(security.getUser().schoolId);
+			const hd = new Holidays(school?.countryCode || 'AU', school?.stateCode || 'VIC');
 			const holidays = hd.getHolidays(currentYear);
 			const publicHolidays = holidays.map((holiday) => ({
 				date: holiday.date,
@@ -158,9 +172,16 @@ export const actions = {
 	deleteTerm: async ({ locals: { security }, request }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const formData = await request.formData();
-		const termId = parseInt(formData.get('termId') as string);
-		const currentYear = parseInt(formData.get('currentYear') as string);
+		const form = await superValidate(request, zod4(deleteTermSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const { termId, currentYear } = form.data as {
+			termId: number;
+			currentYear: number;
+		};
 
 		try {
 			await deleteSchoolTerm(termId);
@@ -171,7 +192,8 @@ export const actions = {
 				currentYear
 			);
 
-			const hd = new Holidays('AU', 'VIC');
+			const school = await getSchoolById(security.getUser().schoolId);
+			const hd = new Holidays(school?.countryCode || 'AU', school?.stateCode || 'VIC');
 			const holidays = hd.getHolidays(currentYear);
 			const publicHolidays = holidays.map((holiday) => ({
 				date: holiday.date,

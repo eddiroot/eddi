@@ -1,4 +1,13 @@
-import { boolean, integer, pgEnum, pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
+import {
+	boolean,
+	integer,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+	unique,
+	varchar
+} from 'drizzle-orm/pg-core';
 import { schoolSpaceTypeEnum } from '../../../enums';
 import { timestamps } from './utils';
 
@@ -6,6 +15,8 @@ export const school = pgTable('sch', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	name: text('name').notNull().unique(),
 	logoUrl: text('logo_url'),
+	countryCode: varchar('country_code', { length: 2 }).notNull(),
+	stateCode: varchar('state_code', { length: 3 }).notNull(),
 	...timestamps
 });
 
@@ -85,7 +96,7 @@ export type SchoolSemester = typeof schoolSemester.$inferSelect;
 
 export const schoolTerm = pgTable('sch_term', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	shcoolSemesterId: integer('sch_sem_id')
+	schoolSemesterId: integer('sch_sem_id')
 		.notNull()
 		.references(() => schoolSemester.id, { onDelete: 'cascade' }),
 	name: text('name').notNull(),
