@@ -102,10 +102,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Terms - Eddi</title>
-</svelte:head>
-
 <div class="container mx-auto space-y-4">
 	<div class="mb-6 flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Terms</h1>
