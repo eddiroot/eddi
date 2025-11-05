@@ -16,7 +16,7 @@ export interface TermDate {
 
 export interface SchoolYear {
 	year: number;
-	terms: TermDate[];
+	terms: [TermDate, TermDate, TermDate, TermDate]; // Exactly 4 terms
 }
 
 const VICTORIAN_SCHOOL_TERMS: SchoolYear[] = [

@@ -45,7 +45,11 @@ export const actions = {
 			);
 		}
 
-		const school = await createSchool(form.data.schoolName);
+		const school = await createSchool(
+			form.data.schoolName,
+			form.data.countryCode,
+			form.data.stateCode
+		);
 
 		const { user, verificationCode } = await createUser({
 			email: form.data.email,

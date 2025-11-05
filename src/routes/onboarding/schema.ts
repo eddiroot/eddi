@@ -11,7 +11,15 @@ export const formSchema = z
 		schoolName: z.string().min(1, { message: 'School name is required' }),
 		agreeToContact: z.boolean().refine((val) => val === true, {
 			message: 'Please agree to be contacted by our team'
-		})
+		}),
+		countryCode: z
+			.string()
+			.min(2, { message: 'Country code must be exactly 2 Letters' })
+			.max(2, { message: 'Country code must be exactly 2 Letters' }),
+		stateCode: z
+			.string()
+			.min(1, { message: 'State is required' })
+			.max(3, { message: 'State code must be at most 3 characters' })
 	})
 	.refine((data) => data.password === data.confirmPassword, {
 		message: 'Passwords do not match',
