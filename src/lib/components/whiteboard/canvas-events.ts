@@ -72,6 +72,7 @@ export interface CanvasEventContext {
         updateLineArrowOptions?: (options: Partial<LineArrowOptions>) => void;
         updateDrawOptions?: (options: Partial<DrawOptions>) => void;
         closeExpandedColors?: () => void;
+        setActiveMenuPanel?: (panel: WhiteboardTool) => void;
     };
 }
 
@@ -369,9 +370,11 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
             // Show floating menu when an object is selected
             ctx.setShowFloatingMenu(true);
 
-            // Determine which tool/menu to activate based on object type and sync properties
+            // Set the active menu panel and sync properties based on object type
+            // Do NOT change the selected tool - stay in current mode (usually 'select')
             if (obj.type === 'textbox') {
-                ctx.setSelectedTool('text');
+                // Show text options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('text');
                 // Sync text properties to menu
                 ctx.floatingMenuRef?.updateTextOptions?.({
                     // @ts-expect-error - textbox properties
@@ -386,7 +389,8 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
-                ctx.setSelectedTool('shapes');
+                // Show shape options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
                 // Sync shape properties to menu
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     strokeWidth: obj.strokeWidth || 2,
@@ -396,7 +400,8 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'line') {
-                ctx.setSelectedTool('line');
+                // Show line options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('line');
                 // Sync line properties to menu
                 ctx.floatingMenuRef?.updateLineArrowOptions?.({
                     strokeWidth: obj.strokeWidth || 2,
@@ -405,8 +410,8 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'group') {
-                // Arrows are groups
-                ctx.setSelectedTool('arrow');
+                // Arrows are groups - show arrow options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('arrow');
                 // Sync arrow properties from the line in the group
                 const groupObj = obj as fabric.Group;
                 const lineObj = groupObj.getObjects().find((o) => o.type === 'line');
@@ -419,8 +424,8 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     });
                 }
             } else if (obj.type === 'path') {
-                // Drawn paths (freehand drawing)
-                ctx.setSelectedTool('draw');
+                // Drawn paths (freehand drawing) - show draw options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('draw');
                 // Sync path properties to menu
                 ctx.floatingMenuRef?.updateDrawOptions?.({
                     brushSize: obj.strokeWidth || 6,
@@ -428,7 +433,8 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'image') {
-                ctx.setSelectedTool('image');
+                // Images - show shape options panel (only opacity applies)
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
                 // Sync image properties to menu (only opacity makes sense)
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     opacity: obj.opacity ?? 1
@@ -449,9 +455,11 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
             // Show floating menu when an object is selected
             ctx.setShowFloatingMenu(true);
 
-            // Determine which tool/menu to activate based on object type and sync properties
+            // Set the active menu panel and sync properties based on object type
+            // Do NOT change the selected tool - stay in current mode (usually 'select')
             if (obj.type === 'textbox') {
-                ctx.setSelectedTool('text');
+                // Show text options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('text');
                 // Sync text properties to menu
                 ctx.floatingMenuRef?.updateTextOptions?.({
                     // @ts-expect-error - textbox properties
@@ -466,7 +474,8 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle') {
-                ctx.setSelectedTool('shapes');
+                // Show shape options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
                 // Sync shape properties to menu
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     strokeWidth: obj.strokeWidth || 2,
@@ -476,7 +485,8 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'line') {
-                ctx.setSelectedTool('line');
+                // Show line options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('line');
                 // Sync line properties to menu
                 ctx.floatingMenuRef?.updateLineArrowOptions?.({
                     strokeWidth: obj.strokeWidth || 2,
@@ -485,8 +495,8 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'group') {
-                // Arrows are groups
-                ctx.setSelectedTool('arrow');
+                // Arrows are groups - show arrow options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('arrow');
                 // Sync arrow properties from the line in the group
                 const groupObj = obj as fabric.Group;
                 const lineObj = groupObj.getObjects().find((o) => o.type === 'line');
@@ -499,8 +509,8 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     });
                 }
             } else if (obj.type === 'path') {
-                // Drawn paths (freehand drawing)
-                ctx.setSelectedTool('draw');
+                // Drawn paths (freehand drawing) - show draw options panel
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('draw');
                 // Sync path properties to menu
                 ctx.floatingMenuRef?.updateDrawOptions?.({
                     brushSize: obj.strokeWidth || 6,
@@ -508,7 +518,8 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'image') {
-                ctx.setSelectedTool('image');
+                // Images - show shape options panel (only opacity applies)
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
                 // Sync image properties to menu (only opacity makes sense)
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     opacity: obj.opacity ?? 1
