@@ -6,6 +6,7 @@ export type WhiteboardTool =
     | 'arrow'
     | 'shapes'
     | 'text'
+    | 'image'
     | 'eraser';
 
 export type ShapeType = 'rectangle' | 'circle' | 'triangle';
