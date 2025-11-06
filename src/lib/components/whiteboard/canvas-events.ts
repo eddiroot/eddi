@@ -601,8 +601,38 @@ export const createMouseDownHandler = (canvas: fabric.Canvas, ctx: CanvasEventCo
                 opt.e.stopPropagation();
             }
         } else if (selectedTool === 'text') {
-            if (!ctx.getIsDrawingText()) {
-                // Start drawing a text box
+            // Check if we clicked on an existing textbox to edit it
+            const target = canvas.findTarget(opt.e);
+
+            // If we're currently editing a textbox and click elsewhere, exit editing and switch to select
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.type === 'textbox' && (activeObject as fabric.Textbox).isEditing) {
+                (activeObject as fabric.Textbox).exitEditing();
+                canvas.discardActiveObject();
+                canvas.renderAll();
+
+                // Switch to select tool
+                ctx.setSelectedTool('select');
+                canvas.isDrawingMode = false;
+                canvas.selection = true;
+                canvas.defaultCursor = 'default';
+                canvas.hoverCursor = 'move';
+
+                opt.e.preventDefault();
+                opt.e.stopPropagation();
+                return;
+            }
+
+            if (target && target.type === 'textbox') {
+                // Enter edit mode on the existing textbox
+                canvas.setActiveObject(target);
+                (target as fabric.Textbox).enterEditing();
+                canvas.renderAll();
+
+                opt.e.preventDefault();
+                opt.e.stopPropagation();
+            } else if (!ctx.getIsDrawingText()) {
+                // Start drawing a new text box
                 const pointer = canvas.getScenePoint(opt.e);
                 ctx.setStartPoint({ x: pointer.x, y: pointer.y });
                 ctx.setIsDrawingText(true);
