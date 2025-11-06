@@ -227,6 +227,21 @@ export const createMouseUpHandler = (canvas: fabric.Canvas, ctx: CanvasEventCont
             canvas.defaultCursor = 'default';
             canvas.hoverCursor = 'move';
 
+            // Show text options in floating menu
+            // Use setTimeout to ensure state updates happen after the object is properly selected
+            setTimeout(() => {
+                ctx.setShowFloatingMenu(true);
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('text');
+                ctx.floatingMenuRef?.updateTextOptions?.({
+                    fontSize: tempText.fontSize,
+                    fontFamily: tempText.fontFamily,
+                    fontWeight: String(tempText.fontWeight || 'normal'),
+                    colour: tempText.fill as string,
+                    textAlign: tempText.textAlign,
+                    opacity: tempText.opacity || 1
+                });
+            }, 0);
+
             // Reset text drawing state
             ctx.setIsDrawingText(false);
             ctx.setTempText(null);
@@ -256,6 +271,20 @@ export const createMouseUpHandler = (canvas: fabric.Canvas, ctx: CanvasEventCont
             canvas.defaultCursor = 'default';
             canvas.hoverCursor = 'move';
 
+            // Show shape options in floating menu
+            // Use setTimeout to ensure state updates happen after the object is properly selected
+            setTimeout(() => {
+                ctx.setShowFloatingMenu(true);
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
+                ctx.floatingMenuRef?.updateShapeOptions?.({
+                    strokeWidth: (tempShape.strokeWidth as number) || 2,
+                    strokeColour: (tempShape.stroke as string) || '#1E1E1E',
+                    fillColour: (tempShape.fill as string) || 'transparent',
+                    strokeDashArray: (tempShape.strokeDashArray as number[]) || [],
+                    opacity: tempShape.opacity || 1
+                });
+            }, 0);
+
             // Reset shape drawing state
             ctx.setIsDrawingShape(false);
             ctx.setCurrentShapeType('');
@@ -265,6 +294,8 @@ export const createMouseUpHandler = (canvas: fabric.Canvas, ctx: CanvasEventCont
         // Handle line and arrow completion
         const tempLine = ctx.getTempLine();
         if ((ctx.getIsDrawingLine() || ctx.getIsDrawingArrow()) && tempLine) {
+            const wasDrawingArrow = ctx.getIsDrawingArrow();
+
             // Set the object as selectable and finish the drawing
             tempLine.set({ selectable: true });
             canvas.setActiveObject(tempLine);
@@ -286,6 +317,43 @@ export const createMouseUpHandler = (canvas: fabric.Canvas, ctx: CanvasEventCont
             canvas.selection = true;
             canvas.defaultCursor = 'default';
             canvas.hoverCursor = 'move';
+
+            // Show line/arrow options in floating menu
+            // Use setTimeout to ensure state updates happen after the object is properly selected
+            setTimeout(() => {
+                ctx.setShowFloatingMenu(true);
+                ctx.floatingMenuRef?.setActiveMenuPanel?.(wasDrawingArrow ? 'arrow' : 'line');
+
+                // Get stroke properties - for arrow groups, get from the line part
+                let strokeWidth = 2;
+                let strokeColour = '#1E1E1E';
+                let strokeDashArray: number[] = [];
+                let opacity = 1;
+
+                if (tempLine.type === 'line') {
+                    strokeWidth = (tempLine.strokeWidth as number) || 2;
+                    strokeColour = (tempLine.stroke as string) || '#1E1E1E';
+                    strokeDashArray = (tempLine.strokeDashArray as number[]) || [];
+                    opacity = tempLine.opacity || 1;
+                } else if (tempLine.type === 'group') {
+                    // For arrow groups, get properties from the line object
+                    const group = tempLine as fabric.Group;
+                    const lineObj = group.getObjects().find(obj => obj.type === 'line');
+                    if (lineObj) {
+                        strokeWidth = (lineObj.strokeWidth as number) || 2;
+                        strokeColour = (lineObj.stroke as string) || '#1E1E1E';
+                        strokeDashArray = (lineObj.strokeDashArray as number[]) || [];
+                        opacity = lineObj.opacity || 1;
+                    }
+                }
+
+                ctx.floatingMenuRef?.updateLineArrowOptions?.({
+                    strokeWidth,
+                    strokeColour,
+                    strokeDashArray,
+                    opacity
+                });
+            }, 0);
 
             // Reset drawing state
             ctx.setIsDrawingLine(false);
@@ -433,8 +501,8 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'image') {
-                // Images - show shape options panel (only opacity applies)
-                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
+                // Images - show image options panel (only opacity applies)
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('image');
                 // Sync image properties to menu (only opacity makes sense)
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     opacity: obj.opacity ?? 1
@@ -518,8 +586,8 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'image') {
-                // Images - show shape options panel (only opacity applies)
-                ctx.floatingMenuRef?.setActiveMenuPanel?.('shapes');
+                // Images - show image options panel (only opacity applies)
+                ctx.floatingMenuRef?.setActiveMenuPanel?.('image');
                 // Sync image properties to menu (only opacity makes sense)
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     opacity: obj.opacity ?? 1
@@ -532,9 +600,12 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
 /**
  * Creates selection:cleared event handler
  */
-export const createSelectionClearedHandler = () => {
+export const createSelectionClearedHandler = (ctx: CanvasEventContext) => {
     return () => {
-        // Don't close menu automatically, let user close it or switch tools
+        // Close floating menu when clicking on empty space in select mode
+        if (ctx.getSelectedTool() === 'select') {
+            ctx.setShowFloatingMenu(false);
+        }
     };
 };
 
@@ -942,7 +1013,7 @@ export const setupCanvasEvents = (canvas: fabric.Canvas, ctx: CanvasEventContext
     canvas.on('text:changed', createTextChangedHandler(ctx));
     canvas.on('selection:created', createSelectionCreatedHandler(ctx));
     canvas.on('selection:updated', createSelectionUpdatedHandler(ctx));
-    canvas.on('selection:cleared', createSelectionClearedHandler());
+    canvas.on('selection:cleared', createSelectionClearedHandler(ctx));
     canvas.on('mouse:wheel', createMouseWheelHandler(canvas, ctx));
     canvas.on('mouse:down', createMouseDownHandler(canvas, ctx));
     canvas.on('mouse:move', createMouseMoveHandler(canvas, ctx));
