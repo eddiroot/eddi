@@ -71,14 +71,14 @@
 		fontSize: 16,
 		fontFamily: 'Arial',
 		fontWeight: 'normal',
-		colour: '#4A5568',
+		colour: '#1E1E1E',
 		textAlign: 'left',
 		opacity: 1
 	});
 
 	let shapeOptions = $state<ShapeOptions>({
 		strokeWidth: 2,
-		strokeColour: '#4A5568',
+		strokeColour: '#1E1E1E',
 		fillColour: 'transparent',
 		strokeDashArray: [],
 		cornerRadius: 0,
@@ -87,14 +87,14 @@
 
 	let drawOptions = $state<DrawOptions>({
 		brushSize: 6,
-		brushColour: '#4A5568',
+		brushColour: '#1E1E1E',
 		brushType: 'pencil',
 		opacity: 1
 	});
 
 	let lineArrowOptions = $state<LineArrowOptions>({
 		strokeWidth: 2,
-		strokeColour: '#4A5568',
+		strokeColour: '#1E1E1E',
 		strokeDashArray: [],
 		opacity: 1
 	});
