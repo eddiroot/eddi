@@ -147,14 +147,17 @@ export function zoomOut(
 }
 
 /**
- * Resets zoom to 1:1
+ * Resets zoom to 1:1 while maintaining the current view position
  */
 export function resetZoom(
     context: CanvasActionContext,
     setCurrentZoom: (zoom: number) => void
 ): void {
-    context.canvas.setZoom(1);
+    // Use the same center point as zoomIn/zoomOut for consistent behavior
+    const center = new fabric.Point(context.canvas.width! / 2, context.canvas.height! / 2);
+    context.canvas.zoomToPoint(center, 1);
     setCurrentZoom(1);
+    context.canvas.renderAll();
 }
 
 /**
