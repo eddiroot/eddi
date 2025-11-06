@@ -17,7 +17,9 @@
 </script>
 
 <div class="absolute bottom-8 left-8">
-	<div class="bg-background flex items-center gap-1 rounded-md border px-2 py-1 shadow-sm">
+	<div
+		class="bg-background/20 border-border/50 flex items-center gap-1 rounded-md border px-2 py-1 shadow-sm backdrop-blur-sm"
+	>
 		<Tooltip.Root>
 			<Tooltip.Trigger>
 				<Button variant="ghost" size="icon" onclick={onZoomOut} class="h-8 w-8">

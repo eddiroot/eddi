@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface CanvasActionContext {
     canvas: fabric.Canvas;
     sendCanvasUpdate: (data: Record<string, unknown>) => void;
+    onImageAdded?: (img: fabric.FabricImage) => void;
 }
 
 /**
@@ -64,6 +65,9 @@ export function handleImageUpload(
                     type: 'add',
                     object: objData
                 });
+
+                // Notify that image was added (for switching tool and showing menu)
+                context.onImageAdded?.(img);
             })
             .catch((error) => {
                 console.error('Error loading image:', error);

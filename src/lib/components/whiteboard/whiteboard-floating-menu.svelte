@@ -332,6 +332,7 @@
 
 	const shouldShowMenu = $derived(
 		visible &&
+			selectedTool !== 'pan' &&
 			(activeMenuPanel === 'text' ||
 				activeMenuPanel === 'shapes' ||
 				activeMenuPanel === 'draw' ||
@@ -966,7 +967,7 @@
 						</div>
 					</div>
 				</Card.Content>
-			{:else if selectedTool === 'image'}
+			{:else if activeMenuPanel === 'image'}
 				<Card.Header class="pb-3">
 					<Card.Title class="flex items-center gap-2 text-sm">
 						<SlidersIcon />

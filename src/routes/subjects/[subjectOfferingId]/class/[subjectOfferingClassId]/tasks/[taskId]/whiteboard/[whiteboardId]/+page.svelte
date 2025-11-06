@@ -274,7 +274,30 @@
 
 	const handleImageUpload = (event: Event) => {
 		if (!canvas) return;
-		CanvasActions.handleImageUpload(event, { canvas, sendCanvasUpdate });
+		CanvasActions.handleImageUpload(event, {
+			canvas,
+			sendCanvasUpdate,
+			onImageAdded: (img) => {
+				// Auto-switch to selection tool and show image options menu
+				// Use setTimeout to ensure state updates happen after the object is properly selected
+				setTimeout(() => {
+					selectedTool = 'select';
+					canvas.isDrawingMode = false;
+					canvas.selection = true;
+					showFloatingMenu = true;
+
+					// Show image options in floating menu
+					floatingMenuRef?.setActiveMenuPanel?.('image');
+					floatingMenuRef?.updateShapeOptions?.({
+						strokeWidth: 0,
+						strokeColour: '#1E1E1E',
+						fillColour: 'transparent',
+						strokeDashArray: [],
+						opacity: img.opacity || 1
+					});
+				}, 0);
+			}
+		});
 	};
 
 	const clearCanvas = () => {
@@ -471,6 +494,17 @@
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (!canvas) return;
+
+		// Escape key switches to select mode
+		if (event.key === 'Escape') {
+			const activeObject = canvas.getActiveObject();
+			// Don't switch to select if editing text
+			// @ts-expect-error
+			if (!activeObject || !activeObject.isType('textbox') || !activeObject.isEditing) {
+				event.preventDefault();
+				setSelectTool();
+			}
+		}
 
 		if (event.key === 'Backspace' || event.key === 'Delete') {
 			const activeObject = canvas.getActiveObject();

@@ -45,9 +45,7 @@
 </script>
 
 <div class="absolute top-8 left-1/2 z-10 -translate-x-1/2 transform">
-	<div
-		class="bg-background/95 supports-[backdrop-filter]:bg-background/60 rounded-md border shadow-sm backdrop-blur"
-	>
+	<div class="bg-background/20 border-border/50 rounded-md border shadow-sm backdrop-blur-sm">
 		<div class="flex items-center gap-1 px-4 py-2">
 			<!-- Selection Tool -->
 			<Tooltip.Root>
