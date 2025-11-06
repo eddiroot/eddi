@@ -324,7 +324,8 @@
 				selectedTool === 'draw' ||
 				selectedTool === 'eraser' ||
 				selectedTool === 'line' ||
-				selectedTool === 'arrow')
+				selectedTool === 'arrow' ||
+				selectedTool === 'image')
 	);
 </script>
 
@@ -948,6 +949,32 @@
 							/>
 							<span class="text-muted-foreground w-12 text-right text-xs"
 								>{Math.round(lineArrowOpacityValue * 100)}%</span
+							>
+						</div>
+					</div>
+				</Card.Content>
+			{:else if selectedTool === 'image'}
+				<Card.Header class="pb-3">
+					<Card.Title class="flex items-center gap-2 text-sm">
+						<SlidersIcon />
+						Image Options
+					</Card.Title>
+				</Card.Header>
+				<Card.Content class="space-y-4">
+					<!-- Opacity -->
+					<div class="space-y-2">
+						<Label class="text-xs font-medium">Opacity</Label>
+						<div class="flex items-center gap-3">
+							<Slider
+								type="single"
+								bind:value={shapeOpacityValue}
+								min={0.1}
+								max={1}
+								step={0.1}
+								class="flex-1"
+							/>
+							<span class="text-muted-foreground w-12 text-right text-xs"
+								>{Math.round(shapeOpacityValue * 100)}%</span
 							>
 						</div>
 					</div>

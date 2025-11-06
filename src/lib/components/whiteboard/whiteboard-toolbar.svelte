@@ -132,7 +132,12 @@
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<Button {...props} variant="ghost" size="icon" class="h-9 w-9">
+								<Button
+									{...props}
+									variant={selectedTool === 'shapes' ? 'default' : 'ghost'}
+									size="icon"
+									class="h-9 w-9"
+								>
 									<SquareIcon />
 								</Button>
 							{/snippet}
@@ -159,7 +164,12 @@
 			<!-- Text Tool -->
 			<Tooltip.Root>
 				<Tooltip.Trigger>
-					<Button variant="ghost" size="icon" onclick={onAddText} class="h-9 w-9">
+					<Button
+						variant={selectedTool === 'text' ? 'default' : 'ghost'}
+						size="icon"
+						onclick={onAddText}
+						class="h-9 w-9"
+					>
 						<TypeIcon />
 					</Button>
 				</Tooltip.Trigger>
@@ -169,13 +179,17 @@
 			<!-- Image Tool -->
 			<Tooltip.Root>
 				<Tooltip.Trigger>
-					<Button variant="ghost" size="icon" onclick={onAddImage} class="h-9 w-9">
+					<Button
+						variant={selectedTool === 'image' ? 'default' : 'ghost'}
+						size="icon"
+						onclick={onAddImage}
+						class="h-9 w-9"
+					>
 						<ImageIcon />
 					</Button>
 				</Tooltip.Trigger>
 				<Tooltip.Content>Upload Image</Tooltip.Content>
 			</Tooltip.Root>
-
 			<div class="bg-border mx-1 h-6 w-px"></div>
 
 			<!-- Eraser Tool -->

@@ -259,6 +259,16 @@
 	};
 
 	const addImage = () => {
+		const state = getToolState();
+		Tools.setImageTool(
+			canvas,
+			state,
+			clearEraserState,
+			clearShapeDrawingState,
+			clearTextDrawingState
+		);
+		applyToolState(state);
+		// Trigger the file input
 		Tools.addImage(imageInput);
 	};
 
@@ -518,6 +528,7 @@
 		const canvasEventContext: CanvasEventContext = {
 			// State getters
 			getSelectedTool: () => selectedTool,
+			getShowFloatingMenu: () => showFloatingMenu,
 			getIsPanMode: () => isPanMode,
 			getIsDrawingText: () => isDrawingText,
 			getIsDrawingShape: () => isDrawingShape,
@@ -540,6 +551,9 @@
 			// State setters
 			setSelectedTool: (value) => {
 				selectedTool = value;
+			},
+			setShowFloatingMenu: (value) => {
+				showFloatingMenu = value;
 			},
 			setIsPanMode: (value) => {
 				isPanMode = value;

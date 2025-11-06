@@ -247,6 +247,31 @@ export function addText(
 }
 
 /**
+ * Set up image tool (shows menu and triggers upload)
+ */
+export function setImageTool(
+    canvas: fabric.Canvas | undefined,
+    state: ToolState,
+    clearEraserState: () => void,
+    clearShapeDrawingState: () => void,
+    clearTextDrawingState: () => void
+): void {
+    if (!canvas) return;
+
+    // Set image tool mode
+    state.selectedTool = 'image';
+    state.showFloatingMenu = true;
+    clearEraserState();
+    clearShapeDrawingState();
+    clearTextDrawingState();
+
+    canvas.isDrawingMode = false;
+    canvas.selection = false;
+    canvas.defaultCursor = 'default';
+    canvas.hoverCursor = 'move';
+}
+
+/**
  * Trigger image upload
  */
 export function addImage(imageInput: HTMLInputElement | undefined): void {

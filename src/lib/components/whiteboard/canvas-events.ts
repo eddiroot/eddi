@@ -17,6 +17,8 @@ export interface CanvasEventContext {
     // State refs (getters/setters for reactive state)
     getSelectedTool: () => WhiteboardTool;
     setSelectedTool: (tool: WhiteboardTool) => void;
+    getShowFloatingMenu: () => boolean;
+    setShowFloatingMenu: (value: boolean) => void;
     getIsMovingImage: () => boolean;
     setIsMovingImage: (value: boolean) => void;
     getIsPanMode: () => boolean;
@@ -364,6 +366,9 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
         if (selected && selected.length === 1) {
             const obj = selected[0];
 
+            // Show floating menu when an object is selected
+            ctx.setShowFloatingMenu(true);
+
             // Determine which tool/menu to activate based on object type and sync properties
             if (obj.type === 'textbox') {
                 ctx.setSelectedTool('text');
@@ -423,7 +428,7 @@ export const createSelectionCreatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'image') {
-                ctx.setSelectedTool('shapes');
+                ctx.setSelectedTool('image');
                 // Sync image properties to menu (only opacity makes sense)
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     opacity: obj.opacity ?? 1
@@ -441,6 +446,9 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
         if (selected && selected.length === 1) {
             const obj = selected[0];
 
+            // Show floating menu when an object is selected
+            ctx.setShowFloatingMenu(true);
+
             // Determine which tool/menu to activate based on object type and sync properties
             if (obj.type === 'textbox') {
                 ctx.setSelectedTool('text');
@@ -500,7 +508,7 @@ export const createSelectionUpdatedHandler = (ctx: CanvasEventContext) => {
                     opacity: obj.opacity ?? 1
                 });
             } else if (obj.type === 'image') {
-                ctx.setSelectedTool('shapes');
+                ctx.setSelectedTool('image');
                 // Sync image properties to menu (only opacity makes sense)
                 ctx.floatingMenuRef?.updateShapeOptions?.({
                     opacity: obj.opacity ?? 1
