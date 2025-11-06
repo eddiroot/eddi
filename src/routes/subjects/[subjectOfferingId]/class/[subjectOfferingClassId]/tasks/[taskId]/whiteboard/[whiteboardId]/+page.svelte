@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import * as CanvasActions from '$lib/components/whiteboard/canvas-actions';
 	import type { CanvasEventContext } from '$lib/components/whiteboard/canvas-events';
 	import * as CanvasEvents from '$lib/components/whiteboard/canvas-events';
 	import {
@@ -30,7 +31,6 @@
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import * as fabric from 'fabric';
 	import { onDestroy, onMount } from 'svelte';
-	import { v4 as uuidv4 } from 'uuid';
 
 	let { data } = $props();
 
@@ -263,126 +263,46 @@
 	};
 
 	const handleImageUpload = (event: Event) => {
-		const target = event.target as HTMLInputElement;
-		const file = target.files?.[0];
-
-		if (!file || !canvas) return;
-
-		// Check if file is an image
-		if (!file.type.startsWith('image/')) {
-			alert('Please select an image file.');
-			return;
-		}
-
-		// Create a FileReader to read the image
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const imgSrc = e.target?.result as string;
-
-			// Create fabric image from the uploaded file
-			fabric.FabricImage.fromURL(imgSrc)
-				.then((img) => {
-					// @ts-expect-error
-					img.id = uuidv4();
-
-					// Scale image to reasonable size
-					const maxWidth = 300;
-					const maxHeight = 300;
-					const scaleX = img.width! > maxWidth ? maxWidth / img.width! : 1;
-					const scaleY = img.height! > maxHeight ? maxHeight / img.height! : 1;
-					const scale = Math.min(scaleX, scaleY);
-
-					img.scale(scale);
-
-					// Center the image
-					img.set({
-						left: canvas.width! / 2 - (img.width! * scale) / 2,
-						top: canvas.height! / 2 - (img.height! * scale) / 2
-					});
-
-					canvas.add(img);
-					canvas.setActiveObject(img);
-					canvas.renderAll();
-
-					const objData = img.toObject();
-					// @ts-expect-error
-					objData.id = img.id;
-					sendCanvasUpdate({
-						type: 'add',
-						object: objData
-					});
-				})
-				.catch((error) => {
-					console.error('Error loading image:', error);
-					alert('Error loading image. Please try a different file.');
-				});
-		};
-
-		reader.readAsDataURL(file);
-
-		// Reset the input value so the same file can be selected again
-		target.value = '';
+		if (!canvas) return;
+		CanvasActions.handleImageUpload(event, { canvas, sendCanvasUpdate });
 	};
 
 	const clearCanvas = () => {
 		if (!canvas) return;
-
-		canvas.clear();
-		sendCanvasUpdate({
-			type: 'clear'
-		});
+		CanvasActions.clearCanvas({ canvas, sendCanvasUpdate });
 	};
 
 	const deleteSelected = () => {
 		if (!canvas) return;
-
-		const activeObjects = canvas.getActiveObjects();
-		if (activeObjects.length) {
-			activeObjects.forEach((obj) => canvas.remove(obj));
-			canvas.discardActiveObject();
-			canvas.renderAll();
-			const objectsData = activeObjects.map((obj) => {
-				const objData = obj.toObject();
-				// @ts-expect-error
-				objData.id = obj.id;
-				return objData;
-			});
-			sendCanvasUpdate({
-				type: 'delete',
-				objects: objectsData
-			});
-		}
+		CanvasActions.deleteSelected({ canvas, sendCanvasUpdate });
 	};
 
 	const zoomIn = () => {
 		if (!canvas) return;
-		const newZoom = Math.min(canvas.getZoom() * ZOOM_LIMITS.step, ZOOM_LIMITS.max);
-		const center = new fabric.Point(canvas.width! / 2, canvas.height! / 2);
-		canvas.zoomToPoint(center, newZoom);
-		currentZoom = newZoom;
+		CanvasActions.zoomIn({ canvas, sendCanvasUpdate }, ZOOM_LIMITS, (zoom) => {
+			currentZoom = zoom;
+		});
 	};
 
 	const zoomOut = () => {
 		if (!canvas) return;
-		const newZoom = Math.max(canvas.getZoom() / ZOOM_LIMITS.step, ZOOM_LIMITS.min);
-		const center = new fabric.Point(canvas.width! / 2, canvas.height! / 2);
-		canvas.zoomToPoint(center, newZoom);
-		currentZoom = newZoom;
+		CanvasActions.zoomOut({ canvas, sendCanvasUpdate }, ZOOM_LIMITS, (zoom) => {
+			currentZoom = zoom;
+		});
 	};
 
 	const resetZoom = () => {
 		if (!canvas) return;
-		canvas.setZoom(1);
-		currentZoom = 1;
+		CanvasActions.resetZoom({ canvas, sendCanvasUpdate }, (zoom) => {
+			currentZoom = zoom;
+		});
 	};
 
 	const recenterView = () => {
 		if (!canvas) return;
-		// Reset the viewport transform to center the view
-		canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-		// Update the zoom state to match the reset zoom level
-		currentZoom = 1;
-		canvas.renderAll();
+		CanvasActions.recenterView({ canvas, sendCanvasUpdate }, (zoom) => {
+			currentZoom = zoom;
+		});
 	};
 
 	const goBack = () => {
