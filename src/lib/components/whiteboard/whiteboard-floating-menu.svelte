@@ -66,6 +66,14 @@
 		onCanvasInteraction
 	}: Props = $props();
 
+	// Track which menu panel to show (independent of selectedTool for editing existing objects)
+	let activeMenuPanel = $state<string>(selectedTool);
+
+	// Sync activeMenuPanel with selectedTool when tool changes
+	$effect(() => {
+		activeMenuPanel = selectedTool;
+	});
+
 	// Default options
 	let textOptions = $state<TextOptions>({
 		fontSize: 16,
@@ -284,25 +292,30 @@
 		setTimeout(() => (isSyncingFromObject = false), 0);
 	}
 
+	// Function to set the active menu panel (for showing correct options when editing objects)
+	export function setActiveMenuPanel(panel: string) {
+		activeMenuPanel = panel;
+	}
+
 	// Reactive updates
 	$effect(() => {
-		if (!isSyncingFromObject && selectedTool === 'text' && onTextOptionsChange) {
+		if (!isSyncingFromObject && activeMenuPanel === 'text' && onTextOptionsChange) {
 			onTextOptionsChange(textOptions);
 		}
 	});
 
 	$effect(() => {
-		if (!isSyncingFromObject && selectedTool === 'shapes' && onShapeOptionsChange) {
+		if (!isSyncingFromObject && activeMenuPanel === 'shapes' && onShapeOptionsChange) {
 			onShapeOptionsChange(shapeOptions);
 		}
 	});
 
 	$effect(() => {
-		if (!isSyncingFromObject && selectedTool === 'draw' && onDrawOptionsChange) {
+		if (!isSyncingFromObject && activeMenuPanel === 'draw' && onDrawOptionsChange) {
 			onDrawOptionsChange(drawOptions);
 		}
 
-		if (!isSyncingFromObject && selectedTool === 'eraser' && onDrawOptionsChange) {
+		if (!isSyncingFromObject && activeMenuPanel === 'eraser' && onDrawOptionsChange) {
 			onDrawOptionsChange(drawOptions);
 		}
 	});
@@ -310,7 +323,7 @@
 	$effect(() => {
 		if (
 			!isSyncingFromObject &&
-			(selectedTool === 'line' || selectedTool === 'arrow') &&
+			(activeMenuPanel === 'line' || activeMenuPanel === 'arrow') &&
 			onLineArrowOptionsChange
 		) {
 			onLineArrowOptionsChange(lineArrowOptions);
@@ -319,20 +332,20 @@
 
 	const shouldShowMenu = $derived(
 		visible &&
-			(selectedTool === 'text' ||
-				selectedTool === 'shapes' ||
-				selectedTool === 'draw' ||
-				selectedTool === 'eraser' ||
-				selectedTool === 'line' ||
-				selectedTool === 'arrow' ||
-				selectedTool === 'image')
+			(activeMenuPanel === 'text' ||
+				activeMenuPanel === 'shapes' ||
+				activeMenuPanel === 'draw' ||
+				activeMenuPanel === 'eraser' ||
+				activeMenuPanel === 'line' ||
+				activeMenuPanel === 'arrow' ||
+				activeMenuPanel === 'image')
 	);
 </script>
 
 {#if shouldShowMenu}
 	<div class="absolute top-1/2 left-8 z-20 flex -translate-y-1/2 transform gap-2">
 		<Card.Root class="bg-background/20 border-border/50 max-w-80 min-w-64 backdrop-blur-sm">
-			{#if selectedTool === 'text'}
+			{#if activeMenuPanel === 'text'}
 				<Card.Header class="pb-3">
 					<Card.Title class="flex items-center gap-2 text-sm">
 						<TypeIcon />
@@ -476,7 +489,7 @@
 						</div>
 					</div>
 				</Card.Content>
-			{:else if selectedTool === 'shapes'}
+			{:else if activeMenuPanel === 'shapes'}
 				<Card.Header class="pb-3">
 					<Card.Title class="flex items-center gap-2 text-sm">
 						<SlidersIcon />
@@ -696,7 +709,7 @@
 						</div>
 					</div>
 				</Card.Content>
-			{:else if selectedTool === 'draw' || selectedTool === 'eraser'}
+			{:else if activeMenuPanel === 'draw' || activeMenuPanel === 'eraser'}
 				<Card.Header class="pb-3">
 					<Card.Title class="flex items-center gap-2 text-sm">
 						<PaletteIcon />
@@ -802,10 +815,10 @@
 						</div>
 					</div>
 				</Card.Content>
-			{:else if selectedTool === 'line' || selectedTool === 'arrow'}
+			{:else if activeMenuPanel === 'line' || activeMenuPanel === 'arrow'}
 				<Card.Header class="pb-3">
 					<Card.Title class="flex items-center gap-2 text-sm">
-						{#if selectedTool === 'line'}
+						{#if activeMenuPanel === 'line'}
 							<MinusIcon />
 							Line Options
 						{:else}
