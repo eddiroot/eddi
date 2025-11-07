@@ -1,22 +1,22 @@
 import { userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 import {
-	createTimetableActivityWithRelations,
+	createTtDraftActivityWithRelations,
 	deleteTimetableActivity,
+	getActivityGroupsByActivityId,
+	getActivityLocationsByActivityId,
+	getActivityStudentsByActivityId,
+	getActivityTeachersByActivityId,
+	getActivityYearsByActivityId,
 	getSpacesBySchoolId,
 	getStudentsForTimetable,
 	getSubjectsBySchoolIdAndYearLevel,
-	getTimetableActivitiesByTimetableId,
-	getTimetableActivityGroups,
-	getTimetableActivityLocations,
-	getTimetableActivityStudents,
-	getTimetableActivityTeachers,
-	getTimetableActivityYears,
-	getTimetableStudentGroupsByTimetableId,
+	getTimetableActivitiesByTtDraftId,
+	getTimetableStudentGroupsByTtDraftId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
-type EnrichedActivity = Awaited<ReturnType<typeof getTimetableActivitiesByTimetableId>>[number] & {
+type EnrichedActivity = Awaited<ReturnType<typeof getTimetableActivitiesByTtDraftId>>[number] & {
 	teacherIds: string[];
 	yearLevels: string[];
 	groupIds: number[];
@@ -29,11 +29,11 @@ export const load = async ({ locals: { security }, params }) => {
 	const timetableId = parseInt(params.timetableId, 10);
 
 	const teachers = await getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher);
-	const baseActivities = await getTimetableActivitiesByTimetableId(timetableId);
+	const baseActivities = await getTimetableActivitiesByTtDraftId(timetableId);
 	const spaces = await getSpacesBySchoolId(user.schoolId);
 	const students = await getStudentsForTimetable(timetableId, user.schoolId);
 
-	const groups = await getTimetableStudentGroupsByTimetableId(timetableId);
+	const groups = await getTimetableStudentGroupsByTtDraftId(timetableId);
 
 	const defaultYearLevel = groups.length > 0 ? groups[0].yearLevel : yearLevelEnum.year9;
 
@@ -57,11 +57,11 @@ export const load = async ({ locals: { security }, params }) => {
 	const activities: EnrichedActivity[] = await Promise.all(
 		baseActivities.map(async (activity) => {
 			const [teachers, locations, students, groups, years] = await Promise.all([
-				getTimetableActivityTeachers(activity.id),
-				getTimetableActivityLocations(activity.id),
-				getTimetableActivityStudents(activity.id),
-				getTimetableActivityGroups(activity.id),
-				getTimetableActivityYears(activity.id)
+				getActivityTeachersByActivityId(activity.id),
+				getActivityLocationsByActivityId(activity.id),
+				getActivityStudentsByActivityId(activity.id),
+				getActivityGroupsByActivityId(activity.id),
+				getActivityYearsByActivityId(activity.id)
 			]);
 
 			return {
@@ -140,8 +140,8 @@ export const actions = {
 			}
 
 			// Create the activity with all relations
-			await createTimetableActivityWithRelations({
-				timetableId,
+			await createTtDraftActivityWithRelations({
+				ttDraftId,
 				subjectId: parseInt(subjectId as string, 10),
 				teacherIds: teacherIds as string[],
 				yearLevels: yearLevels as string[],
@@ -207,8 +207,8 @@ export const actions = {
 			await deleteTimetableActivity(parseInt(activityId as string, 10));
 
 			// Create the new activity with updated relations
-			await createTimetableActivityWithRelations({
-				timetableId,
+			await createTtDraftActivityWithRelations({
+				ttDraftId: timetableId,
 				subjectId: parseInt(subjectId as string),
 				teacherIds: teacherIds as string[],
 				yearLevels: yearLevels as string[],
