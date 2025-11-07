@@ -5,7 +5,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { ViewMode, type WhiteboardBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type WhiteboardBlockProps } from '$lib/schema/task';
 	import PresentationIcon from '@lucide/svelte/icons/presentation';
 
 	let { config, onConfigUpdate, viewMode }: WhiteboardBlockProps = $props();

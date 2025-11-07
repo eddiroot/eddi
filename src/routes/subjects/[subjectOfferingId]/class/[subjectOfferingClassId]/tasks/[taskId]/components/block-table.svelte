@@ -3,7 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { ViewMode, type TableBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type TableBlockProps } from '$lib/schema/task';
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TableIcon from '@lucide/svelte/icons/table';

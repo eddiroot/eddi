@@ -2,8 +2,8 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import type { VideoBlockProps } from '$lib/schemas/taskSchema';
-	import { ViewMode } from '$lib/schemas/taskSchema';
+	import type { VideoBlockProps } from '$lib/schema/task';
+	import { ViewMode } from '$lib/schema/task';
 	import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
 	import VideoIcon from '@lucide/svelte/icons/video';
 

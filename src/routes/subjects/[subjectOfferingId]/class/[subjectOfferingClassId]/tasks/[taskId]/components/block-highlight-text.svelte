@@ -7,7 +7,7 @@
 		ViewMode,
 		type BlockHighlightTextConfig,
 		type HighlightTextBlockProps
-	} from '$lib/schemas/taskSchema';
+	} from '$lib/schema/task';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HighlighterIcon from '@lucide/svelte/icons/highlighter';
 

@@ -4,7 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ViewMode, type MatchingBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type MatchingBlockProps } from '$lib/schema/task';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { ViewMode, type RichTextBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type RichTextBlockProps } from '$lib/schema/task';
 	import BoldIcon from '@lucide/svelte/icons/bold';
 	import CodeIcon from '@lucide/svelte/icons/code';
 	import ItalicIcon from '@lucide/svelte/icons/italic';

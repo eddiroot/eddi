@@ -6,7 +6,7 @@
 		ViewMode,
 		type BlockShortAnswerConfig,
 		type ShortAnswerBlockProps
-	} from '$lib/schemas/taskSchema';
+	} from '$lib/schema/task';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import MessageSquareTextIcon from '@lucide/svelte/icons/message-square-text';
 

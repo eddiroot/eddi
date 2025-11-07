@@ -1,5 +1,5 @@
 import { taskTypeEnum } from '$lib/enums';
-import { taskCreationPrompts, taskSchema as taskGenerationSchema } from '$lib/schemas/taskSchema';
+import { taskCreationPrompts, taskSchema as taskGenerationSchema } from '$lib/schema/task';
 import { geminiCompletion } from '$lib/server/ai';
 import {
 	createCourseMapItem,

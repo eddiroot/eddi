@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { ViewMode, type HeadingBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type HeadingBlockProps } from '$lib/schema/task';
 
 	let { config, onConfigUpdate, viewMode }: HeadingBlockProps = $props();
 

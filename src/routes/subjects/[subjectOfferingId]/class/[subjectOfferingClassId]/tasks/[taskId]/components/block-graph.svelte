@@ -3,7 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { ViewMode, type GraphBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type GraphBlockProps } from '$lib/schema/task';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
