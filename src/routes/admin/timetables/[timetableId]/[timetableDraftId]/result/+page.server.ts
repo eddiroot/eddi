@@ -2,9 +2,9 @@ import {
 	getCompletedIterationsByTimetableId,
 	getSpaceFETActivitiesByTimetableDraftId,
 	getSpacesBySchoolId,
-	getTimetableDays,
-	getTimetablePeriods,
-	getTimetableWithSchool,
+	getTimetableAndSchoolByTimetableId,
+	getTimetableDaysByTimetableId,
+	getTimetablePeriodsByTimetableId,
 	getUserFETActivitiesByTimetableDraftId,
 	getUsersBySchoolId
 } from '$lib/server/db/service';
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 
 	try {
 		// Get timetable with school info first to verify it exists
-		const timetableWithSchool = await getTimetableWithSchool(timetableId);
+		const timetableWithSchool = await getTimetableAndSchoolByTimetableId(timetableId);
 		if (!timetableWithSchool) {
 			throw error(404, 'Timetable not found');
 		}
@@ -109,7 +109,7 @@ export const actions = {
 
 		try {
 			// Get timetable with school info first
-			const timetableWithSchool = await getTimetableWithSchool(timetableId);
+			const timetableWithSchool = await getTimetableAndSchoolByTimetableId(timetableId);
 			if (!timetableWithSchool) {
 				throw error(404, 'Timetable not found');
 			}
@@ -175,8 +175,8 @@ export const actions = {
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
 				getUserFETActivitiesByTimetableDraftId(userId, timetableDraftId),
-				getTimetableDays(timetableId),
-				getTimetablePeriods(timetableId)
+				getTimetableDaysByTimetableId(timetableId),
+				getTimetablePeriodsByTimetableId(timetableId)
 			]);
 
 			return {
@@ -207,8 +207,8 @@ export const actions = {
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
 				getSpaceFETActivitiesByTimetableDraftId(spaceId, timetableDraftId),
-				getTimetableDays(timetableId),
-				getTimetablePeriods(timetableId)
+				getTimetableDaysByTimetableId(timetableId),
+				getTimetablePeriodsByTimetableId(timetableId)
 			]);
 
 			return {

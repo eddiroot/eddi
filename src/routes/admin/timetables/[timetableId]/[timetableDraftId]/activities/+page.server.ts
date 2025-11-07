@@ -10,14 +10,14 @@ import {
 	getSpacesBySchoolId,
 	getStudentsForTimetable,
 	getSubjectsBySchoolIdAndYearLevel,
-	getTimetableActivitiesByTimetableDraftId,
-	getTimetableStudentGroupsByTimetableDraftId,
+	getTimetableDraftActivitiesByTimetableDraftId,
+	getTimetableDraftStudentGroupsWithCountsByTimetableDraftId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
 type EnrichedActivity = Awaited<
-	ReturnType<typeof getTimetableActivitiesByTimetableDraftId>
+	ReturnType<typeof getTimetableDraftActivitiesByTimetableDraftId>
 >[number] & {
 	teacherIds: string[];
 	yearLevels: string[];
@@ -31,11 +31,11 @@ export const load = async ({ locals: { security }, params }) => {
 	const timetableId = parseInt(params.timetableId, 10);
 
 	const teachers = await getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher);
-	const baseActivities = await getTimetableActivitiesByTimetableDraftId(timetableId);
+	const baseActivities = await getTimetableDraftActivitiesByTimetableDraftId(timetableId);
 	const spaces = await getSpacesBySchoolId(user.schoolId);
 	const students = await getStudentsForTimetable(timetableId, user.schoolId);
 
-	const groups = await getTimetableStudentGroupsByTimetableDraftId(timetableId);
+	const groups = await getTimetableDraftStudentGroupsWithCountsByTimetableDraftId(timetableId);
 
 	const defaultYearLevel = groups.length > 0 ? groups[0].yearLevel : yearLevelEnum.year9;
 
@@ -105,9 +105,10 @@ export const actions = {
 	createActivity: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId, 10);
-		if (isNaN(timetableId)) {
-			return fail(400, { error: 'Invalid timetable ID' });
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
+
+		if (isNaN(timetableDraftId)) {
+			return fail(400, { error: 'Invalid timetable Draft ID' });
 		}
 
 		try {

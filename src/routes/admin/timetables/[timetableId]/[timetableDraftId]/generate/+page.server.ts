@@ -7,8 +7,8 @@ import {
 	getSpacesBySchoolId,
 	getStudentGroupsByTimetableId,
 	getSubjectsBySchoolId,
-	getTimetableDays,
-	getTimetablePeriods,
+	getTimetableDaysByTimetableId,
+	getTimetablePeriodsByTimetableId,
 	getTimetableQueueByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
@@ -55,8 +55,8 @@ export const actions = {
 				school,
 				activeConstraints
 			] = await Promise.all([
-				getTimetableDays(timetableId),
-				getTimetablePeriods(timetableId),
+				getTimetableDaysByTimetableId(timetableId),
+				getTimetablePeriodsByTimetableId(timetableId),
 				getStudentGroupsByTimetableId(timetableId),
 				getEnhancedTimetableActivitiesByTimetableId(timetableId),
 				getBuildingsBySchoolId(user.schoolId),

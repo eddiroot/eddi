@@ -1,14 +1,14 @@
 import { buildConstraintFormData } from '$lib/constraint-data-fetchers';
 import { hasCustomForm } from '$lib/constraint-form-mapping';
 import { constraintTypeEnum } from '$lib/enums';
-import { getAllConstraints, getAllConstraintsByTimetableId } from '$lib/server/db/service';
+import { getAllConstraints, getAllConstraintsByTimetableDraftId } from '$lib/server/db/service';
 
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const timetableId = parseInt(params.timetableId, 10);
 
 	// Get constraints currently assigned to this timetable
-	const assignedConstraints = await getAllConstraintsByTimetableId(timetableId);
+	const assignedConstraints = await getAllConstraintsByTimetableDraftId(timetableId);
 
 	// Get all constraints from the database
 	const allConstraints = await getAllConstraints();

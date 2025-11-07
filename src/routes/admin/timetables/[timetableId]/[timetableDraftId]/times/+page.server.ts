@@ -1,8 +1,8 @@
 import {
 	addTimetablePeriod,
-	deleteTimetablePeriod,
-	getTimetableDays,
-	getTimetablePeriods,
+	deleteTimetablePeriodByPeriodId,
+	getTimetableDaysByTimetableId,
+	getTimetablePeriodsByTimetableId,
 	updateTimetableDays
 } from '$lib/server/db/service';
 import { error, fail } from '@sveltejs/kit';
@@ -21,8 +21,8 @@ export const load = async ({ params, locals: { security } }) => {
 
 	try {
 		const [days, periods] = await Promise.all([
-			getTimetableDays(timetableId),
-			getTimetablePeriods(timetableId)
+			getTimetableDaysByTimetableId(timetableId),
+			getTimetablePeriodsByTimetableId(timetableId)
 		]);
 
 		const [updateDaysForm, addPeriodForm] = await Promise.all([
@@ -107,7 +107,7 @@ export const actions = {
 		}
 
 		try {
-			await deleteTimetablePeriod(periodId, timetableId);
+			await deleteTimetablePeriodByPeriodId(periodId, timetableId);
 			return { success: true, message: 'Period deleted successfully' };
 		} catch (err) {
 			console.error('Error deleting period:', err);

@@ -3,10 +3,10 @@ import {
 	getBuildingsBySchoolId,
 	getSpacesBySchoolId,
 	getSubjectsBySchoolId,
-	getTimetableActivitiesByTimetableId,
-	getTimetableDays,
-	getTimetablePeriods,
-	getTimetableStudentGroupsWithCountsByTimetableId,
+	getTimetableDaysByTimetableId,
+	getTimetableDraftActivitiesByTimetableDraftId,
+	getTimetableDraftStudentGroupsWithCountsByTimetableDraftId,
+	getTimetablePeriodsByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import type { ConstraintFormData } from '$lib/types/constraint-form-types';
@@ -20,7 +20,7 @@ export interface AutocompleteOption {
  * Fetch timetable days for autocomplete
  */
 export async function getTimetableDaysOptions(timetableId: number): Promise<AutocompleteOption[]> {
-	const days = await getTimetableDays(timetableId);
+	const days = await getTimetableDaysByTimetableId(timetableId);
 	return days.map((day) => ({
 		value: day.id,
 		label: `Day ${day.day}` // Assuming day number maps to day name
@@ -33,7 +33,7 @@ export async function getTimetableDaysOptions(timetableId: number): Promise<Auto
 export async function getTimetablePeriodsOptions(
 	timetableId: number
 ): Promise<AutocompleteOption[]> {
-	const periods = await getTimetablePeriods(timetableId);
+	const periods = await getTimetablePeriodsByTimetableId(timetableId);
 	return periods.map((period) => ({
 		value: period.id,
 		label: `${period.startTime} - ${period.endTime}`
@@ -79,7 +79,7 @@ export async function getStudentsOptions(schoolId: number): Promise<Autocomplete
 export async function getTimetableGroupsOptions(
 	timetableId: number
 ): Promise<AutocompleteOption[]> {
-	const groups = await getTimetableStudentGroupsWithCountsByTimetableId(timetableId);
+	const groups = await getTimetableDraftStudentGroupsWithCountsByTimetableDraftId(timetableId);
 	return groups.map((group) => ({
 		value: group.id,
 		label: `${group.name} (${group.yearLevel}) - ${group.count} students`
@@ -114,7 +114,7 @@ export async function getSpacesOptions(schoolId: number): Promise<AutocompleteOp
 export async function getTimetableActivitiesOptions(
 	timetableId: number
 ): Promise<AutocompleteOption[]> {
-	const activities = await getTimetableActivitiesByTimetableId(timetableId);
+	const activities = await getTimetableDraftActivitiesByTimetableDraftId(timetableId);
 	return activities.map((activity) => ({
 		value: activity.id,
 		label: `${activity.id}`

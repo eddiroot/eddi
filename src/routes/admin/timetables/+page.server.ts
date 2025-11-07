@@ -27,7 +27,6 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(createTimetableSchema));
 
 		if (!form.valid) {
-			console.log('School Semester', form.data.schoolSemester);
 			return message(form, 'Please check your inputs and try again.', { status: 400 });
 		}
 

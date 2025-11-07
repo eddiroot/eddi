@@ -1,26 +1,26 @@
 import {
-	createTimetableConstraint,
-	deleteTimetableConstraint,
-	updateTimetableConstraintActiveStatus
+	createTimetableDraftConstraint,
+	deleteTimetableDraftConstraint,
+	updateTimetableDraftConstraintActiveStatus
 } from '$lib/server/db/service';
 import { json } from '@sveltejs/kit';
 
 // Add a constraint to a timetable
 export const POST = async ({ request, params, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin().getUser();
-	const timetableId = parseInt(params.timetableId, 10);
+	const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
 	try {
 		const { constraintId, parameters = {} } = await request.json();
 
 		const data = {
-			timetableId,
+			timetableDraftId,
 			constraintId,
 			active: true,
 			parameters
 		};
 
-		const timetableConstraint = await createTimetableConstraint(data);
+		const timetableConstraint = await createTimetableDraftConstraint(data);
 
 		return json({
 			success: true,
@@ -66,7 +66,7 @@ export const PATCH = async ({ request, params, locals: { security } }) => {
 			);
 		}
 
-		const updatedConstraint = await updateTimetableConstraintActiveStatus(
+		const updatedConstraint = await updateTimetableDraftConstraintActiveStatus(
 			timetableId,
 			constraintId,
 			active
@@ -117,7 +117,7 @@ export const DELETE = async ({ request, params, locals: { security } }) => {
 			);
 		}
 
-		await deleteTimetableConstraint(timetableId, constraintId);
+		await deleteTimetableDraftConstraint(timetableId, constraintId);
 
 		return json({ success: true });
 	} catch (error) {
