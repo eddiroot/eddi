@@ -9,7 +9,7 @@ import {
 	getUsersBySchoolId
 } from '$lib/server/db/service';
 import { error } from '@sveltejs/kit';
-import { processStatistics } from '../../../../../scripts/processStatistics';
+import { processStatistics } from '../../../../../scripts/process/statistics';
 import type { PageServerLoad } from './$types';
 import { transformToStudentStatisticsReport, transformToTeacherStatisticsReport } from './utils';
 

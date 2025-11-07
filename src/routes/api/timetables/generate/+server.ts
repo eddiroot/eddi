@@ -2,10 +2,10 @@ import {
 	createTimetableIteration,
 	createTimetableQueueEntry
 } from '$lib/server/db/service/timetables.js';
+import { FETDockerService } from '$lib/server/fet.js';
 import { uploadBufferHelper } from '$lib/server/obj.js';
-import { FETDockerService } from '$lib/server/services/fet-docker.js';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
-import { processTimetableQueue } from '../../../../scripts/processTimetable.js';
+import { processTimetableQueue } from '../../../../scripts/process/timetable.js';
 
 export const POST: RequestHandler = async ({ locals: { security }, request }) => {
 	security.isAuthenticated();
@@ -44,7 +44,9 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 
 		// Create a new timetable iteration
 		const iteration = await createTimetableIteration(timetableId);
-		console.log(`✅ [TIMETABLE PROCESSOR] Created iteration ${iteration.id} for timetable ${timetableId}`);
+		console.log(
+			`✅ [TIMETABLE PROCESSOR] Created iteration ${iteration.id} for timetable ${timetableId}`
+		);
 
 		const uniqueFileName = `tt_id${timetableId}.fet`;
 
