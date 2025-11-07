@@ -23,10 +23,15 @@ interface TimetableStatistics {
 	generatedAt: Date;
 }
 
-export async function processStatistics(
-	timetableId: number,
-	timetableDraftId: number
-): Promise<TimetableStatistics> {
+export async function processStatistics(timetableDraftId: number): Promise<TimetableStatistics> {
+	const timetableIdResult = await db
+		.select({ timetableId: table.timetableDraft.id })
+		.from(table.timetableDraft)
+		.where(eq(table.timetableDraft.id, timetableDraftId))
+		.limit(1);
+
+	const timetableId = timetableIdResult[0]?.timetableId;
+
 	console.log(
 		`📊 [STATISTICS PROCESSOR] Starting statistics processing for timetable ${timetableId}, draft ${timetableDraftId}`
 	);

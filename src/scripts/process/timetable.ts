@@ -70,7 +70,7 @@ export async function processTimetableQueue() {
 			console.log('📥 [TIMETABLE PROCESSOR] Downloading input file from object storage...');
 			console.log(`   - School ID: ${schoolId}`);
 			console.log(`   - Timetable ID: ${timetableId}`);
-			console.log(`   - Iteration ID: ${timetableDraftId}`);
+			console.log(`   - Draft ID: ${timetableDraftId}`);
 			console.log(`   - File name: ${fileName}`);
 
 			const fileBuffer = await getFileFromStorage(

@@ -1,5 +1,5 @@
 import {
-	getCompletedIterationsByTimetableId,
+	getCompletedDraftsByTimetableId,
 	getSpaceFETActivitiesByTimetableDraftId,
 	getSpacesBySchoolId,
 	getTimetableAndSchoolByTimetableId,
@@ -9,7 +9,7 @@ import {
 	getUsersBySchoolId
 } from '$lib/server/db/service';
 import { error } from '@sveltejs/kit';
-import { processStatistics } from '../../../../../scripts/process/statistics';
+import { processStatistics } from '../../../../../../scripts/process/statistics';
 import type { PageServerLoad } from './$types';
 import { transformToStudentStatisticsReport, transformToTeacherStatisticsReport } from './utils';
 
@@ -30,9 +30,9 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 		}
 
 		// Get completed drafts for this timetable
-		const completedIterations = await getCompletedIterationsByTimetableId(timetableId);
+		const completedDrafts = await getCompletedDraftsByTimetableId(timetableId);
 
-		if (completedIterations.length === 0) {
+		if (completedDrafts.length === 0) {
 			throw error(
 				404,
 				`No generated timetables found. The timetable "${timetableWithSchool.timetable.name}" has not been generated yet. Please generate the timetable first before viewing results.`
@@ -41,15 +41,15 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 
 		// Get draft ID from URL or use the most recent one
 		const timetableDraftIdParam = url.searchParams.get('timetableDraftId');
-		const selectedIteration = timetableDraftIdParam
-			? completedIterations.find((i) => i.timetableDraftId.toString() === timetableDraftIdParam)
-			: completedIterations[completedIterations.length - 1]; // Most recent
+		const selectedDraft = timetableDraftIdParam
+			? completedDrafts.find((i) => i.timetableDraftId.toString() === timetableDraftIdParam)
+			: completedDrafts[completedDrafts.length - 1]; // Most recent
 
-		if (!selectedIteration) {
+		if (!selectedDraft) {
 			throw error(404, 'Selected draft not found');
 		}
 
-		const timetableDraftId = selectedIteration.timetableDraftId;
+		const timetableDraftId = selectedDraft.timetableDraftId;
 
 		try {
 			// Process statistics from database
@@ -76,8 +76,8 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 				timetableId: params.timetableId,
 				teacherStatisticsReport,
 				studentStatisticsReport,
-				completedIterations,
-				selectedIterationId: timetableDraftId,
+				completedDrafts,
+				selectedDraftId: timetableDraftId,
 				allUsers,
 				allSpaces
 			};
@@ -96,7 +96,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 };
 
 export const actions = {
-	changeIteration: async ({ params, request, locals: { security } }) => {
+	changeDraft: async ({ params, request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
 		const timetableId = parseInt(params.timetableId, 10);
@@ -115,9 +115,9 @@ export const actions = {
 			}
 
 			// Get completed drafts for this timetable
-			const completedIterations = await getCompletedIterationsByTimetableId(timetableId);
+			const completedDrafts = await getCompletedDraftsByTimetableId(timetableId);
 
-			if (completedIterations.length === 0) {
+			if (completedDrafts.length === 0) {
 				throw error(
 					404,
 					`No generated timetables found. The timetable "${timetableWithSchool.timetable.name}" has not been generated yet. Please generate the timetable first before viewing results.`
@@ -125,12 +125,10 @@ export const actions = {
 			}
 
 			// Find the selected draft
-			const selectedIteration = completedIterations.find(
-				(i) => i.timetableDraftId === timetableDraftId
-			);
+			const selectedDraft = completedDrafts.find((i) => i.timetableDraftId === timetableDraftId);
 
-			if (!selectedIteration) {
-				throw error(404, 'Iteration not found');
+			if (!selectedDraft) {
+				throw error(404, 'Draft not found');
 			}
 
 			// Process statistics from database
@@ -151,8 +149,8 @@ export const actions = {
 				success: true,
 				teacherStatisticsReport,
 				studentStatisticsReport,
-				completedIterations,
-				selectedIterationId: timetableDraftId
+				completedDrafts,
+				selectedDraftId: timetableDraftId
 			};
 		} catch (err) {
 			console.error('Failed to load statistics for draft:', err);

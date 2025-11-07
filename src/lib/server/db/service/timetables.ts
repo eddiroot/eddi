@@ -961,7 +961,7 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 	return entries;
 }
 
-export async function getCompletedIterationsByTimetableId(timetableId: number) {
+export async function getCompletedDraftsByTimetableId(timetableId: number) {
 	const entries = await db
 		.select({
 			id: table.timetableQueue.id,
