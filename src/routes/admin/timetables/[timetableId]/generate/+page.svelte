@@ -20,11 +20,11 @@
 	let isProcessing = $state(false);
 	let pollInterval: ReturnType<typeof setInterval> | null = null;
 	let selectedError = $state<{
-		ttDraftId: number;
+		timetableDraftId: number;
 		message: string;
 		translatedMessage: string | null;
 	} | null>(null);
-	let selectedResponse = $state<{ ttDraftId: number; message: string } | null>(null);
+	let selectedResponse = $state<{ timetableDraftId: number; message: string } | null>(null);
 	let showErrorDialog = $state(false);
 	let showResponseDialog = $state(false);
 	let showTranslated = $state(false);
@@ -64,18 +64,18 @@
 	}
 
 	function showError(
-		ttDraftId: number,
+		timetableDraftId: number,
 		message: string,
 		translatedMessage: string | null | undefined
 	) {
-		selectedError = { ttDraftId, message, translatedMessage: translatedMessage || null };
+		selectedError = { timetableDraftId, message, translatedMessage: translatedMessage || null };
 		showTranslated = false;
 		isTranslating = false;
 		showErrorDialog = true;
 	}
 
-	function showResponse(ttDraftId: number, message: string) {
-		selectedResponse = { ttDraftId, message };
+	function showResponse(timetableDraftId: number, message: string) {
+		selectedResponse = { timetableDraftId, message };
 		showResponseDialog = true;
 	}
 
@@ -118,7 +118,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					ttDraftId: selectedError.ttDraftId,
+					timetableDraftId: selectedError.timetableDraftId,
 					errorMessage: selectedError.message,
 					forceRetranslate
 				})
@@ -302,7 +302,7 @@
 						{#each data.queueEntries as entry}
 							<div class="border-muted rounded-lg border p-4">
 								<div class="mb-2 flex items-center justify-between">
-									<span class="text-sm font-medium">Iteration #{entry.ttDraftId}</span>
+									<span class="text-sm font-medium">Iteration #{entry.timetableDraftId}</span>
 									<div class="flex items-center gap-2">
 										<Badge class={getStatusColor(entry.status)}>
 											{formatStatus(entry.status)}
@@ -314,7 +314,7 @@
 												class="h-6 w-6"
 												onclick={() =>
 													showError(
-														entry.ttDraftId,
+														entry.timetableDraftId,
 														entry.errorMessage!,
 														entry.translatedErrorMessage
 													)}
@@ -327,7 +327,7 @@
 												variant="ghost"
 												size="icon"
 												class="h-6 w-6"
-												onclick={() => showResponse(entry.ttDraftId, entry.fetResponse!)}
+												onclick={() => showResponse(entry.timetableDraftId, entry.fetResponse!)}
 												title="View FET response"
 											>
 												<Info class="h-4 w-4 text-green-500" />
@@ -404,7 +404,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<AlertCircle class="h-5 w-5 text-red-500" />
-				Generation Error - Iteration #{selectedError?.ttDraftId}
+				Generation Error - Iteration #{selectedError?.timetableDraftId}
 			</Dialog.Title>
 			<Dialog.Description>
 				The timetable generation process encountered the following error:
@@ -493,7 +493,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<Info class="h-5 w-5 text-green-500" />
-				FET Response - Iteration #{selectedResponse?.ttDraftId}
+				FET Response - Iteration #{selectedResponse?.timetableDraftId}
 			</Dialog.Title>
 			<Dialog.Description>The output from the timetable generation process:</Dialog.Description>
 		</Dialog.Header>

@@ -140,7 +140,7 @@
 					<div class="flex items-center gap-2">
 						<span class="text-muted-foreground text-sm font-medium">Iteration:</span>
 						<select
-							name="ttDraftId"
+							name="timetableDraftId"
 							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-10 w-[200px] items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							onchange={(e) => {
 								e.currentTarget.form?.requestSubmit();
@@ -148,10 +148,10 @@
 						>
 							{#each completedIterations as draft}
 								<option
-									value={draft.ttDraftId.toString()}
-									selected={draft.ttDraftId === selectedIterationId}
+									value={draft.timetableDraftId.toString()}
+									selected={draft.timetableDraftId === selectedIterationId}
 								>
-									Iteration #{draft.ttDraftId} ({formatDate(draft.createdAt)})
+									Iteration #{draft.timetableDraftId} ({formatDate(draft.createdAt)})
 								</option>
 							{/each}
 						</select>

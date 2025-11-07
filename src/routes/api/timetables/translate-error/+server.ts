@@ -127,10 +127,10 @@ export async function POST({ request, locals: { security } }) {
 	security.isAuthenticated().isSchoolAdmin();
 
 	try {
-		const { ttDraftId, errorMessage, forceRetranslate = false } = await request.json();
+		const { timetableDraftId, errorMessage, forceRetranslate = false } = await request.json();
 
-		if (!ttDraftId || !errorMessage) {
-			throw error(400, 'Missing required fields: ttDraftId and errorMessage');
+		if (!timetableDraftId || !errorMessage) {
+			throw error(400, 'Missing required fields: timetableDraftId and errorMessage');
 		}
 
 		// Check if we have the Gemini API key
@@ -139,7 +139,7 @@ export async function POST({ request, locals: { security } }) {
 		}
 
 		console.log(
-			`🤖 [AI Translation] ${forceRetranslate ? 'Force re-translating' : 'Translating'} error for draft ${ttDraftId}`
+			`🤖 [AI Translation] ${forceRetranslate ? 'Force re-translating' : 'Translating'} error for draft ${timetableDraftId}`
 		);
 
 		// Make the API call to Gemini
@@ -181,10 +181,10 @@ export async function POST({ request, locals: { security } }) {
 			data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to translate error message';
 
 		// Save the translated message to the database
-		await updateTimetableIterationTranslatedError(ttDraftId, translatedMessage);
+		await updateTimetableIterationTranslatedError(timetableDraftId, translatedMessage);
 
 		console.log(
-			`✅ [AI Translation] Successfully translated error for draft ${ttDraftId} (${forceRetranslate ? 'forced' : 'new'})`
+			`✅ [AI Translation] Successfully translated error for draft ${timetableDraftId} (${forceRetranslate ? 'forced' : 'new'})`
 		);
 
 		return json({

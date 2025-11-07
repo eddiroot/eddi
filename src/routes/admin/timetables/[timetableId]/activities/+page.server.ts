@@ -1,7 +1,7 @@
 import { userTypeEnum, yearLevelEnum } from '$lib/enums.js';
 import {
-	createTtDraftActivityWithRelations,
-	deleteTimetableActivity,
+	createTimetableDraftActivityWithRelations,
+	deleteTimetableDraftActivity,
 	getActivityGroupsByActivityId,
 	getActivityLocationsByActivityId,
 	getActivityStudentsByActivityId,
@@ -10,13 +10,15 @@ import {
 	getSpacesBySchoolId,
 	getStudentsForTimetable,
 	getSubjectsBySchoolIdAndYearLevel,
-	getTimetableActivitiesByTtDraftId,
-	getTimetableStudentGroupsByTtDraftId,
+	getTimetableActivitiesByTimetableDraftId,
+	getTimetableStudentGroupsByTimetableDraftId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
-type EnrichedActivity = Awaited<ReturnType<typeof getTimetableActivitiesByTtDraftId>>[number] & {
+type EnrichedActivity = Awaited<
+	ReturnType<typeof getTimetableActivitiesByTimetableDraftId>
+>[number] & {
 	teacherIds: string[];
 	yearLevels: string[];
 	groupIds: number[];
@@ -29,11 +31,11 @@ export const load = async ({ locals: { security }, params }) => {
 	const timetableId = parseInt(params.timetableId, 10);
 
 	const teachers = await getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher);
-	const baseActivities = await getTimetableActivitiesByTtDraftId(timetableId);
+	const baseActivities = await getTimetableActivitiesByTimetableDraftId(timetableId);
 	const spaces = await getSpacesBySchoolId(user.schoolId);
 	const students = await getStudentsForTimetable(timetableId, user.schoolId);
 
-	const groups = await getTimetableStudentGroupsByTtDraftId(timetableId);
+	const groups = await getTimetableStudentGroupsByTimetableDraftId(timetableId);
 
 	const defaultYearLevel = groups.length > 0 ? groups[0].yearLevel : yearLevelEnum.year9;
 
@@ -140,8 +142,8 @@ export const actions = {
 			}
 
 			// Create the activity with all relations
-			await createTtDraftActivityWithRelations({
-				ttDraftId,
+			await createTimetableDraftActivityWithRelations({
+				timetableDraftId,
 				subjectId: parseInt(subjectId as string, 10),
 				teacherIds: teacherIds as string[],
 				yearLevels: yearLevels as string[],
@@ -204,11 +206,11 @@ export const actions = {
 			}
 
 			// Delete the old activity (cascading deletes will handle junction tables)
-			await deleteTimetableActivity(parseInt(activityId as string, 10));
+			await deleteTimetableDraftActivity(parseInt(activityId as string, 10));
 
 			// Create the new activity with updated relations
-			await createTtDraftActivityWithRelations({
-				ttDraftId: timetableId,
+			await createTimetableDraftActivityWithRelations({
+				timetableDraftId: timetableId,
 				subjectId: parseInt(subjectId as string),
 				teacherIds: teacherIds as string[],
 				yearLevels: yearLevels as string[],
@@ -242,7 +244,7 @@ export const actions = {
 				return fail(400, { error: 'Activity ID is required' });
 			}
 
-			await deleteTimetableActivity(parseInt(activityId as string, 10));
+			await deleteTimetableDraftActivity(parseInt(activityId as string, 10));
 
 			return { success: true };
 		} catch (error) {

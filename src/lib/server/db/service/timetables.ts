@@ -141,17 +141,19 @@ export async function deleteTimetablePeriod(periodId: number, timetableId: numbe
 	return await getTimetablePeriods(timetableId);
 }
 
-export async function getTimetableStudentGroupsByTtDraftId(ttDraftId: number) {
+export async function getTimetableDraftGroupsByTimetableDraftId(timetableDraftId: number) {
 	const groups = await db
 		.select()
 		.from(table.timetableGroup)
-		.where(eq(table.timetableGroup.ttDraftId, ttDraftId))
+		.where(eq(table.timetableGroup.timetableDraftId, timetableDraftId))
 		.orderBy(asc(table.timetableGroup.name));
 
 	return groups;
 }
 
-export async function getTimetableStudentGroupsWithCountsByTtDraftId(ttDraftId: number) {
+export async function getTimetableDraftStudentGroupsWithCountsByTimetableDraftId(
+	timetableDraftId: number
+) {
 	const groups = await db
 		.select({
 			id: table.timetableGroup.id,
@@ -164,7 +166,7 @@ export async function getTimetableStudentGroupsWithCountsByTtDraftId(ttDraftId: 
 			table.timetableGroupMember,
 			eq(table.timetableGroup.id, table.timetableGroupMember.groupId)
 		)
-		.where(eq(table.timetableGroup.ttDraftId, ttDraftId))
+		.where(eq(table.timetableGroup.timetableDraftId, timetableDraftId))
 		.groupBy(table.timetableGroup.id, table.timetableGroup.name, table.timetableGroup.yearLevel)
 		.orderBy(asc(table.timetableGroup.yearLevel), asc(table.timetableGroup.name));
 	return groups;
@@ -174,7 +176,7 @@ export async function getTimetableStudentGroupsWithCountsByTtDraftId(ttDraftId: 
  * Get all student groups organized by year level with individual student subgroups
  * for FET timetable generation
  */
-export async function getStudentGroupsByttDraftId(ttDraftId: number) {
+export async function getAllStudentGroupsByTimetableDraftId(timetableDraftId: number) {
 	// Get all groups with their members
 	const groupsWithMembers = await db
 		.select({
@@ -191,7 +193,7 @@ export async function getStudentGroupsByttDraftId(ttDraftId: number) {
 			eq(table.timetableGroup.id, table.timetableGroupMember.groupId)
 		)
 		.leftJoin(table.user, eq(table.timetableGroupMember.userId, table.user.id))
-		.where(eq(table.timetableGroup.ttDraftId, ttDraftId))
+		.where(eq(table.timetableGroup.timetableDraftId, timetableDraftId))
 		.orderBy(
 			asc(table.timetableGroup.yearLevel),
 			asc(table.timetableGroup.name),
@@ -273,15 +275,15 @@ export async function getStudentGroupsByttDraftId(ttDraftId: number) {
 	return result;
 }
 
-export async function createTimetableStudentGroup(
-	ttDraftId: number,
+export async function createTimetableDraftStudentGroup(
+	timetableDraftId: number,
 	yearLevel: yearLevelEnum,
 	name: string
 ) {
 	const [group] = await db
 		.insert(table.timetableGroup)
 		.values({
-			ttDraftId,
+			timetableDraftId,
 			yearLevel,
 			name
 		})
@@ -290,7 +292,7 @@ export async function createTimetableStudentGroup(
 	return group;
 }
 
-export async function deleteTimetableStudentGroup(groupId: number) {
+export async function deleteTimetableDraftStudentGroup(groupId: number) {
 	// First, delete all group members
 	await db
 		.delete(table.timetableGroupMember)
@@ -301,7 +303,7 @@ export async function deleteTimetableStudentGroup(groupId: number) {
 }
 
 export async function assignStudentsToGroupsRandomly(
-	ttDraftId: number,
+	timetableDraftId: number,
 	yearLevel: yearLevelEnum,
 	schoolId: number
 ) {
@@ -326,7 +328,7 @@ export async function assignStudentsToGroupsRandomly(
 		.from(table.timetableGroup)
 		.where(
 			and(
-				eq(table.timetableGroup.ttDraftId, ttDraftId),
+				eq(table.timetableGroup.timetableDraftId, timetableDraftId),
 				eq(table.timetableGroup.yearLevel, yearLevel)
 			)
 		);
@@ -341,7 +343,7 @@ export async function assignStudentsToGroupsRandomly(
 		const existingGroupIds = await db
 			.select({ id: table.timetableGroup.id })
 			.from(table.timetableGroup)
-			.where(eq(table.timetableGroup.ttDraftId, ttDraftId));
+			.where(eq(table.timetableGroup.timetableDraftId, timetableDraftId));
 
 		if (existingGroupIds.length > 0) {
 			await db.delete(table.timetableGroupMember).where(
@@ -373,7 +375,7 @@ export async function assignStudentsToGroupsRandomly(
 	return assignments.length;
 }
 
-export async function addStudentToTimetableGroup(groupId: number, userId: string) {
+export async function addStudentToTimetableDraftGroup(groupId: number, userId: string) {
 	const [member] = await db
 		.insert(table.timetableGroupMember)
 		.values({
@@ -386,7 +388,7 @@ export async function addStudentToTimetableGroup(groupId: number, userId: string
 	return member;
 }
 
-export async function removeStudentFromTimetableGroup(groupId: number, userId: string) {
+export async function removeStudentFromTimetableDraftGroup(groupId: number, userId: string) {
 	await db
 		.delete(table.timetableGroupMember)
 		.where(
@@ -397,16 +399,19 @@ export async function removeStudentFromTimetableGroup(groupId: number, userId: s
 		);
 }
 
-export async function getStudentsWithGroupsByttDraftId(ttDraftId: number, schoolId: number) {
+export async function getStudentsWithGroupsByTimetableDraftId(
+	timetableDraftId: number,
+	schoolId: number
+) {
 	const timetable = await db
 		.select()
 		.from(table.timetable)
-		.where(and(eq(table.timetable.id, ttDraftId), eq(table.timetable.schoolId, schoolId)))
+		.where(and(eq(table.timetable.id, timetableDraftId), eq(table.timetable.schoolId, schoolId)))
 		.limit(1);
 
 	if (timetable.length === 0) {
 		throw new Error(
-			`Timetable Draft with ID ${ttDraftId} does not belong to school with ID ${schoolId}`
+			`Timetable Draft with ID ${timetableDraftId} does not belong to school with ID ${schoolId}`
 		);
 	}
 
@@ -428,7 +433,7 @@ export async function getStudentsWithGroupsByttDraftId(ttDraftId: number, school
 			table.timetableGroup,
 			and(
 				eq(table.timetableGroupMember.groupId, table.timetableGroup.id),
-				eq(table.timetableGroup.ttDraftId, ttDraftId)
+				eq(table.timetableGroup.timetableDraftId, timetableDraftId)
 			)
 		)
 		.where(
@@ -507,18 +512,18 @@ export async function getStudentsForTimetable(timetableId: number, schoolId: num
 
 // Timetable Activity Functions
 
-export async function getTimetableActivitiesByTtDraftId(ttDraftId: number) {
+export async function getTimetableActivitiesByTimetableDraftId(timetableDraftId: number) {
 	const activities = await db
 		.select()
 		.from(table.timetableActivity)
-		.where(eq(table.timetableActivity.ttDraftId, ttDraftId))
+		.where(eq(table.timetableActivity.timetableDraftId, timetableDraftId))
 		.orderBy(asc(table.timetableActivity.subjectId));
 
 	return activities;
 }
 
-export async function getEnhancedTimetableActivitiesByTtDraftId(timetableId: number) {
-	const baseActivities = await getTimetableActivitiesByTtDraftId(timetableId);
+export async function getEnhancedTimetableActivitiesByTimetableDraftId(timetableId: number) {
+	const baseActivities = await getTimetableActivitiesByTimetableDraftId(timetableId);
 
 	const activities = await Promise.all(
 		baseActivities.map(async (activity) => {
@@ -606,7 +611,7 @@ export async function getActivityGroupsByActivityId(activityId: number) {
 	const groups = await db
 		.select({
 			id: table.timetableGroup.id,
-			ttDraftId: table.timetableGroup.ttDraftId,
+			timetableDraftId: table.timetableGroup.timetableDraftId,
 			yearLevel: table.timetableGroup.yearLevel,
 			name: table.timetableGroup.name
 		})
@@ -633,8 +638,8 @@ export async function getActivityYearsByActivityId(activityId: number) {
 	return years;
 }
 
-export async function createTtDraftActivity(data: {
-	ttDraftId: number;
+export async function createTimetableDraftActivity(data: {
+	timetableDraftId: number;
 	subjectId: number;
 	teacherId: string;
 	groupId: number;
@@ -644,8 +649,8 @@ export async function createTtDraftActivity(data: {
 	await db.insert(table.timetableActivity).values(data).returning();
 }
 
-export async function createTtDraftActivityWithRelations(data: {
-	ttDraftId: number;
+export async function createTimetableDraftActivityWithRelations(data: {
+	timetableDraftId: number;
 	subjectId: number;
 	teacherIds: string[];
 	yearLevels: string[];
@@ -656,7 +661,7 @@ export async function createTtDraftActivityWithRelations(data: {
 	instancesPerWeek: number;
 }) {
 	const {
-		ttDraftId,
+		timetableDraftId,
 		subjectId,
 		teacherIds,
 		yearLevels,
@@ -680,7 +685,7 @@ export async function createTtDraftActivityWithRelations(data: {
 	const [activity] = await db
 		.insert(table.timetableActivity)
 		.values({
-			ttDraftId,
+			timetableDraftId,
 			subjectId,
 			periodsPerInstance,
 			totalPeriods
@@ -709,7 +714,7 @@ export async function createTtDraftActivityWithRelations(data: {
 			.select({ schoolId: table.timetable.schoolId })
 			.from(table.timetableDraft)
 			.innerJoin(table.timetable, eq(table.timetable.id, table.timetableDraft.timetableId))
-			.where(eq(table.timetable.id, ttDraftId));
+			.where(eq(table.timetable.id, timetableDraftId));
 
 		// Get all spaces for this school by joining through campus and building
 		const allSpaces = await db
@@ -763,7 +768,7 @@ export async function createTtDraftActivityWithRelations(data: {
 	return activityIds;
 }
 
-export async function updateTimetableActivity(
+export async function updateTimetableDraftActivity(
 	activityId: number,
 	data: {
 		periodsPerInstance?: number;
@@ -780,14 +785,15 @@ export async function updateTimetableActivity(
 	return activity;
 }
 
-export async function deleteTimetableActivity(activityId: number) {
+export async function deleteTimetableDraftActivity(activityId: number) {
 	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.id, activityId));
 }
 
-export async function createTimetableDraft(timetableId: number) {
+export async function createTimetableDraft(name: string, timetableId: number) {
 	const [draft] = await db
 		.insert(table.timetableDraft)
 		.values({
+			name,
 			timetableId
 		})
 		.returning();
@@ -795,33 +801,36 @@ export async function createTimetableDraft(timetableId: number) {
 	return draft;
 }
 
-export async function deleteTimetableDraft(ttDraftId: number) {
-	await db.delete(table.timetableDraft).where(eq(table.timetableDraft.id, ttDraftId));
+export async function deleteTimetableDraft(timetableDraftId: number) {
+	await db.delete(table.timetableDraft).where(eq(table.timetableDraft.id, timetableDraftId));
 }
 
-export async function updateTimetableDraftError(ttDraftId: number, errorMessage: string) {
+export async function updateTimetableDraftError(timetableDraftId: number, errorMessage: string) {
 	await db
 		.update(table.timetableDraft)
 		.set({
 			errorMessage
 		})
-		.where(eq(table.timetableDraft.id, ttDraftId));
+		.where(eq(table.timetableDraft.id, timetableDraftId));
 }
 
-export async function updateTimetableIterationFetResponse(ttDraftId: number, fetResponse: string) {
+export async function updateTimetableDraftFetResponse(
+	timetableDraftId: number,
+	fetResponse: string
+) {
 	await db
 		.update(table.timetableDraft)
 		.set({
 			fetResponse
 		})
-		.where(eq(table.timetableDraft.id, ttDraftId));
+		.where(eq(table.timetableDraft.id, timetableDraftId));
 }
 
 export async function createTimetableQueueEntry(
 	timetableId: number,
 	userId: string,
 	fileName: string,
-	ttDraftId: number
+	timetableDraftId: number
 ) {
 	const [entry] = await db
 		.insert(table.timetableQueue)
@@ -829,7 +838,7 @@ export async function createTimetableQueueEntry(
 			timetableId,
 			userId,
 			fileName,
-			ttDraftId,
+			timetableDraftId,
 			status: queueStatusEnum.queued
 		})
 		.returning();
@@ -851,7 +860,7 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
-			ttDraftId: table.timetableQueue.ttDraftId,
+			timetableDraftId: table.timetableQueue.timetableDraftId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
@@ -862,7 +871,10 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 			fetResponse: table.timetableDraft.fetResponse
 		})
 		.from(table.timetableQueue)
-		.innerJoin(table.timetableDraft, eq(table.timetableQueue.ttDraftId, table.timetableDraft.id))
+		.innerJoin(
+			table.timetableDraft,
+			eq(table.timetableQueue.timetableDraftId, table.timetableDraft.id)
+		)
 		.where(eq(table.timetableQueue.timetableId, timetableId))
 		.orderBy(asc(table.timetableQueue.createdAt));
 
@@ -874,7 +886,7 @@ export async function getCompletedIterationsByTimetableId(timetableId: number) {
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
-			ttDraftId: table.timetableQueue.ttDraftId,
+			timetableDraftId: table.timetableQueue.timetableDraftId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
@@ -898,7 +910,7 @@ export async function getOldestQueuedTimetable() {
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
-			ttDraftId: table.timetableQueue.ttDraftId,
+			timetableDraftId: table.timetableQueue.timetableDraftId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
@@ -936,24 +948,24 @@ export async function updateTimetableQueueStatus(
 }
 
 export async function updateTimetableDraftTranslatedError(
-	ttDraftId: number,
+	timetableDraftId: number,
 	translatedErrorMessage: string
 ) {
 	const [entry] = await db
 		.update(table.timetableDraft)
 		.set({ translatedErrorMessage })
-		.where(eq(table.timetableDraft.id, ttDraftId))
+		.where(eq(table.timetableDraft.id, timetableDraftId))
 		.returning();
 
 	return entry;
 }
 
-export async function createTtDraftFETActivitiesFromFETExport(
-	ttDraftId: number,
+export async function createTimetableDraftFETActivitiesFromFETExport(
+	timetableDraftId: number,
 	fetActivities: FETActivity[]
 ) {
 	const activities = fetActivities.map((activity) => ({
-		ttDraftId,
+		timetableDraftId,
 		subjectId: activity.Subject,
 		teacherId: activity.Teacher,
 		groupId: activity.Students,
@@ -989,8 +1001,8 @@ export async function createConstraint(data: {
 	return constraint;
 }
 
-export async function createTtDraftConstraint(data: {
-	ttDraftId: number;
+export async function createTimetableDraftConstraint(data: {
+	timetableDraftId: number;
 	constraintId: number;
 	active: boolean;
 	parameters: Record<string, unknown>;
@@ -998,7 +1010,7 @@ export async function createTtDraftConstraint(data: {
 	const [constraint] = await db
 		.insert(table.timetableConstraint)
 		.values({
-			ttDraftId: data.ttDraftId,
+			timetableDraftId: data.timetableDraftId,
 			constraintId: data.constraintId,
 			active: data.active,
 			parameters: data.parameters
@@ -1008,7 +1020,7 @@ export async function createTtDraftConstraint(data: {
 	return constraint;
 }
 
-export async function getAllConstraintsByTtDraftId(ttDraftId: number) {
+export async function getAllConstraintsByTimetableDraftId(timetableDraftId: number) {
 	return db
 		.select({
 			id: table.constraint.id,
@@ -1025,11 +1037,11 @@ export async function getAllConstraintsByTtDraftId(ttDraftId: number) {
 		})
 		.from(table.timetableConstraint)
 		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
-		.where(eq(table.timetableConstraint.ttDraftId, ttDraftId))
+		.where(eq(table.timetableConstraint.timetableDraftId, timetableDraftId))
 		.orderBy(asc(table.constraint.FETName));
 }
 
-export async function getTimeConstraintsByTtDraftId(ttDraftId: number) {
+export async function getTimeConstraintsByTimetableDraftId(timetableDraftId: number) {
 	return db
 		.select({
 			id: table.constraint.id,
@@ -1044,14 +1056,14 @@ export async function getTimeConstraintsByTtDraftId(ttDraftId: number) {
 		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
 		.where(
 			and(
-				eq(table.timetableConstraint.ttDraftId, ttDraftId),
+				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
 				eq(table.constraint.type, constraintTypeEnum.time)
 			)
 		)
 		.orderBy(asc(table.constraint.FETName));
 }
 
-export async function getSpaceConstraintsByTtDraftId(ttDraftId: number) {
+export async function getSpaceConstraintsByTimetableDraftId(timetableDraftId: number) {
 	return db
 		.select({
 			id: table.constraint.id,
@@ -1066,14 +1078,16 @@ export async function getSpaceConstraintsByTtDraftId(ttDraftId: number) {
 		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
 		.where(
 			and(
-				eq(table.timetableConstraint.ttDraftId, ttDraftId),
+				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
 				eq(table.constraint.type, constraintTypeEnum.space)
 			)
 		)
 		.orderBy(asc(table.constraint.FETName));
 }
 
-export async function getActiveTimetableConstraintsForTimetable(ttDraftId: number) {
+export async function getActiveTimetableDraftConstraintsByTimetableDraftId(
+	timetableDraftId: number
+) {
 	return db
 		.select({
 			id: table.constraint.id,
@@ -1088,7 +1102,7 @@ export async function getActiveTimetableConstraintsForTimetable(ttDraftId: numbe
 		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
 		.where(
 			and(
-				eq(table.timetableConstraint.ttDraftId, ttDraftId),
+				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
 				eq(table.timetableConstraint.active, true)
 			)
 		)
@@ -1114,19 +1128,22 @@ export async function getConstraintById(constraintId: number) {
 	return constraint;
 }
 
-export async function deleteTtDraftConstraint(ttDraftId: number, constraintId: number) {
+export async function deleteTimetableDraftConstraint(
+	timetableDraftId: number,
+	constraintId: number
+) {
 	await db
 		.delete(table.timetableConstraint)
 		.where(
 			and(
-				eq(table.timetableConstraint.ttDraftId, ttDraftId),
+				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
 				eq(table.timetableConstraint.constraintId, constraintId)
 			)
 		);
 }
 
-export async function updateTtDraftConstraintActiveStatus(
-	ttDraftId: number,
+export async function updateTimetableDraftConstraintActiveStatus(
+	timetableDraftId: number,
 	constraintId: number,
 	active: boolean
 ) {
@@ -1135,7 +1152,7 @@ export async function updateTtDraftConstraintActiveStatus(
 		.set({ active })
 		.where(
 			and(
-				eq(table.timetableConstraint.ttDraftId, ttDraftId),
+				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
 				eq(table.timetableConstraint.constraintId, constraintId)
 			)
 		)
@@ -1144,7 +1161,10 @@ export async function updateTtDraftConstraintActiveStatus(
 	return result[0];
 }
 
-export async function getUserFETActivitiesByIterationId(userId: string, ttDraftId: number) {
+export async function getUserFETActivitiesByTimetableDraftId(
+	userId: string,
+	timetableDraftId: number
+) {
 	const activities = await db
 		.select({
 			id: table.fetActivity.id,
@@ -1161,7 +1181,10 @@ export async function getUserFETActivitiesByIterationId(userId: string, ttDraftI
 		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
 		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
 		.where(
-			and(eq(table.userFetActivity.userId, userId), eq(table.fetActivity.ttDraftId, ttDraftId))
+			and(
+				eq(table.userFetActivity.userId, userId),
+				eq(table.fetActivity.timetableDraftId, timetableDraftId)
+			)
 		)
 		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
 
@@ -1210,7 +1233,10 @@ export async function getSpacesBySchoolId(schoolId: number) {
 		.orderBy(asc(table.schoolSpace.name));
 }
 
-export async function getSpaceFETActivitiesByIterationId(spaceId: number, ttDraftId: number) {
+export async function getSpaceFETActivitiesByTimetableDraftId(
+	spaceId: number,
+	timetableDraftId: number
+) {
 	const activities = await db
 		.select({
 			id: table.fetActivity.id,
@@ -1225,7 +1251,12 @@ export async function getSpaceFETActivitiesByIterationId(spaceId: number, ttDraf
 		.from(table.fetActivity)
 		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
 		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
-		.where(and(eq(table.fetActivity.spaceId, spaceId), eq(table.fetActivity.ttDraftId, ttDraftId)))
+		.where(
+			and(
+				eq(table.fetActivity.spaceId, spaceId),
+				eq(table.fetActivity.timetableDraftId, timetableDraftId)
+			)
+		)
 		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
 
 	return activities;

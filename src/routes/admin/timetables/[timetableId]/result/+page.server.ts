@@ -1,11 +1,11 @@
 import {
 	getCompletedIterationsByTimetableId,
-	getSpaceFETActivitiesByIterationId,
+	getSpaceFETActivitiesByTimetableDraftId,
 	getSpacesBySchoolId,
 	getTimetableDays,
 	getTimetablePeriods,
 	getTimetableWithSchool,
-	getUserFETActivitiesByIterationId,
+	getUserFETActivitiesByTimetableDraftId,
 	getUsersBySchoolId
 } from '$lib/server/db/service';
 import { error } from '@sveltejs/kit';
@@ -40,20 +40,20 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 		}
 
 		// Get draft ID from URL or use the most recent one
-		const ttDraftIdParam = url.searchParams.get('ttDraftId');
-		const selectedIteration = ttDraftIdParam
-			? completedIterations.find((i) => i.ttDraftId.toString() === ttDraftIdParam)
+		const timetableDraftIdParam = url.searchParams.get('timetableDraftId');
+		const selectedIteration = timetableDraftIdParam
+			? completedIterations.find((i) => i.timetableDraftId.toString() === timetableDraftIdParam)
 			: completedIterations[completedIterations.length - 1]; // Most recent
 
 		if (!selectedIteration) {
 			throw error(404, 'Selected draft not found');
 		}
 
-		const ttDraftId = selectedIteration.ttDraftId;
+		const timetableDraftId = selectedIteration.timetableDraftId;
 
 		try {
 			// Process statistics from database
-			const statistics = await processStatistics(timetableId, ttDraftId);
+			const statistics = await processStatistics(timetableId, timetableDraftId);
 
 			// Transform to report formats
 			const teacherStatisticsReport = transformToTeacherStatisticsReport(
@@ -77,7 +77,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 				teacherStatisticsReport,
 				studentStatisticsReport,
 				completedIterations,
-				selectedIterationId: ttDraftId,
+				selectedIterationId: timetableDraftId,
 				allUsers,
 				allSpaces
 			};
@@ -101,9 +101,9 @@ export const actions = {
 
 		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
-		const ttDraftId = parseInt(formData.get('ttDraftId') as string);
+		const timetableDraftId = parseInt(formData.get('timetableDraftId') as string);
 
-		if (isNaN(timetableId) || isNaN(ttDraftId)) {
+		if (isNaN(timetableId) || isNaN(timetableDraftId)) {
 			throw error(400, 'Invalid parameters');
 		}
 
@@ -125,14 +125,16 @@ export const actions = {
 			}
 
 			// Find the selected draft
-			const selectedIteration = completedIterations.find((i) => i.ttDraftId === ttDraftId);
+			const selectedIteration = completedIterations.find(
+				(i) => i.timetableDraftId === timetableDraftId
+			);
 
 			if (!selectedIteration) {
 				throw error(404, 'Iteration not found');
 			}
 
 			// Process statistics from database
-			const statistics = await processStatistics(timetableId, ttDraftId);
+			const statistics = await processStatistics(timetableId, timetableDraftId);
 
 			// Transform to report formats
 			const teacherStatisticsReport = transformToTeacherStatisticsReport(
@@ -150,7 +152,7 @@ export const actions = {
 				teacherStatisticsReport,
 				studentStatisticsReport,
 				completedIterations,
-				selectedIterationId: ttDraftId
+				selectedIterationId: timetableDraftId
 			};
 		} catch (err) {
 			console.error('Failed to load statistics for draft:', err);
@@ -164,15 +166,15 @@ export const actions = {
 		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
 		const userId = formData.get('userId') as string;
-		const ttDraftId = parseInt(formData.get('ttDraftId') as string);
+		const timetableDraftId = parseInt(formData.get('timetableDraftId') as string);
 
-		if (isNaN(timetableId) || !userId || isNaN(ttDraftId)) {
+		if (isNaN(timetableId) || !userId || isNaN(timetableDraftId)) {
 			throw error(400, 'Invalid parameters');
 		}
 
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
-				getUserFETActivitiesByIterationId(userId, ttDraftId),
+				getUserFETActivitiesByTimetableDraftId(userId, timetableDraftId),
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId)
 			]);
@@ -196,15 +198,15 @@ export const actions = {
 		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
 		const spaceId = parseInt(formData.get('spaceId') as string);
-		const ttDraftId = parseInt(formData.get('ttDraftId') as string);
+		const timetableDraftId = parseInt(formData.get('timetableDraftId') as string);
 
-		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(ttDraftId)) {
+		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(timetableDraftId)) {
 			throw error(400, 'Invalid parameters');
 		}
 
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
-				getSpaceFETActivitiesByIterationId(spaceId, ttDraftId),
+				getSpaceFETActivitiesByTimetableDraftId(spaceId, timetableDraftId),
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId)
 			]);

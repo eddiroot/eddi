@@ -145,14 +145,14 @@ export async function getFileFromStorage(
 	timetableId: string,
 	objectName: string,
 	input: boolean,
-	ttDraftId?: string
+	timetableDraftId?: string
 ) {
 	const dir = input ? 'input' : 'output';
 	const bucketName = `schools`;
 
 	// Use draft structure if provided, otherwise fall back to old structure
-	const fullObjectName = ttDraftId
-		? `${schoolId}/${timetableId}/${ttDraftId}/${dir}/${objectName}`
+	const fullObjectName = timetableDraftId
+		? `${schoolId}/${timetableId}/${timetableDraftId}/${dir}/${objectName}`
 		: `${schoolId}/${timetableId}/${dir}/${objectName}`;
 
 	try {

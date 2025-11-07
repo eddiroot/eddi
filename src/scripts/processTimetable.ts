@@ -11,7 +11,7 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
-import { parseTimetableCSVAndPopulate } from '../utils';
+import { parseTimetableCSVAndPopulate } from './utils';
 
 const TEMP_DIR = join(process.cwd(), 'temp');
 

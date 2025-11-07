@@ -23,19 +23,33 @@ interface TimetableStatistics {
 	generatedAt: Date;
 }
 
-export async function processStatistics(
-	timetableId: number,
-	timetableDraftId: number
-): Promise<TimetableStatistics> {
+export async function processStatistics(timetableDraftId: number): Promise<TimetableStatistics> {
 	console.log(
-		`📊 [STATISTICS PROCESSOR] Starting statistics processing for timetable ${timetableId}, draft ${timetableDraftId}`
+		`📊 [STATISTICS PROCESSOR] Starting statistics processing for timetable draft ID: ${timetableDraftId}`
 	);
+
+	const timetableId = await db
+		.select({
+			timetableId: table.timetableDraft.timetableId
+		})
+		.from(table.timetableDraft)
+		.where(eq(table.timetableDraft.id, timetableDraftId))
+		.then((results) => results[0]?.timetableId);
+
+	if (!timetableId) {
+		throw new Error(`Timetable draft with ID ${timetableDraftId} not found`);
+	}
 
 	// Get all FET activities for this draft
 	const fetActivities = await db
 		.select()
 		.from(table.fetActivity)
-		.where(and(eq(table.fetActivity.timetableDraftId, timetableDraftId)));
+		.where(
+			and(
+				eq(table.fetActivity.timetableDraftId, timetableId),
+				eq(table.fetActivity.timetableDraftId, timetableDraftId)
+			)
+		);
 
 	console.log(`📋 [STATISTICS PROCESSOR] Found ${fetActivities.length} FET activities`);
 

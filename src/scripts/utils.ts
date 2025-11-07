@@ -4,7 +4,7 @@
 export async function parseTimetableCSVAndPopulate(
 	csvContent: string,
 	timetableId: number,
-	ttDraftId: number
+	timetableDraftId: number
 ) {
 	const { db } = await import('$lib/server/db');
 	const table = await import('$lib/server/db/schema');
@@ -134,7 +134,7 @@ export async function parseTimetableCSVAndPopulate(
 			table.timetableGroup,
 			eq(table.timetableGroupMember.groupId, table.timetableGroup.id)
 		)
-		.where(eq(table.timetableGroup.timetableId, timetableId));
+		.where(eq(table.timetableGroup.timetableDraftId, timetableDraftId));
 
 	// Create a map of groupId -> userIds
 	const groupToUsersMap = new Map<number, string[]>();
@@ -162,7 +162,7 @@ export async function parseTimetableCSVAndPopulate(
 		// Create fetActivity record
 		const fetActivityInsert = {
 			timetableId,
-			ttDraftId,
+			timetableDraftId,
 			subjectId: activityData.subject,
 			spaceId: activityData.room,
 			day: activityData.day,
@@ -269,7 +269,7 @@ export async function parseTimetableCSVAndPopulate(
  * const result = await parseTimetableCSVAndPopulate(
  *   csvContent,
  *   1000, // timetableId
- *   1001  // ttDraftId
+ *   1001  // timetableDraftId
  * );
  *
  * console.log(`Inserted ${result.activitiesInserted} activities`);

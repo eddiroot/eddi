@@ -1558,13 +1558,34 @@ async function seed() {
 			});
 		}
 
+		const [semester1] = await db
+			.select()
+			.from(schema.schoolSemester)
+			.where(
+				and(
+					eq(schema.schoolSemester.schoolId, schoolRecord.id),
+					eq(schema.schoolSemester.schoolYear, 2025),
+					eq(schema.schoolSemester.semNumber, 1)
+				)
+			)
+			.limit(1);
+
 		const [mockTimetable] = await db
 			.insert(schema.timetable)
 			.values({
 				schoolId: schoolRecord.id,
 				name: 'Main School Timetable 2025',
 				schoolYear: 2025,
+				schoolSemesterId: semester1.id,
 				isArchived: false
+			})
+			.returning();
+
+		const [mockTimetableDraft] = await db
+			.insert(schema.timetableDraft)
+			.values({
+				timetableId: mockTimetable.id,
+				name: 'Draft for Main School Timetable 2025'
 			})
 			.returning();
 
@@ -1604,7 +1625,7 @@ async function seed() {
 			const [group] = await db
 				.insert(schema.timetableGroup)
 				.values({
-					timetableId: mockTimetable.id,
+					timetableDraftId: mockTimetableDraft.id,
 					yearLevel: yearLevelEnum.year9,
 					name: `Year 9 ${subjectName}`
 				})
@@ -1636,7 +1657,7 @@ async function seed() {
 			const [activity1] = await db
 				.insert(schema.timetableActivity)
 				.values({
-					timetableId: mockTimetable.id,
+					timetableDraftId: mockTimetable.id,
 					subjectId: offering.subjectId,
 					periodsPerInstance: 1,
 					totalPeriods: 3 // 3 periods per week

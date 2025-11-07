@@ -1,13 +1,13 @@
 import { yearLevelEnum } from '$lib/enums';
 import {
-	addStudentToTimetableGroup,
-	createTimetableStudentGroup,
-	deleteTimetableStudentGroup,
+	addStudentToTimetableDraftGroup,
+	createTimetableDraftStudentGroup,
+	deleteTimetableDraftStudentGroup,
 	getStudentsByGroupId,
 	getStudentsForTimetable,
 	getSubjectsByYearLevel,
-	getTimetableStudentGroupsByTimetableId,
-	removeStudentFromTimetableGroup
+	getTimetableDraftGroupsByTimetableDraftId,
+	removeStudentFromTimetableDraftGroup
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
 
@@ -17,7 +17,7 @@ export const load = async ({ locals: { security }, params }) => {
 
 	// Get all students for the school
 	const students = await getStudentsForTimetable(timetableId, user.schoolId);
-	const groups = await getTimetableStudentGroupsByTimetableId(timetableId);
+	const groups = await getTimetableDraftGroupsByTimetableDraftId(timetableId);
 	const defaultYearLevel = students.length > 0 ? students[0].yearLevel : '';
 
 	// Get students for each group
@@ -53,7 +53,7 @@ export const actions = {
 		}
 
 		try {
-			await createTimetableStudentGroup(timetableId, yearLevel, name);
+			await createTimetableDraftStudentGroup(timetableId, yearLevel, name);
 			return { success: true };
 		} catch (error) {
 			console.error('Error creating group:', error);
@@ -82,7 +82,7 @@ export const actions = {
 			let createdCount = 0;
 			for (const subject of subjects) {
 				const groupName = `${subject.name}`;
-				await createTimetableStudentGroup(timetableId, yearLevel as yearLevelEnum, groupName);
+				await createTimetableDraftStudentGroup(timetableId, yearLevel as yearLevelEnum, groupName);
 				createdCount++;
 			}
 
@@ -110,7 +110,7 @@ export const actions = {
 		}
 
 		try {
-			await addStudentToTimetableGroup(parseInt(groupId as string, 10), userId as string);
+			await addStudentToTimetableDraftGroup(parseInt(groupId as string, 10), userId as string);
 			return { success: true };
 		} catch (error) {
 			console.error('Error adding student to group:', error);
@@ -135,7 +135,7 @@ export const actions = {
 		}
 
 		try {
-			await removeStudentFromTimetableGroup(parseInt(groupId as string, 10), userId as string);
+			await removeStudentFromTimetableDraftGroup(parseInt(groupId as string, 10), userId as string);
 			return { success: true };
 		} catch (error) {
 			console.error('Error removing student from group:', error);
@@ -159,7 +159,7 @@ export const actions = {
 		}
 
 		try {
-			await deleteTimetableStudentGroup(parseInt(groupId as string, 10));
+			await deleteTimetableDraftStudentGroup(parseInt(groupId as string, 10));
 			return { success: true };
 		} catch (error) {
 			console.error('Error deleting group:', error);

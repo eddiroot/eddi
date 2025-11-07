@@ -39,6 +39,7 @@ export type Timetable = typeof timetable.$inferSelect;
 
 export const timetableDraft = pgTable('tt_draft', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	name: text('name').notNull(),
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
@@ -62,7 +63,7 @@ export const timetableQueue = pgTable('tt_queue', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
-	ttDraftId: integer('tt_draft_id')
+	timetableDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	userId: uuid('user_id')
@@ -100,7 +101,7 @@ export type TimetablePeriod = typeof timetablePeriod.$inferSelect;
 
 export const timetableGroup = pgTable('tt_group', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	ttDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	yearLevel: yearLevelEnumPg().notNull(),
@@ -129,7 +130,7 @@ export type TimetableGroupMember = typeof timetableGroupMember.$inferSelect;
 
 export const timetableActivity = pgTable('tt_activity', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	ttDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	subjectId: integer('subject_id')
@@ -259,7 +260,7 @@ export type TimetableActivityAssignedYear = typeof timetableActivityAssignedYear
 
 export const fetActivity = pgTable('fet_activity', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	ttDraftId: integer('tt_draft_id')
+	timetableDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	subjectId: integer('subject_id')
@@ -299,7 +300,7 @@ export type UserFETActivity = typeof userFetActivity.$inferSelect;
 
 export const timetableConstraint = pgTable('tt_constraint', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	ttDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	constraintId: integer('constraint_id')

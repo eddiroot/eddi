@@ -205,9 +205,12 @@ const VICTORIAN_SCHOOL_TERMS: SchoolYear[] = [
 /**
  * Get all term dates for a specific year
  */
-export function getTermsByYear(year: number): TermDate[] | null {
+export function getTermsByYear(year: number): [TermDate, TermDate, TermDate, TermDate] | null {
 	const schoolYear = VICTORIAN_SCHOOL_TERMS.find((sy) => sy.year === year);
-	return schoolYear?.terms || null;
+
+	if (!schoolYear) return null;
+
+	return schoolYear.terms as [TermDate, TermDate, TermDate, TermDate];
 }
 
 /**
