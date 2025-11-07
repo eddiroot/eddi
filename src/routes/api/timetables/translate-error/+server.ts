@@ -1,5 +1,5 @@
 import { GEMINI_API_KEY, GEMINI_DEFAULT_MODEL } from '$env/static/private';
-import { updateTimetableIterationTranslatedError } from '$lib/server/db/service';
+import { updateTimetableDraftTranslatedError } from '$lib/server/db/service';
 import { error, json } from '@sveltejs/kit';
 
 const FET_EXPERTISE_PROMPT = `You are an expert in FET (Free/Libre Educational Timetabling) software, a sophisticated timetabling application that uses recursive swapping algorithms to schedule activities for schools, high schools, and universities.
@@ -181,7 +181,7 @@ export async function POST({ request, locals: { security } }) {
 			data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to translate error message';
 
 		// Save the translated message to the database
-		await updateTimetableIterationTranslatedError(timetableDraftId, translatedMessage);
+		await updateTimetableDraftTranslatedError(timetableDraftId, translatedMessage);
 
 		console.log(
 			`✅ [AI Translation] Successfully translated error for draft ${timetableDraftId} (${forceRetranslate ? 'forced' : 'new'})`

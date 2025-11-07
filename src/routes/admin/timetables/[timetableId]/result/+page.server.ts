@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 
 		try {
 			// Process statistics from database
-			const statistics = await processStatistics(timetableId, timetableDraftId);
+			const statistics = await processStatistics(timetableDraftId);
 
 			// Transform to report formats
 			const teacherStatisticsReport = transformToTeacherStatisticsReport(
@@ -134,7 +134,7 @@ export const actions = {
 			}
 
 			// Process statistics from database
-			const statistics = await processStatistics(timetableId, timetableDraftId);
+			const statistics = await processStatistics(timetableDraftId);
 
 			// Transform to report formats
 			const teacherStatisticsReport = transformToTeacherStatisticsReport(
