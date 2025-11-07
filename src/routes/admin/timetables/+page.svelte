@@ -36,7 +36,7 @@
 			.filter((semester) => semester.schoolYear === $formData.schoolYear)
 			.map((semester) => ({
 				value: semester.id,
-				label: semester.name
+				label: semester.name ?? 'Unnamed Semester'
 			}));
 	});
 </script>

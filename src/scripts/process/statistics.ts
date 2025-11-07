@@ -16,7 +16,7 @@ interface UserStatistics {
 
 interface TimetableStatistics {
 	timetableId: number;
-	iterationId: number;
+	ttDraftId: number;
 	totalDays: number;
 	totalPeriods: number;
 	userStatistics: UserStatistics[];
@@ -25,30 +25,30 @@ interface TimetableStatistics {
 
 export async function processStatistics(
 	timetableId: number,
-	iterationId: number
+	ttDraftId: number
 ): Promise<TimetableStatistics> {
 	console.log(
-		`📊 [STATISTICS PROCESSOR] Starting statistics processing for timetable ${timetableId}, iteration ${iterationId}`
+		`📊 [STATISTICS PROCESSOR] Starting statistics processing for timetable ${timetableId}, draft ${ttDraftId}`
 	);
 
-	// Get all FET activities for this iteration
+	// Get all FET activities for this draft
 	const fetActivities = await db
 		.select()
 		.from(table.fetActivity)
 		.where(
 			and(
 				eq(table.fetActivity.timetableId, timetableId),
-				eq(table.fetActivity.iterationId, iterationId)
+				eq(table.fetActivity.ttDraftId, ttDraftId)
 			)
 		);
 
 	console.log(`📋 [STATISTICS PROCESSOR] Found ${fetActivities.length} FET activities`);
 
 	if (fetActivities.length === 0) {
-		console.log('⚠️  [STATISTICS PROCESSOR] No FET activities found for this iteration');
+		console.log('⚠️  [STATISTICS PROCESSOR] No FET activities found for this draft');
 		return {
 			timetableId,
-			iterationId,
+			ttDraftId,
 			totalDays: 0,
 			totalPeriods: 0,
 			userStatistics: [],
@@ -170,7 +170,7 @@ export async function processStatistics(
 
 	const statistics: TimetableStatistics = {
 		timetableId,
-		iterationId,
+		ttDraftId,
 		totalDays,
 		totalPeriods: totalPeriodsPerDay,
 		userStatistics,

@@ -42,16 +42,14 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			});
 		}
 
-		// Create a new timetable iteration
-		const iteration = await createTimetableIteration(timetableId);
-		console.log(
-			`✅ [TIMETABLE PROCESSOR] Created iteration ${iteration.id} for timetable ${timetableId}`
-		);
+		// Create a new timetable draft
+		const draft = await createTimetableIteration(timetableId);
+		console.log(`✅ [TIMETABLE PROCESSOR] Created draft ${draft.id} for timetable ${timetableId}`);
 
 		const uniqueFileName = `tt_id${timetableId}.fet`;
 
-		// Updated path: school_id/timetable_id/iteration_id/input/filename
-		const objectKey = `${user.schoolId}/${timetableId}/${iteration.id}/input/${uniqueFileName}`;
+		// Updated path: school_id/timetable_id/draft_id/input/filename
+		const objectKey = `${user.schoolId}/${timetableId}/${draft.id}/input/${uniqueFileName}`;
 
 		await uploadBufferHelper(
 			Buffer.from(fetXmlContent, 'utf-8'),
@@ -62,7 +60,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
 		console.log('FET XML uploaded to object storage:', objectKey);
 
-		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName, iteration.id);
+		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName, draft.id);
 
 		// Trigger processing (this will run asynchronously)
 		processTimetableQueue().catch((err: Error) => {
@@ -72,7 +70,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		return json({
 			success: true,
 			message: 'Timetable generation has been queued successfully',
-			iterationId: iteration.id,
+			ttDraftId: draft.id,
 			queuedAt: new Date().toISOString()
 		});
 	} catch (err) {

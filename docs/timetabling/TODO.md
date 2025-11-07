@@ -19,7 +19,7 @@
 - [x] fix the results page to handle to handle appropriate statistics page
 - [ ] Showcase the error message to the user if the fet generation fails
   - [ ] should probably showcasae all fet responses (constraints broken etc)
-- [x] Fix the results page to now source the data from the timetable iteration fet activities rather than passing the html files
+- [x] Fix the results page to now source the data from the timetable draft fet activities rather than passing the html files
 - [ ] create a way to determine which subjects a teacher can teach, consider this in admin/user
 - [ ] create a way for the timetable to roll out to all the actual users (actually populating timetables)
   - [ ] You will need to map the tables correctly

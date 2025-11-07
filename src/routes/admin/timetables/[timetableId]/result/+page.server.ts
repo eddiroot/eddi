@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 			throw error(404, 'Timetable not found');
 		}
 
-		// Get completed iterations for this timetable
+		// Get completed drafts for this timetable
 		const completedIterations = await getCompletedIterationsByTimetableId(timetableId);
 
 		if (completedIterations.length === 0) {
@@ -39,21 +39,21 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 			);
 		}
 
-		// Get iteration ID from URL or use the most recent one
-		const iterationIdParam = url.searchParams.get('iterationId');
-		const selectedIteration = iterationIdParam
-			? completedIterations.find((i) => i.iterationId.toString() === iterationIdParam)
+		// Get draft ID from URL or use the most recent one
+		const ttDraftIdParam = url.searchParams.get('ttDraftId');
+		const selectedIteration = ttDraftIdParam
+			? completedIterations.find((i) => i.ttDraftId.toString() === ttDraftIdParam)
 			: completedIterations[completedIterations.length - 1]; // Most recent
 
 		if (!selectedIteration) {
-			throw error(404, 'Selected iteration not found');
+			throw error(404, 'Selected draft not found');
 		}
 
-		const iterationId = selectedIteration.iterationId;
+		const ttDraftId = selectedIteration.ttDraftId;
 
 		try {
 			// Process statistics from database
-			const statistics = await processStatistics(timetableId, iterationId);
+			const statistics = await processStatistics(timetableId, ttDraftId);
 
 			// Transform to report formats
 			const teacherStatisticsReport = transformToTeacherStatisticsReport(
@@ -77,7 +77,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 				teacherStatisticsReport,
 				studentStatisticsReport,
 				completedIterations,
-				selectedIterationId: iterationId,
+				selectedIterationId: ttDraftId,
 				allUsers,
 				allSpaces
 			};
@@ -101,9 +101,9 @@ export const actions = {
 
 		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
-		const iterationId = parseInt(formData.get('iterationId') as string, 10);
+		const ttDraftId = parseInt(formData.get('ttDraftId') as string);
 
-		if (isNaN(timetableId) || isNaN(iterationId)) {
+		if (isNaN(timetableId) || isNaN(ttDraftId)) {
 			throw error(400, 'Invalid parameters');
 		}
 
@@ -114,7 +114,7 @@ export const actions = {
 				throw error(404, 'Timetable not found');
 			}
 
-			// Get completed iterations for this timetable
+			// Get completed drafts for this timetable
 			const completedIterations = await getCompletedIterationsByTimetableId(timetableId);
 
 			if (completedIterations.length === 0) {
@@ -124,15 +124,15 @@ export const actions = {
 				);
 			}
 
-			// Find the selected iteration
-			const selectedIteration = completedIterations.find((i) => i.iterationId === iterationId);
+			// Find the selected draft
+			const selectedIteration = completedIterations.find((i) => i.ttDraftId === ttDraftId);
 
 			if (!selectedIteration) {
 				throw error(404, 'Iteration not found');
 			}
 
 			// Process statistics from database
-			const statistics = await processStatistics(timetableId, iterationId);
+			const statistics = await processStatistics(timetableId, ttDraftId);
 
 			// Transform to report formats
 			const teacherStatisticsReport = transformToTeacherStatisticsReport(
@@ -150,11 +150,11 @@ export const actions = {
 				teacherStatisticsReport,
 				studentStatisticsReport,
 				completedIterations,
-				selectedIterationId: iterationId
+				selectedIterationId: ttDraftId
 			};
 		} catch (err) {
-			console.error('Failed to load statistics for iteration:', err);
-			throw error(500, 'Failed to process statistics for the selected iteration');
+			console.error('Failed to load statistics for draft:', err);
+			throw error(500, 'Failed to process statistics for the selected draft');
 		}
 	},
 
@@ -164,15 +164,15 @@ export const actions = {
 		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
 		const userId = formData.get('userId') as string;
-		const iterationId = parseInt(formData.get('iterationId') as string, 10);
+		const ttDraftId = parseInt(formData.get('ttDraftId') as string);
 
-		if (isNaN(timetableId) || !userId || isNaN(iterationId)) {
+		if (isNaN(timetableId) || !userId || isNaN(ttDraftId)) {
 			throw error(400, 'Invalid parameters');
 		}
 
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
-				getUserFETActivitiesByIterationId(userId, iterationId),
+				getUserFETActivitiesByIterationId(userId, ttDraftId),
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId)
 			]);
@@ -195,16 +195,16 @@ export const actions = {
 
 		const timetableId = parseInt(params.timetableId, 10);
 		const formData = await request.formData();
-		const spaceId = parseInt(formData.get('spaceId') as string, 10);
-		const iterationId = parseInt(formData.get('iterationId') as string, 10);
+		const spaceId = parseInt(formData.get('spaceId') as string);
+		const ttDraftId = parseInt(formData.get('ttDraftId') as string);
 
-		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(iterationId)) {
+		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(ttDraftId)) {
 			throw error(400, 'Invalid parameters');
 		}
 
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
-				getSpaceFETActivitiesByIterationId(spaceId, iterationId),
+				getSpaceFETActivitiesByIterationId(spaceId, ttDraftId),
 				getTimetableDays(timetableId),
 				getTimetablePeriods(timetableId)
 			]);

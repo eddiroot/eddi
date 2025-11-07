@@ -4,7 +4,7 @@
 export async function parseTimetableCSVAndPopulate(
 	csvContent: string,
 	timetableId: number,
-	iterationId: number
+	ttDraftId: number
 ) {
 	const { db } = await import('$lib/server/db');
 	const table = await import('$lib/server/db/schema');
@@ -162,7 +162,7 @@ export async function parseTimetableCSVAndPopulate(
 		// Create fetActivity record
 		const fetActivityInsert = {
 			timetableId,
-			iterationId,
+			ttDraftId,
 			subjectId: activityData.subject,
 			spaceId: activityData.room,
 			day: activityData.day,
@@ -269,7 +269,7 @@ export async function parseTimetableCSVAndPopulate(
  * const result = await parseTimetableCSVAndPopulate(
  *   csvContent,
  *   1000, // timetableId
- *   1001  // iterationId
+ *   1001  // ttDraftId
  * );
  *
  * console.log(`Inserted ${result.activitiesInserted} activities`);

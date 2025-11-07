@@ -20,11 +20,11 @@
 	let isProcessing = $state(false);
 	let pollInterval: ReturnType<typeof setInterval> | null = null;
 	let selectedError = $state<{
-		iterationId: number;
+		ttDraftId: number;
 		message: string;
 		translatedMessage: string | null;
 	} | null>(null);
-	let selectedResponse = $state<{ iterationId: number; message: string } | null>(null);
+	let selectedResponse = $state<{ ttDraftId: number; message: string } | null>(null);
 	let showErrorDialog = $state(false);
 	let showResponseDialog = $state(false);
 	let showTranslated = $state(false);
@@ -64,18 +64,18 @@
 	}
 
 	function showError(
-		iterationId: number,
+		ttDraftId: number,
 		message: string,
 		translatedMessage: string | null | undefined
 	) {
-		selectedError = { iterationId, message, translatedMessage: translatedMessage || null };
+		selectedError = { ttDraftId, message, translatedMessage: translatedMessage || null };
 		showTranslated = false;
 		isTranslating = false;
 		showErrorDialog = true;
 	}
 
-	function showResponse(iterationId: number, message: string) {
-		selectedResponse = { iterationId, message };
+	function showResponse(ttDraftId: number, message: string) {
+		selectedResponse = { ttDraftId, message };
 		showResponseDialog = true;
 	}
 
@@ -118,7 +118,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					iterationId: selectedError.iterationId,
+					ttDraftId: selectedError.ttDraftId,
 					errorMessage: selectedError.message,
 					forceRetranslate
 				})
@@ -276,9 +276,9 @@
 						</Card.Title>
 						<Card.Description>
 							{#if data.queueEntries && data.queueEntries.length > 0}
-								{data.queueEntries.length} iteration{data.queueEntries.length !== 1 ? 's' : ''}
+								{data.queueEntries.length} draft{data.queueEntries.length !== 1 ? 's' : ''}
 							{:else}
-								No iterations yet
+								No drafts yet
 							{/if}
 						</Card.Description>
 					</div>
@@ -302,7 +302,7 @@
 						{#each data.queueEntries as entry}
 							<div class="border-muted rounded-lg border p-4">
 								<div class="mb-2 flex items-center justify-between">
-									<span class="text-sm font-medium">Iteration #{entry.iterationId}</span>
+									<span class="text-sm font-medium">Iteration #{entry.ttDraftId}</span>
 									<div class="flex items-center gap-2">
 										<Badge class={getStatusColor(entry.status)}>
 											{formatStatus(entry.status)}
@@ -314,7 +314,7 @@
 												class="h-6 w-6"
 												onclick={() =>
 													showError(
-														entry.iterationId,
+														entry.ttDraftId,
 														entry.errorMessage!,
 														entry.translatedErrorMessage
 													)}
@@ -327,7 +327,7 @@
 												variant="ghost"
 												size="icon"
 												class="h-6 w-6"
-												onclick={() => showResponse(entry.iterationId, entry.fetResponse!)}
+												onclick={() => showResponse(entry.ttDraftId, entry.fetResponse!)}
 												title="View FET response"
 											>
 												<Info class="h-4 w-4 text-green-500" />
@@ -370,7 +370,7 @@
 				{:else}
 					<div class="py-8 text-center">
 						<p class="text-muted-foreground text-sm">
-							No timetable iterations in queue yet. Generate your first timetable to get started.
+							No timetable drafts in queue yet. Generate your first timetable to get started.
 						</p>
 					</div>
 				{/if}
@@ -404,7 +404,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<AlertCircle class="h-5 w-5 text-red-500" />
-				Generation Error - Iteration #{selectedError?.iterationId}
+				Generation Error - Iteration #{selectedError?.ttDraftId}
 			</Dialog.Title>
 			<Dialog.Description>
 				The timetable generation process encountered the following error:
@@ -493,7 +493,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<Info class="h-5 w-5 text-green-500" />
-				FET Response - Iteration #{selectedResponse?.iterationId}
+				FET Response - Iteration #{selectedResponse?.ttDraftId}
 			</Dialog.Title>
 			<Dialog.Description>The output from the timetable generation process:</Dialog.Description>
 		</Dialog.Header>

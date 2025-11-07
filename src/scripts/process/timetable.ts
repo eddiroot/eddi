@@ -64,22 +64,16 @@ export async function processTimetableQueue() {
 
 			const schoolId = queueEntry.school.id.toString();
 			const timetableId = queueEntry.timetableId.toString();
-			const iterationId = queueEntry.iterationId.toString();
+			const ttDraftId = queueEntry.ttDraftId.toString();
 			const fileName = queueEntry.fileName;
 
 			console.log('📥 [TIMETABLE PROCESSOR] Downloading input file from object storage...');
 			console.log(`   - School ID: ${schoolId}`);
 			console.log(`   - Timetable ID: ${timetableId}`);
-			console.log(`   - Iteration ID: ${iterationId}`);
+			console.log(`   - Iteration ID: ${ttDraftId}`);
 			console.log(`   - File name: ${fileName}`);
 
-			const fileBuffer = await getFileFromStorage(
-				schoolId,
-				timetableId,
-				fileName,
-				true,
-				iterationId
-			);
+			const fileBuffer = await getFileFromStorage(schoolId, timetableId, fileName, true, ttDraftId);
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] File downloaded successfully - Size: ${fileBuffer.length} bytes`
 			);
@@ -155,11 +149,11 @@ export async function processTimetableQueue() {
 				`✅ [TIMETABLE PROCESSOR] FET processing completed in ${(fetEndTime - fetStartTime) / 1000} seconds`
 			);
 
-			// Store FET response (stdout) in the iteration for successful generations
+			// Store FET response (stdout) in the draft for successful generations
 			if (fetResult.stdout) {
 				try {
-					await updateTimetableIterationFetResponse(queueEntry.iterationId, fetResult.stdout);
-					console.log('✅ [TIMETABLE PROCESSOR] FET response stored in iteration');
+					await updateTimetableIterationFetResponse(queueEntry.ttDraftId, fetResult.stdout);
+					console.log('✅ [TIMETABLE PROCESSOR] FET response stored in draft');
 				} catch (responseError) {
 					console.warn('⚠️  [TIMETABLE PROCESSOR] Failed to store FET response:', responseError);
 				}
@@ -212,8 +206,8 @@ export async function processTimetableQueue() {
 							contentType = 'text/plain';
 						}
 
-						// Upload with iteration structure: {schoolId}/{timetableId}/{iterationId}/output/{fileName}
-						const outputObjectKey = `${schoolId}/${timetableId}/${iterationId}/output/${fileName}`;
+						// Upload with draft structure: {schoolId}/{timetableId}/{ttDraftId}/output/{fileName}
+						const outputObjectKey = `${schoolId}/${timetableId}/${ttDraftId}/output/${fileName}`;
 						await uploadBufferHelper(
 							Buffer.from(fileContent.stdout, 'utf-8'),
 							'schools',
@@ -237,7 +231,7 @@ export async function processTimetableQueue() {
 						await parseTimetableCSVAndPopulate(
 							timetableCSV,
 							queueEntry.timetableId,
-							queueEntry.iterationId
+							queueEntry.ttDraftId
 						);
 
 						console.log(
@@ -267,17 +261,17 @@ export async function processTimetableQueue() {
 				throw new Error('FET processing completed but no output files were generated');
 			}
 		} catch (processingError) {
-			// Capture and store the error message in the iteration
+			// Capture and store the error message in the draft
 			const errorMessage =
 				processingError instanceof Error ? processingError.message : 'Unknown error';
 
-			// Store error message in iteration if not already stored
+			// Store error message in draft if not already stored
 
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed);
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
 
 			await updateTimetableIterationRawError(
-				queueEntry.iterationId,
+				queueEntry.ttDraftId,
 				processingError.stdout.toString()
 			);
 
@@ -287,7 +281,7 @@ export async function processTimetableQueue() {
 				queueEntryId: queueEntry.id,
 				schoolId: queueEntry.school.id,
 				timetableId: queueEntry.timetableId,
-				iterationId: queueEntry.iterationId,
+				ttDraftId: queueEntry.ttDraftId,
 				fileName: queueEntry.fileName
 			});
 

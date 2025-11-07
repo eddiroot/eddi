@@ -783,46 +783,43 @@ export async function deleteTimetableActivity(activityId: number) {
 }
 
 export async function createTimetableIteration(timetableId: number) {
-	const [iteration] = await db
+	const [draft] = await db
 		.insert(table.timetableIteration)
 		.values({
 			timetableId
 		})
 		.returning();
 
-	return iteration;
+	return draft;
 }
 
-export async function deleteTimetableIteration(iterationId: number) {
-	await db.delete(table.timetableIteration).where(eq(table.timetableIteration.id, iterationId));
+export async function deleteTimetableIteration(ttDraftId: number) {
+	await db.delete(table.timetableIteration).where(eq(table.timetableIteration.id, ttDraftId));
 }
 
-export async function updateTimetableIterationError(iterationId: number, errorMessage: string) {
+export async function updateTimetableIterationError(ttDraftId: number, errorMessage: string) {
 	await db
 		.update(table.timetableIteration)
 		.set({
 			errorMessage
 		})
-		.where(eq(table.timetableIteration.id, iterationId));
+		.where(eq(table.timetableIteration.id, ttDraftId));
 }
 
-export async function updateTimetableIterationFetResponse(
-	iterationId: number,
-	fetResponse: string
-) {
+export async function updateTimetableIterationFetResponse(ttDraftId: number, fetResponse: string) {
 	await db
 		.update(table.timetableIteration)
 		.set({
 			fetResponse
 		})
-		.where(eq(table.timetableIteration.id, iterationId));
+		.where(eq(table.timetableIteration.id, ttDraftId));
 }
 
 export async function createTimetableQueueEntry(
 	timetableId: number,
 	userId: string,
 	fileName: string,
-	iterationId: number
+	ttDraftId: number
 ) {
 	const [entry] = await db
 		.insert(table.timetableQueue)
@@ -830,7 +827,7 @@ export async function createTimetableQueueEntry(
 			timetableId,
 			userId,
 			fileName,
-			iterationId,
+			ttDraftId,
 			status: queueStatusEnum.queued
 		})
 		.returning();
@@ -852,7 +849,7 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
-			iterationId: table.timetableQueue.iterationId,
+			ttDraftId: table.timetableQueue.ttDraftId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
@@ -865,7 +862,7 @@ export async function getTimetableQueueByTimetableId(timetableId: number) {
 		.from(table.timetableQueue)
 		.innerJoin(
 			table.timetableIteration,
-			eq(table.timetableQueue.iterationId, table.timetableIteration.id)
+			eq(table.timetableQueue.ttDraftId, table.timetableIteration.id)
 		)
 		.where(eq(table.timetableQueue.timetableId, timetableId))
 		.orderBy(asc(table.timetableQueue.createdAt));
@@ -878,7 +875,7 @@ export async function getCompletedIterationsByTimetableId(timetableId: number) {
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
-			iterationId: table.timetableQueue.iterationId,
+			ttDraftId: table.timetableQueue.ttDraftId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
@@ -902,7 +899,7 @@ export async function getOldestQueuedTimetable() {
 		.select({
 			id: table.timetableQueue.id,
 			timetableId: table.timetableQueue.timetableId,
-			iterationId: table.timetableQueue.iterationId,
+			ttDraftId: table.timetableQueue.ttDraftId,
 			userId: table.timetableQueue.userId,
 			fileName: table.timetableQueue.fileName,
 			status: table.timetableQueue.status,
@@ -940,13 +937,13 @@ export async function updateTimetableQueueStatus(
 }
 
 export async function updateTimetableIterationTranslatedError(
-	iterationId: number,
+	ttDraftId: number,
 	translatedErrorMessage: string
 ) {
 	const [entry] = await db
 		.update(table.timetableIteration)
 		.set({ translatedErrorMessage })
-		.where(eq(table.timetableIteration.id, iterationId))
+		.where(eq(table.timetableIteration.id, ttDraftId))
 		.returning();
 
 	return entry;
@@ -1148,7 +1145,7 @@ export async function updateTimetableConstraintActiveStatus(
 	return result[0];
 }
 
-export async function getUserFETActivitiesByIterationId(userId: string, iterationId: number) {
+export async function getUserFETActivitiesByIterationId(userId: string, ttDraftId: number) {
 	const activities = await db
 		.select({
 			id: table.fetActivity.id,
@@ -1165,7 +1162,7 @@ export async function getUserFETActivitiesByIterationId(userId: string, iteratio
 		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
 		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
 		.where(
-			and(eq(table.userFetActivity.userId, userId), eq(table.fetActivity.iterationId, iterationId))
+			and(eq(table.userFetActivity.userId, userId), eq(table.fetActivity.ttDraftId, ttDraftId))
 		)
 		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
 
@@ -1199,7 +1196,22 @@ export async function searchUsersBySchoolId(schoolId: number, searchTerm: string
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
 }
 
-export async function getSpaceFETActivitiesByIterationId(spaceId: number, iterationId: number) {
+export async function getSpacesBySchoolId(schoolId: number) {
+	return db
+		.select({
+			id: table.schoolSpace.id,
+			name: table.schoolSpace.name,
+			capacity: table.schoolSpace.capacity,
+			buildingName: table.schoolBuilding.name
+		})
+		.from(table.schoolSpace)
+		.innerJoin(table.schoolBuilding, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
+		.innerJoin(table.campus, eq(table.schoolBuilding.campusId, table.campus.id))
+		.where(eq(table.campus.schoolId, schoolId))
+		.orderBy(asc(table.schoolSpace.name));
+}
+
+export async function getSpaceFETActivitiesByIterationId(spaceId: number, ttDraftId: number) {
 	const activities = await db
 		.select({
 			id: table.fetActivity.id,
@@ -1214,9 +1226,7 @@ export async function getSpaceFETActivitiesByIterationId(spaceId: number, iterat
 		.from(table.fetActivity)
 		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
 		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
-		.where(
-			and(eq(table.fetActivity.spaceId, spaceId), eq(table.fetActivity.iterationId, iterationId))
-		)
+		.where(and(eq(table.fetActivity.spaceId, spaceId), eq(table.fetActivity.ttDraftId, ttDraftId)))
 		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
 
 	return activities;

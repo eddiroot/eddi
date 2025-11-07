@@ -434,7 +434,7 @@ interface UserStatistics {
 
 interface TimetableStatistics {
 	timetableId: number;
-	iterationId: number;
+	ttDraftId: number;
 	totalDays: number;
 	totalPeriods: number;
 	userStatistics: UserStatistics[];

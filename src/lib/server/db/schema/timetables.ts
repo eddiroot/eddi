@@ -37,7 +37,7 @@ export const timetable = pgTable(
 
 export type Timetable = typeof timetable.$inferSelect;
 
-export const timetableIteration = pgTable('tt_iteration', {
+export const timetableIteration = pgTable('tt_draft', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	timetableId: integer('tt_id')
 		.notNull()
@@ -62,7 +62,7 @@ export const timetableQueue = pgTable('tt_queue', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
-	iterationId: integer('tt_iteration_id')
+	ttDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableIteration.id, { onDelete: 'cascade' }),
 	userId: uuid('user_id')
@@ -262,7 +262,7 @@ export const fetActivity = pgTable('fet_activity', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
-	iterationId: integer('tt_iteration_id')
+	ttDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableIteration.id, { onDelete: 'cascade' }),
 	subjectId: integer('subject_id')

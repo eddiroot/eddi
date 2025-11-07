@@ -2,7 +2,7 @@
 
 Can you please use the svelte 5 mcp tools when creating the UI for this page.
 
-For the following statistics, please refer to some of the pre-existing functions that are present in the server side page but feel free to add function that you believe you need. When refering to the statistics, this should be sourced using the fetactivities for a chosen timetable iteration. Please ensure that the user has the ability to choose which iteration it wishes to look at and from this, the page should automatically propagate the new data for the newly selected iteration.
+For the following statistics, please refer to some of the pre-existing functions that are present in the server side page but feel free to add function that you believe you need. When refering to the statistics, this should be sourced using the fetactivities for a chosen timetable draft. Please ensure that the user has the ability to choose which draft it wishes to look at and from this, the page should automatically propagate the new data for the newly selected draft.
 
 I want the following statistics:
 
