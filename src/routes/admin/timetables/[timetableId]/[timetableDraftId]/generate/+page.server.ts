@@ -1,19 +1,20 @@
 import { userTypeEnum } from '$lib/enums.js';
 import {
-	getActiveTimetableConstraintsForTimetable,
+	getActiveTimetableDraftConstraintsByTimetableDraftId,
+	getAllStudentGroupsByTimetableDraftId,
 	getBuildingsBySchoolId,
-	getEnhancedTimetableActivitiesByTimetableId,
+	getEnhancedTimetableDraftActivitiesByTimetableDraftId,
 	getSchoolById,
 	getSpacesBySchoolId,
-	getStudentGroupsByTimetableId,
 	getSubjectsBySchoolId,
 	getTimetableDaysByTimetableId,
+	getTimetableDraftById,
 	getTimetablePeriodsByTimetableId,
 	getTimetableQueueByTimetableId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
-import { processTimetableQueue } from '../../../../../scripts/process/timetable.js';
+import { processTimetableQueue } from '../../../../../../scripts/process/timetable.js';
 import { buildFETInput } from './utils.js';
 
 export const load = async ({ params, locals: { security }, depends }) => {
@@ -38,6 +39,9 @@ export const actions = {
 		const user = security.getUser();
 
 		const timetableId = parseInt(params.timetableId, 10);
+
+		const draft = await getTimetableDraftById(parseInt(params.timetableDraftId, 10));
+
 		if (isNaN(timetableId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
@@ -57,14 +61,14 @@ export const actions = {
 			] = await Promise.all([
 				getTimetableDaysByTimetableId(timetableId),
 				getTimetablePeriodsByTimetableId(timetableId),
-				getStudentGroupsByTimetableId(timetableId),
-				getEnhancedTimetableActivitiesByTimetableId(timetableId),
+				getAllStudentGroupsByTimetableDraftId(draft.id),
+				getEnhancedTimetableDraftActivitiesByTimetableDraftId(draft.id),
 				getBuildingsBySchoolId(user.schoolId),
 				getSpacesBySchoolId(user.schoolId),
 				getUsersBySchoolIdAndType(user.schoolId, userTypeEnum.teacher),
 				getSubjectsBySchoolId(user.schoolId),
 				getSchoolById(user.schoolId),
-				getActiveTimetableConstraintsForTimetable(timetableId)
+				getActiveTimetableDraftConstraintsByTimetableDraftId(draft.id)
 			]);
 
 			const xmlContent = await buildFETInput({
@@ -91,6 +95,7 @@ export const actions = {
 					},
 					body: JSON.stringify({
 						timetableId,
+						draft,
 						fetXmlContent: xmlContent
 					})
 				});

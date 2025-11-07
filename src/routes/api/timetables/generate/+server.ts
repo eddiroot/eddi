@@ -1,7 +1,4 @@
-import {
-	createTimetableDraft,
-	createTimetableQueueEntry
-} from '$lib/server/db/service/timetables.js';
+import { createTimetableQueueEntry } from '$lib/server/db/service/timetables.js';
 import { FETDockerService } from '$lib/server/fet';
 import { uploadBufferHelper } from '$lib/server/obj.js';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
@@ -15,7 +12,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 
 		const user = security.getUser();
 		const requestData = await request.json();
-		const { timetableId, fetXmlContent } = requestData;
+		const { timetableId, draft, fetXmlContent } = requestData;
 
 		// Validate inputs
 		if (!timetableId) {
@@ -42,13 +39,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			});
 		}
 
-		// Create a new timetable draft
-		const draft = await createTimetableDraft('Draft x', timetableId);
-		console.log(`✅ [TIMETABLE PROCESSOR] Created draft ${draft.id} for timetable ${timetableId}`);
-
-		const uniqueFileName = `ttDraft_id${timetableId}.fet`;
-
-		// Updated path: school_id/timetable_id/draft_id/input/filename
+		const uniqueFileName = `ID_${draft.id}_CreatedAt_${draft.createdAt}.fet`;
 		const objectKey = `${user.schoolId}/${timetableId}/${draft.id}/input/${uniqueFileName}`;
 
 		await uploadBufferHelper(

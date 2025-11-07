@@ -167,6 +167,15 @@ export async function deleteTimetablePeriodByPeriodId(periodId: number, timetabl
 // TIMETABLE DRAFT - Core Operations
 // ============================================================================
 
+export async function getTimetableDraftById(timetableDraftId: number) {
+	const [timetableDraft] = await db
+		.select()
+		.from(table.timetableDraft)
+		.where(eq(table.timetableDraft.id, timetableDraftId))
+		.limit(1);
+	return timetableDraft;
+}
+
 export async function getTimetableDraftsByTimetableId(timetableId: number) {
 	const timetableDrafts = await db
 		.select()
