@@ -5,7 +5,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import type { SchoolTerm } from '$lib/server/db/schema/schools';
 	import { formatDate } from '$lib/utils';
-	import { Pencil, Plus, Trash2 } from '@lucide/svelte';
+	import { Pencil } from '@lucide/svelte';
 	import TermDialog from './term-dialog.svelte';
 
 	let { data, form } = $props();
@@ -198,16 +198,6 @@
 								{/if}
 							</Card.Title>
 						</div>
-						{#if semester1}
-							<Button
-								size="sm"
-								variant="outline"
-								onclick={() => openCreateDialog(semester1.id, 'Semester 1')}
-							>
-								<Plus />
-								Add Term
-							</Button>
-						{/if}
 					</div>
 				</Card.Header>
 				<Card.Content class="space-y-6">
@@ -225,14 +215,14 @@
 										>
 											<Pencil class="h-4 w-4" />
 										</Button>
-										<Button
+										<!-- <Button
 											size="icon"
 											variant="ghost"
 											class="h-8 w-8"
 											onclick={() => handleDeleteTerm(term.id)}
 										>
 											<Trash2 class="h-4 w-4" />
-										</Button>
+										</Button> -->
 									</div>
 								</div>
 								<div class="space-y-1 text-sm">
@@ -274,16 +264,6 @@
 								{/if}
 							</Card.Title>
 						</div>
-						{#if semester2}
-							<Button
-								size="sm"
-								variant="outline"
-								onclick={() => openCreateDialog(semester2.id, 'Semester 2')}
-							>
-								<Plus />
-								Add Term
-							</Button>
-						{/if}
 					</div>
 				</Card.Header>
 				<Card.Content class="space-y-6">
@@ -301,14 +281,14 @@
 										>
 											<Pencil class="h-4 w-4" />
 										</Button>
-										<Button
+										<!-- <Button
 											size="icon"
 											variant="ghost"
 											class="h-8 w-8"
 											onclick={() => handleDeleteTerm(term.id)}
 										>
 											<Trash2 class="h-4 w-4" />
-										</Button>
+										</Button> -->
 									</div>
 								</div>
 								<div class="space-y-1 text-sm">

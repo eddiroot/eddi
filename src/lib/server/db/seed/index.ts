@@ -194,17 +194,20 @@ async function seed() {
 			])
 			.returning();
 
-		// Create semesters and terms using Victorian school term dates
+		// Create semesters and terms using Victorian school term dates for the next 10 years
 		const currentYear = new Date().getFullYear();
-		const victorianTerms = getTermsByYear(currentYear);
+		const yearsToCreate = 10;
 
-		if (victorianTerms) {
+		for (let yearOffset = 0; yearOffset < yearsToCreate; yearOffset++) {
+			const year = currentYear + yearOffset;
+			const victorianTerms = getTermsByYear(year);
+
 			// Determine semester 1 (terms 1 and 2) and semester 2 (terms 3 and 4)
-			const semester1Terms = victorianTerms.filter((t) => t.term === 1 || t.term === 2);
-			const semester2Terms = victorianTerms.filter((t) => t.term === 3 || t.term === 4);
+			const semester1Terms = victorianTerms?.filter((t) => t.term === 1 || t.term === 2);
+			const semester2Terms = victorianTerms?.filter((t) => t.term === 3 || t.term === 4);
 
 			// Create Semester 1
-			if (semester1Terms.length > 0) {
+			if (semester1Terms) {
 				const semester1StartDate = semester1Terms[0].startDate.toISOString().split('T')[0];
 				const semester1EndDate = semester1Terms[semester1Terms.length - 1].endDate
 					.toISOString()
@@ -214,7 +217,7 @@ async function seed() {
 					.insert(schema.schoolSemester)
 					.values({
 						schoolId: schoolRecord.id,
-						schoolYear: currentYear,
+						schoolYear: year,
 						name: 'Semester 1',
 						startDate: semester1StartDate,
 						endDate: semester1EndDate,
@@ -235,7 +238,7 @@ async function seed() {
 			}
 
 			// Create Semester 2
-			if (semester2Terms.length > 0) {
+			if (semester2Terms) {
 				const semester2StartDate = semester2Terms[0].startDate.toISOString().split('T')[0];
 				const semester2EndDate = semester2Terms[semester2Terms.length - 1].endDate
 					.toISOString()
@@ -245,7 +248,7 @@ async function seed() {
 					.insert(schema.schoolSemester)
 					.values({
 						schoolId: schoolRecord.id,
-						schoolYear: currentYear,
+						schoolYear: year,
 						name: 'Semester 2',
 						startDate: semester2StartDate,
 						endDate: semester2EndDate,
