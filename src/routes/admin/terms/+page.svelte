@@ -4,6 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
 	import type { SchoolTerm } from '$lib/server/db/schema/schools';
+	import { formatDate } from '$lib/utils';
 	import { Pencil, Plus, Trash2 } from '@lucide/svelte';
 	import TermDialog from './term-dialog.svelte';
 
@@ -20,11 +21,6 @@
 	let selectedSemesterId = $state<number>(0);
 	let selectedSemesterName = $state('');
 	let selectedTerm = $state<SchoolTerm | undefined>(undefined);
-
-	function formatDate(dateString: string) {
-		const date = new Date(dateString);
-		return date.toLocaleDateString('en-AU', { day: '2-digit', month: 'short' });
-	}
 
 	function calculateWeeks(startDate: string, endDate: string) {
 		const start = new Date(startDate);

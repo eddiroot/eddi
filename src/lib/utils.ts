@@ -210,6 +210,11 @@ export function toLocalDatetimeString(date: Date | string | null): string {
 	return localTime.toISOString().slice(0, 16);
 }
 
+export function formatDate(dateString: string) {
+	const date = new Date(dateString);
+	return date.toLocaleDateString('en-AU', { day: '2-digit', month: 'short' });
+}
+
 export const days = [
 	{ name: 'Monday', shortName: 'Mon', value: 'monday', number: 1 },
 	{ name: 'Tuesday', shortName: 'Tue', value: 'tuesday', number: 2 },

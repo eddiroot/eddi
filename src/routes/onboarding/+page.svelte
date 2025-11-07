@@ -5,9 +5,10 @@
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import * as Select from '$lib/components/ui/select';
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { formSchema, type FormSchema } from './schema';
+	import { COUNTRYANDSTATECODES, formSchema, type FormSchema } from './schema';
 
 	let { data }: { data: { form: SuperValidated<Infer<FormSchema>> } } = $props();
 
@@ -81,27 +82,56 @@
 						</Form.Control>
 						<Form.FieldErrors />
 					</Form.Field>
-
-					<Form.Field {form} name="countryCode">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Schools Country Code</Form.Label>
-								<Input {...props} bind:value={$formData.countryCode} placeholder="AU" />
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-
-					<Form.Field {form} name="stateCode">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Schools State Code</Form.Label>
-								<Input {...props} bind:value={$formData.stateCode} placeholder="VIC" />
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-
+					<div class="flex gap-4">
+						<Form.Field {form} name="countryCode" class="flex-1">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label>Schools Country Code</Form.Label>
+									<Select.Root type="single" bind:value={$formData.countryCode}>
+										<Select.Trigger {...props} class="mt-1 w-full">
+											{#if $formData.countryCode}
+												{$formData.countryCode}
+											{:else}
+												AU
+											{/if}
+										</Select.Trigger>
+										<Select.Content>
+											{#each Object.keys(COUNTRYANDSTATECODES) as code}
+												<Select.Item value={code}>{code}</Select.Item>
+											{/each}
+										</Select.Content>
+									</Select.Root>
+								{/snippet}
+							</Form.Control>
+							<Form.FieldErrors />
+						</Form.Field>
+						<Form.Field {form} name="stateCode" class="flex-1">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label>Schools State Code</Form.Label>
+									<Select.Root type="single" bind:value={$formData.stateCode}>
+										<Select.Trigger {...props} class="mt-1 w-full">
+											{#if $formData.stateCode}
+												{$formData.stateCode}
+											{:else}
+												Select a state
+											{/if}
+										</Select.Trigger>
+										<Select.Content>
+											{#if $formData.countryCode && COUNTRYANDSTATECODES[$formData.countryCode as keyof typeof COUNTRYANDSTATECODES]}
+												{#each COUNTRYANDSTATECODES[$formData.countryCode as keyof typeof COUNTRYANDSTATECODES] as stateCode}
+													<Select.Item value={stateCode}>{stateCode}</Select.Item>
+												{/each}
+											{:else}
+												<Select.Item value="" disabled>Please select a country first</Select.Item>
+											{/if}
+										</Select.Content>
+									</Select.Root>
+								{/snippet}
+							</Form.Control>
+							<Form.FieldErrors />
+						</Form.Field>
+					</div>
 					<Form.Field {form} name="password">
 						<Form.Control>
 							{#snippet children({ props })}
