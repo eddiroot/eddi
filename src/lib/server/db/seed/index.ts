@@ -196,31 +196,28 @@ async function seed() {
 
 		// Create semesters and terms using Victorian school term dates for the next 10 years
 		const currentYear = new Date().getFullYear();
-		const yearsToCreate = 10;
+		const yearsToCreate = 5;
 
 		for (let yearOffset = 0; yearOffset < yearsToCreate; yearOffset++) {
 			const year = currentYear + yearOffset;
 			const victorianTerms = getTermsByYear(year);
 
 			// Determine semester 1 (terms 1 and 2) and semester 2 (terms 3 and 4)
-			const semester1Terms = victorianTerms?.filter((t) => t.term === 1 || t.term === 2);
-			const semester2Terms = victorianTerms?.filter((t) => t.term === 3 || t.term === 4);
+			const semester1Terms = victorianTerms?.filter(
+				(t) => t.termNumber === 1 || t.termNumber === 2
+			);
+			const semester2Terms = victorianTerms?.filter(
+				(t) => t.termNumber === 3 || t.termNumber === 4
+			);
 
 			// Create Semester 1
 			if (semester1Terms) {
-				const semester1StartDate = semester1Terms[0].startDate.toISOString().split('T')[0];
-				const semester1EndDate = semester1Terms[semester1Terms.length - 1].endDate
-					.toISOString()
-					.split('T')[0];
-
 				const [semester1] = await db
 					.insert(schema.schoolSemester)
 					.values({
 						schoolId: schoolRecord.id,
+						semNumber: 1,
 						schoolYear: year,
-						name: 'Semester 1',
-						startDate: semester1StartDate,
-						endDate: semester1EndDate,
 						isArchived: false
 					})
 					.returning();
@@ -229,7 +226,7 @@ async function seed() {
 				for (const term of semester1Terms) {
 					await db.insert(schema.schoolTerm).values({
 						schoolSemesterId: semester1.id,
-						name: `Term ${term.term}`,
+						termNumber: term.termNumber,
 						startDate: term.startDate,
 						endDate: term.endDate,
 						isArchived: false
@@ -239,19 +236,12 @@ async function seed() {
 
 			// Create Semester 2
 			if (semester2Terms) {
-				const semester2StartDate = semester2Terms[0].startDate.toISOString().split('T')[0];
-				const semester2EndDate = semester2Terms[semester2Terms.length - 1].endDate
-					.toISOString()
-					.split('T')[0];
-
 				const [semester2] = await db
 					.insert(schema.schoolSemester)
 					.values({
 						schoolId: schoolRecord.id,
 						schoolYear: year,
-						name: 'Semester 2',
-						startDate: semester2StartDate,
-						endDate: semester2EndDate,
+						semNumber: 2,
 						isArchived: false
 					})
 					.returning();
@@ -260,7 +250,7 @@ async function seed() {
 				for (const term of semester2Terms) {
 					await db.insert(schema.schoolTerm).values({
 						schoolSemesterId: semester2.id,
-						name: `Term ${term.term}`,
+						termNumber: term.termNumber,
 						startDate: term.startDate,
 						endDate: term.endDate,
 						isArchived: false

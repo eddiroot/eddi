@@ -439,10 +439,7 @@ export async function getSubjectsBySchoolIdAndYearLevel(
 	return subjects;
 }
 
-export async function getSemestersBySchoolId(
-	schoolId: number,
-	includeArchived: boolean = false
-) {
+export async function getSemestersBySchoolId(schoolId: number, includeArchived: boolean = false) {
 	const semesters = await db
 		.select()
 		.from(table.schoolSemester)
@@ -452,7 +449,7 @@ export async function getSemestersBySchoolId(
 				includeArchived ? undefined : eq(table.schoolSemester.isArchived, false)
 			)
 		)
-		.orderBy(asc(table.schoolSemester.schoolYear), asc(table.schoolSemester.startDate));
+		.orderBy(asc(table.schoolSemester.schoolYear), asc(table.schoolSemester.semNumber));
 
 	return semesters;
 }
@@ -472,7 +469,7 @@ export async function getSemestersWithTermsBySchoolIdForYear(
 				includeArchived ? undefined : eq(table.schoolSemester.isArchived, false)
 			)
 		)
-		.orderBy(asc(table.schoolSemester.schoolYear), asc(table.schoolSemester.startDate));
+		.orderBy(asc(table.schoolSemester.schoolYear), asc(table.schoolSemester.semNumber));
 
 	const semesterIds = semesters.map((semester) => semester.id);
 
@@ -499,7 +496,7 @@ export async function getSemestersWithTermsBySchoolIdForYear(
 
 export async function createSchoolTerm(
 	semesterId: number,
-	name: string,
+	termNumber: number,
 	startDate: Date,
 	endDate: Date
 ) {
@@ -507,7 +504,7 @@ export async function createSchoolTerm(
 		.insert(table.schoolTerm)
 		.values({
 			schoolSemesterId: semesterId,
-			name,
+			termNumber: termNumber,
 			startDate,
 			endDate,
 			isArchived: false
@@ -520,7 +517,6 @@ export async function createSchoolTerm(
 export async function updateSchoolTerm(
 	termId: number,
 	updates: {
-		name?: string;
 		startDate?: Date;
 		endDate?: Date;
 	}
@@ -558,7 +554,7 @@ export async function getSchoolSemesterById(semesterId: number) {
 		.select()
 		.from(table.schoolSemester)
 		.where(eq(table.schoolSemester.id, semesterId))
-		.orderBy(asc(table.schoolSemester.name));
+		.limit(1);
 
 	return semesters.length > 0 ? semesters[0] : null;
 }
