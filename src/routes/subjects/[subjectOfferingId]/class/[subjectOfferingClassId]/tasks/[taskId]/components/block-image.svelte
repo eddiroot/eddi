@@ -3,7 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { ViewMode, type ImageBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type ImageBlockProps } from '$lib/schema/task';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UploadIcon from '@lucide/svelte/icons/upload';
 

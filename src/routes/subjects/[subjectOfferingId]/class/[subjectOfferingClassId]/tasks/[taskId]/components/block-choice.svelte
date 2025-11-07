@@ -4,7 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ViewMode, type ChoiceBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type ChoiceBlockProps } from '$lib/schema/task';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import CheckSquareIcon from '@lucide/svelte/icons/check-square';
 	import CircleIcon from '@lucide/svelte/icons/circle';

@@ -4,7 +4,7 @@
 	import {
 		ViewMode,
 		type MathInputBlockProps
-	} from '$lib/schemas/taskSchema';
+	} from '$lib/schema/task';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import SigmaIcon from '@lucide/svelte/icons/sigma';
 	import XCircleIcon from '@lucide/svelte/icons/x-circle';

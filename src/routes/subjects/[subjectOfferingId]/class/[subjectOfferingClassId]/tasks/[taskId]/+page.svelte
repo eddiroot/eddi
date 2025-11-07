@@ -69,7 +69,7 @@
 		type BlockTableConfig,
 		type BlockVideoConfig,
 		type BlockWhiteboardConfig
-	} from '$lib/schemas/taskSchema';
+	} from '$lib/schema/task';
 	import { formatTimer } from '$lib/utils';
 	import { PencilIcon, SettingsIcon } from '@lucide/svelte';
 	import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';

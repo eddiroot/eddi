@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Card } from '$lib/components/ui/card';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { ViewMode, type AudioBlockProps } from '$lib/schemas/taskSchema';
+	import { ViewMode, type AudioBlockProps } from '$lib/schema/task';
 	import PauseIcon from '@lucide/svelte/icons/pause';
 	import PlayIcon from '@lucide/svelte/icons/play';
 	import UploadIcon from '@lucide/svelte/icons/upload';

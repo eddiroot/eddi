@@ -8,7 +8,7 @@
 		ViewMode,
 		type BlockFillBlankConfig,
 		type FillBlankBlockProps
-	} from '$lib/schemas/taskSchema';
+	} from '$lib/schema/task';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import XIcon from '@lucide/svelte/icons/x';
 

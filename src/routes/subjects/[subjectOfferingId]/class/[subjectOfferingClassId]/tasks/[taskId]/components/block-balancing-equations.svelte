@@ -8,7 +8,7 @@
 		ViewMode,
 		type BalancingEquationsBlockProps,
 		type BlockBalancingEquationsConfig
-	} from '$lib/schemas/taskSchema';
+	} from '$lib/schema/task';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import PlusIcon from '@lucide/svelte/icons/plus';
