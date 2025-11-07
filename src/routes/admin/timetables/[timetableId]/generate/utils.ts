@@ -1,6 +1,6 @@
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
-import type { FETActivity, FETOutput } from '$lib/schemas/fetSchema';
+import type { FETActivity, FETOutput } from '$lib/schema/fet';
 import {
 	getActiveTimetableConstraintsForTimetable,
 	getBuildingsBySchoolId,

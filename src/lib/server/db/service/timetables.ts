@@ -1,5 +1,5 @@
 import { constraintTypeEnum, queueStatusEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
-import type { FETActivity } from '$lib/schemas/fetSchema';
+import type { FETActivity } from '$lib/schema/fet';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { days } from '$lib/utils';

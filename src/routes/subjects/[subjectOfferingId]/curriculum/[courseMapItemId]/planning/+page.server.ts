@@ -5,7 +5,7 @@ import {
 	buildLessonPlanImagePrompt,
 	buildLessonPlanPrompt,
 	planSchema
-} from '$lib/schemas/planSchema';
+} from '$lib/schema/plan';
 import { geminiCompletion, geminiImageGeneration } from '$lib/server/ai';
 import {
 	addAreasOfStudyToCourseMapItem,
