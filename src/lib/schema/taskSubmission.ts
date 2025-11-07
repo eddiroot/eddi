@@ -1,5 +1,5 @@
+import { resourceFilesSchema } from '$lib/schema/resource';
 import { z } from 'zod';
-import { resourceFilesSchema } from './resourceSchema';
 
 // Form schema for task submission
 export const taskSubmissionSchema = z.object({

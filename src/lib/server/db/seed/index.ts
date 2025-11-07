@@ -9,7 +9,7 @@ import {
 	userTypeEnum,
 	yearLevelEnum
 } from '$lib/enums.js';
-import { getTermsByYear } from '$lib/server/services/vic-school-terms';
+import { getTermsByYear } from '$lib/server/vic-school-terms';
 import { hash } from '@node-rs/argon2';
 import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
