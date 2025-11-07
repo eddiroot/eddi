@@ -1,9 +1,9 @@
-import { boolean, foreignKey, integer, pgTable, text, unique } from 'drizzle-orm/pg-core';
+import { boolean, foreignKey, index, integer, pgTable, text, unique } from 'drizzle-orm/pg-core';
 import { learningArea, learningAreaStandard } from './curriculum';
 import { resource } from './resource';
 import { subjectOffering } from './subjects';
 import { rubric } from './task';
-import { timestamps } from './utils';
+import { embeddings, timestamps } from './utils';
 
 export const courseMapItem = pgTable(
 	'cm_itm',
@@ -77,14 +77,17 @@ export const courseMapItemAssessmentPlan = pgTable(
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
+		...timestamps,
+		...embeddings
 	},
 	(self) => [
 		foreignKey({
 			columns: [self.originalId],
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
-		unique().on(self.originalId, self.version)
+		unique().on(self.originalId, self.version),
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -114,14 +117,17 @@ export const courseMapItemLessonPlan = pgTable(
 		originalId: integer('original_id'),
 		version: integer('version').notNull().default(1),
 		isArchived: boolean('is_archived').notNull().default(false),
-		...timestamps
+		...timestamps,
+		...embeddings
 	},
 	(self) => [
 		foreignKey({
 			columns: [self.originalId],
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
-		unique().on(self.originalId, self.version)
+		unique().on(self.originalId, self.version),
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 

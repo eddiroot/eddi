@@ -2,6 +2,7 @@ import {
 	boolean,
 	doublePrecision,
 	foreignKey,
+	index,
 	integer,
 	jsonb,
 	pgEnum,
@@ -24,7 +25,7 @@ import { learningAreaStandard } from './curriculum';
 import { resource } from './resource';
 import { subjectOffering, subjectOfferingClass } from './subjects';
 import { user } from './user';
-import { timestamps } from './utils';
+import { embeddings, timestamps } from './utils';
 
 export const taskTypeEnumPg = pgEnum('enum_task_type', [
 	taskTypeEnum.lesson,
@@ -112,11 +113,17 @@ export const taskBlock = pgTable('task_block', {
 		.references(() => task.id, { onDelete: 'cascade' }),
 	type: taskBlockTypeEnumPg().notNull(),
 	config: jsonb('config').notNull(),
-	index: integer('index').notNull().default(0),
+	index: integer('index').default(0), // If null it is not within the task but stored for reuse. 
 	availableMarks: integer('available_marks'),
-	...timestamps
-});
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
 
+);
 export type TaskBlock = typeof taskBlock.$inferSelect;
 
 export const taskStatusEnumPg = pgEnum('enum_task_status', [
@@ -174,9 +181,14 @@ export const classTaskBlockResponse = pgTable(
 		response: jsonb('response'), // This is what the student submitted for this task block
 		feedback: text('feedback'), // Teacher feedback on the block response
 		marks: doublePrecision('marks'), // Marks awarded for this task block response
-		...timestamps
+		...timestamps,
+		...embeddings
 	},
-	(self) => [unique().on(self.taskBlockId, self.authorId, self.classTaskId)]
+	(self) => [
+		unique().on(self.taskBlockId, self.authorId, self.classTaskId),
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata)
+	]
 );
 
 export type ClassTaskBlockResponse = typeof classTaskBlockResponse.$inferSelect;
@@ -201,9 +213,13 @@ export const classTaskResponse = pgTable(
 		quizTimeRemainingMinutes: integer('quiz_time_remaining_minutes'), // For pausing/resuming
 		isQuizSubmitted: boolean('is_quiz_submitted').notNull().default(false),
 		autoSubmitted: boolean('auto_submitted').notNull().default(false), // True if submitted due to timer
-		...timestamps
+		...timestamps,
+		...embeddings
 	},
-	(self) => [unique().on(self.classTaskId, self.authorId)]
+	(self) => [unique().on(self.classTaskId, self.authorId),
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
 );
 
 export type ClassTaskResponse = typeof classTaskResponse.$inferSelect;
@@ -259,8 +275,15 @@ export const rubricCell = pgTable('rubric_cell', {
 	level: rubricLevelEnum().notNull(),
 	description: text('description').notNull(),
 	marks: doublePrecision('marks').notNull(),
-	...timestamps
-});
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
+
+);
 
 export type RubricCell = typeof rubricCell.$inferSelect;
 
@@ -309,7 +332,72 @@ export const whiteboardObject = pgTable('whiteboard_object', {
 	objectId: text('object_id').notNull().unique(),
 	objectType: whiteboardObjectTypeEnumPg().notNull(),
 	objectData: jsonb('object_data').notNull(),
-	...timestamps
-});
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
+);
 
 export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
+
+export const taskAgenda = pgTable('task_agenda', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskId: integer('task_id')
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	config: jsonb('config').notNull(), // sections of a given task, timings, etc.
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
+);
+
+export type TaskAgenda = typeof taskAgenda.$inferSelect;
+
+// Hints and Steps for a given task block
+export const taskBlockGuidance = pgTable('task_block_guidance', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskBlockId: integer('task_block_id')
+		.notNull()
+		.references(() => taskBlock.id, { onDelete: 'cascade' }),
+	taskId: integer('task_id') // The filter to the partent task for better querying
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	guidance: text('guidance').notNull(),
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
+);
+
+export type TaskBlockGuidance = typeof taskBlockGuidance.$inferSelect;
+
+// Misconceptions associated with a task block
+export const taskblockMisconception = pgTable('task_block_misconception', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	taskBlockId: integer('task_block_id')
+		.notNull()
+		.references(() => taskBlock.id, { onDelete: 'cascade' }),
+	taskId: integer('task_id') // The filter to the partent task for better querying
+		.notNull()
+		.references(() => task.id, { onDelete: 'cascade' }),
+	misconception: text('misconception').notNull(),
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
+);
+
+export type TaskBlockMisconception = typeof taskblockMisconception.$inferSelect;
