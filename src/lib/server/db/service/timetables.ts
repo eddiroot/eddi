@@ -1197,21 +1197,6 @@ export async function searchUsersBySchoolId(schoolId: number, searchTerm: string
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
 }
 
-export async function getSpacesBySchoolId(schoolId: number) {
-	return db
-		.select({
-			id: table.schoolSpace.id,
-			name: table.schoolSpace.name,
-			capacity: table.schoolSpace.capacity,
-			buildingName: table.schoolBuilding.name
-		})
-		.from(table.schoolSpace)
-		.innerJoin(table.schoolBuilding, eq(table.schoolSpace.buildingId, table.schoolBuilding.id))
-		.innerJoin(table.campus, eq(table.schoolBuilding.campusId, table.campus.id))
-		.where(eq(table.campus.schoolId, schoolId))
-		.orderBy(asc(table.schoolSpace.name));
-}
-
 export async function getSpaceFETActivitiesByIterationId(spaceId: number, iterationId: number) {
 	const activities = await db
 		.select({

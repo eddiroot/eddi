@@ -20,7 +20,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					taskId: parseInt(taskId),
+					taskId: parseInt(taskId!),
 					title: config.title || null
 				})
 			});

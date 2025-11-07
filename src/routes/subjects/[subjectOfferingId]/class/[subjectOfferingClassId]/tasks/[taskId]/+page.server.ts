@@ -22,12 +22,12 @@ export const load = async ({
 }) => {
 	const user = security.isAuthenticated().getUser();
 
-	let taskIdInt = parseInt(taskId, 10);
+	const taskIdInt = parseInt(taskId, 10);
 	if (isNaN(taskIdInt)) {
 		throw redirect(302, '/dashboard');
 	}
 
-	let classIdInt = parseInt(subjectOfferingClassId, 10);
+	const classIdInt = parseInt(subjectOfferingClassId, 10);
 	if (isNaN(classIdInt)) {
 		throw redirect(302, '/dashboard');
 	}

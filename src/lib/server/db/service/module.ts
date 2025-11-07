@@ -20,13 +20,6 @@ export async function getAllSubjects() {
 }
 
 /**
- * Get all curriculum subjects that are available (deprecated - use getAllSubjects)
- */
-export async function getAllCurriculumSubjects() {
-	return await getAllSubjects();
-}
-
-/**
  * Get subject by name or ID
  */
 export async function getSubjectByIdentifier(identifier: string | number) {
@@ -34,29 +27,22 @@ export async function getSubjectByIdentifier(identifier: string | number) {
 		const [subject] = await db
 			.select()
 			.from(table.subject)
-			.where(
-				and(
-					eq(table.subject.id, identifier),
-					eq(table.subject.isArchived, false)
-				)
-			);
+			.where(and(eq(table.subject.id, identifier), eq(table.subject.isArchived, false)));
 		return subject;
 	}
-	
+
 	// Try to match by a slug-like name format
 	const normalizedName = identifier
 		.split('-')
-		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
-	
-	const subjects = await db
-		.select()
-		.from(table.subject)
-		.where(eq(table.subject.isArchived, false));
-	
-	return subjects.find(subject => 
-		subject.name.toLowerCase() === normalizedName.toLowerCase() ||
-		subject.name.toLowerCase().includes(normalizedName.toLowerCase())
+
+	const subjects = await db.select().from(table.subject).where(eq(table.subject.isArchived, false));
+
+	return subjects.find(
+		(subject) =>
+			subject.name.toLowerCase() === normalizedName.toLowerCase() ||
+			subject.name.toLowerCase().includes(normalizedName.toLowerCase())
 	);
 }
 
@@ -82,9 +68,7 @@ export async function getModulesForSubject(subjectId: number) {
 			updatedAt: table.module.updatedAt
 		})
 		.from(table.module)
-		.where(
-			eq(table.module.subjectId, subjectId)
-		)
+		.where(eq(table.module.subjectId, subjectId))
 		.orderBy(table.module.orderIndex, table.module.createdAt);
 }
 
@@ -123,12 +107,7 @@ export async function getOrCreateVCESubject(
 	const existingSubject = await db
 		.select()
 		.from(table.subject)
-		.where(
-			and(
-				eq(table.subject.schoolId, schoolId),
-				eq(table.subject.name, `VCE ${subjectName}`)
-			)
-		);
+		.where(and(eq(table.subject.schoolId, schoolId), eq(table.subject.name, `VCE ${subjectName}`)));
 
 	if (existingSubject.length > 0) {
 		return { subject: existingSubject[0], isNew: false };
@@ -171,16 +150,11 @@ export async function createSubjectOffering(data: {
 /**
  * Create subject offering class
  */
-export async function createSubjectOfferingClass(data: {
-	name: string;
-	subOfferingId: number;
-}) {
-	return await db
-		.insert(table.subjectOfferingClass)
-		.values({
-			...data,
-			isArchived: false
-		});
+export async function createSubjectOfferingClass(data: { name: string; subOfferingId: number }) {
+	return await db.insert(table.subjectOfferingClass).values({
+		...data,
+		isArchived: false
+	});
 }
 
 // ============================================================================
@@ -263,10 +237,7 @@ export async function getModuleSessionById(sessionId: number) {
 /**
  * Update session memory
  */
-export async function updateSessionMemory(
-	sessionId: number,
-	memory: ModuleAgentMemory
-) {
+export async function updateSessionMemory(sessionId: number, memory: ModuleAgentMemory) {
 	await db
 		.update(table.moduleSession)
 		.set({
@@ -314,341 +285,326 @@ export async function storeModuleMemory(data: {
 	return { id: Date.now(), ...data };
 }
 
-
 export interface ModuleGenerationParams {
-  title: string;
-  description: string;
-  subjectId: number;
-  subjectType: string
+	title: string;
+	description: string;
+	subjectId: number;
+	subjectType: string;
 }
 
 export interface ModuleSection {
-  title: string;
-  objective: string;
-  concepts: string[];
-  skills: string[];
-  contentBlocks: any[];
-  interactiveBlocks: any[];
+	title: string;
+	objective: string;
+	concepts: string[];
+	skills: string[];
+	contentBlocks: any[];
+	interactiveBlocks: any[];
 }
 
 export interface ModuleScaffold {
 	sections: Array<ModuleSection>;
 }
 
-
 /**
  * Main function to generate and store a complete module
  */
 export async function generateAndStoreModule(params: ModuleGenerationParams) {
-  const orchestrator = new AgentOrchestrator();
-  
-  try {
-	const scaffoldContext: AgentContext = {
-		metadata: {
-			action: AgentAction.GENERATE_SCAFFOLD,
-			moduleParams: {
+	const orchestrator = new AgentOrchestrator();
+
+	try {
+		const scaffoldContext: AgentContext = {
+			metadata: {
+				action: AgentAction.GENERATE_SCAFFOLD,
+				moduleParams: {
+					title: params.title,
+					description: params.description,
+					subjectId: params.subjectId,
+					subjectType: params.subjectType
+				}
+			}
+		};
+
+		const scaffoldResponse = await orchestrator.executeAgent(
+			AgentType.TEACH_MODULE_GENERATOR,
+			scaffoldContext
+		);
+
+		let scaffold;
+		try {
+			scaffold = JSON.parse(scaffoldResponse.content);
+		} catch (error) {
+			console.error('Failed to parse scaffold response:', error);
+			console.error('Scaffold response:', scaffoldResponse.content);
+			throw new Error('Invalid JSON response from scaffold generation agent');
+		}
+
+		// Validate scaffold structure
+		if (!scaffold.sections || !Array.isArray(scaffold.sections)) {
+			console.error('Invalid scaffold structure:', scaffold);
+			throw new Error('Scaffold missing sections array');
+		}
+
+		// Step 2: Create module in database
+		const [module] = await db
+			.insert(table.module)
+			.values({
+				subjectId: params.subjectId,
 				title: params.title,
 				description: params.description,
-				subjectId: params.subjectId,
-				subjectType: params.subjectType
+				objective: scaffold.overallObjective,
+				isPublished: false
+			})
+			.returning();
+
+		// Step 3: Process each section
+		const sections: ModuleSection[] = [];
+
+		for (let i = 0; i < scaffold.sections.length; i++) {
+			const section = scaffold.sections[i];
+
+			// Generate content for section
+			const contentContext: AgentContext = {
+				moduleId: module.id,
+				metadata: {
+					action: AgentAction.GENERATE_CONTENT,
+					moduleParams: {
+						subjectId: params.subjectId,
+						section: section
+					}
+				}
+			};
+
+			const contentResponse = await orchestrator.executeAgent(
+				AgentType.TEACH_MODULE_GENERATOR,
+				contentContext
+			);
+
+			let contentData;
+			try {
+				contentData = JSON.parse(contentResponse.content);
+			} catch (error) {
+				console.error('Failed to parse content response:', error);
+				console.error('Content response:', contentResponse.content);
+				throw new Error('Invalid JSON response from content generation agent');
 			}
+
+			// Ensure contentData has blocks property
+			if (!contentData.blocks) {
+				console.warn('Content data missing blocks property, using empty array');
+				contentData.blocks = [];
+			}
+
+			// Generate interactive blocks for section
+			const interactiveContext: AgentContext = {
+				...scaffoldContext,
+				moduleId: module.id,
+				metadata: {
+					action: AgentAction.GENERATE_INTERACTIVE,
+					moduleParams: {
+						subjectId: params.subjectId,
+						subjectType: params.subjectType,
+						section: section,
+						sectionContent: extractTextFromBlocks(contentData.blocks)
+					}
+				}
+			};
+
+			const interactiveResponse = await orchestrator.executeAgent(
+				AgentType.TEACH_MODULE_GENERATOR,
+				interactiveContext
+			);
+
+			let interactiveData;
+			try {
+				interactiveData = JSON.parse(interactiveResponse.content);
+			} catch (error) {
+				console.error('Failed to parse interactive response:', error);
+				console.error('Interactive response:', interactiveResponse.content);
+				// Provide fallback data structure
+				interactiveData = { interactiveBlocks: [] };
+			}
+
+			// Ensure interactiveData has the expected structure
+			if (!interactiveData.interactiveBlocks) {
+				console.warn('Interactive data missing interactiveBlocks property, using empty array');
+				interactiveData.interactiveBlocks = [];
+			}
+
+			sections.push({
+				...section,
+				contentBlocks: contentData.blocks,
+				interactiveBlocks: interactiveData.interactiveBlocks
+			});
 		}
+
+		// Step 4: Create tasks and subtasks for each section
+		const moduleSubTasks = [];
+
+		// Get a subject offering for this subject (from the seeded data)
+		const [subjectOffering] = await db
+			.select()
+			.from(table.subjectOffering)
+			.where(eq(table.subjectOffering.subjectId, params.subjectId))
+			.limit(1);
+
+		if (!subjectOffering) {
+			throw new Error(`No subject offering found for subject ID ${params.subjectId}`);
+		}
+
+		for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+			const section = sections[sectionIndex];
+
+			// Create a task for this section
+			const task = await createTask(
+				section.title,
+				section.objective,
+				1, // version
+				taskTypeEnum.module,
+				subjectOffering.id, // Use subjectOfferingId from seeded data
+				true, // aiTutorEnabled
+				false // isArchived
+			);
+
+			// Create module subtask
+			const [moduleSubTask] = await db
+				.insert(table.moduleSubTask)
+				.values({
+					moduleId: module.id,
+					taskId: task.id,
+					objective: section.objective,
+					concepts: section.concepts,
+					skills: section.skills,
+					orderIndex: sectionIndex
+				})
+				.returning();
+
+			// Add content blocks to task
+			let blockIndex = 0;
+
+			// Add content blocks
+			for (const contentBlock of section.contentBlocks) {
+				await createTaskBlock(task.id, contentBlock.type, contentBlock.config, blockIndex++);
+			}
+
+			// Add interactive blocks with metadata
+			for (const interactiveItem of section.interactiveBlocks) {
+				const block = interactiveItem.taskBlock;
+				await createTaskBlock(task.id, block.type, block.config, blockIndex++);
+			}
+
+			moduleSubTasks.push(moduleSubTask);
+		}
+
+		return {
+			module,
+			subTasks: moduleSubTasks,
+			sections
+		};
+	} catch (error) {
+		console.error('Module generation failed:', error);
+		throw new Error(
+			`Failed to generate module: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
 	}
-
-    const scaffoldResponse = await orchestrator.executeAgent(
-      AgentType.TEACH_MODULE_GENERATOR,
-      scaffoldContext
-    );
-
-    let scaffold;
-    try {
-      scaffold = JSON.parse(scaffoldResponse.content);
-    } catch (error) {
-      console.error('Failed to parse scaffold response:', error);
-      console.error('Scaffold response:', scaffoldResponse.content);
-      throw new Error('Invalid JSON response from scaffold generation agent');
-    }
-
-    // Validate scaffold structure
-    if (!scaffold.sections || !Array.isArray(scaffold.sections)) {
-      console.error('Invalid scaffold structure:', scaffold);
-      throw new Error('Scaffold missing sections array');
-    }
-
-    // Step 2: Create module in database
-    const [module] = await db
-      .insert(table.module)
-      .values({
-        subjectId: params.subjectId,
-        title: params.title,
-        description: params.description,
-        objective: scaffold.overallObjective,
-        isPublished: false
-      })
-      .returning();
-
-    // Step 3: Process each section
-    const sections: ModuleSection[] = [];
-    
-    for (let i = 0; i < scaffold.sections.length; i++) {
-      const section = scaffold.sections[i];
-      
-      // Generate content for section
-      const contentContext: AgentContext = {
-        moduleId: module.id,
-        metadata: {
-          action: AgentAction.GENERATE_CONTENT,
-          moduleParams: {
-            subjectId: params.subjectId,
-            section: section
-          }
-        }
-      };
-
-      const contentResponse = await orchestrator.executeAgent(
-        AgentType.TEACH_MODULE_GENERATOR,
-        contentContext
-      );
-
-      let contentData;
-      try {
-        contentData = JSON.parse(contentResponse.content);
-      } catch (error) {
-        console.error('Failed to parse content response:', error);
-        console.error('Content response:', contentResponse.content);
-        throw new Error('Invalid JSON response from content generation agent');
-      }
-
-      // Ensure contentData has blocks property
-      if (!contentData.blocks) {
-        console.warn('Content data missing blocks property, using empty array');
-        contentData.blocks = [];
-      }
-
-      // Generate interactive blocks for section
-      const interactiveContext: AgentContext = {
-        ...scaffoldContext,
-        moduleId: module.id,
-        metadata: {
-          action: AgentAction.GENERATE_INTERACTIVE,
-          moduleParams: {
-            subjectId: params.subjectId,
-            subjectType: params.subjectType,
-            section: section,
-            sectionContent: extractTextFromBlocks(contentData.blocks)
-          }
-        }
-      };
-
-      const interactiveResponse = await orchestrator.executeAgent(
-        AgentType.TEACH_MODULE_GENERATOR,
-        interactiveContext
-      );
-
-      let interactiveData;
-      try {
-        interactiveData = JSON.parse(interactiveResponse.content);
-      } catch (error) {
-        console.error('Failed to parse interactive response:', error);
-        console.error('Interactive response:', interactiveResponse.content);
-        // Provide fallback data structure
-        interactiveData = { interactiveBlocks: [] };
-      }
-
-      // Ensure interactiveData has the expected structure
-      if (!interactiveData.interactiveBlocks) {
-        console.warn('Interactive data missing interactiveBlocks property, using empty array');
-        interactiveData.interactiveBlocks = [];
-      }
-
-      sections.push({
-        ...section,
-        contentBlocks: contentData.blocks,
-        interactiveBlocks: interactiveData.interactiveBlocks
-      });
-    }
-
-    // Step 4: Create tasks and subtasks for each section
-    const moduleSubTasks = [];
-    
-    // Get a subject offering for this subject (from the seeded data)
-    const [subjectOffering] = await db
-      .select()
-      .from(table.subjectOffering)
-      .where(eq(table.subjectOffering.subjectId, params.subjectId))
-      .limit(1);
-      
-    if (!subjectOffering) {
-      throw new Error(`No subject offering found for subject ID ${params.subjectId}`);
-    }
-    
-    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-      const section = sections[sectionIndex];
-      
-      // Create a task for this section
-      const task = await createTask(
-        section.title,
-        section.objective,
-        1, // version
-        taskTypeEnum.module,
-        subjectOffering.id, // Use subjectOfferingId from seeded data
-        true, // aiTutorEnabled
-        false // isArchived
-      );
-
-      // Create module subtask
-      const [moduleSubTask] = await db
-        .insert(table.moduleSubTask)
-        .values({
-          moduleId: module.id,
-          taskId: task.id,
-          objective: section.objective,
-          concepts: section.concepts,
-          skills: section.skills,
-          orderIndex: sectionIndex
-        })
-        .returning();
-
-      // Add content blocks to task
-      let blockIndex = 0;
-      
-      // Add content blocks
-      for (const contentBlock of section.contentBlocks) {
-        await createTaskBlock(
-          task.id,
-          contentBlock.type, 
-          contentBlock.config,
-          blockIndex++
-        );
-      }
-
-      // Add interactive blocks with metadata
-      for (const interactiveItem of section.interactiveBlocks) {
-        const block = interactiveItem.taskBlock;
-		await createTaskBlock(
-          task.id,
-          block.type,
-          block.config,
-          blockIndex++
-        );
-      }
-
-      moduleSubTasks.push(moduleSubTask);
-    }
-
-    return {
-      module,
-      subTasks: moduleSubTasks,
-      sections
-    };
-    
-  } catch (error) {
-    console.error('Module generation failed:', error);
-    throw new Error(`Failed to generate module: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
 }
-
 
 function extractTextFromBlocks(blocks: any[]): string {
-  // Handle undefined or null blocks
-  if (!blocks || !Array.isArray(blocks)) {
-    console.warn('extractTextFromBlocks: blocks is not an array:', blocks);
-    return '';
-  }
+	// Handle undefined or null blocks
+	if (!blocks || !Array.isArray(blocks)) {
+		console.warn('extractTextFromBlocks: blocks is not an array:', blocks);
+		return '';
+	}
 
-  return blocks
-    .map(block => {
-      if (!block || typeof block !== 'object') {
-        return '';
-      }
-      
-      switch (block.type) {
-        case 'heading':
-          return block.config?.text || '';
-        case 'richText':
-          // Strip HTML tags and clean up whitespace
-          return block.config?.html?.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || '';
-        default:
-          return block.config?.text || block.config?.content || '';
-      }
-    })
-    .filter(text => text.length > 0)
-    .join('\n\n');
+	return blocks
+		.map((block) => {
+			if (!block || typeof block !== 'object') {
+				return '';
+			}
+
+			switch (block.type) {
+				case 'heading':
+					return block.config?.text || '';
+				case 'richText':
+					// Strip HTML tags and clean up whitespace
+					return (
+						block.config?.html
+							?.replace(/<[^>]*>/g, ' ')
+							.replace(/\s+/g, ' ')
+							.trim() || ''
+					);
+				default:
+					return block.config?.text || block.config?.content || '';
+			}
+		})
+		.filter((text) => text.length > 0)
+		.join('\n\n');
 }
-
 
 /**
  * Get module with all its subtasks and blocks
  */
 export async function getModuleWithContent(moduleId: number) {
-  const module = await db
-    .select()
-    .from(table.module)
-    .where(eq(table.module.id, moduleId))
-    .limit(1);
+	const module = await db.select().from(table.module).where(eq(table.module.id, moduleId)).limit(1);
 
-  if (!module.length) {
-    return null;
-  }
+	if (!module.length) {
+		return null;
+	}
 
-  const subTasks = await db
-    .select({
-      subTask: table.moduleSubTask,
-      task: table.task
-    })
-    .from(table.moduleSubTask)
-    .innerJoin(table.task, eq(table.moduleSubTask.taskId, table.task.id))
-    .where(eq(table.moduleSubTask.moduleId, moduleId))
-    .orderBy(table.moduleSubTask.orderIndex);
+	const subTasks = await db
+		.select({
+			subTask: table.moduleSubTask,
+			task: table.task
+		})
+		.from(table.moduleSubTask)
+		.innerJoin(table.task, eq(table.moduleSubTask.taskId, table.task.id))
+		.where(eq(table.moduleSubTask.moduleId, moduleId))
+		.orderBy(table.moduleSubTask.orderIndex);
 
-  // Get blocks for each task
-  const subTasksWithBlocks = await Promise.all(
-    subTasks.map(async ({ subTask, task }) => {
-      const blocks = await db
-        .select()
-        .from(table.taskBlock)
-        .where(eq(table.taskBlock.taskId, task.id))
-        .orderBy(table.taskBlock.index);
+	// Get blocks for each task
+	const subTasksWithBlocks = await Promise.all(
+		subTasks.map(async ({ subTask, task }) => {
+			const blocks = await db
+				.select()
+				.from(table.taskBlock)
+				.where(eq(table.taskBlock.taskId, task.id))
+				.orderBy(table.taskBlock.index);
 
-      return {
-        ...subTask,
-        task,
-        blocks
-      };
-    })
-  );
+			return {
+				...subTask,
+				task,
+				blocks
+			};
+		})
+	);
 
-  return {
-    ...module[0],
-    subTasks: subTasksWithBlocks
-  };
+	return {
+		...module[0],
+		subTasks: subTasksWithBlocks
+	};
 }
 
 /**
  * Update module publication status
  */
 export async function publishModule(moduleId: number, isPublished: boolean = true) {
-  await db
-    .update(table.module)
-    .set({ isPublished })
-    .where(eq(table.module.id, moduleId));
+	await db.update(table.module).set({ isPublished }).where(eq(table.module.id, moduleId));
 }
 
 /**
  * Delete a module and all its associated data
  */
 export async function deleteModule(moduleId: number) {
-  // Get all subtasks
-  const subTasks = await db
-    .select()
-    .from(table.moduleSubTask)
-    .where(eq(table.moduleSubTask.moduleId, moduleId));
+	// Get all subtasks
+	const subTasks = await db
+		.select()
+		.from(table.moduleSubTask)
+		.where(eq(table.moduleSubTask.moduleId, moduleId));
 
-  // Delete all associated tasks (cascades to blocks)
-  for (const subTask of subTasks) {
-    await db.delete(table.task).where(eq(table.task.id, subTask.taskId));
-  }
+	// Delete all associated tasks (cascades to blocks)
+	for (const subTask of subTasks) {
+		await db.delete(table.task).where(eq(table.task.id, subTask.taskId));
+	}
 
-  // Delete the module (cascades to subtasks)
-  await db.delete(table.module).where(eq(table.module.id, moduleId));
+	// Delete the module (cascades to subtasks)
+	await db.delete(table.module).where(eq(table.module.id, moduleId));
 }
