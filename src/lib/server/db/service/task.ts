@@ -948,6 +948,15 @@ export async function updateSubjectOfferingClassTaskQuizSettings(
 		);
 }
 
+export async function startQuizSession(classTaskId: number) {
+	await db
+		.update(table.subjectOfferingClassTask)
+		.set({
+			quizStartTime: new Date()
+		})
+		.where(eq(table.subjectOfferingClassTask.id, classTaskId));
+}
+
 // Task Block Response functions
 
 export async function upsertClassTaskBlockResponse(

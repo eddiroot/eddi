@@ -1,5 +1,5 @@
 import { userTypeEnum } from '$lib/enums.js';
-import type { Resource, Task } from '$lib/server/db/schema';
+import type { Task } from '$lib/server/db/schema';
 import {
 	addResourceToSubjectOfferingClass,
 	createResource,
@@ -27,12 +27,12 @@ export const load = async ({
 }) => {
 	const user = security.isAuthenticated().getUser();
 
-	let subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
+	const subjectOfferingClassIdInt = parseInt(subjectOfferingClassId, 10);
 	if (isNaN(subjectOfferingClassIdInt)) {
 		throw error(400, 'Invalid subject offering class ID');
 	}
 
-	let subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
+	const subjectOfferingIdInt = parseInt(subjectOfferingId, 10);
 	if (isNaN(subjectOfferingIdInt)) {
 		throw error(400, 'Invalid subject offering ID');
 	}
@@ -71,7 +71,7 @@ export const load = async ({
 	const topicsWithTasks = topics.map((topic) => ({
 		topic,
 		tasks: [] as { task: Task; status: string }[],
-		resources: [] as Resource[]
+		resources: [] as typeof resourcesWithUrls
 	}));
 
 	tasks.forEach((task) => {
@@ -89,7 +89,7 @@ export const load = async ({
 		if (coursemapItemId) {
 			const topicEntry = topicsWithTasks.find((item) => item.topic.id === coursemapItemId);
 			if (topicEntry) {
-				topicEntry.resources.push(resource.resource);
+				topicEntry.resources.push(resource);
 			}
 		}
 	});

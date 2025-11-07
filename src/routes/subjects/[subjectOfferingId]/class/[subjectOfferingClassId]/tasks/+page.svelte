@@ -20,7 +20,7 @@
 	let { data } = $props();
 	let topicsWithTasks = $state(data.topicsWithTasks || []);
 	let showUploadDialog = $state(false);
-	// Deletion dialog state
+
 	let showDeleteDialog = $state(false);
 	let resourcePendingDelete = $state<{ id: number; title: string } | null>(null);
 	let deletingResource = $state(false);
@@ -190,9 +190,10 @@
 							<Card.Header>
 								<a target="_blank" href={resource.downloadUrl}>
 									<Card.Title class="w-48 truncate py-0.5 break-all hover:underline">
-										{resource.title && resource.title.trim() !== ''
-											? resource.title
-											: resource.fileName}
+										{resource.resourceRelation.title &&
+										resource.resourceRelation.title.trim() !== ''
+											? resource.resourceRelation.title
+											: resource.resource.fileName}
 									</Card.Title>
 								</a>
 
@@ -207,10 +208,11 @@
 										variant="ghost"
 										onclick={() =>
 											requestDelete(
-												resource.id,
-												resource.title && resource.title.trim() !== ''
-													? resource.title
-													: resource.fileName
+												resource.resource.id,
+												resource.resourceRelation.title &&
+													resource.resourceRelation.title.trim() !== ''
+													? resource.resourceRelation.title
+													: resource.resource.fileName
 											)}
 									>
 										<TrashIcon />
@@ -218,15 +220,15 @@
 								</Card.Action>
 							</Card.Header>
 							<Card.Content class="h-12 w-72 truncate break-all">
-								{#if resource.description}
+								{#if resource.resourceRelation.description}
 									<span class="text-muted-foreground h-12 truncate text-sm text-wrap">
-										{resource.description}
+										{resource.resourceRelation.description}
 									</span>
 								{/if}
 							</Card.Content>
 							<Card.Footer>
 								<span class="text-muted-foreground text-sm">
-									{formatFileSize(resource.fileSize)}
+									{formatFileSize(resource.resource.fileSize)}
 								</span>
 							</Card.Footer>
 						</Card.Root>
