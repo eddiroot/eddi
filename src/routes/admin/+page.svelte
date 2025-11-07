@@ -12,7 +12,7 @@
 	import MessageSquareIcon from '@lucide/svelte/icons/message-square';
 	import SchoolIcon from '@lucide/svelte/icons/school';
 	import UserRoundCogIcon from '@lucide/svelte/icons/user-round-cog';
-	import { default as UsersIcon } from '@lucide/svelte/icons/users';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	const { data } = $props();
 

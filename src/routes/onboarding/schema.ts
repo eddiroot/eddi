@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const COUNTRYANDSTATECODES = { AU: ['VIC'] };
+
 export const formSchema = z
 	.object({
 		firstName: z.string().min(1, { message: 'First name is required' }),
@@ -12,10 +14,7 @@ export const formSchema = z
 		agreeToContact: z.boolean().refine((val) => val === true, {
 			message: 'Please agree to be contacted by our team'
 		}),
-		countryCode: z
-			.string()
-			.min(2, { message: 'Country code must be exactly 2 Letters' })
-			.max(2, { message: 'Country code must be exactly 2 Letters' }),
+		countryCode: z.string().length(2, { message: 'Country code must be exactly 2 Letters' }),
 		stateCode: z
 			.string()
 			.min(1, { message: 'State is required' })
