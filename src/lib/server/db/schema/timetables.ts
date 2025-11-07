@@ -46,6 +46,7 @@ export const timetableDraft = pgTable('tt_draft', {
 	fetResponse: text('fet_response'),
 	errorMessage: text('error_message'), // null if successful, stores raw error
 	translatedErrorMessage: text('translated_error_message'), // null if successful or not yet translated
+	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps
 });
 

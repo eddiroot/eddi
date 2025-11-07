@@ -1657,7 +1657,7 @@ async function seed() {
 			const [activity1] = await db
 				.insert(schema.timetableActivity)
 				.values({
-					timetableDraftId: mockTimetable.id,
+					timetableDraftId: mockTimetableDraft.id,
 					subjectId: offering.subjectId,
 					periodsPerInstance: 1,
 					totalPeriods: 3 // 3 periods per week
@@ -1687,7 +1687,7 @@ async function seed() {
 			const [activity2] = await db
 				.insert(schema.timetableActivity)
 				.values({
-					timetableId: mockTimetable.id,
+					timetableDraftId: mockTimetableDraft.id,
 					subjectId: offering.subjectId,
 					periodsPerInstance: 2, // Double period
 					totalPeriods: 4 // 2 instances of 2 periods each per week
@@ -1762,7 +1762,7 @@ async function seed() {
 
 		for (const con of mandatoryConstraints) {
 			await db.insert(schema.timetableConstraint).values({
-				timetableId: mockTimetable.id,
+				timetableDraftId: mockTimetableDraft.id,
 				constraintId: con.id,
 				active: true,
 				parameters: {
