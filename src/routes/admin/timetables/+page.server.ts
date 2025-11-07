@@ -1,4 +1,8 @@
-import { createSchoolTimetable, getSchoolTimetablesBySchoolId } from '$lib/server/db/service';
+import {
+	createSchoolTimetable,
+	getSchoolTimetablesBySchoolId,
+	getSemestersBySchoolId
+} from '$lib/server/db/service';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types.js';
@@ -7,10 +11,12 @@ import { createTimetableSchema } from './schema.js';
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const timetables = await getSchoolTimetablesBySchoolId(user.schoolId);
+	const semesters = await getSemestersBySchoolId(user.schoolId);
 
 	return {
 		timetables,
-		createTimetableForm: await superValidate(zod4(createTimetableSchema))
+		createTimetableForm: await superValidate(zod4(createTimetableSchema)),
+		semesters
 	};
 };
 
@@ -21,6 +27,7 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(createTimetableSchema));
 
 		if (!form.valid) {
+			console.log('School Semester', form.data.schoolSemester);
 			return message(form, 'Please check your inputs and try again.', { status: 400 });
 		}
 
@@ -28,7 +35,8 @@ export const actions: Actions = {
 			await createSchoolTimetable({
 				schoolId: user.schoolId,
 				name: form.data.name,
-				schoolYear: form.data.schoolYear
+				schoolYear: form.data.schoolYear,
+				schoolSemesterId: form.data.schoolSemester
 			});
 
 			return message(form, 'Timetable created successfully!');

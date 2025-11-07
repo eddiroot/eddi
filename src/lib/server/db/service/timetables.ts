@@ -41,6 +41,7 @@ export async function createSchoolTimetable(data: {
 	schoolId: number;
 	name: string;
 	schoolYear: number;
+	schoolSemesterId: number;
 }) {
 	const [timetable] = await db
 		.insert(table.timetable)
@@ -48,6 +49,7 @@ export async function createSchoolTimetable(data: {
 			schoolId: data.schoolId,
 			name: data.name,
 			schoolYear: data.schoolYear,
+			schoolSemesterId: data.schoolSemesterId,
 			isArchived: false
 		})
 		.returning();

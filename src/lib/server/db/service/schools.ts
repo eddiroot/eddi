@@ -439,6 +439,24 @@ export async function getSubjectsBySchoolIdAndYearLevel(
 	return subjects;
 }
 
+export async function getSemestersBySchoolId(
+	schoolId: number,
+	includeArchived: boolean = false
+) {
+	const semesters = await db
+		.select()
+		.from(table.schoolSemester)
+		.where(
+			and(
+				eq(table.schoolSemester.schoolId, schoolId),
+				includeArchived ? undefined : eq(table.schoolSemester.isArchived, false)
+			)
+		)
+		.orderBy(asc(table.schoolSemester.schoolYear), asc(table.schoolSemester.startDate));
+
+	return semesters;
+}
+
 export async function getSemestersWithTermsBySchoolIdForYear(
 	schoolId: number,
 	year: number,
@@ -533,4 +551,14 @@ export async function getSchoolTermById(termId: number) {
 		.limit(1);
 
 	return terms.length > 0 ? terms[0] : null;
+}
+
+export async function getSchoolSemesterById(semesterId: number) {
+	const semesters = await db
+		.select()
+		.from(table.schoolSemester)
+		.where(eq(table.schoolSemester.id, semesterId))
+		.orderBy(asc(table.schoolSemester.name));
+
+	return semesters.length > 0 ? semesters[0] : null;
 }

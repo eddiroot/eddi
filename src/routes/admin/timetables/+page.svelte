@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Autocomplete from '$lib/components/autocomplete.svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -19,12 +20,25 @@
 
 	const form = superForm(data.createTimetableForm, {
 		validators: zod4(createTimetableSchema),
-		onResult: () => {
-			dialogOpen = false;
+		onUpdated: ({ form }) => {
+			if (form.valid) {
+				dialogOpen = false;
+			}
 		}
 	});
 
 	const { form: formData, enhance, constraints } = form;
+
+	// Filtered semesters based on selected school year
+	const filteredSemesters = $derived(() => {
+		if (!$formData.schoolYear) return [];
+		return data.semesters
+			.filter((semester) => semester.schoolYear === $formData.schoolYear)
+			.map((semester) => ({
+				value: semester.id,
+				label: semester.name
+			}));
+	});
 </script>
 
 <div class="mb-6 flex items-center justify-between">
@@ -69,6 +83,32 @@
 						</Form.Control>
 						<Form.FieldErrors />
 					</Form.Field>
+
+					{#if $formData.schoolYear && filteredSemesters().length > 0}
+						<Form.Field {form} name="schoolSemester">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label>School Semester</Form.Label>
+									<div {...props}>
+										<Autocomplete
+											options={filteredSemesters()}
+											bind:value={$formData.schoolSemester}
+											placeholder="Select a semester..."
+											searchPlaceholder="Search semesters..."
+											emptyText="No semesters found for this year."
+										/>
+									</div>
+									<!-- Hidden input to ensure form serialization -->
+									<input
+										type="hidden"
+										name="schoolSemester"
+										value={$formData.schoolSemester || ''}
+									/>
+								{/snippet}
+							</Form.Control>
+							<Form.FieldErrors />
+						</Form.Field>
+					{/if}
 				</div>
 				<Dialog.Footer>
 					<Button type="button" variant="outline" onclick={() => (dialogOpen = false)}>
