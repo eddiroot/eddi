@@ -13,8 +13,8 @@ import {
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 import { fail } from '@sveltejs/kit';
+import { processTimetableQueue } from '../../../../../scripts/process/timetable.js';
 import { buildFETInput } from './utils.js';
-import { processTimetableQueue } from '../../../../../scripts/processTimetable.js';
 
 export const load = async ({ params, locals: { security }, depends }) => {
 	security.isAuthenticated().isSchoolAdmin();
