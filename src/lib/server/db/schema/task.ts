@@ -311,8 +311,14 @@ export const whiteboard = pgTable('whiteboard', {
 		.notNull()
 		.references(() => task.id, { onDelete: 'cascade' }),
 	title: text('title'),
-	...timestamps
-});
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('metadata_idx').using('gin', self.embeddingMetadata),
+	]
+);
 
 export type Whiteboard = typeof whiteboard.$inferSelect;
 
@@ -332,14 +338,8 @@ export const whiteboardObject = pgTable('whiteboard_object', {
 	objectId: text('object_id').notNull().unique(),
 	objectType: whiteboardObjectTypeEnumPg().notNull(),
 	objectData: jsonb('object_data').notNull(),
-	...timestamps,
-	...embeddings
-},
-	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
-	]
-);
+	...timestamps
+});
 
 export type WhiteboardObject = typeof whiteboardObject.$inferSelect;
 
