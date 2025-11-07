@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { geminiCompletion } from '$lib/server/ai';
-import * as blockSchemas from '../../../schemas/taskSchema';
-import { getInteractiveSchema } from '../../../schemas/taskSchema';
+import * as blockSchemas from '../../../schema/task';
+import { getInteractiveSchema } from '../../../schema/task';
 import { AgentType, BaseAgent, type AgentContext, type AgentResponse } from '../index';
 import { PromptRegistry } from '../prompts/registry';
 import { EducationalVectorStore } from '../retrieval/vector-store';
