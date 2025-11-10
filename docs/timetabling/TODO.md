@@ -16,11 +16,14 @@
   - [ ] clean up what currently isnt being used.
   - [ ] I want a full day of updating the code to be clean and efficient
 - [ ] Create the documentation page for the timetabling process and understandings of how fet works.
+- [ ] Make the days option only multiples of 5
+- [ ] make other genres of activities to be created
+- [ ] fix the deletion of temp generation files
 - [x] fix the results page to handle to handle appropriate statistics page
-- [ ] Showcase the error message to the user if the fet generation fails
+- [x] Showcase the error message to the user if the fet generation fails
   - [ ] should probably showcasae all fet responses (constraints broken etc)
 - [x] Fix the results page to now source the data from the timetable draft fet activities rather than passing the html files
-- [ ] create a way to determine which subjects a teacher can teach, consider this in admin/user
+- [x] create a way to determine which subjects a teacher can teach, consider this in admin/user
 - [ ] create a way for the timetable to roll out to all the actual users (actually populating timetables)
   - [ ] You will need to map the tables correctly
     - [ ] Groups with the same activity tag are the same userClass and then all the sub hours/days/rooms are the different allocations for this class - remember that
@@ -41,6 +44,12 @@
 - [x] Fix the groups/students page of the timetabling
   - [x] then depending on the student grouping, ensure that every student is assigned a fetactivity for that grouping
   - [x] add prefixed to the id's to determine the type of Student Group in the tt
+
+## UI Uplifts
+
+- [ ] show the semester that the timetable is for in the timetables page
+- [ ] showcase when timetable cannot be created due to unique constraint
+- [ ]
 
 ## BUGS
 

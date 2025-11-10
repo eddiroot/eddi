@@ -79,9 +79,9 @@ export type TimetableQueue = typeof timetableQueue.$inferSelect;
 
 export const timetableDay = pgTable('tt_day', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableId: integer('tt_id')
+	timetableDraftId: integer('tt_id')
 		.notNull()
-		.references(() => timetable.id, { onDelete: 'cascade' }),
+		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	day: integer('day').notNull(), // numbers align with $lib/utils
 	...timestamps
 });
@@ -90,9 +90,9 @@ export type TimetableDay = typeof timetableDay.$inferSelect;
 
 export const timetablePeriod = pgTable('tt_period', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableId: integer('tt_id')
+	timetableDraftId: integer('tt_id')
 		.notNull()
-		.references(() => timetable.id, { onDelete: 'cascade' }),
+		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	startTime: time('start_time').notNull(),
 	endTime: time('end_time').notNull(),
 	...timestamps

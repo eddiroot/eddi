@@ -2,30 +2,32 @@ import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
 import type { FETActivity, FETOutput } from '$lib/schema/fet';
 import {
-	getActiveTimetableConstraintsForTimetable,
+	getActiveTimetableDraftConstraintsByTimetableDraftId,
+	getAllStudentGroupsByTimetableDraftId,
 	getBuildingsBySchoolId,
-	getEnhancedTimetableActivitiesByTimetableId,
+	getEnhancedTimetableDraftActivitiesByTimetableDraftId,
 	getSchoolById,
 	getSpacesBySchoolId,
-	getStudentGroupsByTimetableId,
 	getSubjectsBySchoolId,
 	getTeacherSpecializationsByTeacherId,
-	getTimetableDaysByTimetableId,
-	getTimetablePeriodsByTimetableId,
+	getTimetableDraftDaysByTimetableId,
+	getTimetableDraftPeriodsByTimetableDraftId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 
 export type TimetableData = {
-	timetableDays: Awaited<ReturnType<typeof getTimetableDaysByTimetableId>>;
-	timetablePeriods: Awaited<ReturnType<typeof getTimetablePeriodsByTimetableId>>;
-	studentGroups: Awaited<ReturnType<typeof getStudentGroupsByTimetableId>>;
-	activities: Awaited<ReturnType<typeof getEnhancedTimetableActivitiesByTimetableId>>;
+	timetableDays: Awaited<ReturnType<typeof getTimetableDraftDaysByTimetableId>>;
+	timetablePeriods: Awaited<ReturnType<typeof getTimetableDraftPeriodsByTimetableDraftId>>;
+	studentGroups: Awaited<ReturnType<typeof getAllStudentGroupsByTimetableDraftId>>;
+	activities: Awaited<ReturnType<typeof getEnhancedTimetableDraftActivitiesByTimetableDraftId>>;
 	buildings: Awaited<ReturnType<typeof getBuildingsBySchoolId>>;
 	spaces: Awaited<ReturnType<typeof getSpacesBySchoolId>>;
 	teachers: Awaited<ReturnType<typeof getUsersBySchoolIdAndType>>;
 	subjects: Awaited<ReturnType<typeof getSubjectsBySchoolId>>;
 	school: Awaited<ReturnType<typeof getSchoolById>>;
-	activeConstraints: Awaited<ReturnType<typeof getActiveTimetableConstraintsForTimetable>>;
+	activeConstraints: Awaited<
+		ReturnType<typeof getActiveTimetableDraftConstraintsByTimetableDraftId>
+	>;
 };
 
 export async function buildFETInput({

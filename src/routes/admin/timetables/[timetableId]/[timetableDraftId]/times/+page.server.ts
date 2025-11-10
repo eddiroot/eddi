@@ -1,9 +1,9 @@
 import {
-	addTimetablePeriod,
-	deleteTimetablePeriodByPeriodId,
-	getTimetableDaysByTimetableId,
-	getTimetablePeriodsByTimetableId,
-	updateTimetableDays
+	addTimetableDraftPeriod,
+	deleteTimetableDraftPeriodByPeriodId,
+	getTimetableDraftDaysByTimetableDraftId,
+	getTimetableDraftPeriodsByTimetableDraftId,
+	updateTimetableDraftDaysByTimetableDraftId
 } from '$lib/server/db/service';
 import { error, fail } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
@@ -13,16 +13,16 @@ import { addPeriodSchema, updateDaysSchema } from './schema.js';
 export const load = async ({ params, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();
 
-	const timetableId = parseInt(params.timetableId, 10);
+	const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
-	if (isNaN(timetableId)) {
+	if (isNaN(timetableDraftId)) {
 		error(400, 'Invalid timetable ID');
 	}
 
 	try {
 		const [days, periods] = await Promise.all([
-			getTimetableDaysByTimetableId(timetableId),
-			getTimetablePeriodsByTimetableId(timetableId)
+			getTimetableDraftDaysByTimetableDraftId(timetableDraftId),
+			getTimetableDraftPeriodsByTimetableDraftId(timetableDraftId)
 		]);
 
 		const [updateDaysForm, addPeriodForm] = await Promise.all([
@@ -31,7 +31,7 @@ export const load = async ({ params, locals: { security } }) => {
 		]);
 
 		return {
-			timetableId,
+			timetableDraftId,
 			days,
 			periods,
 			updateDaysForm,
@@ -47,8 +47,8 @@ export const actions = {
 	updateDays: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId, 10);
-		if (isNaN(timetableId)) {
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
+		if (isNaN(timetableDraftId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
@@ -59,7 +59,7 @@ export const actions = {
 		}
 
 		try {
-			await updateTimetableDays(timetableId, form.data.selectedDays);
+			await updateTimetableDraftDaysByTimetableDraftId(timetableDraftId, form.data.selectedDays);
 			return message(form, 'Days updated successfully');
 		} catch (err) {
 			console.error('Error updating days:', err);
@@ -72,8 +72,8 @@ export const actions = {
 	updatePeriods: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId, 10);
-		if (isNaN(timetableId)) {
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
+		if (isNaN(timetableDraftId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
@@ -84,7 +84,7 @@ export const actions = {
 		}
 
 		try {
-			await addTimetablePeriod(timetableId, form.data.startTime, form.data.endTime);
+			await addTimetableDraftPeriod(timetableDraftId, form.data.startTime, form.data.endTime);
 			return message(form, 'Period added successfully');
 		} catch (err) {
 			console.error('Error adding period:', err);
@@ -95,8 +95,8 @@ export const actions = {
 	deletePeriod: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId, 10);
-		if (isNaN(timetableId)) {
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
+		if (isNaN(timetableDraftId)) {
 			return fail(400, { error: 'Invalid timetable ID' });
 		}
 
@@ -107,7 +107,7 @@ export const actions = {
 		}
 
 		try {
-			await deleteTimetablePeriodByPeriodId(periodId, timetableId);
+			await deleteTimetableDraftPeriodByPeriodId(periodId, timetableDraftId);
 			return { success: true, message: 'Period deleted successfully' };
 		} catch (err) {
 			console.error('Error deleting period:', err);

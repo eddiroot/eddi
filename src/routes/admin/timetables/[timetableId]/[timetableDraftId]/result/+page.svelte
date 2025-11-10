@@ -31,8 +31,8 @@
 	let studentStatisticsReport = $state(
 		form?.studentStatisticsReport || data.studentStatisticsReport
 	);
-	let completedIterations = $state(form?.completedIterations || data.completedIterations);
-	let selectedIterationId = $state(form?.selectedIterationId || data.selectedIterationId);
+	let completedDrafts = $state(form?.completedDrafts || data.completedDrafts);
+	let selectedDraftId = $state(form?.selectedDraftId || data.selectedDraftId);
 
 	// Derived values
 	const timetableData: TimetableMetadata = $derived(teacherStatisticsReport.metadata);
@@ -113,11 +113,11 @@
 			</div>
 		</div>
 		<div class="flex items-center gap-4">
-			<!-- Iteration Selector -->
-			{#if completedIterations && completedIterations.length > 1}
+			<!-- Draft Selector -->
+			{#if completedDrafts && completedDrafts.length > 1}
 				<form
 					method="POST"
-					action="?/changeIteration"
+					action="?/changeDraft"
 					use:enhance={() => {
 						return async ({ result }) => {
 							if (
@@ -131,14 +131,14 @@
 									.teacherStatisticsReport as typeof teacherStatisticsReport;
 								studentStatisticsReport = result.data
 									.studentStatisticsReport as typeof studentStatisticsReport;
-								completedIterations = result.data.completedIterations as typeof completedIterations;
-								selectedIterationId = result.data.selectedIterationId as number;
+								completedDrafts = result.data.completedDrafts as typeof completedDrafts;
+								selectedDraftId = result.data.selectedDraftId as number;
 							}
 						};
 					}}
 				>
 					<div class="flex items-center gap-2">
-						<span class="text-muted-foreground text-sm font-medium">Iteration:</span>
+						<span class="text-muted-foreground text-sm font-medium">Draft:</span>
 						<select
 							name="timetableDraftId"
 							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-10 w-[200px] items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -146,12 +146,12 @@
 								e.currentTarget.form?.requestSubmit();
 							}}
 						>
-							{#each completedIterations as draft}
+							{#each completedDrafts as draft}
 								<option
 									value={draft.timetableDraftId.toString()}
-									selected={draft.timetableDraftId === selectedIterationId}
+									selected={draft.timetableDraftId === selectedDraftId}
 								>
-									Iteration #{draft.timetableDraftId} ({formatDate(draft.createdAt)})
+									Draft #{draft.timetableDraftId} ({formatDate(draft.createdAt)})
 								</option>
 							{/each}
 						</select>

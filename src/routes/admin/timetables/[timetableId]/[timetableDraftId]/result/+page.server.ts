@@ -3,8 +3,8 @@ import {
 	getSpaceFETActivitiesByTimetableDraftId,
 	getSpacesBySchoolId,
 	getTimetableAndSchoolByTimetableId,
-	getTimetableDaysByTimetableId,
-	getTimetablePeriodsByTimetableId,
+	getTimetableDraftDaysByTimetableId,
+	getTimetableDraftPeriodsByTimetableDraftId,
 	getUserFETActivitiesByTimetableDraftId,
 	getUsersBySchoolId
 } from '$lib/server/db/service';
@@ -173,8 +173,8 @@ export const actions = {
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
 				getUserFETActivitiesByTimetableDraftId(userId, timetableDraftId),
-				getTimetableDaysByTimetableId(timetableId),
-				getTimetablePeriodsByTimetableId(timetableId)
+				getTimetableDraftDaysByTimetableId(timetableId),
+				getTimetableDraftPeriodsByTimetableDraftId(timetableId)
 			]);
 
 			return {
@@ -205,8 +205,8 @@ export const actions = {
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
 				getSpaceFETActivitiesByTimetableDraftId(spaceId, timetableDraftId),
-				getTimetableDaysByTimetableId(timetableId),
-				getTimetablePeriodsByTimetableId(timetableId)
+				getTimetableDraftDaysByTimetableId(timetableId),
+				getTimetableDraftPeriodsByTimetableDraftId(timetableId)
 			]);
 
 			return {

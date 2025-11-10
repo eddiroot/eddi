@@ -2,7 +2,6 @@ import { constraintTypeEnum, queueStatusEnum, userTypeEnum, yearLevelEnum } from
 import type { FETActivity } from '$lib/schema/fet';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { days } from '$lib/utils';
 import { and, asc, count, eq, ilike, inArray, or } from 'drizzle-orm';
 
 // ============================================================================
@@ -68,19 +67,6 @@ export async function createSchoolTimetable(data: {
 		})
 		.returning();
 
-	await db.insert(table.timetableDay).values(
-		days.map((day) => ({
-			timetableId: timetable.id,
-			day: day.number
-		}))
-	);
-
-	await db.insert(table.timetablePeriod).values({
-		timetableId: timetable.id,
-		startTime: '08:30',
-		endTime: '09:30'
-	});
-
 	return timetable;
 }
 
@@ -88,17 +74,20 @@ export async function createSchoolTimetable(data: {
 // TIMETABLE DAYS - Operations
 // ============================================================================
 
-export async function getTimetableDaysByTimetableId(timetableId: number) {
+export async function getTimetableDraftDaysByTimetableDraftId(timetableDraftId: number) {
 	const days = await db
 		.select()
 		.from(table.timetableDay)
-		.where(eq(table.timetableDay.timetableId, timetableId))
+		.where(eq(table.timetableDay.timetableDraftId, timetableDraftId))
 		.orderBy(asc(table.timetableDay.day));
 
 	return days;
 }
 
-export async function updateTimetableDays(timetableId: number, days: number[]) {
+export async function updateTimetableDraftDaysByTimetableDraftId(
+	timetableDraftId: number,
+	days: number[]
+) {
 	if (days.length === 0) {
 		throw new Error('At least one day must be selected');
 	}
@@ -109,40 +98,46 @@ export async function updateTimetableDays(timetableId: number, days: number[]) {
 		}
 	}
 
-	await db.delete(table.timetableDay).where(eq(table.timetableDay.timetableId, timetableId));
+	await db
+		.delete(table.timetableDay)
+		.where(eq(table.timetableDay.timetableDraftId, timetableDraftId));
 
 	// Insert new days
 	if (days.length > 0) {
 		await db.insert(table.timetableDay).values(
 			days.map((day) => ({
-				timetableId,
+				timetableDraftId,
 				day
 			}))
 		);
 	}
 
-	return await getTimetableDaysByTimetableId(timetableId);
+	return await getTimetableDraftDaysByTimetableDraftId(timetableDraftId);
 }
 
 // ============================================================================
 // TIMETABLE PERIODS - Operations
 // ============================================================================
 
-export async function getTimetablePeriodsByTimetableId(timetableId: number) {
+export async function getTimetableDraftPeriodsByTimetableDraftId(timetableDraftId: number) {
 	const periods = await db
 		.select()
 		.from(table.timetablePeriod)
-		.where(eq(table.timetablePeriod.timetableId, timetableId))
+		.where(eq(table.timetablePeriod.timetableDraftId, timetableDraftId))
 		.orderBy(asc(table.timetablePeriod.startTime));
 
 	return periods;
 }
 
-export async function addTimetablePeriod(timetableId: number, startTime: string, endTime: string) {
+export async function addTimetableDraftPeriod(
+	timetableDraftId: number,
+	startTime: string,
+	endTime: string
+) {
 	const [period] = await db
 		.insert(table.timetablePeriod)
 		.values({
-			timetableId,
+			timetableDraftId,
 			startTime,
 			endTime
 		})
@@ -151,16 +146,16 @@ export async function addTimetablePeriod(timetableId: number, startTime: string,
 	return period;
 }
 
-export async function deleteTimetablePeriodByPeriodId(periodId: number, timetableId: number) {
+export async function deleteTimetableDraftPeriodByPeriodId(periodId: number, timetableId: number) {
 	// Check if this is the last period
-	const periods = await getTimetablePeriodsByTimetableId(timetableId);
+	const periods = await getTimetableDraftPeriodsByTimetableDraftId(timetableId);
 	if (periods.length <= 1) {
 		throw new Error('At least one period must exist');
 	}
 
 	await db.delete(table.timetablePeriod).where(eq(table.timetablePeriod.id, periodId));
 
-	return await getTimetablePeriodsByTimetableId(timetableId);
+	return await getTimetableDraftPeriodsByTimetableDraftId(timetableId);
 }
 
 // ============================================================================
@@ -194,6 +189,9 @@ export async function createTimetableDraft(data: { timetableId: number; name: st
 			timetableId: data.timetableId
 		})
 		.returning();
+
+	const defaultDays = [1, 2, 3, 4, 5]; // Monday to Friday
+	await updateTimetableDraftDaysByTimetableDraftId(draft.id, defaultDays);
 
 	return draft;
 }

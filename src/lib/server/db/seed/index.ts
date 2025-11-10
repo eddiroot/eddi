@@ -1593,11 +1593,11 @@ async function seed() {
 		await db
 			.insert(schema.timetableDay)
 			.values([
-				{ timetableId: mockTimetable.id, day: 1 }, // Monday
-				{ timetableId: mockTimetable.id, day: 2 }, // Tuesday
-				{ timetableId: mockTimetable.id, day: 3 }, // Wednesday
-				{ timetableId: mockTimetable.id, day: 4 }, // Thursday
-				{ timetableId: mockTimetable.id, day: 5 } // Friday
+				{ timetableDraftId: mockTimetableDraft.id, day: 1 }, // Monday
+				{ timetableDraftId: mockTimetableDraft.id, day: 2 }, // Tuesday
+				{ timetableDraftId: mockTimetableDraft.id, day: 3 }, // Wednesday
+				{ timetableDraftId: mockTimetableDraft.id, day: 4 }, // Thursday
+				{ timetableDraftId: mockTimetableDraft.id, day: 5 } // Friday
 			])
 			.returning();
 
@@ -1605,12 +1605,12 @@ async function seed() {
 		await db
 			.insert(schema.timetablePeriod)
 			.values([
-				{ timetableId: mockTimetable.id, startTime: '09:00', endTime: '09:50' },
-				{ timetableId: mockTimetable.id, startTime: '09:50', endTime: '10:40' },
-				{ timetableId: mockTimetable.id, startTime: '11:00', endTime: '11:50' }, // 20 min break after period 2
-				{ timetableId: mockTimetable.id, startTime: '11:50', endTime: '12:40' },
-				{ timetableId: mockTimetable.id, startTime: '13:40', endTime: '14:30' }, // 1 hour lunch break after period 4
-				{ timetableId: mockTimetable.id, startTime: '14:30', endTime: '15:20' }
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '09:00', endTime: '09:50' },
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '09:50', endTime: '10:40' },
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '11:00', endTime: '11:50' }, // 20 min break after period 2
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '11:50', endTime: '12:40' },
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '13:40', endTime: '14:30' }, // 1 hour lunch break after period 4
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '14:30', endTime: '15:20' }
 			])
 			.returning();
 
