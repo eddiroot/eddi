@@ -6,10 +6,11 @@ import {
 	updateTimetableDraftFetResponse,
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/index.js';
+import { FETDockerService } from '$lib/server/fet.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
-import { exec, spawn } from 'child_process';
-import { promisify } from 'util';
 import { parseTimetableCSVAndPopulate } from '../utils';
+
+const fetService = new FETDockerService();
 
 export async function processTimetableQueue() {
 	const startTime = Date.now();
@@ -52,60 +53,31 @@ export async function processTimetableQueue() {
 			const containerTempPath = `/tmp/${queueEntry.id}_${fileName}`;
 			const containerOutputDir = `/tmp/output_${queueEntry.id}`;
 
-			// Stream file directly to Docker container using stdin
+			// Stream file directly to Docker container using FETDockerService
 			console.log('📤 [TIMETABLE PROCESSOR] Streaming input file to Docker container...');
-			await streamToDockerContainer('eddi-fet-1', containerTempPath, fileBuffer);
+			await fetService.streamFileToContainer(containerTempPath, fileBuffer);
 			console.log('✅ [TIMETABLE PROCESSOR] Input file streamed to container');
 
 			// Create output directory in container
 			console.log('📁 [TIMETABLE PROCESSOR] Creating output directory in container...');
-			await execAsync(`docker exec eddi-fet-1 mkdir -p ${containerOutputDir}`, {
-				timeout: 1 * 60 * 1000 // 1 minute
-			});
+			await fetService.createDirectory(containerOutputDir);
 			console.log('✅ [TIMETABLE PROCESSOR] Output directory created in container');
 
 			// Run FET processing in Docker container
-			const params = {
-				htmllevel: 7,
-				writetimetableconflicts: true,
-				writetimetablesstatistics: true,
-				writetimetablesxml: true,
-				writetimetablesdayshorizontal: true,
-				writetimetablesdaysvertical: true,
-				writetimetablestimehorizontal: true,
-				writetimetablestimevertical: true,
-				writetimetablessubgroups: true,
-				writetimetablesgroups: true,
-				writetimetablesyears: true,
-				writetimetablesteachers: true,
-				writetimetablesteachersfreeperiods: true,
-				writetimetablesrooms: true,
-				writetimetablessubjects: true,
-				writetimetablesactivitytags: true,
-				writetimetablesactivities: true,
-				exportcsv: true
-			};
-
-			// Build command string from params
-			const cmd_str = Object.entries(params)
-				.map(([key, value]) => `--${key}=${value}`)
-				.join(' ');
-
 			console.log('⚙️  [TIMETABLE PROCESSOR] Starting FET processing...');
-			const command = `docker exec eddi-fet-1 fet-cl --inputfile="${containerTempPath}" --outputdir="${containerOutputDir}" ${cmd_str}`;
-
-			console.log(`   - Command: ${command}`);
 
 			const fetStartTime = Date.now();
 
-			const fetResult = await execAsync(command, {
-				timeout: 20 * 60 * 1000 // 20 minutes
-			});
+			const fetResult = await fetService.executeFET(containerTempPath, containerOutputDir);
 
 			const fetEndTime = Date.now();
 			console.log(
 				`✅ [TIMETABLE PROCESSOR] FET processing completed in ${(fetEndTime - fetStartTime) / 1000} seconds`
 			);
+
+			if (!fetResult.success) {
+				throw new Error(`FET processing failed: ${fetResult.error}`);
+			}
 
 			// Store FET response (stdout) in the draft for successful generations
 			if (fetResult.stdout) {
@@ -119,15 +91,12 @@ export async function processTimetableQueue() {
 
 			// List output files in container
 			console.log('📋 [TIMETABLE PROCESSOR] Listing generated output files in container...');
-			const listCommand = `docker exec eddi-fet-1 find ${containerOutputDir} -type f`;
-			const listResult = await execAsync(listCommand, { timeout: 60000 });
+			const allFiles = await fetService.listFiles(containerOutputDir);
 			console.log('📋 [TIMETABLE PROCESSOR] Container output files:');
-			console.log('--&*-');
-			console.log(listResult.stdout);
+			console.log(allFiles.join('\n'));
 
 			// Upload ALL generated files to object storage
-			if (listResult.stdout.trim()) {
-				const allFiles = listResult.stdout.trim().split('\n');
+			if (allFiles.length > 0) {
 				console.log(
 					`📤 [TIMETABLE PROCESSOR] Found ${allFiles.length} output files, uploading ALL to object storage...`
 				);
@@ -142,13 +111,12 @@ export async function processTimetableQueue() {
 
 						console.log(`   📄 Processing file: ${fileName}`);
 
-						// Read file content from container
-						const catCommand = `docker exec eddi-fet-1 cat "${filePath}"`;
-						const fileContent = await execAsync(catCommand, { timeout: 2 * 60 * 1000 });
+						// Read file content from container using FETDockerService
+						const fileContent = await fetService.readFile(filePath);
 
 						// Check for specific files needed for database processing (suffix match)
 						if (fileName.endsWith('timetable.csv')) {
-							timetableCSV = fileContent.stdout;
+							timetableCSV = fileContent;
 							console.log(`   🎯 Found database processing file: ${fileName}`);
 						}
 
@@ -167,7 +135,7 @@ export async function processTimetableQueue() {
 						// Upload with draft structure: {schoolId}/{timetableId}/{timetableDraftId}/output/{fileName}
 						const outputObjectKey = `${schoolId}/${timetableId}/${timetableDraftId}/output/${fileName}`;
 						await uploadBufferHelper(
-							Buffer.from(fileContent.stdout, 'utf-8'),
+							Buffer.from(fileContent, 'utf-8'),
 							'schools',
 							outputObjectKey,
 							contentType
@@ -279,67 +247,12 @@ export async function processTimetableQueue() {
 async function performCleanup(containerTempPath: string, containerOutputDir: string) {
 	console.log('🧹 [CLEANUP] Starting cleanup operations...');
 
-	// Container cleanup only (no local files to clean)
-	try {
-		await execAsync(`docker exec eddi-fet-1 rm -f ${containerTempPath}`, { timeout: 60000 });
-		console.log('✅ [CLEANUP] Container input file removed');
-	} catch (error) {
-		console.warn('⚠️  [CLEANUP] Failed to remove container input file:', error);
-	}
+	// Container cleanup using FETDockerService
+	await fetService.removeFile(containerTempPath);
+	console.log('✅ [CLEANUP] Container input file removed');
 
-	try {
-		await execAsync(`docker exec eddi-fet-1 rm -rf ${containerOutputDir}`, { timeout: 60000 });
-		console.log('✅ [CLEANUP] Container output directory removed');
-	} catch (error) {
-		console.warn('⚠️  [CLEANUP] Failed to remove container output directory:', error);
-	}
+	await fetService.removeDirectory(containerOutputDir);
+	console.log('✅ [CLEANUP] Container output directory removed');
 
 	console.log('🧹 [CLEANUP] Cleanup operations completed');
-}
-
-// Helper function to stream data directly to Docker container
-async function streamToDockerContainer(
-	containerName: string,
-	targetPath: string,
-	data: Buffer
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		// Use docker exec with bash to write stdin to file
-		const dockerProcess = spawn('docker', [
-			'exec',
-			'-i',
-			containerName,
-			'sh',
-			'-c',
-			`cat > ${targetPath}`
-		]);
-
-		let stderr = '';
-
-		dockerProcess.stderr.on('data', (chunk) => {
-			stderr += chunk.toString();
-		});
-
-		dockerProcess.on('error', (error) => {
-			reject(new Error(`Failed to spawn docker process: ${error.message}`));
-		});
-
-		dockerProcess.on('close', (code) => {
-			if (code === 0) {
-				resolve();
-			} else {
-				reject(new Error(`Docker process exited with code ${code}. stderr: ${stderr}`));
-			}
-		});
-
-		// Write data to stdin and close
-		dockerProcess.stdin.write(data);
-		dockerProcess.stdin.end();
-	});
-}
-
-const execPromise = promisify(exec);
-
-async function execAsync(command: string, options: { timeout: number }) {
-	return await execPromise(command, options);
 }
