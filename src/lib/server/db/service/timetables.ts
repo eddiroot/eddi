@@ -270,11 +270,9 @@ export async function getTimetableDraftStudentGroupsWithCountsByTimetableDraftId
 }
 
 /**
- * Get all student groups organized by year level with individual student subgroups
- * for FET timetable generation
+ * Get all student groups with their members by timetable draft ID
  */
 export async function getAllStudentGroupsByTimetableDraftId(timetableDraftId: number) {
-	// Get all groups with their members
 	const groupsWithMembers = await db
 		.select({
 			groupId: table.timetableGroup.id,
@@ -297,82 +295,8 @@ export async function getAllStudentGroupsByTimetableDraftId(timetableDraftId: nu
 			asc(table.user.firstName)
 		);
 
-	// Organize data by year level
-	const yearLevelMap = new Map<
-		string,
-		{
-			totalStudents: Set<string>;
-			groups: Map<
-				number,
-				{
-					name: string;
-					students: Array<{ id: string; name: string }>;
-				}
-			>;
-		}
-	>();
-
-	// Process all rows
-	for (const row of groupsWithMembers) {
-		const yearLevel = row.yearLevel;
-
-		if (!yearLevelMap.has(yearLevel)) {
-			yearLevelMap.set(yearLevel, {
-				totalStudents: new Set(),
-				groups: new Map()
-			});
-		}
-
-		const yearData = yearLevelMap.get(yearLevel)!;
-
-		// Track group - use group ID as the name for FET
-		if (!yearData.groups.has(row.groupId)) {
-			yearData.groups.set(row.groupId, {
-				name: row.groupId.toString(),
-				students: []
-			});
-		}
-
-		// Track student if present
-		if (row.userId) {
-			yearData.totalStudents.add(row.userId);
-			// Use user ID as the name for FET
-			yearData.groups.get(row.groupId)!.students.push({
-				id: row.userId,
-				name: row.userId
-			});
-		}
-	}
-
-	// Convert to FET-compatible nested structure
-	const result = [];
-
-	for (const [yearLevel, data] of yearLevelMap.entries()) {
-		// Build groups for this year with their subgroups
-		const groupsForYear = Array.from(data.groups.values()).map((group) => ({
-			Name: 'G' + group.name,
-			Number_of_Students: group.students.length,
-			// Only include Subgroup array if there are students
-			...(group.students.length > 0 && {
-				Subgroup: group.students.map((student) => ({
-					Name: 'S' + student.id,
-					Number_of_Students: 1
-				}))
-			})
-		}));
-
-		// Add year entry with nested groups
-		result.push({
-			Name: 'Y' + yearLevel,
-			Number_of_Students: data.totalStudents.size,
-			...(groupsForYear.length > 0 && { Group: groupsForYear })
-		});
-	}
-
-	return result;
-}
-
-export async function createTimetableDraftStudentGroup(
+	return groupsWithMembers;
+}export async function createTimetableDraftStudentGroup(
 	timetableDraftId: number,
 	yearLevel: yearLevelEnum,
 	name: string

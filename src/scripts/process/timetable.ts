@@ -7,32 +7,15 @@ import {
 	updateTimetableQueueStatus
 } from '$lib/server/db/service/index.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import { parseTimetableCSVAndPopulate } from '../utils';
 
-const TEMP_DIR = join(process.cwd(), 'temp');
-
-async function ensureTempDir() {
-	try {
-		await fs.access(TEMP_DIR);
-	} catch {
-		await fs.mkdir(TEMP_DIR, { recursive: true });
-	}
-}
-
 export async function processTimetableQueue() {
 	const startTime = Date.now();
-	console.log(
-		'🚀 [TIMETABLE PROCESSOR] Starting timetable processing queue at',
-		new Date().toISOString()
-	);
 
 	try {
 		// Check for existing in-progress tasks
-		console.log('🔍 [TIMETABLE PROCESSOR] Checking for existing in-progress tasks...');
 		const inProgressQueues = await getInProgressTimetableQueues();
 		if (inProgressQueues.length > 0) {
 			console.log(
@@ -40,70 +23,39 @@ export async function processTimetableQueue() {
 			);
 			return;
 		}
-		console.log('✅ [TIMETABLE PROCESSOR] No in-progress tasks found. Proceeding...');
 
 		// Get the oldest queued task
-		console.log('🔍 [TIMETABLE PROCESSOR] Fetching oldest queued timetable task...');
 		const queueEntry = await getOldestQueuedTimetable();
 		if (!queueEntry) {
-			console.log('📭 [TIMETABLE PROCESSOR] No queued timetables found. Nothing to process.');
+			console.error('📭 [TIMETABLE PROCESSOR] No queued timetables found. Nothing to process.');
 			return;
 		}
-		console.log(
-			`📋 [TIMETABLE PROCESSOR] Found queued task - ID: ${queueEntry.id}, School: ${queueEntry.school.id}, File: ${queueEntry.fileName}`
-		);
 
 		// Mark task as in progress
-		console.log(`🔄 [TIMETABLE PROCESSOR] Marking task ${queueEntry.id} as in progress...`);
 		await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.inProgress);
-		console.log('✅ [TIMETABLE PROCESSOR] Task status updated to in progress');
 
 		try {
-			await ensureTempDir();
-			console.log('📁 [TIMETABLE PROCESSOR] Temporary directory ensured');
-
 			const schoolId = queueEntry.school.id.toString();
 			const timetableId = queueEntry.timetableId.toString();
 			const timetableDraftId = queueEntry.timetableDraftId.toString();
 			const fileName = queueEntry.fileName;
 
-			console.log('📥 [TIMETABLE PROCESSOR] Downloading input file from object storage...');
-			console.log(`   - School ID: ${schoolId}`);
-			console.log(`   - Timetable ID: ${timetableId}`);
-			console.log(`   - Draft ID: ${timetableDraftId}`);
-			console.log(`   - File name: ${fileName}`);
-
 			const fileBuffer = await getFileFromStorage(
 				schoolId,
 				timetableId,
+				timetableDraftId,
 				fileName,
-				true,
-				timetableDraftId
-			);
-			console.log(
-				`✅ [TIMETABLE PROCESSOR] File downloaded successfully - Size: ${fileBuffer.length} bytes`
+				true
 			);
 
-			// Create temporary file for Docker processing
-			const tempFilePath = join(TEMP_DIR, `${queueEntry.id}_${fileName}`);
-			console.log(`💾 [TIMETABLE PROCESSOR] Writing file to temporary location: ${tempFilePath}`);
-			await fs.writeFile(tempFilePath, fileBuffer);
-			console.log('✅ [TIMETABLE PROCESSOR] File written to temporary location');
-
-			// Docker container paths
+			// Docker container paths (no local temp file needed)
 			const containerTempPath = `/tmp/${queueEntry.id}_${fileName}`;
 			const containerOutputDir = `/tmp/output_${queueEntry.id}`;
 
-			console.log('🐳 [TIMETABLE PROCESSOR] Starting Docker operations...');
-			console.log(`   - Container input path: ${containerTempPath}`);
-			console.log(`   - Container output directory: ${containerOutputDir}`);
-
-			// Copy input file to Docker container
-			console.log('📤 [TIMETABLE PROCESSOR] Copying input file to Docker container...');
-			await execAsync(`docker cp "${tempFilePath}" eddi-fet-1:${containerTempPath}`, {
-				timeout: 5 * 60 * 1000 // 5 minutes
-			});
-			console.log('✅ [TIMETABLE PROCESSOR] Input file copied to container');
+			// Stream file directly to Docker container using stdin
+			console.log('📤 [TIMETABLE PROCESSOR] Streaming input file to Docker container...');
+			await streamToDockerContainer('eddi-fet-1', containerTempPath, fileBuffer);
+			console.log('✅ [TIMETABLE PROCESSOR] Input file streamed to container');
 
 			// Create output directory in container
 			console.log('📁 [TIMETABLE PROCESSOR] Creating output directory in container...');
@@ -272,14 +224,16 @@ export async function processTimetableQueue() {
 				processingError instanceof Error ? processingError.message : 'Unknown error';
 
 			// Store error message in draft if not already stored
-
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed);
 			console.error('❌ [TIMETABLE PROCESSOR] Error during timetable processing:', processingError);
 
-			await updateTimetableDraftError(
-				queueEntry.timetableDraftId,
-				processingError.stdout.toString()
-			);
+			// Extract error details from the error object
+			const errorDetails =
+				processingError && typeof processingError === 'object' && 'stdout' in processingError
+					? String(processingError.stdout)
+					: errorMessage;
+
+			await updateTimetableDraftError(queueEntry.timetableDraftId, errorDetails);
 
 			console.error('📊 [TIMETABLE PROCESSOR] Error details:', {
 				message: errorMessage,
@@ -297,16 +251,9 @@ export async function processTimetableQueue() {
 
 			// Attempt cleanup even on failure
 			try {
-				const tempFilePath = join(TEMP_DIR, `${queueEntry.id}_${queueEntry.fileName}`);
 				const containerTempPath = `/tmp/${queueEntry.id}_${queueEntry.fileName}`;
 				const containerOutputDir = `/tmp/output_${queueEntry.id}`;
-				await performCleanup(
-					queueEntry.id,
-					queueEntry.fileName,
-					tempFilePath,
-					containerTempPath,
-					containerOutputDir
-				);
+				await performCleanup(containerTempPath, containerOutputDir);
 			} catch (cleanupError) {
 				console.error(
 					'🧹 [TIMETABLE PROCESSOR] Cleanup failed after processing error:',
@@ -329,24 +276,10 @@ export async function processTimetableQueue() {
 	}
 }
 
-async function performCleanup(
-	queueId: number,
-	fileName: string,
-	tempFilePath: string,
-	containerTempPath: string,
-	containerOutputDir: string
-) {
+async function performCleanup(containerTempPath: string, containerOutputDir: string) {
 	console.log('🧹 [CLEANUP] Starting cleanup operations...');
 
-	// Local file cleanup
-	try {
-		await fs.unlink(tempFilePath);
-		console.log('✅ [CLEANUP] Local temporary file removed');
-	} catch (error) {
-		console.warn('⚠️  [CLEANUP] Failed to remove local temporary file:', error);
-	}
-
-	// Container cleanup
+	// Container cleanup only (no local files to clean)
 	try {
 		await execAsync(`docker exec eddi-fet-1 rm -f ${containerTempPath}`, { timeout: 60000 });
 		console.log('✅ [CLEANUP] Container input file removed');
@@ -362,6 +295,47 @@ async function performCleanup(
 	}
 
 	console.log('🧹 [CLEANUP] Cleanup operations completed');
+}
+
+// Helper function to stream data directly to Docker container
+async function streamToDockerContainer(
+	containerName: string,
+	targetPath: string,
+	data: Buffer
+): Promise<void> {
+	return new Promise((resolve, reject) => {
+		// Use docker exec with bash to write stdin to file
+		const dockerProcess = spawn('docker', [
+			'exec',
+			'-i',
+			containerName,
+			'sh',
+			'-c',
+			`cat > ${targetPath}`
+		]);
+
+		let stderr = '';
+
+		dockerProcess.stderr.on('data', (chunk) => {
+			stderr += chunk.toString();
+		});
+
+		dockerProcess.on('error', (error) => {
+			reject(new Error(`Failed to spawn docker process: ${error.message}`));
+		});
+
+		dockerProcess.on('close', (code) => {
+			if (code === 0) {
+				resolve();
+			} else {
+				reject(new Error(`Docker process exited with code ${code}. stderr: ${stderr}`));
+			}
+		});
+
+		// Write data to stdin and close
+		dockerProcess.stdin.write(data);
+		dockerProcess.stdin.end();
+	});
 }
 
 const execPromise = promisify(exec);

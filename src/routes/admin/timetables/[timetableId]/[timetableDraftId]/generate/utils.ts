@@ -30,35 +30,10 @@ export type TimetableData = {
 	>;
 };
 
-export async function buildFETInput({
-	timetableDays,
-	timetablePeriods,
-	studentGroups,
-	activities,
-	buildings,
-	spaces,
-	teachers,
-	subjects,
-	school,
-	activeConstraints
-}: TimetableData) {
-	const daysList = timetableDays.map((day) => ({
-		Name: day.id
-	}));
-
-	const hoursList = timetablePeriods.map((period) => ({
-		Name: period.id
-	}));
-
-	const subjectsList = subjects.map((subject) => ({
-		Name: subject.id
-	}));
-
-	// Use Promise.all to await all teacher specialization queries
-	const teachersList = await Promise.all(
+async function buildTeachersList(teachers: TimetableData['teachers']) {
+	return Promise.all(
 		teachers.map(async (teacher) => {
 			const qualifiedSubjects = await getTeacherSpecializationsByTeacherId(teacher.id);
-			// console.log(`Teacher ${teacher.id} qualified subjects:`, qualifiedSubjects);
 			const subjectIds = qualifiedSubjects.map((qs) => qs.subjectId);
 
 			return {
@@ -73,14 +48,95 @@ export async function buildFETInput({
 			};
 		})
 	);
+}
 
-	// studentGroups is now nested: Year -> Group -> Subgroup
-	// It's already in the correct FET format from getStudentGroupsByTimetableId
-	const studentsList = studentGroups;
+function buildStudentsList(studentGroups: TimetableData['studentGroups']) {
+	// Organize data by year level
+	const yearLevelMap = new Map<
+		string,
+		{
+			totalStudents: Set<string>;
+			groups: Map<
+				number,
+				{
+					name: string;
+					students: Array<{ id: string; name: string }>;
+				}
+			>;
+		}
+	>();
 
-	// Track the next Activity_Group_Id to use
-	// let nextActivityGroupId = 1;
+	// Process all rows from studentGroups
+	for (const row of studentGroups) {
+		const yearLevelKey = row.yearLevel;
+		const groupId = row.groupId;
+		const groupName = row.groupName;
 
+		// Initialize year level if it doesn't exist
+		if (!yearLevelMap.has(yearLevelKey)) {
+			yearLevelMap.set(yearLevelKey, {
+				totalStudents: new Set(),
+				groups: new Map()
+			});
+		}
+
+		const yearData = yearLevelMap.get(yearLevelKey)!;
+
+		// Initialize group if it doesn't exist
+		if (!yearData.groups.has(groupId)) {
+			yearData.groups.set(groupId, {
+				name: groupName,
+				students: []
+			});
+		}
+
+		// Add student if they exist (leftJoin may return null for empty groups)
+		if (row.userId) {
+			const studentId = row.userId;
+			const studentName = `${row.userFirstName} ${row.userLastName}`;
+
+			yearData.totalStudents.add(studentId);
+			yearData.groups.get(groupId)!.students.push({
+				id: studentId,
+				name: studentName
+			});
+		}
+	}
+
+	// Convert to FET-compatible nested structure
+	const studentsList = [];
+
+	for (const [yearLevel, data] of yearLevelMap.entries()) {
+		const yearGroups = [];
+
+		for (const [groupId, groupData] of data.groups.entries()) {
+			// Create subgroups for each student in this group
+			const subgroups = groupData.students.map((student) => ({
+				Name: `S${student.id}`,
+				Number_of_Students: 1,
+				Comments: student.name
+			}));
+
+			yearGroups.push({
+				Name: `G${groupId}`,
+				Number_of_Students: groupData.students.length,
+				Comments: groupData.name,
+				Subgroup: subgroups
+			});
+		}
+
+		studentsList.push({
+			Name: `Y${yearLevel}`,
+			Number_of_Students: data.totalStudents.size,
+			Comments: `Year ${yearLevel}`,
+			Group: yearGroups
+		});
+	}
+
+	return studentsList;
+}
+
+function buildActivitiesList(activities: TimetableData['activities']) {
 	const activitiesList = activities.flatMap((activity) => {
 		// Collect all teacher IDs
 		const teacherIds = activity.teacherIds;
@@ -136,11 +192,11 @@ export async function buildFETInput({
 		activity.Id = index + 1; // FET IDs typically start at 1
 	});
 
-	const buildingsList = buildings.map((building) => ({
-		Name: building.id
-	}));
+	return activitiesList;
+}
 
-	const roomsList = spaces.map((space) => {
+function buildRoomsList(spaces: TimetableData['spaces'], buildings: TimetableData['buildings']) {
+	return spaces.map((space) => {
 		const building = buildings.find((b) => b.id === space.buildingId);
 
 		return {
@@ -150,10 +206,11 @@ export async function buildFETInput({
 			Virtual: false
 		};
 	});
+}
 
-	// Filter constraints by type
-	const timeConstraints = activeConstraints.filter((c) => c.type === 'time');
-	const spaceConstraints = activeConstraints.filter((c) => c.type === 'space');
+function buildConstraintsXML(constraints: TimetableData['activeConstraints']) {
+	const timeConstraints = constraints.filter((c) => c.type === 'time');
+	const spaceConstraints = constraints.filter((c) => c.type === 'space');
 
 	// Build Time_Constraints_List
 	const timeConstraintsXML: Record<string, unknown> = {};
@@ -189,7 +246,13 @@ export async function buildFETInput({
 		}
 	});
 
-	// Generate ConstraintActivityPreferredRooms for activities with preferred spaces
+	return { timeConstraintsXML, spaceConstraintsXML };
+}
+
+function buildPreferredRoomsConstraints(
+	activities: TimetableData['activities'],
+	activitiesList: ReturnType<typeof buildActivitiesList>
+) {
 	const preferredRoomsConstraints: Array<{
 		Weight_Percentage: number;
 		Activity_Id: number;
@@ -220,6 +283,47 @@ export async function buildFETInput({
 			});
 		});
 	});
+
+	return preferredRoomsConstraints;
+}
+
+export async function buildFETInput({
+	timetableDays,
+	timetablePeriods,
+	studentGroups,
+	activities,
+	buildings,
+	spaces,
+	teachers,
+	subjects,
+	school,
+	activeConstraints
+}: TimetableData) {
+	const daysList = timetableDays.map((day) => ({
+		Name: day.id
+	}));
+
+	const hoursList = timetablePeriods.map((period) => ({
+		Name: period.id
+	}));
+
+	const subjectsList = subjects.map((subject) => ({
+		Name: subject.id
+	}));
+
+	const teachersList = await buildTeachersList(teachers);
+	const studentsList = buildStudentsList(studentGroups);
+	const activitiesList = buildActivitiesList(activities);
+
+	const buildingsList = buildings.map((building) => ({
+		Name: building.id
+	}));
+
+	const roomsList = buildRoomsList(spaces, buildings);
+
+	const { timeConstraintsXML, spaceConstraintsXML } = buildConstraintsXML(activeConstraints);
+
+	const preferredRoomsConstraints = buildPreferredRoomsConstraints(activities, activitiesList);
 
 	// Add the preferred rooms constraints to the space constraints
 	if (preferredRoomsConstraints.length > 0) {
@@ -277,10 +381,7 @@ export async function buildFETInput({
 	};
 
 	const builder = new XMLBuilder(xmlBuilderOptions);
-
 	const xmlDataWithConstraints = builder.build(xmlData);
-
-	// console.log(xmlDataWithConstraints);
 	return xmlDataWithConstraints;
 }
 

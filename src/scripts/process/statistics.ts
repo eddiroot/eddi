@@ -78,13 +78,13 @@ export async function processStatistics(timetableDraftId: number): Promise<Timet
 	const timetableDays = await db
 		.select()
 		.from(table.timetableDay)
-		.where(eq(table.timetableDay.timetableId, timetableId));
+		.where(eq(table.timetableDay.timetableDraftId, timetableDraftId));
 
 	// Get timetable periods to know total periods per day
 	const timetablePeriods = await db
 		.select()
 		.from(table.timetablePeriod)
-		.where(eq(table.timetablePeriod.timetableId, timetableId));
+		.where(eq(table.timetablePeriod.timetableDraftId, timetableDraftId));
 
 	const totalDays = timetableDays.length;
 	const totalPeriodsPerDay = timetablePeriods.length;

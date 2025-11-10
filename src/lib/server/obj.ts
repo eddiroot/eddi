@@ -143,9 +143,9 @@ export async function getFileStream(schoolId: string, objectName: string) {
 export async function getFileFromStorage(
 	schoolId: string,
 	timetableId: string,
+	timetableDraftId: string,
 	objectName: string,
-	input: boolean,
-	timetableDraftId?: string
+	input: boolean
 ) {
 	const dir = input ? 'input' : 'output';
 	const bucketName = `schools`;

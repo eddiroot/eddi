@@ -29,16 +29,6 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			});
 		}
 
-		// Check if FET Docker container is running
-		const fetService = new FETDockerService();
-		const isRunning = await fetService.isContainerRunning();
-
-		if (!isRunning) {
-			return error(503, {
-				message: 'FET service is not available. Please contact your system administrator.'
-			});
-		}
-
 		const uniqueFileName = `ID_${draft.id}_CreatedAt_${draft.createdAt}.fet`;
 		const objectKey = `${user.schoolId}/${timetableId}/${draft.id}/input/${uniqueFileName}`;
 
