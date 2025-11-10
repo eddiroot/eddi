@@ -10,13 +10,13 @@ import {
 	getSpacesBySchoolId,
 	getSubjectsBySchoolId,
 	getTeacherSpecializationsByTeacherId,
-	getTimetableDraftDaysByTimetableId,
+	getTimetableDraftDaysByTimetableDraftId,
 	getTimetableDraftPeriodsByTimetableDraftId,
 	getUsersBySchoolIdAndType
 } from '$lib/server/db/service';
 
 export type TimetableData = {
-	timetableDays: Awaited<ReturnType<typeof getTimetableDraftDaysByTimetableId>>;
+	timetableDays: Awaited<ReturnType<typeof getTimetableDraftDaysByTimetableDraftId>>;
 	timetablePeriods: Awaited<ReturnType<typeof getTimetableDraftPeriodsByTimetableDraftId>>;
 	studentGroups: Awaited<ReturnType<typeof getAllStudentGroupsByTimetableDraftId>>;
 	activities: Awaited<ReturnType<typeof getEnhancedTimetableDraftActivitiesByTimetableDraftId>>;
