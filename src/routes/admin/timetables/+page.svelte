@@ -124,7 +124,7 @@
 	</Dialog.Root>
 </div>
 
-{#if data.timetables.length === 0}
+{#if data.timetablesAndSemesters.length === 0}
 	<Card.Root class="p-8 text-center">
 		<Card.Content class="pt-6">
 			<CalendarIcon class="text-muted-foreground mx-auto mb-4 h-12 w-12" />
@@ -136,8 +136,8 @@
 	</Card.Root>
 {:else}
 	<div class="grid gap-4">
-		{#each data.timetables as timetable}
-			<a href={`/admin/timetables/${timetable.id}`}>
+		{#each data.timetablesAndSemesters as ttAndSem}
+			<a href={`/admin/timetables/${ttAndSem.tt.id}`}>
 				<Card.Root>
 					<Card.Header class="flex items-center justify-between">
 						<div class="flex items-center gap-4">
@@ -145,12 +145,15 @@
 								<CalendarIcon class="text-primary h-6 w-6" />
 							</div>
 							<div class="flex flex-col">
-								<Card.Title class="text-lg font-semibold">{timetable.name}</Card.Title>
+								<Card.Title class="text-lg font-semibold">{ttAndSem.tt.name}</Card.Title>
 								<div class="mt-1 flex items-center gap-2">
 									<Badge variant="secondary" class="text-xs">
-										{timetable.schoolYear}
+										{ttAndSem.tt.schoolYear}
 									</Badge>
-									{#if timetable.isArchived}
+									<Badge variant="secondary" class="text-xs">
+										{ttAndSem.sch_sem.name}
+									</Badge>
+									{#if ttAndSem.tt.isArchived}
 										<Badge variant="outline" class="gap-1 text-xs">
 											<ArchiveIcon class="h-3 w-3" />
 											Archived

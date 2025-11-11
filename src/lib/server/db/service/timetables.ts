@@ -22,9 +22,10 @@ export async function getSchoolTimetablesBySchoolId(
 	schoolId: number,
 	includeArchived: boolean = false
 ) {
-	const timetables = await db
+	const timetablesAndSemesters = await db
 		.select()
 		.from(table.timetable)
+		.innerJoin(table.schoolSemester, eq(table.timetable.schoolSemesterId, table.schoolSemester.id))
 		.where(
 			and(
 				eq(table.timetable.schoolId, schoolId),
@@ -33,7 +34,7 @@ export async function getSchoolTimetablesBySchoolId(
 		)
 		.orderBy(asc(table.timetable.name));
 
-	return timetables;
+	return timetablesAndSemesters;
 }
 
 export async function getTimetableAndSchoolByTimetableId(timetableId: number) {
@@ -296,7 +297,8 @@ export async function getAllStudentGroupsByTimetableDraftId(timetableDraftId: nu
 		);
 
 	return groupsWithMembers;
-}export async function createTimetableDraftStudentGroup(
+}
+export async function createTimetableDraftStudentGroup(
 	timetableDraftId: number,
 	yearLevel: yearLevelEnum,
 	name: string

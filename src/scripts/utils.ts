@@ -254,25 +254,3 @@ export async function parseTimetableCSVAndPopulate(
 		userActivitiesInserted: finalUserFetActivities.length
 	};
 }
-
-/**
- * Example usage:
- *
- * ```typescript
- * import { parseTimetableCSVAndPopulate } from './utils';
- *
- * // Read CSV file content
- * const fs = await import('fs/promises');
- * const csvContent = await fs.readFile('path/to/timetable.csv', 'utf-8');
- *
- * // Parse and populate database
- * const result = await parseTimetableCSVAndPopulate(
- *   csvContent,
- *   1000, // timetableId
- *   1001  // timetableDraftId
- * );
- *
- * console.log(`Inserted ${result.activitiesInserted} activities`);
- * console.log(`Created ${result.userActivitiesInserted} user associations`);
- * ```
- */

@@ -54,26 +54,11 @@ export async function processTimetableQueue() {
 			const containerOutputDir = `/tmp/output_${queueEntry.id}`;
 
 			// Stream file directly to Docker container using FETDockerService
-			console.log('📤 [TIMETABLE PROCESSOR] Streaming input file to Docker container...');
 			await fetService.streamFileToContainer(containerTempPath, fileBuffer);
-			console.log('✅ [TIMETABLE PROCESSOR] Input file streamed to container');
 
 			// Create output directory in container
-			console.log('📁 [TIMETABLE PROCESSOR] Creating output directory in container...');
 			await fetService.createDirectory(containerOutputDir);
-			console.log('✅ [TIMETABLE PROCESSOR] Output directory created in container');
-
-			// Run FET processing in Docker container
-			console.log('⚙️  [TIMETABLE PROCESSOR] Starting FET processing...');
-
-			const fetStartTime = Date.now();
-
 			const fetResult = await fetService.executeFET(containerTempPath, containerOutputDir);
-
-			const fetEndTime = Date.now();
-			console.log(
-				`✅ [TIMETABLE PROCESSOR] FET processing completed in ${(fetEndTime - fetStartTime) / 1000} seconds`
-			);
 
 			if (!fetResult.success) {
 				throw new Error(`FET processing failed: ${fetResult.error}`);
@@ -83,24 +68,16 @@ export async function processTimetableQueue() {
 			if (fetResult.stdout) {
 				try {
 					await updateTimetableDraftFetResponse(queueEntry.timetableDraftId, fetResult.stdout);
-					console.log('✅ [TIMETABLE PROCESSOR] FET response stored in draft');
 				} catch (responseError) {
 					console.warn('⚠️  [TIMETABLE PROCESSOR] Failed to store FET response:', responseError);
 				}
 			}
 
 			// List output files in container
-			console.log('📋 [TIMETABLE PROCESSOR] Listing generated output files in container...');
 			const allFiles = await fetService.listFiles(containerOutputDir);
-			console.log('📋 [TIMETABLE PROCESSOR] Container output files:');
-			console.log(allFiles.join('\n'));
 
 			// Upload ALL generated files to object storage
 			if (allFiles.length > 0) {
-				console.log(
-					`📤 [TIMETABLE PROCESSOR] Found ${allFiles.length} output files, uploading ALL to object storage...`
-				);
-
 				// Track specific files for database processing
 				let timetableCSV = '';
 
@@ -145,9 +122,6 @@ export async function processTimetableQueue() {
 						console.warn(`   ⚠️  Failed to upload file ${filePath}:`, fileError);
 					}
 				}
-				console.log(
-					`✅ [TIMETABLE PROCESSOR] All ${allFiles.length} output files uploaded to object storage`
-				);
 
 				// Process database files if both are available
 				if (timetableCSV) {

@@ -84,8 +84,6 @@ export const actions = {
 				activeConstraints
 			});
 
-			// console.log('FET XML generation successful.', (await xmlContent).substring(0, 500)); // Log first 500 characters
-
 			// Call the FET API to generate the timetable
 			try {
 				const response = await fetch('/api/timetables/generate', {

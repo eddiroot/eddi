@@ -10,11 +10,11 @@ import { createTimetableSchema } from './schema.js';
 
 export const load: PageServerLoad = async ({ locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
-	const timetables = await getSchoolTimetablesBySchoolId(user.schoolId);
+	const timetablesAndSemesters = await getSchoolTimetablesBySchoolId(user.schoolId);
 	const semesters = await getSemestersBySchoolId(user.schoolId);
 
 	return {
-		timetables,
+		timetablesAndSemesters: timetablesAndSemesters,
 		createTimetableForm: await superValidate(zod4(createTimetableSchema)),
 		semesters
 	};
