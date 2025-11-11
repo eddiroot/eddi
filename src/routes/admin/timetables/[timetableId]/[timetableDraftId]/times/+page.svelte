@@ -115,9 +115,16 @@
 					<li
 						class="border-border bg-card flex min-h-10 w-full items-center justify-between rounded-lg border-2 px-4 py-3 transition-colors"
 					>
-						<span class="font-semibold">
-							{formatTime(period.startTime)} - {formatTime(period.endTime)}
-						</span>
+						<div class="flex flex-col">
+							<span class="font-semibold">
+								{formatTime(period.startTime)} - {formatTime(period.endTime)}
+							</span>
+							{#if period.duration !== null}
+								<span class="text-muted-foreground text-sm">
+									{period.duration} minute{period.duration !== 1 ? 's' : ''}
+								</span>
+							{/if}
+						</div>
 						{#if data.periods.length > 1}
 							<form method="POST" action="?/deletePeriod" use:enhance class="ml-2">
 								<input type="hidden" name="periodId" value={period.id} />

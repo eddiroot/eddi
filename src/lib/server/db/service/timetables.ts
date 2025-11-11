@@ -135,7 +135,8 @@ export async function addTimetableDraftPeriod(
 	startTime: string,
 	endTime: string
 ) {
-	const [period] = await db
+	// Insert the new period
+	const [newPeriod] = await db
 		.insert(table.timetablePeriod)
 		.values({
 			timetableDraftId,
@@ -144,7 +145,23 @@ export async function addTimetableDraftPeriod(
 		})
 		.returning();
 
-	return period;
+	// Get all periods ordered by start time
+	const allPeriods = await getTimetableDraftPeriodsByTimetableDraftId(timetableDraftId);
+
+	// Update the nextPeriodId chain for all periods
+	for (let i = 0; i < allPeriods.length; i++) {
+		const currentPeriod = allPeriods[i];
+		const nextPeriod = allPeriods[i + 1];
+
+		await db
+			.update(table.timetablePeriod)
+			.set({
+				nextPeriodId: nextPeriod ? nextPeriod.id : null
+			})
+			.where(eq(table.timetablePeriod.id, currentPeriod.id));
+	}
+
+	return newPeriod;
 }
 
 export async function deleteTimetableDraftPeriodByPeriodId(periodId: number, timetableId: number) {
@@ -154,9 +171,26 @@ export async function deleteTimetableDraftPeriodByPeriodId(periodId: number, tim
 		throw new Error('At least one period must exist');
 	}
 
+	// Delete the period
 	await db.delete(table.timetablePeriod).where(eq(table.timetablePeriod.id, periodId));
 
-	return await getTimetableDraftPeriodsByTimetableDraftId(timetableId);
+	// Get remaining periods ordered by start time
+	const remainingPeriods = await getTimetableDraftPeriodsByTimetableDraftId(timetableId);
+
+	// Rebuild the nextPeriodId chain for remaining periods
+	for (let i = 0; i < remainingPeriods.length; i++) {
+		const currentPeriod = remainingPeriods[i];
+		const nextPeriod = remainingPeriods[i + 1];
+
+		await db
+			.update(table.timetablePeriod)
+			.set({
+				nextPeriodId: nextPeriod ? nextPeriod.id : null
+			})
+			.where(eq(table.timetablePeriod.id, currentPeriod.id));
+	}
+
+	return remainingPeriods;
 }
 
 // ============================================================================

@@ -1,5 +1,7 @@
+import { SQL, sql } from 'drizzle-orm';
 import {
 	boolean,
+	foreignKey,
 	integer,
 	jsonb,
 	pgEnum,
@@ -88,15 +90,29 @@ export const timetableDay = pgTable('tt_day', {
 
 export type TimetableDay = typeof timetableDay.$inferSelect;
 
-export const timetablePeriod = pgTable('tt_period', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableDraftId: integer('tt_id')
-		.notNull()
-		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
-	startTime: time('start_time').notNull(),
-	endTime: time('end_time').notNull(),
-	...timestamps
-});
+export const timetablePeriod = pgTable(
+	'tt_period',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		timetableDraftId: integer('tt_id')
+			.notNull()
+			.references(() => timetableDraft.id, { onDelete: 'cascade' }),
+		startTime: time('start_time').notNull(),
+		endTime: time('end_time').notNull(),
+		duration: integer('duration').generatedAlwaysAs(
+			(): SQL => sql`EXTRACT(EPOCH FROM (end_time - start_time)) / 60`
+		),
+		nextPeriodId: integer('next_period_id'),
+		...timestamps
+	},
+	(table) => ({
+		nextPeriodFk: foreignKey({
+			columns: [table.nextPeriodId],
+			foreignColumns: [table.id],
+			name: 'tt_period_next_period_fk'
+		}).onDelete('set null')
+	})
+);
 
 export type TimetablePeriod = typeof timetablePeriod.$inferSelect;
 
@@ -263,13 +279,19 @@ export const fetActivity = pgTable('fet_activity', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	timetableDraftId: integer('tt_draft_id')
 		.notNull()
-		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
+		.references(() => timetableDraft.id, { onDelete: 'set null' }),
 	subjectId: integer('subject_id')
 		.notNull()
-		.references(() => subject.id, { onDelete: 'cascade' }),
-	spaceId: integer('space_id').notNull(),
-	day: integer('tt_day_id').notNull(),
-	period: integer('tt_period_id').notNull(),
+		.references(() => subject.id, { onDelete: 'set null' }),
+	spaceId: integer('space_id')
+		.notNull()
+		.references(() => schoolSpace.id, { onDelete: 'set null' }),
+	day: integer('tt_day_id')
+		.notNull()
+		.references(() => timetableDay.id, { onDelete: 'set null' }),
+	period: integer('tt_period_id')
+		.notNull()
+		.references(() => timetablePeriod.id, { onDelete: 'set null' }),
 	duration: integer('duration').notNull(),
 	...timestamps
 });
