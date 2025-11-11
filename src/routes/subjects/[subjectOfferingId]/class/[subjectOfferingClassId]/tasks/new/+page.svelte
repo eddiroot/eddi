@@ -38,27 +38,20 @@
 
 	const form = superForm(data.form, {
 		validators: zod4(formSchema),
-		onSubmit: ({ formData, cancel }) => {
-			// Check if it's AI creation method
+		onSubmit: ({ formData }) => {
 			const method = formData.get('creationMethod');
-			const taskType = formData.get('type');
-
 			if (method === 'ai') {
 				isSubmitting = true;
 			}
 		},
 		onResult: ({ result }) => {
-			// Reset loading state on any result
 			isSubmitting = false;
-
-			// Handle error responses from server
 			if (result.type === 'success' && result.data?.error) {
 				console.error('Server error:', result.data.error);
 				alert(`Task creation failed: ${result.data.error}`);
 			}
 		},
 		onError: (error) => {
-			// Reset loading state on error
 			isSubmitting = false;
 			console.error('Form submission error:', error);
 			alert('An error occurred while creating the task. Please try again.');
@@ -67,7 +60,6 @@
 
 	const { form: formData, enhance, constraints } = form;
 
-	// Handle topic requirements
 	$effect(() => {
 		// If no topics are available, automatically switch to create new topic mode
 		if (data.taskTopics.length === 0 && !isCreatingNewTopic) {
@@ -178,8 +170,11 @@
 						<Tabs.Trigger value="homework" class="px-4 py-2 text-sm font-medium capitalize"
 							>Homework</Tabs.Trigger
 						>
-						<Tabs.Trigger value="assessment" class="px-4 py-2 text-sm font-medium capitalize"
-							>Assessment</Tabs.Trigger
+						<Tabs.Trigger value="test" class="px-4 py-2 text-sm font-medium capitalize"
+							>Test</Tabs.Trigger
+						>
+						<Tabs.Trigger value="assignment" class="px-4 py-2 text-sm font-medium capitalize"
+							>Assignment</Tabs.Trigger
 						>
 					</Tabs.List>
 				</Tabs.Root>
@@ -303,7 +298,7 @@
 				</div>
 
 				<!-- Conditional Due Date field - only show for homework and assignment -->
-				{#if $formData.type === 'homework' || $formData.type === 'assessment'}
+				{#if $formData.type === 'homework' || $formData.type === 'assignment'}
 					<div class="col-span-3">
 						<Form.Field {form} name="dueDate">
 							<Form.Control>

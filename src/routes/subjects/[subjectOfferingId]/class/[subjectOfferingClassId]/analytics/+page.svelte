@@ -376,7 +376,7 @@
 	let taSortKey = $state<TA_SortKey>('studentsCompleted');
 	let taSortDir = $state<SortDir>('desc');
 	// Type filter (multi-select)
-	const taTypeOptions = ['lesson', 'homework', 'assessment'] as const;
+	const taTypeOptions = ['lesson', 'homework', 'test', 'assignment'] as const;
 	let taSelectedTypes = $state(new Set<(typeof taTypeOptions)[number]>());
 	function toggleTaType(t: (typeof taTypeOptions)[number]) {
 		const s = new Set(taSelectedTypes);
@@ -439,9 +439,11 @@
 		return { ...target, daysLeft: rawDiff, isPast: false };
 	});
 
+	// TODO: Should be using the taskTypeEnum here
 	function taTypeVariant(type: string): 'default' | 'secondary' | 'destructive' | 'outline' {
 		switch (type) {
-			case 'assessment':
+			case 'test':
+			case 'assignment':
 				return 'destructive';
 			case 'homework':
 				return 'secondary';
@@ -966,9 +968,16 @@
 															/>{/if}
 													</div>
 												</DropdownMenuItem>
-												<DropdownMenuItem onclick={() => toggleTaType('assessment')}>
+												<DropdownMenuItem onclick={() => toggleTaType('test')}>
 													<div class="flex w-full items-center justify-between">
-														<span>Assessments</span>{#if taSelectedTypes.has('assessment')}<Check
+														<span>Tests</span>{#if taSelectedTypes.has('test')}<Check
+																class="h-4 w-4"
+															/>{/if}
+													</div>
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => toggleTaType('assignment')}>
+													<div class="flex w-full items-center justify-between">
+														<span>Assignments</span>{#if taSelectedTypes.has('assignment')}<Check
 																class="h-4 w-4"
 															/>{/if}
 													</div>

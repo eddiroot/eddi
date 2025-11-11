@@ -304,7 +304,7 @@ export const load: PageServerLoad = async ({
 				{
 					id: 'assignment-1',
 					name: 'Assignment 1',
-					type: 'assessment',
+					type: 'assignment',
 					studentsCompleted: 100,
 					totalStudents: 21,
 					completedCount: 21,
@@ -334,7 +334,7 @@ export const load: PageServerLoad = async ({
 				{
 					id: 'quiz-1',
 					name: 'Quiz 1',
-					type: 'assessment',
+					type: 'test',
 					studentsCompleted: 95,
 					totalStudents: 21,
 					completedCount: 20,
@@ -349,7 +349,7 @@ export const load: PageServerLoad = async ({
 				{
 					id: 'assignment-2',
 					name: 'Assignment 2',
-					type: 'assessment',
+					type: 'assignment',
 					studentsCompleted: 81,
 					totalStudents: 21,
 					completedCount: 17,
@@ -394,7 +394,7 @@ export const load: PageServerLoad = async ({
 				{
 					id: 'project-proposal',
 					name: 'Project Proposal',
-					type: 'assessment',
+					type: 'assignment',
 					studentsCompleted: 38,
 					totalStudents: 21,
 					completedCount: 8,

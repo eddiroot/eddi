@@ -6,7 +6,6 @@
 	import ItalicIcon from '@lucide/svelte/icons/italic';
 	import ListIcon from '@lucide/svelte/icons/list';
 	import ListOrderedIcon from '@lucide/svelte/icons/list-ordered';
-	import PilcrowIcon from '@lucide/svelte/icons/pilcrow';
 	import QuoteIcon from '@lucide/svelte/icons/quote';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
@@ -62,12 +61,6 @@
 <div class="rounded-md border">
 	{#if editorBox?.current && isEditable}
 		<div class="flex items-center gap-x-1 border-b px-6 py-4">
-			<Button
-				onclick={() => editorBox?.current.chain().focus().setParagraph().run()}
-				variant={editorBox.current.isActive('paragraph') ? 'default' : 'ghost'}
-			>
-				<PilcrowIcon />
-			</Button>
 			<Button
 				onclick={() => editorBox?.current.chain().focus().toggleBold().run()}
 				variant={editorBox.current.isActive('bold') ? 'default' : 'ghost'}

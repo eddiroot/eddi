@@ -41,8 +41,9 @@ export enum subjectThreadResponseTypeEnum {
 
 export enum taskTypeEnum {
 	lesson = 'lesson',
-	assessment = 'assessment',
 	homework = 'homework',
+	test = 'test',
+	assignment = 'assignment',
 	module = 'module'
 }
 
@@ -62,22 +63,22 @@ export enum taskBlockTypeEnum {
 	highlightText = 'highlight_text',
 	table = 'table',
 	graph = 'graph',
-	balancingEquations = 'balancing_equations',
+	balancingEquations = 'balancing_equations'
 }
 
 export enum taskStatusEnum {
-	draft = 'draft', // Lesson/Assessment/Homework
-	inProgress = 'in_progress', // Lesson
-	completed = 'completed', // Lesson
-	published = 'published', //Assessment/Homework
-	locked = 'locked', // Assessment/Homework
-	graded = 'graded' // Assessment/Homework
+	draft = 'draft',
+	inProgress = 'in_progress',
+	completed = 'completed',
+	published = 'published',
+	locked = 'locked',
+	graded = 'graded'
 }
 
 export enum quizModeEnum {
 	none = 'none', // Regular task
 	scheduled = 'scheduled', // Quiz starts at specific time
-	manual = 'manual' // Teacher manually starts quiz
+	manual = 'manual' // Teacher manually starts quiz (which just updates the start time to current time)
 }
 
 export enum gradeReleaseEnum {
