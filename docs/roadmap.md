@@ -60,7 +60,6 @@ All
 
 Lachie
 
-- [ ] Confirm scheduled quiz starts on load (if within the time)
 - [ ] UI fixes / code cleanup
 
 Bella
