@@ -13,7 +13,7 @@ import { processStatistics } from '../../../../../../scripts/process/statistics'
 import type { PageServerLoad } from './$types';
 import { transformToStudentStatisticsReport, transformToTeacherStatisticsReport } from './utils';
 
-export const load: PageServerLoad = async ({ params, url, locals: { security } }) => {
+export const load: PageServerLoad = async ({ params, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin();
 	const user = security.getUser();
 
@@ -29,27 +29,7 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 			throw error(404, 'Timetable not found');
 		}
 
-		// Get completed drafts for this timetable
-		const completedDrafts = await getCompletedDraftsByTimetableId(timetableId);
-
-		if (completedDrafts.length === 0) {
-			throw error(
-				404,
-				`No generated timetables found. The timetable "${timetableWithSchool.timetable.name}" has not been generated yet. Please generate the timetable first before viewing results.`
-			);
-		}
-
-		// Get draft ID from URL or use the most recent one
-		const timetableDraftIdParam = url.searchParams.get('timetableDraftId');
-		const selectedDraft = timetableDraftIdParam
-			? completedDrafts.find((i) => i.timetableDraftId.toString() === timetableDraftIdParam)
-			: completedDrafts[completedDrafts.length - 1]; // Most recent
-
-		if (!selectedDraft) {
-			throw error(404, 'Selected draft not found');
-		}
-
-		const timetableDraftId = selectedDraft.timetableDraftId;
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
 		try {
 			// Process statistics from database
@@ -72,12 +52,15 @@ export const load: PageServerLoad = async ({ params, url, locals: { security } }
 			// Get all spaces for the school
 			const allSpaces = await getSpacesBySchoolId(user.schoolId);
 
+			// Filter student statistics for the data table
+			const studentStatistics = statistics.userStatistics.filter((u) => u.userType === 'student');
+
 			return {
 				timetableId: params.timetableId,
 				teacherStatisticsReport,
 				studentStatisticsReport,
-				completedDrafts,
-				selectedDraftId: timetableDraftId,
+				studentStatistics,
+				draftId: timetableDraftId,
 				allUsers,
 				allSpaces
 			};
@@ -145,10 +128,14 @@ export const actions = {
 				timetableWithSchool.timetable.name
 			);
 
+			// Filter student statistics for the data table
+			const studentStatistics = statistics.userStatistics.filter((u) => u.userType === 'student');
+
 			return {
 				success: true,
 				teacherStatisticsReport,
 				studentStatisticsReport,
+				studentStatistics,
 				completedDrafts,
 				selectedDraftId: timetableDraftId
 			};

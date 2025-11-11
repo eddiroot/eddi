@@ -8,6 +8,7 @@
 
 	const errorMessage = $page.error?.message || 'An unexpected error occurred';
 	const timetableId = $page.params.timetableId;
+	const timetableDraftId = $page.params.timetableDraftId;
 </script>
 
 <div class="flex min-h-screen items-start justify-center p-4 pt-16 md:pt-24">
@@ -49,11 +50,20 @@
 			</div>
 
 			<div class="flex flex-col gap-3 sm:flex-row">
-				<Button href="/admin/timetables" variant="outline" size="lg" class="flex-1 gap-2">
+				<Button
+					href="/admin/timetables/{timetableId}"
+					variant="outline"
+					size="lg"
+					class="flex-1 gap-2"
+				>
 					<ArrowLeftIcon class="h-4 w-4" />
 					Back to Timetable
 				</Button>
-				<Button href="/admin/timetables/{timetableId}/generate" size="lg" class="flex-1 gap-2">
+				<Button
+					href="/admin/timetables/{timetableId}/{timetableDraftId}/generate"
+					size="lg"
+					class="flex-1 gap-2"
+				>
 					<PlayIcon class="h-4 w-4" />
 					Generate Timetable
 				</Button>

@@ -1602,17 +1602,50 @@ async function seed() {
 			.returning();
 
 		// Create timetable periods (6 periods from 9:00 to 15:30)
-		await db
+		const periods = await db
 			.insert(schema.timetablePeriod)
 			.values([
-				{ timetableDraftId: mockTimetableDraft.id, startTime: '09:00', endTime: '09:50' },
-				{ timetableDraftId: mockTimetableDraft.id, startTime: '09:50', endTime: '10:40' },
-				{ timetableDraftId: mockTimetableDraft.id, startTime: '11:00', endTime: '11:50' }, // 20 min break after period 2
-				{ timetableDraftId: mockTimetableDraft.id, startTime: '11:50', endTime: '12:40' },
-				{ timetableDraftId: mockTimetableDraft.id, startTime: '13:40', endTime: '14:30' }, // 1 hour lunch break after period 4
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '09:00',
+					endTime: '09:50'
+				},
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '09:50',
+					endTime: '10:40'
+				},
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '11:00',
+					endTime: '11:50'
+				}, // 20 min break after period 2
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '11:50',
+					endTime: '12:40'
+				},
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '13:40',
+					endTime: '14:30'
+				}, // 1 hour lunch break after period 4
 				{ timetableDraftId: mockTimetableDraft.id, startTime: '14:30', endTime: '15:20' }
 			])
 			.returning();
+
+		// Update the nextPeriodId chain for all periods
+		for (let i = 0; i < periods.length; i++) {
+			const currentPeriod = periods[i];
+			const nextPeriod = periods[i + 1];
+
+			await db
+				.update(schema.timetablePeriod)
+				.set({
+					nextPeriodId: nextPeriod ? nextPeriod.id : null
+				})
+				.where(eq(schema.timetablePeriod.id, currentPeriod.id));
+		}
 
 		// Create timetable groups for Year 9 students - one group per subject (like auto-create groups button)
 		const timetableGroups = [];

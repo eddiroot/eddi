@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 
-interface UserStatistics {
+export interface UserStatistics {
 	userId: string;
 	userName: string;
 	userType: string;
@@ -15,7 +15,6 @@ interface UserStatistics {
 }
 
 interface TimetableStatistics {
-	timetableId: number;
 	timetableDraftId: number;
 	totalDays: number;
 	totalPeriods: number;
@@ -24,36 +23,84 @@ interface TimetableStatistics {
 }
 
 export async function processStatistics(timetableDraftId: number): Promise<TimetableStatistics> {
-	const timetableIdResult = await db
-		.select({ timetableId: table.timetableDraft.id })
-		.from(table.timetableDraft)
-		.where(eq(table.timetableDraft.id, timetableDraftId))
-		.limit(1);
-
-	const timetableId = timetableIdResult[0]?.timetableId;
-
-	console.log(
-		`📊 [STATISTICS PROCESSOR] Starting statistics processing for timetable ${timetableId}, draft ${timetableDraftId}`
-	);
-
 	// Get all FET activities for this draft
 	const fetActivities = await db
 		.select()
 		.from(table.fetActivity)
 		.where(and(eq(table.fetActivity.timetableDraftId, timetableDraftId)));
 
-	console.log(`📋 [STATISTICS PROCESSOR] Found ${fetActivities.length} FET activities`);
-
 	if (fetActivities.length === 0) {
-		console.log('⚠️  [STATISTICS PROCESSOR] No FET activities found for this draft');
 		return {
-			timetableId,
 			timetableDraftId,
 			totalDays: 0,
 			totalPeriods: 0,
 			userStatistics: [],
 			generatedAt: new Date()
 		};
+	}
+
+	// Get all timetable periods to calculate actual duration in minutes
+	const allTimetablePeriods = await db
+		.select()
+		.from(table.timetablePeriod)
+		.where(eq(table.timetablePeriod.timetableDraftId, timetableDraftId));
+
+	// Create a map of periodId -> period data for quick lookup
+	const periodMap = new Map(allTimetablePeriods.map((p) => [p.id, p]));
+
+	// Helper function to calculate actual duration in minutes for an activity
+	// by traversing the period chain using nextPeriodId
+	function calculateActivityDurationInMinutes(
+		startPeriodId: number,
+		numberOfPeriods: number
+	): number {
+		const firstPeriod = periodMap.get(startPeriodId);
+		if (!firstPeriod) {
+			console.warn(
+				`⚠️ [STATISTICS PROCESSOR] Start period ${startPeriodId} not found in period map`
+			);
+			return 0;
+		}
+
+		// If activity only spans 1 period, use its duration directly
+		if (numberOfPeriods === 1) {
+			return firstPeriod.duration ?? 0;
+		}
+
+		// For activities spanning multiple periods, traverse to find the last period
+		let currentPeriodId: number | null = startPeriodId;
+		let periodsProcessed = 0;
+		let lastPeriod = firstPeriod;
+
+		while (currentPeriodId !== null && periodsProcessed < numberOfPeriods) {
+			const period = periodMap.get(currentPeriodId);
+			if (!period) {
+				console.warn(`⚠️ [STATISTICS PROCESSOR] Period ${currentPeriodId} not found in period map`);
+				break;
+			}
+
+			lastPeriod = period;
+			periodsProcessed++;
+
+			// Move to next period in the chain
+			currentPeriodId = period.nextPeriodId;
+		}
+
+		if (periodsProcessed < numberOfPeriods) {
+			console.warn(
+				`⚠️ [STATISTICS PROCESSOR] Activity spans ${numberOfPeriods} periods but only ${periodsProcessed} periods were found in the chain`
+			);
+		}
+
+		// Calculate total duration as: end time of last period - start time of first period
+		// Parse time strings in format "HH:MM"
+		const [startHours, startMinutes] = firstPeriod.startTime.split(':').map(Number);
+		const [endHours, endMinutes] = lastPeriod.endTime.split(':').map(Number);
+
+		const startTotalMinutes = startHours * 60 + startMinutes;
+		const endTotalMinutes = endHours * 60 + endMinutes;
+
+		return endTotalMinutes - startTotalMinutes;
 	}
 
 	// Get all user-activity associations for these activities
@@ -87,10 +134,10 @@ export async function processStatistics(timetableDraftId: number): Promise<Timet
 		.where(eq(table.timetablePeriod.timetableDraftId, timetableDraftId));
 
 	const totalDays = timetableDays.length;
-	const totalPeriodsPerDay = timetablePeriods.length;
+	const totalPeriods = timetablePeriods.length;
 
 	console.log(
-		`📅 [STATISTICS PROCESSOR] Timetable has ${totalDays} days and ${totalPeriodsPerDay} periods per day`
+		`📅 [STATISTICS PROCESSOR] Timetable has ${totalDays} days and ${totalPeriods} periods per day`
 	);
 
 	// Create a map of activityId -> activity data
@@ -125,8 +172,15 @@ export async function processStatistics(timetableDraftId: number): Promise<Timet
 			const activity = activityMap.get(userActivity.fetActivityId);
 			if (!activity) continue;
 
+			// Calculate actual duration in minutes by traversing the period chain
+			const durationInMinutes = calculateActivityDurationInMinutes(
+				activity.period,
+				activity.duration
+			);
+			const durationInHours = durationInMinutes / 60;
+
 			const currentHours = dailyHoursMap.get(activity.day) || 0;
-			dailyHoursMap.set(activity.day, currentHours + activity.duration);
+			dailyHoursMap.set(activity.day, currentHours + durationInHours);
 		}
 
 		// Calculate statistics
@@ -169,10 +223,9 @@ export async function processStatistics(timetableDraftId: number): Promise<Timet
 	});
 
 	const statistics: TimetableStatistics = {
-		timetableId,
 		timetableDraftId,
 		totalDays,
-		totalPeriods: totalPeriodsPerDay,
+		totalPeriods: totalPeriods,
 		userStatistics,
 		generatedAt: new Date()
 	};
