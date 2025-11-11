@@ -23,28 +23,11 @@ export const load: PageServerLoad = async ({ params, locals: { security } }) => 
 	}
 
 	try {
-		// Get timetable with school info first to verify it exists
-		const timetableWithSchool = await getTimetableAndSchoolByTimetableId(timetableId);
-		if (!timetableWithSchool) {
-			throw error(404, 'Timetable not found');
-		}
-
 		const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
 		try {
 			// Process statistics from database
 			const statistics = await processStatistics(timetableDraftId);
-
-			// Transform to report formats
-			const teacherStatisticsReport = transformToTeacherStatisticsReport(
-				statistics,
-				timetableWithSchool.timetable.name
-			);
-
-			const studentStatisticsReport = transformToStudentStatisticsReport(
-				statistics,
-				timetableWithSchool.timetable.name
-			);
 
 			// Get all users for the school for the autocomplete
 			const allUsers = await getUsersBySchoolId(user.schoolId);
@@ -52,14 +35,14 @@ export const load: PageServerLoad = async ({ params, locals: { security } }) => 
 			// Get all spaces for the school
 			const allSpaces = await getSpacesBySchoolId(user.schoolId);
 
-			// Filter student statistics for the data table
+			// Filter student and teacher statistics for the data tables
 			const studentStatistics = statistics.userStatistics.filter((u) => u.userType === 'student');
+			const teacherStatistics = statistics.userStatistics.filter((u) => u.userType === 'teacher');
 
 			return {
 				timetableId: params.timetableId,
-				teacherStatisticsReport,
-				studentStatisticsReport,
 				studentStatistics,
+				teacherStatistics,
 				draftId: timetableDraftId,
 				allUsers,
 				allSpaces
@@ -149,19 +132,27 @@ export const actions = {
 		security.isAuthenticated().isSchoolAdmin();
 
 		const timetableId = parseInt(params.timetableId, 10);
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
 		const formData = await request.formData();
 		const userId = formData.get('userId') as string;
-		const timetableDraftId = parseInt(formData.get('timetableDraftId') as string);
+
+		console.log('getUserTimetable action called with:', {
+			timetableId,
+			timetableDraftId,
+			userId,
+			allFormData: Object.fromEntries(formData.entries())
+		});
 
 		if (isNaN(timetableId) || !userId || isNaN(timetableDraftId)) {
+			console.error('Invalid parameters:', { timetableId, userId, timetableDraftId });
 			throw error(400, 'Invalid parameters');
 		}
 
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
 				getUserFETActivitiesByTimetableDraftId(userId, timetableDraftId),
-				getTimetableDraftDaysByTimetableDraftId(timetableId),
-				getTimetableDraftPeriodsByTimetableDraftId(timetableId)
+				getTimetableDraftDaysByTimetableDraftId(timetableDraftId),
+				getTimetableDraftPeriodsByTimetableDraftId(timetableDraftId)
 			]);
 
 			return {
@@ -181,19 +172,27 @@ export const actions = {
 		security.isAuthenticated().isSchoolAdmin();
 
 		const timetableId = parseInt(params.timetableId, 10);
+		const timetableDraftId = parseInt(params.timetableDraftId, 10);
 		const formData = await request.formData();
 		const spaceId = parseInt(formData.get('spaceId') as string);
-		const timetableDraftId = parseInt(formData.get('timetableDraftId') as string);
+
+		console.log('getSpaceTimetable action called with:', {
+			timetableId,
+			timetableDraftId,
+			spaceId,
+			allFormData: Object.fromEntries(formData.entries())
+		});
 
 		if (isNaN(timetableId) || isNaN(spaceId) || isNaN(timetableDraftId)) {
+			console.error('Invalid parameters:', { timetableId, spaceId, timetableDraftId });
 			throw error(400, 'Invalid parameters');
 		}
 
 		try {
 			const [activities, timetableDays, timetablePeriods] = await Promise.all([
 				getSpaceFETActivitiesByTimetableDraftId(spaceId, timetableDraftId),
-				getTimetableDraftDaysByTimetableDraftId(timetableId),
-				getTimetableDraftPeriodsByTimetableDraftId(timetableId)
+				getTimetableDraftDaysByTimetableDraftId(timetableDraftId),
+				getTimetableDraftPeriodsByTimetableDraftId(timetableDraftId)
 			]);
 
 			return {

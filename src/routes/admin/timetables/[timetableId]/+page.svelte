@@ -33,16 +33,12 @@
 	<div>
 		<h1 class="text-2xl font-bold">Timetabling</h1>
 		<h1 class="text-1xl font-bold">{data.timetable.name}</h1>
-		<!-- <p class="text-muted-foreground mt-1">
-			Welcome to eddi-Timetabling, your one-stop solution for managing your school timetables
-			efficiently.
-		</p> -->
 	</div>
 	<Dialog.Root bind:open={dialogOpen}>
 		<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>
 			<PlusIcon />
-			Create New</Dialog.Trigger
-		>
+			Create New
+		</Dialog.Trigger>
 		<Dialog.Content class="sm:max-w-[425px]">
 			<Dialog.Header>
 				<Dialog.Title>Create New Timetable Draft</Dialog.Title>
