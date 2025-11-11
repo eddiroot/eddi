@@ -11,13 +11,14 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import type { PageData } from './$types.js';
-	import { createTimetableDraftSchema } from './schema.js';
+	import { createTimetableDraftSchema, publishTimetableDraftSchema } from './schema.js';
 
 	let { data }: { data: PageData } = $props();
 
 	let dialogOpen = $state(false);
+	let publishDialogOpen = $state(false);
 
-	const form = superForm(data.createTimetableForm, {
+	const createDraftForm = superForm(data.createTimetableForm, {
 		validators: zod4(createTimetableDraftSchema),
 		onUpdated: ({ form }) => {
 			if (form.valid) {
@@ -26,7 +27,21 @@
 		}
 	});
 
-	const { form: formData, enhance, constraints } = form;
+	const publishDraftForm = superForm(data.publishTimetableDraftForm, {
+		validators: zod4(publishTimetableDraftSchema),
+		onUpdated: ({ form }) => {
+			if (form.valid) {
+				publishDialogOpen = false;
+			}
+		}
+	});
+
+	const { form: createFormData, enhance, constraints } = createDraftForm;
+	const {
+		form: publishFormData,
+		enhance: publishEnhance,
+		constraints: publishConstraints
+	} = publishDraftForm;
 </script>
 
 <div class="mb-6 flex items-center justify-between">
@@ -34,39 +49,119 @@
 		<h1 class="text-2xl font-bold">Timetabling</h1>
 		<h1 class="text-1xl font-bold">{data.timetable.name}</h1>
 	</div>
-	<Dialog.Root bind:open={dialogOpen}>
-		<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>
-			<PlusIcon />
-			Create New
-		</Dialog.Trigger>
-		<Dialog.Content class="sm:max-w-[425px]">
-			<Dialog.Header>
-				<Dialog.Title>Create New Timetable Draft</Dialog.Title>
-			</Dialog.Header>
-			<form method="POST" action="?/createTimetableDraft" use:enhance>
-				<div class="grid gap-4 py-4">
-					<Form.Field {form} name="name">
-						<Form.Control>
-							{#snippet children({ props })}
-								<Form.Label>Name</Form.Label>
-								<Input {...props} bind:value={$formData.name} placeholder="Version 1.0" />
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
-				</div>
-				<Dialog.Footer>
-					<Button type="button" variant="outline" onclick={() => (dialogOpen = false)}>
-						Cancel
-					</Button>
-					<Button type="submit" class="gap-2">
-						<PlusIcon />
-						Create New Draft
-					</Button>
-				</Dialog.Footer>
-			</form>
-		</Dialog.Content>
-	</Dialog.Root>
+	<div class="flex gap-2">
+		<Dialog.Root bind:open={publishDialogOpen}>
+			<Dialog.Trigger class={buttonVariants({ variant: 'default' })}>Publish Draft</Dialog.Trigger>
+			<Dialog.Content class="sm:max-w-[500px]">
+				<Dialog.Header>
+					<Dialog.Title>Publish Timetable Draft</Dialog.Title>
+					<Dialog.Description>
+						Select a draft to publish. This will make it available to students and teachers.
+					</Dialog.Description>
+				</Dialog.Header>
+				<form method="POST" action="?/publishTimetableDraft" use:publishEnhance>
+					<div class="grid gap-4 py-4">
+						{#if data.timetableDrafts.length === 0}
+							<div class="text-muted-foreground py-8 text-center">
+								<p>No drafts available to publish.</p>
+								<p class="mt-2 text-sm">Create a draft first to get started.</p>
+							</div>
+						{:else}
+							<Form.Field form={publishDraftForm} name="draftId">
+								<Form.Control>
+									{#snippet children({ props })}
+										<Form.Label>Select Draft to Publish</Form.Label>
+										<div class="max-h-[300px] space-y-2 overflow-y-auto">
+											{#each data.timetableDrafts as draft}
+												<label
+													class="hover:bg-muted flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
+													class:bg-muted={$publishFormData.draftId === draft.id}
+												>
+													<input
+														{...props}
+														type="radio"
+														name="draftId"
+														value={draft.id}
+														bind:group={$publishFormData.draftId}
+														class="h-4 w-4"
+													/>
+													<div class="flex flex-1 items-center gap-3">
+														<CalendarIcon class="text-muted-foreground h-5 w-5" />
+														<div class="flex-1">
+															<div class="font-medium">{draft.name}</div>
+															<div class="text-muted-foreground text-xs">
+																Created {draft.createdAt.toLocaleDateString(undefined, {
+																	year: 'numeric',
+																	month: 'short',
+																	day: 'numeric'
+																})}
+															</div>
+														</div>
+														{#if draft.isArchived}
+															<Badge variant="outline" class="gap-1 text-xs">
+																<ArchiveIcon class="h-3 w-3" />
+																Archived
+															</Badge>
+														{/if}
+													</div>
+												</label>
+											{/each}
+										</div>
+									{/snippet}
+								</Form.Control>
+								<Form.FieldErrors />
+							</Form.Field>
+						{/if}
+					</div>
+					<Dialog.Footer>
+						<Button type="button" variant="outline" onclick={() => (publishDialogOpen = false)}>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							disabled={!$publishFormData.draftId || data.timetableDrafts.length === 0}
+						>
+							Publish Selected Draft
+						</Button>
+					</Dialog.Footer>
+				</form>
+			</Dialog.Content>
+		</Dialog.Root>
+
+		<Dialog.Root bind:open={dialogOpen}>
+			<Dialog.Trigger class={buttonVariants({ variant: 'outline' })}>
+				<PlusIcon />
+				Create New
+			</Dialog.Trigger>
+			<Dialog.Content class="sm:max-w-[425px]">
+				<Dialog.Header>
+					<Dialog.Title>Create New Timetable Draft</Dialog.Title>
+				</Dialog.Header>
+				<form method="POST" action="?/createTimetableDraft" use:enhance>
+					<div class="grid gap-4 py-4">
+						<Form.Field form={createDraftForm} name="name">
+							<Form.Control>
+								{#snippet children({ props })}
+									<Form.Label>Name</Form.Label>
+									<Input {...props} bind:value={$createFormData.name} placeholder="Version 1.0" />
+								{/snippet}
+							</Form.Control>
+							<Form.FieldErrors />
+						</Form.Field>
+					</div>
+					<Dialog.Footer>
+						<Button type="button" variant="outline" onclick={() => (dialogOpen = false)}>
+							Cancel
+						</Button>
+						<Button type="submit" class="gap-2">
+							<PlusIcon />
+							Create New Draft
+						</Button>
+					</Dialog.Footer>
+				</form>
+			</Dialog.Content>
+		</Dialog.Root>
+	</div>
 </div>
 
 {#if data.timetableDrafts.length === 0}

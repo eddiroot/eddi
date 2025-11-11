@@ -6,7 +6,7 @@ import {
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types.js';
-import { createTimetableDraftSchema } from './schema';
+import { createTimetableDraftSchema, publishTimetableDraftSchema } from './schema';
 
 export const load: PageServerLoad = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
@@ -19,7 +19,8 @@ export const load: PageServerLoad = async ({ locals: { security }, params }) => 
 	return {
 		timetableDrafts,
 		timetable,
-		createTimetableForm: await superValidate(zod4(createTimetableDraftSchema))
+		createTimetableForm: await superValidate(zod4(createTimetableDraftSchema)),
+		publishTimetableDraftForm: await superValidate(zod4(publishTimetableDraftSchema))
 	};
 };
 
@@ -48,5 +49,28 @@ export const actions: Actions = {
 			console.error('Error creating timetable:', error);
 			return message(form, 'Failed to create timetable. Please try again.', { status: 500 });
 		}
+	},
+	publishTimetableDraft: async ({ request, locals: { security } }) => {
+		const user = security.isAuthenticated().isSchoolAdmin().getUser();
+
+		if (!user) {
+			throw new Error('User not found');
+		}
+
+		const form = await superValidate(request, zod4(publishTimetableDraftSchema));
+
+		if (!form.valid) {
+			return message(form, 'Please select a draft to publish.', { status: 400 });
+		}
+
+		// Now you can access form.data.draftId which is the timetableDraftId
+		const timetableDraftId = form.data.draftId;
+
+		console.log('Publishing timetable draft:', timetableDraftId);
+
+		// TODO: Implement publish logic here
+		// await publishTimetableDraft(timetableDraftId);
+
+		return message(form, 'Timetable draft published successfully!');
 	}
 };
