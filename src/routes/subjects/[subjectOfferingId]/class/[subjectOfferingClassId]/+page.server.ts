@@ -1,4 +1,4 @@
-// need to change over to ussing subjectOffering class instead
+// need to change over to using subjectOffering class instead
 
 import {
 	getAnnouncementsBySubjectOfferingClassId,

@@ -7,7 +7,7 @@ import {
 } from '$lib/enums.js';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, asc, desc, eq, gte, inArray, lt } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, lt, or } from 'drizzle-orm';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -644,7 +644,7 @@ export async function getAssessmentsBySubjectOfferingClassId(subjectOfferingClas
 		.where(
 			and(
 				eq(table.subjectOfferingClassTask.subjectOfferingClassId, subjectOfferingClassId),
-				eq(table.task.type, taskTypeEnum.assessment)
+				or(eq(table.task.type, taskTypeEnum.test), eq(table.task.type, taskTypeEnum.assignment))
 			)
 		)
 		.orderBy(asc(table.subjectOfferingClassTask.index));
@@ -836,10 +836,7 @@ export async function getSubjectSelectionConstraints(
 		.from(table.subjectSelectionConstraint)
 		.leftJoin(
 			table.subjectSelectionConstraintSubject,
-			eq(
-				table.subjectSelectionConstraintSubject.constraintId,
-				table.subjectSelectionConstraint.id
-			)
+			eq(table.subjectSelectionConstraintSubject.constraintId, table.subjectSelectionConstraint.id)
 		)
 		.where(
 			and(

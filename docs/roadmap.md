@@ -51,19 +51,24 @@
 ### Doing
 
 All
+
 - [ ] Security review e.g. prompt injection
 - [ ] Content security policy in `svelte.config.js`
 - [ ] Check uniqueness rules on tables
 - [ ] Home pages and feature pages
 - [ ] Shift away from static school id for OAuth (search TODO)
 
-Lachie & Bella
+Lachie
+
 - [ ] Confirm scheduled quiz starts on load (if within the time)
 - [ ] UI fixes / code cleanup
-- [ ] Split quizzes and assignments into two types
+
+Bella
+
 - [ ] Task block button consistency
 
 Jack & Raph
+
 - [ ] Refactoring Task Blocks to lang
 - [ ] Improved lesson generation
 - [ ] Improved lesson/assessment plan
@@ -73,9 +78,11 @@ Jack & Raph
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
 
 Max
+
 - [ ] Get timetabling demoable
 
 Raph
+
 - [ ] Whiteboard (20/07)
   - undo/redo
   - Fix colour options/view + tooltip, colour options popout instead of in menu?

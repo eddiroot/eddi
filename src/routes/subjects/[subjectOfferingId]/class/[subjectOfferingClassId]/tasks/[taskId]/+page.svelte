@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { type TaskBlock } from '$lib/server/db/schema';
 	import { dndState, draggable, droppable, type DragDropState } from '@thisux/sveltednd';
-// UI Components
+	// UI Components
 	import { Badge } from '$lib/components/ui/badge';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
@@ -11,7 +11,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-// Block Components
+	// Block Components
 	import BlockAudio from './components/block-audio.svelte';
 	import BlockBalancingEquations from './components/block-balancing-equations.svelte';
 	import BlockChoice from './components/block-choice.svelte';
@@ -28,7 +28,7 @@
 	import BlockTable from './components/block-table.svelte';
 	import BlockVideo from './components/block-video.svelte';
 	import BlockWhiteboard from './components/block-whiteboard.svelte';
-// Icons
+	// Icons
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import EyeIcon from '@lucide/svelte/icons/eye';
@@ -88,7 +88,7 @@
 		data.user.type == userTypeEnum.student ? ViewMode.ANSWER : ViewMode.CONFIGURE
 	);
 	let selectedStudent = $state<string | null>(null);
-	let showQuizSettings = $state(false);
+	let showSettings = $state(false);
 
 	let timeRemaining = $state<number>(0);
 	let timerInterval: ReturnType<typeof setInterval> | null = null;
@@ -104,7 +104,7 @@
 		resetForm: false,
 		onUpdated: ({ form }) => {
 			if (form.valid) {
-				showQuizSettings = false;
+				showSettings = false;
 			}
 		}
 	});
@@ -425,10 +425,10 @@
 				<CheckCircleIcon />
 				Review
 			</Button>
-			{#if data.task.type === 'assessment' || data.task.type === 'homework'}
-				<Button variant="outline" onclick={() => (showQuizSettings = true)} size="lg">
+			{#if data.task.type === 'test'}
+				<Button variant="outline" onclick={() => (showSettings = true)} size="lg">
 					<SettingsIcon />
-					Quiz Settings
+					Settings
 				</Button>
 			{/if}
 		{/if}
@@ -788,14 +788,11 @@
 	{/if}
 </div>
 
-<!-- Quiz Settings Dialog -->
-<Dialog.Root bind:open={showQuizSettings}>
+<Dialog.Root bind:open={showSettings}>
 	<Dialog.Content class="max-w-md">
 		<Dialog.Header>
-			<Dialog.Title>Quiz Settings</Dialog.Title>
-			<Dialog.Description>
-				Configure timing and grading settings for this quiz/test.
-			</Dialog.Description>
+			<Dialog.Title>Settings</Dialog.Title>
+			<Dialog.Description>Configure timing and grading settings for this task.</Dialog.Description>
 		</Dialog.Header>
 
 		<form method="POST" action="?/updateQuizSettings" class="space-y-4" use:quizSettingsEnhance>
@@ -935,7 +932,7 @@
 			{/if}
 
 			<Dialog.Footer>
-				<Button type="button" variant="outline" onclick={() => (showQuizSettings = false)}>
+				<Button type="button" variant="outline" onclick={() => (showSettings = false)}>
 					Cancel
 				</Button>
 				<Button type="submit">Save Settings</Button>
