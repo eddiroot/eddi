@@ -8,7 +8,7 @@ import {
 } from '$lib/server/db/service/index.js';
 import { FETDockerService } from '$lib/server/fet.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
-import { parseTimetableCSVAndPopulate } from '../utils';
+import { parseTimetableCSVAndPopulate, parseTimetableCSVAndPopulateClasses } from '../utils';
 
 const fetService = new FETDockerService();
 
@@ -129,6 +129,12 @@ export async function processTimetableQueue() {
 					try {
 						console.log('📋 [DATABASE PROCESSOR] Starting CSV parsing and validation...');
 						await parseTimetableCSVAndPopulate(
+							timetableCSV,
+							queueEntry.timetableId,
+							queueEntry.timetableDraftId
+						);
+
+						await parseTimetableCSVAndPopulateClasses(
 							timetableCSV,
 							queueEntry.timetableId,
 							queueEntry.timetableDraftId
