@@ -15,7 +15,7 @@ import {
 import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
 import { school, schoolSemester, schoolSpace } from './schools';
-import { subject } from './subjects';
+import { subject, subjectOffering } from './subjects';
 import { user } from './user';
 import { timestamps } from './utils';
 
@@ -150,9 +150,9 @@ export const timetableActivity = pgTable('tt_activity', {
 	timetableDraftId: integer('tt_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
-	subjectId: integer('subject_id')
+	subjectOfferingId: integer('subject_id')
 		.notNull()
-		.references(() => subject.id, { onDelete: 'cascade' }),
+		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 	periodsPerInstance: integer('periods_per_instance').notNull().default(1),
 	totalPeriods: integer('total_periods').notNull(),
 	...timestamps
@@ -354,3 +354,52 @@ export const constraint = pgTable('constraint', {
 });
 
 export type Constraint = typeof constraint.$inferSelect;
+
+export const fetSubjectOfferingClass = pgTable('fet_sub_off_cls', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	subjectOfferingId: integer('sub_off_id')
+		.notNull()
+		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type FetSubjectOfferingClass = typeof fetSubjectOfferingClass.$inferSelect;
+
+export const fetSubjectClassAllocation = pgTable('sub_off_cls_allo', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	fetSubjectOfferingClassId: integer('fet_sub_off_cls_id')
+		.notNull()
+		.references(() => fetSubjectOfferingClass.id, { onDelete: 'cascade' }),
+	schoolSpaceId: integer('sch_spa_id')
+		.notNull()
+		.references(() => schoolSpace.id, { onDelete: 'set null' }),
+	startPeriodId: integer('start_period_id')
+		.notNull()
+		.references(() => timetablePeriod.id, { onDelete: 'set null' }),
+	endPeriodId: integer('end_period_id')
+		.notNull()
+		.references(() => timetablePeriod.id, { onDelete: 'set null' }),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps
+});
+
+export type FetSubjectClassAllocation = typeof fetSubjectClassAllocation.$inferSelect;
+
+export const fetUserSubjectOfferingClass = pgTable(
+	'fet_sub_off_cls_user',
+	{
+		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		fetSubOffClassId: integer('fet_sub_off_class_id')
+			.notNull()
+			.references(() => fetSubjectOfferingClass.id, { onDelete: 'cascade' }),
+		isArchived: boolean('is_archived').notNull().default(false),
+		...timestamps
+	},
+	(self) => [unique().on(self.userId, self.fetSubOffClassId)]
+);
+
+export type FetUserSubjectOfferingClass = typeof fetUserSubjectOfferingClass.$inferSelect;
