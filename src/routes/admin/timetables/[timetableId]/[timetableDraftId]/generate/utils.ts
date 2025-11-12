@@ -180,6 +180,7 @@ function buildActivitiesList(activities: TimetableData['activities']) {
 				Total_Duration: activity.totalPeriods, // Total duration across all splits
 				Activity_Group_Id: activity.id, // Links all splits together by the same unique activity ID
 				Active: true,
+				Comments: activity.id,
 				Id: 0 // Placeholder - will be assigned later
 			});
 		}
