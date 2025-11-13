@@ -5,12 +5,6 @@ import { VectorStore } from "@langchain/core/vectorstores";
 import type { PgColumn, PgTable } from "drizzle-orm/pg-core";
 
 /**
- * Type for extracting content from a record
- */
-export type ContentExtractor<T> = (record: T) => string;
-
-
-/**
  * Type for converting a record to a Document
  */
 export type RecordToDocument<T> = (record: T) => Document;
@@ -20,7 +14,10 @@ export type RecordToDocument<T> = (record: T) => Document;
  */
 export type DocumentToRecord<T> = (doc: Document) => Partial<T>;
 
-
+/**
+ * Default implementation of RecordToDocument using a content extractor,
+ * combini
+ */
 export interface TableVectorStoreConfig<T extends Record<string, unknown>> {
   table: PgTable & { embedding: PgColumn; id: PgColumn };
   embeddings: EmbeddingsInterface;
@@ -44,19 +41,40 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     this.config = config;
   }
 
-  async addDocuments(docs: Document[]) {
-    for (const doc of docs) {
-        const record = this.config.fromDocument(doc);
-        const embedding = await this.embeddings.embedDocuments([doc.pageContent]);
-        // Insert into DB
-        await createRecordWithEmbedding(
-            this.table,
-            record,
-            embedding
-        );  
+  // Required by VectorStore: add vectors with documents
+  async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
+    if (vectors.length !== documents.length) {
+      throw new Error("Vectors and documents must have the same length");
+    }
+
+    for (let i = 0; i < vectors.length; i++) {
+      const doc = documents[i];
+      const record = this.config.fromDocument(doc);
+      await createRecordWithEmbedding(this.table, record, [vectors[i]]);
     }
   }
-  
+
+  // Required by VectorStore: similarity search with scores
+  async similaritySearchVectorWithScore(
+    query: number[],
+    k: number
+  ): Promise<[Document, number][]> {
+    const results = await vectorSimilaritySearch(this.table, query, k);
+    return results.map(result => [
+      this.config.toDocument(result.record as T),
+      result.distance
+    ]);
+  }
+
+  async addDocuments(docs: Document[]): Promise<void> {
+    for (const doc of docs) {
+      const record = this.config.fromDocument(doc);
+      const embedding = await this.embeddings.embedDocuments([doc.pageContent]);
+      // Insert into DB
+      await createRecordWithEmbedding(this.table, record, embedding);
+    }
+  }
+
   // Get top k similar documents with similarity scores
   async searchWithScores(queryEmbedding: number[], k: number): Promise<[Document, number][]> {
     const results = await vectorSimilaritySearch(this.table, queryEmbedding, k);
@@ -70,7 +88,6 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     return results.map(result => this.config.toDocument(result.record as T));
   }
 
-
   // Get top k similar records
   async similaritySearchAsRecords(query: string, k: number): Promise<T[]> {
     const queryEmbedding = await this.embeddings.embedQuery(query);
@@ -79,7 +96,7 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
   }
 
   // Update the embedding of a record by its ID
-  async updateEmbedding(recordId: number | string) {
+  async updateEmbedding(recordId: number | string): Promise<void> {
     const record = await getRecord(this.table, recordId);
     const doc = this.config.toDocument(record as unknown as T);
     const recordEmbedding = await this.embeddings.embedDocuments([doc.pageContent]);
