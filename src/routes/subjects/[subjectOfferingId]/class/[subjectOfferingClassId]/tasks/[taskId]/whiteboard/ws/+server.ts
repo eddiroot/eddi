@@ -210,6 +210,24 @@ export const socket: Socket = {
 						whiteboardId
 					})
 				);
+			} else if (parsedMessage.type === 'layer') {
+				// Handle layering changes
+				const layeredObject = parsedMessage.object;
+				const action = parsedMessage.action;
+
+				// Update the object in the database to reflect the new z-index
+				await updateWhiteboardObject(layeredObject.id, layeredObject, whiteboardId);
+
+				// Broadcast the layering change to other clients
+				peer.publish(
+					`whiteboard-${whiteboardId}`,
+					JSON.stringify({
+						type: 'layer',
+						object: layeredObject,
+						action: action,
+						whiteboardId
+					})
+				);
 			}
 		} catch (error) {
 			console.error('Database operation failed:', error);
