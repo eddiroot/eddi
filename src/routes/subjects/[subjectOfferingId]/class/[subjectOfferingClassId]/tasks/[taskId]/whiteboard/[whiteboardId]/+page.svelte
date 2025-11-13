@@ -6,6 +6,7 @@
 	import * as CanvasActions from '$lib/components/whiteboard/canvas-actions';
 	import type { CanvasEventContext } from '$lib/components/whiteboard/canvas-events';
 	import * as CanvasEvents from '$lib/components/whiteboard/canvas-events';
+	import { CanvasHistory, applyRedo, applyUndo } from '$lib/components/whiteboard/canvas-history';
 	import {
 		DEFAULT_DRAW_OPTIONS,
 		DEFAULT_LINE_ARROW_OPTIONS,
@@ -25,9 +26,9 @@
 	} from '$lib/components/whiteboard/types';
 	import { hexToRgba } from '$lib/components/whiteboard/utils';
 	import * as WebSocketHandler from '$lib/components/whiteboard/websocket';
+	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-controls.svelte';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard/whiteboard-floating-menu.svelte';
 	import WhiteboardToolbar from '$lib/components/whiteboard/whiteboard-toolbar.svelte';
-	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-zoom-controls.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import * as fabric from 'fabric';
 	import { onDestroy, onMount } from 'svelte';
@@ -58,6 +59,12 @@
 	let tempShape: fabric.Object | null = null;
 	let tempText: fabric.Textbox | null = null;
 	let floatingMenuRef: WhiteboardFloatingMenu;
+
+	// History management for undo/redo
+	let history = new CanvasHistory();
+	let canUndo = $state(false);
+	let canRedo = $state(false);
+	let isApplyingHistory = false; // Flag to prevent recording history during undo/redo
 
 	// Current tool options - updated when menu changes
 	let currentTextOptions = $state<TextOptions>({ ...DEFAULT_TEXT_OPTIONS });
@@ -513,6 +520,37 @@
 		CanvasActions.moveBackward({ canvas, sendCanvasUpdate });
 	};
 
+	// Undo/Redo handlers
+	const handleUndo = async () => {
+		if (!canvas || !history.canUndo()) return;
+
+		isApplyingHistory = true;
+		const action = history.undo();
+		if (action) {
+			await applyUndo(canvas, action, sendCanvasUpdate);
+		}
+
+		// Update button states
+		canUndo = history.canUndo();
+		canRedo = history.canRedo();
+		isApplyingHistory = false;
+	};
+
+	const handleRedo = async () => {
+		if (!canvas || !history.canRedo()) return;
+
+		isApplyingHistory = true;
+		const action = history.redo();
+		if (action) {
+			await applyRedo(canvas, action, sendCanvasUpdate);
+		}
+
+		// Update button states
+		canUndo = history.canUndo();
+		canRedo = history.canRedo();
+		isApplyingHistory = false;
+	};
+
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (!canvas) return;
 
@@ -684,6 +722,95 @@
 
 		CanvasEvents.setupCanvasEvents(canvas, canvasEventContext);
 
+		// Setup history tracking
+		// Track object additions
+		canvas.on('object:added', (e) => {
+			if (isApplyingHistory || !e.target) return;
+			// @ts-expect-error - custom id property
+			const objectId = e.target.id;
+			if (objectId) {
+				const objectData = e.target.toObject();
+				// @ts-expect-error - custom id property
+				objectData.id = objectId;
+				history.recordAdd(objectId, objectData);
+				canUndo = history.canUndo();
+				canRedo = history.canRedo();
+			}
+		});
+
+		// Track object modifications (store previous state before modification)
+		const objectStates = new Map<string, Record<string, unknown>>();
+		canvas.on('object:modified', (e) => {
+			if (isApplyingHistory || !e.target) return;
+			// @ts-expect-error - custom id property
+			const objectId = e.target.id;
+			if (objectId) {
+				const previousData = objectStates.get(objectId);
+				const newData = e.target.toObject();
+				// @ts-expect-error - custom id property
+				newData.id = objectId;
+
+				if (previousData) {
+					history.recordModify(objectId, previousData, newData);
+					objectStates.delete(objectId);
+				}
+				canUndo = history.canUndo();
+				canRedo = history.canRedo();
+			}
+		});
+
+		// Store state before modification starts
+		canvas.on('object:moving', (e) => {
+			if (isApplyingHistory || !e.target) return;
+			// @ts-expect-error - custom id property
+			const objectId = e.target.id;
+			if (objectId && !objectStates.has(objectId)) {
+				const state = e.target.toObject();
+				// @ts-expect-error - custom id property
+				state.id = objectId;
+				objectStates.set(objectId, state);
+			}
+		});
+
+		canvas.on('object:scaling', (e) => {
+			if (isApplyingHistory || !e.target) return;
+			// @ts-expect-error - custom id property
+			const objectId = e.target.id;
+			if (objectId && !objectStates.has(objectId)) {
+				const state = e.target.toObject();
+				// @ts-expect-error - custom id property
+				state.id = objectId;
+				objectStates.set(objectId, state);
+			}
+		});
+
+		canvas.on('object:rotating', (e) => {
+			if (isApplyingHistory || !e.target) return;
+			// @ts-expect-error - custom id property
+			const objectId = e.target.id;
+			if (objectId && !objectStates.has(objectId)) {
+				const state = e.target.toObject();
+				// @ts-expect-error - custom id property
+				state.id = objectId;
+				objectStates.set(objectId, state);
+			}
+		});
+
+		// Track object removals
+		canvas.on('object:removed', (e) => {
+			if (isApplyingHistory || !e.target) return;
+			// @ts-expect-error - custom id property
+			const objectId = e.target.id;
+			if (objectId) {
+				const objectData = e.target.toObject();
+				// @ts-expect-error - custom id property
+				objectData.id = objectId;
+				history.recordDelete(objectId, objectData);
+				canUndo = history.canUndo();
+				canRedo = history.canRedo();
+			}
+		});
+
 		window.addEventListener('keydown', handleKeyDown);
 
 		// Add pinch-to-zoom for touch devices
@@ -835,6 +962,10 @@
 				onZoomOut={zoomOut}
 				onResetZoom={resetZoom}
 				onRecenterView={recenterView}
+				onUndo={handleUndo}
+				onRedo={handleRedo}
+				{canUndo}
+				{canRedo}
 			/>
 		</main>
 	</div>
