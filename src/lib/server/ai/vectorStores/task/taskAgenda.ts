@@ -32,7 +32,7 @@ export const taskAgendaToDocument = (record: TaskAgenda): Document => {
     const totalDuration = agenda.items.reduce((sum, item) => sum + item.durationMinutes, 0);
     
     // Create the page content
-    const pageContent = `Lesson Agenda
+    const pageContent = `Task Agenda
     Total Duration: ${totalDuration} minutes
     Number of Activities: ${agenda.items.length}
 
@@ -66,7 +66,6 @@ export const documentToTaskAgenda = (doc: Document): Partial<TaskAgenda> => {
         items
     };
     
-    // Validate against schema
     agendaSchema.parse(agenda);
     
     return {
@@ -120,7 +119,6 @@ function parseAgendaItemsFromDocument(doc: Document): AgendaItem[] {
     for (const block of itemBlocks) {
         const lines = block.split('\n').map(l => l.trim());
         
-        // Extract title and index from first line (e.g., "1. Warm-up Activity")
         const firstLine = lines[0];
         const titleMatch = firstLine.match(/^(\d+)\.\s+(.+)$/);
         
