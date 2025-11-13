@@ -59,3 +59,11 @@ export interface CanvasUpdateData {
     live?: boolean;
     action?: LayerAction;
 }
+
+export interface HistoryAction {
+    type: 'add' | 'modify' | 'delete';
+    objectId: string;
+    objectData?: Record<string, unknown>; // Current state for modify, or object data for add
+    previousData?: Record<string, unknown>; // Previous state for modify
+    timestamp: number;
+}
