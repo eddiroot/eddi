@@ -492,6 +492,27 @@
 		}
 	};
 
+	// Layering handlers
+	const handleBringToFront = () => {
+		if (!canvas) return;
+		CanvasActions.bringToFront({ canvas, sendCanvasUpdate });
+	};
+
+	const handleSendToBack = () => {
+		if (!canvas) return;
+		CanvasActions.sendToBack({ canvas, sendCanvasUpdate });
+	};
+
+	const handleMoveForward = () => {
+		if (!canvas) return;
+		CanvasActions.moveForward({ canvas, sendCanvasUpdate });
+	};
+
+	const handleMoveBackward = () => {
+		if (!canvas) return;
+		CanvasActions.moveBackward({ canvas, sendCanvasUpdate });
+	};
+
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (!canvas) return;
 
@@ -521,7 +542,9 @@
 
 		document.body.style.overflow = 'hidden';
 
-		canvas = new fabric.Canvas(whiteboardCanvas);
+		canvas = new fabric.Canvas(whiteboardCanvas, {
+			preserveObjectStacking: true
+		});
 
 		const resizeCanvas = () => {
 			if (!whiteboardCanvas || !canvas) return;
@@ -800,8 +823,11 @@
 				onShapeOptionsChange={handleShapeOptionsChange}
 				onDrawOptionsChange={handleDrawOptionsChange}
 				onLineArrowOptionsChange={handleLineArrowOptionsChange}
+				onBringToFront={handleBringToFront}
+				onSendToBack={handleSendToBack}
+				onMoveForward={handleMoveForward}
+				onMoveBackward={handleMoveBackward}
 			/>
-
 			<!-- Zoom Controls -->
 			<WhiteboardZoomControls
 				{currentZoom}

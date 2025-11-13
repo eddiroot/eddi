@@ -1,17 +1,19 @@
 import * as fabric from 'fabric';
+import type { LayerAction } from './types';
 
 /**
  * WebSocket message types
  */
 interface WebSocketMessage {
     whiteboardId: number;
-    type: 'init' | 'load' | 'add' | 'modify' | 'update' | 'delete' | 'remove' | 'clear';
+    type: 'init' | 'load' | 'add' | 'modify' | 'update' | 'delete' | 'remove' | 'clear' | 'layer';
     whiteboard?: {
         objects: SerializedObject[];
     };
     object?: SerializedObject;
     objects?: SerializedObject[];
     live?: boolean;
+    action?: LayerAction;
 }
 
 /**
@@ -63,6 +65,8 @@ export function setupWebSocket(
                 handleModifyMessage(canvas, messageData);
             } else if (messageData.type === 'delete' || messageData.type === 'remove') {
                 handleDeleteMessage(canvas, messageData);
+            } else if (messageData.type === 'layer') {
+                handleLayerMessage(canvas, messageData);
             } else if (messageData.type === 'clear') {
                 canvas.clear();
             }
@@ -168,6 +172,35 @@ function handleDeleteMessage(canvas: fabric.Canvas, messageData: WebSocketMessag
         }
     });
     canvas.renderAll();
+}
+
+/**
+ * Handles 'layer' message - updates the z-index/layering of an object
+ */
+function handleLayerMessage(canvas: fabric.Canvas, messageData: WebSocketMessage): void {
+    if (!messageData.object || !messageData.action) return;
+
+    const objects = canvas.getObjects();
+    // @ts-expect-error - Custom id property
+    const obj = objects.find((o) => o.id === messageData.object!.id);
+
+    if (obj) {
+        switch (messageData.action) {
+            case 'bringToFront':
+                canvas.bringObjectToFront(obj);
+                break;
+            case 'sendToBack':
+                canvas.sendObjectToBack(obj);
+                break;
+            case 'moveForward':
+                canvas.bringObjectForward(obj);
+                break;
+            case 'moveBackward':
+                canvas.sendObjectBackwards(obj);
+                break;
+        }
+        canvas.renderAll();
+    }
 }
 
 /**

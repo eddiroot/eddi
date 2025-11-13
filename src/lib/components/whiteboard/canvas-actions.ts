@@ -177,3 +177,87 @@ export function recenterView(
     setCurrentZoom(1);
     context.canvas.renderAll();
 }
+
+/**
+ * Layering actions for canvas objects
+ */
+
+/**
+ * Brings the selected object to the front (top layer)
+ */
+export function bringToFront(context: CanvasActionContext): void {
+    const activeObject = context.canvas.getActiveObject();
+    if (!activeObject) return;
+
+    context.canvas.bringObjectToFront(activeObject);
+    context.canvas.renderAll();
+
+    const objData = activeObject.toObject();
+    // @ts-expect-error - Custom id property
+    objData.id = activeObject.id;
+    context.sendCanvasUpdate({
+        type: 'layer',
+        action: 'bringToFront',
+        object: objData
+    });
+}
+
+/**
+ * Sends the selected object to the back (bottom layer)
+ */
+export function sendToBack(context: CanvasActionContext): void {
+    const activeObject = context.canvas.getActiveObject();
+    if (!activeObject) return;
+
+    context.canvas.sendObjectToBack(activeObject);
+    context.canvas.renderAll();
+
+    const objData = activeObject.toObject();
+    // @ts-expect-error - Custom id property
+    objData.id = activeObject.id;
+    context.sendCanvasUpdate({
+        type: 'layer',
+        action: 'sendToBack',
+        object: objData
+    });
+}
+
+/**
+ * Moves the selected object forward one layer
+ */
+export function moveForward(context: CanvasActionContext): void {
+    const activeObject = context.canvas.getActiveObject();
+    if (!activeObject) return;
+
+    context.canvas.bringObjectForward(activeObject);
+    context.canvas.renderAll();
+
+    const objData = activeObject.toObject();
+    // @ts-expect-error - Custom id property
+    objData.id = activeObject.id;
+    context.sendCanvasUpdate({
+        type: 'layer',
+        action: 'moveForward',
+        object: objData
+    });
+}
+
+/**
+ * Moves the selected object backward one layer
+ */
+export function moveBackward(context: CanvasActionContext): void {
+    const activeObject = context.canvas.getActiveObject();
+    if (!activeObject) return;
+
+    context.canvas.sendObjectBackwards(activeObject);
+    context.canvas.renderAll();
+
+    const objData = activeObject.toObject();
+    // @ts-expect-error - Custom id property
+    objData.id = activeObject.id;
+    context.sendCanvasUpdate({
+        type: 'layer',
+        action: 'moveBackward',
+        object: objData
+    });
+}
