@@ -54,8 +54,30 @@ export const createLine = (
         strokeWidth: options.strokeWidth,
         strokeDashArray: options.strokeDashArray,
         opacity: options.opacity,
-        selectable: true
+        selectable: true,
+        originX: 'center',
+        originY: 'center'
     });
+
+    // Override toObject to ensure all coordinate properties are serialized
+    const originalToObject = line.toObject.bind(line);
+    // @ts-expect-error - Custom toObject override for proper line serialization
+    line.toObject = (propertiesToInclude) => {
+        // @ts-expect-error - Type mismatch in toObject parameters
+        const obj = originalToObject(propertiesToInclude);
+        return {
+            ...obj,
+            // Ensure these critical properties are always included
+            x1: line.x1,
+            y1: line.y1,
+            x2: line.x2,
+            y2: line.y2,
+            left: line.left,
+            top: line.top,
+            originX: line.originX,
+            originY: line.originY
+        };
+    };
 
     // Configure line-specific controls
     configureLineControls(line);
@@ -96,6 +118,10 @@ export const createArrow = (
     const arrowGroup = new fabric.Group([line, arrowHead1, arrowHead2], {
         selectable: true
     });
+
+    // Assign ID to the group
+    // @ts-expect-error - Custom id property
+    arrowGroup.id = uuidv4();
 
     // Configure arrow-specific controls
     configureArrowControls(arrowGroup);
