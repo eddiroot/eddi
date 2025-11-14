@@ -433,7 +433,6 @@ interface UserStatistics {
 }
 
 interface TimetableStatistics {
-	timetableId: number;
 	timetableDraftId: number;
 	totalDays: number;
 	totalPeriods: number;

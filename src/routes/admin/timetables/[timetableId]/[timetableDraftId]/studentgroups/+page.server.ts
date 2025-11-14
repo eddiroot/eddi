@@ -5,7 +5,7 @@ import {
 	deleteTimetableDraftStudentGroup,
 	getStudentsByGroupId,
 	getStudentsForTimetable,
-	getSubjectsByYearLevel,
+	getSubjectOfferingsByYearLevelForTimetableByTimetableId,
 	getTimetableDraftGroupsByTimetableDraftId,
 	removeStudentFromTimetableDraftGroup
 } from '$lib/server/db/service';
@@ -62,7 +62,7 @@ export const actions = {
 	},
 
 	autoCreateGroups: async ({ request, params, locals: { security } }) => {
-		const user = security.isAuthenticated().isSchoolAdmin().getUser();
+		security.isAuthenticated().isSchoolAdmin();
 
 		const timetableId = parseInt(params.timetableId, 10);
 		if (isNaN(timetableId)) {
@@ -77,10 +77,13 @@ export const actions = {
 		}
 
 		try {
-			const subjects = await getSubjectsByYearLevel(user.schoolId, yearLevel as yearLevelEnum);
+			const subjectOfferings = await getSubjectOfferingsByYearLevelForTimetableByTimetableId(
+				timetableId,
+				yearLevel as yearLevelEnum
+			);
 
 			let createdCount = 0;
-			for (const subject of subjects) {
+			for (const { subject } of subjectOfferings) {
 				const groupName = `${subject.name}`;
 				await createTimetableDraftStudentGroup(timetableId, yearLevel as yearLevelEnum, groupName);
 				createdCount++;

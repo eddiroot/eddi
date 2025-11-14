@@ -70,6 +70,7 @@ export const actions: Actions = {
 
 		// TODO: Implement publish logic here
 		// await publishTimetableDraft(timetableDraftId);
+		await publishTimetableDraft(timetableDraftId);
 
 		return message(form, 'Timetable draft published successfully!');
 	}

@@ -1,7 +1,14 @@
-import { getSubjectsBySchoolId } from '$lib/server/db/service';
+import { getSubjectOfferingsByForTimetableByTimetableId } from '$lib/server/db/service';
 
-export const load = async ({ locals: { security } }) => {
+export const load = async ({ params, locals: { security } }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
-	const subjects = await getSubjectsBySchoolId(user.schoolId);
-	return { subjects };
+
+	if (!user) {
+		throw new Error('User is not associated with a school');
+	}
+
+	const subjectsAndOfferings = await getSubjectOfferingsByForTimetableByTimetableId(
+		parseInt(params.timetableId, 10)
+	);
+	return { subjectsAndOfferings: subjectsAndOfferings };
 };

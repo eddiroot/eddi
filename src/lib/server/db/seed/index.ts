@@ -376,7 +376,7 @@ async function seed() {
 			const yearOfferingValues = {
 				subjectId: subject.id,
 				year: 2025,
-				semester: 0, // 0 indicates full year
+				semester: 1, // 0 indicates full year
 				campusId: campusRecord.id
 			};
 			const [yearOffering] = await db
@@ -1691,7 +1691,7 @@ async function seed() {
 				.insert(schema.timetableActivity)
 				.values({
 					timetableDraftId: mockTimetableDraft.id,
-					subjectId: offering.subjectId,
+					subjectOfferingId: offering.id,
 					periodsPerInstance: 1,
 					totalPeriods: 3 // 3 periods per week
 				})
@@ -1721,7 +1721,7 @@ async function seed() {
 				.insert(schema.timetableActivity)
 				.values({
 					timetableDraftId: mockTimetableDraft.id,
-					subjectId: offering.subjectId,
+					subjectOfferingId: offering.id,
 					periodsPerInstance: 2, // Double period
 					totalPeriods: 4 // 2 instances of 2 periods each per week
 				})

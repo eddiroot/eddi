@@ -584,7 +584,7 @@ export async function getTimetableDraftActivitiesByTimetableDraftId(timetableDra
 		.select()
 		.from(table.timetableActivity)
 		.where(eq(table.timetableActivity.timetableDraftId, timetableDraftId))
-		.orderBy(asc(table.timetableActivity.subjectId));
+		.orderBy(asc(table.timetableActivity.subjectOfferingId));
 
 	return activities;
 }
@@ -618,7 +618,7 @@ export async function getEnhancedTimetableDraftActivitiesByTimetableDraftId(time
 
 export async function createTimetableDraftActivity(data: {
 	timetableDraftId: number;
-	subjectId: number;
+	subjectOfferingId: number;
 	teacherId: string;
 	groupId: number;
 	periodsPerInstance: number;
@@ -629,7 +629,7 @@ export async function createTimetableDraftActivity(data: {
 
 export async function createTimetableDraftActivityWithRelations(data: {
 	timetableDraftId: number;
-	subjectId: number;
+	subjectOfferingId: number;
 	teacherIds: string[];
 	yearLevels: string[];
 	groupIds: number[];
@@ -640,7 +640,7 @@ export async function createTimetableDraftActivityWithRelations(data: {
 }) {
 	const {
 		timetableDraftId,
-		subjectId,
+		subjectOfferingId,
 		teacherIds,
 		yearLevels,
 		groupIds,
@@ -664,7 +664,7 @@ export async function createTimetableDraftActivityWithRelations(data: {
 		.insert(table.timetableActivity)
 		.values({
 			timetableDraftId,
-			subjectId,
+			subjectOfferingId,
 			periodsPerInstance,
 			totalPeriods
 		})
@@ -746,25 +746,140 @@ export async function createTimetableDraftActivityWithRelations(data: {
 	return activityIds;
 }
 
+export async function deleteTimetableDraftActivity(activityId: number) {
+	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.id, activityId));
+}
+
 export async function updateTimetableDraftActivity(
 	activityId: number,
 	data: {
+		subjectOfferingId?: number;
 		periodsPerInstance?: number;
 		totalPeriods?: number;
-		teacherId?: string;
+		teacherIds?: string[];
+		yearLevels?: string[];
+		groupIds?: number[];
+		studentIds?: string[];
+		preferredSpaceIds?: number[];
 	}
 ) {
+	const {
+		subjectOfferingId,
+		periodsPerInstance,
+		totalPeriods,
+		teacherIds,
+		yearLevels,
+		groupIds,
+		studentIds,
+		preferredSpaceIds
+	} = data;
+
+	// Update the base activity fields
+	const activityUpdateData: {
+		subjectOfferingId?: number;
+		periodsPerInstance?: number;
+		totalPeriods?: number;
+	} = {};
+
+	if (subjectOfferingId !== undefined) activityUpdateData.subjectOfferingId = subjectOfferingId;
+	if (periodsPerInstance !== undefined) activityUpdateData.periodsPerInstance = periodsPerInstance;
+	if (totalPeriods !== undefined) activityUpdateData.totalPeriods = totalPeriods;
+
+	if (Object.keys(activityUpdateData).length > 0) {
+		await db
+			.update(table.timetableActivity)
+			.set(activityUpdateData)
+			.where(eq(table.timetableActivity.id, activityId));
+	}
+
+	// Update teachers
+	if (teacherIds !== undefined) {
+		await db
+			.delete(table.timetableActivityTeacherPreference)
+			.where(eq(table.timetableActivityTeacherPreference.timetableActivityId, activityId));
+
+		if (teacherIds.length > 0) {
+			await db.insert(table.timetableActivityTeacherPreference).values(
+				teacherIds.map((teacherId) => ({
+					timetableActivityId: activityId,
+					teacherId
+				}))
+			);
+		}
+	}
+
+	// Update preferred spaces
+	if (preferredSpaceIds !== undefined) {
+		await db
+			.delete(table.timetableActivityPreferredSpace)
+			.where(eq(table.timetableActivityPreferredSpace.timetableActivityId, activityId));
+
+		if (preferredSpaceIds.length > 0) {
+			await db.insert(table.timetableActivityPreferredSpace).values(
+				preferredSpaceIds.map((spaceId) => ({
+					timetableActivityId: activityId,
+					schoolSpaceId: spaceId
+				}))
+			);
+		}
+	}
+
+	// Update groups
+	if (groupIds !== undefined) {
+		await db
+			.delete(table.timetableActivityAssignedGroup)
+			.where(eq(table.timetableActivityAssignedGroup.timetableActivityId, activityId));
+
+		if (groupIds.length > 0) {
+			await db.insert(table.timetableActivityAssignedGroup).values(
+				groupIds.map((ttGroupId) => ({
+					timetableActivityId: activityId,
+					ttGroupId
+				}))
+			);
+		}
+	}
+
+	// Update students
+	if (studentIds !== undefined) {
+		await db
+			.delete(table.timetableActivityAssignedStudent)
+			.where(eq(table.timetableActivityAssignedStudent.timetableActivityId, activityId));
+
+		if (studentIds.length > 0) {
+			await db.insert(table.timetableActivityAssignedStudent).values(
+				studentIds.map((userId) => ({
+					timetableActivityId: activityId,
+					userId
+				}))
+			);
+		}
+	}
+
+	// Update year levels
+	if (yearLevels !== undefined) {
+		await db
+			.delete(table.timetableActivityAssignedYear)
+			.where(eq(table.timetableActivityAssignedYear.timetableActivityId, activityId));
+
+		if (yearLevels.length > 0) {
+			await db.insert(table.timetableActivityAssignedYear).values(
+				yearLevels.map((yearlevel) => ({
+					timetableActivityId: activityId,
+					yearlevel: yearlevel as yearLevelEnum
+				}))
+			);
+		}
+	}
+
+	// Return the updated activity
 	const [activity] = await db
-		.update(table.timetableActivity)
-		.set(data)
+		.select()
+		.from(table.timetableActivity)
 		.where(eq(table.timetableActivity.id, activityId))
-		.returning();
+		.limit(1);
 
 	return activity;
-}
-
-export async function deleteTimetableDraftActivity(activityId: number) {
-	await db.delete(table.timetableActivity).where(eq(table.timetableActivity.id, activityId));
 }
 
 // ============================================================================
@@ -1287,3 +1402,9 @@ export async function searchUsersBySchoolId(schoolId: number, searchTerm: string
 		.limit(limit)
 		.orderBy(asc(table.user.lastName), asc(table.user.firstName));
 }
+
+// ============================================================================
+// PUBLISHING TIMETABLES - Operations
+// ============================================================================
+
+export async function publishTimetableFromDraft(timetableDraftId: number) {}

@@ -9,12 +9,16 @@ import {
 	getActivityYearsByActivityId,
 	getSpacesBySchoolId,
 	getStudentsForTimetable,
-	getSubjectsBySchoolIdAndYearLevel,
+	getSubjectOfferingsByYearLevelForTimetableByTimetableId,
 	getTimetableDraftActivitiesByTimetableDraftId,
 	getTimetableDraftStudentGroupsWithCountsByTimetableDraftId,
-	getUsersBySchoolIdAndType
+	getUsersBySchoolIdAndType,
+	updateTimetableDraftActivity
 } from '$lib/server/db/service';
-import { fail } from '@sveltejs/kit';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import type { Actions } from './$types.js';
+import { createActivitySchema, deleteActivitySchema, editActivitySchema } from './schema.js';
 
 type EnrichedActivity = Awaited<
 	ReturnType<typeof getTimetableDraftActivitiesByTimetableDraftId>
@@ -44,15 +48,16 @@ export const load = async ({ locals: { security }, params }) => {
 		.filter((value, index, self) => self.indexOf(value) === index);
 
 	// Get subjects for all year levels
-	const subjectsByYearLevel: Record<
+	const subjectOfferingsByYearLevel: Record<
 		string,
-		Awaited<ReturnType<typeof getSubjectsBySchoolIdAndYearLevel>>
+		Awaited<ReturnType<typeof getSubjectOfferingsByYearLevelForTimetableByTimetableId>>
 	> = {};
 	for (const yearLevel of yearLevels) {
-		subjectsByYearLevel[yearLevel] = await getSubjectsBySchoolIdAndYearLevel(
-			user.schoolId,
-			yearLevel
-		);
+		subjectOfferingsByYearLevel[yearLevel] =
+			await getSubjectOfferingsByYearLevelForTimetableByTimetableId(
+				parseInt(params.timetableId, 10),
+				yearLevel
+			);
 	}
 
 	// Enrich activities with all related data
@@ -77,12 +82,12 @@ export const load = async ({ locals: { security }, params }) => {
 		})
 	);
 
-	const activitiesBySubjectId = activities.reduce(
+	const activitiesBySubjectOfferingId = activities.reduce(
 		(acc, activity) => {
-			if (!acc[activity.subjectId]) {
-				acc[activity.subjectId] = [];
+			if (!acc[activity.subjectOfferingId]) {
+				acc[activity.subjectOfferingId] = [];
 			}
-			acc[activity.subjectId].push(activity);
+			acc[activity.subjectOfferingId].push(activity);
 			return acc;
 		},
 		{} as Record<number, typeof activities>
@@ -96,161 +101,95 @@ export const load = async ({ locals: { security }, params }) => {
 		teachers,
 		students,
 		spaces,
-		activitiesBySubjectId,
-		subjectsByYearLevel
+		activitiesBySubjectOfferingId,
+		subjectOfferingsByYearLevel,
+		createActivityForm: await superValidate(zod4(createActivitySchema)),
+		editActivityForm: await superValidate(zod4(editActivitySchema)),
+		deleteActivityForm: await superValidate(zod4(deleteActivitySchema))
 	};
 };
 
-export const actions = {
+export const actions: Actions = {
 	createActivity: async ({ request, params, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
 		const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
-		if (isNaN(timetableDraftId)) {
-			return fail(400, { error: 'Invalid timetable Draft ID' });
+		const form = await superValidate(request, zod4(createActivitySchema));
+
+		if (!form.valid) {
+			return message(form, 'Please check your inputs and try again.', { status: 400 });
 		}
 
 		try {
-			const formData = await request.formData();
-			const subjectId = formData.get('subjectId');
-			const teacherIds = formData.getAll('teacherIds');
-			const yearLevels = formData.getAll('yearLevels');
-			const groupIds = formData.getAll('groupIds');
-			const studentIds = formData.getAll('studentIds');
-			const locationIds = formData.getAll('locationIds');
-			const numInstancesPerWeek = formData.get('numInstancesPerWeek');
-			const periodsPerInstance = formData.get('periodsPerInstance');
-
-			// Validate required fields
-			if (!subjectId || !teacherIds || teacherIds.length === 0) {
-				return fail(400, { error: 'Subject and at least one teacher are required' });
-			}
-
-			if (!numInstancesPerWeek || !periodsPerInstance) {
-				return fail(400, { error: 'Instances per week and periods per instance are required' });
-			}
-
-			// Validate that at least one assignment level is specified
-			if (
-				(!yearLevels || yearLevels.length === 0) &&
-				(!groupIds || groupIds.length === 0) &&
-				(!studentIds || studentIds.length === 0)
-			) {
-				return fail(400, {
-					error: 'At least one of year levels, groups, or students must be specified'
-				});
-			}
-
-			// Create the activity with all relations
 			await createTimetableDraftActivityWithRelations({
 				timetableDraftId,
-				subjectId: parseInt(subjectId as string, 10),
-				teacherIds: teacherIds as string[],
-				yearLevels: yearLevels as string[],
-				groupIds: groupIds.map((id) => parseInt(id as string, 10)),
-				studentIds: studentIds as string[],
-				preferredSpaceIds: locationIds.map((id) => parseInt(id as string, 10)),
-				periodsPerInstance: parseInt(periodsPerInstance as string),
-				instancesPerWeek: parseInt(numInstancesPerWeek as string)
+				subjectOfferingId: form.data.subjectOfferingId,
+				teacherIds: form.data.teacherIds,
+				yearLevels: form.data.yearLevels ?? [],
+				groupIds: form.data.groupIds ?? [],
+				studentIds: form.data.studentIds ?? [],
+				preferredSpaceIds: form.data.locationIds ?? [],
+				periodsPerInstance: form.data.periodsPerInstance,
+				instancesPerWeek: form.data.numInstancesPerWeek
 			});
 
-			return { success: true };
+			return message(form, 'Activity created successfully!');
 		} catch (error) {
 			console.error('Error creating activity:', error);
-			return fail(500, { error: 'Failed to create activity. Please try again.' });
+			return message(form, 'Failed to create activity. Please try again.', { status: 500 });
 		}
 	},
 
-	editActivity: async ({ request, params, locals: { security } }) => {
+	editActivity: async ({ request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
 
-		const timetableId = parseInt(params.timetableId);
-		if (isNaN(timetableId)) {
-			return fail(400, { error: 'Invalid timetable ID' });
+		const form = await superValidate(request, zod4(editActivitySchema));
+
+		if (!form.valid) {
+			return message(form, 'Please check your inputs and try again.', { status: 400 });
 		}
 
 		try {
-			const formData = await request.formData();
-			const activityId = formData.get('activityId');
-			const subjectId = formData.get('subjectId');
-			const teacherIds = formData.getAll('teacherIds');
-			const yearLevels = formData.getAll('yearLevels');
-			const groupIds = formData.getAll('groupIds');
-			const studentIds = formData.getAll('studentIds');
-			const locationIds = formData.getAll('locationIds');
-			const numInstancesPerWeek = formData.get('numInstancesPerWeek');
-			const periodsPerInstance = formData.get('periodsPerInstance');
+			// Calculate total periods (instances per week * periods per instance)
+			const totalPeriods = form.data.numInstancesPerWeek * form.data.periodsPerInstance;
 
-			// Validate required fields
-			if (!activityId) {
-				return fail(400, { error: 'Activity ID is required' });
-			}
-
-			if (!subjectId || !teacherIds || teacherIds.length === 0) {
-				return fail(400, { error: 'Subject and at least one teacher are required' });
-			}
-
-			if (!numInstancesPerWeek || !periodsPerInstance) {
-				return fail(400, { error: 'Instances per week and periods per instance are required' });
-			}
-
-			// Validate that at least one assignment level is specified
-			if (
-				(!yearLevels || yearLevels.length === 0) &&
-				(!groupIds || groupIds.length === 0) &&
-				(!studentIds || studentIds.length === 0)
-			) {
-				return fail(400, {
-					error: 'At least one of year levels, groups, or students must be specified'
-				});
-			}
-
-			// Delete the old activity (cascading deletes will handle junction tables)
-			await deleteTimetableDraftActivity(parseInt(activityId as string, 10));
-
-			// Create the new activity with updated relations
-			await createTimetableDraftActivityWithRelations({
-				timetableDraftId: timetableId,
-				subjectId: parseInt(subjectId as string),
-				teacherIds: teacherIds as string[],
-				yearLevels: yearLevels as string[],
-				groupIds: groupIds.map((id) => parseInt(id as string, 10)),
-				studentIds: studentIds as string[],
-				preferredSpaceIds: locationIds.map((id) => parseInt(id as string, 10)),
-				periodsPerInstance: parseInt(periodsPerInstance as string),
-				instancesPerWeek: parseInt(numInstancesPerWeek as string)
+			// Update the activity with all relations
+			await updateTimetableDraftActivity(form.data.activityId, {
+				subjectOfferingId: form.data.subjectOfferingId,
+				periodsPerInstance: form.data.periodsPerInstance,
+				totalPeriods,
+				teacherIds: form.data.teacherIds,
+				yearLevels: form.data.yearLevels,
+				groupIds: form.data.groupIds,
+				studentIds: form.data.studentIds,
+				preferredSpaceIds: form.data.locationIds
 			});
 
-			return { success: true };
+			return message(form, 'Activity updated successfully!');
 		} catch (error) {
 			console.error('Error editing activity:', error);
-			return fail(500, { error: 'Failed to edit activity. Please try again.' });
+			return message(form, 'Failed to edit activity. Please try again.', { status: 500 });
 		}
 	},
 
-	deleteActivity: async ({ request, params, locals: { security } }) => {
+	deleteActivity: async ({ request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
+		console.log('Delete activity action called');
 
-		const timetableId = parseInt(params.timetableId, 10);
-		if (isNaN(timetableId)) {
-			return fail(400, { error: 'Invalid timetable ID' });
+		const form = await superValidate(request, zod4(deleteActivitySchema));
+
+		if (!form.valid) {
+			return message(form, 'Please check your inputs and try again.', { status: 400 });
 		}
 
 		try {
-			const formData = await request.formData();
-			const activityId = formData.get('activityId');
+			await deleteTimetableDraftActivity(form.data.activityId);
 
-			if (!activityId) {
-				return fail(400, { error: 'Activity ID is required' });
-			}
-
-			await deleteTimetableDraftActivity(parseInt(activityId as string, 10));
-
-			return { success: true };
+			return message(form, 'Activity deleted successfully!');
 		} catch (error) {
 			console.error('Error deleting activity:', error);
-			return fail(500, { error: 'Failed to delete activity. Please try again.' });
+			return message(form, 'Failed to delete activity. Please try again.', { status: 500 });
 		}
 	}
 };

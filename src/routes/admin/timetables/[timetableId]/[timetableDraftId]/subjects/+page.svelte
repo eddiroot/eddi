@@ -19,13 +19,13 @@
 		</TableRow>
 	</TableHeader>
 	<TableBody>
-		{#each data.subjects as subject}
+		{#each data.subjectsAndOfferings as subjectAndOffering}
 			<TableRow>
 				<TableCell>
-					{subject.name}
+					{subjectAndOffering.subject.name}
 				</TableCell>
 				<TableCell>
-					{subject.yearLevel}
+					{subjectAndOffering.subjectOffering.year}
 				</TableCell>
 			</TableRow>
 		{/each}
