@@ -358,6 +358,9 @@ export type Constraint = typeof constraint.$inferSelect;
 
 export const fetSubjectOfferingClass = pgTable('fet_sub_off_cls', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	timetableDraftId: integer('tt_draft_id')
+		.notNull()
+		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	subjectOfferingId: integer('sub_off_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
@@ -375,6 +378,9 @@ export const fetSubjectClassAllocation = pgTable('fet_sub_off_cls_allo', {
 	schoolSpaceId: integer('sch_space_id')
 		.notNull()
 		.references(() => schoolSpace.id, { onDelete: 'set null' }),
+	dayId: integer('day_id')
+		.notNull()
+		.references(() => timetableDay.id, { onDelete: 'set null' }),
 	startPeriodId: integer('start_period_id')
 		.notNull()
 		.references(() => timetablePeriod.id, { onDelete: 'set null' }),
@@ -387,7 +393,7 @@ export const fetSubjectClassAllocation = pgTable('fet_sub_off_cls_allo', {
 
 export type FetSubjectClassAllocation = typeof fetSubjectClassAllocation.$inferSelect;
 
-export const fetUserSubjectOfferingClass = pgTable(
+export const fetSubjectOfferingClassUser = pgTable(
 	'fet_sub_off_cls_user',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
@@ -403,4 +409,4 @@ export const fetUserSubjectOfferingClass = pgTable(
 	(self) => [unique().on(self.userId, self.fetSubOffClassId)]
 );
 
-export type FetUserSubjectOfferingClass = typeof fetUserSubjectOfferingClass.$inferSelect;
+export type FetUserSubjectOfferingClass = typeof fetSubjectOfferingClassUser.$inferSelect;

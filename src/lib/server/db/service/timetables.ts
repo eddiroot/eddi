@@ -1440,4 +1440,273 @@ How this function is implemented:
 
 NOTE: For each cycle, it is a mandatory Monday to Friday cycle. Therefore the only defining factors in the cycle weeks repeat attribute as part of the timetable draft. This will determine whether there are 5,10, 15 etc days per cycle. It will always be a multiple of 5
 */
-export async function publishTimetableDraft(timetableDraftId: number) {}
+export async function publishTimetableDraft(timetableDraftId: number) {
+	console.log('\n🚀 Starting publishTimetableDraft for draft ID:', timetableDraftId);
+
+	// Step 1: Find the semester that is related to the timetable draft's timetable
+	console.log('📋 Step 1: Finding timetable and semester data...');
+	const [timetableData] = await db
+		.select({
+			timetableId: table.timetable.id,
+			schoolSemesterId: table.timetable.schoolSemesterId,
+			schoolId: table.timetable.schoolId,
+			cycleWeekRepeats: table.timetableDraft.cycleWeekRepeats
+		})
+		.from(table.timetableDraft)
+		.innerJoin(table.timetable, eq(table.timetableDraft.timetableId, table.timetable.id))
+		.where(eq(table.timetableDraft.id, timetableDraftId))
+		.limit(1);
+
+	if (!timetableData) {
+		throw new Error(`Timetable draft with ID ${timetableDraftId} not found`);
+	}
+
+	console.log('✅ Found timetable data:', {
+		timetableId: timetableData.timetableId,
+		schoolSemesterId: timetableData.schoolSemesterId,
+		cycleWeekRepeats: timetableData.cycleWeekRepeats
+	});
+
+	if (!timetableData.schoolSemesterId) {
+		throw new Error(`Timetable draft ${timetableDraftId} has no associated semester`);
+	}
+
+	const [semester] = await db
+		.select()
+		.from(table.schoolSemester)
+		.where(eq(table.schoolSemester.id, timetableData.schoolSemesterId))
+		.limit(1);
+
+	if (!semester) {
+		throw new Error(
+			`Semester with ID ${timetableData.schoolSemesterId} not found for timetable draft ${timetableDraftId}`
+		);
+	}
+
+	console.log('✅ Found semester:', semester.id, '-', semester.name);
+
+	console.log('\n📅 Step 2: Finding terms for the semester...');
+	const term1 = await db
+		.select()
+		.from(table.schoolTerm)
+		.where(
+			and(eq(table.schoolTerm.schoolSemesterId, semester.id), eq(table.schoolTerm.termNumber, 1))
+		)
+		.limit(1);
+
+	const term2 = await db
+		.select()
+		.from(table.schoolTerm)
+		.where(
+			and(eq(table.schoolTerm.schoolSemesterId, semester.id), eq(table.schoolTerm.termNumber, 2))
+		)
+		.limit(1);
+
+	if (term1.length === 0 && term2.length === 0) {
+		throw new Error(`No terms found for semester ID ${semester.id}`);
+	}
+
+	const terms = [...term1, ...term2];
+	console.log(`✅ Found ${terms.length} term(s):`);
+	terms.forEach((term, idx) => {
+		console.log(`   Term ${idx + 1}: ${term.startDate} to ${term.endDate}`);
+	});
+
+	console.log('\n📚 Step 3: Finding FET subject offering classes...');
+	const fetSubOfferingClasses =
+		await getFetSubjectOfferingClassesAndSubjectByTimetableDraftId(timetableDraftId);
+
+	if (fetSubOfferingClasses.length === 0) {
+		throw new Error(
+			`No FET Subject Offering Classes found for timetable draft ID ${timetableDraftId}`
+		);
+	}
+
+	console.log(`✅ Found ${fetSubOfferingClasses.length} FET subject offering class(es)`);
+
+	let classCounter = 0;
+	for (const fetClass of fetSubOfferingClasses) {
+		classCounter++;
+		console.log(
+			`\n🏫 Processing class ${classCounter}/${fetSubOfferingClasses.length}: "${fetClass.subjectName}" (ID: ${fetClass.id})`
+		);
+
+		// Step 4: Create a new subject offering class (sub_off_cls)
+		console.log('   Creating subject offering class...');
+		const [newSubOfferingClass] = await db
+			.insert(table.subjectOfferingClass)
+			.values({
+				name: fetClass.subjectName + ' - ' + fetClass.id,
+				timetableDraftId: timetableDraftId,
+				subOfferingId: fetClass.subjectOfferingId
+			})
+			.returning();
+
+		console.log(`   ✅ Created subject offering class ID: ${newSubOfferingClass.id}`);
+
+		const users = await db
+			.select({ userId: table.fetSubjectOfferingClassUser.userId })
+			.from(table.fetSubjectOfferingClassUser)
+			.where(eq(table.fetSubjectOfferingClassUser.fetSubOffClassId, fetClass.id));
+
+		console.log(`   👥 Adding ${users.length} user(s) to the class...`);
+		for (const user of users) {
+			// Step 6: For each of the users in fet subject offering class user (fet_sub_off_cls_user), create a new subject offering class user (sub_off_cls_user)
+			await db.insert(table.userSubjectOfferingClass).values({
+				subOffClassId: newSubOfferingClass.id,
+				userId: user.userId
+			});
+		}
+		console.log(`   ✅ Added all users`);
+
+		// Create subject offering class users
+		const allocations = await getFetSubjectOfferingClassAllocationsByFetClassId(fetClass.id);
+		console.log(`   📍 Found ${allocations.length} allocation(s) to process`);
+
+		let allocationCounter = 0;
+		for (const fetAllocation of allocations) {
+			allocationCounter++;
+			console.log(`\n   📍 Processing allocation ${allocationCounter}/${allocations.length}...`);
+
+			// Step 5: For each fet subject offering class allocation that belongs to each fet subject offering class
+			// For each term, create allocations based on the cycle weeks repeats
+			for (const term of terms) {
+				const termStartDate = new Date(term.startDate);
+				const termEndDate = new Date(term.endDate);
+
+				console.log(
+					`      📅 Creating allocations for term ${term.termNumber} (${term.startDate} to ${term.endDate})`
+				);
+
+				const cycleDurationDays = timetableData.cycleWeekRepeats * 7;
+				let cycleStartDate = new Date(termStartDate);
+				let cycleCount = 0;
+
+				// Loop through cycles within the term
+				while (cycleStartDate <= termEndDate) {
+					cycleCount++;
+					// Find the actual date for the allocation based on dayId and period
+					const { classDate, startTime, endTime } = await findTimeAndDateForAllocation(
+						cycleStartDate,
+						fetAllocation.dayId,
+						fetAllocation.startPeriod,
+						fetAllocation.endPeriod
+					);
+
+					const allocation = await db
+						.insert(table.subjectClassAllocation)
+						.values({
+							subjectOfferingClassId: newSubOfferingClass.id,
+							schoolSpaceId: fetAllocation.schoolSpaceId,
+							date: classDate.toISOString().split('T')[0],
+							startTime: startTime,
+							endTime: endTime
+						})
+						.returning();
+
+					console.log(
+						`         ✅ Cycle ${cycleCount}: Created allocation for ${allocation[0].date} at ${startTime}-${endTime}`
+					);
+					cycleStartDate = new Date(
+						cycleStartDate.getTime() + cycleDurationDays * 24 * 60 * 60 * 1000
+					);
+				}
+				console.log(`      ✅ Created ${cycleCount} allocation(s) for term ${term.termNumber}`);
+			}
+		}
+	}
+
+	console.log('\n🎉 Successfully published timetable draft!');
+	console.log(`   Total classes processed: ${classCounter}`);
+}
+
+export async function findTimeAndDateForAllocation(
+	cycleStartDate: Date,
+	dayId: number,
+	startPeriodId: number,
+	endPeriodId: number
+) {
+	const day = await db
+		.select({ day: table.timetableDay.day })
+		.from(table.timetableDay)
+		.where(eq(table.timetableDay.id, dayId))
+		.limit(1);
+
+	let periodTimes: { startTime: string; endTime: string };
+
+	if (startPeriodId == endPeriodId) {
+		const pts = await db
+			.select({
+				startTime: table.timetablePeriod.startTime,
+				endTime: table.timetablePeriod.endTime
+			})
+			.from(table.timetablePeriod)
+			.where(eq(table.timetablePeriod.id, startPeriodId))
+			.limit(1);
+
+		periodTimes = pts[0];
+	} else {
+		const startPeriodTime = await db
+			.select({
+				startTime: table.timetablePeriod.startTime
+			})
+			.from(table.timetablePeriod)
+			.where(eq(table.timetablePeriod.id, startPeriodId))
+			.limit(1);
+
+		const endPeriodTime = await db
+			.select({ endTime: table.timetablePeriod.endTime })
+			.from(table.timetablePeriod)
+			.where(eq(table.timetablePeriod.id, endPeriodId))
+			.limit(1);
+
+		periodTimes = {
+			startTime: startPeriodTime[0].startTime,
+			endTime: endPeriodTime[0].endTime
+		};
+	}
+
+	return {
+		classDate: new Date(cycleStartDate.getTime() + (day[0].day - 1) * 24 * 60 * 60 * 1000),
+		startTime: periodTimes.startTime,
+		endTime: periodTimes.endTime
+	};
+}
+
+export async function getFetSubjectOfferingClassesAndSubjectByTimetableDraftId(
+	timetableDraftId: number
+) {
+	const fetSubOfferingClasses = await db
+		.select({
+			id: table.fetSubjectOfferingClass.id,
+			timetableDraftId: table.fetSubjectOfferingClass.timetableDraftId,
+			subjectOfferingId: table.fetSubjectOfferingClass.subjectOfferingId,
+			subjectId: table.subject.id,
+			subjectName: table.subject.name
+		})
+		.from(table.fetSubjectOfferingClass)
+		.innerJoin(
+			table.subjectOffering,
+			eq(table.fetSubjectOfferingClass.subjectOfferingId, table.subjectOffering.id)
+		)
+		.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+		.where(eq(table.fetSubjectOfferingClass.timetableDraftId, timetableDraftId));
+
+	return fetSubOfferingClasses;
+}
+
+export async function getFetSubjectOfferingClassAllocationsByFetClassId(fetClassId: number) {
+	const allocations = await db
+		.select({
+			id: table.fetSubjectClassAllocation.id,
+			fetSubjectOfferingClassId: table.fetSubjectClassAllocation.fetSubjectOfferingClassId,
+			schoolSpaceId: table.fetSubjectClassAllocation.schoolSpaceId,
+			dayId: table.fetSubjectClassAllocation.dayId,
+			startPeriod: table.fetSubjectClassAllocation.startPeriodId,
+			endPeriod: table.fetSubjectClassAllocation.endPeriodId
+		})
+		.from(table.fetSubjectClassAllocation)
+		.where(eq(table.fetSubjectClassAllocation.fetSubjectOfferingClassId, fetClassId));
+
+	return allocations;
+}

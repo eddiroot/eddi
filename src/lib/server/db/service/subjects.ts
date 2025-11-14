@@ -838,8 +838,8 @@ export async function getSubjectYearLevelBySubjectOfferingId(subjectOfferingId: 
 }
 
 export async function getSubjectClassAllocationsByUserIdForDate(userId: string, date: Date) {
-	const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-	const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+	// Format date as YYYY-MM-DD for comparison
+	const dateStr = date.toISOString().split('T')[0];
 
 	const classAllocations = await db
 		.select({
@@ -882,11 +882,10 @@ export async function getSubjectClassAllocationsByUserIdForDate(userId: string, 
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.userId, userId),
-				gte(table.subjectClassAllocation.startTimestamp, startOfDay),
-				lt(table.subjectClassAllocation.startTimestamp, endOfDay)
+				eq(table.subjectClassAllocation.date, dateStr)
 			)
 		)
-		.orderBy(table.subjectClassAllocation.startTimestamp);
+		.orderBy(table.subjectClassAllocation.startTime);
 
 	return classAllocations;
 }
@@ -906,6 +905,10 @@ export async function getSubjectClassAllocationsByUserIdForWeek(
 	weekEnd.setDate(weekStart.getDate() + 7); // Next Monday
 	weekEnd.setHours(0, 0, 0, 0);
 
+	// Format dates as YYYY-MM-DD for comparison
+	const weekStartStr = weekStart.toISOString().split('T')[0];
+	const weekEndStr = weekEnd.toISOString().split('T')[0];
+
 	const classAllocations = await db
 		.select({
 			classAllocation: table.subjectClassAllocation,
@@ -947,11 +950,11 @@ export async function getSubjectClassAllocationsByUserIdForWeek(
 		.where(
 			and(
 				eq(table.userSubjectOfferingClass.userId, userId),
-				gte(table.subjectClassAllocation.startTimestamp, weekStart),
-				lt(table.subjectClassAllocation.startTimestamp, weekEnd)
+				gte(table.subjectClassAllocation.date, weekStartStr),
+				lt(table.subjectClassAllocation.date, weekEndStr)
 			)
 		)
-		.orderBy(table.subjectClassAllocation.startTimestamp);
+		.orderBy(table.subjectClassAllocation.date, table.subjectClassAllocation.startTime);
 
 	return classAllocations;
 }

@@ -1816,17 +1816,16 @@ async function seed() {
 
 		const baseDate = mostRecentMonday;
 
-		// Helper function to create a Date object for a specific day and time
-		const createDateTime = (
-			weekOffset: number,
-			dayOffset: number,
-			hour: number,
-			minute: number = 0
-		) => {
+		// Helper function to create a Date object for a specific day
+		const createDate = (weekOffset: number, dayOffset: number) => {
 			const date = new Date(baseDate);
 			date.setDate(baseDate.getDate() + weekOffset * 7 + dayOffset);
-			date.setHours(hour, minute, 0, 0);
-			return date;
+			return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+		};
+
+		// Helper function to create a time string
+		const createTime = (hour: number, minute: number = 0) => {
+			return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
 		};
 
 		// Create timetable for multiple weeks with varying patterns
@@ -1937,8 +1936,9 @@ async function seed() {
 					const timetableEntry = {
 						subjectOfferingClassId: subjectOfferingClasses[subjectIndex].id,
 						schoolSpaceId: spaces[subjectIndex].id, // Use appropriate space for subject
-						startTimestamp: createDateTime(week, day, hour, minute),
-						endTimestamp: createDateTime(week, day, hour + 1, minute) // 1 hour duration
+						date: createDate(week, day),
+						startTime: createTime(hour, minute),
+						endTime: createTime(hour + 1, minute) // 1 hour duration
 					};
 
 					timetableEntries.push(timetableEntry);

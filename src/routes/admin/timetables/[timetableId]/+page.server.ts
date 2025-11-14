@@ -1,7 +1,8 @@
 import {
 	createTimetableDraft,
 	getTimetableByTimetableId,
-	getTimetableDraftsByTimetableId
+	getTimetableDraftsByTimetableId,
+	publishTimetableDraft
 } from '$lib/server/db/service';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';

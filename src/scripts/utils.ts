@@ -311,6 +311,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 		activityId: string;
 		classId: number;
 		roomId: number;
+		dayId: number;
 		periods: number[]; // Array of period IDs for this activity
 	}
 
@@ -349,6 +350,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 			.map((t) => t.trim())
 			.filter((t) => t);
 		const roomId = parseInt(values[roomIdx], 10);
+		const dayId = parseInt(values[dayIdx], 10);
 		const periodId = parseInt(values[hourIdx], 10);
 
 		if (!activityId || !classId || !subjectOfferingId) continue;
@@ -369,6 +371,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 				activityId,
 				classId,
 				roomId,
+				dayId,
 				periods: [periodId]
 			});
 		} else {
@@ -469,6 +472,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 
 	for (const [classId, classData] of classMap.entries()) {
 		fetSubjectOfferingClassesToInsert.push({
+			timetableDraftId,
 			subjectOfferingId: classData.subjectOfferingId,
 			isArchived: false
 		});
@@ -514,6 +518,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 		fetSubjectClassAllocationsToInsert.push({
 			fetSubjectOfferingClassId: dbClassId,
 			schoolSpaceId: activityData.roomId,
+			dayId: activityData.dayId,
 			startPeriodId,
 			endPeriodId,
 			isArchived: false
@@ -529,7 +534,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 
 	// Step 3: Create fetUserSubjectOfferingClass records
 	const fetUserSubjectOfferingClassesToInsert: Array<
-		typeof table.fetUserSubjectOfferingClass.$inferInsert
+		typeof table.fetSubjectOfferingClassUser.$inferInsert
 	> = [];
 
 	for (const [classId, userIds] of classIdToUsersMap.entries()) {
@@ -548,7 +553,7 @@ export async function parseTimetableCSVAndPopulateClasses(
 	// Insert fetUserSubjectOfferingClass records in batches
 	for (let i = 0; i < fetUserSubjectOfferingClassesToInsert.length; i += batchSize) {
 		const batch = fetUserSubjectOfferingClassesToInsert.slice(i, i + batchSize);
-		await db.insert(table.fetUserSubjectOfferingClass).values(batch);
+		await db.insert(table.fetSubjectOfferingClassUser).values(batch);
 	}
 
 	console.log(`Successfully inserted ${insertedClassIds.length} FET subject offering classes`);
