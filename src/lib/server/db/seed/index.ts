@@ -26,7 +26,7 @@ import type {
 	OutcomeData,
 	VCAACurriculumData,
 	VCAAData
-} from './data/types.js';
+} from './VCAA/scraper/types.js';
 
 // Map JSON filenames to proper subject names
 const subjectNameMap: Record<string, string> = {

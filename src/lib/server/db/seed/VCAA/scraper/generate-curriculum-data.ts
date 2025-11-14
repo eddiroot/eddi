@@ -7,7 +7,7 @@
 
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { VCAAF10Scraper } from '../scraper/index';
+import { VCAAF10Scraper } from './index';
 import type { VCAACurriculumData, VCAASubject } from './types';
 
 const SUBJECTS_TO_SCRAPE = [

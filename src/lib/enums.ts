@@ -197,3 +197,58 @@ export enum rubricLevelEnum {
 	developing = 'developing',
 	beginning = 'beginning'
 }
+
+export enum VCAAF10SubjectEnum {
+	english = 'english',
+	mathematics = 'mathematics',
+	science = 'science',
+	humanities = 'humanities',
+	healthAndPE = 'healthAndPE',
+	arts = 'arts',
+	technology = 'technology'
+}
+
+export enum VCAAVCESubjectEnum {
+	dance = 'dance',
+	drama = 'drama',
+	music = 'music',
+	theatreStudies = 'theatreStudies',
+	artCreativePractice = 'artCreativePractice',
+	artMakingAndExhibiting = 'artMakingAndExhibiting',
+	media = 'media',
+	visualCommunicationDesign = 'visualCommunicationDesign',
+	agriculturalAndHorticulturalStudies = 'agriculturalAndHorticulturalStudies',
+	foodStudies = 'foodStudies',
+	productDesignAndTechnology = 'productDesignAndTechnology',
+	systemsEngineering = 'systemsEngineering',
+	foundationMathematics = 'foundationMathematics',
+	generalMathematics = 'generalMathematics',
+	mathematicalMethods = 'mathematicalMethods',
+	specialistMathematics = 'specialistMathematics',
+	englishAsAnAdditionalLanguage = 'englishAsAnAdditionalLanguage',
+	english = 'english',
+	englishLanguage = 'englishLanguage',
+	literature = 'literature',
+	biology = 'biology',
+	chemistry = 'chemistry',
+	physics = 'physics',
+	psychology = 'psychology',
+	environmentalScience = 'environmentalScience',
+	accounting = 'accounting',
+	businessManagement = 'businessManagement',
+	economics = 'economics',
+	industryAndEnterprise = 'industryAndEnterprise',
+	legalStudies = 'legalStudies',
+	geography = 'geography',
+	history = 'history',
+	philosophy = 'philosophy',
+	politics = 'politics',
+	religionAndSociety = 'religionAndSociety',
+	sociology = 'sociology',
+	textsAndTraditions = 'textsAndTraditions',
+	healthAndHumanDevelopment = 'healthAndHumanDevelopment',
+	physicalEducation = 'physicalEducation',
+	outdoorAndEnvironmentalStudies = 'outdoorAndEnvironmentalStudies',
+	algorithmics = 'algorithmics',
+	appliedComputing = 'appliedComputing'
+}
