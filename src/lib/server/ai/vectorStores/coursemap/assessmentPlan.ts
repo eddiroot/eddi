@@ -1,5 +1,6 @@
-
 import { courseMapItemAssessmentPlan, type CourseMapItemAssessmentPlan } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getAssessmentPlanMetadataByCourseMapItemId } from "$lib/server/db/service/coursemap";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -10,10 +11,39 @@ export class CourseMapItemAssessmentPlanVectorStore extends TableVectorStore<Cou
       table: courseMapItemAssessmentPlan,
       embeddings,
       toDocument: courseMapItemAssessmentPlanToDocument,
-      fromDocument: documentToCourseMapItemAssessmentPlan
+      fromDocument: documentToCourseMapItemAssessmentPlan,
+      extractMetadata: extractAssessmentPlanMetadata
     });
   }
 }
+
+export const extractAssessmentPlanMetadata = async (
+  record: Partial<CourseMapItemAssessmentPlan>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.courseMapItemId) {
+    return {
+      name: record.name,
+      rubricId: record.rubricId
+    };
+  }
+
+  try {
+    const metadata = await getAssessmentPlanMetadataByCourseMapItemId(record.courseMapItemId);
+    
+    return {
+      ...metadata,
+      name: record.name,
+      rubricId: record.rubricId
+    };
+  } catch (error) {
+    console.error('Error extracting assessment plan metadata:', error);
+    return {
+      courseMapItemId: record.courseMapItemId,
+      name: record.name,
+      rubricId: record.rubricId
+    };
+  }
+};
 
 export const courseMapItemAssessmentPlanToDocument = (record: CourseMapItemAssessmentPlan): Document => {
   const content = `${record.name}\n\n${record.description || ""}\n\nScope: ${record.scope?.join(", ") || "N/A"}`;
