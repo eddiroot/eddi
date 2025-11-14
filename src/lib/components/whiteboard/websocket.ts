@@ -1,4 +1,5 @@
 import * as fabric from 'fabric';
+import { configureObjectControls } from './object-controls';
 import type { LayerAction } from './types';
 
 /**
@@ -101,6 +102,9 @@ async function handleLoadMessage(canvas: fabric.Canvas, messageData: WebSocketMe
                 fabricObj.id = originalObj!.id;
             }
 
+            // Configure controls for the loaded object
+            configureObjectControls(fabricObj);
+
             if (fabricObj && typeof fabricObj.addTo === 'function') {
                 fabricObj.addTo(canvas);
             } else {
@@ -122,6 +126,10 @@ async function handleAddMessage(canvas: fabric.Canvas, messageData: WebSocketMes
             // Preserve the custom id property
             // @ts-expect-error - Custom id property
             obj.id = messageData.object.id;
+
+            // Configure controls for the new object
+            configureObjectControls(obj as fabric.FabricObject);
+
             canvas.add(obj as fabric.FabricObject);
             canvas.renderAll();
         }
