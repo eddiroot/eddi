@@ -10,10 +10,10 @@
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Resizable from '$lib/components/ui/resizable';
-	import type { Task } from '$lib/server/db/schema';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
+	import type { Task } from '$lib/server/db/schema';
 
 	let { children, data } = $props();
 
@@ -149,9 +149,7 @@
 			{/if}
 			<Resizable.PaneGroup direction="horizontal">
 				<Resizable.Pane defaultSize={100}>
-					<Sidebar.Inset
-						class="h-[calc(100svh-var(--header-height)-1rem)]! overflow-auto md:h-[calc(100svh-var(--header-height)-1rem)]!"
-					>
+					<Sidebar.Inset class="h-[calc(100svh-var(--header-height))]! overflow-auto">
 						{@render children()}
 					</Sidebar.Inset>
 				</Resizable.Pane>
