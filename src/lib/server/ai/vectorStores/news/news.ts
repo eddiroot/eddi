@@ -1,5 +1,7 @@
 import { newsPriorityEnum, newsStatusEnum, newsVisibilityEnum } from "$lib/enums";
 import { news, type News } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getNewsMetadataBySchoolId } from "$lib/server/db/service/news";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -10,10 +12,49 @@ export class NewsVectorStore extends TableVectorStore<News> {
       table: news,
       embeddings,
       toDocument: newsToDocument,
-      fromDocument: documentToNews
+      fromDocument: documentToNews,
+      extractMetadata: extractNewsMetadata
     });
   }
 }
+
+export const extractNewsMetadata = async (
+  record: Partial<News>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.schoolId) {
+    return {
+      authorId: record.authorId,
+      status: record.status,
+      visibility: record.visibility,
+      priority: record.priority,
+      isPinned: record.isPinned
+    };
+  }
+
+  try {
+    const metadata = await getNewsMetadataBySchoolId(
+      record.schoolId,
+      record.campusId,
+      record.categoryId,
+      record.authorId
+    );
+    
+    return {
+      ...metadata,
+      status: record.status,
+      visibility: record.visibility,
+      priority: record.priority,
+      isPinned: record.isPinned,
+      tags: record.tags
+    };
+  } catch (error) {
+    console.error('Error extracting news metadata:', error);
+    return {
+      schoolId: record.schoolId,
+      authorId: record.authorId
+    };
+  }
+};
 
 export const newsToDocument = (record: News): Document => {
   const excerptPart = record.excerpt ? `\n\nExcerpt: ${record.excerpt}` : '';

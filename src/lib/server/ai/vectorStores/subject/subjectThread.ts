@@ -1,5 +1,7 @@
 import { subjectThreadTypeEnum } from "$lib/enums";
 import { subjectThread, type SubjectThread } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getSubjectThreadMetadataBySubjectOfferingId } from "$lib/server/db/service/subjects";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -10,10 +12,40 @@ export class SubjectThreadVectorStore extends TableVectorStore<SubjectThread> {
       table: subjectThread,
       embeddings,
       toDocument: subjectThreadToDocument,
-      fromDocument: documentToSubjectThread
+      fromDocument: documentToSubjectThread,
+      extractMetadata: extractSubjectThreadMetadata
     });
   }
 }
+
+export const extractSubjectThreadMetadata = async (
+  record: Partial<SubjectThread>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.subjectOfferingId) {
+    return {
+      type: record.type,
+      userId: record.userId
+    };
+  }
+
+  try {
+    const metadata = await getSubjectThreadMetadataBySubjectOfferingId(record.subjectOfferingId);
+    
+    return {
+      ...metadata,
+      type: record.type,
+      userId: record.userId,
+      title: record.title
+    };
+  } catch (error) {
+    console.error('Error extracting subject thread metadata:', error);
+    return {
+      subjectOfferingId: record.subjectOfferingId,
+      type: record.type,
+      userId: record.userId
+    };
+  }
+};
 
 export const subjectThreadToDocument = (record: SubjectThread): Document => {
   const content = `${record.title}\n\nType: ${record.type}\n\n${record.content}`;

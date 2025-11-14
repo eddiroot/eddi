@@ -8,6 +8,7 @@ import {
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { and, asc, desc, eq, gte, inArray, lt, or } from 'drizzle-orm';
+import type { EmbeddingMetadataFilter } from '.';
 
 export async function getSubjectsByUserId(userId: string) {
 	const subjects = await db
@@ -983,4 +984,81 @@ export async function deleteSubjectSelectionConstraint(constraintId: number) {
 	await db
 		.delete(table.subjectSelectionConstraint)
 		.where(eq(table.subjectSelectionConstraint.id, constraintId));
+}
+
+// ============================================================================
+// EMBEDDING METADATA EXTRACTION METHODS
+// ============================================================================
+
+/**
+ * Extract metadata for SubjectThread by joining through subjectOffering → subject
+ */
+export async function getSubjectThreadMetadataBySubjectOfferingId(
+	subjectOfferingId: number
+): Promise<EmbeddingMetadataFilter> {
+	try {
+		const result = await db
+			.select({
+				subjectId: table.subject.id,
+				curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+				yearLevel: table.subject.yearLevel
+			})
+			.from(table.subjectOffering)
+			.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+			.leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+			.where(eq(table.subjectOffering.id, subjectOfferingId))
+			.limit(1);
+
+		if (result.length === 0) {
+			return { subjectOfferingId };
+		}
+
+		return {
+			subjectId: result[0].subjectId,
+			curriculumSubjectId: result[0].curriculumSubjectId ?? undefined,
+			yearLevel: result[0].yearLevel,
+			subjectOfferingId
+		};
+	} catch (error) {
+		console.error('Error extracting subject thread metadata:', error);
+		return { subjectOfferingId };
+	}
+}
+
+/**
+ * Extract metadata for SubjectThreadResponse by joining through subjectThread → subjectOffering → subject
+ */
+export async function getSubjectThreadResponseMetadataBySubjectThreadId(
+	subjectThreadId: number
+): Promise<EmbeddingMetadataFilter> {
+	try {
+		const result = await db
+			.select({
+				subjectId: table.subject.id,
+				curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+				yearLevel: table.subject.yearLevel,
+				subjectOfferingId: table.subjectThread.subjectOfferingId
+			})
+			.from(table.subjectThread)
+			.innerJoin(table.subjectOffering, eq(table.subjectThread.subjectOfferingId, table.subjectOffering.id))
+			.innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+			.leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+			.where(eq(table.subjectThread.id, subjectThreadId))
+			.limit(1);
+
+		if (result.length === 0) {
+			return { subjectThreadId };
+		}
+
+		return {
+			subjectId: result[0].subjectId,
+			curriculumSubjectId: result[0].curriculumSubjectId ?? undefined,
+			yearLevel: result[0].yearLevel,
+			subjectOfferingId: result[0].subjectOfferingId,
+			subjectThreadId
+		};
+	} catch (error) {
+		console.error('Error extracting subject thread response metadata:', error);
+		return { subjectThreadId };
+	}
 }
