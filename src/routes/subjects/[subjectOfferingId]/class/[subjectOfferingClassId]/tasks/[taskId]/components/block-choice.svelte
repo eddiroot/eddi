@@ -89,7 +89,6 @@
 						<Label>Answer Options</Label>
 						<Button
 							size="sm"
-							variant="outline"
 							onclick={async () => {
 								const newConfig = { ...config };
 								newConfig.options.push({ text: '', isAnswer: false });
