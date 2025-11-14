@@ -1,5 +1,5 @@
 import * as fabric from 'fabric';
-import { configureObjectControls } from './object-controls';
+import { configureObjectControls, recalculateLineControlPositions } from './object-controls';
 import type { LayerAction } from './types';
 
 /**
@@ -105,6 +105,17 @@ async function handleLoadMessage(canvas: fabric.Canvas, messageData: WebSocketMe
             // Configure controls for the loaded object
             configureObjectControls(fabricObj);
 
+            // For lines, ensure origin is centered and recalculate control positions
+            if (fabricObj.type === 'line') {
+                const line = fabricObj as fabric.Line;
+                line.set({
+                    originX: 'center',
+                    originY: 'center'
+                });
+                recalculateLineControlPositions(line);
+                line.setCoords();
+            }
+
             if (fabricObj && typeof fabricObj.addTo === 'function') {
                 fabricObj.addTo(canvas);
             } else {
@@ -122,15 +133,26 @@ async function handleAddMessage(canvas: fabric.Canvas, messageData: WebSocketMes
     if (messageData.object) {
         const objects = await fabric.util.enlivenObjects([messageData.object]);
         if (objects.length > 0) {
-            const obj = objects[0];
+            const obj = objects[0] as fabric.FabricObject;
             // Preserve the custom id property
             // @ts-expect-error - Custom id property
             obj.id = messageData.object.id;
 
             // Configure controls for the new object
-            configureObjectControls(obj as fabric.FabricObject);
+            configureObjectControls(obj);
 
-            canvas.add(obj as fabric.FabricObject);
+            // For lines, ensure origin is centered and recalculate control positions
+            if (obj.type === 'line') {
+                const line = obj as fabric.Line;
+                line.set({
+                    originX: 'center',
+                    originY: 'center'
+                });
+                recalculateLineControlPositions(line);
+                line.setCoords();
+            }
+
+            canvas.add(obj);
             canvas.renderAll();
         }
     }
@@ -159,9 +181,20 @@ function handleModifyMessage(canvas: fabric.Canvas, messageData: WebSocketMessag
                 opacity: messageData.object.opacity
             });
         } else {
-            // Full update for final modifications or non-image objects
+            // Full update for all objects
             obj.set(messageData.object as Partial<fabric.FabricObjectProps>);
+
+            // For lines, ensure origin stays centered
+            if (obj.type === 'line') {
+                obj.set({
+                    originX: 'center',
+                    originY: 'center'
+                });
+            }
         }
+
+        // Recalculate coordinates after update
+        obj.setCoords();
         canvas.renderAll();
     }
 }
