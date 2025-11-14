@@ -581,7 +581,9 @@
 		document.body.style.overflow = 'hidden';
 
 		canvas = new fabric.Canvas(whiteboardCanvas, {
-			preserveObjectStacking: true
+			preserveObjectStacking: true,
+			perPixelTargetFind: true,
+			targetFindTolerance: 5
 		});
 
 		const resizeCanvas = () => {
