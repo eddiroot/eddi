@@ -75,6 +75,15 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     }
   }
 
+  // Add Records
+  async addRecord(records: Partial<T>[]): Promise<void> {
+    for (const record of records) {
+      const doc = this.config.toDocument(record as T);
+      const embedding = await this.embeddings.embedDocuments([doc.pageContent]);
+      await createRecordWithEmbedding(this.table, record, embedding);
+    }
+  }
+  
   // Get top k similar documents with similarity scores
   async searchWithScores(queryEmbedding: number[], k: number): Promise<[Document, number][]> {
     const results = await vectorSimilaritySearch(this.table, queryEmbedding, k);

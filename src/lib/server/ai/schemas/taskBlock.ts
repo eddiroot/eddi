@@ -3,13 +3,9 @@ import { Document } from '@langchain/core/documents';
 import { z } from 'zod';
 
 
-// ==============================================================================
-//                                  Output Schemas
-// ==============================================================================
-
-/**
- * Block Schemas
- */
+// =================================================================================
+// Schemas and Converters for Task Blocks
+// =================================================================================
 
 /**
  * Block: Heading
@@ -569,6 +565,251 @@ export const blockAudioFromDocument = (doc: Document): z.infer<typeof blockAudio
     };
 };
 
+// =================================================================================
+// Schemas and Converters for Task Block Responses
+// =================================================================================
+
+/**
+ * Response: Math Input
+ */
+export const blockMathInputResponseSchema = z.object({
+    answer: z.string()
+});
+
+export const blockMathInputResponseToDocument = (response: z.infer<typeof blockMathInputResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Student Answer: ${response.answer}`,
+    });
+};
+
+export const blockMathInputResponseFromDocument = (doc: Document): z.infer<typeof blockMathInputResponseSchema> => {
+    const answerMatch = doc.pageContent.match(/Student Answer:\s*(.+)/s);
+    return {
+        answer: answerMatch ? answerMatch[1].trim() : ''
+    };
+};
+
+/**
+ * Response: Choice
+ */
+export const blockChoiceResponseSchema = z.object({
+    answers: z.array(z.string())
+});
+
+export const blockChoiceResponseToDocument = (response: z.infer<typeof blockChoiceResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Selected Answers: ${response.answers.join(', ')}`,
+    });
+};
+
+export const blockChoiceResponseFromDocument = (doc: Document): z.infer<typeof blockChoiceResponseSchema> => {
+    const answersMatch = doc.pageContent.match(/Selected Answers:\s*(.+)/s);
+    return {
+        answers: answersMatch ? answersMatch[1].split(',').map(ans => ans.trim()) : []
+    };
+};
+
+/**
+ * Response: Fill in the Blank
+ */
+export const blockFillBlankResponseSchema = z.object({
+    answers: z.array(z.string())
+});
+
+export const blockFillBlankResponseToDocument = (response: z.infer<typeof blockFillBlankResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Student Answers: ${response.answers.join(', ')}`,
+    });
+};
+
+export const blockFillBlankResponseFromDocument = (doc: Document): z.infer<typeof blockFillBlankResponseSchema> => {
+    const answersMatch = doc.pageContent.match(/Student Answers:\s*(.+)/s);
+    return {
+        answers: answersMatch ? answersMatch[1].split(',').map(ans => ans.trim()) : []
+    };
+};
+
+/**
+ * Response: Matching
+ */
+export const blockMatchingResponseSchema = z.object({
+    matches: z.array(z.object({
+        left: z.string(),
+        right: z.string()
+    }))
+});
+
+export const blockMatchingResponseToDocument = (response: z.infer<typeof blockMatchingResponseSchema>): Document => {
+    const matchesText = response.matches.map((match, idx) => `${idx + 1}. ${match.left} -> ${match.right}`).join('\n');
+    return new Document({
+        pageContent: `Student Matches:\n${matchesText}`,
+    });
+};
+
+export const blockMatchingResponseFromDocument = (doc: Document): z.infer<typeof blockMatchingResponseSchema> => {
+    const matchesMatch = doc.pageContent.match(/Student Matches:\s*([\s\S]+)/s);
+    const matches: Array<{ left: string; right: string }> = [];
+
+    if (matchesMatch) {
+        const matchLines = matchesMatch[1].trim().split('\n');
+        for (const line of matchLines) {
+            const pairMatch = line.match(/^\d+\.\s*(.+?)\s*->\s*(.+)$/);
+            if (pairMatch) {
+                matches.push({
+                    left: pairMatch[1].trim(),
+                    right: pairMatch[2].trim()
+                });
+            }
+        }
+    }
+
+    return { matches };
+};
+
+/**
+ * Response: Short Answer
+ */
+export const blockShortAnswerResponseSchema = z.object({
+    answer: z.string()
+});
+
+export const blockShortAnswerResponseToDocument = (response: z.infer<typeof blockShortAnswerResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Student Answer: ${response.answer}`,
+    });
+};
+
+export const blockShortAnswerResponseFromDocument = (doc: Document): z.infer<typeof blockShortAnswerResponseSchema> => {
+    const answerMatch = doc.pageContent.match(/Student Answer:\s*(.+)/s);
+    return {
+        answer: answerMatch ? answerMatch[1].trim() : ''
+    };
+};
+
+/**
+ * Response: Close (Close/Answer Blank)
+ */
+export const blockCloseResponseSchema = z.object({
+    answers: z.array(z.string())
+});
+
+export const blockCloseResponseToDocument = (response: z.infer<typeof blockCloseResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Student Answers: ${response.answers.join(', ')}`,
+    });
+};
+
+export const blockCloseResponseFromDocument = (doc: Document): z.infer<typeof blockCloseResponseSchema> => {
+    const answersMatch = doc.pageContent.match(/Student Answers:\s*(.+)/s);
+    return {
+        answers: answersMatch ? answersMatch[1].split(',').map(ans => ans.trim()) : []
+    };
+};
+
+/**
+ * Response: Highlight Text
+ */
+export const blockHighlightTextResponseSchema = z.object({
+    selectedText: z.array(z.string())
+});
+
+export const blockHighlightTextResponseToDocument = (response: z.infer<typeof blockHighlightTextResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Highlighted Selections: ${response.selectedText.join(', ')}`,
+    });
+};
+
+export const blockHighlightTextResponseFromDocument = (doc: Document): z.infer<typeof blockHighlightTextResponseSchema> => {
+    const selectionsMatch = doc.pageContent.match(/Highlighted Selections:\s*(.+)/s);
+    return {
+        selectedText: selectionsMatch ? selectionsMatch[1].split(',').map(sel => sel.trim()) : []
+    };
+};
+
+/**
+ * Response: Graph
+ */
+export const blockGraphResponseSchema = z.object({
+    studentPlots: z.array(z.object({
+        id: z.string(),
+        equation: z.string(),
+        color: z.string(),
+        label: z.string()
+    }))
+});
+
+export const blockGraphResponseToDocument = (response: z.infer<typeof blockGraphResponseSchema>): Document => {
+    const plotsText = response.studentPlots.map(plot => `ID: ${plot.id}, Equation: ${plot.equation}, Color: ${plot.color}, Label: ${plot.label}`).join('\n');
+    return new Document({
+        pageContent: `Student Plots:\n${plotsText}`,
+    });
+};
+
+export const blockGraphResponseFromDocument = (doc: Document): z.infer<typeof blockGraphResponseSchema> => {
+    const plotsMatch = doc.pageContent.match(/Student Plots:\s*([\s\S]+)/s);
+    const studentPlots: Array<{ id: string; equation: string; color: string; label: string }> = [];
+
+    if (plotsMatch) {
+        const plotsLines = plotsMatch[1].trim().split('\n');
+        for (const line of plotsLines) {
+            const plotMatch = line.match(/ID:\s*(.+?),\s*Equation:\s*(.+?),\s*Color:\s*(.+?),\s*Label:\s*(.+)/);
+            if (plotMatch) {
+                studentPlots.push({
+                    id: plotMatch[1].trim(),
+                    equation: plotMatch[2].trim(),
+                    color: plotMatch[3].trim(),
+                    label: plotMatch[4].trim()
+                });
+            }
+        }
+    }
+
+    return { studentPlots };
+};
+
+/**
+ * Response: Balancing Equations
+ */
+export const blockBalancingEquationsResponseSchema = z.object({
+    coefficients: z.object({
+        reactants: z.array(z.number()),
+        products: z.array(z.number())
+    })
+});
+
+export const blockBalancingEquationsResponseToDocument = (response: z.infer<typeof blockBalancingEquationsResponseSchema>): Document => {
+    return new Document({
+        pageContent: `Reactant Coefficients: ${response.coefficients.reactants.join(', ')}\nProduct Coefficients: ${response.coefficients.products.join(', ')}`,
+    });
+};
+
+export const blockBalancingEquationsResponseFromDocument = (doc: Document): z.infer<typeof blockBalancingEquationsResponseSchema> => {
+    const reactantsMatch = doc.pageContent.match(/Reactant Coefficients:\s*(.+?)\s*Product Coefficients:/s);
+    const productsMatch = doc.pageContent.match(/Product Coefficients:\s*(.+)/s);
+    
+    return {
+        coefficients: {
+            reactants: reactantsMatch ? reactantsMatch[1].split(',').map(c => parseInt(c.trim(), 10)) : [],
+            products: productsMatch ? productsMatch[1].split(',').map(c => parseInt(c.trim(), 10)) : []
+        }
+    };
+};
+
+/**
+ * Union of all task block response schemas
+ */
+export const taskBlockResponseSchema = z.union([
+    blockMathInputResponseSchema,
+    blockChoiceResponseSchema,
+    blockFillBlankResponseSchema,
+    blockMatchingResponseSchema,
+    blockShortAnswerResponseSchema,
+    blockCloseResponseSchema,
+    blockHighlightTextResponseSchema,
+    blockGraphResponseSchema,
+    blockBalancingEquationsResponseSchema
+]);
+
 /**
  * Block extension schemas
  */
@@ -670,6 +911,31 @@ export const blockTypeToSchemaMap: Record<taskBlockTypeEnum, z.ZodSchema> = {
     [taskBlockTypeEnum.image]: blockImageSchema,
     [taskBlockTypeEnum.video]: blockVideoSchema,
     [taskBlockTypeEnum.audio]: blockAudioSchema
+};
+
+/**
+ * Get the Zod response schema for a specific task block type
+ * @param blockType 
+ * @returns 
+ */
+export function getBlockResponseSchema(blockType: taskBlockTypeEnum): z.ZodSchema | undefined {
+    return blockTypeToResponseSchemaMap[blockType];
+}
+
+/**
+ * Mapping block types to their response schemas (for easy lookup)
+ * Only interactive blocks that require student responses have entries
+ */
+export const blockTypeToResponseSchemaMap: Partial<Record<taskBlockTypeEnum, z.ZodSchema>> = {
+    [taskBlockTypeEnum.mathInput]: blockMathInputResponseSchema,
+    [taskBlockTypeEnum.choice]: blockChoiceResponseSchema,
+    [taskBlockTypeEnum.fillBlank]: blockFillBlankResponseSchema,
+    [taskBlockTypeEnum.matching]: blockMatchingResponseSchema,
+    [taskBlockTypeEnum.shortAnswer]: blockShortAnswerResponseSchema,
+    [taskBlockTypeEnum.close]: blockCloseResponseSchema,
+    [taskBlockTypeEnum.highlightText]: blockHighlightTextResponseSchema,
+    [taskBlockTypeEnum.graph]: blockGraphResponseSchema,
+    [taskBlockTypeEnum.balancingEquations]: blockBalancingEquationsResponseSchema
 };
 
 /**

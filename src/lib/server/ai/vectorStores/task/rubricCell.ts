@@ -1,4 +1,4 @@
-
+import type { rubricLevelEnum } from "$lib/enums";
 import { taskBlock, type RubricCell } from "$lib/server/db/schema/task";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
@@ -26,7 +26,7 @@ export const rubricCellToDocument = (record: RubricCell): Document => {
 
 export const documentToRubricCell = (doc: Document): Partial<RubricCell> => {
     const levelMatch = doc.pageContent.match(/Level: (.*), Description:/)?.[1] || '';
-    const level = levelMatch as "exemplary" | "accomplished" | "developing" | "beginning" | undefined;
+    const level = levelMatch as rubricLevelEnum
     return {
         rowId: doc.metadata.rowId,
         level: level || undefined,

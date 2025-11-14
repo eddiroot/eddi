@@ -190,3 +190,10 @@ export enum contentTypeEnum {
 	studentArtifact = 'student_artifact',
 	tempWorkspace = 'temp_workspace'
 }
+
+export enum rubricLevelEnum {
+	exemplary = 'exemplary',
+	accomplished = 'accomplished',
+	developing = 'developing',
+	beginning = 'beginning'
+}

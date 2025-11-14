@@ -249,7 +249,7 @@ export const rubric = pgTable('rubric', {
 
 export type Rubric = typeof rubric.$inferSelect;
 
-export const rubricLevelEnum = pgEnum('enum_rubric_level', [
+export const rubricLevelEnumPg = pgEnum('enum_rubric_level', [
 	'exemplary',
 	'accomplished',
 	'developing',
@@ -272,7 +272,7 @@ export const rubricCell = pgTable('rubric_cell', {
 	rowId: integer('row_id')
 		.notNull()
 		.references(() => rubricRow.id, { onDelete: 'cascade' }),
-	level: rubricLevelEnum().notNull(),
+	level: rubricLevelEnumPg().notNull(),
 	description: text('description').notNull(),
 	marks: doublePrecision('marks').notNull(),
 	...timestamps,
