@@ -1,5 +1,6 @@
 import * as fabric from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
+import { configureImageControls } from './object-controls';
 
 /**
  * Context for canvas action handlers
@@ -53,6 +54,9 @@ export function handleImageUpload(
                     left: context.canvas.width! / 2 - (img.width! * scale) / 2,
                     top: context.canvas.height! / 2 - (img.height! * scale) / 2
                 });
+
+                // Configure image-specific controls
+                configureImageControls(img);
 
                 context.canvas.add(img);
                 context.canvas.setActiveObject(img);

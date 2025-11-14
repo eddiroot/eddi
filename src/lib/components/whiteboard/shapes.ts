@@ -1,6 +1,14 @@
 import * as fabric from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 import { MIN_TEXT_WIDTH } from './constants';
+import {
+    configureArrowControls,
+    configureCircleControls,
+    configureLineControls,
+    configureRectangleControls,
+    configureTextControls,
+    configureTriangleControls
+} from './object-controls';
 import type { LineArrowOptions, ShapeOptions, TextOptions } from './types';
 
 /**
@@ -40,7 +48,7 @@ export const createLine = (
     y2: number,
     options: LineArrowOptions
 ) => {
-    return new fabric.Line([x1, y1, x2, y2], {
+    const line = new fabric.Line([x1, y1, x2, y2], {
         id: uuidv4(),
         stroke: options.strokeColour,
         strokeWidth: options.strokeWidth,
@@ -48,6 +56,11 @@ export const createLine = (
         opacity: options.opacity,
         selectable: true
     });
+
+    // Configure line-specific controls
+    configureLineControls(line);
+
+    return line;
 };
 
 /**
@@ -84,6 +97,9 @@ export const createArrow = (
         selectable: true
     });
 
+    // Configure arrow-specific controls
+    configureArrowControls(arrowGroup);
+
     return arrowGroup;
 };
 
@@ -104,13 +120,11 @@ export const createShapeFromPoints = (
     const width = Math.abs(x2 - x1);
     const height = Math.abs(y2 - y1);
 
-    let shape: fabric.Object;
-
     switch (shapeType) {
         case 'circle': {
             // For circles, use the larger dimension as diameter
             const radius = Math.max(width, height) / 2;
-            shape = new fabric.Circle({
+            const circle = new fabric.Circle({
                 id: uuidv4(),
                 radius: radius,
                 fill: options.fillColour,
@@ -121,10 +135,11 @@ export const createShapeFromPoints = (
                 left: left,
                 top: top
             });
-            break;
+            configureCircleControls(circle);
+            return circle;
         }
         case 'rectangle': {
-            shape = new fabric.Rect({
+            const rect = new fabric.Rect({
                 id: uuidv4(),
                 width: width,
                 height: height,
@@ -136,10 +151,11 @@ export const createShapeFromPoints = (
                 left: left,
                 top: top
             });
-            break;
+            configureRectangleControls(rect);
+            return rect;
         }
         case 'triangle': {
-            shape = new fabric.Triangle({
+            const triangle = new fabric.Triangle({
                 id: uuidv4(),
                 width: width,
                 height: height,
@@ -151,13 +167,12 @@ export const createShapeFromPoints = (
                 left: left,
                 top: top
             });
-            break;
+            configureTriangleControls(triangle);
+            return triangle;
         }
         default:
             return null;
     }
-
-    return shape;
 };
 
 /**
@@ -191,6 +206,9 @@ export const createTextFromPoints = (
         // but constrain width
         textAlign: options.textAlign
     });
+
+    // Configure text-specific controls
+    configureTextControls(text);
 
     return text;
 };

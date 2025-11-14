@@ -1,6 +1,7 @@
 import * as fabric from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 import { ZOOM_LIMITS } from './constants';
+import { configurePathControls } from './object-controls';
 import * as Shapes from './shapes';
 import type {
     DrawOptions,
@@ -402,6 +403,10 @@ export const createPathCreatedHandler = (ctx: CanvasEventContext) => {
     return ({ path }: { path: fabric.Path }) => {
         // @ts-expect-error - custom id property
         path.id = uuidv4();
+
+        // Configure path-specific controls
+        configurePathControls(path);
+
         const objData = path.toObject();
         // @ts-expect-error - custom id property
         objData.id = path.id;
