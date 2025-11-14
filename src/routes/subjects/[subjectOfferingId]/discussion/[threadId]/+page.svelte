@@ -109,7 +109,7 @@
 						}}
 					>
 						<Button
-							variant="default"
+							variant="outline"
 							type="submit"
 							disabled={isGeneratingSummary || !!form?.summary}
 						>

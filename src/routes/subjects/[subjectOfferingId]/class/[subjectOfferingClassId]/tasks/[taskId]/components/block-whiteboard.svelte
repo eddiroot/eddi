@@ -99,6 +99,9 @@
 						placeholder="Enter a title here"
 					/>
 				</div>
+				<p class="text-muted-foreground text-sm">
+					Access the configured whiteboard through preview mode.
+				</p>
 			</Card.Content>
 		</Card.Root>
 	{:else if config.whiteboardId}

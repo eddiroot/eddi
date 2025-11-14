@@ -4,11 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import {
-		ViewMode,
-		type BlockFillBlankConfig,
-		type FillBlankBlockProps
-	} from '$lib/schema/task';
+	import { ViewMode, type BlockFillBlankConfig, type FillBlankBlockProps } from '$lib/schema/task';
 	import PenToolIcon from '@lucide/svelte/icons/pen-tool';
 	import XIcon from '@lucide/svelte/icons/x';
 
@@ -162,7 +158,6 @@
 											await onResponseUpdate(newResponse);
 										}}
 										disabled={viewMode !== ViewMode.ANSWER}
-										placeholder="Your answer"
 										class={`max-w-[200px] min-w-[140px] text-center font-medium transition-all duration-200 ${
 											viewMode === ViewMode.ANSWER
 												? isAnswerCorrect()
