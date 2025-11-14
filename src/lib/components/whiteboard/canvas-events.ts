@@ -1,7 +1,7 @@
 import * as fabric from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 import { ZOOM_LIMITS } from './constants';
-import { configurePathControls } from './object-controls';
+import { configurePathControls, recalculateArrowControlPositions, recalculateLineControlPositions } from './object-controls';
 import * as Shapes from './shapes';
 import type {
     DrawOptions,
@@ -299,6 +299,14 @@ export const createMouseUpHandler = (canvas: fabric.Canvas, ctx: CanvasEventCont
 
             // Set the object as selectable and finish the drawing
             tempLine.set({ selectable: true });
+
+            // Recalculate control positions now that drawing is complete
+            if (tempLine.type === 'line') {
+                recalculateLineControlPositions(tempLine as fabric.Line);
+            } else if (tempLine.type === 'group') {
+                recalculateArrowControlPositions(tempLine as fabric.Group);
+            }
+
             canvas.setActiveObject(tempLine);
             canvas.renderAll();
 
