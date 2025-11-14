@@ -1,4 +1,5 @@
-import { createRecordWithEmbedding, getRecord, updateRecordEmbedding, vectorSimilaritySearch } from "$lib/server/db/service";
+import type { yearLevelEnum } from "$lib/enums";
+import { createRecordWithEmbedding, getRecord, updateRecordEmbedding, vectorSimilaritySearch, type EmbeddingMetadataFilter } from "$lib/server/db/service";
 import type { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
@@ -15,20 +16,34 @@ export type RecordToDocument<T> = (record: T) => Document;
 export type DocumentToRecord<T> = (doc: Document) => Partial<T>;
 
 /**
+ * Type for extracting metadata from a record
+ * This should be implemented by each vector store to extract subject/curriculum/year level info
+ */
+export type ExtractMetadata<T> = (record: Partial<T>) => Promise<EmbeddingMetadataFilter>;
+
+export type BaseEmbeddingMetadata = {
+  subjectId?: number;
+  curriculumSubjectId?: number;
+  yearLevel?: yearLevelEnum;
+  [key: string]: unknown;
+};
+
+/**
  * Default implementation of RecordToDocument using a content extractor,
  * combini
  */
 export interface TableVectorStoreConfig<T extends Record<string, unknown>> {
-  table: PgTable & { embedding: PgColumn; id: PgColumn };
+  table: PgTable & { embedding: PgColumn; id: PgColumn; embeddingMetadata: PgColumn };
   embeddings: EmbeddingsInterface;
   
   // Required converters
   toDocument: RecordToDocument<T>;
   fromDocument: DocumentToRecord<T>;
+  extractMetadata?: ExtractMetadata<T>;
 }
 
 export abstract class TableVectorStore<T extends Record<string, unknown>> extends VectorStore {
-  protected table: PgTable & { embedding: PgColumn; id: PgColumn };
+  protected table: PgTable & { embedding: PgColumn; id: PgColumn; embeddingMetadata: PgColumn };
   protected config: TableVectorStoreConfig<T>;
 
   _vectorstoreType(): string {
@@ -41,6 +56,7 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     this.config = config;
   }
 
+
   // Required by VectorStore: add vectors with documents
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
     if (vectors.length !== documents.length) {
@@ -50,7 +66,8 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     for (let i = 0; i < vectors.length; i++) {
       const doc = documents[i];
       const record = this.config.fromDocument(doc);
-      await createRecordWithEmbedding(this.table, record, [vectors[i]]);
+      const metadata = await this.config.extractMetadata?.(record) || {};
+      await createRecordWithEmbedding(this.table, record, [vectors[i]], metadata);
     }
   }
 
@@ -70,8 +87,8 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     for (const doc of docs) {
       const record = this.config.fromDocument(doc);
       const embedding = await this.embeddings.embedDocuments([doc.pageContent]);
-      // Insert into DB
-      await createRecordWithEmbedding(this.table, record, embedding);
+      const metadata = await this.config.extractMetadata?.(record) || {};
+      await createRecordWithEmbedding(this.table, record, embedding, metadata);
     }
   }
 
@@ -80,7 +97,8 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     for (const record of records) {
       const doc = this.config.toDocument(record as T);
       const embedding = await this.embeddings.embedDocuments([doc.pageContent]);
-      await createRecordWithEmbedding(this.table, record, embedding);
+      const metadata = await this.config.extractMetadata?.(record) || {};
+      await createRecordWithEmbedding(this.table, record, embedding, metadata);
     }
   }
   

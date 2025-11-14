@@ -366,9 +366,6 @@ export const taskBlockGuidance = pgTable('task_block_guidance', {
 	taskBlockId: integer('task_block_id')
 		.notNull()
 		.references(() => taskBlock.id, { onDelete: 'cascade' }),
-	taskId: integer('task_id') // The filter to the partent task for better querying
-		.notNull()
-		.references(() => task.id, { onDelete: 'cascade' }),
 	guidance: text('guidance').notNull(),
 	...timestamps,
 	...embeddings
@@ -387,9 +384,6 @@ export const taskblockMisconception = pgTable('task_block_misconception', {
 	taskBlockId: integer('task_block_id')
 		.notNull()
 		.references(() => taskBlock.id, { onDelete: 'cascade' }),
-	taskId: integer('task_id') // The filter to the partent task for better querying
-		.notNull()
-		.references(() => task.id, { onDelete: 'cascade' }),
 	misconception: text('misconception').notNull(),
 	...timestamps,
 	...embeddings

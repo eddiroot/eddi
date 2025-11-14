@@ -1,5 +1,7 @@
 import { taskBlockTypeEnum } from "$lib/enums";
 import { classTaskBlockResponse, type ClassTaskBlockResponse } from "$lib/server/db/schema/task";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getClassTaskBlockResponseMetadataByTaskBlockId } from "$lib/server/db/service/task";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import {
@@ -39,10 +41,44 @@ export class TaskBlockResponseVectorStore extends TableVectorStore<ClassTaskBloc
       table: classTaskBlockResponse,
       embeddings,
       toDocument: taskBlockResponseToDocument,
-      fromDocument: documentToTaskBlockResponse
+      fromDocument: documentToTaskBlockResponse,
+      extractMetadata: extractTaskBlockResponseMetadata
     });
   }
 }
+
+/**
+ * Extract metadata for a ClassTaskBlockResponse by querying related tables
+ */
+export const extractTaskBlockResponseMetadata = async (
+  record: Partial<ClassTaskBlockResponse>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.taskBlockId) {
+    return {
+      classTaskId: record.classTaskId,
+      authorId: record.authorId
+    };
+  }
+
+  try {
+    const metadata = await getClassTaskBlockResponseMetadataByTaskBlockId(record.taskBlockId);
+    
+    return {
+      ...metadata,
+      taskBlockId: record.taskBlockId,
+      classTaskId: record.classTaskId,
+      authorId: record.authorId,
+      marks: record.marks
+    };
+  } catch (error) {
+    console.error('Error extracting task block response metadata:', error);
+    return {
+      taskBlockId: record.taskBlockId,
+      classTaskId: record.classTaskId,
+      authorId: record.authorId
+    };
+  }
+};
 
 export const taskBlockResponseToDocument = (record: ClassTaskBlockResponse): Document => {
   const response = record.response;

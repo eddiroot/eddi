@@ -1,12 +1,20 @@
+import type { yearLevelEnum } from '$lib/enums';
 import { db } from '$lib/server/db';
-import { cosineDistance, desc, eq, sql } from 'drizzle-orm';
+import { and, cosineDistance, desc, eq, sql, type SQL } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
+
+export interface EmbeddingMetadataFilter {
+    subjectId?: number;
+    curriculumSubjectId?: number;
+    yearLevel?: yearLevelEnum;
+    [key: string]: unknown;
+}
 
 export async function createRecordWithEmbedding(
     table: PgTable,
     record: Record<string, unknown>,
     embedding: number[][],
-    userId?: string
+    metadata?: EmbeddingMetadataFilter
 ) {
     await db.insert(table).values({
         ...record,
@@ -14,7 +22,7 @@ export async function createRecordWithEmbedding(
         embeddingMetadata: {
             usageCount: 0,
             lastUsedAt: null,
-            userId: userId || null
+            ...metadata
         }
     });
 }
@@ -22,20 +30,31 @@ export async function createRecordWithEmbedding(
 export async function updateRecordEmbedding(
     table: PgTable & { embedding: PgColumn; id: PgColumn },
     recordId: number | string,
-    embedding: number[][]
+    embedding: number[][],
+    metadata?: EmbeddingMetadataFilter
 ) {
-   await db
-       .update(table)
-       .set({ embedding: JSON.stringify(embedding) })
-       .where(eq(table.id, recordId));
+    const updateData: Record<string, unknown> = {
+        embedding: JSON.stringify(embedding)
+    };
+
+    if (metadata) {
+        updateData.embeddingMetadata = metadata;
+    }
+
+    await db
+        .update(table)
+        .set(updateData)
+        .where(eq(table.id, recordId));
 }
 
 export async function getRecord(table: PgTable & { embedding: PgColumn; id: PgColumn }, recordId: number | string) {
-    return await db
+    const results = await db
         .select()
         .from(table)
         .where(eq(table.id, recordId))
-        .limit(1)
+        .limit(1);
+    
+    return results[0];
 }
 
 export interface VectorSearchResult<T> {
@@ -43,20 +62,82 @@ export interface VectorSearchResult<T> {
   distance: number;
 }
 
+/**
+ * Build metadata filter conditions for JSONB queries
+ */
+function buildMetadataFilters(
+    embeddingMetadataColumn: PgColumn,
+    filter: EmbeddingMetadataFilter
+): SQL[] {
+    const conditions: SQL[] = [];
+
+    if (filter.subjectId !== undefined) {
+        conditions.push(
+            sql`${embeddingMetadataColumn}->>'subjectId' = ${filter.subjectId.toString()}`
+        );
+    }
+
+    if (filter.curriculumSubjectId !== undefined) {
+        conditions.push(
+            sql`${embeddingMetadataColumn}->>'curriculumSubjectId' = ${filter.curriculumSubjectId.toString()}`
+        );
+    }
+
+    if (filter.yearLevel !== undefined) {
+        conditions.push(
+            sql`${embeddingMetadataColumn}->>'yearLevel' = ${filter.yearLevel}`
+        );
+    }
+
+    // Handle custom metadata filters
+    for (const [key, value] of Object.entries(filter)) {
+        if (!['subjectId', 'curriculumSubjectId', 'yearLevel'].includes(key) && value !== undefined) {
+            if (typeof value === 'string') {
+                conditions.push(
+                    sql`${embeddingMetadataColumn}->>${key} = ${value}`
+                );
+            } else if (typeof value === 'number') {
+                conditions.push(
+                    sql`${embeddingMetadataColumn}->>${key} = ${value.toString()}`
+                );
+            } else if (typeof value === 'boolean') {
+                conditions.push(
+                    sql`(${embeddingMetadataColumn}->>${key})::boolean = ${value}`
+                );
+            }
+        }
+    }
+
+    return conditions;
+}
+
 export async function vectorSimilaritySearch<T>(
-    table: PgTable & { embedding: PgColumn },
+    table: PgTable & { embedding: PgColumn; embeddingMetadata: PgColumn },
     queryEmbedding: number[],
     k: number,
+    filter?: EmbeddingMetadataFilter
 ): Promise<VectorSearchResult<T>[]> {
     // Calculate cosine distance (lower is more similar)
     const distance = sql<number>`${cosineDistance(table.embedding, JSON.stringify(queryEmbedding))}`;
-    
-    const results = await db
+
+    // Build the base query
+    let query = db
         .select({
             record: table,
             distance
         })
-        .from(table)
+        .from(table);
+
+    // Apply metadata filters if provided
+    if (filter) {
+        const metadataConditions = buildMetadataFilters(table.embeddingMetadata, filter);
+        if (metadataConditions.length > 0) {
+            query = query.where(and(...metadataConditions)) as typeof query;
+        }
+    }
+
+    // Execute query with ordering and limit
+    const results = await query
         .orderBy(desc(distance))
         .limit(k);
 

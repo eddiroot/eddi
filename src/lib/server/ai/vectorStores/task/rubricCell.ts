@@ -1,5 +1,7 @@
 import type { rubricLevelEnum } from "$lib/enums";
 import { taskBlock, type RubricCell } from "$lib/server/db/schema/task";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getRubricCellMetadataByRowId } from "$lib/server/db/service/task";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -10,10 +12,42 @@ export class RubricCellVectorStore extends TableVectorStore<RubricCell> {
       table: taskBlock,
       embeddings,
       toDocument: rubricCellToDocument,
-      fromDocument: documentToRubricCell
+      fromDocument: documentToRubricCell,
+      extractMetadata: extractRubricCellMetadata
     });
   }
 }
+
+/**
+ * Extract metadata for a RubricCell by querying related tables
+ */
+export const extractRubricCellMetadata = async (
+  record: Partial<RubricCell>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.rowId) {
+    return {
+      level: record.level,
+      marks: record.marks
+    };
+  }
+
+  try {
+    const metadata = await getRubricCellMetadataByRowId(record.rowId);
+    
+    return {
+      ...metadata,
+      rowId: record.rowId,
+      level: record.level,
+      marks: record.marks
+    };
+  } catch (error) {
+    console.error('Error extracting rubric cell metadata:', error);
+    return {
+      rowId: record.rowId,
+      level: record.level
+    };
+  }
+};
 
 export const rubricCellToDocument = (record: RubricCell): Document => {
     return new Document({

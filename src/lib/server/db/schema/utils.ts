@@ -1,3 +1,4 @@
+import type { yearLevelEnum } from '$lib/enums';
 import { index, integer, jsonb, pgTable, text, timestamp, vector } from 'drizzle-orm/pg-core';
 
 
@@ -16,6 +17,9 @@ export const embeddings = {
 		usageCount?: number;
 		lastUsedAt?: Date;
 		userId?: string;
+		subjectId?: number;
+		curriculumSubjectId?: number;
+		yearLevel?: yearLevelEnum;
 		[key: string]: unknown;
 	}>()
 };

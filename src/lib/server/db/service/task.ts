@@ -1277,3 +1277,230 @@ export async function addResourcesToClassTaskResponse(
 
 	return newRelationships;
 }
+
+export async function getTaskBlockMetadataByTaskId(taskId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel
+    })
+    .from(table.task)
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.task.id, taskId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel
+  };
+}
+
+export async function getClassTaskBlockResponseMetadataByTaskBlockId(taskBlockId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel,
+      blockType: table.taskBlock.type
+    })
+    .from(table.taskBlock)
+    .innerJoin(table.task, eq(table.taskBlock.taskId, table.task.id))
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.taskBlock.id, taskBlockId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel,
+    blockType: row.blockType
+  };
+}
+
+export async function getClassTaskResponseMetadataByClassTaskId(classTaskId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel,
+      taskId: table.task.id,
+      taskType: table.task.type
+    })
+    .from(table.subjectOfferingClassTask)
+    .innerJoin(table.task, eq(table.subjectOfferingClassTask.taskId, table.task.id))
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.subjectOfferingClassTask.id, classTaskId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel,
+    taskId: row.taskId,
+    taskType: row.taskType
+  };
+}
+
+export async function getRubricCellMetadataByRowId(rowId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel,
+      rubricId: table.rubricRow.rubricId
+    })
+    .from(table.rubricRow)
+    .innerJoin(table.rubric, eq(table.rubricRow.rubricId, table.rubric.id))
+    .innerJoin(table.task, eq(table.rubric.id, table.task.rubricId))
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.rubricRow.id, rowId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel,
+    rubricId: row.rubricId
+  };
+}
+
+
+export async function getWhiteboardMetadataByTaskId(taskId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel
+    })
+    .from(table.task)
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.task.id, taskId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel
+  };
+}
+
+export async function getTaskAgendaMetadataByTaskId(taskId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel
+    })
+    .from(table.task)
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.task.id, taskId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel
+  };
+}
+
+export async function getTaskBlockGuidanceMetadataByTaskBlockId(taskBlockId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel,
+      blockType: table.taskBlock.type
+    })
+    .from(table.taskBlock)
+    .innerJoin(table.task, eq(table.taskBlock.taskId, table.task.id))
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.taskBlock.id, taskBlockId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel,
+    blockType: row.blockType
+  };
+}
+
+export async function getTaskBlockMisconceptionMetadataByTaskBlockId(taskBlockId: number) {
+  const result = await db
+    .select({
+      subjectId: table.subject.id,
+      curriculumSubjectId: table.coreSubject.curriculumSubjectId,
+      yearLevel: table.subject.yearLevel,
+      blockType: table.taskBlock.type
+    })
+    .from(table.taskBlock)
+    .innerJoin(table.task, eq(table.taskBlock.taskId, table.task.id))
+    .innerJoin(table.subjectOffering, eq(table.task.subjectOfferingId, table.subjectOffering.id))
+    .innerJoin(table.subject, eq(table.subjectOffering.subjectId, table.subject.id))
+    .leftJoin(table.coreSubject, eq(table.subject.coreSubjectId, table.coreSubject.id))
+    .where(eq(table.taskBlock.id, taskBlockId))
+    .limit(1);
+
+  if (result.length === 0) {
+    return {};
+  }
+
+  const row = result[0];
+  return {
+    subjectId: row.subjectId,
+    curriculumSubjectId: row.curriculumSubjectId ?? undefined,
+    yearLevel: row.yearLevel,
+    blockType: row.blockType
+  };
+}

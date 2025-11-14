@@ -1,5 +1,6 @@
 import { taskBlockTypeEnum } from "$lib/enums";
 import { taskBlock, type TaskBlock } from "$lib/server/db/schema/task";
+import { getTaskBlockMetadataByTaskId, type EmbeddingMetadataFilter } from "$lib/server/db/service";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import {
@@ -268,4 +269,34 @@ export const documentToTaskBlock = (doc: Document): Partial<TaskBlock> => {
     index: doc.metadata.index as number,
     availableMarks: doc.metadata.availableMarks as number | undefined
   };
+};
+
+export const extractTaskBlockMetadata = async (
+  record: Partial<TaskBlock>
+): Promise<EmbeddingMetadataFilter> => {
+  // TaskId is required to extract metadata
+  if (!record.taskId) {
+    return {
+      blockType: record.type
+    };
+  }
+
+  try {
+    // Use the service function to get metadata via taskId
+    const metadata = await getTaskBlockMetadataByTaskId(record.taskId);
+    return {
+      ...metadata,
+      // Add task block specific metadata
+      taskId: record.taskId,
+      blockType: record.type,
+      availableMarks: record.availableMarks
+    };
+  } catch (error) {
+    console.error('Error extracting task block metadata:', error);
+    // Return minimal metadata on error
+    return {
+      taskId: record.taskId,
+      blockType: record.type
+    };
+  }
 };

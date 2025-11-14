@@ -1,4 +1,6 @@
 import { taskAgenda, type TaskAgenda } from "$lib/server/db/schema/task";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getTaskAgendaMetadataByTaskId } from "$lib/server/db/service/task";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { agendaSchema, type Agenda, type AgendaItem } from "../../schemas/task";
@@ -10,10 +12,36 @@ export class TaskAgendaVectorStore extends TableVectorStore<TaskAgenda> {
       table: taskAgenda,
       embeddings,
       toDocument: taskAgendaToDocument,
-      fromDocument: documentToTaskAgenda
+      fromDocument: documentToTaskAgenda,
+      extractMetadata: extractTaskAgendaMetadata
     });
   }
 }
+
+/**
+ * Extract metadata for a TaskAgenda by querying related tables
+ */
+export const extractTaskAgendaMetadata = async (
+  record: Partial<TaskAgenda>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.taskId) {
+    return {};
+  }
+
+  try {
+    const metadata = await getTaskAgendaMetadataByTaskId(record.taskId);
+    
+    return {
+      ...metadata,
+      taskId: record.taskId
+    };
+  } catch (error) {
+    console.error('Error extracting task agenda metadata:', error);
+    return {
+      taskId: record.taskId
+    };
+  }
+};
 
 /**
  * Convert TaskAgenda record to LangChain Document
