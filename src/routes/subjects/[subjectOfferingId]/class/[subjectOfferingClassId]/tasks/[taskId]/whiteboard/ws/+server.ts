@@ -16,12 +16,20 @@ function mapFabricTypeToEnum(fabricType: string): whiteboardObjectTypeEnum {
 			return whiteboardObjectTypeEnum.rect;
 		case 'circle':
 			return whiteboardObjectTypeEnum.circle;
+		case 'triangle':
+			return whiteboardObjectTypeEnum.triangle;
+		case 'line':
+			return whiteboardObjectTypeEnum.line;
+		case 'arrow':
+			return whiteboardObjectTypeEnum.arrow;
 		case 'path':
 			return whiteboardObjectTypeEnum.path;
 		case 'textbox':
 			return whiteboardObjectTypeEnum.textbox;
 		case 'image':
 			return whiteboardObjectTypeEnum.image;
+		case 'group':
+			return whiteboardObjectTypeEnum.group;
 		default:
 			console.warn(`Unknown fabric type: ${fabricType}, defaulting to path`);
 			return whiteboardObjectTypeEnum.path;

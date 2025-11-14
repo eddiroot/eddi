@@ -90,9 +90,13 @@ export enum gradeReleaseEnum {
 export enum whiteboardObjectTypeEnum {
 	rect = 'Rect',
 	circle = 'Circle',
+	triangle = 'Triangle',
+	line = 'Line',
+	arrow = 'Arrow',
 	path = 'Path',
 	textbox = 'Textbox',
-	image = 'Image'
+	image = 'Image',
+	group = 'Group'
 }
 
 export enum userTypeEnum {

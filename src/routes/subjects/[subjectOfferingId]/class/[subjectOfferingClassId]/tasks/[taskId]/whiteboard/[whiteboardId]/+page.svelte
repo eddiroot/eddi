@@ -362,23 +362,24 @@
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
 		if (activeObject && activeObject.type === 'textbox') {
-		activeObject.set({
-			fontSize: options.fontSize,
-			fontFamily: options.fontFamily,
-			fontWeight: options.fontWeight,
-			fill: options.colour,
-			textAlign: options.textAlign,
-			opacity: options.opacity
-		});
-		canvas.renderAll();
-		const objData = activeObject.toObject();
-		(objData as any).id = (activeObject as any).id;
-		sendCanvasUpdate({
-			type: 'modify',
-			object: objData
-		});
-	}
-};	const handleShapeOptionsChange = (options: any) => {
+			activeObject.set({
+				fontSize: options.fontSize,
+				fontFamily: options.fontFamily,
+				fontWeight: options.fontWeight,
+				fill: options.colour,
+				textAlign: options.textAlign,
+				opacity: options.opacity
+			});
+			canvas.renderAll();
+			const objData = activeObject.toObject();
+			(objData as any).id = (activeObject as any).id;
+			sendCanvasUpdate({
+				type: 'modify',
+				object: objData
+			});
+		}
+	};
+	const handleShapeOptionsChange = (options: any) => {
 		// Update current options for new objects
 		currentShapeOptions = { ...options };
 
@@ -477,9 +478,9 @@
 					strokeDashArray: options.strokeDashArray,
 					opacity: options.opacity
 				});
-		} else if (activeObject.type === 'group') {
-			// Handle arrow group - update all objects in the group
-			(activeObject as any).forEachObject((obj: any) => {
+			} else if (activeObject.type === 'group') {
+				// Handle arrow group - update all objects in the group
+				(activeObject as any).forEachObject((obj: any) => {
 					if (obj.type === 'line') {
 						obj.set({
 							strokeWidth: options.strokeWidth,
@@ -607,275 +608,275 @@
 			});
 
 			resizeCanvas = () => {
-			if (!whiteboardCanvas || !canvas) return;
-			const whiteContainer = whiteboardCanvas.closest('.rounded-lg.border-2.bg-white');
-			if (whiteContainer) {
-				const rect = whiteContainer.getBoundingClientRect();
-				const width = rect.width - 4;
-				const height = rect.height - 4;
+				if (!whiteboardCanvas || !canvas) return;
+				const whiteContainer = whiteboardCanvas.closest('.rounded-lg.border-2.bg-white');
+				if (whiteContainer) {
+					const rect = whiteContainer.getBoundingClientRect();
+					const width = rect.width - 4;
+					const height = rect.height - 4;
 
-				whiteboardCanvas.width = width;
-				whiteboardCanvas.height = height;
+					whiteboardCanvas.width = width;
+					whiteboardCanvas.height = height;
 
-				canvas.setDimensions({
-					width: width,
-					height: height
-				});
-				canvas.renderAll();
-			}
-		};
-
-		resizeCanvas();
-		window.addEventListener('resize', resizeCanvas);
-
-		canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-		canvas.freeDrawingBrush.width = 2;
-		canvas.freeDrawingBrush.color = '#000000';
-
-		setSelectTool();
-
-		// Setup WebSocket connection for real-time collaboration
-		socket = WebSocketHandler.setupWebSocket(
-			`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`,
-			canvas,
-			whiteboardIdNum
-		);
-
-		// Setup all canvas event handlers using the extracted module
-		const canvasEventContext: CanvasEventContext = {
-			// State getters
-			getSelectedTool: () => selectedTool,
-			getShowFloatingMenu: () => showFloatingMenu,
-			getIsPanMode: () => isPanMode,
-			getIsDrawingText: () => isDrawingText,
-			getIsDrawingShape: () => isDrawingShape,
-			getIsDrawingLine: () => isDrawingLine,
-			getIsDrawingArrow: () => isDrawingArrow,
-			getIsErasing: () => isErasing,
-			getIsMovingImage: () => isMovingImage,
-			getTempText: () => tempText,
-			getTempShape: () => tempShape,
-			getTempLine: () => tempLine,
-			getStartPoint: () => startPoint,
-			getPanStartPos: () => panStartPos,
-			getLastEraserPoint: () => lastEraserPoint,
-			getHoveredObjectsForDeletion: () => hoveredObjectsForDeletion,
-			getEraserTrail: () => eraserTrail,
-			getOriginalOpacities: () => originalOpacities,
-			getCurrentShapeType: () => currentShapeType,
-			getCurrentZoom: () => currentZoom,
-
-			// State setters
-			setSelectedTool: (value) => {
-				selectedTool = value;
-			},
-			setShowFloatingMenu: (value) => {
-				showFloatingMenu = value;
-			},
-			setIsPanMode: (value) => {
-				isPanMode = value;
-			},
-			setIsDrawingText: (value) => {
-				isDrawingText = value;
-			},
-			setIsDrawingShape: (value) => {
-				isDrawingShape = value;
-			},
-			setIsDrawingLine: (value) => {
-				isDrawingLine = value;
-			},
-			setIsDrawingArrow: (value) => {
-				isDrawingArrow = value;
-			},
-			setIsErasing: (value) => {
-				isErasing = value;
-			},
-			setIsMovingImage: (value) => {
-				isMovingImage = value;
-			},
-			setTempText: (value) => {
-				tempText = value;
-			},
-			setTempShape: (value) => {
-				tempShape = value;
-			},
-			setTempLine: (value) => {
-				tempLine = value;
-			},
-			setStartPoint: (value) => {
-				startPoint = value;
-			},
-			setPanStartPos: (value) => {
-				panStartPos = value;
-			},
-			setLastEraserPoint: (value) => {
-				lastEraserPoint = value;
-			},
-			setHoveredObjectsForDeletion: (value) => {
-				hoveredObjectsForDeletion = value;
-			},
-			setEraserTrail: (value) => {
-				eraserTrail = value;
-			},
-			setOriginalOpacities: (value) => {
-				originalOpacities = value;
-			},
-			setCurrentShapeType: (value) => {
-				currentShapeType = value;
-			},
-			setCurrentZoom: (value) => {
-				currentZoom = value;
-			},
-
-			// Options getters
-			getCurrentTextOptions: () => currentTextOptions,
-			getCurrentShapeOptions: () => currentShapeOptions,
-			getCurrentDrawOptions: () => currentDrawOptions,
-			getCurrentLineArrowOptions: () => currentLineArrowOptions,
-
-			// Callbacks
-			sendCanvasUpdate,
-			sendImageUpdate,
-			clearEraserState,
-
-			// Refs
-			floatingMenuRef: floatingMenuRef || undefined
-		};
-
-		CanvasEvents.setupCanvasEvents(canvas, canvasEventContext);
-
-		// Setup history tracking
-		// Track object additions
-		canvas.on('object:added', (e: any) => {
-			if (isApplyingHistory || !e.target) return;
-			const objectId = e.target.id;
-			if (objectId) {
-				const objectData = e.target.toObject();
-				objectData.id = objectId;
-				history.recordAdd(objectId, objectData);
-				canUndo = history.canUndo();
-				canRedo = history.canRedo();
-			}
-		});
-
-		// Track object modifications (store previous state before modification)
-		const objectStates = new Map<string, Record<string, unknown>>();
-		canvas.on('object:modified', (e: any) => {
-			if (isApplyingHistory || !e.target) return;
-			const objectId = e.target.id;
-			if (objectId) {
-				const previousData = objectStates.get(objectId);
-				const newData = e.target.toObject();
-				newData.id = objectId;
-
-				if (previousData) {
-					history.recordModify(objectId, previousData, newData);
-					objectStates.delete(objectId);
+					canvas.setDimensions({
+						width: width,
+						height: height
+					});
+					canvas.renderAll();
 				}
-				canUndo = history.canUndo();
-				canRedo = history.canRedo();
-			}
-		});
+			};
 
-		// Store state before modification starts
-		canvas.on('object:moving', (e: any) => {
-			if (isApplyingHistory || !e.target) return;
-			const objectId = e.target.id;
-			if (objectId && !objectStates.has(objectId)) {
-				const state = e.target.toObject();
-				state.id = objectId;
-				objectStates.set(objectId, state);
-			}
-		});
+			resizeCanvas();
+			window.addEventListener('resize', resizeCanvas);
 
-		canvas.on('object:scaling', (e: any) => {
-			if (isApplyingHistory || !e.target) return;
-			const objectId = e.target.id;
-			if (objectId && !objectStates.has(objectId)) {
-				const state = e.target.toObject();
-				state.id = objectId;
-				objectStates.set(objectId, state);
-			}
-		});
+			canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+			canvas.freeDrawingBrush.width = 2;
+			canvas.freeDrawingBrush.color = '#000000';
 
-		canvas.on('object:rotating', (e: any) => {
-			if (isApplyingHistory || !e.target) return;
-			const objectId = e.target.id;
-			if (objectId && !objectStates.has(objectId)) {
-				const state = e.target.toObject();
-				state.id = objectId;
-				objectStates.set(objectId, state);
-			}
-		});
+			setSelectTool();
 
-		// Track object removals
-		canvas.on('object:removed', (e: any) => {
-			if (isApplyingHistory || !e.target) return;
-			const objectId = e.target.id;
-			if (objectId) {
-				const objectData = e.target.toObject();
-				objectData.id = objectId;
-				history.recordDelete(objectId, objectData);
-				canUndo = history.canUndo();
-				canRedo = history.canRedo();
-			}
-		});
+			// Setup WebSocket connection for real-time collaboration
+			socket = WebSocketHandler.setupWebSocket(
+				`/subjects/${subjectOfferingId}/class/${subjectOfferingClassId}/tasks/${taskId}/whiteboard/ws`,
+				canvas,
+				whiteboardIdNum
+			);
 
-		window.addEventListener('keydown', handleKeyDown);
+			// Setup all canvas event handlers using the extracted module
+			const canvasEventContext: CanvasEventContext = {
+				// State getters
+				getSelectedTool: () => selectedTool,
+				getShowFloatingMenu: () => showFloatingMenu,
+				getIsPanMode: () => isPanMode,
+				getIsDrawingText: () => isDrawingText,
+				getIsDrawingShape: () => isDrawingShape,
+				getIsDrawingLine: () => isDrawingLine,
+				getIsDrawingArrow: () => isDrawingArrow,
+				getIsErasing: () => isErasing,
+				getIsMovingImage: () => isMovingImage,
+				getTempText: () => tempText,
+				getTempShape: () => tempShape,
+				getTempLine: () => tempLine,
+				getStartPoint: () => startPoint,
+				getPanStartPos: () => panStartPos,
+				getLastEraserPoint: () => lastEraserPoint,
+				getHoveredObjectsForDeletion: () => hoveredObjectsForDeletion,
+				getEraserTrail: () => eraserTrail,
+				getOriginalOpacities: () => originalOpacities,
+				getCurrentShapeType: () => currentShapeType,
+				getCurrentZoom: () => currentZoom,
 
-		// Add pinch-to-zoom for touch devices
-		let initialPinchDistance = 0;
-		let initialZoom = 1;
+				// State setters
+				setSelectedTool: (value) => {
+					selectedTool = value;
+				},
+				setShowFloatingMenu: (value) => {
+					showFloatingMenu = value;
+				},
+				setIsPanMode: (value) => {
+					isPanMode = value;
+				},
+				setIsDrawingText: (value) => {
+					isDrawingText = value;
+				},
+				setIsDrawingShape: (value) => {
+					isDrawingShape = value;
+				},
+				setIsDrawingLine: (value) => {
+					isDrawingLine = value;
+				},
+				setIsDrawingArrow: (value) => {
+					isDrawingArrow = value;
+				},
+				setIsErasing: (value) => {
+					isErasing = value;
+				},
+				setIsMovingImage: (value) => {
+					isMovingImage = value;
+				},
+				setTempText: (value) => {
+					tempText = value;
+				},
+				setTempShape: (value) => {
+					tempShape = value;
+				},
+				setTempLine: (value) => {
+					tempLine = value;
+				},
+				setStartPoint: (value) => {
+					startPoint = value;
+				},
+				setPanStartPos: (value) => {
+					panStartPos = value;
+				},
+				setLastEraserPoint: (value) => {
+					lastEraserPoint = value;
+				},
+				setHoveredObjectsForDeletion: (value) => {
+					hoveredObjectsForDeletion = value;
+				},
+				setEraserTrail: (value) => {
+					eraserTrail = value;
+				},
+				setOriginalOpacities: (value) => {
+					originalOpacities = value;
+				},
+				setCurrentShapeType: (value) => {
+					currentShapeType = value;
+				},
+				setCurrentZoom: (value) => {
+					currentZoom = value;
+				},
 
-		whiteboardCanvas.addEventListener('touchstart', (e) => {
-			if (e.touches.length === 2) {
-				// Two finger touch - setup for pinch zoom
-				const touch1 = e.touches[0];
-				const touch2 = e.touches[1];
+				// Options getters
+				getCurrentTextOptions: () => currentTextOptions,
+				getCurrentShapeOptions: () => currentShapeOptions,
+				getCurrentDrawOptions: () => currentDrawOptions,
+				getCurrentLineArrowOptions: () => currentLineArrowOptions,
 
-				const dx = touch1.clientX - touch2.clientX;
-				const dy = touch1.clientY - touch2.clientY;
-				initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
-				initialZoom = canvas.getZoom();
+				// Callbacks
+				sendCanvasUpdate,
+				sendImageUpdate,
+				clearEraserState,
 
-				e.preventDefault();
-			}
-		});
+				// Refs
+				floatingMenuRef: floatingMenuRef || undefined
+			};
 
-		whiteboardCanvas.addEventListener('touchmove', (e) => {
-			if (e.touches.length === 2 && initialPinchDistance > 0) {
-				// Two finger move - pinch to zoom
-				const touch1 = e.touches[0];
-				const touch2 = e.touches[1];
+			CanvasEvents.setupCanvasEvents(canvas, canvasEventContext);
 
-				const dx = touch1.clientX - touch2.clientX;
-				const dy = touch1.clientY - touch2.clientY;
-				const currentDistance = Math.sqrt(dx * dx + dy * dy);
-
-				const scale = currentDistance / initialPinchDistance;
-				const newZoom = initialZoom * scale;
-				const constrainedZoom = Math.max(0.1, Math.min(10, newZoom));
-
-				// Zoom at center of pinch gesture
-				const centerX = (touch1.clientX + touch2.clientX) / 2;
-				const centerY = (touch1.clientY + touch2.clientY) / 2;
-
-				if (whiteboardCanvas) {
-					const rect = whiteboardCanvas.getBoundingClientRect();
-					const point = new fabric.Point(centerX - rect.left, centerY - rect.top);
-					canvas.zoomToPoint(point, constrainedZoom);
-					currentZoom = constrainedZoom; // Update zoom state
+			// Setup history tracking
+			// Track object additions
+			canvas.on('object:added', (e: any) => {
+				if (isApplyingHistory || !e.target) return;
+				const objectId = e.target.id;
+				if (objectId) {
+					const objectData = e.target.toObject();
+					objectData.id = objectId;
+					history.recordAdd(objectId, objectData);
+					canUndo = history.canUndo();
+					canRedo = history.canRedo();
 				}
+			});
 
-				e.preventDefault();
-			}
-		});
+			// Track object modifications (store previous state before modification)
+			const objectStates = new Map<string, Record<string, unknown>>();
+			canvas.on('object:modified', (e: any) => {
+				if (isApplyingHistory || !e.target) return;
+				const objectId = e.target.id;
+				if (objectId) {
+					const previousData = objectStates.get(objectId);
+					const newData = e.target.toObject();
+					newData.id = objectId;
 
-		whiteboardCanvas.addEventListener('touchend', (e) => {
-			if (e.touches.length < 2) {
-				initialPinchDistance = 0;
-			}
-		});
+					if (previousData) {
+						history.recordModify(objectId, previousData, newData);
+						objectStates.delete(objectId);
+					}
+					canUndo = history.canUndo();
+					canRedo = history.canRedo();
+				}
+			});
+
+			// Store state before modification starts
+			canvas.on('object:moving', (e: any) => {
+				if (isApplyingHistory || !e.target) return;
+				const objectId = e.target.id;
+				if (objectId && !objectStates.has(objectId)) {
+					const state = e.target.toObject();
+					state.id = objectId;
+					objectStates.set(objectId, state);
+				}
+			});
+
+			canvas.on('object:scaling', (e: any) => {
+				if (isApplyingHistory || !e.target) return;
+				const objectId = e.target.id;
+				if (objectId && !objectStates.has(objectId)) {
+					const state = e.target.toObject();
+					state.id = objectId;
+					objectStates.set(objectId, state);
+				}
+			});
+
+			canvas.on('object:rotating', (e: any) => {
+				if (isApplyingHistory || !e.target) return;
+				const objectId = e.target.id;
+				if (objectId && !objectStates.has(objectId)) {
+					const state = e.target.toObject();
+					state.id = objectId;
+					objectStates.set(objectId, state);
+				}
+			});
+
+			// Track object removals
+			canvas.on('object:removed', (e: any) => {
+				if (isApplyingHistory || !e.target) return;
+				const objectId = e.target.id;
+				if (objectId) {
+					const objectData = e.target.toObject();
+					objectData.id = objectId;
+					history.recordDelete(objectId, objectData);
+					canUndo = history.canUndo();
+					canRedo = history.canRedo();
+				}
+			});
+
+			window.addEventListener('keydown', handleKeyDown);
+
+			// Add pinch-to-zoom for touch devices
+			let initialPinchDistance = 0;
+			let initialZoom = 1;
+
+			whiteboardCanvas.addEventListener('touchstart', (e) => {
+				if (e.touches.length === 2) {
+					// Two finger touch - setup for pinch zoom
+					const touch1 = e.touches[0];
+					const touch2 = e.touches[1];
+
+					const dx = touch1.clientX - touch2.clientX;
+					const dy = touch1.clientY - touch2.clientY;
+					initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+					initialZoom = canvas.getZoom();
+
+					e.preventDefault();
+				}
+			});
+
+			whiteboardCanvas.addEventListener('touchmove', (e) => {
+				if (e.touches.length === 2 && initialPinchDistance > 0) {
+					// Two finger move - pinch to zoom
+					const touch1 = e.touches[0];
+					const touch2 = e.touches[1];
+
+					const dx = touch1.clientX - touch2.clientX;
+					const dy = touch1.clientY - touch2.clientY;
+					const currentDistance = Math.sqrt(dx * dx + dy * dy);
+
+					const scale = currentDistance / initialPinchDistance;
+					const newZoom = initialZoom * scale;
+					const constrainedZoom = Math.max(0.1, Math.min(10, newZoom));
+
+					// Zoom at center of pinch gesture
+					const centerX = (touch1.clientX + touch2.clientX) / 2;
+					const centerY = (touch1.clientY + touch2.clientY) / 2;
+
+					if (whiteboardCanvas) {
+						const rect = whiteboardCanvas.getBoundingClientRect();
+						const point = new fabric.Point(centerX - rect.left, centerY - rect.top);
+						canvas.zoomToPoint(point, constrainedZoom);
+						currentZoom = constrainedZoom; // Update zoom state
+					}
+
+					e.preventDefault();
+				}
+			});
+
+			whiteboardCanvas.addEventListener('touchend', (e) => {
+				if (e.touches.length < 2) {
+					initialPinchDistance = 0;
+				}
+			});
 		})(); // Close async IIFE
 
 		// Cleanup function
