@@ -1,4 +1,6 @@
 import { learningArea, type LearningArea } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getLearningAreaMetadataByCurriculumSubjectId } from "$lib/server/db/service/curriculum";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -9,10 +11,34 @@ export class LearningAreaVectorStore extends TableVectorStore<LearningArea> {
       table: learningArea,
       embeddings,
       toDocument: learningAreaToDocument,
-      fromDocument: documentToLearningArea
+      fromDocument: documentToLearningArea,
+      extractMetadata: extractLearningAreaMetadata
     });
   }
 }
+
+export const extractLearningAreaMetadata = async (
+  record: Partial<LearningArea>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.curriculumSubjectId) {
+    return {};
+  }
+
+  try {
+    const metadata = await getLearningAreaMetadataByCurriculumSubjectId(record.curriculumSubjectId);
+    
+    return {
+      ...metadata,
+      name: record.name,
+      abbreviation: record.abbreviation
+    };
+  } catch (error) {
+    console.error('Error extracting learning area metadata:', error);
+    return {
+      curriculumSubjectId: record.curriculumSubjectId
+    };
+  }
+};
 
 export const learningAreaToDocument = (record: LearningArea): Document => {
   const content = `${record.name}${record.abbreviation ? ` (${record.abbreviation})` : ''}\n\n${record.description || ''}`;

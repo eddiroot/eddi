@@ -1,5 +1,7 @@
 import { yearLevelEnum } from "$lib/enums";
 import { learningAreaStandard, type LearningAreaStandard } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getLearningAreaStandardMetadataByLearningAreaId } from "$lib/server/db/service/curriculum";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -10,10 +12,39 @@ export class LearningAreaStandardVectorStore extends TableVectorStore<LearningAr
       table: learningAreaStandard,
       embeddings,
       toDocument: learningAreaStandardToDocument,
-      fromDocument: documentToLearningAreaStandard
+      fromDocument: documentToLearningAreaStandard,
+      extractMetadata: extractLearningAreaStandardMetadata
     });
   }
 }
+
+export const extractLearningAreaStandardMetadata = async (
+  record: Partial<LearningAreaStandard>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.learningAreaId) {
+    return {
+      name: record.name,
+      yearLevel: record.yearLevel
+    };
+  }
+
+  try {
+    const metadata = await getLearningAreaStandardMetadataByLearningAreaId(record.learningAreaId);
+    
+    return {
+      ...metadata,
+      name: record.name,
+      yearLevel: record.yearLevel
+    };
+  } catch (error) {
+    console.error('Error extracting learning area standard metadata:', error);
+    return {
+      learningAreaId: record.learningAreaId,
+      name: record.name,
+      yearLevel: record.yearLevel
+    };
+  }
+};
 
 export const learningAreaStandardToDocument = (record: LearningAreaStandard): Document => {
   const content = `${record.name} (Year Level: ${record.yearLevel})\n\n${record.description || ''}`;

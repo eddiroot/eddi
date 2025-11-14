@@ -1,4 +1,6 @@
 import { outcome, type Outcome } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getOutcomeMetadataByCurriculumSubjectId } from "$lib/server/db/service/curriculum";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -9,10 +11,36 @@ export class OutcomeVectorStore extends TableVectorStore<Outcome> {
       table: outcome,
       embeddings,
       toDocument: outcomeToDocument,
-      fromDocument: documentToOutcome
+      fromDocument: documentToOutcome,
+      extractMetadata: extractOutcomeMetadata
     });
   }
 }
+
+export const extractOutcomeMetadata = async (
+  record: Partial<Outcome>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.curriculumSubjectId) {
+    return {
+      number: record.number
+    };
+  }
+
+  try {
+    const metadata = await getOutcomeMetadataByCurriculumSubjectId(record.curriculumSubjectId);
+    
+    return {
+      ...metadata,
+      number: record.number
+    };
+  } catch (error) {
+    console.error('Error extracting outcome metadata:', error);
+    return {
+      curriculumSubjectId: record.curriculumSubjectId,
+      number: record.number
+    };
+  }
+};
 
 export const outcomeToDocument = (record: Outcome): Document => {
   const content = `Outcome ${record.number}: ${record.description}`;

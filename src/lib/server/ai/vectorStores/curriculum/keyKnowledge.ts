@@ -1,4 +1,6 @@
 import { keyKnowledge, type KeyKnowledge } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getKeyKnowledgeMetadata } from "$lib/server/db/service/curriculum";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -9,10 +11,32 @@ export class KeyKnowledgeVectorStore extends TableVectorStore<KeyKnowledge> {
       table: keyKnowledge,
       embeddings,
       toDocument: keyKnowledgeToDocument,
-      fromDocument: documentToKeyKnowledge
+      fromDocument: documentToKeyKnowledge,
+      extractMetadata: extractKeyKnowledgeMetadata
     });
   }
 }
+
+export const extractKeyKnowledgeMetadata = async (
+  record: Partial<KeyKnowledge>
+): Promise<EmbeddingMetadataFilter> => {
+  try {
+    const metadata = await getKeyKnowledgeMetadata(record.curriculumSubjectId, record.outcomeId);
+    
+    return {
+      ...metadata,
+      number: record.number,
+      topicName: record.topicName
+    };
+  } catch (error) {
+    console.error('Error extracting key knowledge metadata:', error);
+    return {
+      curriculumSubjectId: record.curriculumSubjectId ?? undefined,
+      outcomeId: record.outcomeId ?? undefined,
+      number: record.number
+    };
+  }
+};
 
 export const keyKnowledgeToDocument = (record: KeyKnowledge): Document => {
   const topicPart = record.topicName ? `\nTopic: ${record.topicName}` : '';

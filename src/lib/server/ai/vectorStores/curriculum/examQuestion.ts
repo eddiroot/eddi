@@ -1,5 +1,7 @@
 import { yearLevelEnum } from "$lib/enums";
 import { examQuestion, type ExamQuestion } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getExamQuestionMetadataByCurriculumSubjectId } from "$lib/server/db/service/curriculum";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -10,10 +12,36 @@ export class ExamQuestionVectorStore extends TableVectorStore<ExamQuestion> {
       table: examQuestion,
       embeddings,
       toDocument: examQuestionToDocument,
-      fromDocument: documentToExamQuestion
+      fromDocument: documentToExamQuestion,
+      extractMetadata: extractExamQuestionMetadata
     });
   }
 }
+
+export const extractExamQuestionMetadata = async (
+  record: Partial<ExamQuestion>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.curriculumSubjectId) {
+    return {
+      yearLevel: record.yearLevel
+    };
+  }
+
+  try {
+    const metadata = await getExamQuestionMetadataByCurriculumSubjectId(record.curriculumSubjectId);
+    
+    return {
+      ...metadata,
+      yearLevel: record.yearLevel
+    };
+  } catch (error) {
+    console.error('Error extracting exam question metadata:', error);
+    return {
+      curriculumSubjectId: record.curriculumSubjectId,
+      yearLevel: record.yearLevel
+    };
+  }
+};
 
 export const examQuestionToDocument = (record: ExamQuestion): Document => {
   const content = `Question (Year Level: ${record.yearLevel}):\n${record.question}\n\nAnswer:\n${record.answer}`;

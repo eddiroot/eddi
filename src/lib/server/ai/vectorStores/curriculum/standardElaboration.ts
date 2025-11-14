@@ -1,4 +1,6 @@
 import { standardElaboration, type StandardElaboration } from "$lib/server/db/schema";
+import { type EmbeddingMetadataFilter } from "$lib/server/db/service";
+import { getStandardElaborationMetadataByLearningAreaStandardId } from "$lib/server/db/service/curriculum";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
@@ -9,10 +11,36 @@ export class StandardElaborationVectorStore extends TableVectorStore<StandardEla
       table: standardElaboration,
       embeddings,
       toDocument: standardElaborationToDocument,
-      fromDocument: documentToStandardElaboration
+      fromDocument: documentToStandardElaboration,
+      extractMetadata: extractStandardElaborationMetadata
     });
   }
 }
+
+export const extractStandardElaborationMetadata = async (
+  record: Partial<StandardElaboration>
+): Promise<EmbeddingMetadataFilter> => {
+  if (!record.learningAreaStandardId) {
+    return {
+      name: record.name
+    };
+  }
+
+  try {
+    const metadata = await getStandardElaborationMetadataByLearningAreaStandardId(record.learningAreaStandardId);
+    
+    return {
+      ...metadata,
+      name: record.name
+    };
+  } catch (error) {
+    console.error('Error extracting standard elaboration metadata:', error);
+    return {
+      learningAreaStandardId: record.learningAreaStandardId,
+      name: record.name
+    };
+  }
+};
 
 export const standardElaborationToDocument = (record: StandardElaboration): Document => {
   const content = `${record.name}\n\n${record.standardElaboration}`;
