@@ -1,12 +1,10 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import * as CanvasActions from '$lib/components/whiteboard/canvas-actions';
 	import type { CanvasEventContext } from '$lib/components/whiteboard/canvas-events';
-	import * as CanvasEvents from '$lib/components/whiteboard/canvas-events';
-	import { CanvasHistory, applyRedo, applyUndo } from '$lib/components/whiteboard/canvas-history';
 	import {
 		DEFAULT_DRAW_OPTIONS,
 		DEFAULT_LINE_ARROW_OPTIONS,
@@ -16,7 +14,6 @@
 		ZOOM_LIMITS
 	} from '$lib/components/whiteboard/constants';
 	import type { ToolState } from '$lib/components/whiteboard/tools';
-	import * as Tools from '$lib/components/whiteboard/tools';
 	import type {
 		DrawOptions,
 		LineArrowOptions,
@@ -25,18 +22,26 @@
 		WhiteboardTool
 	} from '$lib/components/whiteboard/types';
 	import { hexToRgba } from '$lib/components/whiteboard/utils';
-	import * as WebSocketHandler from '$lib/components/whiteboard/websocket';
 	import WhiteboardZoomControls from '$lib/components/whiteboard/whiteboard-controls.svelte';
 	import WhiteboardFloatingMenu from '$lib/components/whiteboard/whiteboard-floating-menu.svelte';
 	import WhiteboardToolbar from '$lib/components/whiteboard/whiteboard-toolbar.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
-	import * as fabric from 'fabric';
 	import { onDestroy, onMount } from 'svelte';
+
+	// Dynamic imports for browser-only modules
+	let fabric: typeof import('fabric');
+	let CanvasActions: typeof import('$lib/components/whiteboard/canvas-actions');
+	let CanvasEvents: typeof import('$lib/components/whiteboard/canvas-events');
+	let CanvasHistory: typeof import('$lib/components/whiteboard/canvas-history').CanvasHistory;
+	let applyRedo: typeof import('$lib/components/whiteboard/canvas-history').applyRedo;
+	let applyUndo: typeof import('$lib/components/whiteboard/canvas-history').applyUndo;
+	let Tools: typeof import('$lib/components/whiteboard/tools');
+	let WebSocketHandler: typeof import('$lib/components/whiteboard/websocket');
 
 	let { data } = $props();
 
 	let socket = $state() as WebSocket;
-	let canvas: fabric.Canvas;
+	let canvas: any; // Will be fabric.Canvas once loaded
 	let selectedTool = $state<WhiteboardTool>('select');
 	let whiteboardCanvas = $state<HTMLCanvasElement>();
 	let isPanMode = false;
@@ -50,18 +55,18 @@
 	let isDrawingText = $state(false);
 	let currentShapeType = $state<string>('');
 	let isErasing = $state(false);
-	let eraserTrail = $state<fabric.Object[]>([]);
+	let eraserTrail = $state<any[]>([]);
 	let lastEraserPoint = $state<{ x: number; y: number } | null>(null);
-	let hoveredObjectsForDeletion = $state<fabric.Object[]>([]);
-	let originalOpacities = $state<Map<fabric.Object, number>>(new Map());
+	let hoveredObjectsForDeletion = $state<any[]>([]);
+	let originalOpacities = $state<Map<any, number>>(new Map());
 	let startPoint = $state({ x: 0, y: 0 });
-	let tempLine: fabric.Line | null = null;
-	let tempShape: fabric.Object | null = null;
-	let tempText: fabric.Textbox | null = null;
+	let tempLine: any = null;
+	let tempShape: any = null;
+	let tempText: any = null;
 	let floatingMenuRef: WhiteboardFloatingMenu;
 
 	// History management for undo/redo
-	let history = new CanvasHistory();
+	let history: any; // Will be CanvasHistory instance once loaded
 	let canUndo = $state(false);
 	let canRedo = $state(false);
 	let isApplyingHistory = false; // Flag to prevent recording history during undo/redo
@@ -357,26 +362,23 @@
 		if (!canvas) return;
 		const activeObject = canvas.getActiveObject();
 		if (activeObject && activeObject.type === 'textbox') {
-			activeObject.set({
-				fontSize: options.fontSize,
-				fontFamily: options.fontFamily,
-				fontWeight: options.fontWeight,
-				fill: options.colour,
-				textAlign: options.textAlign,
-				opacity: options.opacity
-			});
-			canvas.renderAll();
-			const objData = activeObject.toObject();
-			// @ts-expect-error
-			objData.id = activeObject.id;
-			sendCanvasUpdate({
-				type: 'modify',
-				object: objData
-			});
-		}
-	};
-
-	const handleShapeOptionsChange = (options: any) => {
+		activeObject.set({
+			fontSize: options.fontSize,
+			fontFamily: options.fontFamily,
+			fontWeight: options.fontWeight,
+			fill: options.colour,
+			textAlign: options.textAlign,
+			opacity: options.opacity
+		});
+		canvas.renderAll();
+		const objData = activeObject.toObject();
+		(objData as any).id = (activeObject as any).id;
+		sendCanvasUpdate({
+			type: 'modify',
+			object: objData
+		});
+	}
+};	const handleShapeOptionsChange = (options: any) => {
 		// Update current options for new objects
 		currentShapeOptions = { ...options };
 
@@ -475,9 +477,9 @@
 					strokeDashArray: options.strokeDashArray,
 					opacity: options.opacity
 				});
-			} else if (activeObject.type === 'group') {
-				// Handle arrow group - update all objects in the group
-				(activeObject as fabric.Group).forEachObject((obj: any) => {
+		} else if (activeObject.type === 'group') {
+			// Handle arrow group - update all objects in the group
+			(activeObject as any).forEachObject((obj: any) => {
 					if (obj.type === 'line') {
 						obj.set({
 							strokeWidth: options.strokeWidth,
@@ -578,15 +580,33 @@
 	onMount(() => {
 		if (!whiteboardCanvas) return;
 
-		document.body.style.overflow = 'hidden';
+		let resizeCanvas: (() => void) | undefined;
 
-		canvas = new fabric.Canvas(whiteboardCanvas, {
-			preserveObjectStacking: true,
-			perPixelTargetFind: true,
-			targetFindTolerance: 5
-		});
+		// Async initialization
+		(async () => {
+			// Dynamically import browser-only modules
+			fabric = await import('fabric');
+			CanvasActions = await import('$lib/components/whiteboard/canvas-actions');
+			CanvasEvents = await import('$lib/components/whiteboard/canvas-events');
+			const HistoryModule = await import('$lib/components/whiteboard/canvas-history');
+			CanvasHistory = HistoryModule.CanvasHistory;
+			applyRedo = HistoryModule.applyRedo;
+			applyUndo = HistoryModule.applyUndo;
+			Tools = await import('$lib/components/whiteboard/tools');
+			WebSocketHandler = await import('$lib/components/whiteboard/websocket');
 
-		const resizeCanvas = () => {
+			// Initialize history
+			history = new CanvasHistory();
+
+			document.body.style.overflow = 'hidden';
+
+			canvas = new fabric.Canvas(whiteboardCanvas, {
+				preserveObjectStacking: true,
+				perPixelTargetFind: true,
+				targetFindTolerance: 5
+			});
+
+			resizeCanvas = () => {
 			if (!whiteboardCanvas || !canvas) return;
 			const whiteContainer = whiteboardCanvas.closest('.rounded-lg.border-2.bg-white');
 			if (whiteContainer) {
@@ -680,7 +700,7 @@
 				tempShape = value;
 			},
 			setTempLine: (value) => {
-				tempLine = value as fabric.Line | null;
+				tempLine = value;
 			},
 			setStartPoint: (value) => {
 				startPoint = value;
@@ -726,13 +746,11 @@
 
 		// Setup history tracking
 		// Track object additions
-		canvas.on('object:added', (e) => {
+		canvas.on('object:added', (e: any) => {
 			if (isApplyingHistory || !e.target) return;
-			// @ts-expect-error - custom id property
 			const objectId = e.target.id;
 			if (objectId) {
 				const objectData = e.target.toObject();
-				// @ts-expect-error - custom id property
 				objectData.id = objectId;
 				history.recordAdd(objectId, objectData);
 				canUndo = history.canUndo();
@@ -742,14 +760,12 @@
 
 		// Track object modifications (store previous state before modification)
 		const objectStates = new Map<string, Record<string, unknown>>();
-		canvas.on('object:modified', (e) => {
+		canvas.on('object:modified', (e: any) => {
 			if (isApplyingHistory || !e.target) return;
-			// @ts-expect-error - custom id property
 			const objectId = e.target.id;
 			if (objectId) {
 				const previousData = objectStates.get(objectId);
 				const newData = e.target.toObject();
-				// @ts-expect-error - custom id property
 				newData.id = objectId;
 
 				if (previousData) {
@@ -762,50 +778,42 @@
 		});
 
 		// Store state before modification starts
-		canvas.on('object:moving', (e) => {
+		canvas.on('object:moving', (e: any) => {
 			if (isApplyingHistory || !e.target) return;
-			// @ts-expect-error - custom id property
 			const objectId = e.target.id;
 			if (objectId && !objectStates.has(objectId)) {
 				const state = e.target.toObject();
-				// @ts-expect-error - custom id property
 				state.id = objectId;
 				objectStates.set(objectId, state);
 			}
 		});
 
-		canvas.on('object:scaling', (e) => {
+		canvas.on('object:scaling', (e: any) => {
 			if (isApplyingHistory || !e.target) return;
-			// @ts-expect-error - custom id property
 			const objectId = e.target.id;
 			if (objectId && !objectStates.has(objectId)) {
 				const state = e.target.toObject();
-				// @ts-expect-error - custom id property
 				state.id = objectId;
 				objectStates.set(objectId, state);
 			}
 		});
 
-		canvas.on('object:rotating', (e) => {
+		canvas.on('object:rotating', (e: any) => {
 			if (isApplyingHistory || !e.target) return;
-			// @ts-expect-error - custom id property
 			const objectId = e.target.id;
 			if (objectId && !objectStates.has(objectId)) {
 				const state = e.target.toObject();
-				// @ts-expect-error - custom id property
 				state.id = objectId;
 				objectStates.set(objectId, state);
 			}
 		});
 
 		// Track object removals
-		canvas.on('object:removed', (e) => {
+		canvas.on('object:removed', (e: any) => {
 			if (isApplyingHistory || !e.target) return;
-			// @ts-expect-error - custom id property
 			const objectId = e.target.id;
 			if (objectId) {
 				const objectData = e.target.toObject();
-				// @ts-expect-error - custom id property
 				objectData.id = objectId;
 				history.recordDelete(objectId, objectData);
 				canUndo = history.canUndo();
@@ -868,23 +876,32 @@
 				initialPinchDistance = 0;
 			}
 		});
+		})(); // Close async IIFE
 
+		// Cleanup function
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-			window.removeEventListener('resize', resizeCanvas);
+			if (resizeCanvas) {
+				window.removeEventListener('resize', resizeCanvas);
+			}
 		};
 	});
 
 	onDestroy(() => {
+		if (!browser) return;
+
 		// Restore body scrolling when leaving whiteboard
-		document.body.style.overflow = '';
+		if (document?.body) {
+			document.body.style.overflow = '';
+		}
 
 		// Clear any pending image throttle timeouts
 		if (imageThrottleTimeout !== null) {
 			clearTimeout(imageThrottleTimeout);
 		}
 
-		WebSocketHandler.closeWebSocket(socket);
+		if (WebSocketHandler && socket) {
+			WebSocketHandler.closeWebSocket(socket);
+		}
 		if (canvas) {
 			canvas.dispose();
 		}
@@ -895,7 +912,7 @@
 	<div class="bg-background flex h-full w-full flex-col">
 		<!-- Header with back button and title -->
 		<header
-			class="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur"
+			class="bg-background/95 supports-backdrop-filter:bg-background/60 border-b backdrop-blur"
 		>
 			<div class="flex h-14 items-center px-4">
 				<Button variant="ghost" size="sm" onclick={goBack} class="mr-4">
