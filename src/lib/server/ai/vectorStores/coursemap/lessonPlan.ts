@@ -1,36 +1,34 @@
-
-import { courseMapItemAssessmentPlan, type CourseMapItemAssessmentPlan } from "$lib/server/db/schema";
+import { courseMapItemLessonPlan, type CourseMapItemLessonPlan } from "$lib/server/db/schema";
 import { Document } from "@langchain/core/documents";
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { TableVectorStore } from "../base";
 
-export class CourseMapItemAssessmentPlanVectorStore extends TableVectorStore<CourseMapItemAssessmentPlan> {
+export class CourseMapItemLessonPlanVectorStore extends TableVectorStore<CourseMapItemLessonPlan> {
   constructor(embeddings: EmbeddingsInterface) {
     super({
-      table: courseMapItemAssessmentPlan,
+      table: courseMapItemLessonPlan,
       embeddings,
-      toDocument: courseMapItemAssessmentPlanToDocument,
-      fromDocument: documentToCourseMapItemAssessmentPlan
+      toDocument: courseMapItemLessonPlanToDocument,
+      fromDocument: documentToCourseMapItemLessonPlan
     });
   }
 }
 
-export const courseMapItemAssessmentPlanToDocument = (record: CourseMapItemAssessmentPlan): Document => {
+export const courseMapItemLessonPlanToDocument = (record: CourseMapItemLessonPlan): Document => {
   const content = `${record.name}\n\n${record.description || ""}\n\nScope: ${record.scope?.join(", ") || "N/A"}`;
   return new Document({
     pageContent: content,
     metadata: {
       id: record.id,
       courseMapItemId: record.courseMapItemId,
-      rubricId: record.rubricId,
-      name: record.name,
-      scope: record.scope,
     }
   });
 }
 
-export const documentToCourseMapItemAssessmentPlan = (doc: Document): Partial<CourseMapItemAssessmentPlan> => {
+export const documentToCourseMapItemLessonPlan = (doc: Document): Partial<CourseMapItemLessonPlan> => {
   const metadata = doc.metadata || {};
+  
+  // Parse the content to extract name, description, and scope
   const lines = doc.pageContent.split('\n\n');
   const name = lines[0] || '';
   const description = lines[1] || '';
@@ -43,6 +41,5 @@ export const documentToCourseMapItemAssessmentPlan = (doc: Document): Partial<Co
     name,
     scope: scope as string[] | undefined,
     description: description || undefined,
-    rubricId: metadata.rubricId as number | undefined,
   };
 };
