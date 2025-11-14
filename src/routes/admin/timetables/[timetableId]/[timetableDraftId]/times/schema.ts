@@ -23,5 +23,10 @@ export const addPeriodSchema = z
 		}
 	);
 
+export const updateCycleWeeksRepeatSchema = z.object({
+	cycleWeeksRepeat: z.number()
+});
+
 export type UpdateDaysSchema = typeof updateDaysSchema;
 export type AddPeriodSchema = typeof addPeriodSchema;
+export type UpdateCycleWeeksRepeatSchema = typeof updateCycleWeeksRepeatSchema;

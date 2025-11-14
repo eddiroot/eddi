@@ -93,12 +93,6 @@ export async function updateTimetableDraftDaysByTimetableDraftId(
 		throw new Error('At least one day must be selected');
 	}
 
-	for (const day of days) {
-		if (typeof day !== 'number' || day < 1 || day > 7) {
-			throw new Error(`Invalid day: ${day}. Days must be between 1 and 7.`);
-		}
-	}
-
 	await db
 		.delete(table.timetableDay)
 		.where(eq(table.timetableDay.timetableDraftId, timetableDraftId));
@@ -128,6 +122,31 @@ export async function getTimetableDraftPeriodsByTimetableDraftId(timetableDraftI
 		.orderBy(asc(table.timetablePeriod.startTime));
 
 	return periods;
+}
+
+export async function getTimetableDraftCycleWeekRepeatsByTimetableDraftId(
+	timetableDraftId: number
+) {
+	const cycle = await db
+		.select({ cycleWeekRepeats: table.timetableDraft.cycleWeekRepeats })
+		.from(table.timetableDraft)
+		.where(eq(table.timetableDraft.id, timetableDraftId))
+		.limit(1);
+	return cycle.length > 0 ? cycle[0].cycleWeekRepeats : 1;
+}
+
+export async function updateTimetableDraftCycleWeekRepeatsByTimetableDraftId(
+	timetableDraftId: number,
+	cycleWeekRepeats: number
+) {
+	if (cycleWeekRepeats < 1 || cycleWeekRepeats > 52) {
+		throw new Error('Cycle week repeats must be between 1 and 52');
+	}
+
+	await db
+		.update(table.timetableDraft)
+		.set({ cycleWeekRepeats })
+		.where(eq(table.timetableDraft.id, timetableDraftId));
 }
 
 export async function addTimetableDraftPeriod(
@@ -221,7 +240,8 @@ export async function createTimetableDraft(data: { timetableId: number; name: st
 		.insert(table.timetableDraft)
 		.values({
 			name: data.name,
-			timetableId: data.timetableId
+			timetableId: data.timetableId,
+			cycleWeekRepeats: 1
 		})
 		.returning();
 
@@ -1407,4 +1427,17 @@ export async function searchUsersBySchoolId(schoolId: number, searchTerm: string
 // PUBLISHING TIMETABLES - Operations
 // ============================================================================
 
-export async function publishTimetableFromDraft(timetableDraftId: number) {}
+/*
+How this function is implemented:
+1. Find the semester that is related to the timetable draft's timetable
+2. Find all the terms that belong to that semester and note their starting and ending dates (NOTE: the day of the start date will correspond to Day 1 in FET. If start date is a Monday, then Day 1 = Monday, Day 2 = Tuesday, etc.)
+3. Find all the fet subject offering classes (fet_sub_off_cls) related to the timetable draft
+4. For each class, find the corresponding create a new subject offering class (sub_off_cls)
+5. For each fet subject offering class allocation that belongs to each fet subject offering class, we need to do the following:
+	- For each cycle that the terms are running (there must be a valid date for this) 
+	- create a new subject offering class allocation (sub_off_cls_alloc) related to that class based on its slot for the cycle (usually a week) (i.e., Day 1, Day 2, etc.) and period (Period 1, Period 2, etc.)
+6. For each of the users in fet subject offering class user (fet_sub_off_cls_user), create a new subject offering class user (sub_off_cls_user) related to the new subject offering class
+
+NOTE: For each cycle, it is a mandatory Monday to Friday cycle. Therefore the only defining factors in the cycle weeks repeat attribute as part of the timetable draft. This will determine whether there are 5,10, 15 etc days per cycle. It will always be a multiple of 5
+*/
+export async function publishTimetableDraft(timetableDraftId: number) {}

@@ -45,6 +45,7 @@ export const timetableDraft = pgTable('tt_draft', {
 	timetableId: integer('tt_id')
 		.notNull()
 		.references(() => timetable.id, { onDelete: 'cascade' }),
+	cycleWeekRepeats: integer('cycle_week_repeats').notNull().default(1),
 	fetResponse: text('fet_response'),
 	errorMessage: text('error_message'), // null if successful, stores raw error
 	translatedErrorMessage: text('translated_error_message'), // null if successful or not yet translated
@@ -366,12 +367,12 @@ export const fetSubjectOfferingClass = pgTable('fet_sub_off_cls', {
 
 export type FetSubjectOfferingClass = typeof fetSubjectOfferingClass.$inferSelect;
 
-export const fetSubjectClassAllocation = pgTable('sub_off_cls_allo', {
+export const fetSubjectClassAllocation = pgTable('fet_sub_off_cls_allo', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	fetSubjectOfferingClassId: integer('fet_sub_off_cls_id')
 		.notNull()
 		.references(() => fetSubjectOfferingClass.id, { onDelete: 'cascade' }),
-	schoolSpaceId: integer('sch_spa_id')
+	schoolSpaceId: integer('sch_space_id')
 		.notNull()
 		.references(() => schoolSpace.id, { onDelete: 'set null' }),
 	startPeriodId: integer('start_period_id')

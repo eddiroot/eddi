@@ -174,7 +174,7 @@ function buildActivitiesList(activities: TimetableData['activities']) {
 		for (let i = 0; i < numberOfSplits; i++) {
 			splitActivities.push({
 				Teacher: teacherIds, // Array of teacher IDs - XML builder will create multiple <Teacher> tags
-				Subject: activity.subjectId.toString(),
+				Subject: activity.subjectOfferingId.toString(),
 				Students: studentIdentifiers, // Array of student identifiers - XML builder will create multiple <Students> tags
 				Duration: activity.periodsPerInstance, // Duration of this split
 				Total_Duration: activity.totalPeriods, // Total duration across all splits
@@ -269,7 +269,7 @@ function buildPreferredRoomsConstraints(
 	activitiesWithLocations.forEach((activity) => {
 		// Find all activity instances for this activity in the activitiesList
 		const activityInstances = activitiesList.filter(
-			(act) => act.Subject === activity.subjectId.toString()
+			(act) => act.Subject === activity.subjectOfferingId.toString()
 		);
 
 		// For each instance, add a constraint with the preferred rooms

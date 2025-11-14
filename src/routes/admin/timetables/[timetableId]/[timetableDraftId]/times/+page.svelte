@@ -3,16 +3,17 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Form from '$lib/components/ui/form';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import { days, formatTime } from '$lib/utils.js';
+	import { formatTime } from '$lib/utils.js';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { addPeriodSchema, updateDaysSchema } from './schema.js';
+	import { addPeriodSchema, updateCycleWeeksRepeatSchema, updateDaysSchema } from './schema.js';
 
 	let { data } = $props();
 
 	let updateDaysFormElement: HTMLFormElement;
+	let updateCycleWeeksRepeatFormElement: HTMLFormElement;
 
 	const updateDaysForm = superForm(data.updateDaysForm, {
 		validators: zod4(updateDaysSchema),
@@ -25,10 +26,53 @@
 		resetForm: true
 	});
 	const { form: addPeriodData, enhance: addPeriodEnhance } = addPeriodForm;
+
+	const updateCycleWeeksRepeatForm = superForm(data.updateCycleWeeksRepeatForm, {
+		validators: zod4(updateCycleWeeksRepeatSchema),
+		resetForm: false
+	});
+	const { form: updateCycleWeeksRepeatData, enhance: updateCycleWeeksRepeatEnhance } =
+		updateCycleWeeksRepeatForm;
 </script>
 
 <div class="space-y-8">
 	<form
+		method="POST"
+		bind:this={updateCycleWeeksRepeatFormElement}
+		action="?/updateCycleWeeksRepeat"
+		class="space-y-4"
+		use:updateCycleWeeksRepeatEnhance
+	>
+		<h2 class="text-2xl leading-tight font-bold">Cycle Weeks Repeat</h2>
+		<Form.Field form={updateCycleWeeksRepeatForm} name="cycleWeeksRepeat">
+			<Form.Control>
+				{#snippet children({ props })}
+					<div class="flex items-center gap-4">
+						<Input
+							{...props}
+							type="number"
+							min="1"
+							max="52"
+							class="w-32"
+							bind:value={$updateCycleWeeksRepeatData.cycleWeeksRepeat}
+							onchange={() => {
+								updateCycleWeeksRepeatFormElement.requestSubmit();
+							}}
+						/>
+						<span class="text-muted-foreground text-sm">
+							week{$updateCycleWeeksRepeatData.cycleWeeksRepeat !== 1 ? 's' : ''}
+						</span>
+					</div>
+				{/snippet}
+			</Form.Control>
+			<Form.Description>
+				The number of weeks in the timetable cycle before it repeats (Usually 1 or 2)
+			</Form.Description>
+			<Form.FieldErrors />
+		</Form.Field>
+	</form>
+
+	<!-- <form
 		method="POST"
 		bind:this={updateDaysFormElement}
 		action="?/updateDays"
@@ -36,6 +80,7 @@
 		use:updateDaysEnhance
 	>
 		<h2 class="text-2xl leading-tight font-bold">Days</h2>
+
 		<Form.Field form={updateDaysForm} name="selectedDays">
 			<ol class="grid grid-cols-5 gap-2">
 				{#each days as day}
@@ -71,7 +116,7 @@
 			</ol>
 			<Form.FieldErrors />
 		</Form.Field>
-	</form>
+	</form> -->
 
 	<div class="space-y-4">
 		<h2 class="text-2xl leading-tight font-bold">Periods</h2>
