@@ -61,7 +61,7 @@
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<Label class="text-sm font-medium">Matching Pairs</Label>
-					<Button variant="outline" size="sm" onclick={addPair}>
+					<Button size="sm" onclick={addPair}>
 						<PlusIcon class="mr-2 h-4 w-4" />
 						Add Pair
 					</Button>

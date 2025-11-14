@@ -15,6 +15,7 @@
 	import Filter from '@lucide/svelte/icons/filter';
 	import MapPin from '@lucide/svelte/icons/map-pin';
 	import Pin from '@lucide/svelte/icons/pin';
+	import Plus from '@lucide/svelte/icons/plus';
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
 
@@ -400,7 +401,10 @@
 		</div>
 		<div class="flex items-center gap-2">
 			{#if canCreateNews()}
-				<Button variant="default" size="sm" href="/news/new">Create News</Button>
+				<Button variant="default" size="sm" href="/news/new">
+					<Plus />
+					Create News
+				</Button>
 				<Button variant="outline" size="sm" href="/news/drafts">
 					<FileText />
 					My Drafts

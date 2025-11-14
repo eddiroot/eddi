@@ -8,45 +8,44 @@
 	import UploadIcon from '@lucide/svelte/icons/upload';
 
 	let { config, onConfigUpdate, viewMode }: ImageBlockProps = $props();
-	
+
 	let uploading = $state(false);
 
 	async function handleFileUpload(event: Event) {
 		const target = event.currentTarget as HTMLInputElement;
 		const file = target?.files?.[0];
-		
+
 		if (!file) return;
-		
+
 		// Validate file type (images only)
 		if (!file.type.startsWith('image/')) {
 			alert('Please select an image file');
 			return;
 		}
-		
+
 		// Validate file size (max 10MB)
 		const maxSize = 10 * 1024 * 1024; // 10MB
 		if (file.size > maxSize) {
 			alert('File size must be less than 10MB');
 			return;
 		}
-		
+
 		uploading = true;
-		
+
 		try {
 			// Create a data URL for immediate preview
 			const reader = new FileReader();
-			reader.onload = function(e) {
+			reader.onload = function (e) {
 				if (e.target && e.target.result && typeof e.target.result === 'string') {
-					const newConfig = { 
-						...config, 
+					const newConfig = {
+						...config,
 						path: e.target.result,
-						altText: config.altText || file.name.replace(/\.[^/.]+$/, '') 
+						altText: config.altText || file.name.replace(/\.[^/.]+$/, '')
 					};
 					onConfigUpdate(newConfig);
 				}
 			};
 			reader.readAsDataURL(file);
-			
 		} catch (error) {
 			console.error('Upload error:', error);
 			alert('Failed to process image. Please try again.');
@@ -61,7 +60,9 @@
 
 	function triggerFileUpload() {
 		// Find the file input and click it
-		const input = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement;
+		const input = document.querySelector(
+			'input[type="file"][accept="image/*"]'
+		) as HTMLInputElement;
 		input?.click();
 	}
 </script>
@@ -79,24 +80,17 @@
 				{#if !config.path || config.path.trim() === ''}
 					<div class="space-y-2">
 						<Label>Upload Image</Label>
-						<div class="flex justify-center">
-							<Button
-								type="button"
-								variant="outline"
-								onclick={triggerFileUpload}
-								disabled={uploading}
-								class="flex items-center gap-2"
-							>
-								<UploadIcon class="h-4 w-4" />
-								{uploading ? 'Uploading...' : 'Upload Resource'}
-							</Button>
-						</div>
-						<input
-							type="file"
-							accept="image/*"
-							onchange={handleFileUpload}
-							class="hidden"
-						/>
+						<Button
+							type="button"
+							variant="outline"
+							onclick={triggerFileUpload}
+							disabled={uploading}
+							class="flex items-center gap-2"
+						>
+							<UploadIcon class="h-4 w-4" />
+							{uploading ? 'Uploading...' : 'Upload Resource'}
+						</Button>
+						<input type="file" accept="image/*" onchange={handleFileUpload} class="hidden" />
 					</div>
 				{/if}
 
@@ -160,7 +154,7 @@
 							<img
 								src={config.path}
 								alt={config.altText || 'Image'}
-								class="max-w-full object-contain rounded-lg"
+								class="max-w-full rounded-lg object-contain"
 								onerror={(e) => {
 									const target = e.currentTarget;
 									if (target instanceof HTMLImageElement) {

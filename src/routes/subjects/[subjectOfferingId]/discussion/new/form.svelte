@@ -36,7 +36,6 @@
 				</Select.Root>
 			{/snippet}
 		</Form.Control>
-		<Form.Description>Dynamic explanation of the selected type.</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="title">
@@ -46,7 +45,6 @@
 				<Input {...props} bind:value={$formData.title} placeholder="Enter the title of your post" />
 			{/snippet}
 		</Form.Control>
-		<Form.Description>Provide a concise title for your post.</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="content">
@@ -57,10 +55,10 @@
 					{...props}
 					bind:value={$formData.content}
 					placeholder="Write your post content here"
+					class="h-96"
 				/>
 			{/snippet}
 		</Form.Control>
-		<Form.Description>Share your thoughts, questions, or announcements.</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Button>Submit</Form.Button>

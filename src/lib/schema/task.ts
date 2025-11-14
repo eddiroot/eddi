@@ -351,10 +351,9 @@ export const blockHighlightText = {
 			type: 'object',
 			properties: {
 				text: { type: 'string' },
-				instructions: { type: 'string' },
-				highlightCorrect: { type: 'boolean' }
+				instructions: { type: 'string' }
 			},
-			required: ['text', 'instructions', 'highlightCorrect']
+			required: ['text', 'instructions']
 		},
 		marks: { type: 'number' }
 	},
@@ -364,7 +363,6 @@ export const blockHighlightText = {
 export type BlockHighlightTextConfig = {
 	text: string;
 	instructions: string;
-	highlightCorrect: boolean;
 };
 
 export type BlockHighlightTextResponse = {
@@ -833,9 +831,8 @@ export const blockTypes: {
 		type: taskBlockTypeEnum.highlightText,
 		name: 'Highlight',
 		initialConfig: {
-			text: 'Sample text for students to highlight key concepts and important information.',
-			instructions: 'Highlight the correct information',
-			highlightCorrect: true
+			text: 'The big brown fox jumps over the lazy dog.',
+			instructions: 'Highlight the words that start with the letter "b".'
 		},
 		icon: HighlighterIcon
 	},

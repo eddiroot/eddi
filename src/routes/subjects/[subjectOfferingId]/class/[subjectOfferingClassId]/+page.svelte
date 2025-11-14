@@ -164,10 +164,9 @@
 			</Card.Content>
 		</Card.Root>
 
-		<!-- Tasks (Lessons, Homework, Resources) -->
 		<Card.Root class="shadow-none">
 			<Card.Header>
-				<Card.Title class="text-lg">Tasks</Card.Title>
+				<Card.Title class="text-lg">Lessons & Homework</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<ScrollArea class="h-64">
@@ -211,7 +210,7 @@
 								</a>
 							{/each}
 						{:else}
-							<div class="text-muted-foreground text-sm">No tasks found.</div>
+							<div class="text-muted-foreground text-sm">No lessons or homework found.</div>
 						{/if}
 					</div>
 				</ScrollArea>

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Switch from '$lib/components/ui/switch';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import {
 		ViewMode,
@@ -29,8 +28,7 @@
 
 		onConfigUpdate({
 			text: input.text,
-			instructions: input.instructions,
-			highlightCorrect: input.highlightCorrect
+			instructions: input.instructions
 		});
 	}
 
@@ -120,47 +118,6 @@
 						class="min-h-[60px] resize-none"
 					/>
 				</div>
-
-				<div class="space-y-3">
-					<Label>Highlighting Mode</Label>
-					<div class="flex items-center space-x-2">
-						<Switch.Root
-							bind:checked={config.highlightCorrect}
-							onCheckedChange={(checked) => {
-								saveChanges({ ...config, highlightCorrect: !!checked });
-							}}
-						/>
-						<Label class="text-sm">
-							{config.highlightCorrect ? 'Highlight Correct' : 'Highlight Incorrect'}
-						</Label>
-					</div>
-					<p class="text-muted-foreground text-xs">
-						Choose whether students should highlight the correct words or the incorrect words in the
-						text.
-					</p>
-				</div>
-
-				{#if config.text && config.instructions}
-					<div class="space-y-2">
-						<Label>Preview</Label>
-						<div class="dark:bg-input/30 border-input rounded-lg border bg-transparent p-4">
-							<div class="space-y-4">
-								<p class="text-sm font-medium">{config.instructions}</p>
-								<div class="leading-relaxed">
-									{#each splitTextIntoWords(config.text) as word, index}
-										<span
-											class="hover:bg-primary/20 cursor-pointer rounded px-1 transition-colors"
-											role="button"
-											tabindex="0"
-										>
-											{word}
-										</span>
-									{/each}
-								</div>
-							</div>
-						</div>
-					</div>
-				{/if}
 			</Card.Content>
 		</Card.Root>
 	{:else if viewMode === ViewMode.ANSWER || viewMode === ViewMode.REVIEW}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -126,7 +127,7 @@
 				<div class="space-y-4">
 					<div class="flex items-center justify-between">
 						<Label>Reactants</Label>
-						<Button size="sm" variant="outline" onclick={addReactant}>
+						<Button size="sm" onclick={addReactant}>
 							<PlusIcon class="h-4 w-4" />
 							Add Reactant
 						</Button>
@@ -165,8 +166,7 @@
 										min="1"
 									/>
 									<Label class="text-sm">Given:</Label>
-									<input
-										type="checkbox"
+									<Checkbox
 										checked={reactant.given}
 										onchange={(e) => {
 											const checked = (e.target as HTMLInputElement)?.checked;
@@ -176,11 +176,14 @@
 										}}
 									/>
 								</div>
-								{#if config.reactants.length > 1}
-									<Button variant="destructive" size="icon" onclick={() => removeReactant(index)}>
-										<TrashIcon class="h-4 w-4" />
-									</Button>
-								{/if}
+								<Button
+									variant="destructive"
+									disabled={config.reactants.length == 1}
+									size="icon"
+									onclick={() => removeReactant(index)}
+								>
+									<TrashIcon class="h-4 w-4" />
+								</Button>
 							</div>
 						{/each}
 					</div>
@@ -189,7 +192,7 @@
 				<div class="space-y-4">
 					<div class="flex items-center justify-between">
 						<Label>Products</Label>
-						<Button size="sm" variant="outline" onclick={addProduct}>
+						<Button size="sm" onclick={addProduct}>
 							<PlusIcon class="h-4 w-4" />
 							Add Product
 						</Button>
@@ -228,8 +231,7 @@
 										min="1"
 									/>
 									<Label class="text-sm">Given:</Label>
-									<input
-										type="checkbox"
+									<Checkbox
 										checked={product.given}
 										onchange={(e) => {
 											const checked = (e.target as HTMLInputElement)?.checked;
@@ -239,11 +241,14 @@
 										}}
 									/>
 								</div>
-								{#if config.products.length > 1}
-									<Button variant="destructive" size="icon" onclick={() => removeProduct(index)}>
-										<TrashIcon class="h-4 w-4" />
-									</Button>
-								{/if}
+								<Button
+									variant="destructive"
+									disabled={config.products.length == 1}
+									size="icon"
+									onclick={() => removeProduct(index)}
+								>
+									<TrashIcon class="h-4 w-4" />
+								</Button>
 							</div>
 						{/each}
 					</div>
@@ -253,12 +258,12 @@
 				{#if config.reactants.some((r) => r.formula) && config.products.some((p) => p.formula)}
 					<div class="space-y-2">
 						<Label>Preview</Label>
-						<div class="rounded-lg border bg-gray-50 p-4">
+						<div class="bg-background rounded-lg border p-4">
 							<div class="flex items-center gap-2 font-mono text-lg">
 								{#each config.reactants as reactant, index}
 									{#if reactant.formula}
 										{#if index > 0}<span class="mx-2">+</span>{/if}
-										<span class="text-blue-600">
+										<span class="text-primary">
 											{reactant.given ? reactant.coefficient : '_'}
 										</span>
 										<span>{@html formatChemical(reactant.formula)}</span>
@@ -268,7 +273,7 @@
 								{#each config.products as product, index}
 									{#if product.formula}
 										{#if index > 0}<span class="mx-2">+</span>{/if}
-										<span class="text-blue-600">
+										<span class="text-primary">
 											{product.given ? product.coefficient : '_'}
 										</span>
 										<span>{@html formatChemical(product.formula)}</span>

@@ -10,10 +10,10 @@
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Resizable from '$lib/components/ui/resizable';
-	import type { Task } from '$lib/server/db/schema';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
+	import type { Task } from '$lib/server/db/schema';
 
 	let { children, data } = $props();
 
@@ -87,7 +87,7 @@
 <div class="[--header-height:calc(--spacing(14))]">
 	<Sidebar.Provider class="flex flex-col">
 		<header class="bg-background sticky top-0 z-50 h-14">
-			<nav class="mx-auto flex items-center justify-between border-b p-2">
+			<nav class="mx-auto flex h-full items-center justify-between border-b p-2">
 				<div class="flex items-center gap-x-4">
 					{#if user()}
 						<Sidebar.Trigger name="left" aria-label="Toggle Navigation Sidebar" />
@@ -149,9 +149,7 @@
 			{/if}
 			<Resizable.PaneGroup direction="horizontal">
 				<Resizable.Pane defaultSize={100}>
-					<Sidebar.Inset
-						class="h-[calc(100svh-var(--header-height)-1rem)]! overflow-auto md:h-[calc(100svh-var(--header-height)-1rem)]!"
-					>
+					<Sidebar.Inset class="h-[calc(100svh-var(--header-height))]! overflow-auto">
 						{@render children()}
 					</Sidebar.Inset>
 				</Resizable.Pane>
