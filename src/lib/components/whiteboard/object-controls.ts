@@ -62,27 +62,126 @@ export function configureLineControls(line: fabric.Line): void {
     });
 
     // Customize the controls to act as moveable endpoints
-    // This allows the endpoints to be dragged freely, naturally handling rotation and length
+    // This allows the endpoints to be dragged freely, updating x1/y1 or x2/y2
+    const createLineEndpointAction = (isStart: boolean) => {
+        // actionHandler signature: (eventData, transform, x, y)
+        return (_eventData: unknown, transform: unknown, x: number, y: number) => {
+            const t = transform as unknown as { target: fabric.Line };
+            const target = t.target as fabric.Line;
+
+            // Prevent other endpoint from taking over while dragging this one
+            const side = isStart ? 'start' : 'end';
+            const targetWithFlag = target as unknown as { __draggingEndpoint?: string };
+            const currentDragging = targetWithFlag.__draggingEndpoint;
+            if (currentDragging && currentDragging !== side) return false;
+            // Mark this endpoint as being dragged
+            if (!currentDragging) targetWithFlag.__draggingEndpoint = side;
+
+            // Use the x, y parameters provided by Fabric - they're already in the object's coordinate space
+            const local = new fabric.Point(x, y);
+
+            if (isStart) {
+                target.set({ x1: local.x, y1: local.y });
+            } else {
+                target.set({ x2: local.x, y2: local.y });
+            }
+            // Update control positions so corners follow endpoints even when they cross
+            try {
+                const x1 = target.x1 as number;
+                const y1 = target.y1 as number;
+                const x2 = target.x2 as number;
+                const y2 = target.y2 as number;
+
+                const width = Math.abs(x2 - x1) || 1;
+                const height = Math.abs(y2 - y1) || 1;
+                const centerX = (x1 + x2) / 2;
+                const centerY = (y1 + y2) / 2;
+
+                if (target.controls && target.controls.tl) {
+                    target.controls.tl.x = (x1 - centerX) / width;
+                    target.controls.tl.y = (y1 - centerY) / height;
+                }
+                if (target.controls && target.controls.br) {
+                    target.controls.br.x = (x2 - centerX) / width;
+                    target.controls.br.y = (y2 - centerY) / height;
+                }
+            } catch {
+                // ignore
+            }
+
+            // Recompute coords and render
+            target.setCoords();
+            target.canvas?.requestRenderAll();
+            return true;
+        };
+    };
+
     if (line.controls) {
         // Top-left control (start point of line)
         line.controls.tl = new fabric.Control({
             x: -0.5,
             y: -0.5,
-            actionHandler: fabric.controlsUtils.changeWidth,
+            actionHandler: createLineEndpointAction(true),
             cursorStyle: 'pointer',
-            actionName: 'modifying line',
-            mouseUpHandler: () => true
+            actionName: 'modifyLineStart',
+            mouseUpHandler: (_eventData: unknown, transform: unknown) => {
+                const t = transform as unknown as { target: fabric.Line };
+                if (t?.target) {
+                    const obj = t.target as unknown as { __draggingEndpoint?: string };
+                    obj.__draggingEndpoint = undefined;
+                }
+                return true;
+            }
         });
 
         // Bottom-right control (end point of line)
         line.controls.br = new fabric.Control({
             x: 0.5,
             y: 0.5,
-            actionHandler: fabric.controlsUtils.changeWidth,
+            actionHandler: createLineEndpointAction(false),
             cursorStyle: 'pointer',
-            actionName: 'modifying line',
-            mouseUpHandler: () => true
+            actionName: 'modifyLineEnd',
+            mouseUpHandler: (_eventData: unknown, transform: unknown) => {
+                const t = transform as unknown as { target: fabric.Line };
+                if (t?.target) {
+                    const obj = t.target as unknown as { __draggingEndpoint?: string };
+                    obj.__draggingEndpoint = undefined;
+                }
+                return true;
+            }
         });
+    }
+
+    // Initialize control positions to match actual line endpoints
+    recalculateLineControlPositions(line);
+}
+
+/**
+ * Recalculate line control positions based on current endpoint coordinates
+ * Call this after line creation or when endpoints change
+ */
+export function recalculateLineControlPositions(line: fabric.Line): void {
+    try {
+        const x1 = line.x1 as number;
+        const y1 = line.y1 as number;
+        const x2 = line.x2 as number;
+        const y2 = line.y2 as number;
+
+        const width = Math.abs(x2 - x1) || 1;
+        const height = Math.abs(y2 - y1) || 1;
+        const centerX = (x1 + x2) / 2;
+        const centerY = (y1 + y2) / 2;
+
+        if (line.controls && line.controls.tl) {
+            line.controls.tl.x = (x1 - centerX) / width;
+            line.controls.tl.y = (y1 - centerY) / height;
+        }
+        if (line.controls && line.controls.br) {
+            line.controls.br.x = (x2 - centerX) / width;
+            line.controls.br.y = (y2 - centerY) / height;
+        }
+    } catch {
+        // ignore
     }
 }
 
@@ -231,6 +330,155 @@ export function configureArrowControls(group: fabric.Group): void {
         lockRotation: true,
         hasRotatingPoint: false
     });
+
+    // Action handler to move arrow endpoints (group contains [line, head1, head2])
+    const createArrowEndpointAction = (isStart: boolean) => {
+        // actionHandler signature: (eventData, transform, x, y)
+        return (_eventData: unknown, transform: unknown, x: number, y: number) => {
+            const t = transform as unknown as { target: fabric.Group };
+            const target = t.target as fabric.Group;
+
+            // Prevent other endpoint from taking over while dragging this one
+            const side = isStart ? 'start' : 'end';
+            const targetWithFlag = target as unknown as { __draggingEndpoint?: string };
+            const currentDragging = targetWithFlag.__draggingEndpoint;
+            if (currentDragging && currentDragging !== side) return false;
+            if (!currentDragging) targetWithFlag.__draggingEndpoint = side;
+
+            // Use the x, y parameters provided by Fabric - they're already in the object's coordinate space
+            const local = new fabric.Point(x, y);
+
+            // Expect children order: [line, arrowHead1, arrowHead2]
+            const objs = target.getObjects();
+            const line = objs[0] as fabric.Line | undefined;
+            const head1 = objs[1] as fabric.Line | undefined;
+            const head2 = objs[2] as fabric.Line | undefined;
+            if (!line) return false;
+
+            if (isStart) {
+                line.set({ x1: local.x, y1: local.y });
+            } else {
+                line.set({ x2: local.x, y2: local.y });
+            }
+
+            // Recompute arrowheads based on the updated line coordinates
+            const x1 = line.x1 as number;
+            const y1 = line.y1 as number;
+            const x2 = line.x2 as number;
+            const y2 = line.y2 as number;
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const arrowLength = 15;
+            const arrowAngle = Math.PI / 6;
+            const p1 = {
+                x: x2 - arrowLength * Math.cos(angle - arrowAngle),
+                y: y2 - arrowLength * Math.sin(angle - arrowAngle)
+            };
+            const p2 = {
+                x: x2 - arrowLength * Math.cos(angle + arrowAngle),
+                y: y2 - arrowLength * Math.sin(angle + arrowAngle)
+            };
+
+            if (head1) {
+                head1.set({ x1: x2, y1: y2, x2: p1.x, y2: p1.y });
+            }
+            if (head2) {
+                head2.set({ x1: x2, y1: y2, x2: p2.x, y2: p2.y });
+            }
+
+            // Update control positions for the group so controls follow endpoints
+            try {
+                const width = Math.abs(x2 - x1) || 1;
+                const height = Math.abs(y2 - y1) || 1;
+                const centerX = (x1 + x2) / 2;
+                const centerY = (y1 + y2) / 2;
+
+                if (target.controls && target.controls.tl) {
+                    target.controls.tl.x = (x1 - centerX) / width;
+                    target.controls.tl.y = (y1 - centerY) / height;
+                }
+                if (target.controls && target.controls.br) {
+                    target.controls.br.x = (x2 - centerX) / width;
+                    target.controls.br.y = (y2 - centerY) / height;
+                }
+            } catch {
+                // ignore
+            }
+
+            target.setCoords();
+            target.canvas?.requestRenderAll();
+            return true;
+        };
+    };
+
+    if (group.controls) {
+        group.controls.tl = new fabric.Control({
+            x: -0.5,
+            y: -0.5,
+            actionHandler: createArrowEndpointAction(true),
+            cursorStyle: 'pointer',
+            actionName: 'modifyArrowStart',
+            mouseUpHandler: (_eventData: unknown, transform: unknown) => {
+                const t = transform as unknown as { target: fabric.Group };
+                if (t?.target) {
+                    const obj = t.target as unknown as { __draggingEndpoint?: string };
+                    obj.__draggingEndpoint = undefined;
+                }
+                return true;
+            }
+        });
+
+        group.controls.br = new fabric.Control({
+            x: 0.5,
+            y: 0.5,
+            actionHandler: createArrowEndpointAction(false),
+            cursorStyle: 'pointer',
+            actionName: 'modifyArrowEnd',
+            mouseUpHandler: (_eventData: unknown, transform: unknown) => {
+                const t = transform as unknown as { target: fabric.Group };
+                if (t?.target) {
+                    const obj = t.target as unknown as { __draggingEndpoint?: string };
+                    obj.__draggingEndpoint = undefined;
+                }
+                return true;
+            }
+        });
+    }
+
+    // Initialize control positions to match actual arrow endpoints
+    recalculateArrowControlPositions(group);
+}
+
+/**
+ * Recalculate arrow control positions based on current endpoint coordinates
+ * Call this after arrow creation or when endpoints change
+ */
+export function recalculateArrowControlPositions(group: fabric.Group): void {
+    try {
+        const objs = group.getObjects();
+        const line = objs[0] as fabric.Line | undefined;
+        if (line) {
+            const x1 = line.x1 as number;
+            const y1 = line.y1 as number;
+            const x2 = line.x2 as number;
+            const y2 = line.y2 as number;
+
+            const width = Math.abs(x2 - x1) || 1;
+            const height = Math.abs(y2 - y1) || 1;
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+
+            if (group.controls && group.controls.tl) {
+                group.controls.tl.x = (x1 - centerX) / width;
+                group.controls.tl.y = (y1 - centerY) / height;
+            }
+            if (group.controls && group.controls.br) {
+                group.controls.br.x = (x2 - centerX) / width;
+                group.controls.br.y = (y2 - centerY) / height;
+            }
+        }
+    } catch {
+        // ignore
+    }
 }
 
 /**
