@@ -58,13 +58,11 @@ All
 - [ ] Home pages and feature pages
 - [ ] Shift away from static school id for OAuth (search TODO)
 
-Lachie
-
-- [ ] UI fixes / code cleanup
-
 Bella
 
-- [ ] Task block button consistency
+- [ ] Refine task block UI/UX
+- [ ] Fix task bug where block placement hover persists after deleting block
+- [ ] Fix task bug where state is saved for first block despite deletion (chat to Lachie for context)
 
 Jack & Raph
 
@@ -90,6 +88,14 @@ Raph
   - layering options?
   - text with websocket
   - text adding mechanics
+- [ ] Student grades (20/08)
+  - fix scrollbar gutter
+  - fix filters and sorts
+  - full width, remove fixed-table
+  - remove and fix showFeedback
+- [ ] Teacher Lesson Analytics
+  - fix table width issues
+  - admin grade style option (percentage vs 0-8 scale)
 
 ### To Do
 
@@ -101,14 +107,6 @@ Raph
   - [ ] Checkbox to add a recess and lunchtime period post timetable generation in first and second gap respectively (or allow them to set specific time)
 - [ ] Class space shifts (21/08)
   - [ ] Changing spaces and handling of this
-- [x] Student grades (20/08)
-  - fix scrollbar gutter
-  - fix filters and sorts
-  - full width, remove fixed-table
-  - remove and fix showFeedback
-- [x] Teacher Lesson Analytics
-  - fix table width issues
-  - admin grade style option (percentage vs 0-8 scale)
 - [ ] A what to do button to generate study ideas (04/08)
 - [ ] Fleshed out behavioural reporting (see toddle) (new incident button on attendance page)
 - [ ] Student reports live throughout semester (10/08)
