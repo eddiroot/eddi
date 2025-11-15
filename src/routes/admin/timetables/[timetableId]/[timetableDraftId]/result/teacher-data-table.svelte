@@ -31,7 +31,7 @@
 	// Create the table
 	const table = $derived(
 		createSvelteTable({
-			data,
+			data: data ?? [],
 			columns,
 			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),

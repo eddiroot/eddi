@@ -7,12 +7,14 @@ export type StudentStatistic = {
 	userId: string;
 	userName: string;
 	userType: string;
+	numberOfEnrolledClasses: number;
 	totalHoursPerCycle: number;
 	averageHoursPerDay: number;
 	maxHoursPerDay: number;
 	minHoursPerDay: number;
 	numberOfFreeDays: number;
-	dailyHours: Map<number, number>;
+
+	dailyHours: Record<number, number>;
 };
 
 export const studentColumns: ColumnDef<StudentStatistic>[] = [
@@ -28,6 +30,22 @@ export const studentColumns: ColumnDef<StudentStatistic>[] = [
 				render: () => `<div class="font-medium">${row.getValue('userName')}</div>`
 			}));
 			return renderSnippet(nameSnippet);
+		}
+	},
+	{
+		accessorKey: 'numberOfEnrolledClasses',
+		header: ({ column }) =>
+			renderComponent(StudentColumnHeader, {
+				onclick: column.getToggleSortingHandler(),
+				label: '# of Enrolled Classes',
+				align: 'right'
+			}),
+		cell: ({ row }) => {
+			const classes = row.getValue('numberOfEnrolledClasses') as number;
+			const classesSnippet = createRawSnippet(() => ({
+				render: () => `<div class="text-right">${classes}</div>`
+			}));
+			return renderSnippet(classesSnippet);
 		}
 	},
 	{

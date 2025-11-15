@@ -1,4 +1,7 @@
 <script lang="ts" generics="TData, TValue">
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import {
 		type ColumnDef,
 		type PaginationState,
@@ -7,9 +10,6 @@
 		getPaginationRowModel,
 		getSortedRowModel
 	} from '@tanstack/table-core';
-	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
 
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
@@ -23,7 +23,7 @@
 
 	const table = createSvelteTable({
 		get data() {
-			return data;
+			return data ?? [];
 		},
 		columns,
 		getCoreRowModel: getCoreRowModel(),
@@ -63,7 +63,10 @@
 						{#each headerGroup.headers as header (header.id)}
 							<Table.Head colspan={header.colSpan}>
 								{#if !header.isPlaceholder}
-									<FlexRender content={header.column.columnDef.header} context={header.getContext()} />
+									<FlexRender
+										content={header.column.columnDef.header}
+										context={header.getContext()}
+									/>
 								{/if}
 							</Table.Head>
 						{/each}
@@ -81,9 +84,7 @@
 					</Table.Row>
 				{:else}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center">
-							No results.
-						</Table.Cell>
+						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
 					</Table.Row>
 				{/each}
 			</Table.Body>
@@ -94,8 +95,8 @@
 		<div class="text-muted-foreground text-sm">
 			Showing {pagination.pageIndex * pagination.pageSize + 1} to {Math.min(
 				(pagination.pageIndex + 1) * pagination.pageSize,
-				data.length
-			)} of {data.length} students
+				data?.length ?? 0
+			)} of {data?.length ?? 0} students
 		</div>
 		<div class="flex items-center space-x-2">
 			<Button
