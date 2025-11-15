@@ -1,3 +1,9 @@
+import { userTypeEnum } from '$lib/enums';
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { deleteTimetableDraftActivityData } from '$lib/server/db/service';
+import { and, eq } from 'drizzle-orm';
+
 /**
  * Parse CSV timetable output and populate fetActivity and userFetActivity tables
  */
@@ -6,11 +12,6 @@ export async function parseTimetableCSVAndPopulate(
 	timetableId: number,
 	timetableDraftId: number
 ) {
-	const { db } = await import('$lib/server/db');
-	const table = await import('$lib/server/db/schema');
-	const { eq } = await import('drizzle-orm');
-	const { userTypeEnum } = await import('$lib/enums');
-
 	// Parse CSV content
 	const lines = csvContent.trim().split('\n');
 	if (lines.length < 2) {
@@ -264,11 +265,6 @@ export async function parseTimetableCSVAndPopulateClasses(
 	timetableId: number,
 	timetableDraftId: number
 ) {
-	const { db } = await import('$lib/server/db');
-	const table = await import('$lib/server/db/schema');
-	const { eq, and } = await import('drizzle-orm');
-	const { userTypeEnum } = await import('$lib/enums');
-
 	// Parse CSV content
 	const lines = csvContent.trim().split('\n');
 	if (lines.length < 2) {
@@ -462,6 +458,14 @@ export async function parseTimetableCSVAndPopulateClasses(
 		}
 
 		return userIds;
+	}
+
+	// Remove all existing FET class data for this timetable draft
+	try {
+		await deleteTimetableDraftActivityData(timetableDraftId);
+	} catch (err) {
+		console.error('Error removing existing FET data for timetable draft:', err);
+		throw err;
 	}
 
 	// Step 1: Create fetSubjectOfferingClass records

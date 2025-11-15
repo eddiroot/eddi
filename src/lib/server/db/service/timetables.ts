@@ -289,6 +289,30 @@ export async function updateTimetableDraftFetResponse(
 		.where(eq(table.timetableDraft.id, timetableDraftId));
 }
 
+export async function deleteTimetableDraftActivityData(timetableDraftId: number) {
+	// Remove all existing FET class data for this timetable draft
+	const existingClasses = await db
+		.select({ id: table.fetSubjectOfferingClass.id })
+		.from(table.fetSubjectOfferingClass)
+		.where(eq(table.fetSubjectOfferingClass.timetableDraftId, timetableDraftId));
+
+	for (const existingClass of existingClasses) {
+		// Delete associated allocations
+		await db
+			.delete(table.fetSubjectClassAllocation)
+			.where(eq(table.fetSubjectClassAllocation.fetSubjectOfferingClassId, existingClass.id));
+		// Delete associated user-class links
+		await db
+			.delete(table.fetSubjectOfferingClassUser)
+			.where(eq(table.fetSubjectOfferingClassUser.fetSubOffClassId, existingClass.id));
+	}
+
+	// Delete the classes themselves
+	await db
+		.delete(table.fetSubjectOfferingClass)
+		.where(eq(table.fetSubjectOfferingClass.timetableDraftId, timetableDraftId));
+}
+
 // ============================================================================
 // STUDENT GROUPS - Core Operations
 // ============================================================================
@@ -1002,9 +1026,9 @@ export async function getActivityYearsByActivityId(activityId: number) {
 
 export async function createTimetableQueueEntry(
 	timetableId: number,
+	timetableDraftId: number,
 	userId: string,
-	fileName: string,
-	timetableDraftId: number
+	fileName: string
 ) {
 	const [entry] = await db
 		.insert(table.timetableQueue)

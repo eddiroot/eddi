@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
 		console.log('FET XML uploaded to object storage:', objectKey);
 
-		await createTimetableQueueEntry(timetableId, user.id, uniqueFileName, draft.id);
+		await createTimetableQueueEntry(timetableId, draft.id, user.id, uniqueFileName);
 
 		// Trigger processing (this will run asynchronously)
 		processTimetableQueue().catch((err: Error) => {

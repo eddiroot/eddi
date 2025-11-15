@@ -60,15 +60,9 @@ export async function processTimetableQueue() {
 			await fetService.createDirectory(containerOutputDir);
 			const fetResult = await fetService.executeFET(containerTempPath, containerOutputDir);
 
-			if (!fetResult.success) {
-				if (fetResult.error) {
-					try {
-						await updateTimetableDraftFetResponse(queueEntry.timetableDraftId, fetResult.error);
-					} catch (responseError) {
-						console.warn('⚠️  [TIMETABLE PROCESSOR] Failed to store FET response:', responseError);
-					}
-					throw new Error(`FET processing failed: ${fetResult.stdout}`);
-				}
+			if (!fetResult.success && fetResult.error) {
+				await updateTimetableDraftFetResponse(queueEntry.timetableDraftId, fetResult.error);
+				throw new Error(`FET processing failed: ${fetResult.stdout}`);
 			}
 
 			// List output files in container
@@ -76,15 +70,12 @@ export async function processTimetableQueue() {
 
 			// Upload ALL generated files to object storage
 			if (allFiles.length > 0) {
-				// Track specific files for database processing
-				let timetableCSV = '';
+				let timetableCSV = ''; // find the file that has all the information that we need
 
 				for (const filePath of allFiles) {
 					try {
 						const fileName = filePath.split('/').pop() || 'unknown';
 						const fileExtension = fileName.split('.').pop()?.toLowerCase() || '';
-
-						console.log(`   📄 Processing file: ${fileName}`);
 
 						// Read file content from container using FETDockerService
 						const fileContent = await fetService.readFile(filePath);
@@ -92,7 +83,6 @@ export async function processTimetableQueue() {
 						// Check for specific files needed for database processing (suffix match)
 						if (fileName.endsWith('timetable.csv')) {
 							timetableCSV = fileContent;
-							console.log(`   🎯 Found database processing file: ${fileName}`);
 						}
 
 						// Determine content type based on file extension
@@ -115,7 +105,6 @@ export async function processTimetableQueue() {
 							outputObjectKey,
 							contentType
 						);
-						console.log(`   ✅ Uploaded: ${outputObjectKey} (${contentType})`);
 					} catch (fileError) {
 						console.warn(`   ⚠️  Failed to upload file ${filePath}:`, fileError);
 					}
@@ -123,9 +112,7 @@ export async function processTimetableQueue() {
 
 				// Process database files if both are available
 				if (timetableCSV) {
-					console.log('🔄 [DATABASE PROCESSOR] Processing FET output files for database...');
 					try {
-						console.log('📋 [DATABASE PROCESSOR] Starting CSV parsing and validation...');
 						await parseTimetableCSVAndPopulate(
 							timetableCSV,
 							queueEntry.timetableId,
@@ -138,30 +125,18 @@ export async function processTimetableQueue() {
 							queueEntry.timetableDraftId
 						);
 
-						console.log(
-							'✅ [DATABASE PROCESSOR] FET activities successfully processed and stored in database'
-						);
-
 						await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.completed);
 					} catch (dbError) {
-						console.error(
-							'❌ [DATABASE PROCESSOR] Error processing FET files for database:',
-							dbError
-						);
 						console.error('📊 [DATABASE PROCESSOR] Database error details:', {
 							message: dbError instanceof Error ? dbError.message : 'Unknown database error',
 							stack: dbError instanceof Error ? dbError.stack : undefined,
 							timetableId: timetableId
 						});
-						// Don't fail the entire process for database errors, just log them
 					}
 				} else {
-					console.warn('⚠️  [DATABASE PROCESSOR] Missing required files for database processing:');
-					console.warn(`   - timetable.fet: ${timetableCSV ? '✅ Found' : '❌ Missing'}`);
 					throw new Error('FET processing completed but no output files were generated');
 				}
 			} else {
-				console.log('📄 [TIMETABLE PROCESSOR] No output files found');
 				throw new Error('FET processing completed but no output files were generated');
 			}
 		} catch (processingError) {
