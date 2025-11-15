@@ -170,8 +170,8 @@ export const subjectThread = pgTable('sub_thread', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('sub_thread_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('sub_thread_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -204,8 +204,8 @@ export const subjectThreadResponse = pgTable(
 			columns: [self.parentResponseId],
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('sub_thread_resp_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('sub_thread_resp_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 

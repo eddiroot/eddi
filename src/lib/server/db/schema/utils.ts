@@ -32,8 +32,8 @@ export const tempPool = pgTable('temp_pool', {
 	...timestamps
 },
 (self)	=> [
-	index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-	index('metadata_idx').using('gin', self.embeddingMetadata),
+	index('temp_pool_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+	index('temp_pool_metadata_idx').using('gin', self.embeddingMetadata),
 ]
 );
 

@@ -77,8 +77,8 @@ export const news = pgTable(
 	},
 	(self) => [
 		unique().on(self.schoolId, self.title), // Unique title per school
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('news_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('news_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 

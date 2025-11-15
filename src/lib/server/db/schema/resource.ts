@@ -18,8 +18,8 @@ export const resource = pgTable('res', {
 	...embeddings
 },	// If we want to embed resources for search as well.
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('res_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('res_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 

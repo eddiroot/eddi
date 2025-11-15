@@ -86,8 +86,8 @@ export const courseMapItemAssessmentPlan = pgTable(
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
 		unique().on(self.originalId, self.version),
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('cm_ass_pln_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('cm_ass_pln_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -126,8 +126,8 @@ export const courseMapItemLessonPlan = pgTable(
 			foreignColumns: [self.id]
 		}).onDelete('cascade'),
 		unique().on(self.originalId, self.version),
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('cm_les_pln_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('cm_les_pln_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 

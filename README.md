@@ -29,6 +29,7 @@ If you make breaking changes to the DB on your local and are happy to start fres
 ```bash
 docker compose down --volumes
 docker compose up --detach
+npm run db:migrate
 npm run db:push
 npm run db:seed
 npm run dev -- --open

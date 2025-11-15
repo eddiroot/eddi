@@ -119,8 +119,8 @@ export const taskBlock = pgTable('task_block', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('task_block_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('task_block_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -186,8 +186,8 @@ export const classTaskBlockResponse = pgTable(
 	},
 	(self) => [
 		unique().on(self.taskBlockId, self.authorId, self.classTaskId),
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata)
+		index('cls_task_block_res_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('cls_task_block_res_metadata_idx').using('gin', self.embeddingMetadata)
 	]
 );
 
@@ -217,8 +217,8 @@ export const classTaskResponse = pgTable(
 		...embeddings
 	},
 	(self) => [unique().on(self.classTaskId, self.authorId),
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('cls_task_res_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('cls_task_res_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -279,8 +279,8 @@ export const rubricCell = pgTable('rubric_cell', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('rubric_cell_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('rubric_cell_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -315,8 +315,8 @@ export const whiteboard = pgTable('whiteboard', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('whiteboard_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('whiteboard_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -353,15 +353,15 @@ export const taskAgenda = pgTable('task_agenda', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('task_agenda_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('task_agenda_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
 export type TaskAgenda = typeof taskAgenda.$inferSelect;
 
 // Hints and Steps for a given task block
-export const taskBlockGuidance = pgTable('task_block_guidance', {
+export const taskBlockGuidance = pgTable('tb_guidance', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	taskBlockId: integer('task_block_id')
 		.notNull()
@@ -371,15 +371,15 @@ export const taskBlockGuidance = pgTable('task_block_guidance', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('tb_guidance_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('tb_guidance_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
 export type TaskBlockGuidance = typeof taskBlockGuidance.$inferSelect;
 
 // Misconceptions associated with a task block
-export const taskblockMisconception = pgTable('task_block_misconception', {
+export const taskblockMisconception = pgTable('tb_misc', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
 	taskBlockId: integer('task_block_id')
 		.notNull()
@@ -389,8 +389,8 @@ export const taskblockMisconception = pgTable('task_block_misconception', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('tb_misc_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('tb_misc_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 

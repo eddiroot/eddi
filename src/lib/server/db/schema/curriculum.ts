@@ -37,8 +37,8 @@ export const learningArea = pgTable('crclm_sub_la', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('crclm_sub_la_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('crclm_sub_la_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -57,8 +57,8 @@ export const learningAreaContent = pgTable('lrn_a_cont', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('lrn_a_cont_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('lrn_a_cont_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -98,8 +98,8 @@ export const learningAreaStandard = pgTable('lrn_a_std', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('lrn_a_std_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('lrn_a_std_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -118,8 +118,8 @@ export const standardElaboration = pgTable('lrn_a_std_elab', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('lrn_a_std_elab_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('lrn_a_std_elab_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -138,8 +138,8 @@ export const outcome = pgTable('outcome', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('outcome_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('outcome_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -156,13 +156,7 @@ export const learningAreaOutcome = pgTable('lrn_a_outcome', {
 		.references(() => outcome.id, { onDelete: 'cascade' }),
 	isArchived: boolean('is_archived').notNull().default(false),
 	...timestamps,
-	...embeddings
 },
-	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
-	]
-
 );
 
 export type LearningAreaOutcome = typeof learningAreaOutcome.$inferSelect;
@@ -182,8 +176,8 @@ export const keySkill = pgTable('key_skill', {
 	...embeddings	
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('key_skill_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('key_skill_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -203,8 +197,8 @@ export const keyKnowledge = pgTable('key_knowledge', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('key_knowledge_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('key_knowledge_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 
 );
@@ -223,8 +217,8 @@ export const examQuestion = pgTable('exam_question', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('exam_question_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('exam_question_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -241,8 +235,8 @@ export const learningActivity = pgTable('lrn_activity', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('learning_activity_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('learning_activity_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 );
 
@@ -259,9 +253,27 @@ export const assessmentTask = pgTable('assess_task', {
 	...embeddings
 },
 	(self) => [
-		index('embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
-		index('metadata_idx').using('gin', self.embeddingMetadata),
+		index('assessment_task_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('assessment_task_metadata_idx').using('gin', self.embeddingMetadata),
 	]
 ); 
 
 export type AssessmentTask = typeof assessmentTask.$inferSelect;
+
+export const curriculumSubjectExtraContent = pgTable('crclm_sub_cont', {
+	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
+	curriculumSubjectId: integer('cur_sub_id')
+		.notNull()
+		.references(() => curriculumSubject.id, { onDelete: 'cascade' }),
+	content: text('content').notNull(),
+	isArchived: boolean('is_archived').notNull().default(false),
+	...timestamps,
+	...embeddings
+},
+	(self) => [
+		index('crclm_sub_cont_embedding_idx').using('hnsw', self.embedding.op('vector_cosine_ops')),
+		index('crclm_sub_cont_metadata_idx').using('gin', self.embeddingMetadata),
+	]
+);
+
+export type CurriculumSubjectExtraContent = typeof curriculumSubjectExtraContent.$inferSelect;
