@@ -6,7 +6,7 @@
 	import EditIcon from '@lucide/svelte/icons/edit';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
-// Import constraint form mapping utilities
+	// Import constraint form mapping utilities
 	import { getConstraintFormComponent, requiresEnhancedProps } from '$lib/constraint-form-mapping';
 	// Fallback generic form
 	import type { Constraint } from '$lib/server/db/schema/timetables';
@@ -15,6 +15,7 @@
 	let {
 		user,
 		timetableId,
+		timetableDraftId,
 		currentTimeConstraints,
 		currentSpaceConstraints,
 		availableTimeConstraints,
@@ -28,7 +29,7 @@
 	// Initialize constraint states
 	$effect(() => {
 		// Initialize states for current constraints
-		[...currentTimeConstraints, ...currentSpaceConstraints].forEach(constraint => {
+		[...currentTimeConstraints, ...currentSpaceConstraints].forEach((constraint) => {
 			constraintStates.set(`${constraint.id}`, {
 				active: constraint.active,
 				isUpdating: false,
@@ -57,16 +58,19 @@
 		if (!constraintToAdd) return;
 
 		try {
-			const response = await fetch(`/admin/timetables/${timetableId}/constraints`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					constraintId: constraintToAdd.id,
-					parameters: formData
-				})
-			});
+			const response = await fetch(
+				`/admin/timetables/${timetableId}/${timetableDraftId}/constraints`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						constraintId: constraintToAdd.id,
+						parameters: formData
+					})
+				}
+			);
 
 			const result = await response.json();
 
@@ -89,7 +93,7 @@
 	async function handleToggleConstraintActive(constraintId: number, newActiveState: boolean) {
 		const stateKey = `${constraintId}`;
 		const currentState = constraintStates.get(stateKey);
-		
+
 		if (!currentState || currentState.isUpdating) return;
 
 		// Optimistic update
@@ -100,16 +104,19 @@
 		});
 
 		try {
-			const response = await fetch(`/admin/timetables/${timetableId}/constraints`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					constraintId: constraintId,
-					active: newActiveState
-				})
-			});
+			const response = await fetch(
+				`/admin/timetables/${timetableId}/${timetableDraftId}/constraints`,
+				{
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						constraintId: constraintId,
+						active: newActiveState
+					})
+				}
+			);
 
 			const result = await response.json();
 
@@ -141,21 +148,24 @@
 	}
 
 	// Handle deleting a constraint from the timetable
-	async function handleDeleteConstraint(constraintId: number) {
+	async function handleDeleteConstraint(ttConstraintId: number) {
 		if (!confirm('Are you sure you want to remove this constraint from the timetable?')) {
 			return;
 		}
 
 		try {
-			const response = await fetch(`/admin/timetables/${timetableId}/constraints`, {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					constraintId: constraintId
-				})
-			});
+			const response = await fetch(
+				`/admin/timetables/${timetableId}/${timetableDraftId}/constraints`,
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						ttConstraintId: ttConstraintId
+					})
+				}
+			);
 
 			const result = await response.json();
 
@@ -185,16 +195,14 @@
 			Timetable ID: {timetableId}
 		</div>
 		<div>
-			<Button href="/admin/constraintinfo" variant="outline">
-				Info & Recommendations
-			</Button>
+			<Button href="/admin/constraintinfo" variant="outline">Info & Recommendations</Button>
 		</div>
 	</div>
 
 	<!-- 2x2 Grid Layout -->
 	<div class="grid gap-6 lg:grid-cols-2">
 		<!-- Top Row: Active Constraints -->
-		
+
 		<!-- Active Time Constraints -->
 		<div class="space-y-4">
 			<div class="flex items-center justify-between">
@@ -222,10 +230,11 @@
 									<div class="flex items-center gap-3">
 										{#if constraint.optional}
 											{@const state = constraintStates.get(`${constraint.id}`)}
-											<Checkbox 
-												checked={state?.active ?? constraint.active} 
+											<Checkbox
+												checked={state?.active ?? constraint.active}
 												disabled={state?.isUpdating ?? false}
-												onCheckedChange={(checked) => handleToggleConstraintActive(constraint.id, checked === true)} 
+												onCheckedChange={(checked) =>
+													handleToggleConstraintActive(constraint.id, checked === true)}
 											/>
 										{:else}
 											<span class="text-muted-foreground text-xs">Mandatory</span>
@@ -235,7 +244,11 @@
 												<EditIcon class="h-4 w-4" />
 											</Button>
 											{#if constraint.optional}
-												<Button variant="ghost" size="sm" onclick={() => handleDeleteConstraint(constraint.id)}>
+												<Button
+													variant="ghost"
+													size="sm"
+													onclick={() => handleDeleteConstraint(constraint.id)}
+												>
 													<TrashIcon class="h-4 w-4" />
 												</Button>
 											{/if}
@@ -276,10 +289,11 @@
 									<div class="flex items-center gap-3">
 										{#if constraint.optional}
 											{@const state = constraintStates.get(`${constraint.id}`)}
-											<Checkbox 
-												checked={state?.active ?? constraint.active} 
+											<Checkbox
+												checked={state?.active ?? constraint.active}
 												disabled={state?.isUpdating ?? false}
-												onCheckedChange={(checked) => handleToggleConstraintActive(constraint.id, checked === true)} 
+												onCheckedChange={(checked) =>
+													handleToggleConstraintActive(constraint.id, checked === true)}
 											/>
 										{:else}
 											<span class="text-muted-foreground text-xs">Mandatory</span>
@@ -289,7 +303,11 @@
 												<EditIcon class="h-4 w-4" />
 											</Button>
 											{#if constraint.optional}
-												<Button variant="ghost" size="sm" onclick={() => handleDeleteConstraint(constraint.id)}>
+												<Button
+													variant="ghost"
+													size="sm"
+													onclick={() => handleDeleteConstraint(constraint.id)}
+												>
 													<TrashIcon class="h-4 w-4" />
 												</Button>
 											{/if}
@@ -304,7 +322,7 @@
 		</div>
 
 		<!-- Bottom Row: Available Constraints -->
-		
+
 		<!-- Available Time Constraints -->
 		<div class="space-y-4">
 			<div class="flex items-center justify-between">
@@ -327,7 +345,7 @@
 										<div class="flex items-center justify-between">
 											<h3 class="font-semibold">{constraint.friendlyName}</h3>
 											{#if !constraint.repeatable}
-												<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
+												<span class="text-muted-foreground bg-muted rounded-full px-2 py-1 text-xs">
 													One-time
 												</span>
 											{/if}
@@ -336,7 +354,11 @@
 											{constraint.description}
 										</p>
 									</div>
-									<Button size="sm" class="w-full" onclick={() => openAddConstraintModal(constraint)}>
+									<Button
+										size="sm"
+										class="w-full"
+										onclick={() => openAddConstraintModal(constraint)}
+									>
 										<PlusIcon class="mr-2 h-4 w-4" />
 										Add Constraint
 									</Button>
@@ -370,7 +392,7 @@
 										<div class="flex items-center justify-between">
 											<h3 class="font-semibold">{constraint.friendlyName}</h3>
 											{#if !constraint.repeatable}
-												<span class="text-muted-foreground rounded-full bg-muted px-2 py-1 text-xs">
+												<span class="text-muted-foreground bg-muted rounded-full px-2 py-1 text-xs">
 													One-time
 												</span>
 											{/if}
@@ -379,7 +401,11 @@
 											{constraint.description}
 										</p>
 									</div>
-									<Button size="sm" class="w-full" onclick={() => openAddConstraintModal(constraint)}>
+									<Button
+										size="sm"
+										class="w-full"
+										onclick={() => openAddConstraintModal(constraint)}
+									>
 										<PlusIcon class="mr-2 h-4 w-4" />
 										Add Constraint
 									</Button>
@@ -405,9 +431,13 @@
 		{#if constraintToAdd}
 			{@const FormComponent = getFormComponent(constraintToAdd)}
 			{#if requiresEnhancedProps(constraintToAdd.FETName)}
-				<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal} {formData}/>
+				<FormComponent
+					onSubmit={handleAddConstraint}
+					onCancel={closeAddConstraintModal}
+					{formData}
+				/>
 			{:else}
-				<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal}/>
+				<FormComponent onSubmit={handleAddConstraint} onCancel={closeAddConstraintModal} />
 			{/if}
 		{/if}
 	</Dialog.Content>

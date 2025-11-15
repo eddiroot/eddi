@@ -1216,7 +1216,7 @@ export async function createTimetableDraftConstraint(data: {
 export async function getAllConstraintsByTimetableDraftId(timetableDraftId: number) {
 	return db
 		.select({
-			id: table.constraint.id,
+			id: table.timetableConstraint.id,
 			FETName: table.constraint.FETName,
 			friendlyName: table.constraint.friendlyName,
 			description: table.constraint.description,
@@ -1302,34 +1302,20 @@ export async function getActiveTimetableDraftConstraintsByTimetableDraftId(
 		.orderBy(asc(table.constraint.FETName));
 }
 
-export async function deleteTimetableDraftConstraint(
-	timetableDraftId: number,
-	constraintId: number
-) {
+export async function deleteTimetableDraftConstraint(ttConstraintId: number) {
 	await db
 		.delete(table.timetableConstraint)
-		.where(
-			and(
-				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
-				eq(table.timetableConstraint.constraintId, constraintId)
-			)
-		);
+		.where(and(eq(table.timetableConstraint.id, ttConstraintId)));
 }
 
 export async function updateTimetableDraftConstraintActiveStatus(
-	timetableDraftId: number,
-	constraintId: number,
+	ttConstraintId: number,
 	active: boolean
 ) {
 	const result = await db
 		.update(table.timetableConstraint)
 		.set({ active })
-		.where(
-			and(
-				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
-				eq(table.timetableConstraint.constraintId, constraintId)
-			)
-		)
+		.where(and(eq(table.timetableConstraint.id, ttConstraintId)))
 		.returning();
 
 	return result[0];

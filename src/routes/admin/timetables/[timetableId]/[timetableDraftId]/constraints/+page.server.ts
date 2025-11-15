@@ -6,6 +6,7 @@ import { getAllConstraints, getAllConstraintsByTimetableDraftId } from '$lib/ser
 export const load = async ({ locals: { security }, params }) => {
 	const user = security.isAuthenticated().isSchoolAdmin().getUser();
 	const timetableId = parseInt(params.timetableId, 10);
+	const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
 	// Get constraints currently assigned to this timetable
 	const assignedConstraints = await getAllConstraintsByTimetableDraftId(timetableId);
@@ -53,6 +54,7 @@ export const load = async ({ locals: { security }, params }) => {
 	return {
 		user,
 		timetableId,
+		timetableDraftId,
 		// current constraints that are assigned to this timetable
 		currentTimeConstraints,
 		currentSpaceConstraints,

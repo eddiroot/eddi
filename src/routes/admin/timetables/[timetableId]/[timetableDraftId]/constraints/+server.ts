@@ -1,6 +1,8 @@
+import { validateConstraintParameters } from '$lib/schemas/constraints';
 import {
 	createTimetableDraftConstraint,
 	deleteTimetableDraftConstraint,
+	getConstraintById,
 	updateTimetableDraftConstraintActiveStatus
 } from '$lib/server/db/service';
 import { json } from '@sveltejs/kit';
@@ -13,11 +15,36 @@ export const POST = async ({ request, params, locals: { security } }) => {
 	try {
 		const { constraintId, parameters = {} } = await request.json();
 
+		// Get constraint details to validate parameters
+		const constraint = await getConstraintById(constraintId);
+		if (!constraint) {
+			return json(
+				{
+					success: false,
+					error: 'Constraint not found'
+				},
+				{ status: 404 }
+			);
+		}
+
+		// Validate parameters with Zod
+		const validationResult = validateConstraintParameters(constraint.FETName, parameters);
+		if (!validationResult.success) {
+			return json(
+				{
+					success: false,
+					error: 'Invalid constraint parameters',
+					validationErrors: validationResult.errors.flatten()
+				},
+				{ status: 400 }
+			);
+		}
+
 		const data = {
 			timetableDraftId,
 			constraintId,
 			active: true,
-			parameters
+			parameters: validationResult.data as Record<string, unknown>
 		};
 
 		const timetableConstraint = await createTimetableDraftConstraint(data);
@@ -39,14 +66,13 @@ export const POST = async ({ request, params, locals: { security } }) => {
 };
 
 // Update a constraint (toggle active state or update parameters)
-export const PATCH = async ({ request, params, locals: { security } }) => {
+export const PATCH = async ({ request, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin().getUser();
-	const timetableId = parseInt(params.timetableId, 10);
 
 	try {
-		const { constraintId, active } = await request.json();
+		const { constraintId: ttConstraintId, active } = await request.json();
 
-		if (!constraintId) {
+		if (!ttConstraintId) {
 			return json(
 				{
 					success: false,
@@ -67,8 +93,7 @@ export const PATCH = async ({ request, params, locals: { security } }) => {
 		}
 
 		const updatedConstraint = await updateTimetableDraftConstraintActiveStatus(
-			timetableId,
-			constraintId,
+			ttConstraintId,
 			active
 		);
 
@@ -100,14 +125,13 @@ export const PATCH = async ({ request, params, locals: { security } }) => {
 };
 
 // Remove a constraint from a timetable
-export const DELETE = async ({ request, params, locals: { security } }) => {
+export const DELETE = async ({ request, locals: { security } }) => {
 	security.isAuthenticated().isSchoolAdmin().getUser();
-	const timetableId = parseInt(params.timetableId, 10);
 
 	try {
-		const { constraintId } = await request.json();
+		const { ttConstraintId: ttConstraintId } = await request.json();
 
-		if (!constraintId) {
+		if (!ttConstraintId) {
 			return json(
 				{
 					success: false,
@@ -117,7 +141,7 @@ export const DELETE = async ({ request, params, locals: { security } }) => {
 			);
 		}
 
-		await deleteTimetableDraftConstraint(timetableId, constraintId);
+		await deleteTimetableDraftConstraint(ttConstraintId);
 
 		return json({ success: true });
 	} catch (error) {
