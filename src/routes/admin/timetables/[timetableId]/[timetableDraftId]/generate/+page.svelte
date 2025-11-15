@@ -404,7 +404,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<AlertCircle class="h-5 w-5 text-red-500" />
-				Generation Error - Iteration #{selectedError?.timetableDraftId}
+				Generation Error - Draft #{selectedError?.timetableDraftId}
 			</Dialog.Title>
 			<Dialog.Description>
 				The timetable generation process encountered the following error:
@@ -493,7 +493,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="flex items-center gap-2">
 				<Info class="h-5 w-5 text-green-500" />
-				FET Response - Iteration #{selectedResponse?.timetableDraftId}
+				FET Response - Draft #{selectedResponse?.timetableDraftId}
 			</Dialog.Title>
 			<Dialog.Description>The output from the timetable generation process:</Dialog.Description>
 		</Dialog.Header>
