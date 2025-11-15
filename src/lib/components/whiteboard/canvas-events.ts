@@ -82,7 +82,9 @@ export interface CanvasEventContext {
  */
 export const createObjectMovingHandler = (ctx: CanvasEventContext) => {
     return ({ target }: { target: fabric.Object }) => {
-        const objData = target.toObject();
+        const objData = target.type === 'textbox'
+            ? target.toObject(['text'])
+            : target.toObject();
         // @ts-expect-error - custom id property
         objData.id = target.id;
 
@@ -106,7 +108,9 @@ export const createObjectMovingHandler = (ctx: CanvasEventContext) => {
  */
 export const createObjectScalingHandler = (ctx: CanvasEventContext) => {
     return ({ target }: { target: fabric.Object }) => {
-        const objData = target.toObject();
+        const objData = target.type === 'textbox'
+            ? target.toObject(['text'])
+            : target.toObject();
         // @ts-expect-error - custom id property
         objData.id = target.id;
 
@@ -130,7 +134,9 @@ export const createObjectScalingHandler = (ctx: CanvasEventContext) => {
  */
 export const createObjectRotatingHandler = (ctx: CanvasEventContext) => {
     return ({ target }: { target: fabric.Object }) => {
-        const objData = target.toObject();
+        const objData = target.type === 'textbox'
+            ? target.toObject(['text'])
+            : target.toObject();
         // @ts-expect-error - custom id property
         objData.id = target.id;
 
@@ -155,7 +161,10 @@ export const createObjectRotatingHandler = (ctx: CanvasEventContext) => {
 export const createObjectModifiedHandler = (ctx: CanvasEventContext) => {
     return ({ target }: { target: fabric.Object }) => {
         // This handles final modifications - always send immediately for persistence
-        const objData = target.toObject();
+        // For textbox objects, include the 'text' property
+        const objData = target.type === 'textbox'
+            ? target.toObject(['text'])
+            : target.toObject();
         // @ts-expect-error - custom id property
         objData.id = target.id;
 
@@ -213,7 +222,7 @@ export const createMouseUpHandler = (canvas: fabric.Canvas, ctx: CanvasEventCont
             canvas.renderAll();
 
             // Send the completed text to other users
-            const objData = tempText.toObject();
+            const objData = tempText.toObject(['text']);
             // @ts-expect-error - custom id property
             objData.id = tempText.id;
             ctx.sendCanvasUpdate({
@@ -427,15 +436,61 @@ export const createPathCreatedHandler = (ctx: CanvasEventContext) => {
 
 /**
  * Creates text:changed event handler
+ * Throttled to avoid sending updates on every keystroke
  */
+let textChangeTimeout: ReturnType<typeof setTimeout> | null = null;
 export const createTextChangedHandler = (ctx: CanvasEventContext) => {
     return ({ target }: { target: fabric.Object }) => {
-        const objData = target.toObject();
+        // Clear any pending text update
+        if (textChangeTimeout !== null) {
+            clearTimeout(textChangeTimeout);
+        }
+
+        // Throttle text updates - send after 500ms of no typing
+        textChangeTimeout = setTimeout(() => {
+            const objData = target.toObject(['text']);
+            // @ts-expect-error - custom id property
+            objData.id = target.id;
+            ctx.sendCanvasUpdate({
+                type: 'modify',
+                object: objData,
+                live: false // Not live, should persist
+            });
+            textChangeTimeout = null;
+        }, 500);
+
+        // Also send a live update immediately (won't be persisted to DB)
+        const objData = target.toObject(['text']);
         // @ts-expect-error - custom id property
         objData.id = target.id;
         ctx.sendCanvasUpdate({
             type: 'modify',
-            object: objData
+            object: objData,
+            live: true // Live update, won't persist to DB
+        });
+    };
+};
+
+/**
+ * Creates text:editing:exited event handler
+ * Ensures final text is sent when user finishes editing
+ */
+export const createTextEditingExitedHandler = (ctx: CanvasEventContext) => {
+    return ({ target }: { target: fabric.Object }) => {
+        // Clear any pending throttled update
+        if (textChangeTimeout !== null) {
+            clearTimeout(textChangeTimeout);
+            textChangeTimeout = null;
+        }
+
+        // Send final text state immediately when editing ends
+        const objData = target.toObject(['text']);
+        // @ts-expect-error - custom id property
+        objData.id = target.id;
+        ctx.sendCanvasUpdate({
+            type: 'modify',
+            object: objData,
+            live: false // Final update, should persist to DB
         });
     };
 };
@@ -1024,6 +1079,7 @@ export const setupCanvasEvents = (canvas: fabric.Canvas, ctx: CanvasEventContext
     canvas.on('mouse:up', createMouseUpHandler(canvas, ctx));
     canvas.on('path:created', createPathCreatedHandler(ctx));
     canvas.on('text:changed', createTextChangedHandler(ctx));
+    canvas.on('text:editing:exited', createTextEditingExitedHandler(ctx));
     canvas.on('selection:created', createSelectionCreatedHandler(ctx));
     canvas.on('selection:updated', createSelectionUpdatedHandler(ctx));
     canvas.on('selection:cleared', createSelectionClearedHandler(ctx));

@@ -168,8 +168,22 @@ function handleModifyMessage(canvas: fabric.Canvas, messageData: WebSocketMessag
     // @ts-expect-error - Custom id property
     const obj = objects.find((o) => o.id === messageData.object!.id);
     if (obj) {
-        // For live image updates, only update the essential properties to reduce lag
+        // Skip updating textbox if it's currently being edited by this user
+        if (obj.type === 'textbox') {
+            const textbox = obj as fabric.Textbox;
+            if (textbox.isEditing) {
+                // Don't update text that's currently being edited to avoid cursor issues
+                return;
+            }
+        }
+
+        // Skip live updates for textboxes - only apply final updates
         const isLiveUpdate = messageData.live || false;
+        if (isLiveUpdate && messageData.object.type === 'textbox') {
+            return;
+        }
+
+        // For live image updates, only update the essential properties to reduce lag
         if (isLiveUpdate && messageData.object.type === 'image') {
             // Only update positioning and transformation properties for live image updates
             obj.set({
@@ -181,21 +195,47 @@ function handleModifyMessage(canvas: fabric.Canvas, messageData: WebSocketMessag
                 opacity: messageData.object.opacity
             });
         } else {
-            // Full update for all objects
-            obj.set(messageData.object as Partial<fabric.FabricObjectProps>);
+            // For textboxes, handle text property specially
+            if (obj.type === 'textbox' && 'text' in messageData.object) {
+                const textbox = obj as fabric.Textbox;
 
-            // For lines, ensure origin stays centered
-            if (obj.type === 'line') {
-                obj.set({
-                    originX: 'center',
-                    originY: 'center'
+                // Use set() method with text property explicitly
+                textbox.set({
+                    text: messageData.object.text as string
                 });
+
+                // Then update other properties (excluding text and type to avoid duplication)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { text: _text, type: _type, ...otherProps } = messageData.object;
+                if (Object.keys(otherProps).length > 0) {
+                    textbox.set(otherProps as Partial<fabric.FabricObjectProps>);
+                }
+
+                // Force complete re-initialization of the textbox
+                textbox.initDimensions();
+                textbox.setCoords();
+
+                // Mark as dirty to force re-render
+                textbox.dirty = true;
+            } else {
+                // Full update for all other objects
+                obj.set(messageData.object as Partial<fabric.FabricObjectProps>);
+
+                // For lines, ensure origin stays centered
+                if (obj.type === 'line') {
+                    obj.set({
+                        originX: 'center',
+                        originY: 'center'
+                    });
+                }
             }
         }
 
         // Recalculate coordinates after update
         obj.setCoords();
-        canvas.renderAll();
+
+        // Force immediate render
+        canvas.requestRenderAll();
     }
 }
 
