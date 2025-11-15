@@ -175,8 +175,6 @@ export const actions: Actions = {
 
 	deleteActivity: async ({ request, locals: { security } }) => {
 		security.isAuthenticated().isSchoolAdmin();
-		console.log('Delete activity action called');
-
 		const form = await superValidate(request, zod4(deleteActivitySchema));
 
 		if (!form.valid) {

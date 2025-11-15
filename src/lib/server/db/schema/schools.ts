@@ -96,7 +96,7 @@ export const schoolSemester = pgTable(
 	},
 	(self) => [
 		check('valid_sem_number', sql`${self.semNumber} IN (1, 2)`),
-		unique().on(self.schoolYear, self.semNumber)
+		unique().on(self.schoolId, self.schoolYear, self.semNumber)
 	]
 );
 
