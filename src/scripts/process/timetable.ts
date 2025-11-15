@@ -61,15 +61,13 @@ export async function processTimetableQueue() {
 			const fetResult = await fetService.executeFET(containerTempPath, containerOutputDir);
 
 			if (!fetResult.success) {
-				throw new Error(`FET processing failed: ${fetResult.error}`);
-			}
-
-			// Store FET response (stdout) in the draft for successful generations
-			if (fetResult.stdout) {
-				try {
-					await updateTimetableDraftFetResponse(queueEntry.timetableDraftId, fetResult.stdout);
-				} catch (responseError) {
-					console.warn('⚠️  [TIMETABLE PROCESSOR] Failed to store FET response:', responseError);
+				if (fetResult.error) {
+					try {
+						await updateTimetableDraftFetResponse(queueEntry.timetableDraftId, fetResult.error);
+					} catch (responseError) {
+						console.warn('⚠️  [TIMETABLE PROCESSOR] Failed to store FET response:', responseError);
+					}
+					throw new Error(`FET processing failed: ${fetResult.stdout}`);
 				}
 			}
 
@@ -183,16 +181,6 @@ export async function processTimetableQueue() {
 
 			await updateTimetableDraftError(queueEntry.timetableDraftId, errorDetails);
 
-			console.error('📊 [TIMETABLE PROCESSOR] Error details:', {
-				message: errorMessage,
-				stack: processingError instanceof Error ? processingError.stack : undefined,
-				queueEntryId: queueEntry.id,
-				schoolId: queueEntry.school.id,
-				timetableId: queueEntry.timetableId,
-				timetableDraftId: queueEntry.timetableDraftId,
-				fileName: queueEntry.fileName
-			});
-
 			// Mark task as failed
 			console.log('💥 [TIMETABLE PROCESSOR] Marking task as failed...');
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed, new Date());
@@ -211,11 +199,6 @@ export async function processTimetableQueue() {
 		}
 	} catch (error) {
 		console.error('❌ [TIMETABLE PROCESSOR] Critical error in processTimetableQueue:', error);
-		console.error('📊 [TIMETABLE PROCESSOR] Critical error details:', {
-			message: error instanceof Error ? error.message : 'Unknown critical error',
-			stack: error instanceof Error ? error.stack : undefined,
-			timestamp: new Date().toISOString()
-		});
 	} finally {
 		const totalTime = Date.now() - startTime;
 		console.log(

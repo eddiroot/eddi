@@ -307,7 +307,7 @@
 										<Badge class={getStatusColor(entry.status)}>
 											{formatStatus(entry.status)}
 										</Badge>
-										{#if entry.status === 'failed' && entry.errorMessage}
+										{#if entry.status === 'failed' && entry.fetResponse}
 											<Button
 												variant="ghost"
 												size="icon"
@@ -315,7 +315,7 @@
 												onclick={() =>
 													showError(
 														entry.timetableDraftId,
-														entry.errorMessage!,
+														entry.fetResponse!,
 														entry.translatedErrorMessage
 													)}
 												title="View error details"

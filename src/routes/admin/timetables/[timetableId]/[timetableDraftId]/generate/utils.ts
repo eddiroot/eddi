@@ -4,6 +4,7 @@ import type { FETActivity, FETOutput } from '$lib/schema/fet';
 import {
 	getActiveTimetableDraftConstraintsByTimetableDraftId,
 	getAllStudentGroupsByTimetableDraftId,
+	getAllStudentsWithYearLevelsBySchoolId,
 	getBuildingsBySchoolId,
 	getEnhancedTimetableDraftActivitiesByTimetableDraftId,
 	getSchoolById,
@@ -19,6 +20,7 @@ export type TimetableData = {
 	timetableDays: Awaited<ReturnType<typeof getTimetableDraftDaysByTimetableDraftId>>;
 	timetablePeriods: Awaited<ReturnType<typeof getTimetableDraftPeriodsByTimetableDraftId>>;
 	studentGroups: Awaited<ReturnType<typeof getAllStudentGroupsByTimetableDraftId>>;
+	studentsByYear: Awaited<ReturnType<typeof getAllStudentsWithYearLevelsBySchoolId>>;
 	activities: Awaited<ReturnType<typeof getEnhancedTimetableDraftActivitiesByTimetableDraftId>>;
 	buildings: Awaited<ReturnType<typeof getBuildingsBySchoolId>>;
 	spaces: Awaited<ReturnType<typeof getSpacesBySchoolId>>;
@@ -50,14 +52,17 @@ async function buildTeachersList(teachers: TimetableData['teachers']) {
 	);
 }
 
-function buildStudentsList(studentGroups: TimetableData['studentGroups']) {
+function buildStudentsList(
+	studentGroups: TimetableData['studentGroups'],
+	studentsByYear: TimetableData['studentsByYear']
+) {
 	// Organize data by year level
 	const yearLevelMap = new Map<
 		string,
 		{
 			totalStudents: Set<string>;
 			groups: Map<
-				number,
+				number | string,
 				{
 					name: string;
 					students: Array<{ id: string; name: string }>;
@@ -103,6 +108,37 @@ function buildStudentsList(studentGroups: TimetableData['studentGroups']) {
 		}
 	}
 
+	// Add all students from studentsByYear to ensure every year level has a complete group
+	for (const [yearLevel, students] of Object.entries(studentsByYear)) {
+		// Initialize year level if it doesn't exist
+		if (!yearLevelMap.has(yearLevel)) {
+			yearLevelMap.set(yearLevel, {
+				totalStudents: new Set(),
+				groups: new Map()
+			});
+		}
+
+		const yearData = yearLevelMap.get(yearLevel)!;
+
+		// Create the YX group for all students in this year level
+		const yearGroupKey = `AllStudents-Y${yearLevel}`;
+		const yearGroupStudents = students.map((student) => ({
+			id: student.id,
+			name: `${student.firstName} ${student.lastName}`
+		}));
+
+		yearData.groups.set(yearGroupKey, {
+			name: `Year ${yearLevel} - All Students`,
+			students: yearGroupStudents
+		});
+
+		// Add all students to totalStudents set
+		students.forEach((student) => {
+			yearData.totalStudents.add(student.id);
+		});
+	}
+	// console.log(studentsByYear[yearLevelEnum.year9].length);
+
 	// Convert to FET-compatible nested structure
 	const studentsList = [];
 
@@ -118,7 +154,7 @@ function buildStudentsList(studentGroups: TimetableData['studentGroups']) {
 			}));
 
 			yearGroups.push({
-				Name: `G${groupId}`,
+				Name: typeof groupId === 'number' ? `G${groupId}` : groupId,
 				Number_of_Students: groupData.students.length,
 				Comments: groupData.name,
 				Subgroup: subgroups
@@ -292,6 +328,7 @@ export async function buildFETInput({
 	timetableDays,
 	timetablePeriods,
 	studentGroups,
+	studentsByYear,
 	activities,
 	buildings,
 	spaces,
@@ -313,7 +350,7 @@ export async function buildFETInput({
 	}));
 
 	const teachersList = await buildTeachersList(teachers);
-	const studentsList = buildStudentsList(studentGroups);
+	const studentsList = buildStudentsList(studentGroups, studentsByYear);
 	const activitiesList = buildActivitiesList(activities);
 
 	const buildingsList = buildings.map((building) => ({

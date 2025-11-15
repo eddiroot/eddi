@@ -130,9 +130,10 @@ export class FETDockerService {
 				executionTime: Date.now() - startTime
 			};
 		} catch (error) {
+			const execError = error as { stdout?: string; message?: string };
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : 'Unknown error',
+				error: execError?.stdout || 'Unknown error',
 				executionTime: Date.now() - startTime
 			};
 		}

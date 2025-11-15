@@ -352,6 +352,7 @@ export async function getAllStudentGroupsByTimetableDraftId(timetableDraftId: nu
 
 	return groupsWithMembers;
 }
+
 export async function createTimetableDraftStudentGroup(
 	timetableDraftId: number,
 	yearLevel: yearLevelEnum,

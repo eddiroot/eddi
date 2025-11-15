@@ -127,7 +127,7 @@ export async function POST({ request, locals: { security } }) {
 	security.isAuthenticated().isSchoolAdmin();
 
 	try {
-		const { timetableDraftId, errorMessage, forceRetranslate = false } = await request.json();
+		const { timetableDraftId, errorMessage } = await request.json();
 
 		if (!timetableDraftId || !errorMessage) {
 			throw error(400, 'Missing required fields: timetableDraftId and errorMessage');
@@ -137,10 +137,6 @@ export async function POST({ request, locals: { security } }) {
 		if (!GEMINI_API_KEY) {
 			throw error(500, 'Gemini API key not configured');
 		}
-
-		console.log(
-			`🤖 [AI Translation] ${forceRetranslate ? 'Force re-translating' : 'Translating'} error for draft ${timetableDraftId}`
-		);
 
 		// Make the API call to Gemini
 		const response = await fetch(
@@ -182,10 +178,6 @@ export async function POST({ request, locals: { security } }) {
 
 		// Save the translated message to the database
 		await updateTimetableDraftTranslatedError(timetableDraftId, translatedMessage);
-
-		console.log(
-			`✅ [AI Translation] Successfully translated error for draft ${timetableDraftId} (${forceRetranslate ? 'forced' : 'new'})`
-		);
 
 		return json({
 			success: true,
