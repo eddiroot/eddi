@@ -47,14 +47,6 @@ export type UserTimetable = {
 };
 
 /**
- * Helper function to get day name from day number
- */
-export function getDayName(dayNumber: number): string {
-	const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-	return days[dayNumber] || `Day ${dayNumber}`;
-}
-
-/**
  * Calculate duration in minutes between two time strings
  */
 function calculateDurationMinutes(startTime: string, endTime: string): number {
@@ -252,7 +244,7 @@ export async function generateUserTimetable(
 		// Return empty timetable with all configured days
 		const emptyDays: DaySchedule[] = timetableDays.map((day) => ({
 			dayNumber: day.day,
-			dayName: getDayName(day.day),
+			dayName: 'Day ' + day.day,
 			sessions: [],
 			totalHours: 0
 		}));
@@ -315,7 +307,7 @@ export async function generateUserTimetable(
 
 		return {
 			dayNumber: day.day,
-			dayName: getDayName(day.day),
+			dayName: 'Day ' + day.day,
 			sessions: daySessions,
 			totalHours
 		};

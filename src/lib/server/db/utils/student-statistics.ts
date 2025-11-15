@@ -290,20 +290,12 @@ export async function generateStudentStatistics(
 }
 
 /**
- * Helper function to get day name from day number (0 = Monday, 4 = Friday)
- */
-export function getDayName(dayNumber: number): string {
-	const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-	return days[dayNumber] || 'Unknown';
-}
-
-/**
  * Utility to get a summary of a student's schedule
  */
 export function getStudentScheduleSummary(statistic: StudentStatistic): string {
 	const days = Object.entries(statistic.dailyHours)
 		.sort(([a], [b]) => Number(a) - Number(b))
-		.map(([day, hours]) => `${getDayName(Number(day))}: ${hours.toFixed(2)}h`)
+		.map(([day, hours]) => `Day ${Number(day)}: ${hours.toFixed(2)}h`)
 		.join(', ');
 
 	return `${statistic.userName} (${statistic.numberOfEnrolledClasses} classes): ${days}`;

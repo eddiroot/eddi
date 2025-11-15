@@ -244,7 +244,7 @@ export async function createTimetableDraft(data: { timetableId: number; name: st
 		})
 		.returning();
 
-	const defaultDays = [1, 2, 3, 4, 5]; // Monday to Friday
+	const defaultDays = [0, 1, 2, 3, 4]; // Monday to Friday
 	await updateTimetableDraftDaysByTimetableDraftId(draft.id, defaultDays);
 
 	return draft;

@@ -13,7 +13,6 @@ export type StudentStatistic = {
 	maxHoursPerDay: number;
 	minHoursPerDay: number;
 	numberOfFreeDays: number;
-
 	dailyHours: Record<number, number>;
 };
 

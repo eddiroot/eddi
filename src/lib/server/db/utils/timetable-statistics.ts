@@ -158,13 +158,12 @@ function calculateDayUtilization(
 	teachers: TeacherStatistic[]
 ): Map<number, DayUtilization> {
 	const dayMap = new Map<number, DayUtilization>();
-	const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-	// Initialize days
+	// Initialize days 0-4
 	for (let i = 0; i < 5; i++) {
 		dayMap.set(i, {
 			dayNumber: i,
-			dayName: dayNames[i],
+			dayName: 'Day ' + i,
 			totalStudentHours: 0,
 			totalTeacherHours: 0,
 			averageStudentHours: 0,
@@ -176,9 +175,10 @@ function calculateDayUtilization(
 
 	// Aggregate student hours per day
 	for (const student of students) {
-		for (const [day, hours] of Object.entries(student.dailyHours)) {
-			const dayUtil = dayMap.get(Number(day));
-			if (dayUtil) {
+		for (const [dayStr, hours] of Object.entries(student.dailyHours)) {
+			const dayNumber = Number(dayStr);
+			const dayUtil = dayMap.get(dayNumber - 1);
+			if (dayUtil && hours > 0) {
 				dayUtil.totalStudentHours += hours;
 				dayUtil.studentsScheduled++;
 			}
@@ -187,9 +187,10 @@ function calculateDayUtilization(
 
 	// Aggregate teacher hours per day
 	for (const teacher of teachers) {
-		for (const [day, hours] of Object.entries(teacher.dailyHours)) {
-			const dayUtil = dayMap.get(Number(day));
-			if (dayUtil) {
+		for (const [dayStr, hours] of Object.entries(teacher.dailyHours)) {
+			const dayNumber = Number(dayStr);
+			const dayUtil = dayMap.get(dayNumber - 1);
+			if (dayUtil && hours > 0) {
 				dayUtil.totalTeacherHours += hours;
 				dayUtil.teachersScheduled++;
 			}
