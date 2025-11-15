@@ -143,16 +143,16 @@ export async function getFileStream(schoolId: string, objectName: string) {
 export async function getFileFromStorage(
 	schoolId: string,
 	timetableId: string,
+	timetableDraftId: string,
 	objectName: string,
-	input: boolean,
-	iterationId?: string
+	input: boolean
 ) {
 	const dir = input ? 'input' : 'output';
 	const bucketName = `schools`;
 
-	// Use iteration structure if provided, otherwise fall back to old structure
-	const fullObjectName = iterationId
-		? `${schoolId}/${timetableId}/${iterationId}/${dir}/${objectName}`
+	// Use draft structure if provided, otherwise fall back to old structure
+	const fullObjectName = timetableDraftId
+		? `${schoolId}/${timetableId}/${timetableDraftId}/${dir}/${objectName}`
 		: `${schoolId}/${timetableId}/${dir}/${objectName}`;
 
 	try {
