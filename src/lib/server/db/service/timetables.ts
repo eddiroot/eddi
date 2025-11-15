@@ -1,5 +1,4 @@
 import { constraintTypeEnum, queueStatusEnum, userTypeEnum, yearLevelEnum } from '$lib/enums.js';
-import type { FETActivity } from '$lib/schema/fet';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { and, asc, count, eq, ilike, inArray, or } from 'drizzle-orm';
@@ -1334,87 +1333,6 @@ export async function updateTimetableDraftConstraintActiveStatus(
 		.returning();
 
 	return result[0];
-}
-
-// ============================================================================
-// FET ACTIVITIES - Operations
-// ============================================================================
-
-export async function createTimetableDraftFETActivitiesFromFETExport(
-	timetableDraftId: number,
-	fetActivities: FETActivity[]
-) {
-	const activities = fetActivities.map((activity) => ({
-		timetableDraftId,
-		subjectId: activity.Subject,
-		teacherId: activity.Teacher,
-		groupId: activity.Students,
-		spaceId: activity.Room,
-		day: activity.Day,
-		period: activity.Period,
-		duration: activity.Duration
-	}));
-
-	await db.insert(table.fetActivity).values(activities);
-}
-
-export async function getUserFETActivitiesByTimetableDraftId(
-	userId: string,
-	timetableDraftId: number
-) {
-	const activities = await db
-		.select({
-			id: table.fetActivity.id,
-			day: table.fetActivity.day,
-			period: table.fetActivity.period,
-			duration: table.fetActivity.duration,
-			subjectId: table.fetActivity.subjectId,
-			subjectName: table.subject.name,
-			spaceId: table.fetActivity.spaceId,
-			spaceName: table.schoolSpace.name
-		})
-		.from(table.userFetActivity)
-		.innerJoin(table.fetActivity, eq(table.userFetActivity.fetActivityId, table.fetActivity.id))
-		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
-		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
-		.where(
-			and(
-				eq(table.userFetActivity.userId, userId),
-				eq(table.fetActivity.timetableDraftId, timetableDraftId)
-			)
-		)
-		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
-
-	return activities;
-}
-
-export async function getSpaceFETActivitiesByTimetableDraftId(
-	spaceId: number,
-	timetableDraftId: number
-) {
-	const activities = await db
-		.select({
-			id: table.fetActivity.id,
-			day: table.fetActivity.day,
-			period: table.fetActivity.period,
-			duration: table.fetActivity.duration,
-			subjectId: table.fetActivity.subjectId,
-			subjectName: table.subject.name,
-			spaceId: table.fetActivity.spaceId,
-			spaceName: table.schoolSpace.name
-		})
-		.from(table.fetActivity)
-		.innerJoin(table.subject, eq(table.fetActivity.subjectId, table.subject.id))
-		.leftJoin(table.schoolSpace, eq(table.fetActivity.spaceId, table.schoolSpace.id))
-		.where(
-			and(
-				eq(table.fetActivity.spaceId, spaceId),
-				eq(table.fetActivity.timetableDraftId, timetableDraftId)
-			)
-		)
-		.orderBy(asc(table.fetActivity.day), asc(table.fetActivity.period));
-
-	return activities;
 }
 
 // ============================================================================

@@ -8,7 +8,7 @@ import {
 } from '$lib/server/db/service/index.js';
 import { FETDockerService } from '$lib/server/fet.js';
 import { getFileFromStorage, uploadBufferHelper } from '$lib/server/obj.js';
-import { parseTimetableCSVAndPopulate, parseTimetableCSVAndPopulateClasses } from '../utils';
+import { parseTimetableCSVAndPopulateClasses } from '../utils';
 
 const fetService = new FETDockerService();
 
@@ -113,12 +113,6 @@ export async function processTimetableQueue() {
 				// Process database files if both are available
 				if (timetableCSV) {
 					try {
-						await parseTimetableCSVAndPopulate(
-							timetableCSV,
-							queueEntry.timetableId,
-							queueEntry.timetableDraftId
-						);
-
 						await parseTimetableCSVAndPopulateClasses(
 							timetableCSV,
 							queueEntry.timetableId,

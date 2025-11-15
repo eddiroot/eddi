@@ -302,7 +302,7 @@
 						{#each data.queueEntries as entry}
 							<div class="border-muted rounded-lg border p-4">
 								<div class="mb-2 flex items-center justify-between">
-									<span class="text-sm font-medium">Iteration #{entry.timetableDraftId}</span>
+									<span class="text-sm font-medium">Draft #{entry.timetableDraftId}</span>
 									<div class="flex items-center gap-2">
 										<Badge class={getStatusColor(entry.status)}>
 											{formatStatus(entry.status)}

@@ -1,6 +1,5 @@
-import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+import { XMLBuilder } from 'fast-xml-parser';
 
-import type { FETActivity, FETOutput } from '$lib/schema/fet';
 import {
 	getActiveTimetableDraftConstraintsByTimetableDraftId,
 	getAllStudentGroupsByTimetableDraftId,
@@ -421,67 +420,4 @@ export async function buildFETInput({
 	const builder = new XMLBuilder(xmlBuilderOptions);
 	const xmlDataWithConstraints = builder.build(xmlData);
 	return xmlDataWithConstraints;
-}
-
-export function processFETOutput(fetOutput: string): FETActivity[] {
-	try {
-		const parser = new XMLParser();
-		const fetObj = parser.parse(fetOutput) as FETOutput;
-
-		// Debug: Log the structure to understand what we're getting
-		console.log('FET Output structure keys:', Object.keys(fetObj));
-		if (fetObj.fet) {
-			console.log('FET object keys:', Object.keys(fetObj.fet));
-		}
-
-		// Check if the expected structure exists
-		if (!fetObj.fet) {
-			throw new Error('Invalid FET output: missing "fet" root element');
-		}
-
-		if (!fetObj.fet.Activities_List) {
-			throw new Error('Invalid FET output: missing "Activities_List"');
-		}
-
-		const activities = fetObj.fet.Activities_List.Activity;
-		const timeConstraints =
-			fetObj.fet.Time_Constraints_List?.ConstraintActivityPreferredStartingTime || [];
-		const spaceConstraints =
-			fetObj.fet.Space_Constraints_List?.ConstraintActivityPreferredRoom || [];
-
-		const activityMap = new Map<number, FETActivity>();
-		activities.forEach((activity) => {
-			activityMap.set(activity.Id, {
-				Teacher: activity.Teacher,
-				Subject: activity.Subject,
-				Students: activity.Students,
-				Room: 0,
-				Day: 0,
-				Period: 0,
-				Duration: activity.Duration
-			});
-		});
-
-		timeConstraints.forEach((constraint) => {
-			const activity = activityMap.get(constraint.Activity_Id);
-			if (activity) {
-				activity.Day = constraint.Day;
-				activity.Period = constraint.Hour;
-			}
-		});
-
-		spaceConstraints.forEach((constraint) => {
-			const activity = activityMap.get(constraint.Activity_Id);
-			if (activity) {
-				activity.Room = constraint.Room;
-			}
-		});
-
-		return Array.from(activityMap.values());
-	} catch (error) {
-		console.error('Error processing FET output:', error);
-		console.error('FET output content preview:', fetOutput.substring(0, 500));
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-		throw new Error(`Failed to process FET output: ${errorMessage}`);
-	}
 }

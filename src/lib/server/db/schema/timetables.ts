@@ -15,7 +15,7 @@ import {
 import { constraintTypeEnum, queueStatusEnum } from '../../../enums';
 import { yearLevelEnumPg } from './curriculum';
 import { school, schoolSemester, schoolSpace } from './schools';
-import { subject, subjectOffering } from './subjects';
+import { subjectOffering } from './subjects';
 import { user } from './user';
 import { timestamps } from './utils';
 
@@ -275,52 +275,6 @@ export const timetableActivityAssignedYear = pgTable(
 );
 
 export type TimetableActivityAssignedYear = typeof timetableActivityAssignedYear.$inferSelect;
-
-export const fetActivity = pgTable('fet_activity', {
-	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableDraftId: integer('tt_draft_id')
-		.notNull()
-		.references(() => timetableDraft.id, { onDelete: 'set null' }),
-	subjectId: integer('subject_id')
-		.notNull()
-		.references(() => subject.id, { onDelete: 'set null' }),
-	spaceId: integer('space_id')
-		.notNull()
-		.references(() => schoolSpace.id, { onDelete: 'set null' }),
-	day: integer('tt_day_id')
-		.notNull()
-		.references(() => timetableDay.id, { onDelete: 'set null' }),
-	period: integer('tt_period_id')
-		.notNull()
-		.references(() => timetablePeriod.id, { onDelete: 'set null' }),
-	duration: integer('duration').notNull(),
-	...timestamps
-});
-
-export type FETDBActivity = typeof fetActivity.$inferSelect;
-
-export const userFetActivity = pgTable(
-	'fet_activity_user',
-	{
-		fetActivityId: integer('tt_activity_id')
-			.notNull()
-			.references(() => fetActivity.id, { onDelete: 'cascade' }),
-		userId: uuid('user_id')
-			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
-		...timestamps
-	},
-	(table) => {
-		return {
-			pk: primaryKey({
-				name: 'user_feet_activity_pkey',
-				columns: [table.fetActivityId, table.userId]
-			})
-		};
-	}
-);
-
-export type UserFETActivity = typeof userFetActivity.$inferSelect;
 
 export const timetableConstraint = pgTable('tt_constraint', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
