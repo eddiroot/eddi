@@ -60,6 +60,7 @@ All
 
 Lachie
 
+- [ ] Move eddi domain to AWS
 - [ ] UI fixes / code cleanup
 
 Bella
