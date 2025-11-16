@@ -82,7 +82,9 @@ export const yearLevelEnumPg = pgEnum('enum_year_level', [
 	yearLevelEnum.year11,
 	yearLevelEnum.year12,
 	yearLevelEnum.year13,
-	yearLevelEnum.VCE
+	yearLevelEnum.VCE,
+	yearLevelEnum.VCE12,
+	yearLevelEnum.VCE34
 ]);
 
 export const learningAreaStandard = pgTable('lrn_a_std', {

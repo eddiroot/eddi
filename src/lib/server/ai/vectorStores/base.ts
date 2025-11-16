@@ -127,6 +127,7 @@ export abstract class TableVectorStore<T extends Record<string, unknown>> extend
     const record = await getRecord(this.table, recordId);
     const doc = this.config.toDocument(record as unknown as T);
     const recordEmbedding = await this.embeddings.embedDocuments([doc.pageContent]);
+    // embedDocuments returns [[embedding]], service function will unwrap it
     await updateRecordEmbedding(this.table, recordId, recordEmbedding);
   }
 }

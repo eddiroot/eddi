@@ -1,4 +1,4 @@
-import { subjectGroupEnum, taskBlockTypeEnum, taskTypeEnum } from '$lib/enums';
+import { subjectGroupEnum, taskBlockTypeEnum } from '$lib/enums';
 import { Document } from '@langchain/core/documents';
 import { z } from 'zod';
 
@@ -1051,44 +1051,4 @@ export function extendBlockSchema<T extends z.ZodTypeAny>(
 
     // If schema structure doesn't match expected format, return as-is
     return baseSchema;
-}
-
-  /**
-   * Helper to determine requirements based on task type
-   */
-export function getRequirementsForTaskType(taskType: taskTypeEnum) {
-switch (taskType) {
-    case taskTypeEnum.assessment:
-    return {
-        includeMarks: true,
-        includeCriteria: true,
-        includeDifficulty: true,
-        includeHints: false,
-        includeSteps: false
-    };
-    case taskTypeEnum.homework:
-    return {
-        includeMarks: true,
-        includeCriteria: false,
-        includeDifficulty: true,
-        includeHints: true,
-        includeSteps: true
-    };
-    case taskTypeEnum.lesson:
-    return {
-        includeMarks: false,
-        includeCriteria: false,
-        includeDifficulty: true,
-        includeHints: true,
-        includeSteps: false
-    };
-    default:
-    return {
-        includeMarks: false,
-        includeCriteria: false,
-        includeDifficulty: false,
-        includeHints: false,
-        includeSteps: false
-    };
-}
 }

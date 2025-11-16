@@ -7,60 +7,17 @@ import {
 	userGenderEnum,
 	userHonorificEnum,
 	userTypeEnum,
+	VCAAF10SubjectEnum,
+	VCAAVCESubjectEnum,
 	yearLevelEnum
 } from '$lib/enums.js';
 import { getTermsByYear } from '$lib/server/vic-school-terms';
 import { hash } from '@node-rs/argon2';
-import { and, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { reset } from 'drizzle-seed';
-import { readFileSync, readdirSync } from 'fs';
-import { dirname, join } from 'path';
-import postgres from 'postgres';
-import { fileURLToPath } from 'url';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as schema from '../schema';
-import type {
-	KeyKnowledgeData,
-	KeySkillData,
-	LearningAreaData,
-	OutcomeData,
-	VCAACurriculumData,
-	VCAAData
-} from './VCAA/scraper/types.js';
-
-// Map JSON filenames to proper subject names
-const subjectNameMap: Record<string, string> = {
-	accounting12: 'Accounting',
-	accounting34: 'Accounting',
-	biology12: 'Biology',
-	biology34: 'Biology',
-	busman12: 'Business Management',
-	busman34: 'Business Management',
-	chemistry12: 'Chemistry',
-	chemistry34: 'Chemistry',
-	economics12: 'Economics',
-	economics34: 'Economics',
-	english12: 'English',
-	english34: 'English',
-	general12: 'General Mathematics',
-	general34: 'General Mathematics',
-	health12: 'Health and Human Development',
-	health34: 'Health and Human Development',
-	legal12: 'Legal Studies',
-	legal34: 'Legal Studies',
-	literature12: 'Literature',
-	literature34: 'Literature',
-	methods12: 'Mathematical Methods',
-	methods34: 'Mathematical Methods',
-	pe12: 'Physical Education',
-	pe34: 'Physical Education',
-	physics12: 'Physics',
-	physics34: 'Physics',
-	psychology12: 'Psychology',
-	psychology34: 'Psychology',
-	spec12: 'Specialist Mathematics',
-	spec34: 'Specialist Mathematics'
-};
+import { seedVCAA } from './VCAA/index.js';
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -68,48 +25,29 @@ if (!databaseUrl) {
 	throw new Error('DATABASE_URL is not set in environment variables');
 }
 
-const client = postgres(databaseUrl);
+const pool = new Pool({ connectionString: databaseUrl });
 
-export const db = drizzle(client, { schema });
-
-// VCE Helper Functions
-function extractTopicName(
-	item: KeySkillData | KeyKnowledgeData,
-	outcomeTopics?: Array<{ id?: number; name: string; outcomeTopic?: string }>
-): string | null {
-	// Priority order: outcomeTopic > name > topicName
-	if (item.outcomeTopic) return item.outcomeTopic;
-	if (item.name) return item.name;
-	if (item.topicName) return item.topicName;
-
-	// Handle outcomeTopicId by looking up the actual topic name
-	if (item.outcomeTopicId !== undefined && outcomeTopics && outcomeTopics.length > 0) {
-		const matchingTopic = outcomeTopics.find((topic) => topic.id === item.outcomeTopicId);
-		if (matchingTopic) {
-			return matchingTopic.name;
-		}
-		// Fallback to generic topic name if not found
-		return `Topic ${item.outcomeTopicId}`;
-	}
-
-	// If we have outcome topics, try to match
-	if (outcomeTopics && outcomeTopics.length > 0) {
-		return outcomeTopics[0].outcomeTopic || outcomeTopics[0].name;
-	}
-
-	return null;
-}
-
-function parseNumber(value: string | number | undefined): number {
-	if (value === undefined || value === null) return 1;
-	if (typeof value === 'number') return value;
-	const parsed = parseInt(value.toString(), 10);
-	return isNaN(parsed) ? 1 : parsed;
-}
+export const db = drizzle(pool, { schema });
 
 async function seed() {
-	await reset(db, schema);
 	try {
+		// Get all table names
+		const tables = await pool.query(`
+			SELECT tablename 
+			FROM pg_tables 
+			WHERE schemaname = 'public'
+			AND tablename NOT LIKE 'drizzle%'
+		`);
+		
+		// Truncate all tables and reset sequences
+		if (tables.rows.length > 0) {
+			const tableNames = tables.rows.map((row: { tablename: string }) => `"${row.tablename}"`).join(', ');
+			await pool.query(`TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE`);
+		}
+		
+		// Seed all VCAA curriculum data first (pass db instance to share connection)
+		await seedVCAA(db);
+
 		const [schoolRecord] = await db
 			.insert(schema.school)
 			.values({
@@ -266,89 +204,95 @@ async function seed() {
 			}
 		}
 
-		const [curriculumRecord] = await db
-			.insert(schema.curriculum)
-			.values({
-				name: 'Victorian Curriculum',
-				version: '2.0'
-			})
-			.returning();
+		// Query for VC2 curriculum (Foundation-10) - created by seedVCAA()
+		const [F10Curriculum] = await db
+			.select()
+			.from(schema.curriculum)
+			.where(eq(schema.curriculum.version, 'VC2'))
+			.limit(1);
 
-		const curriculumSubjects = await db
-			.insert(schema.curriculumSubject)
-			.values([
-				{
-					name: 'Mathematics',
-					curriculumId: curriculumRecord.id
-				},
-				{
-					name: 'English',
-					curriculumId: curriculumRecord.id
-				},
-				{
-					name: 'Science',
-					curriculumId: curriculumRecord.id
-				},
-				{
-					name: 'Physical Education',
-					curriculumId: curriculumRecord.id
-				},
-				{
-					name: 'History',
-					curriculumId: curriculumRecord.id
-				},
-				{
-					name: 'Geography',
-					curriculumId: curriculumRecord.id
-				}
-			])
-			.returning();
+		if (!F10Curriculum) {
+			throw new Error('VC2 curriculum not found - seedVCAA must be run first');
+		}
 
-		const coreSubjects = await db
-			.insert(schema.coreSubject)
-			.values([
-				{
-					name: 'Mathematics',
-					description: 'Core mathematics',
-					curriculumSubjectId: curriculumSubjects[0].id,
-					schoolId: schoolRecord.id
-				},
-				{
-					name: 'English',
-					description: 'Core English',
-					curriculumSubjectId: curriculumSubjects[1].id,
-					schoolId: schoolRecord.id
-				},
-				{
-					name: 'Science',
-					description: 'Core Science',
-					curriculumSubjectId: curriculumSubjects[2].id,
-					schoolId: schoolRecord.id
-				},
-				{
-					name: 'Physical Education',
-					description: 'Core PE',
-					curriculumSubjectId: curriculumSubjects[3].id,
-					schoolId: schoolRecord.id
-				},
-				{
-					name: 'History',
-					description: 'Core History',
-					curriculumSubjectId: curriculumSubjects[4].id,
-					schoolId: schoolRecord.id
-				},
-				{
-					name: 'Geography',
-					description: 'Core Geography',
-					curriculumSubjectId: curriculumSubjects[5].id,
-					schoolId: schoolRecord.id
-				}
-			])
-			.returning();
+		// Query for VCE curriculum - created by seedVCAA()
+		const [vceCurriculum] = await db
+			.select()
+			.from(schema.curriculum)
+			.where(eq(schema.curriculum.version, '2025'))
+			.limit(1);
 
-		// Create subjects for Foundation to Year 10 (F-10) for each core subject
+		if (!vceCurriculum) {
+			throw new Error('VCE curriculum not found - seedVCAA must be run first');
+		}
+
+		// Get all VC2 curriculum subjects
+		const vc2CurriculumSubjects = await db
+			.select()
+			.from(schema.curriculumSubject)
+			.where(eq(schema.curriculumSubject.curriculumId, F10Curriculum.id));
+
+		// Get all VCE curriculum subjects
+		const vceCurriculumSubjects = await db
+			.select()
+			.from(schema.curriculumSubject)
+			.where(eq(schema.curriculumSubject.curriculumId, vceCurriculum.id));
+
+		// Create core subjects for VC2 (Foundation-10) - one for each VCAAF10SubjectEnum
+		const f10CoreSubjects: (typeof schema.coreSubject.$inferSelect)[] = [];
+		for (const subjectEnum of Object.values(VCAAF10SubjectEnum)) {
+			const subjectName = subjectEnum.split('_').map(word => 
+				word.charAt(0).toUpperCase() + word.slice(1)
+			).join(' ');
+
+			const curriculumSubject = vc2CurriculumSubjects.find(cs => cs.name === subjectName);
+			if (!curriculumSubject) {
+				console.warn(`Curriculum subject not found for: ${subjectName}`);
+				continue;
+			}
+
+			const [coreSubject] = await db
+				.insert(schema.coreSubject)
+				.values({
+					name: subjectName,
+					description: `Core ${subjectName}`,
+					curriculumSubjectId: curriculumSubject.id,
+					schoolId: schoolRecord.id
+				})
+				.returning();
+
+			f10CoreSubjects.push(coreSubject);
+		}
+
+		// Create core subjects for VCE - one for each VCAAVCESubjectEnum
+		const vceCoreSubjects: (typeof schema.coreSubject.$inferSelect)[] = [];
+		for (const subjectEnum of Object.values(VCAAVCESubjectEnum)) {
+			const subjectName = subjectEnum.split('_').map(word => 
+				word.charAt(0).toUpperCase() + word.slice(1)
+			).join(' ');
+
+			const curriculumSubject = vceCurriculumSubjects.find(cs => cs.name === subjectName);
+			if (!curriculumSubject) {
+				console.warn(`VCE curriculum subject not found for: ${subjectName}`);
+				continue;
+			}
+
+			const [coreSubject] = await db
+				.insert(schema.coreSubject)
+				.values({
+					name: subjectName,
+					description: `VCE ${subjectName}`,
+					curriculumSubjectId: curriculumSubject.id,
+					schoolId: schoolRecord.id
+				})
+				.returning();
+
+			vceCoreSubjects.push(coreSubject);
+		}
+
+		// Create subjects for Foundation to Year 10 for each VC2 core subject
 		const subjects: (typeof schema.subject.$inferSelect)[] = [];
-		const yearLevels = [
+		const f10YearLevels = [
 			{ level: yearLevelEnum.foundation, name: 'Foundation' },
 			{ level: yearLevelEnum.year1, name: 'Year 1' },
 			{ level: yearLevelEnum.year2, name: 'Year 2' },
@@ -362,8 +306,28 @@ async function seed() {
 			{ level: yearLevelEnum.year10, name: 'Year 10' }
 		];
 
-		for (const coreSubject of coreSubjects) {
-			for (const yearLevel of yearLevels) {
+		for (const coreSubject of f10CoreSubjects) {
+			for (const yearLevel of f10YearLevels) {
+				const subjectValues = {
+					name: `${yearLevel.name} ${coreSubject.name}`,
+					schoolId: schoolRecord.id,
+					coreSubjectId: coreSubject.id,
+					yearLevel: yearLevel.level
+				};
+
+				const [subject] = await db.insert(schema.subject).values(subjectValues).returning();
+				subjects.push(subject);
+			}
+		}
+
+		// Create VCE subjects for Units 1-2 (VCE12) and Units 3-4 (VCE34)
+		const vceYearLevels = [
+			{ level: yearLevelEnum.VCE12, name: 'VCE Units 1-2' },
+			{ level: yearLevelEnum.VCE34, name: 'VCE Units 3-4' }
+		];
+
+		for (const coreSubject of vceCoreSubjects) {
+			for (const yearLevel of vceYearLevels) {
 				const subjectValues = {
 					name: `${yearLevel.name} ${coreSubject.name}`,
 					schoolId: schoolRecord.id,
@@ -399,162 +363,8 @@ async function seed() {
 			return subject && subject.yearLevel === yearLevelEnum.year9;
 		});
 
-		// Load pre-scraped VCAA curriculum data from JSON
-		const __filename = fileURLToPath(import.meta.url);
-		const __dirname = dirname(__filename);
-		const curriculumDataPath = join(__dirname, 'data', 'vcaa-curriculum.json');
-		const curriculumData: VCAACurriculumData = JSON.parse(
-			readFileSync(curriculumDataPath, 'utf-8')
-		);
-
-		// Transform JSON data to match the expected format
-		const contentItems = curriculumData.subjects.flatMap((subject) =>
-			subject.learningAreas.flatMap((learningArea) =>
-				learningArea.standards.map((standard) => ({
-					vcaaCode: standard.name,
-					description: standard.description,
-					yearLevel: standard.yearLevel,
-					learningArea: learningArea.name,
-					strand: subject.name,
-					elaborations: standard.elaborations
-				}))
-			)
-		);
-
-		// Create learning areas for scraped content
-		const learningAreaMap = new Map<string, number>();
-		const uniqueLearningAreas = [...new Set(contentItems.map((item) => item.learningArea))];
-
-		for (const learningAreaName of uniqueLearningAreas) {
-			// Find a content item with this learning area to get its strand (broad subject)
-			const sampleItem = contentItems.find((item) => item.learningArea === learningAreaName);
-			if (!sampleItem) continue;
-
-			// Find the corresponding curriculum subject using the strand
-			const curriculumSubject = curriculumSubjects.find(
-				(cs) =>
-					cs.name.toLowerCase().includes(sampleItem.strand.toLowerCase()) ||
-					sampleItem.strand.toLowerCase().includes(cs.name.toLowerCase())
-			);
-
-			if (curriculumSubject) {
-				const [learningArea] = await db
-					.insert(schema.learningArea)
-					.values({
-						curriculumSubjectId: curriculumSubject.id,
-						name: learningAreaName,
-						description: `${learningAreaName} learning area from VCAA F-10 curriculum`
-					})
-					.returning();
-
-				learningAreaMap.set(learningAreaName, learningArea.id);
-			}
-		}
-
-		// Helper function to map year level string to enum values
-		function mapYearLevelToEnum(
-			yearLevelStr: string
-		): (typeof yearLevelEnum)[keyof typeof yearLevelEnum][] {
-			// Handle Foundation-Level 2 case - just map to Foundation
-			if (yearLevelStr.includes('Foundation-Level')) {
-				return [yearLevelEnum.foundation];
-			}
-
-			// Handle single levels
-			if (yearLevelStr === 'Foundation') {
-				return [yearLevelEnum.foundation];
-			} else if (yearLevelStr === 'Level 1') {
-				return [yearLevelEnum.year1];
-			} else if (yearLevelStr === 'Level 2') {
-				return [yearLevelEnum.year2];
-			} else if (yearLevelStr === 'Level 3') {
-				return [yearLevelEnum.year3];
-			} else if (yearLevelStr === 'Level 4') {
-				return [yearLevelEnum.year4];
-			} else if (yearLevelStr === 'Level 5') {
-				return [yearLevelEnum.year5];
-			} else if (yearLevelStr === 'Level 6') {
-				return [yearLevelEnum.year6];
-			} else if (yearLevelStr === 'Level 7') {
-				return [yearLevelEnum.year7];
-			} else if (yearLevelStr === 'Level 8') {
-				return [yearLevelEnum.year8];
-			} else if (yearLevelStr === 'Level 9') {
-				return [yearLevelEnum.year9];
-			} else if (yearLevelStr === 'Level 10') {
-				return [yearLevelEnum.year10];
-			} else if (yearLevelStr === 'Level 10A') {
-				return [yearLevelEnum.year10A];
-			}
-
-			// Handle ranges
-			if (yearLevelStr === 'Level 1-2') {
-				return [yearLevelEnum.year1, yearLevelEnum.year2];
-			} else if (yearLevelStr === 'Level 3-4') {
-				return [yearLevelEnum.year3, yearLevelEnum.year4];
-			} else if (yearLevelStr === 'Level 5-6') {
-				return [yearLevelEnum.year5, yearLevelEnum.year6];
-			} else if (yearLevelStr === 'Level 7-8') {
-				return [yearLevelEnum.year7, yearLevelEnum.year8];
-			} else if (yearLevelStr === 'Level 9-10') {
-				return [yearLevelEnum.year9, yearLevelEnum.year10];
-			}
-
-			// Default fallback
-			return [yearLevelEnum.foundation];
-		}
-
-		// Create learning area content for each scraped item
-		const learningAreaStandardMap = new Map<string, number>();
-
-		for (const item of contentItems) {
-			const learningAreaId = learningAreaMap.get(item.learningArea);
-			if (!learningAreaId) continue;
-
-			// Get all year levels for this item (could be multiple for ranges)
-			const yearLevels = mapYearLevelToEnum(item.yearLevel);
-
-			// Create a separate standard entry for each year level
-			for (const yearLevelValue of yearLevels) {
-				// Create unique identifier for this standard + year level combination
-				const standardKey = `${item.vcaaCode}-${yearLevelValue}`;
-
-				// Check if this content already exists to avoid duplicates
-				const existingContent = await db
-					.select()
-					.from(schema.learningAreaStandard)
-					.where(
-						and(
-							eq(schema.learningAreaStandard.name, item.vcaaCode),
-							eq(schema.learningAreaStandard.yearLevel, yearLevelValue)
-						)
-					)
-					.limit(1);
-
-				if (existingContent.length === 0) {
-					const [learningAreaStandard] = await db
-						.insert(schema.learningAreaStandard)
-						.values({
-							learningAreaId: learningAreaId,
-							name: item.vcaaCode,
-							description: `${item.learningArea}: ${item.description}`,
-							yearLevel: yearLevelValue
-						})
-						.returning();
-
-					learningAreaStandardMap.set(standardKey, learningAreaStandard.id);
-
-					// Create elaborations for this content item
-					for (const elaboration of item.elaborations) {
-						await db.insert(schema.standardElaboration).values({
-							learningAreaStandardId: learningAreaStandard.id,
-							name: `Elaboration for ${item.vcaaCode}`,
-							standardElaboration: elaboration
-						});
-					}
-				}
-			}
-		}
+		// Combine all core subjects for course map generation
+		const allCoreSubjects = [...f10CoreSubjects, ...vceCoreSubjects];
 
 		// Create 36-week coursemap items for each subject offering (18 weeks per semester)
 		const courseMapItems = [];
@@ -566,7 +376,7 @@ async function seed() {
 			const subject = subjects.find((s) => s.id === offering.subjectId);
 			if (!subject) continue;
 
-			const coreSubject = coreSubjects.find((cs) => cs.id === subject.coreSubjectId);
+			const coreSubject = allCoreSubjects.find((cs) => cs.id === subject.coreSubjectId);
 			if (!coreSubject) continue;
 
 			// Use the core subject name (which is clean without "Year 9")
@@ -599,15 +409,6 @@ async function seed() {
 					.returning();
 
 				courseMapItems.push(courseMapItem);
-
-				// Link to relevant learning areas if available
-				const relevantLearningAreaId = learningAreaMap.get(getSubjectLearningArea(subjectName));
-				if (relevantLearningAreaId) {
-					await db.insert(schema.courseMapItemLearningArea).values({
-						courseMapItemId: courseMapItem.id,
-						learningAreaId: relevantLearningAreaId
-					});
-				}
 			}
 		}
 
@@ -698,20 +499,6 @@ async function seed() {
 			return colorMap[subjectName] || '#6B7280'; // Default gray
 		}
 
-		// Helper function to map subject to learning area
-		function getSubjectLearningArea(subjectName: string): string {
-			const areaMap: { [key: string]: string } = {
-				Mathematics: 'Mathematics',
-				English: 'English',
-				Science: 'Science',
-				'Physical Education': 'Health and Physical Education',
-				History: 'Humanities and Social Sciences',
-				Geography: 'Humanities and Social Sciences'
-			};
-
-			return areaMap[subjectName] || subjectName;
-		}
-
 		const subjectOfferingClasses = await db
 			.insert(schema.subjectOfferingClass)
 			.values([
@@ -741,366 +528,6 @@ async function seed() {
 				}
 			])
 			.returning();
-
-		// VCE Curriculum Data Seeding
-
-		// Get or create VCE Curriculum
-		const [vceCurriculum] = await db
-			.insert(schema.curriculum)
-			.values({
-				name: 'Victorian Certificate of Education (VCE)',
-				version: '2024'
-			})
-			.onConflictDoNothing()
-			.returning();
-
-		// Read all JSON files from vcaa-vce-data
-		const dataPath = join(process.cwd(), 'data', 'vcaa-vce-data');
-		let files: string[] = [];
-		const vceClasses: (typeof schema.subjectOfferingClass.$inferSelect)[] = [];
-
-		try {
-			files = readdirSync(dataPath).filter((f) => f.endsWith('.json') && f !== 'default.json');
-		} catch {
-			files = [];
-		}
-
-		if (files.length > 0) {
-			// Track created subjects to avoid duplicates
-			const createdVCESubjects = new Map<string, number>();
-
-			// Process each JSON file
-			for (const file of files) {
-				const filePath = join(dataPath, file);
-				const fileBaseName = file.replace('.json', '');
-				const subjectName = subjectNameMap[fileBaseName];
-
-				if (!subjectName) {
-					continue;
-				}
-
-				// Parse JSON data
-				const rawData: unknown = JSON.parse(readFileSync(filePath, 'utf-8'));
-
-				// Handle array-wrapped JSON
-				let processedData: unknown = rawData;
-				if (Array.isArray(processedData) && processedData.length > 0) {
-					processedData = processedData[0];
-				}
-
-				// Type guard to check if processedData has the expected structure
-				if (!processedData || typeof processedData !== 'object') {
-					continue;
-				}
-
-				const typedData = processedData as VCAAData;
-
-				// Handle different JSON structures
-				let subjectData: {
-					name: string;
-					learningAreas: LearningAreaData[];
-					outcomes: OutcomeData[];
-					keySkills: KeySkillData[];
-					keyKnowledge: KeyKnowledgeData[];
-				};
-
-				if (typedData.curriculum?.curriculumSubjects?.[0]) {
-					// Foundation Math structure
-					const curriculumSubject = typedData.curriculum.curriculumSubjects[0];
-					subjectData = {
-						name: curriculumSubject.name,
-						learningAreas: curriculumSubject.learningAreas || [],
-						outcomes: curriculumSubject.outcomes || [],
-						keySkills: [],
-						keyKnowledge: []
-					};
-				} else {
-					// Direct structure
-					subjectData = {
-						name: typedData.name || subjectName,
-						learningAreas: typedData.learningAreas || [],
-						outcomes: typedData.outcomes || [],
-						keySkills: typedData.keySkills || [],
-						keyKnowledge: typedData.keyKnowledge || []
-					};
-				}
-
-				// Get or create curriculum subject
-				let vceSubjectId = createdVCESubjects.get(subjectName);
-
-				if (!vceSubjectId) {
-					const [subject] = await db
-						.insert(schema.curriculumSubject)
-						.values({
-							name: subjectName,
-							curriculumId: vceCurriculum.id
-						})
-						.onConflictDoNothing()
-						.returning();
-					vceSubjectId = subject.id;
-					createdVCESubjects.set(subjectName, vceSubjectId);
-				}
-
-				// Process learning areas with curriculum subject reference
-				for (const area of subjectData.learningAreas) {
-					// Build description from base description + contents
-					let fullDescription = area.description || '';
-					if (area.contents && area.contents.length > 0) {
-						const contentsText = area.contents
-							.map((content: { description?: string }) => content.description)
-							.join('\n• ');
-						if (contentsText) {
-							fullDescription += fullDescription ? '\n\n• ' + contentsText : '• ' + contentsText;
-						}
-					}
-
-					await db
-						.insert(schema.learningArea)
-						.values({
-							curriculumSubjectId: vceSubjectId,
-							name: area.name,
-							abbreviation: area.abbreviation,
-							description: fullDescription || undefined
-						})
-						.onConflictDoNothing();
-				}
-
-				// Process outcomes with curriculum subject reference
-				for (const outcome of subjectData.outcomes) {
-					const outcomeNumber = parseNumber(outcome.number);
-
-					const [outcomeRecord] = await db
-						.insert(schema.outcome)
-						.values({
-							curriculumSubjectId: vceSubjectId,
-							number: outcomeNumber,
-							description: outcome.description
-						})
-						.onConflictDoNothing()
-						.returning();
-
-					// Process key skills within outcome
-					if (outcome.keySkills) {
-						for (let i = 0; i < outcome.keySkills.length; i++) {
-							const skill = outcome.keySkills[i];
-
-							// Skip if description is missing
-							if (!skill.description || skill.description.trim() === '') {
-								continue;
-							}
-
-							const topicName = extractTopicName(skill, outcome.topics);
-							const skillNumber = skill.number !== undefined ? parseNumber(skill.number) : i + 1;
-
-							await db
-								.insert(schema.keySkill)
-								.values({
-									curriculumSubjectId: vceSubjectId,
-									outcomeId: outcomeRecord.id,
-									number: skillNumber,
-									description: skill.description.trim(),
-									topicName: topicName
-								})
-								.onConflictDoNothing();
-						}
-					}
-
-					// Process key knowledge within outcome
-					if (outcome.keyKnowledge) {
-						for (let i = 0; i < outcome.keyKnowledge.length; i++) {
-							const knowledge = outcome.keyKnowledge[i];
-
-							// Skip if description is missing
-							if (!knowledge.description || knowledge.description.trim() === '') {
-								continue;
-							}
-
-							const topicName = extractTopicName(knowledge, outcome.topics);
-							const knowledgeNumber =
-								knowledge.number !== undefined ? parseNumber(knowledge.number) : i + 1;
-
-							await db
-								.insert(schema.keyKnowledge)
-								.values({
-									curriculumSubjectId: vceSubjectId,
-									outcomeId: outcomeRecord.id,
-									number: knowledgeNumber,
-									description: knowledge.description.trim(),
-									topicName: topicName
-								})
-								.onConflictDoNothing();
-						}
-					}
-				}
-
-				// Process standalone key skills (not tied to specific outcomes)
-				if (subjectData.keySkills && subjectData.keySkills.length > 0) {
-					for (let i = 0; i < subjectData.keySkills.length; i++) {
-						const skill = subjectData.keySkills[i];
-
-						// Skip if description is missing
-						if (!skill.description || skill.description.trim() === '') {
-							continue;
-						}
-
-						const topicName = extractTopicName(skill);
-						const skillNumber = skill.number !== undefined ? parseNumber(skill.number) : i + 1;
-
-						await db
-							.insert(schema.keySkill)
-							.values({
-								curriculumSubjectId: vceSubjectId,
-								outcomeId: null,
-								number: skillNumber,
-								description: skill.description.trim(),
-								topicName: topicName
-							})
-							.onConflictDoNothing();
-					}
-				}
-
-				// Process standalone key knowledge (not tied to specific outcomes)
-				if (subjectData.keyKnowledge && subjectData.keyKnowledge.length > 0) {
-					for (let i = 0; i < subjectData.keyKnowledge.length; i++) {
-						const knowledge = subjectData.keyKnowledge[i];
-
-						// Skip if description is missing
-						if (!knowledge.description || knowledge.description.trim() === '') {
-							continue;
-						}
-
-						const topicName = extractTopicName(knowledge);
-						const knowledgeNumber =
-							knowledge.number !== undefined ? parseNumber(knowledge.number) : i + 1;
-
-						await db
-							.insert(schema.keyKnowledge)
-							.values({
-								curriculumSubjectId: vceSubjectId,
-								outcomeId: null,
-								number: knowledgeNumber,
-								description: knowledge.description.trim(),
-								topicName: topicName
-							})
-							.onConflictDoNothing();
-					}
-				}
-
-				// Remove the console log here
-			}
-
-			// Create core subjects for each VCE curriculum subject
-
-			const vceCoreSubjectMap = new Map<string, number>();
-
-			for (const [subjectName, curriculumSubjectId] of createdVCESubjects) {
-				// Create core subject
-				const [coreSubject] = await db
-					.insert(schema.coreSubject)
-					.values({
-						name: subjectName,
-						description: `VCE ${subjectName}`,
-						curriculumSubjectId: curriculumSubjectId,
-						schoolId: schoolRecord.id
-					})
-					.onConflictDoNothing()
-					.returning();
-
-				vceCoreSubjectMap.set(subjectName, coreSubject.id);
-			}
-
-			// Create VCE subjects, offerings, and classes
-
-			for (const [subjectName] of createdVCESubjects) {
-				const coreSubjectId = vceCoreSubjectMap.get(subjectName);
-				if (!coreSubjectId) {
-					continue;
-				}
-
-				// Create VCE subject
-				let vceSubject = await db
-					.insert(schema.subject)
-					.values({
-						name: subjectName,
-						schoolId: schoolRecord.id,
-						coreSubjectId: coreSubjectId,
-						yearLevel: yearLevelEnum.VCE // VCE level
-					})
-					.onConflictDoNothing()
-					.returning()
-					.then((rows) => rows[0]);
-
-				// If subject wasn't returned (conflict), fetch existing one
-				if (!vceSubject) {
-					vceSubject = await db
-						.select()
-						.from(schema.subject)
-						.where(
-							and(
-								eq(schema.subject.name, subjectName),
-								eq(schema.subject.schoolId, schoolRecord.id),
-								eq(schema.subject.coreSubjectId, coreSubjectId),
-								eq(schema.subject.yearLevel, yearLevelEnum.VCE)
-							)
-						)
-						.then((rows) => rows[0]);
-				}
-
-				if (!vceSubject) {
-					continue;
-				}
-
-				// Create subject offerings for current year
-				const currentYear = new Date().getFullYear();
-
-				// Create offerings for both semesters
-				for (const semester of [1, 2]) {
-					// Try to insert, but if it already exists, fetch it
-					let offering = await db
-						.insert(schema.subjectOffering)
-						.values({
-							subjectId: vceSubject.id,
-							year: currentYear,
-							semester: semester,
-							campusId: campusRecord.id
-						})
-						.onConflictDoNothing()
-						.returning()
-						.then((rows) => rows[0]);
-
-					// If offering wasn't returned (conflict), fetch existing one
-					if (!offering) {
-						offering = await db
-							.select()
-							.from(schema.subjectOffering)
-							.where(
-								and(
-									eq(schema.subjectOffering.subjectId, vceSubject.id),
-									eq(schema.subjectOffering.year, currentYear),
-									eq(schema.subjectOffering.semester, semester),
-									eq(schema.subjectOffering.campusId, campusRecord.id)
-								)
-							)
-							.then((rows) => rows[0]);
-					}
-
-					// Create a default class for each offering
-					const className = `${subjectName} - Year ${currentYear} Semester ${semester}`;
-					const [vceClass] = await db
-						.insert(schema.subjectOfferingClass)
-						.values({
-							name: className,
-							subOfferingId: offering.id
-						})
-						.onConflictDoNothing()
-						.returning();
-
-					if (vceClass) {
-						vceClasses.push(vceClass);
-					}
-				}
-			}
-		}
 
 		// Enroll VCE student in all VCE classes after they are created
 
@@ -1539,14 +966,6 @@ async function seed() {
 			});
 		}
 
-		// Enroll VCE student in all VCE classes
-		for (const vceClass of vceClasses) {
-			await db.insert(schema.userSubjectOfferingClass).values({
-				userId: vceStudent.id,
-				subOffClassId: vceClass.id
-			});
-		}
-
 		// Enroll students in subject offering classes
 		for (const studentId of studentIds) {
 			for (const subjectOfferingClass of subjectOfferingClasses) {
@@ -1601,9 +1020,11 @@ async function seed() {
 			.returning();
 
 		// Create timetable groups for Year 9 students - one group per subject (like auto-create groups button)
+		// Limit to 6 offerings to match the 6 teachers we created
 		const timetableGroups = [];
-		for (let i = 0; i < year9Offerings.length; i++) {
-			const offering = year9Offerings[i];
+		const limitedYear9Offerings = year9Offerings.slice(0, 6);
+		for (let i = 0; i < limitedYear9Offerings.length; i++) {
+			const offering = limitedYear9Offerings[i];
 			// Get the subject to determine the name
 			const subject = subjects.find((s) => s.id === offering.subjectId);
 			const subjectName = subject ? subject.name.replace('Year 9 ', '') : `Subject ${i + 1}`;
@@ -1636,7 +1057,7 @@ async function seed() {
 		// Create 2 activities for each group with variety of locations and assignments
 		for (let groupIndex = 0; groupIndex < timetableGroups.length; groupIndex++) {
 			const group = timetableGroups[groupIndex];
-			const offering = year9Offerings[groupIndex];
+			const offering = limitedYear9Offerings[groupIndex];
 			const teacherId = teacherIds[groupIndex];
 
 			// Activity 1: Group-based activity with preferred rooms

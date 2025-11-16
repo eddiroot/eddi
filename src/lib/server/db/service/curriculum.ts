@@ -668,11 +668,43 @@ export async function getLearningActivityMetadataByCurriculumSubjectId(curriculu
  */
 export async function getAssessmentTaskMetadataByCurriculumSubjectId(curriculumSubjectId: number): Promise<EmbeddingMetadataFilter> {
 	try {
-		return {
-			curriculumSubjectId
-		};
+		const [subjectInfo] = await db
+			.select({
+				curriculumId: table.curriculum.id,
+				curriculumName: table.curriculum.name,
+				subjectName: table.curriculumSubject.name
+			})
+			.from(table.curriculumSubject)
+			.innerJoin(table.curriculum, eq(table.curriculumSubject.curriculumId, table.curriculum.id))
+			.where(eq(table.curriculumSubject.id, curriculumSubjectId))
+			.limit(1);
+
+		return subjectInfo ? { curriculumSubjectId, ...subjectInfo } : { curriculumSubjectId };
 	} catch (error) {
 		console.error('Error extracting assessment task metadata:', error);
+		return { curriculumSubjectId };
+	}
+}
+
+/**
+ * Extract metadata for CurriculumSubjectExtraContent
+ */
+export async function getCurriculumSubjectExtraContentMetadataByCurriculumSubjectId(curriculumSubjectId: number): Promise<EmbeddingMetadataFilter> {
+	try {
+		const [subjectInfo] = await db
+			.select({
+				curriculumId: table.curriculum.id,
+				curriculumName: table.curriculum.name,
+				subjectName: table.curriculumSubject.name
+			})
+			.from(table.curriculumSubject)
+			.innerJoin(table.curriculum, eq(table.curriculumSubject.curriculumId, table.curriculum.id))
+			.where(eq(table.curriculumSubject.id, curriculumSubjectId))
+			.limit(1);
+
+		return subjectInfo ? { curriculumSubjectId, ...subjectInfo } : { curriculumSubjectId };
+	} catch (error) {
+		console.error('Error extracting curriculum subject extra content metadata:', error);
 		return { curriculumSubjectId };
 	}
 }

@@ -1,14 +1,11 @@
 import { VCAAF10SubjectEnum, VCAAVCESubjectEnum, yearLevelEnum } from '$lib/enums';
 import * as schema from '$lib/server/db/schema';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Pool } from 'pg';
 
-// Database connection
-const connectionString = process.env.DATABASE_URL!;
-const pool = new Pool({ connectionString });
-const db = drizzle(pool, { schema });
+// This will be set by seedVCAA when called with a db instance
+let db: NodePgDatabase<typeof schema>;
 
 // Type definitions for VC2 Foundation-10 data
 interface VC2Standard {
@@ -161,6 +158,16 @@ function mapYearLevel(yearLevel: string): yearLevelEnum {
 	const mapping: Record<string, yearLevelEnum> = {
 		'Foundation': yearLevelEnum.foundation,
 		'F': yearLevelEnum.foundation,
+		'Level 1': yearLevelEnum.year1,
+		'Level 2': yearLevelEnum.year2,
+		'Level 3': yearLevelEnum.year3,
+		'Level 4': yearLevelEnum.year4,
+		'Level 5': yearLevelEnum.year5,
+		'Level 6': yearLevelEnum.year6,
+		'Level 7': yearLevelEnum.year7,
+		'Level 8': yearLevelEnum.year8,
+		'Level 9': yearLevelEnum.year9,
+		'Level 10': yearLevelEnum.year10,
 		'1': yearLevelEnum.year1,
 		'2': yearLevelEnum.year2,
 		'3': yearLevelEnum.year3,
@@ -249,7 +256,7 @@ async function seedVC2Curriculum() {
 		})
 		.returning();
 
-	console.log(`Created VC2 curriculum: ${vc2Curriculum.name}`);
+	console.log(`Created VC2 curriculum: ${vc2Curriculum.name} (ID: ${vc2Curriculum.id})`);
 
 	// Read the VC2 curriculum data
 	const dataPath = join(process.cwd(), 'data', 'VCAA', 'VC2', 'foundation-10', 'vcaa-f10-currriculum.json');
@@ -263,6 +270,8 @@ async function seedVC2Curriculum() {
 			word.charAt(0).toUpperCase() + word.slice(1)
 		).join(' ');
 
+		console.log(`Inserting curriculum subject "${subjectName}" with curriculumId: ${vc2Curriculum.id}`);
+		
 		const [curriculumSubject] = await db
 			.insert(schema.curriculumSubject)
 			.values({
@@ -803,8 +812,12 @@ async function seedVCEExamQuestions(vceSubjectMap: Map<string, CurriculumSubject
 
 /**
  * Main VCAA seeding function
+ * @param dbInstance - Database instance to use (required when called from main seed script)
  */
-export async function seedVCAA() {
+export async function seedVCAA(dbInstance: NodePgDatabase<typeof schema>) {
+	// Use provided db instance
+	db = dbInstance;
+	
 	console.log('========================================');
 	console.log('Starting VCAA curriculum seeding');
 	console.log('========================================\n');
@@ -827,15 +840,16 @@ export async function seedVCAA() {
 	}
 }
 
-// Auto-run when file is executed directly
-seedVCAA()
-	.then(async () => {
-		console.log('VCAA seeding completed');
-		await pool.end();
-		process.exit(0);
-	})
-	.catch(async (error) => {
-		console.error('VCAA seeding failed:', error);
-		await pool.end();
-		process.exit(1);
-	}); 
+// Standalone execution - import db from main seed script
+if (import.meta.url === `file://${process.argv[1]}`) {
+	const { db: mainDb } = await import('../index.js');
+	seedVCAA(mainDb)
+		.then(() => {
+			console.log('VCAA seeding completed');
+			process.exit(0);
+		})
+		.catch((error) => {
+			console.error('VCAA seeding failed:', error);
+			process.exit(1);
+		});
+} 

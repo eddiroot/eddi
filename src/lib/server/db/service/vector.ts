@@ -13,12 +13,16 @@ export interface EmbeddingMetadataFilter {
 export async function createRecordWithEmbedding(
     table: PgTable,
     record: Record<string, unknown>,
-    embedding: number[][],
+    embedding: number[] | number[][],
     metadata?: EmbeddingMetadataFilter
 ) {
+    // Handle both single vector and array of vectors (use first if array)
+    const vectorData = Array.isArray(embedding[0]) ? embedding[0] : embedding;
+    
     await db.insert(table).values({
         ...record,
-        embedding: JSON.stringify(embedding),
+        // Drizzle's vector type expects the array directly, not stringified
+        embedding: vectorData,
         embeddingMetadata: {
             usageCount: 0,
             lastUsedAt: null,
@@ -30,11 +34,15 @@ export async function createRecordWithEmbedding(
 export async function updateRecordEmbedding(
     table: PgTable & { embedding: PgColumn; id: PgColumn },
     recordId: number | string,
-    embedding: number[][],
+    embedding: number[] | number[][],
     metadata?: EmbeddingMetadataFilter
 ) {
+    // Handle both single vector and array of vectors (use first if array)
+    const vectorData = Array.isArray(embedding[0]) ? embedding[0] : embedding;
+    
     const updateData: Record<string, unknown> = {
-        embedding: JSON.stringify(embedding)
+        // Drizzle's vector type expects the array directly, not stringified
+        embedding: vectorData
     };
 
     if (metadata) {

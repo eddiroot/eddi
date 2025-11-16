@@ -19,6 +19,7 @@ We currently don't expect contributions from members outside of the core team. T
 ```bash
 docker compose up --detach
 npm install
+npm run db:migrate
 npm run db:push
 npm run db:seed
 npm run dev -- --open

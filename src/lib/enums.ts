@@ -15,7 +15,9 @@ export enum yearLevelEnum {
 	year11 = '11',
 	year12 = '12',
 	year13 = '13',
-	VCE = 'VCE'
+	VCE = 'VCE',
+	VCE12 = 'VCE12',
+	VCE34 = 'VCE34'
 }
 
 export enum schoolSpaceTypeEnum {
@@ -260,4 +262,10 @@ export enum VCAAVCESubjectEnum {
 	outdoor_and_environmental_studies = 'outdoor_and_environmental_studies',
 	algorithmics = 'algorithmics',
 	applied_computing = 'applied_computing'
+}
+
+export enum curriculumSubjectExtraContentTypeEnum {
+	rubric = 'rubric',
+	description = 'description',
+	detailedExample = 'detailed_example',
 }
