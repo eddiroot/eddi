@@ -760,9 +760,9 @@ export async function createTimetableDraftActivityWithRelations(data: {
 
 	if (groupIds.length > 0) {
 		await db.insert(table.timetableActivityAssignedGroup).values(
-			groupIds.map((ttGroupId) => ({
+			groupIds.map((timetableGroupId) => ({
 				timetableActivityId: activity.id,
-				ttGroupId
+				timetableGroupId
 			}))
 		);
 	}
@@ -876,9 +876,9 @@ export async function updateTimetableDraftActivity(
 
 		if (groupIds.length > 0) {
 			await db.insert(table.timetableActivityAssignedGroup).values(
-				groupIds.map((ttGroupId) => ({
+				groupIds.map((timetableGroupId) => ({
 					timetableActivityId: activityId,
-					ttGroupId
+					timetableGroupId: timetableGroupId
 				}))
 			);
 		}
@@ -999,7 +999,7 @@ export async function getActivityGroupsByActivityId(activityId: number) {
 		.from(table.timetableActivityAssignedGroup)
 		.innerJoin(
 			table.timetableGroup,
-			eq(table.timetableActivityAssignedGroup.ttGroupId, table.timetableGroup.id)
+			eq(table.timetableActivityAssignedGroup.timetableGroupId, table.timetableGroup.id)
 		)
 		.where(eq(table.timetableActivityAssignedGroup.timetableActivityId, activityId))
 		.orderBy(asc(table.timetableGroup.yearLevel), asc(table.timetableGroup.name));
@@ -1201,7 +1201,7 @@ export async function createTimetableDraftConstraint(data: {
 	parameters: Record<string, unknown>;
 }) {
 	const [constraint] = await db
-		.insert(table.timetableConstraint)
+		.insert(table.timetableDraftConstraint)
 		.values({
 			timetableDraftId: data.timetableDraftId,
 			constraintId: data.constraintId,
@@ -1216,21 +1216,24 @@ export async function createTimetableDraftConstraint(data: {
 export async function getAllConstraintsByTimetableDraftId(timetableDraftId: number) {
 	return db
 		.select({
-			id: table.timetableConstraint.id,
+			id: table.timetableDraftConstraint.id,
 			FETName: table.constraint.FETName,
 			friendlyName: table.constraint.friendlyName,
 			description: table.constraint.description,
 			type: table.constraint.type,
-			active: table.timetableConstraint.active,
+			active: table.timetableDraftConstraint.active,
 			optional: table.constraint.optional,
 			repeatable: table.constraint.repeatable,
-			parameters: table.timetableConstraint.parameters,
-			createdAt: table.timetableConstraint.createdAt,
-			updatedAt: table.timetableConstraint.updatedAt
+			parameters: table.timetableDraftConstraint.parameters,
+			createdAt: table.timetableDraftConstraint.createdAt,
+			updatedAt: table.timetableDraftConstraint.updatedAt
 		})
-		.from(table.timetableConstraint)
-		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
-		.where(eq(table.timetableConstraint.timetableDraftId, timetableDraftId))
+		.from(table.timetableDraftConstraint)
+		.innerJoin(
+			table.constraint,
+			eq(table.timetableDraftConstraint.constraintId, table.constraint.id)
+		)
+		.where(eq(table.timetableDraftConstraint.timetableDraftId, timetableDraftId))
 		.orderBy(asc(table.constraint.FETName));
 }
 
@@ -1242,14 +1245,17 @@ export async function getTimeConstraintsByTimetableDraftId(timetableDraftId: num
 			friendlyName: table.constraint.friendlyName,
 			description: table.constraint.description,
 			type: table.constraint.type,
-			active: table.timetableConstraint.active,
-			parameters: table.timetableConstraint.parameters
+			active: table.timetableDraftConstraint.active,
+			parameters: table.timetableDraftConstraint.parameters
 		})
-		.from(table.timetableConstraint)
-		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.from(table.timetableDraftConstraint)
+		.innerJoin(
+			table.constraint,
+			eq(table.timetableDraftConstraint.constraintId, table.constraint.id)
+		)
 		.where(
 			and(
-				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
+				eq(table.timetableDraftConstraint.timetableDraftId, timetableDraftId),
 				eq(table.constraint.type, constraintTypeEnum.time)
 			)
 		)
@@ -1264,14 +1270,17 @@ export async function getSpaceConstraintsByTimetableDraftId(timetableDraftId: nu
 			friendlyName: table.constraint.friendlyName,
 			description: table.constraint.description,
 			type: table.constraint.type,
-			active: table.timetableConstraint.active,
-			parameters: table.timetableConstraint.parameters
+			active: table.timetableDraftConstraint.active,
+			parameters: table.timetableDraftConstraint.parameters
 		})
-		.from(table.timetableConstraint)
-		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.from(table.timetableDraftConstraint)
+		.innerJoin(
+			table.constraint,
+			eq(table.timetableDraftConstraint.constraintId, table.constraint.id)
+		)
 		.where(
 			and(
-				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
+				eq(table.timetableDraftConstraint.timetableDraftId, timetableDraftId),
 				eq(table.constraint.type, constraintTypeEnum.space)
 			)
 		)
@@ -1288,15 +1297,18 @@ export async function getActiveTimetableDraftConstraintsByTimetableDraftId(
 			friendlyName: table.constraint.friendlyName,
 			description: table.constraint.description,
 			type: table.constraint.type,
-			active: table.timetableConstraint.active,
-			parameters: table.timetableConstraint.parameters
+			active: table.timetableDraftConstraint.active,
+			parameters: table.timetableDraftConstraint.parameters
 		})
-		.from(table.timetableConstraint)
-		.innerJoin(table.constraint, eq(table.timetableConstraint.constraintId, table.constraint.id))
+		.from(table.timetableDraftConstraint)
+		.innerJoin(
+			table.constraint,
+			eq(table.timetableDraftConstraint.constraintId, table.constraint.id)
+		)
 		.where(
 			and(
-				eq(table.timetableConstraint.timetableDraftId, timetableDraftId),
-				eq(table.timetableConstraint.active, true)
+				eq(table.timetableDraftConstraint.timetableDraftId, timetableDraftId),
+				eq(table.timetableDraftConstraint.active, true)
 			)
 		)
 		.orderBy(asc(table.constraint.FETName));
@@ -1304,8 +1316,8 @@ export async function getActiveTimetableDraftConstraintsByTimetableDraftId(
 
 export async function deleteTimetableDraftConstraint(ttConstraintId: number) {
 	await db
-		.delete(table.timetableConstraint)
-		.where(and(eq(table.timetableConstraint.id, ttConstraintId)));
+		.delete(table.timetableDraftConstraint)
+		.where(and(eq(table.timetableDraftConstraint.id, ttConstraintId)));
 }
 
 export async function updateTimetableDraftConstraintActiveStatus(
@@ -1313,9 +1325,9 @@ export async function updateTimetableDraftConstraintActiveStatus(
 	active: boolean
 ) {
 	const result = await db
-		.update(table.timetableConstraint)
+		.update(table.timetableDraftConstraint)
 		.set({ active })
-		.where(and(eq(table.timetableConstraint.id, ttConstraintId)))
+		.where(and(eq(table.timetableDraftConstraint.id, ttConstraintId)))
 		.returning();
 
 	return result[0];

@@ -136,7 +136,6 @@ function buildStudentsList(
 			yearData.totalStudents.add(student.id);
 		});
 	}
-	// console.log(studentsByYear[yearLevelEnum.year9].length);
 
 	// Convert to FET-compatible nested structure
 	const studentsList = [];

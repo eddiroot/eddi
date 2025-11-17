@@ -37,15 +37,10 @@ export const load = async ({ params, locals: { security }, depends }) => {
 export const actions = {
 	generateTimetable: async ({ params, locals: { security }, fetch }) => {
 		security.isAuthenticated().isSchoolAdmin();
+
 		const user = security.getUser();
-
 		const timetableId = parseInt(params.timetableId, 10);
-
 		const draft = await getTimetableDraftById(parseInt(params.timetableDraftId, 10));
-
-		if (isNaN(timetableId)) {
-			return fail(400, { error: 'Invalid timetable ID' });
-		}
 
 		try {
 			const [

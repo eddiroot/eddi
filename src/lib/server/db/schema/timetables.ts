@@ -82,7 +82,7 @@ export type TimetableQueue = typeof timetableQueue.$inferSelect;
 
 export const timetableDay = pgTable('tt_day', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	day: integer('day').notNull(), // numbers align with $lib/utils
@@ -95,7 +95,7 @@ export const timetablePeriod = pgTable(
 	'tt_period',
 	{
 		id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-		timetableDraftId: integer('tt_id')
+		timetableDraftId: integer('tt_draft_id')
 			.notNull()
 			.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 		startTime: time('start_time').notNull(),
@@ -119,7 +119,7 @@ export type TimetablePeriod = typeof timetablePeriod.$inferSelect;
 
 export const timetableGroup = pgTable('tt_group', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
 	yearLevel: yearLevelEnumPg().notNull(),
@@ -148,10 +148,10 @@ export type TimetableGroupMember = typeof timetableGroupMember.$inferSelect;
 
 export const timetableActivity = pgTable('tt_activity', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
-	subjectOfferingId: integer('subject_id')
+	subjectOfferingId: integer('sub_off_id')
 		.notNull()
 		.references(() => subjectOffering.id, { onDelete: 'cascade' }),
 	periodsPerInstance: integer('periods_per_instance').notNull().default(1),
@@ -238,7 +238,7 @@ export const timetableActivityAssignedGroup = pgTable(
 		timetableActivityId: integer('tt_activity_id')
 			.references(() => timetableActivity.id, { onDelete: 'cascade' })
 			.notNull(),
-		ttGroupId: integer('tt_group_id')
+		timetableGroupId: integer('tt_group_id')
 			.references(() => timetableGroup.id, { onDelete: 'cascade' })
 			.notNull(),
 		...timestamps
@@ -247,7 +247,7 @@ export const timetableActivityAssignedGroup = pgTable(
 		return {
 			pk: primaryKey({
 				name: 'tt_activity_assign_grp_pkey',
-				columns: [table.timetableActivityId, table.ttGroupId]
+				columns: [table.timetableActivityId, table.timetableGroupId]
 			})
 		};
 	}
@@ -276,12 +276,12 @@ export const timetableActivityAssignedYear = pgTable(
 
 export type TimetableActivityAssignedYear = typeof timetableActivityAssignedYear.$inferSelect;
 
-export const timetableConstraint = pgTable('tt_constraint', {
+export const timetableDraftConstraint = pgTable('tt_draft_con', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }),
-	timetableDraftId: integer('tt_id')
+	timetableDraftId: integer('tt_draft_id')
 		.notNull()
 		.references(() => timetableDraft.id, { onDelete: 'cascade' }),
-	constraintId: integer('constraint_id')
+	constraintId: integer('con_id')
 		.notNull() // unique identifier for the constraint
 		.references(() => constraint.id, { onDelete: 'cascade' }),
 	active: boolean('active').notNull().default(true),
@@ -290,16 +290,16 @@ export const timetableConstraint = pgTable('tt_constraint', {
 	...timestamps
 });
 
-export type TimetableConstraint = typeof timetableConstraint.$inferSelect;
+export type TimetableDraftConstraint = typeof timetableDraftConstraint.$inferSelect;
 
 export const constraintTypeEnumPg = pgEnum('enum_constraint_type', [
 	constraintTypeEnum.time,
 	constraintTypeEnum.space
 ]);
 
-export const constraint = pgTable('constraint', {
+export const constraint = pgTable('con', {
 	id: integer('id').primaryKey().generatedAlwaysAsIdentity({ startWith: 1000 }), // unique identifier for the constraint
-	FETName: text('name').notNull(),
+	FETName: text('fet_name').notNull(),
 	friendlyName: text('friendly_name').notNull(),
 	description: text('description').notNull(),
 	type: constraintTypeEnumPg().notNull(), // e.g., 'time', 'space'

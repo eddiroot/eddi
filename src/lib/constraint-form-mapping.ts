@@ -11,10 +11,6 @@ import RoomNotAvailableTimesForm from '$lib/components/constraints/room-not-avai
 import SubjectPreferredRoomsForm from '$lib/components/constraints/subject-preferred-rooms-form.svelte';
 import TeachersMaxGapsForm from '$lib/components/constraints/teachers-max-gaps-form.svelte';
 
-// Import schemas
-import { getConstraintSchema } from '$lib/schemas/constraints';
-export { getConstraintSchema };
-
 // List of FET constraint names that have custom forms implemented
 export const implementedConstraints = [
 	'ConstraintSubjectPreferredRooms',

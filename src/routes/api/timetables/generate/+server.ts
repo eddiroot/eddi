@@ -39,7 +39,6 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 			'application/xml'
 		);
 		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
-		console.log('FET XML uploaded to object storage:', objectKey);
 
 		await createTimetableQueueEntry(timetableId, draft.id, user.id, uniqueFileName);
 

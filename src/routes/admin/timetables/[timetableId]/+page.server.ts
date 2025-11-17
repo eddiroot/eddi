@@ -64,13 +64,8 @@ export const actions: Actions = {
 			return message(form, 'Please select a draft to publish.', { status: 400 });
 		}
 
-		// Now you can access form.data.draftId which is the timetableDraftId
 		const timetableDraftId = form.data.draftId;
 
-		console.log('Publishing timetable draft:', timetableDraftId);
-
-		// TODO: Implement publish logic here
-		// await publishTimetableDraft(timetableDraftId);
 		await publishTimetableDraft(timetableDraftId);
 
 		return message(form, 'Timetable draft published successfully!');

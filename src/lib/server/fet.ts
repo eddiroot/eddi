@@ -200,4 +200,14 @@ export class FETDockerService {
 			return false;
 		}
 	}
+
+	async removeAllFiles(): Promise<void> {
+		try {
+			await execAsync(`docker exec ${this.containerName} rm -rf /tmp`, {
+				timeout: 60000
+			});
+		} catch (error) {
+			console.warn(`⚠️  Failed to remove directory /tmp:`, error);
+		}
+	}
 }

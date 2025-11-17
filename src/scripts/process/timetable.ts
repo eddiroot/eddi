@@ -19,9 +19,6 @@ export async function processTimetableQueue() {
 		// Check for existing in-progress tasks
 		const inProgressQueues = await getInProgressTimetableQueues();
 		if (inProgressQueues.length > 0) {
-			console.log(
-				`⚠️  [TIMETABLE PROCESSOR] Found ${inProgressQueues.length} in-progress tasks. Skipping new task.`
-			);
 			return;
 		}
 
@@ -34,6 +31,10 @@ export async function processTimetableQueue() {
 
 		// Mark task as in progress
 		await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.inProgress);
+
+		// Docker container paths (no local temp file needed)
+		const containerTempPath = `/tmp/${queueEntry.id}_${queueEntry.fileName}`;
+		const containerOutputDir = `/tmp/output_${queueEntry.id}`;
 
 		try {
 			const schoolId = queueEntry.school.id.toString();
@@ -48,10 +49,6 @@ export async function processTimetableQueue() {
 				fileName,
 				true
 			);
-
-			// Docker container paths (no local temp file needed)
-			const containerTempPath = `/tmp/${queueEntry.id}_${fileName}`;
-			const containerOutputDir = `/tmp/output_${queueEntry.id}`;
 
 			// Stream file directly to Docker container using FETDockerService
 			await fetService.streamFileToContainer(containerTempPath, fileBuffer);
@@ -151,14 +148,11 @@ export async function processTimetableQueue() {
 			await updateTimetableDraftError(queueEntry.timetableDraftId, errorDetails);
 
 			// Mark task as failed
-			console.log('💥 [TIMETABLE PROCESSOR] Marking task as failed...');
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed, new Date());
-
-			// Attempt cleanup even on failure
+		} finally {
+			// Always attempt cleanup
 			try {
-				const containerTempPath = `/tmp/${queueEntry.id}_${queueEntry.fileName}`;
-				const containerOutputDir = `/tmp/output_${queueEntry.id}`;
-				await performCleanup(containerTempPath, containerOutputDir);
+				await fetService.removeAllFiles();
 			} catch (cleanupError) {
 				console.error(
 					'🧹 [TIMETABLE PROCESSOR] Cleanup failed after processing error:',
@@ -174,17 +168,4 @@ export async function processTimetableQueue() {
 			`⏱️  [TIMETABLE PROCESSOR] Process completed in ${(totalTime / 1000).toFixed(2)} seconds`
 		);
 	}
-}
-
-async function performCleanup(containerTempPath: string, containerOutputDir: string) {
-	console.log('🧹 [CLEANUP] Starting cleanup operations...');
-
-	// Container cleanup using FETDockerService
-	await fetService.removeFile(containerTempPath);
-	console.log('✅ [CLEANUP] Container input file removed');
-
-	await fetService.removeDirectory(containerOutputDir);
-	console.log('✅ [CLEANUP] Container output directory removed');
-
-	console.log('🧹 [CLEANUP] Cleanup operations completed');
 }

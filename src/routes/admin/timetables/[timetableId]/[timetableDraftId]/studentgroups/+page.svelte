@@ -9,7 +9,6 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { yearLevelEnum } from '$lib/enums';
 	import { convertToFullName, yearLevelToLabel } from '$lib/utils';
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -36,11 +35,6 @@
 	let filteredGroups = $derived(() => {
 		if (!yearLevel) return [];
 		return data.groups.filter((group) => group.yearLevel === yearLevel);
-	});
-
-	let filteredStudents = $derived(() => {
-		if (!yearLevel) return [];
-		return data.students.filter((student) => student.yearLevel === yearLevel);
 	});
 
 	// Get student options for a specific group (exclude students already in that group)
@@ -337,12 +331,7 @@
 		<div class="grid gap-4 py-4">
 			<div class="grid gap-2">
 				<Label for="create-name">Group Name</Label>
-				<Input
-					id="create-name"
-					bind:value={groupName}
-					placeholder="Enter group name"
-					required
-				/>
+				<Input id="create-name" bind:value={groupName} placeholder="Enter group name" required />
 			</div>
 		</div>
 		<Dialog.Footer>

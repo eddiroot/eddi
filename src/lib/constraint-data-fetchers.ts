@@ -127,7 +127,7 @@ export async function getTimetableDraftActivitiesOptions(
  * Build complete constraint form data for autocomplete components
  */
 export async function buildConstraintFormData(
-	timetableId: number,
+	timetableDraftId: number,
 	schoolId: number
 ): Promise<ConstraintFormData> {
 	// In a real implementation, these IDs would come from the current user session/context
@@ -145,12 +145,12 @@ export async function buildConstraintFormData(
 		getSubjectsOptions(schoolId),
 		getTeachersOptions(schoolId),
 		getStudentsOptions(schoolId),
-		getTimetableDraftGroupsOptions(timetableId),
+		getTimetableDraftGroupsOptions(timetableDraftId),
 		getBuildingsOptions(schoolId),
 		getSpacesOptions(schoolId),
-		getTimetableDraftDaysOptions(timetableId),
-		getTimetableDraftPeriodsOptions(timetableId),
-		getTimetableDraftActivitiesOptions(timetableId)
+		getTimetableDraftDaysOptions(timetableDraftId),
+		getTimetableDraftPeriodsOptions(timetableDraftId),
+		getTimetableDraftActivitiesOptions(timetableDraftId)
 	]);
 
 	return {

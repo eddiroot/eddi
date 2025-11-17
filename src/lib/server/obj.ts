@@ -170,24 +170,6 @@ export async function getFileFromStorage(
 	}
 }
 
-export async function getFileMetadata(schoolId: string, objectName: string) {
-	const bucketName = `schools`;
-	const fullObjectName = `${schoolId}/${objectName}`;
-
-	try {
-		const stat = await minioClient.statObject(bucketName, fullObjectName);
-		return {
-			size: stat.size,
-			lastModified: stat.lastModified,
-			etag: stat.etag,
-			contentType: stat.metaData?.['content-type']
-		};
-	} catch (error) {
-		console.error('Error getting file metadata:', error);
-		throw error;
-	}
-}
-
 export function generateUniqueFileName(originalName: string): string {
 	const timestamp = Date.now();
 	const randomString = Math.random().toString(36).substring(2, 8);

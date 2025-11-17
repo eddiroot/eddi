@@ -102,17 +102,9 @@
 		$editFormData.locationIds = localLocationIds.map((id) => parseInt(id));
 	});
 
-	// Delete form
 	const deleteForm = superForm(data.deleteActivityForm, {
 		validators: zod4(deleteActivitySchema),
-		onSubmit: () => {
-			console.log('Delete form submitting');
-		},
-		onError: ({ result }) => {
-			console.error('Delete form error:', result);
-		},
 		onUpdated: ({ form }) => {
-			console.log('Delete form updated:', form);
 			if (form.valid) {
 				invalidateAll();
 			}

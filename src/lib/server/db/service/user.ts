@@ -279,18 +279,17 @@ export async function getAllStudentsBySchoolId(schoolId: number) {
 // Group students by year level
 export async function getAllStudentsWithYearLevelsBySchoolId(schoolId: number) {
 	const students = await getAllStudentsBySchoolId(schoolId);
+
+	type StudentInfo = Pick<
+		Awaited<ReturnType<typeof getAllStudentsBySchoolId>>[0],
+		'id' | 'email' | 'firstName' | 'middleName' | 'lastName' | 'yearLevel'
+	>;
+
 	// Group students by year level
-	const studentsByYearLevel: Record<
+	const studentsByYearLevel: Record<yearLevelEnum, StudentInfo[]> = {} as Record<
 		yearLevelEnum,
-		Array<{
-			id: string;
-			email: string;
-			firstName: string;
-			middleName: string | null;
-			lastName: string;
-			yearLevel: yearLevelEnum;
-		}>
-	> = {} as Record<yearLevelEnum, typeof students>;
+		StudentInfo[]
+	>;
 
 	for (const student of students) {
 		if (!studentsByYearLevel[student.yearLevel]) {

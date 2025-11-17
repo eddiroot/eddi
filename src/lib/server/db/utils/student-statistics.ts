@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db/index';
+import { calculateDurationMinutes } from '$lib/utils';
 import { and, eq, inArray } from 'drizzle-orm';
 import type { StudentStatistic } from '../../../../routes/admin/timetables/[timetableId]/[timetableDraftId]/result/student-columns';
 import * as table from '../schema/timetables';
@@ -148,19 +149,6 @@ export async function getStudentEnrollmentsWithAllocations(
 	}
 
 	return Array.from(enrollmentMap.values());
-}
-
-/**
- * Calculates duration in minutes between two time strings (HH:MM:SS format)
- */
-export function calculateDurationMinutes(startTime: string, endTime: string): number {
-	const [startHour, startMin] = startTime.split(':').map(Number);
-	const [endHour, endMin] = endTime.split(':').map(Number);
-
-	const startTotalMin = startHour * 60 + startMin;
-	const endTotalMin = endHour * 60 + endMin;
-
-	return endTotalMin - startTotalMin;
 }
 
 /**

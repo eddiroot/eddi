@@ -1706,7 +1706,7 @@ async function seed() {
 			// Assign group to activity 1
 			await db.insert(schema.timetableActivityAssignedGroup).values({
 				timetableActivityId: activity1.id,
-				ttGroupId: group.id
+				timetableGroupId: group.id
 			});
 
 			// Assign preferred rooms (rotate through available spaces)
@@ -1744,7 +1744,7 @@ async function seed() {
 				// Assign to group
 				await db.insert(schema.timetableActivityAssignedGroup).values({
 					timetableActivityId: activity2.id,
-					ttGroupId: group.id
+					timetableGroupId: group.id
 				});
 			} else {
 				// Assign to individual students
@@ -1794,7 +1794,7 @@ async function seed() {
 		);
 
 		for (const con of mandatoryConstraints) {
-			await db.insert(schema.timetableConstraint).values({
+			await db.insert(schema.timetableDraftConstraint).values({
 				timetableDraftId: mockTimetableDraft.id,
 				constraintId: con.id,
 				active: true,

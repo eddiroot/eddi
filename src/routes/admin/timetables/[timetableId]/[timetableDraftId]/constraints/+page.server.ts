@@ -8,11 +8,11 @@ export const load = async ({ locals: { security }, params }) => {
 	const timetableId = parseInt(params.timetableId, 10);
 	const timetableDraftId = parseInt(params.timetableDraftId, 10);
 
-	// Get constraints currently assigned to this timetable
-	const assignedConstraints = await getAllConstraintsByTimetableDraftId(timetableId);
-
 	// Get all constraints from the database
 	const allConstraints = await getAllConstraints();
+
+	// Get constraints currently assigned to this timetable
+	const assignedConstraints = await getAllConstraintsByTimetableDraftId(timetableDraftId);
 
 	// Filter to only show constraints that have custom forms
 	const constraintsWithForms = allConstraints.filter((constraint) =>
@@ -49,19 +49,16 @@ export const load = async ({ locals: { security }, params }) => {
 	);
 
 	// Build form data for autocomplete components
-	const formData = await buildConstraintFormData(timetableId, user.schoolId);
+	const formData = await buildConstraintFormData(timetableDraftId, user.schoolId);
 
 	return {
 		user,
 		timetableId,
 		timetableDraftId,
-		// current constraints that are assigned to this timetable
 		currentTimeConstraints,
 		currentSpaceConstraints,
-		// available constraints that can be added (have forms and respect repeatability rules)
 		availableTimeConstraints,
 		availableSpaceConstraints,
-		// form data for enhanced constraint forms
 		formData
 	};
 };
