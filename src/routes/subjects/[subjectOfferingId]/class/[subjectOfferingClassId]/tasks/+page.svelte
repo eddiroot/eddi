@@ -196,16 +196,28 @@
 											: resource.resource.fileName}
 									</Card.Title>
 								</a>
-
-								<Card.Action class="space-x-2">
+							</Card.Header>
+							{#if resource.resourceRelation.description}
+								<Card.Content class="h-12 w-72 truncate break-all">
+									{#if resource.resourceRelation.description}
+										<span class="text-muted-foreground h-12 truncate text-sm text-wrap">
+											{resource.resourceRelation.description}
+										</span>
+									{/if}
+								</Card.Content>
+							{/if}
+							<Card.Footer class="flex items-center justify-between">
+								<span class="text-muted-foreground text-sm">
+									{formatFileSize(resource.resource.fileSize)}
+								</span>
+								<Card.Action class="space-x-1">
 									{#if resource.downloadUrl}
-										<Button class="w-8" variant="ghost" target="_blank" href={resource.downloadUrl}>
+										<Button variant="outline" target="_blank" href={resource.downloadUrl}>
 											<DownloadIcon />
 										</Button>
 									{/if}
 									<Button
-										class="w-8"
-										variant="ghost"
+										variant="destructive"
 										onclick={() =>
 											requestDelete(
 												resource.resource.id,
@@ -218,18 +230,6 @@
 										<TrashIcon />
 									</Button>
 								</Card.Action>
-							</Card.Header>
-							<Card.Content class="h-12 w-72 truncate break-all">
-								{#if resource.resourceRelation.description}
-									<span class="text-muted-foreground h-12 truncate text-sm text-wrap">
-										{resource.resourceRelation.description}
-									</span>
-								{/if}
-							</Card.Content>
-							<Card.Footer>
-								<span class="text-muted-foreground text-sm">
-									{formatFileSize(resource.resource.fileSize)}
-								</span>
 							</Card.Footer>
 						</Card.Root>
 					{/each}

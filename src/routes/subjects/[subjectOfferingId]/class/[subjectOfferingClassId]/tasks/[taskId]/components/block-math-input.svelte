@@ -85,8 +85,8 @@
 						id="text-input"
 						class="min-h-[80px]"
 						placeholder="Enter instructions or context for this math problem..."
-						bind:value={config.text}
-						oninput={() => onConfigUpdate({ ...config, text: config.text })}
+						value={config.text}
+						oninput={(e) => onConfigUpdate({ ...config, text: e.currentTarget.value })}
 					/>
 					<p class="text-muted-foreground text-xs">
 						Provide instructions or context that will be shown to students before the question.
