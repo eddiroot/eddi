@@ -32,9 +32,10 @@ export async function processTimetableQueue() {
 		// Mark task as in progress
 		await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.inProgress);
 
-		// Docker container paths (no local temp file needed)
-		const containerTempPath = `/tmp/${queueEntry.id}_${queueEntry.fileName}`;
-		const containerOutputDir = `/tmp/output_${queueEntry.id}`;
+		// Docker container paths - use a dedicated working directory
+		const workingDir = `/app/timetables/${queueEntry.id}`;
+		const containerTempPath = `${workingDir}/input/${queueEntry.fileName}`;
+		const containerOutputDir = `${workingDir}/output`;
 
 		try {
 			const schoolId = queueEntry.school.id.toString();
@@ -50,12 +51,28 @@ export async function processTimetableQueue() {
 				true
 			);
 
+			console.log(
+				`📥 [TIMETABLE PROCESSOR] Retrieved file from storage: ${schoolId}/${timetableId}/${timetableDraftId}/input/${fileName} (${fileBuffer.length} bytes)`
+			);
+
+			// Create working directories in container
+			await fetService.createDirectory(workingDir);
+			await fetService.createDirectory(`${workingDir}/input`);
+			await fetService.createDirectory(containerOutputDir);
+
+			console.log(`📁 [TIMETABLE PROCESSOR] Created working directories in container`);
+
 			// Stream file directly to Docker container using FETDockerService
 			await fetService.streamFileToContainer(containerTempPath, fileBuffer);
 
-			// Create output directory in container
-			await fetService.createDirectory(containerOutputDir);
+			console.log(`📤 [TIMETABLE PROCESSOR] Streamed file to container: ${containerTempPath}`);
+
+			// Execute FET processing
 			const fetResult = await fetService.executeFET(containerTempPath, containerOutputDir);
+
+			console.log(
+				`🔄 [TIMETABLE PROCESSOR] FET execution completed. Success: ${fetResult.success}, Time: ${(fetResult.executionTime / 1000).toFixed(2)}s`
+			);
 
 			if (!fetResult.success && fetResult.error) {
 				await updateTimetableDraftFetResponse(queueEntry.timetableDraftId, fetResult.error);
@@ -64,6 +81,8 @@ export async function processTimetableQueue() {
 
 			// List output files in container
 			const allFiles = await fetService.listFiles(containerOutputDir);
+
+			console.log(`📂 [TIMETABLE PROCESSOR] Found ${allFiles.length} output files`);
 
 			// Upload ALL generated files to object storage
 			if (allFiles.length > 0) {
@@ -150,9 +169,11 @@ export async function processTimetableQueue() {
 			// Mark task as failed
 			await updateTimetableQueueStatus(queueEntry.id, queueStatusEnum.failed, new Date());
 		} finally {
-			// Always attempt cleanup
+			// Always attempt cleanup of the specific working directory
 			try {
-				await fetService.removeAllFiles();
+				const workingDir = `/app/timetables/${queueEntry.id}`;
+				await fetService.removeDirectory(workingDir);
+				console.log(`🧹 [TIMETABLE PROCESSOR] Cleaned up working directory: ${workingDir}`);
 			} catch (cleanupError) {
 				console.error(
 					'🧹 [TIMETABLE PROCESSOR] Cleanup failed after processing error:',

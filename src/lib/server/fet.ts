@@ -40,19 +40,27 @@ export class FETDockerService {
 	 */
 	async streamFileToContainer(targetPath: string, data: Buffer): Promise<void> {
 		return new Promise((resolve, reject) => {
+			// Properly escape the path for shell
+			const escapedPath = targetPath.replace(/'/g, "'\\''");
+
 			const dockerProcess = spawn('docker', [
 				'exec',
 				'-i',
 				this.containerName,
 				'sh',
 				'-c',
-				`cat > ${targetPath}`
+				`cat > '${escapedPath}'`
 			]);
 
 			let stderr = '';
+			let stdout = '';
 
 			dockerProcess.stderr.on('data', (chunk) => {
 				stderr += chunk.toString();
+			});
+
+			dockerProcess.stdout.on('data', (chunk) => {
+				stdout += chunk.toString();
 			});
 
 			dockerProcess.on('error', (error) => {
@@ -63,7 +71,11 @@ export class FETDockerService {
 				if (code === 0) {
 					resolve();
 				} else {
-					reject(new Error(`Docker process exited with code ${code}. stderr: ${stderr}`));
+					reject(
+						new Error(
+							`Docker process exited with code ${code}. Path: ${targetPath}, stderr: ${stderr}, stdout: ${stdout}`
+						)
+					);
 				}
 			});
 
@@ -201,13 +213,16 @@ export class FETDockerService {
 		}
 	}
 
-	async removeAllFiles(): Promise<void> {
+	/**
+	 * Clean up all timetable working directories
+	 */
+	async cleanupTimetableWorkspace(): Promise<void> {
 		try {
-			await execAsync(`docker exec ${this.containerName} rm -rf /tmp`, {
+			await execAsync(`docker exec ${this.containerName} rm -rf /app/timetables/*`, {
 				timeout: 60000
 			});
 		} catch (error) {
-			console.warn(`⚠️  Failed to remove directory /tmp:`, error);
+			console.warn(`⚠️  Failed to cleanup timetable workspace:`, error);
 		}
 	}
 }

@@ -385,9 +385,9 @@
 													</div>
 													<div>
 														<div class="text-sm font-medium">{session.subjectName}</div>
-														{#if session.className}
+														<!-- {#if session.className}
 															<div class="text-muted-foreground text-xs">{session.className}</div>
-														{/if}
+														{/if} -->
 													</div>
 													{#if session.spaceName}
 														<div class="text-muted-foreground text-xs">
@@ -414,7 +414,7 @@
 					<Card.Description>Search by room/space name or type</Card.Description>
 				</Card.Header>
 				<Card.Content>
-					<p>This is the Overall Statistics page</p>
+					<p>TODO: This has not been implemented yet!!!!</p>
 				</Card.Content>
 			</Card.Root>
 		</Tabs.Content>
