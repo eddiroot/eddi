@@ -30,3 +30,12 @@
 - [ ] deleting one constraint of the same type deletes them all
 - [ ] Updating activities does something weird to the teachers
   - [ ] only teachers that teach that subject should be allowed to be assigned to that subject
+- [ ] Error message shown as part of the timetable generation is the same for all attempted generations:
+  - [ ] linked to the timetable draft rather than the timetable queue row
+- [ ]
+
+UPLIFT:
+
+- [ ] change the number of weeks per cycle to be apart of the timetable level.
+- [ ] Each draft should be responsible for days in that cycle
+- [ ] should showcase what days a timetable is published/drafted

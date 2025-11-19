@@ -8,6 +8,7 @@
 	import ArchiveIcon from '@lucide/svelte/icons/archive';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import type { PageData } from './$types.js';
@@ -23,6 +24,11 @@
 		onUpdated: ({ form }) => {
 			if (form.valid) {
 				dialogOpen = false;
+				if (form.message) {
+					toast.success(form.message);
+				}
+			} else if (form.message) {
+				toast.error(form.message);
 			}
 		}
 	});
@@ -32,6 +38,13 @@
 		onUpdated: ({ form }) => {
 			if (form.valid) {
 				publishDialogOpen = false;
+				if (form.message) {
+					toast.success(form.message, {
+						description: 'The timetable is now available to students and teachers.'
+					});
+				}
+			} else if (form.message) {
+				toast.error(form.message);
 			}
 		}
 	});
