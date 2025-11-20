@@ -143,16 +143,16 @@ export async function getFileStream(schoolId: string, objectName: string) {
 export async function getFileFromStorage(
 	schoolId: string,
 	timetableId: string,
+	timetableDraftId: string,
 	objectName: string,
-	input: boolean,
-	iterationId?: string
+	input: boolean
 ) {
 	const dir = input ? 'input' : 'output';
 	const bucketName = `schools`;
 
-	// Use iteration structure if provided, otherwise fall back to old structure
-	const fullObjectName = iterationId
-		? `${schoolId}/${timetableId}/${iterationId}/${dir}/${objectName}`
+	// Use draft structure if provided, otherwise fall back to old structure
+	const fullObjectName = timetableDraftId
+		? `${schoolId}/${timetableId}/${timetableDraftId}/${dir}/${objectName}`
 		: `${schoolId}/${timetableId}/${dir}/${objectName}`;
 
 	try {
@@ -166,24 +166,6 @@ export async function getFileFromStorage(
 		return Buffer.concat(chunks);
 	} catch (error) {
 		console.error('Error getting file from storage:', error);
-		throw error;
-	}
-}
-
-export async function getFileMetadata(schoolId: string, objectName: string) {
-	const bucketName = `schools`;
-	const fullObjectName = `${schoolId}/${objectName}`;
-
-	try {
-		const stat = await minioClient.statObject(bucketName, fullObjectName);
-		return {
-			size: stat.size,
-			lastModified: stat.lastModified,
-			etag: stat.etag,
-			contentType: stat.metaData?.['content-type']
-		};
-	} catch (error) {
-		console.error('Error getting file metadata:', error);
 		throw error;
 	}
 }

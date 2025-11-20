@@ -194,30 +194,30 @@ async function seed() {
 			])
 			.returning();
 
-		// Create semesters and terms using Victorian school term dates
+		// Create semesters and terms using Victorian school term dates for the next 10 years
 		const currentYear = new Date().getFullYear();
-		const victorianTerms = getTermsByYear(currentYear);
+		const yearsToCreate = 5;
 
-		if (victorianTerms) {
+		for (let yearOffset = 0; yearOffset < yearsToCreate; yearOffset++) {
+			const year = currentYear + yearOffset;
+			const victorianTerms = getTermsByYear(year);
+
 			// Determine semester 1 (terms 1 and 2) and semester 2 (terms 3 and 4)
-			const semester1Terms = victorianTerms.filter((t) => t.term === 1 || t.term === 2);
-			const semester2Terms = victorianTerms.filter((t) => t.term === 3 || t.term === 4);
+			const semester1Terms = victorianTerms?.filter(
+				(t) => t.termNumber === 1 || t.termNumber === 2
+			);
+			const semester2Terms = victorianTerms?.filter(
+				(t) => t.termNumber === 3 || t.termNumber === 4
+			);
 
 			// Create Semester 1
-			if (semester1Terms.length > 0) {
-				const semester1StartDate = semester1Terms[0].startDate.toISOString().split('T')[0];
-				const semester1EndDate = semester1Terms[semester1Terms.length - 1].endDate
-					.toISOString()
-					.split('T')[0];
-
+			if (semester1Terms) {
 				const [semester1] = await db
 					.insert(schema.schoolSemester)
 					.values({
 						schoolId: schoolRecord.id,
-						schoolYear: currentYear,
-						name: 'Semester 1',
-						startDate: semester1StartDate,
-						endDate: semester1EndDate,
+						semNumber: 1,
+						schoolYear: year,
 						isArchived: false
 					})
 					.returning();
@@ -226,7 +226,7 @@ async function seed() {
 				for (const term of semester1Terms) {
 					await db.insert(schema.schoolTerm).values({
 						schoolSemesterId: semester1.id,
-						name: `Term ${term.term}`,
+						termNumber: term.termNumber,
 						startDate: term.startDate,
 						endDate: term.endDate,
 						isArchived: false
@@ -235,20 +235,13 @@ async function seed() {
 			}
 
 			// Create Semester 2
-			if (semester2Terms.length > 0) {
-				const semester2StartDate = semester2Terms[0].startDate.toISOString().split('T')[0];
-				const semester2EndDate = semester2Terms[semester2Terms.length - 1].endDate
-					.toISOString()
-					.split('T')[0];
-
+			if (semester2Terms) {
 				const [semester2] = await db
 					.insert(schema.schoolSemester)
 					.values({
 						schoolId: schoolRecord.id,
-						schoolYear: currentYear,
-						name: 'Semester 2',
-						startDate: semester2StartDate,
-						endDate: semester2EndDate,
+						schoolYear: year,
+						semNumber: 2,
 						isArchived: false
 					})
 					.returning();
@@ -257,7 +250,7 @@ async function seed() {
 				for (const term of semester2Terms) {
 					await db.insert(schema.schoolTerm).values({
 						schoolSemesterId: semester2.id,
-						name: `Term ${term.term}`,
+						termNumber: term.termNumber,
 						startDate: term.startDate,
 						endDate: term.endDate,
 						isArchived: false
@@ -383,7 +376,7 @@ async function seed() {
 			const yearOfferingValues = {
 				subjectId: subject.id,
 				year: 2025,
-				semester: 0, // 0 indicates full year
+				semester: 1, // 0 indicates full year
 				campusId: campusRecord.id
 			};
 			const [yearOffering] = await db
@@ -1565,13 +1558,34 @@ async function seed() {
 			});
 		}
 
+		const [semester1] = await db
+			.select()
+			.from(schema.schoolSemester)
+			.where(
+				and(
+					eq(schema.schoolSemester.schoolId, schoolRecord.id),
+					eq(schema.schoolSemester.schoolYear, 2025),
+					eq(schema.schoolSemester.semNumber, 1)
+				)
+			)
+			.limit(1);
+
 		const [mockTimetable] = await db
 			.insert(schema.timetable)
 			.values({
 				schoolId: schoolRecord.id,
 				name: 'Main School Timetable 2025',
 				schoolYear: 2025,
+				schoolSemesterId: semester1.id,
 				isArchived: false
+			})
+			.returning();
+
+		const [mockTimetableDraft] = await db
+			.insert(schema.timetableDraft)
+			.values({
+				timetableId: mockTimetable.id,
+				name: 'Draft for Main School Timetable 2025'
 			})
 			.returning();
 
@@ -1579,26 +1593,59 @@ async function seed() {
 		await db
 			.insert(schema.timetableDay)
 			.values([
-				{ timetableId: mockTimetable.id, day: 1 }, // Monday
-				{ timetableId: mockTimetable.id, day: 2 }, // Tuesday
-				{ timetableId: mockTimetable.id, day: 3 }, // Wednesday
-				{ timetableId: mockTimetable.id, day: 4 }, // Thursday
-				{ timetableId: mockTimetable.id, day: 5 } // Friday
+				{ timetableDraftId: mockTimetableDraft.id, day: 1 }, // Monday
+				{ timetableDraftId: mockTimetableDraft.id, day: 2 }, // Tuesday
+				{ timetableDraftId: mockTimetableDraft.id, day: 3 }, // Wednesday
+				{ timetableDraftId: mockTimetableDraft.id, day: 4 }, // Thursday
+				{ timetableDraftId: mockTimetableDraft.id, day: 5 } // Friday
 			])
 			.returning();
 
 		// Create timetable periods (6 periods from 9:00 to 15:30)
-		await db
+		const periods = await db
 			.insert(schema.timetablePeriod)
 			.values([
-				{ timetableId: mockTimetable.id, startTime: '09:00', endTime: '09:50' },
-				{ timetableId: mockTimetable.id, startTime: '09:50', endTime: '10:40' },
-				{ timetableId: mockTimetable.id, startTime: '11:00', endTime: '11:50' }, // 20 min break after period 2
-				{ timetableId: mockTimetable.id, startTime: '11:50', endTime: '12:40' },
-				{ timetableId: mockTimetable.id, startTime: '13:40', endTime: '14:30' }, // 1 hour lunch break after period 4
-				{ timetableId: mockTimetable.id, startTime: '14:30', endTime: '15:20' }
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '09:00',
+					endTime: '09:50'
+				},
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '09:50',
+					endTime: '10:40'
+				},
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '11:00',
+					endTime: '11:50'
+				}, // 20 min break after period 2
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '11:50',
+					endTime: '12:40'
+				},
+				{
+					timetableDraftId: mockTimetableDraft.id,
+					startTime: '13:40',
+					endTime: '14:30'
+				}, // 1 hour lunch break after period 4
+				{ timetableDraftId: mockTimetableDraft.id, startTime: '14:30', endTime: '15:20' }
 			])
 			.returning();
+
+		// Update the nextPeriodId chain for all periods
+		for (let i = 0; i < periods.length; i++) {
+			const currentPeriod = periods[i];
+			const nextPeriod = periods[i + 1];
+
+			await db
+				.update(schema.timetablePeriod)
+				.set({
+					nextPeriodId: nextPeriod ? nextPeriod.id : null
+				})
+				.where(eq(schema.timetablePeriod.id, currentPeriod.id));
+		}
 
 		// Create timetable groups for Year 9 students - one group per subject (like auto-create groups button)
 		const timetableGroups = [];
@@ -1611,7 +1658,7 @@ async function seed() {
 			const [group] = await db
 				.insert(schema.timetableGroup)
 				.values({
-					timetableId: mockTimetable.id,
+					timetableDraftId: mockTimetableDraft.id,
 					yearLevel: yearLevelEnum.year9,
 					name: `Year 9 ${subjectName}`
 				})
@@ -1643,8 +1690,8 @@ async function seed() {
 			const [activity1] = await db
 				.insert(schema.timetableActivity)
 				.values({
-					timetableId: mockTimetable.id,
-					subjectId: offering.subjectId,
+					timetableDraftId: mockTimetableDraft.id,
+					subjectOfferingId: offering.id,
 					periodsPerInstance: 1,
 					totalPeriods: 3 // 3 periods per week
 				})
@@ -1659,7 +1706,7 @@ async function seed() {
 			// Assign group to activity 1
 			await db.insert(schema.timetableActivityAssignedGroup).values({
 				timetableActivityId: activity1.id,
-				ttGroupId: group.id
+				timetableGroupId: group.id
 			});
 
 			// Assign preferred rooms (rotate through available spaces)
@@ -1673,8 +1720,8 @@ async function seed() {
 			const [activity2] = await db
 				.insert(schema.timetableActivity)
 				.values({
-					timetableId: mockTimetable.id,
-					subjectId: offering.subjectId,
+					timetableDraftId: mockTimetableDraft.id,
+					subjectOfferingId: offering.id,
 					periodsPerInstance: 2, // Double period
 					totalPeriods: 4 // 2 instances of 2 periods each per week
 				})
@@ -1697,7 +1744,7 @@ async function seed() {
 				// Assign to group
 				await db.insert(schema.timetableActivityAssignedGroup).values({
 					timetableActivityId: activity2.id,
-					ttGroupId: group.id
+					timetableGroupId: group.id
 				});
 			} else {
 				// Assign to individual students
@@ -1747,8 +1794,8 @@ async function seed() {
 		);
 
 		for (const con of mandatoryConstraints) {
-			await db.insert(schema.timetableConstraint).values({
-				timetableId: mockTimetable.id,
+			await db.insert(schema.timetableDraftConstraint).values({
+				timetableDraftId: mockTimetableDraft.id,
 				constraintId: con.id,
 				active: true,
 				parameters: {
@@ -1769,17 +1816,16 @@ async function seed() {
 
 		const baseDate = mostRecentMonday;
 
-		// Helper function to create a Date object for a specific day and time
-		const createDateTime = (
-			weekOffset: number,
-			dayOffset: number,
-			hour: number,
-			minute: number = 0
-		) => {
+		// Helper function to create a Date object for a specific day
+		const createDate = (weekOffset: number, dayOffset: number) => {
 			const date = new Date(baseDate);
 			date.setDate(baseDate.getDate() + weekOffset * 7 + dayOffset);
-			date.setHours(hour, minute, 0, 0);
-			return date;
+			return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+		};
+
+		// Helper function to create a time string
+		const createTime = (hour: number, minute: number = 0) => {
+			return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
 		};
 
 		// Create timetable for multiple weeks with varying patterns
@@ -1890,8 +1936,9 @@ async function seed() {
 					const timetableEntry = {
 						subjectOfferingClassId: subjectOfferingClasses[subjectIndex].id,
 						schoolSpaceId: spaces[subjectIndex].id, // Use appropriate space for subject
-						startTimestamp: createDateTime(week, day, hour, minute),
-						endTimestamp: createDateTime(week, day, hour + 1, minute) // 1 hour duration
+						date: createDate(week, day),
+						startTime: createTime(hour, minute),
+						endTime: createTime(hour + 1, minute) // 1 hour duration
 					};
 
 					timetableEntries.push(timetableEntry);
