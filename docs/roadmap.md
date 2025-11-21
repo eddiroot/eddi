@@ -60,6 +60,7 @@ All
 
 Lachie
 
+- [ ] Rework attendance with Rowan's feedback
 - [ ] UI fixes / code cleanup
 
 Bella
@@ -77,10 +78,6 @@ Jack & Raph
   - [ ] Hints
   - [ ] Generate example
 - [ ] Post summaries (include nested comments but pass them in a structure to gemini)
-
-Max
-
-- [ ] Get timetabling demoable
 
 Raph
 
