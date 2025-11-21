@@ -16,22 +16,22 @@ We currently don't expect contributions from members outside of the core team. T
 
 ## Setup
 
+1. Paste the profiles into your `~/.aws/config`
+
+2. Run the following commands one-by-one
+
 ```bash
-docker compose up --detach
+docker compose up -d
 npm install
-npm run db:push
-npm run db:seed
-npm run dev -- --open
+npm run sso
+npx sst dev
 ```
 
-If you make breaking changes to the DB on your local and are happy to start fresh, just copy paste this code block into your terminal and hit enter:
+3. In a new terminal, run these commands
 
 ```bash
-docker compose down --volumes
-docker compose up --detach
 npm run db:push
 npm run db:seed
-npm run dev -- --open
 ```
 
 ## UI

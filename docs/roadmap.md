@@ -58,6 +58,10 @@ All
 - [ ] Home pages and feature pages
 - [ ] Shift away from static school id for OAuth (search TODO)
 
+Lachie
+
+- [ ] UI fixes / code cleanup
+
 Bella
 
 - [ ] Refine task block UI/UX

@@ -193,7 +193,7 @@ export const actions: Actions = {
 
 						// Upload to object storage
 						const objectKey = `${schoolId}/news/${news.id}/${uniqueFileName}`;
-						await uploadBufferHelper(buffer, 'schools', objectKey, image.type);
+						await uploadBufferHelper(buffer, objectKey, image.type);
 
 						// Create resource in database
 						const resource = await createResource(

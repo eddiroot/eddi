@@ -220,7 +220,7 @@ export const actions: Actions = {
 						const buffer = Buffer.from(await image.arrayBuffer());
 						const objectKey = `${schoolId}/news/${newsId}/${uniqueFileName}`;
 
-						await uploadBufferHelper(buffer, 'schools', objectKey, image.type);
+						await uploadBufferHelper(buffer, objectKey, image.type);
 
 						const resource = await createResource(
 							image.name.split('.')[0],
