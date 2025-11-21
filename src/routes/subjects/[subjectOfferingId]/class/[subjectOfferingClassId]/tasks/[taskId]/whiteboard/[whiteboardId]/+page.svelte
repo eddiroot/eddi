@@ -408,7 +408,6 @@
 			}
 			canvas.renderAll();
 			const objData = activeObject.toObject();
-			// @ts-expect-error
 			objData.id = activeObject.id;
 			sendCanvasUpdate({
 				type: 'modify',
@@ -433,7 +432,6 @@
 			});
 			canvas.renderAll();
 			const objData = activeObject.toObject();
-			// @ts-expect-error
 			objData.id = activeObject.id;
 			sendCanvasUpdate({
 				type: 'modify',
@@ -493,7 +491,6 @@
 			}
 			canvas.renderAll();
 			const objData = activeObject.toObject();
-			// @ts-expect-error
 			objData.id = activeObject.id;
 			sendCanvasUpdate({
 				type: 'modify',
@@ -561,7 +558,6 @@
 		if (event.key === 'Escape') {
 			const activeObject = canvas.getActiveObject();
 			// Don't switch to select if editing text
-			// @ts-expect-error
 			if (!activeObject || !activeObject.isType('textbox') || !activeObject.isEditing) {
 				event.preventDefault();
 				setSelectTool();
@@ -570,7 +566,6 @@
 
 		if (event.key === 'Backspace' || event.key === 'Delete') {
 			const activeObject = canvas.getActiveObject();
-			// @ts-expect-error
 			if (activeObject && (!activeObject.isType('textbox') || !activeObject.isEditing)) {
 				event.preventDefault();
 				deleteSelected();
