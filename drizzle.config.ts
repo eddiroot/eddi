@@ -1,11 +1,21 @@
 import { defineConfig } from 'drizzle-kit';
-
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+import { Resource } from 'sst';
 
 export default defineConfig({
-	schema: './src/lib/server/db/schema',
 	dialect: 'postgresql',
-	dbCredentials: { url: process.env.DATABASE_URL },
-	verbose: false,
-	strict: false
+	schema: './src/lib/server/db/schema',
+	out: './migrations',
+	dbCredentials: {
+		// @ts-expect-error - SST Resource types not available in drizzle-kit context
+		host: Resource.Database.host,
+		// @ts-expect-error - SST Resource types not available in drizzle-kit context
+		port: Resource.Database.port,
+		// @ts-expect-error - SST Resource types not available in drizzle-kit context
+		user: Resource.Database.username,
+		// @ts-expect-error - SST Resource types not available in drizzle-kit context
+		password: Resource.Database.password,
+		// @ts-expect-error - SST Resource types not available in drizzle-kit context
+		database: Resource.Database.database,
+		ssl: Resource.App.stage == 'production' ? true : false
+	}
 });

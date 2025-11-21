@@ -216,7 +216,6 @@ export async function processTimetableQueue() {
 						const outputObjectKey = `${schoolId}/${timetableId}/${iterationId}/output/${fileName}`;
 						await uploadBufferHelper(
 							Buffer.from(fileContent.stdout, 'utf-8'),
-							'schools',
 							outputObjectKey,
 							contentType
 						);

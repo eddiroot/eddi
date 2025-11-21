@@ -159,7 +159,7 @@ export const actions = {
 			const user = security.getUser();
 			const schoolId = user.schoolId?.toString() || 'default';
 			const objectKey = `${schoolId}/lessonplan/${lessonPlanId}/${uniqueFileName}`;
-			await uploadBufferHelper(buffer, 'schools', objectKey, file.type);
+			await uploadBufferHelper(buffer, objectKey, file.type);
 
 			// Create resource in database (no description since we're auto-inferring everything)
 			const resource = await createResource(

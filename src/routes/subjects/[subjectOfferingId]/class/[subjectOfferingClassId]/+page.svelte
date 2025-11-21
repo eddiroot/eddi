@@ -1,6 +1,6 @@
 <script lang="ts">
+	import ResourceCard from '$lib/components/resource-card.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import ResourceCard from '$lib/components/ui/resource-card/resource-card.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 
 	let { data } = $props();

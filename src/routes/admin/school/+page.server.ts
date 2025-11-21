@@ -51,7 +51,7 @@ export const actions = {
 						// Extract the object name from the URL
 						const urlParts = school.logoUrl.split('/');
 						const objectName = urlParts.slice(-1)[0];
-						await deleteFile('logos', objectName);
+						await deleteFile(objectName);
 					} catch (deleteError) {
 						console.warn('Could not delete existing logo:', deleteError);
 					}
@@ -59,7 +59,7 @@ export const actions = {
 
 				const buffer = Buffer.from(await form.data.logo.arrayBuffer());
 				const uniqueFileName = generateUniqueFileName(form.data.logo.name);
-				logoUrl = await uploadBufferHelper(buffer, 'logos', uniqueFileName, form.data.logo.type);
+				logoUrl = await uploadBufferHelper(buffer, uniqueFileName, form.data.logo.type);
 			}
 
 			// Update school with new details and logo URL

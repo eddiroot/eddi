@@ -53,12 +53,7 @@ export const POST: RequestHandler = async ({ locals: { security }, request }) =>
 		// Updated path: school_id/timetable_id/iteration_id/input/filename
 		const objectKey = `${user.schoolId}/${timetableId}/${iteration.id}/input/${uniqueFileName}`;
 
-		await uploadBufferHelper(
-			Buffer.from(fetXmlContent, 'utf-8'),
-			'schools',
-			objectKey,
-			'application/xml'
-		);
+		await uploadBufferHelper(Buffer.from(fetXmlContent, 'utf-8'), objectKey, 'application/xml');
 		console.log(`✅ [TIMETABLE PROCESSOR] Input file stored: ${objectKey}`);
 		console.log('FET XML uploaded to object storage:', objectKey);
 

@@ -124,7 +124,7 @@ export const actions = {
 
 			// Upload file to storage in school bucket
 			const objectKey = `${user.schoolId}/${uniqueFileName}`;
-			await uploadBufferHelper(buffer, 'schools', objectKey, file.type);
+			await uploadBufferHelper(buffer, objectKey, file.type);
 
 			// Create resource in database
 			const resource = await createResource(

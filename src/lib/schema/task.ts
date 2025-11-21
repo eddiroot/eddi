@@ -48,7 +48,63 @@ Analyse the attached documents/images and create homework that reinforces learni
     - In lessons, you may leave marks blank or 0; in homework and assessments, marks are required.
 Each component should be structured according to the provided schema. Prioritize interactive practice over explanatory content.`,
 
-	assessment: (
+	test: (
+		title: string,
+		description: string = ''
+	) => `Use the following as background context to help generate a comprehensive assessment:
+Title: ${title}
+${description ? `Description: ${description}` : ''}
+
+Analyse the attached documents/images and create an assessment that evaluates student understanding with:
+    - Focus primarily on these question components: short_answer, matching, fill_in_blank, multiple_choice, and math_input. Use headers and paragraphs only when introducing or explaining questions.
+    - Ensure you include at least one \`short_answer\` component for open-ended evaluation.
+    1. A clear assessment subtitle and brief instructions. Do not include a title.
+    2. Varied question types to test different skill levels:
+        - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
+        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks, 5 underscores) limit to maximum 3
+        - Math input questions (if applicable) for problem-solving skills
+        - Text input questions for analysis and evaluation
+        - Matching activities for concept connections
+    3. Questions that progress from basic recall to higher-order thinking
+    4. Clear, unambiguous question wording
+    5. Comprehensive coverage of the topic material
+    6. Minimal explanatory content - focus on evaluation questions
+    - For every block that has an **answer**, also include a **marks** field (number ≥ 1).
+    - If a block includes **criteria**, provide one or more criteria objects:
+        • Each object needs { description, marks }
+        • The sum of criteria.marks must equal the block's marks.
+    - In lessons, you may leave marks blank or 0; in homework and assessments, marks are required.
+Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`,
+
+	assignment: (
+		title: string,
+		description: string = ''
+	) => `Use the following as background context to help generate a comprehensive assessment:
+Title: ${title}
+${description ? `Description: ${description}` : ''}
+
+Analyse the attached documents/images and create an assessment that evaluates student understanding with:
+    - Focus primarily on these question components: short_answer, matching, fill_in_blank, multiple_choice, and math_input. Use headers and paragraphs only when introducing or explaining questions.
+    - Ensure you include at least one \`short_answer\` component for open-ended evaluation.
+    1. A clear assessment subtitle and brief instructions. Do not include a title.
+    2. Varied question types to test different skill levels:
+        - Multiple choice questions (both single and multiple answer) for knowledge and comprehension (make sure answers are string of options (not a,b,c or 1,2,3))
+        - Fill in the blank questions for key terminology and concepts (use the format "_____" for blanks, 5 underscores) limit to maximum 3
+        - Math input questions (if applicable) for problem-solving skills
+        - Text input questions for analysis and evaluation
+        - Matching activities for concept connections
+    3. Questions that progress from basic recall to higher-order thinking
+    4. Clear, unambiguous question wording
+    5. Comprehensive coverage of the topic material
+    6. Minimal explanatory content - focus on evaluation questions
+    - For every block that has an **answer**, also include a **marks** field (number ≥ 1).
+    - If a block includes **criteria**, provide one or more criteria objects:
+        • Each object needs { description, marks }
+        • The sum of criteria.marks must equal the block's marks.
+    - In lessons, you may leave marks blank or 0; in homework and assessments, marks are required.
+Each component should be structured according to the provided schema. Prioritize assessment questions over instructional content.`,
+
+	module: (
 		title: string,
 		description: string = ''
 	) => `Use the following as background context to help generate a comprehensive assessment:

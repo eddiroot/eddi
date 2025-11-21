@@ -17,7 +17,7 @@ export async function processTimetableOutputFiles(
 
 		// List all output files for this timetable
 		const outputPrefix = `${schoolId}/${timetableId}/output/`;
-		const outputFiles = await listFiles('schools', outputPrefix);
+		const outputFiles = await listFiles(outputPrefix);
 		console.log(`📋 [OUTPUT PROCESSOR] Found ${outputFiles.length} output files`);
 
 		if (outputFiles.length === 0) {
@@ -42,7 +42,7 @@ export async function processTimetableOutputFiles(
 
 		// Download and process the FET file
 		console.log('📥 [OUTPUT PROCESSOR] Downloading FET output file...');
-		const fetBuffer = await getFileFromStorage('schools', fetFile);
+		const fetBuffer = await getFileFromStorage(fetFile);
 		const fetContent = fetBuffer.toString('utf-8');
 		console.log(
 			`✅ [OUTPUT PROCESSOR] FET file downloaded - Size: ${fetContent.length} characters`
@@ -89,8 +89,8 @@ export async function getTimetableFiles(
 	const outputPrefix = `${schoolId}/${timetableId}/output/`;
 
 	const [inputFiles, outputFiles] = await Promise.all([
-		listFiles('schools', inputPrefix),
-		listFiles('schools', outputPrefix)
+		listFiles(inputPrefix),
+		listFiles(outputPrefix)
 	]);
 
 	return {
@@ -109,7 +109,7 @@ export async function getTimetableFile(
 	fileName: string
 ): Promise<Buffer> {
 	const filePath = `${schoolId}/${timetableId}/${fileType}/${fileName}`;
-	return await getFileFromStorage('schools', filePath);
+	return await getFileFromStorage(filePath);
 }
 
 /**
@@ -120,14 +120,14 @@ export async function getTimetableHTMLFiles(
 	timetableId: string
 ): Promise<Array<{ name: string; content: string }>> {
 	const outputPrefix = `${schoolId}/${timetableId}/output/`;
-	const outputFiles = await listFiles('schools', outputPrefix);
+	const outputFiles = await listFiles(outputPrefix);
 
 	const htmlFiles = outputFiles.filter((file) => file.endsWith('.html'));
 	const results = [];
 
 	for (const htmlFile of htmlFiles) {
 		try {
-			const buffer = await getFileFromStorage('schools', htmlFile);
+			const buffer = await getFileFromStorage(htmlFile);
 			results.push({
 				name: htmlFile.replace(outputPrefix, ''),
 				content: buffer.toString('utf-8')

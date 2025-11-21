@@ -1,10 +1,14 @@
-import { env } from '$env/dynamic/private';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import { Resource } from 'sst';
 import * as schema from './schema';
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+const pool = new Pool({
+	host: Resource.Database.host,
+	port: Resource.Database.port,
+	user: Resource.Database.username,
+	password: Resource.Database.password,
+	database: Resource.Database.database
+});
 
-const client = postgres(env.DATABASE_URL);
-
-export const db = drizzle(client, { schema });
+export const db = drizzle(pool, { schema });

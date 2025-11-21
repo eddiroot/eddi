@@ -12,11 +12,12 @@ import {
 import { getTermsByYear } from '$lib/server/vic-school-terms';
 import { hash } from '@node-rs/argon2';
 import { and, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { reset } from 'drizzle-seed';
 import { readFileSync, readdirSync } from 'fs';
 import { dirname, join } from 'path';
-import postgres from 'postgres';
+import { Pool } from 'pg';
+import { Resource } from 'sst';
 import { fileURLToPath } from 'url';
 import * as schema from '../schema';
 import type {
@@ -62,15 +63,15 @@ const subjectNameMap: Record<string, string> = {
 	spec34: 'Specialist Mathematics'
 };
 
-const databaseUrl = process.env.DATABASE_URL;
+const pool = new Pool({
+	host: Resource.Database.host,
+	port: Resource.Database.port,
+	user: Resource.Database.username,
+	password: Resource.Database.password,
+	database: Resource.Database.database
+});
 
-if (!databaseUrl) {
-	throw new Error('DATABASE_URL is not set in environment variables');
-}
-
-const client = postgres(databaseUrl);
-
-export const db = drizzle(client, { schema });
+export const db = drizzle(pool, { schema });
 
 // VCE Helper Functions
 function extractTopicName(
