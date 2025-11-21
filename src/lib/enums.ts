@@ -87,18 +87,6 @@ export enum gradeReleaseEnum {
 	scheduled = 'scheduled' // Grades released at specific time
 }
 
-export enum whiteboardObjectTypeEnum {
-	rect = 'Rect',
-	circle = 'Circle',
-	triangle = 'Triangle',
-	line = 'Line',
-	arrow = 'Arrow',
-	path = 'Path',
-	textbox = 'Textbox',
-	image = 'Image',
-	group = 'Group'
-}
-
 export enum userTypeEnum {
 	none = 'N',
 	student = 'student',
