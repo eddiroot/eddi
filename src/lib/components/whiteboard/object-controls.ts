@@ -80,7 +80,6 @@ export function configureLineControls(line: fabric.Polyline): void {
 			// Use the x, y parameters provided by Fabric - they're already in the object's coordinate space
 			const local = new fabric.Point(x, y);
 
-			// Update the points array for Polyline
 			const newPoints = [...target.points];
 			if (isStart) {
 				newPoints[0] = { x: local.x, y: local.y };
@@ -89,31 +88,6 @@ export function configureLineControls(line: fabric.Polyline): void {
 			}
 			target.set({ points: newPoints });
 
-			// Update control positions so corners follow endpoints even when they cross
-			try {
-				const x1 = newPoints[0].x;
-				const y1 = newPoints[0].y;
-				const x2 = newPoints[1].x;
-				const y2 = newPoints[1].y;
-
-				const width = Math.abs(x2 - x1) || 1;
-				const height = Math.abs(y2 - y1) || 1;
-				const centerX = (x1 + x2) / 2;
-				const centerY = (y1 + y2) / 2;
-
-				if (target.controls && target.controls.tl) {
-					target.controls.tl.x = (x1 - centerX) / width;
-					target.controls.tl.y = (y1 - centerY) / height;
-				}
-				if (target.controls && target.controls.br) {
-					target.controls.br.x = (x2 - centerX) / width;
-					target.controls.br.y = (y2 - centerY) / height;
-				}
-			} catch {
-				// ignore
-			}
-
-			// Recompute coords and render
 			target.setCoords();
 			target.canvas?.requestRenderAll();
 			return true;
