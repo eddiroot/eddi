@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ResourceCard } from '$lib/components/ui/resource-card';
+	import { ResourceCard } from '$lib/components/resource-card';
 	import { cn } from '$lib/utils';
 	import CloudUploadIcon from '@lucide/svelte/icons/cloud-upload';
 
@@ -208,7 +208,7 @@
 					<ResourceCard
 						resource={mapExistingFileToResourceInfo(file)}
 						variant="existing"
-						onRemove={(id) => onRemoveExisting?.(file.id, file.fileName)}
+						onRemove={() => onRemoveExisting?.(file.id, file.fileName)}
 						showRemoveButton={true}
 						className=""
 					/>
