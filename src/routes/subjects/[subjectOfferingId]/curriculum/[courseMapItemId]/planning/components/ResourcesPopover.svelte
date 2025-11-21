@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ResourceCard } from '$lib/components/resource-card';
+	import ResourceCard from '$lib/components/resource-card.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
