@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Button, type ButtonProps } from "$lib/components/ui/button/index.js";
+	import * as Button from '$lib/components/ui/button/index.js';
 
-	let { ref = $bindable(null), ...restProps }: ButtonProps = $props();
+	let { ref = $bindable(null), ...restProps }: Button.Props = $props();
 </script>
 
-<Button bind:ref type="submit" {...restProps} />
+<Button.Root bind:ref type="submit" {...restProps} />

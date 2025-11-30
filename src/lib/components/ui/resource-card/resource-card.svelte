@@ -3,8 +3,8 @@
 	import FileIcon from '@lucide/svelte/icons/file';
 	import FileAudioIcon from '@lucide/svelte/icons/file-audio';
 	import FileImageIcon from '@lucide/svelte/icons/file-image';
-	import FileVideoIcon from '@lucide/svelte/icons/file-play';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
+	import FileVideoIcon from '@lucide/svelte/icons/file-video';
 	import LinkIcon from '@lucide/svelte/icons/link';
 	import StickyNoteIcon from '@lucide/svelte/icons/sticky-note';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
